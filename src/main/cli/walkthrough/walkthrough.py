@@ -17,7 +17,14 @@ beside what does. Four keys move it, one row of the keyboard, and a fifth leaves
 A key is the head of what it holds, and a step says the head alone: the key, its place,
 and the size and shape of what m would give - so many keys, so many bare values, a value
 of so many words - never the thing itself, so the reader chooses to descend knowing what
-follows and no step scrolls. A key is read from the terminal as it is pressed, or as a
+follows and no step scrolls. Every spot has an address, its JSON pointer (RFC 6901) from the top of the tree - a `/`
+before each key, `~1` for a slash within one and `~0` for a tilde, a bare value by its
+place in its list (#775). A step says the spot's pointer; `corpus-yoga walkthrough
+<pointer>` starts there, reading what the pointer passes through - typed bare, a pointer
+with a space in a key arrives as several words, and they are read as one; and on leaving
+the walk says the command that continues from where it left, quoted for the shell.
+
+A key is read from the terminal as it is pressed, or as a
 line on stdin, so a model or a test walks as a reader does. Each step is said as facts,
 one YAML document per step, and the mark between two steps is the key that made the
 second - `-n-`, `-m-`, `-b-`, `-x-`, `-q-` - so the transcript is its own history. The
@@ -28,6 +35,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -109,12 +117,31 @@ def status(noun: str):
     return loaded if loaded else f'nothing said (exit {asked.returncode})'
 
 
+def pointer_of(tokens: list[str]) -> str:
+    """The JSON pointer of a path of tokens (RFC 6901)."""
+    return ''.join('/' + token.replace('~', '~0').replace('/', '~1') for token in tokens)
+
+
+def tokens_of(pointer: str) -> list[str]:
+    """A JSON pointer's tokens; the empty pointer, the whole tree, has none."""
+    if pointer in ('', '/'):
+        return []
+    if not pointer.startswith('/'):
+        raise ValueError(f'{pointer!r} is no JSON pointer - one begins with /')
+    return [token.replace('~1', '/').replace('~0', '~') for token in pointer[1:].split('/')]
+
+
 def command_of(key: str) -> list[str] | None:
     """The key as a command the walk can run: corpus-yoga and a declared command, or the
     machine report's own script, the one command there is before the launcher works. A
     placeholder the reader must fill makes it theirs to type."""
-    words = key.split()
-    if not words or '<' in key:
+    if '<' in key:
+        return None
+    try:
+        words = shlex.split(key)
+    except ValueError:
+        return None                                   # an apostrophe in a sentence: no command line
+    if not words:
         return None
     if words[0] == REPORT_SCRIPT:
         return words
@@ -126,7 +153,7 @@ def command_of(key: str) -> list[str] | None:
 @dataclass
 class Step:
     """Where the walk stands: the node, its place among its siblings, and what it holds."""
-    at: str                                           # the path to the node's parent
+    at: str                                           # the spot's address: its JSON pointer from the top
     key: str
     place: str                                        # its position among its siblings
     holds: str | None = None                          # the size and shape of what m would give, never the thing
@@ -144,7 +171,11 @@ class Ran:
 
 @dataclass
 class Left:
-    walkthrough: str
+    """Where the walk left, and the command that continues from there."""
+    at: str
+
+    def facts(self) -> dict:
+        return {'walkthrough': f'left at {self.at}', f'corpus-yoga walkthrough {shlex.quote(self.at)}': 'continues from there'}
 
 
 @dataclass
@@ -170,6 +201,35 @@ class Walk:
                 at[key] = status(path[0])
             at = at[key]
         return at
+
+    def address(self, path: list[str] | None = None) -> str:
+        """The spot's JSON pointer: each key, and a bare value by its place in its list."""
+        path = self.path if path is None else path
+        tokens = []
+        for depth, key in enumerate(path):
+            parent = self.node(path[:depth])
+            tokens.append(str([str(item) for item in parent].index(key)) if isinstance(parent, list) else key)
+        return pointer_of(tokens)
+
+    def seek(self, pointer: str) -> str | None:
+        """Stand on the spot the pointer names, reading what it passes through; where no
+        such spot stands, on the nearest that does, with the note that says so."""
+        try:
+            tokens = tokens_of(pointer)
+        except ValueError as error:
+            return str(error)
+        path: list[str] = []
+        for token in tokens:
+            here = self.node(path, read=True) if path else self.tree
+            if isinstance(here, dict) and token in here:
+                path.append(token)
+            elif isinstance(here, list) and token.isdigit() and int(token) < len(here):
+                path.append(str(here[int(token)]))
+            else:
+                break
+        if path:
+            self.path = path
+        return None if len(path) == len(tokens) else f'no spot stands at {pointer} - the nearest is {self.address()}'
 
     def siblings(self) -> list[str]:
         parent = self.node(self.path[:-1])
@@ -233,7 +293,7 @@ class Walk:
         else:
             holds = None                              # a bare value: the key is all of it
         command = command_of(key)
-        return Step(' / '.join(self.path[:-1]) or 'the room', key, f'{around.index(key) + 1} of {len(around)}',
+        return Step(self.address(), key, f'{around.index(key) + 1} of {len(around)}',
                     holds=holds, value=here if self.shown and here is not UNREAD else None,
                     runs='x - ' + ' '.join(key.split()) if command else None,
                     note=note, keys=KEYS if keys else None)
@@ -303,9 +363,12 @@ class Keys:
 
 def main() -> int:
     walk = Walk()
+    # a pointer typed bare is split by the shell at each space within a key: its words are one pointer
+    words = [argument for argument in sys.argv[1:] if not argument.startswith('-')]
+    astray = walk.seek(' '.join(words)) if words else None
     keys = Keys()
     try:
-        facts.say(walk.step(keys=True))
+        facts.say(walk.step(astray, keys=True))
         sys.stdout.flush()
         left = 'q'                                        # the key the walk ended on; the end of stdin leaves as q does
         for key in keys:
@@ -329,7 +392,7 @@ def main() -> int:
                 facts.say(walk.step(walk.move(key)))
             sys.stdout.flush()
         print(f'-{left}-')
-        facts.say(Left('left at ' + ' / '.join(walk.path)))
+        facts.say(Left(walk.address()))
     finally:
         keys.restore()
     return 0

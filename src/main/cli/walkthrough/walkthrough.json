@@ -1,8 +1,15 @@
 {
-  "summary": "walk the room's state as one tree, each noun's bare status beneath its name - n next, m more, b back, x runs the command the walk stands on, q quits; keys from the terminal, or as lines on stdin",
+  "summary": "walk the room's state as one tree, each command's status and help beneath its name - n next, m more, b back, x runs the command the walk stands on, q quits; keys from the terminal, or as lines on stdin; each spot addressed by its JSON pointer",
   "target": "src/main/cli/walkthrough/walkthrough.py",
   "calculus": "",
-  "args": [],
+  "args": [
+    {
+      "name": "pointer",
+      "type": "<json-pointer>",
+      "cardinality": "",
+      "help": "the spot to start on, as the walk says it in `at:` - a / before each key, ~1 for a slash within one; a space within a key may be typed bare; bare starts at the top"
+    }
+  ],
   "x": [
     "corpus-yoga"
   ]
