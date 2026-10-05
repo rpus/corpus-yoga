@@ -3,8 +3,7 @@
 offer.py - prints the zsh statements that complete `corpus-yoga`, derived from the
 declarations under src/main/cli/ as they stand when it runs.
 
-src/main/cli/completions/_corpus-yoga, the file zsh loads, evaluates what this prints
-each time tab is pressed.
+src/main/cli/completions/offer.zsh evaluates what this prints each time tab is pressed.
 
 stdlib-only, like cli.py.
 """

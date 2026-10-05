@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
 completions.py (corpus-yoga completions) — whether zsh completes `corpus-yoga`, and the lines
-in ~/.zshrc that make it. What tab offers is src/main/cli/completions/offer.py's, read by
-src/main/cli/completions/_corpus-yoga each time tab is pressed.
+in ~/.zshrc that make it. What tab offers is src/main/cli/completions/offer.py's, asked by
+src/main/cli/completions/offer.zsh each time tab is pressed; src/main/cli/completions/_corpus-yoga
+is the file zsh loads, and only sources that.
 
 Its own file because a command determines its target's name (#40): `corpus-yoga completions` is
 answered here, not by a branch inside the dispatcher. cli.py holds the declaration readers

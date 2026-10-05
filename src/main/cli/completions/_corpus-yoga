@@ -1,23 +1,5 @@
 #compdef corpus-yoga
-# What tab offers is read from the declarations each time tab is pressed. No command
-# or flag is written here: a copy of them is out of date after any merge, pull, switch
-# of branch or uncommitted edit.
-#
-# The declarations read are those of the copy of corpus-yoga being typed - ./corpus-yoga
-# in a second copy offers that copy's commands - and of the copy holding this file
-# where the word typed names no copy.
-local SELF=src/main/cli/completions/_corpus-yoga
-local typed=${(Q)words[1]}
-typed=${typed/#\~/$HOME}
-[[ $typed == */* ]] || typed=${commands[$typed]-}
-local copy=${typed:A:h}
-[[ -f $copy/$SELF ]] || copy=${${${(%):-%x}:A}%/$SELF}
-local -a ask=("$copy/src/run_python_script.sh" "$copy/src/main/cli/completions/offer.py")
-local offered
-if offered="$("${ask[@]}" 2>/dev/null)"; then
-  eval "$offered"
-else
-  # said beneath the prompt: a tab that offers nothing and says nothing reads as a
-  # position that takes no argument
-  _message -r "corpus-yoga offers nothing here - ${${(f)"$("${ask[@]}" 2>&1 >/dev/null)"}[-1]}"
-fi
+# zsh reads this file once in a terminal and keeps what it read until the terminal
+# closes, so nothing that may change lives here: what tab does is offer.zsh's, beside
+# this file, read each time tab is pressed.
+source ${${(%):-%x}:A:h}/offer.zsh

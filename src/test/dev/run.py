@@ -2205,8 +2205,9 @@ def check_walkthrough(run) -> None:
 def check_completions(run) -> None:
     """What tab offers is read from the declarations when tab is pressed (#784): in a
     copy of the declared surface, a zsh that has pressed tab once is offered, at its next
-    tab, a verb declared in between; and where a declaration no longer parses, tab says
-    why it offers nothing. And the status says whether zsh is set up for this
+    tab, a verb declared in between; where a declaration no longer parses, tab says
+    why it offers nothing; and what tab does is itself read at each tab, since zsh keeps
+    the file it loads until the terminal closes (#620's mechanism). And the status says whether zsh is set up for this
     copy (#521, #784), over a planted home: no lines, this copy's lines, another copy's,
     a copy that is gone, lines `install` would not write, and lines zsh does not load."""
     import shutil
@@ -2221,11 +2222,13 @@ def check_completions(run) -> None:
     if zsh is None:
         run(offers, True, check='completions.offers_the_commands_as_they_are')
         run('completions: tab says why it offers nothing where a declaration does not parse', True, check='completions.says_why_it_offers_nothing')
+        run('completions: a terminal that has pressed tab follows a change to what tab does', True, check='completions.follows_its_own_change')
     elif not standin.is_file():
         run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '
             'written by a verb and out of date wherever a declaration has changed since', check='completions.offers_the_commands_as_they_are')
         run('completions: tab says why it offers nothing where a declaration does not parse', False,
             'src/main/cli/completions/_corpus-yoga is no file', check='completions.says_why_it_offers_nothing')
+        run('completions: a terminal that has pressed tab follows a change to what tab does', False, 'src/main/cli/completions/_corpus-yoga is no file', check='completions.follows_its_own_change')
     else:
         with tempfile.TemporaryDirectory() as scratch:
             copy = Path(scratch).resolve() / 'copy'
@@ -2251,10 +2254,13 @@ _corpus-yoga
 print -- ---
 print -r -- '{{ "help": "cut short' > {verbs}/declared-since.json
 _corpus-yoga
+print -- ---
+print -r -- 'print -r -- changed-since' >> {verbs}/offer.zsh
+_corpus-yoga
 '''
             pressed = subprocess.run([zsh, '-f', '-c', presses], capture_output=True, text=True, timeout=60,
                                      env={**os.environ, 'VENV': sys.prefix})
-        first, second, third = (pressed.stdout.split('---') + ['', ''])[:3]
+        first, second, third, fourth = (pressed.stdout.split('---') + ['', '', ''])[:4]
         before = [line.split(':')[0] for line in first.splitlines() if line.strip()]
         after = [line.split(':')[0] for line in second.splitlines() if line.strip()]
         why = (f'the first tab offers {before}, not the declared verbs' if 'uninstall' not in before or 'declared-since' in before
@@ -2265,6 +2271,10 @@ _corpus-yoga
         run('completions: tab says why it offers nothing where a declaration does not parse', bool(told),
             None if told else f'the third tab says {third.strip()[:120] or "nothing"}: a reader cannot tell a broken declaration from a position that takes no argument',
             check='completions.says_why_it_offers_nothing')
+        followed = 'changed-since' in fourth.split()
+        run('completions: a terminal that has pressed tab follows a change to what tab does', followed,
+            None if followed else 'the fourth tab does not run what src/main/cli/completions/offer.zsh became: zsh keeps the file it loaded, '
+            'so a change to it is followed only by a new terminal, and nothing says so', check='completions.follows_its_own_change')
 
     declared = json.loads((CLI / 'prerequisites' / 'sync.json').read_text()).get('x', [])
     install = getattr(cli_completions, 'INSTALL', '')
