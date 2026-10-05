@@ -20,8 +20,9 @@ of so many words - never the thing itself, so the reader chooses to descend know
 follows and no step scrolls. Every spot has an address, its JSON pointer (RFC 6901) from the top of the tree - a `/`
 before each key, `~1` for a slash within one and `~0` for a tilde, a bare value by its
 place in its list (#775). A step says the spot's pointer; `corpus-yoga walkthrough
-<pointer>` starts there, reading what the pointer passes through; and on leaving the walk
-says the command that continues from where it left.
+<pointer>` starts there, reading what the pointer passes through - typed bare, a pointer
+with a space in a key arrives as several words, and they are read as one; and on leaving
+the walk says the command that continues from where it left, quoted for the shell.
 
 A key is read from the terminal as it is pressed, or as a
 line on stdin, so a model or a test walks as a reader does. Each step is said as facts,
@@ -362,8 +363,9 @@ class Keys:
 
 def main() -> int:
     walk = Walk()
-    pointer = next((argument for argument in sys.argv[1:] if not argument.startswith('-')), None)
-    astray = walk.seek(pointer) if pointer is not None else None
+    # a pointer typed bare is split by the shell at each space within a key: its words are one pointer
+    words = [argument for argument in sys.argv[1:] if not argument.startswith('-')]
+    astray = walk.seek(' '.join(words)) if words else None
     keys = Keys()
     try:
         facts.say(walk.step(astray, keys=True))

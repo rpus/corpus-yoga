@@ -7,7 +7,7 @@
       "name": "pointer",
       "type": "<json-pointer>",
       "cardinality": "",
-      "help": "the spot to start on, as the walk says it in `at:` - a / before each key, ~1 for a slash within one; bare starts at the top"
+      "help": "the spot to start on, as the walk says it in `at:` - a / before each key, ~1 for a slash within one; a space within a key may be typed bare; bare starts at the top"
     }
   ],
   "x": [

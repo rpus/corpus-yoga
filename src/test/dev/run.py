@@ -2112,8 +2112,9 @@ def check_walkthrough(run) -> None:
     # Every spot is addressed by its JSON pointer (#775): the walk starts where one names,
     # a slash within a key is ~1, the nearest spot stands in for one that is not there, and
     # the walk leaves with the command that continues it.
-    def walked(pointer: str, pressed: str) -> list:
-        said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough', pointer], input=pressed, capture_output=True, text=True,
+    def walked(pointer: str, pressed: str, bare: bool = False) -> list:
+        typed = pointer.split(' ') if bare else [pointer]     # typed bare, the shell splits it at each space
+        said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough', *typed], input=pressed, capture_output=True, text=True,
                               env=env, cwd=REPO_ROOT, timeout=300).stdout
         out = []
         for document in re.split(r'\n-.-\n', said):
@@ -2125,12 +2126,15 @@ def check_walkthrough(run) -> None:
     summary = walked('/prerequisites/help/summary', 'm\nq\n')
     slashed = walked('/stage/status/tmp~1stage', 'q\n')
     astray = walked('/prerequisites/help/nonesuch/deeper', 'q\n')
+    spaced = '/prerequisites/help/explanation/pipeline inputs'
     wants += [
         ('a pointer starts the walk on its spot', summary[0].get('at') == '/prerequisites/help/summary' and summary[0].get('key') == 'summary'
          and summary[1].get('value') == declared['summary']),
         ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'tmp/stage' and slashed[0].get('at') == '/stage/status/tmp~1stage'),
         ('where no spot stands the nearest does, and the walk says so', astray[0].get('at') == '/prerequisites/help'
          and 'no spot stands at /prerequisites/help/nonesuch/deeper' in str(astray[0].get('note'))),
+        ('a space within a key is read, quoted or typed bare', walked(spaced, 'q\n')[0].get('at') == spaced
+         and walked(spaced, 'q\n', bare=True)[0].get('at') == spaced),
         ('it leaves with the command that continues it', summary[-1].get('walkthrough') == 'left at /prerequisites/help/summary'
          and summary[-1].get('corpus-yoga walkthrough /prerequisites/help/summary') == 'continues from there'),
     ]
