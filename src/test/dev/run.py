@@ -1844,6 +1844,18 @@ def check_status_facts(run) -> None:
             return path if any(isinstance(item, (dict, list)) for item in node) else None
         return None
 
+    def named_nothing(node, path: str = '') -> str | None:
+        """Where a key of the loaded facts is `stands`; None where none is."""
+        if isinstance(node, dict):
+            for key, value in node.items():
+                here = f'{path}/{key}' if path else str(key)
+                if key == 'stands':
+                    return here
+                found = named_nothing(value, here)
+                if found is not None:
+                    return found
+        return None
+
     declared = {c['command'] for c in cli.commands()}
     STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'gh', 'brew', 'echo', 'mkdir', 'open', 'pip'}
 
@@ -1931,6 +1943,11 @@ def check_status_facts(run) -> None:
                 except ValueError as error:
                     why = f'the printer\'s reader refuses it: {error}'
             if why is None:
+                # no key names nothing (#771, #779): `stands` is a head that says nothing of what follows
+                nothing = named_nothing(loaded)
+                if nothing is not None:
+                    why = f'the key at {nothing} names nothing - a probe\'s answer stands under what it is about'
+            if why is None:
                 # a dash means a bare value (#765): a collection of named things is a mapping keyed by their names
                 nested = listed_structure(loaded)
                 if nested is not None:
@@ -1942,6 +1959,29 @@ def check_status_facts(run) -> None:
             why = f'{getattr(error, "problem", error)}{where}: {line.strip()[:100]}'
         run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
             check='status.lines_load_as_yaml')
+
+    # The commit hook's state is said alike by every voice that says it (#778): the test
+    # noun, which installs it, the machine report and the forge.
+    def said_by(*words: str) -> dict:
+        out = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=300).stdout
+        try:
+            loaded = yaml.load(out, Loader=Strict)
+        except yaml.YAMLError:
+            return {}
+        return loaded if isinstance(loaded, dict) else {}
+    def at(node, *keys):
+        for key in keys:
+            node = node.get(key) if isinstance(node, dict) else None
+        return node
+    by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed') or at(said_by('test'), 'test', 'hook'))
+    by_report = str(at(said_by('prerequisites', '--show-all'), 'pre-commit hook', 'hook', 'installed'))
+    by_forge = str(at(said_by('forge'), 'this checkout', 'pre-commit'))
+    voices = {'corpus-yoga test': by_test.startswith('yes'), 'corpus-yoga prerequisites': by_report.startswith('yes'),
+              'corpus-yoga forge': 'a copy of' in by_forge and 'not' not in by_forge.split('a copy of')[0]}
+    agree = len(set(voices.values())) == 1
+    run('hook: every voice says the commit hook\'s state alike', agree,
+        None if agree else 'installed, by ' + ', '.join(f'{voice}: {"yes" if held else "no"}' for voice, held in voices.items()),
+        check='status.hook_is_said_alike')
 
     # The machine report's rows are keyed by what each is about (#771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.

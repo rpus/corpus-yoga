@@ -31,10 +31,18 @@ DOES = {('settings', 'drift'): 'sets it as declared',
 
 @dataclass
 class Row:
-    """One probe's answer: what stands, its state, and the remedy where one stands."""
-    stands: str
+    """One probe's answer, under what it is about (#779): the answer alone where the probe is
+    satisfied, the state's word first where it is not, and where a remedy stands, the answer
+    under that word with the remedy beside it."""
+    answer: str
     state: str
     remedy: facts.Command | facts.Act | None = None
+
+    def facts(self) -> dict | str:
+        if self.remedy is None:
+            return self.answer if self.state == 'ok' else f'{self.state} - {self.answer}'
+        beside = self.remedy.facts() if isinstance(self.remedy, facts.Command) else {'remedy': self.remedy}
+        return {self.state: self.answer, **beside}
 
 
 @dataclass
@@ -43,7 +51,7 @@ class Section:
     remedy: facts.Command | None = None
 
     def facts(self) -> dict:
-        return {**self.rows, 'remedy': self.remedy}
+        return {**self.rows, **(self.remedy.facts() if self.remedy is not None else {})}
 
 
 @dataclass

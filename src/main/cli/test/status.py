@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
-status.py - bare `corpus-yoga test`: the checks and their committed expectation, and whether
-the commit hook is installed (#759). Reads; writes nothing.
+status.py - bare `corpus-yoga test`: the checks and their committed expectation, and the two
+hooks `corpus-yoga test install-hook` installs, each as it stands (#759, #778). Reads; writes
+nothing.
 """
 import sys
 from dataclasses import dataclass
@@ -28,10 +29,23 @@ class Checks:
 
 
 @dataclass
+class Hook:
+    """One of the two hooks `corpus-yoga test install-hook` installs: whether it stands as
+    installed, and the remedy where it does not. The home of the hooks' state (#778): the
+    machine report and the forge say what this says."""
+    installed: str
+    remedy: facts.Command | None = None
+
+    @property
+    def sound(self) -> bool:
+        return self.installed.startswith('yes')
+
+
+@dataclass
 class Test:
     checks: Checks
-    hook: str
-    remedy: facts.Command | None = None
+    commit: Hook = facts.named('pre-commit hook')       # the commit gate: a copy of rsc/test/pre-commit-hook.sh
+    signature: Hook = facts.named('signature hook')     # the Signature's stamp: a symlink to rsc/test/prepare-commit-msg-hook.sh
 
 
 @dataclass
@@ -39,17 +53,55 @@ class Status:
     test: Test
 
 
+INSTALL = 'corpus-yoga test install-hook'
+
+
+def _hook_path(name: str) -> Path | None:
+    """Where git reads the named hook for this checkout; None where this is no git clone."""
+    asked = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--git-path', f'hooks/{name}'], capture_output=True, text=True)
+    if asked.returncode != 0 or not asked.stdout.strip():
+        return None
+    hook = Path(asked.stdout.strip())
+    return hook if hook.is_absolute() else REPO / hook
+
+
+def commit_hook() -> Hook:
+    """The pre-commit hook, installed as a copy: a symlink is not it - a rename dangles one
+    and git then skips it in silence."""
+    hook = _hook_path('pre-commit')
+    if hook is None:
+        return Hook('no - not a git clone, so no hook to install')
+    if hook.is_symlink():
+        return Hook(f'as a symlink to {os.readlink(hook)} - a rename dangles it and git then skips it in silence',
+                    facts.Command(INSTALL, 'reinstalls it'))
+    if hook.is_file() and hook.read_bytes() == (REPO / 'rsc' / 'test' / 'pre-commit-hook.sh').read_bytes():
+        return Hook('yes - a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run')
+    if hook.exists():
+        return Hook('no - another pre-commit hook stands in its place', facts.Command(INSTALL, 'replaces it'))
+    return Hook('no - nothing vets a commit', facts.Command(INSTALL, 'installs it'))
+
+
+def signature_hook() -> Hook:
+    """The prepare-commit-msg hook, installed as a symlink to the script of the checkout
+    that holds the hooks."""
+    hook = _hook_path('prepare-commit-msg')
+    if hook is None:
+        return Hook('no - not a git clone, so no hook to install')
+    script = hook.parent.parent.parent / 'rsc' / 'test' / 'prepare-commit-msg-hook.sh'
+    if hook.is_symlink():
+        link = Path(os.readlink(hook))
+        target = link if link.is_absolute() else hook.parent / link
+        if target.parent.resolve() / target.name == script.parent.resolve() / script.name:
+            return Hook('yes - the symlink to rsc/test/prepare-commit-msg-hook.sh')
+        return Hook(f'no - its symlink points elsewhere ({link})', facts.Command(INSTALL, 'reinstalls it'))
+    if hook.exists():
+        return Hook('no - another prepare-commit-msg hook stands in its place', facts.Command(INSTALL, 'replaces it'))
+    return Hook('no - a commit goes unstamped by its Signature', facts.Command(INSTALL, 'installs it'))
+
+
 def main() -> int:
     run = (REPO / 'src' / 'test' / 'dev' / 'run.py').read_text()
-    asked = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--git-path', 'hooks/pre-commit'], capture_output=True, text=True)
-    hook = Path(asked.stdout.strip()) if asked.returncode == 0 and asked.stdout.strip() else None
-    if hook is not None and not hook.is_absolute():
-        hook = REPO / hook
-    installed = hook is not None and hook.is_symlink()
-    facts.say(Status(Test(
-        Checks(f"{len(re.findall(r'^def check_', run, re.M))} check sections"),
-        f'installed, a link to {os.readlink(hook)}' if installed and hook is not None else 'not installed',
-        None if installed else facts.Command('corpus-yoga test install-hook', 'installs it'))))
+    facts.say(Status(Test(Checks(f"{len(re.findall(r'^def check_', run, re.M))} check sections"), commit_hook(), signature_hook())))
     return 0
 
 
