@@ -23,8 +23,9 @@ never restated.
 
 Usage:
     corpus-yoga                       # suggest what to run next; run none of it
+    corpus-yoga -h                    # every command with its summary
+    corpus-yoga <command> -h          # the command's declaration: its forms, arguments and effects
     corpus-yoga <command> [args...]   # exec the target
-    corpus-yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the surface must never depend on
 what pip installed, so reading the table, printing the calculus and deriving
@@ -323,10 +324,8 @@ def command_forms(command: str) -> list[str]:
     order, bysub = _by_subcommand(command)
     subcommands = [s for s in order if s]
     base = f'corpus-yoga {command}'
-    # ALWAYS the bare form first, then one per subcommand. It is not conditional in the
-    # grammar, so it is not conditional here: making it depend on whether a command has
-    # subcommands puts `corpus-yoga commands` at odds with `corpus-yoga commands <one>`, which lists the
-    # bare form either way.
+    # ALWAYS the bare form first, then one per subcommand: it is not conditional in the
+    # grammar, so it is not conditional here.
     forms = [_join(base, _render_args(bysub.get('', [])))]
     return forms + [_join(f'{base} {s}', _render_args(bysub[s])) for s in subcommands]
 
@@ -335,42 +334,43 @@ def _forms(c: dict) -> list[str]:
     return command_forms(c['command'])
 
 
-def render_command_help(c: dict) -> str:
-    """The standard command help, shared by `corpus-yoga <cmd> -h` and `corpus-yoga commands
-    <cmd>`: the summary, every invocation form, then each subcommand with its own args
-    nested beneath it, command-level args flat. All generated from the declaration."""
-    command = c['command']
-    forms = command_forms(command)
-    if subcommands_of(command):
-        forms[0] += '   (status)'   # the same first form, annotated — never a second one
-    out = [f"corpus-yoga {command} — {c['summary']}", '', *[f'  {f}' for f in forms]]
-    order, bysub = _by_subcommand(command)
-    argrows = [r for r in command_rows(command) if r['arg-name']]
-    descs = {s: next((r['help'] for r in bysub[s] if not r['arg-name']), None) for s in order}
-    # A subcommand's DESCRIPTION is worth printing even when it takes no arguments:
-    # for `completions install`, `test run` or `memories sync`, that line is
-    # the only place -h says what the subcommand does. Returning early on "no arg rows"
-    # dropped it silently — and dropped it for more commands each time an argument was
-    # removed, which is how memories and xref lost theirs.
-    if not argrows and not any(s and descs[s] for s in order):
-        return '\n'.join(out) + '\n'
-    label = {(r['subcommand'], r['arg-name']): _render_arg(r['arg-name'], r['arg-type'])
-             for r in argrows}
-    w = max((len(v) for v in label.values()), default=0)
-    out.append('')
-    for s in order:
-        rows = [r for r in bysub[s] if r['arg-name']]
-        if s:
-            out.append(f"  {s}" + (f" — {descs[s]}" if descs[s] else ''))
-            out += [f"      {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
-        else:
-            out += [f"  {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
-        # Declared sends render where the reader decides to run the verb (#29): an
-        # outward call is part of what the invocation DOES, not an implementation note.
-        for call, occasions in sends_of(command, s).items():
-            for line in (f'{call} — {occasion}' for occasion in occasions):
-                out.append(f"      {'sends:':<{max(w, 6)}}  {line}" if s else f"  sends: {line}")
-    return '\n'.join(out) + '\n'
+EFFECT = {'r': 'reads', 'w': 'writes', 'consumes': 'consumes', 'x': 'runs', 'sends': 'sends'}   # a declaration's effects, in words
+
+
+def _said(declared: dict, summary: str, form: str) -> dict:
+    """One declaration as help shows it: what it is for, its form as typed, its
+    explanation where it has one, its arguments each with its help, and its effects."""
+    out: dict = {'summary': declared.get(summary, ''), 'form': form}
+    if declared.get('explanation'):
+        out['explanation'] = declared['explanation']
+    arguments = {a['name']: a['help'] for a in declared.get('args', [])}
+    if arguments:
+        out['arguments'] = arguments
+    out.update({word: declared[key] for key, word in EFFECT.items() if declared.get(key)})
+    return out
+
+
+def help_of(command: str) -> dict:
+    """A command's help: its declaration, then each verb's beneath its name - what
+    `corpus-yoga <command> -h` says and the walk shows at /<command>/help, loaded from the
+    declaration alone. Each form is generated from the same declaration (command_forms)."""
+    forms = dict(zip([''] + subcommands_of(command), command_forms(command)))
+    out = _said(json.loads(_declaration(command).read_text()), 'summary', forms[''])
+    verbs = {verb: _said(json.loads((CLI / command / f'{verb}.json').read_text()), 'help', forms[verb])
+             for verb in subcommands_of(command)}
+    if verbs:
+        out['verbs'] = verbs
+    return out
+
+
+@dataclass
+class Help:
+    """What `corpus-yoga <command> -h` prints: the command's help under its name."""
+    command: str
+    declared: dict
+
+    def facts(self) -> dict:
+        return {self.command: self.declared}
 
 
 # What bare `corpus-yoga` suggests, in the order a reader new to a checkout would type
@@ -390,14 +390,9 @@ def suggestions(cmds: list[dict]) -> Top:
                 'corpus-yoga -h': 'every command, each with its summary'})
 
 
-def render_help(cmds: list[dict]) -> str:
-    """`corpus-yoga -h` — the command menu: one line each, name and summary. Bare `corpus-yoga`
-    suggests what to run next; `corpus-yoga <command> -h` is a command's forms."""
-    w = max(len(c['command']) for c in cmds)
-    out = ['corpus-yoga', '',
-           *[f"  {c['command']:<{w}}  {c['summary']}" for c in cmds],
-           '', '→ `corpus-yoga <command> -h` for its forms · `corpus-yoga <command>` for its status', '']
-    return '\n'.join(out)
+def menu(cmds: list[dict]) -> Top:
+    """What `corpus-yoga -h` says: every command with its summary - the bare word's shape, whole."""
+    return Top({f'corpus-yoga {c["command"]}': c['summary'] for c in cmds})
 
 
 def _subcommand_desc(command: str, subcommand: str) -> str:
@@ -501,12 +496,12 @@ def main() -> int:
         facts.say(suggestions(cmds))      # the bare word runs nothing
         return 0
     if argv[0] in ('-h', '--help'):
-        print(render_help(cmds), end='')      # help is the -h/--help flag, uniformly —
+        facts.say(menu(cmds))                 # help is the -h/--help flag, uniformly —
         return 0                              # not a bareword `help` the table never declared
     row = next((c for c in cmds if c['command'] == argv[0]), None)
     if row is None:
-        print(f'corpus-yoga: unknown command {argv[0]!r} — the table:\n', file=sys.stderr)
-        print(render_help(cmds), file=sys.stderr, end='')
+        print(f'corpus-yoga: unknown command {argv[0]!r} - the commands:', file=sys.stderr)
+        print('\n'.join(facts.lines(facts.plain(menu(cmds)))), file=sys.stderr)
         return 2
     rest = argv[1:]
     # command-level help (`corpus-yoga <cmd> -h`, no subcommand before the flag) → the uniform
@@ -514,7 +509,7 @@ def main() -> int:
     # argparse, which carries that subcommand's own flags: the target's parser, or the
     # one cli.py builds for a command it handles itself.
     if rest and rest[0] in ('-h', '--help'):
-        print(render_command_help(row), end='')
+        facts.say(Help(row['command'], help_of(row['command'])))
         return 0
     # A bare noun (advertised verbs, no args) shows status, then tails with its usage
     # — the one tail that works everywhere, naming every verb that applies. Verbs

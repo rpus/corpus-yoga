@@ -143,7 +143,7 @@ They are stated, followed, and reviewed by people.
   counted rows. Stated first, and for a long time only, as a parenthetical in
   `src/main/cli/indexing/capture.sh` — the same file that implements half of it.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
-  INVOCATION FORMS, each becoming its own line in `corpus-yoga commands` and its own verb for the
+  INVOCATION FORMS, each becoming its own `form` in `corpus-yoga <command> -h` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
   parens group a required choice (`(--dry-run|--apply)`); brackets mark the optional. The
   usage sketch is GENERATED from the declaration, so there is no second source to reconcile.
@@ -164,8 +164,8 @@ They are stated, followed, and reviewed by people.
 - **G7 — A command's target exists.** `gated` — and #40 strengthens this: the target's
   stem must equal the command word, so the column becomes verification rather than
   curation.
-- **G8 — Help is bounded: one screen, one shape.** `gated` — name, what, usage, flags, in
-  ≤ 21 lines. Essays live in changelogs.
+- **G8 — Help is the declaration, said by the printer.** `gated` — `corpus-yoga <command> -h` loads
+  as the declaration, each form beside its summary; its length is the declaration's (#794).
 - **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
   what zsh evaluates when tab is pressed.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and

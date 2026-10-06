@@ -4,8 +4,8 @@ walkthrough.py - `corpus-yoga walkthrough`: the room's state as one tree, walked
 reader (#766). The walk starts on the top, which holds the commands, the machine report
 first. Under each stand its status, where it has one - what its bare status prints,
 loaded when the walk lands on it: the lines are the data (#753), so the walk has no
-second interface to any noun - and its help: its declaration, as it states it (#770). So
-help is read as the state is, with the same keys, and what does not vary with the room
+second interface to any noun - and its help: its declaration, as `corpus-yoga <command> -h`
+says it (#770, #794). So help is read as the state is, with the same keys, and what does not vary with the room
 is read beside what does. Five keys work it, the bottom row of the keyboard, and a sixth
 leaves:
 
@@ -44,7 +44,6 @@ the machine report, whose remedies are the first steps.
 """
 from __future__ import annotations
 
-import json
 import os
 import shlex
 import subprocess
@@ -61,6 +60,8 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
 
 CLI = REPO / 'src' / 'main' / 'cli'
+sys.path.insert(0, str(CLI))
+from cli import help_of  # noqa: E402 - help is the declaration, from its one reader
 REPORT = 'prerequisites'                              # the machine report: the first noun, and the one that runs before the venv
 REPORT_SCRIPT = './src/main/cli/prerequisites/prerequisites.sh'
 FIRST = (REPORT, 'stage', 'store')                    # the room's state, in the order a reader meets it
@@ -83,31 +84,6 @@ def nouns() -> list[str]:
 def reports(noun: str) -> bool:
     """Whether the command has a bare status: it declares a verb beside itself."""
     return any(f.stem != noun for f in (CLI / noun).glob('*.json'))
-
-
-EFFECT = {'r': 'reads', 'w': 'writes', 'consumes': 'consumes', 'x': 'runs', 'sends': 'sends'}   # a declaration's effects, in words
-
-
-def said(declared: dict, summary: str) -> dict:
-    """One declaration as the walk shows it: what it is, what its things are, its
-    arguments each with its help, and its effects."""
-    out: dict = {'summary': declared.get(summary, '')}
-    if declared.get('explanation'):
-        out['explanation'] = declared['explanation']
-    arguments = {a['name']: a['help'] for a in declared.get('args', [])}
-    if arguments:
-        out['arguments'] = arguments
-    out.update({word: declared[key] for key, word in EFFECT.items() if declared.get(key)})
-    return out
-
-
-def help_of(noun: str) -> dict:
-    """A command's help: its declaration, then each verb's beneath its name."""
-    out = said(json.loads((CLI / noun / f'{noun}.json').read_text()), 'summary')
-    verbs = {f.stem: said(json.loads(f.read_text()), 'help') for f in sorted((CLI / noun).glob('*.json')) if f.stem != noun}
-    if verbs:
-        out['verbs'] = verbs
-    return out
 
 
 def room() -> dict:

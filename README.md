@@ -19,8 +19,8 @@ corpus.
 ./corpus-yoga test run               # the dev gate: the hermetic suite over src/ and rsc/
 ```
 
-`./corpus-yoga -h` lists every command with its summary; `./corpus-yoga commands [<command>]`
-prints man entries; `./corpus-yoga <command> <verb> --help` asks each target itself.
+`./corpus-yoga -h` lists every command with its summary; `./corpus-yoga <command> -h` prints
+the command's declaration - its forms, arguments and effects; `./corpus-yoga <command> <verb> --help` asks each target itself.
 
 ## The tiers
 

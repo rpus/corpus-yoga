@@ -94,10 +94,8 @@ sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared m
 # A CLI-native command lives in its own directory (#307), so its module sits beside
 # the declarations that name it: import it from there, not from the cluster root.
 sys.path.insert(0, str(CLI / 'cache'))
-sys.path.insert(0, str(CLI / 'commands'))
 sys.path.insert(0, str(CLI / 'completions'))
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
-import commands as cli_commands  # noqa: E402 — `corpus-yoga commands` answers itself here
 import completions as cli_completions  # noqa: E402 — and `corpus-yoga completions` here
 import offer as cli_offer  # noqa: E402 - what zsh evaluates when tab is pressed
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
@@ -871,17 +869,6 @@ def check_cli_surface(run) -> None:
                 run(f'cli: {c["command"]}: {verb} accepts the command-level flags', not rejected,
                     f'`corpus-yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
                     if rejected else None, law='G5', check='cli.verb_accepts_command_flags')
-        # Uniform SHAPE, enforced: a --help is a man entry — name,
-        # what, usage, flags — and fits one screen. Length is the cheapest proxy
-        # a gate can hold; the essays this bound evicted live on in code
-        # comments and changelogs, where they belong.
-        if not c['target'].endswith('cli.py'):
-            # cli.py-targeted rows (commands, completions) answer --help with the
-            # whole derived surface — their help IS the product, unbounded by design
-            n_lines = len(help_text.rstrip().splitlines())
-            run(f'cli: {c["command"]}: help fits one screen (≤21 lines)', n_lines <= 21,
-                f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 21 else None,
-                law='G8', check='cli.help_one_screen')
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. A
     # '(--a|--b)' usage can leak '--b)' through flags_of, and what zsh evaluates then
     # fails: completion is lost silently, because nothing else parses it. zsh-less clones skip the parse
@@ -1435,10 +1422,8 @@ def check_cli_surface(run) -> None:
                 law='G3', check='structure.cli_declaration_validates')
 
     # Every typeable form is listed (#85). The bare noun is an alternative like any
-    # other, so the forms number one per subcommand PLUS one — and the whole-table
-    # listing must contain every form the per-command view shows, because the second is
-    # derived from the first rather than rebuilt beside it.
-    listing = cli_commands.render_synopsis(cmds)
+    # other, so the forms number one per subcommand PLUS one; what -h shows of them is
+    # held above (cli.help_is_the_declaration).
     for c in cmds:
         forms = cli.command_forms(c['command'])
         expected = len([s for s in cli.subcommands_of(c['command'])]) + 1
@@ -1448,18 +1433,37 @@ def check_cli_surface(run) -> None:
             f'{len(forms)} form(s) for {expected} expected — the bare noun is not '
             f'conditional in the grammar, so it cannot be conditional in the derivation',
             law='G3', check='cli.every_form_listed')
-        # the RENDERED views, not the helper both are supposed to use: asking
-        # command_forms whether the two agree cannot detect a view that adds a form of
-        # its own, which is exactly the drift this replaces
-        shown = [line.strip().replace('   (status)', '')
-                 for line in cli.render_command_help(c).splitlines()
-                 if line.startswith(f'  corpus-yoga {c["command"]}')]
-        missing = [f for f in shown if f not in listing]
-        run(f'cli: {c["command"]}: every form appears in the whole-table listing', not missing,
-            None if not missing else
-            f'{", ".join(missing)} is shown by `corpus-yoga commands {c["command"]}` but not by '
-            f'`corpus-yoga commands` — two renderings of one table disagreeing',
-            law='G3', check='cli.every_form_listed')
+
+    # Every help face is the declaration, said by the printer (#794): `corpus-yoga <command> -h`
+    # loads as what the walk shows at /<command>/help under the command's name, with each
+    # form beside its summary; `corpus-yoga -h` loads as every command under `corpus-yoga:`,
+    # each with its summary - the bare word's shape, whole.
+    import yaml
+    help_of = getattr(cli, 'help_of', None)
+    env = {**os.environ, 'YOGA_NO_SEND': '1'}
+    def loaded(*words):
+        said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
+        try:
+            return yaml.safe_load(said), said
+        except yaml.YAMLError as error:
+            return f'does not load - {getattr(error, "problem", error)}', said
+    menu, said = loaded('-h')
+    expected_menu = {'corpus-yoga': {f'corpus-yoga {c["command"]}': c['summary'] for c in cmds}}
+    run('cli: corpus-yoga -h is every command under corpus-yoga, each with its summary', menu == expected_menu,
+        None if menu == expected_menu else f'it says {str(menu)[:160] if isinstance(menu, str) else said.strip()[:160]!r}', law='G8', check='cli.help_is_the_declaration')
+    for c in cmds:
+        if help_of is None:
+            run(f'cli: {c["command"]}: -h is its declaration, said by the printer', False,
+                'cli has no help_of: -h is prose of its own, and does not load', law='G8', check='cli.help_is_the_declaration')
+            continue
+        shown, said = loaded(c['command'], '-h')
+        declared = {c['command']: help_of(c['command'])}
+        forms = [declared[c['command']].get('form')] + [v.get('form') for v in declared[c['command']].get('verbs', {}).values()]
+        why = (f'it says {shown}' if isinstance(shown, str)
+               else f'it loads as other than the declaration: {str(shown)[:160]}' if shown != declared
+               else f'the forms it shows are {forms}, where the declaration generates {cli.command_forms(c["command"])}'
+               if forms != cli.command_forms(c['command']) else None)
+        run(f'cli: {c["command"]}: -h is its declaration, said by the printer', why is None, why, law='G8', check='cli.help_is_the_declaration')
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
     # its values reads as a restriction to that value while behaving as an addition. Held
