@@ -2018,8 +2018,9 @@ def check_status_facts(run) -> None:
 
     # The machine report says what a noun's status says, taken from that status (#777):
     # each section it grafts is, in the full report, the noun's own facts at that spot.
+    said_text: dict[tuple[str, ...], str] = {}      # each command's output, read once a section
     def said_by(*words: str) -> dict:
-        out = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=300).stdout
+        out = said_text.setdefault(words, subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=300).stdout)
         try:
             loaded = yaml.load(out, Loader=Strict)
         except yaml.YAMLError:
@@ -2162,10 +2163,10 @@ def check_status_facts(run) -> None:
 
     # The machine report's rows are keyed by what each is about (#771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
-    proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'status', '--show-all'], capture_output=True, text=True,
-                          env=env, cwd=REPO_ROOT, timeout=300)
+    said_by('status', '--show-all')
+    report_text = said_text[('status', '--show-all')]
     try:
-        report = yaml.load(proc.stdout, Loader=Strict)
+        report = yaml.load(report_text, Loader=Strict)
         def keyed_by_kind(node, path: str = '') -> list[str]:
             if not isinstance(node, dict):
                 return []

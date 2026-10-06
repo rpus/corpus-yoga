@@ -52,19 +52,32 @@ def needing(node):
     return kept or None
 
 
+_said: dict[str, object] = {}     # each noun's status, read once a report, however many spots are grafted from it
+
+
+def said_by(noun: str):
+    """What the noun's bare status says, loaded; or, in words, why it could not be read."""
+    if noun not in _said:
+        asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO)
+        try:
+            at = facts.load(asked.stdout)
+        except ValueError as error:
+            at = f'corpus-yoga {noun} is unreadable - {error}'
+        if isinstance(at, dict):
+            at.pop('usage', None)
+        _said[noun] = at
+    return _said[noun]
+
+
 def grafted(noun: str, pointer: str, whole: bool):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
     short report has nothing of it to show."""
     venv = Path(os.environ.get('VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return 'unread - the venv is not minted' if whole else None
-    asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO)
-    try:
-        at = facts.load(asked.stdout)
-    except ValueError as error:
-        return f'corpus-yoga {noun} is unreadable - {error}'
-    if isinstance(at, dict):
-        at.pop('usage', None)
+    at = said_by(noun)
+    if isinstance(at, str):
+        return at
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
         if not isinstance(at, dict) or token not in at:
             return f'corpus-yoga {noun} says nothing at {pointer}' if whole else None   # a spot the noun has no occasion for: nothing to remedy
