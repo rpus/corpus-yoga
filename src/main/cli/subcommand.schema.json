@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "CliSubcommand",
-  "description": "A verb's declaration: src/main/cli/<command>/<verb>.json. Its filename is the verb, and its directory is the command, so neither is a field here. Subcommands render in listing order, which is alphabetical \u2014 the filesystem offers no other, and that is why ordering stops being a check.",
+  "description": "A verb's declaration: src/main/cli/<command>/<verb>.json. Its filename is the verb, and its directory is the command, so neither is a field here. Subcommands render in listing order, which is alphabetical - the filesystem offers no other, and that is why ordering stops being a check.",
   "type": "object",
   "required": [
     "help",
@@ -95,7 +95,7 @@
           "minLength": 1
         }
       },
-      "description": "Outward calls this declaration makes (#29), keyed by the call \u2014 so a repeat is unrepresentable and the call is a value a check can compare against what the implementation invokes. Each value lists that call's occasions, one entry each. A send has no scratch form: redirecting where the result lands does not stop the call going out, so YOGA_NO_SEND=1 refuses it \u2014 reads degrade to UNVERIFIED, writes refuse loudly (src/main/send.py, src/main/send.sh)."
+      "description": "Outward calls this declaration makes (#29), keyed by the call - so a repeat is unrepresentable and the call is a value a check can compare against what the implementation invokes. Each value lists that call's occasions, one entry each. A send has no scratch form: redirecting where the result lands does not stop the call going out, so YOGA_NO_SEND=1 refuses it - reads degrade to UNVERIFIED, writes refuse loudly (src/main/send.py, src/main/send.sh)."
     }
   }
 }
