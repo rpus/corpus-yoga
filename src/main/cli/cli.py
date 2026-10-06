@@ -402,11 +402,16 @@ def suggestions(cmds: list[dict]) -> Top:
                                      'corpus-yoga -h': 'every command, each with its summary'})
 
 
+def root_flags() -> dict[str, str]:
+    """The flags the launcher takes wherever they stand among the words, each with its help."""
+    return {a['name']: a['help'] for a in root().get('args', [])}
+
+
 def menu(cmds: list[dict]) -> Top:
-    """`corpus-yoga -h`: what this is, then every command with its summary, and the one flag
-    the launcher takes before a command."""
+    """`corpus-yoga -h`: what this is, then every command with its summary, then the flags
+    the launcher takes with any command."""
     return Top(root()['summary'], {**{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds},
-                                  'corpus-yoga --no-send <command>': 'runs the command with every send refused'})
+                                  **{f'corpus-yoga <command> {flag}': help for flag, help in root_flags().items()}})
 
 
 def _subcommand_desc(command: str, subcommand: str) -> str:

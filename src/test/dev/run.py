@@ -1408,7 +1408,7 @@ def check_cli_surface(run) -> None:
     # the top's own declaration (#807): what the tool is, and the commands bare `corpus-yoga` suggests
     top_declaration = cli_root / 'corpus-yoga.json'
     if 'root' in schemas and top_declaration.is_file():
-        top_errors = sorted(jsonschema.Draft4Validator(schemas['root']).iter_errors(json.loads(top_declaration.read_text())), key=lambda e: list(e.path))
+        top_errors = sorted(jsonschema.Draft4Validator(schemas['root'], registry=registry).iter_errors(json.loads(top_declaration.read_text())), key=lambda e: list(e.path))
         unknown = [name for name in json.loads(top_declaration.read_text()).get('suggests', []) if name not in {c['command'] for c in cmds}]
         run('cli: corpus-yoga.json: validates as the top\'s declaration, suggesting declared commands', not top_errors and not unknown,
             None if not top_errors and not unknown else f'{top_errors[0].message}' if top_errors else f'suggests {unknown}, which no command is',
@@ -1461,7 +1461,7 @@ def check_cli_surface(run) -> None:
     menu, said = loaded('-h')
     root_declared = json.loads((CLI / 'corpus-yoga.json').read_text()) if (CLI / 'corpus-yoga.json').is_file() else {}
     expected_menu = {'corpus-yoga': root_declared.get('summary'), **{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds},
-                     'corpus-yoga --no-send <command>': 'runs the command with every send refused'}
+                     **{f'corpus-yoga <command> {a["name"]}': a['help'] for a in root_declared.get('args', [])}}
     run('cli: corpus-yoga -h is every command under corpus-yoga, each with its summary', menu == expected_menu,
         None if menu == expected_menu else f'it says {str(menu)[:160] if isinstance(menu, str) else said.strip()[:160]!r}', law='G8', check='cli.help_is_the_declaration')
     for c in cmds:
@@ -2098,10 +2098,14 @@ def check_status_facts(run) -> None:
         None if not read_badly else '; '.join(sorted(set(read_badly))[:6]), check='environment.names_carry_the_prefix')
     # --no-send before the command word refuses every send (#703), so a reader need not
     # know the variable: the forge's status, which sends, says so.
-    without_sends = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), '--no-send', 'forge'], capture_output=True, text=True,
-                                   env={k: v for k, v in os.environ.items() if k not in ('YOGA_NO_SEND', 'CORPUS_YOGA_NO_SEND')}, cwd=REPO_ROOT, timeout=120)
-    run('cli: corpus-yoga --no-send <command> runs it with every send refused', 'refuses the send' in without_sends.stdout,
-        None if 'refuses the send' in without_sends.stdout else f'it says {(without_sends.stdout + without_sends.stderr).strip()[:160]!r}', check='cli.no_send_flag')
+    sendless = {k: v for k, v in os.environ.items() if k not in ('YOGA_NO_SEND', 'CORPUS_YOGA_NO_SEND')}
+    for words in (['--no-send', 'forge'], ['forge', '--no-send']):
+        without_sends = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=sendless, cwd=REPO_ROOT, timeout=120)
+        run(f'cli: corpus-yoga {" ".join(words)} runs it with every send refused', 'refuses the send' in without_sends.stdout,
+            None if 'refuses the send' in without_sends.stdout else f'it says {(without_sends.stdout + without_sends.stderr).strip()[:160]!r}', check='cli.no_send_flag')
+    offered = cli_offer.completion_script(cli.commands())
+    run('cli: tab offers --no-send at every position', 'launcher=(--no-send)' in offered and 'compadd -- "${launcher[@]}"' in offered,
+        None if 'launcher=(--no-send)' in offered else 'what zsh evaluates names no launcher flag', check='cli.no_send_flag')
 
     # The pipeline noun says each pipeline by its declaration and each staged unit by its
     # facts (#800): under `pipelines:` the pipelines alone, each with its declared input and

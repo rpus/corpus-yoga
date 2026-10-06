@@ -42,7 +42,7 @@ parse_args() {
       --apply)    APPLY=1; shift ;;
       --show-all) SHOW_ALL=1; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) shift ;;
+      *) echo "status: NOT DONE - $1 is no word it takes; the words are --show-all, or sync [--apply]" >&2; exit 2 ;;
     esac
   done
 }

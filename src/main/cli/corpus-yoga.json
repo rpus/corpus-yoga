@@ -3,5 +3,13 @@
   "suggests": [
     "status",
     "walkthrough"
+  ],
+  "args": [
+    {
+      "name": "--no-send",
+      "type": "",
+      "cardinality": "",
+      "help": "runs the command with every send refused; before or after the command word"
+    }
   ]
 }
