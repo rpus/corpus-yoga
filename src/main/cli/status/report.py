@@ -72,7 +72,7 @@ def said_by(noun: str):
 def grafted(noun: str, pointer: str, whole: bool):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
     short report has nothing of it to show."""
-    venv = Path(os.environ.get('VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
+    venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return 'unread - the venv is not minted' if whole else None
     at = said_by(noun)

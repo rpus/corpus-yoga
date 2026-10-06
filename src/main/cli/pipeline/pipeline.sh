@@ -31,12 +31,12 @@ source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of YOGA_NO_SEND (#29)
+source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/provider.sh
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
-: "${VENV:=$HOME/venvs/general}"
+: "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 
 # The pipelines: the subdirectories of src/main/pipeline/. Membership is placement —
 # no run.sh sniff, so a member missing its run phase still LISTS here and fails the
@@ -136,20 +136,20 @@ require_cmd() {
 require_venv() {
   # One creator (#478): status sync --apply mints the venv; this run
   # requires it and names the mint rather than minting a second way.
-  if [[ ! -f "$VENV/bin/activate" ]]; then
-    echo "error: venv not found at $VENV — mint it: ./src/main/cli/status/status.sh sync --apply" >&2
+  if [[ ! -f "$CORPUS_YOGA_VENV/bin/activate" ]]; then
+    echo "error: venv not found at $CORPUS_YOGA_VENV — mint it: ./src/main/cli/status/status.sh sync --apply" >&2
     exit 1
   fi
 }
 
 install_deps() {
   # shellcheck source=/dev/null
-  source "$VENV/bin/activate"
+  source "$CORPUS_YOGA_VENV/bin/activate"
   # pip reaches PyPI on every run (the upgrade check alone is a send), so refusal skips
   # it with a note and the run proceeds on the venv as-is — a fresh venv then fails at
   # its first import, visibly, with this line just above it in the log (#29).
   if ! may_send; then
-    echo "YOGA_NO_SEND=1: skipping pip install — the venv serves as-is"
+    echo "CORPUS_YOGA_NO_SEND=1: skipping pip install — the venv serves as-is"
     return 0
   fi
   echo "checking for pip upgrade"
@@ -415,7 +415,7 @@ print_plan() {
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
   echo "corpus-yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
-  echo "  tooling: require jq; require the venv at \$VENV (mint: ./src/main/cli/status/status.sh sync --apply); pip install src/requirements.txt"
+  echo "  tooling: require jq; require the venv at \$CORPUS_YOGA_VENV (mint: ./src/main/cli/status/status.sh sync --apply); pip install src/requirements.txt"
   ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
   if should_run chat-capture; then
     "$REPO_ROOT/src/main/pipeline/chat-capture/run.sh" --plan | sed 's/^/  /'

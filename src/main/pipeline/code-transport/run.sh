@@ -221,7 +221,7 @@ corpus() {
 # (#395): housekeeping (serial: it prunes the cache the phases fill), then
 # conversions, then every datum-version pair, then the per-datum roll-ups.
 # Enumeration is capacity-blind; enumeration order is listing order, and
-# dispatch_emit restores it, so YOGA_JOBS=1 and =N emit identical bytes.
+# dispatch_emit restores it, so CORPUS_YOGA_JOBS=1 and =N emit identical bytes.
 run_store() {
   local project_dirs=("$@")
   local project_dir machine name provider

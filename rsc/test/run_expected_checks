@@ -32,6 +32,7 @@ cli.every_form_listed
 cli.exclusive_class_parses
 cli.flag_not_axis_value
 cli.help_is_the_declaration
+cli.no_send_flag
 cli.prose_holds_no_pair
 cli.step_invokes_verb
 cli.subcommands_dispatch
@@ -64,6 +65,7 @@ effects.sends_declared
 effects.writers_disjoint
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
+environment.names_carry_the_prefix
 facts.lines_are_yaml
 facts.reads_back_what_it_prints
 facts.wraps_and_reads_back

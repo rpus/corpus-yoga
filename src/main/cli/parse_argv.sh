@@ -20,8 +20,8 @@ parse_argv() {
   # (cli.verb_help_answered) renders in-process under the venv - any other
   # interpreter fails the byte comparison. Absent the venv, refuse as
   # run_python_script.sh does, naming the mint.
-  python="${VENV:-$HOME/venvs/general}/bin/python"
-  [[ -x "$python" ]] || { echo "parse_argv: NOT DONE - venv not found at ${VENV:-$HOME/venvs/general}; mint it: ./src/main/cli/status/status.sh sync --apply" >&2; exit 1; }
+  python="${CORPUS_YOGA_VENV:-$HOME/venvs/general}/bin/python"
+  [[ -x "$python" ]] || { echo "parse_argv: NOT DONE - venv not found at ${CORPUS_YOGA_VENV:-$HOME/venvs/general}; mint it: ./src/main/cli/status/status.sh sync --apply" >&2; exit 1; }
   # `|| rc=$?` keeps a caller's set -e from killing the script at the substitution
   # itself. A refusal (rc 2) needs no relay: argparse wrote it to stderr, which
   # $(...) does not capture.

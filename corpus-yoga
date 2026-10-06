@@ -19,15 +19,19 @@
 # git does not, so anything written here to say the same would be a worse copy of it.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-: "${VENV:=$HOME/venvs/general}"
-if [[ -f "$VENV/bin/python" ]]; then
+# --no-send before the command word refuses every send the command and its children would
+# make (#703): the one reading of the switch is src/main/send.py, and the environment
+# carries it to every process the command runs
+if [[ "${1-}" == --no-send ]]; then export CORPUS_YOGA_NO_SEND=1; shift; fi
+: "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
+if [[ -f "$CORPUS_YOGA_VENV/bin/python" ]]; then
   set -- "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
 elif [[ "${1-}" == walkthrough ]] && command -v python3 >/dev/null; then
   # the walk needs nothing the venv holds (#766): before the mint it walks the machine report
   shift
   set -- python3 "$SCRIPT_DIR/src/main/cli/walkthrough/walkthrough.py" "$@"
 else
-  echo "error: venv not found at $VENV — pre-venv, the machine report and the mint are ./src/main/cli/status/status.sh [sync --apply], and corpus-yoga walkthrough walks them" >&2
+  echo "error: venv not found at $CORPUS_YOGA_VENV — pre-venv, the machine report and the mint are ./src/main/cli/status/status.sh [sync --apply], and corpus-yoga walkthrough walks them" >&2
   exit 1
 fi
 

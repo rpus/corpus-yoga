@@ -75,7 +75,7 @@ def tilde(p: Path) -> str:
     return f'~/{p.relative_to(home)}' if p.is_relative_to(home) else str(p)
 
 
-def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
+def without_completion_block(lines: list[str]) -> tuple[list[str], int]:
     """~/.zshrc's lines with the corpus-yoga block gone; returns (kept, how many removed).
 
     Reads a list and returns a new one; nothing is written here. Uninstall keeps the
@@ -139,7 +139,7 @@ def install_completion() -> int:
     """
     zshrc = Path.home() / '.zshrc'
     before = zshrc.read_text() if zshrc.exists() else ''
-    lines, _ = without_yoga_block(before.splitlines())
+    lines, _ = without_completion_block(before.splitlines())
     idx = next((i for i, l in enumerate(lines)
                 if re.match(r'\s*(compinit\b|fpath=)', l)), None)
     if idx is None:
@@ -182,7 +182,7 @@ def uninstall_completion() -> int:
     leaving everything else byte-identical. Because the block has an END, its whole
     extent goes — fpath line, alias, and anything added between them — without this
     function needing to know what any of those lines are; both directions share
-    without_yoga_block, so they cannot drift apart. A compinit that install added to a
+    without_completion_block, so they cannot drift apart. A compinit that install added to a
     ~/.zshrc which had none is deliberately LEFT (it sits outside the block): it is
     generic zsh a later config may now rely on, and an idle compinit harms nothing;
     removing it could break what was built on top."""
@@ -190,7 +190,7 @@ def uninstall_completion() -> int:
     if not zshrc.exists():
         print(f'{tilde(zshrc)}: no such file — nothing to remove')
         return 0
-    kept, removed_line_count = without_yoga_block(zshrc.read_text().splitlines())
+    kept, removed_line_count = without_completion_block(zshrc.read_text().splitlines())
     if not removed_line_count:
         print(f'{tilde(zshrc)}: no corpus-yoga lines found - nothing to remove')
         return 0

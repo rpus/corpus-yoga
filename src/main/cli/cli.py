@@ -403,8 +403,10 @@ def suggestions(cmds: list[dict]) -> Top:
 
 
 def menu(cmds: list[dict]) -> Top:
-    """`corpus-yoga -h`: what this is, then every command with its summary."""
-    return Top(root()['summary'], {f'corpus-yoga {c["command"]}': c['summary'] for c in cmds})
+    """`corpus-yoga -h`: what this is, then every command with its summary, and the one flag
+    the launcher takes before a command."""
+    return Top(root()['summary'], {**{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds},
+                                  'corpus-yoga --no-send <command>': 'runs the command with every send refused'})
 
 
 def _subcommand_desc(command: str, subcommand: str) -> str:

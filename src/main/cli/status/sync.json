@@ -10,10 +10,10 @@
   ],
   "sends": {
     "pip install": [
-      "installs the requirements from PyPI when the venv lacks them (--apply only; refused loudly under YOGA_NO_SEND)"
+      "installs the requirements from PyPI when the venv lacks them (--apply only; refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "write ~/.zshrc": [
-      "sets tab-completion up where the report says it is not, through corpus-yoga completions install (--apply only; refused under YOGA_NO_SEND)"
+      "sets tab-completion up where the report says it is not, through corpus-yoga completions install (--apply only; refused under CORPUS_YOGA_NO_SEND)"
     ]
   },
   "r": [

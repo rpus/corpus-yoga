@@ -12,7 +12,7 @@
       "bash": "3.2 suffices; the scripts avoid 4.x features"
     },
     "grammar": "the parsers generated from the house grammars under rsc/rpus/grammar, which the mcp extraction and its checks run through; corpus-yoga grammar says them",
-    "venv": "the one interpreter every .py target runs in; VENV= names another",
+    "venv": "the one interpreter every .py target runs in; CORPUS_YOGA_VENV= names another",
     "python requirements": "what corpus-yoga pipeline run needs, by its manifest src/requirements.txt",
     "render assets": "what corpus-yoga server renders markdown with, by its manifest src/main/model/serve_assets.txt; corpus-yoga server says them",
     "completions": "whether pressing tab after corpus-yoga offers its commands and flags in zsh; corpus-yoga completions says it",

@@ -72,7 +72,7 @@ FAILED, REFUSED, GONE = 1, 2, 3                       # the walk's exits where i
 
 
 def venv() -> bool:
-    return (Path(os.environ.get('VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python').is_file()
+    return (Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python').is_file()
 
 
 def nouns() -> list[str]:

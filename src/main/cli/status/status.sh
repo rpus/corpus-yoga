@@ -26,9 +26,9 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
-: "${VENV:=$HOME/venvs/general}"
+: "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)
+source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 
@@ -90,7 +90,7 @@ graft()  { _rows+=("$1"$'\t'"graft"$'\t'"$2"$'\t'"$3"); }
 # the bare rows where neither runs (a row above says so).
 _say() {
   local mode="$1" python
-  if [[ -x "$VENV/bin/python" ]]; then python="$VENV/bin/python"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then python="$CORPUS_YOGA_VENV/bin/python"
   elif command -v python3 &>/dev/null; then python="$(command -v python3)"
   else
     [[ "$mode" == report ]] || return 0
@@ -101,13 +101,13 @@ _say() {
   local rows_file
   rows_file="$(mktemp "${TMPDIR:-/tmp}/status.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
-  VENV="$VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
+  CORPUS_YOGA_VENV="$CORPUS_YOGA_VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
   rm -f "$rows_file"
 }
 # The sync, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 sync_remedy() {
-  if [[ -x "$VENV/bin/python" ]]; then echo "corpus-yoga status sync --apply"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then echo "corpus-yoga status sync --apply"
   else echo "./src/main/cli/status/status.sh sync --apply"; fi
 }
 
@@ -136,13 +136,13 @@ check_tools() {
   # pyrightconfig.json the editor does — one declaration, three readers. It is a python
   # package, so the venv this repo builds carries it; shellcheck below is not, which is
   # why one arrives with `corpus-yoga pipeline run` and the other needs brew.
-  # Where the GATE looks, in the same order: $VENV/bin first, then PATH. Asking
+  # Where the GATE looks, in the same order: $CORPUS_YOGA_VENV/bin first, then PATH. Asking
   # `command -v` alone reported "not found" on any shell without the venv activated —
   # while the venv held it and corpus-yoga test run used it — so the report contradicted both
   # the gate and its own requirements line a few rows below.
   local pyright_bin=""
-  if [[ -x "$VENV/bin/pyright" ]]; then
-    pyright_bin="$VENV/bin/pyright"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/pyright" ]]; then
+    pyright_bin="$CORPUS_YOGA_VENV/bin/pyright"
   elif command -v pyright &>/dev/null; then
     pyright_bin="$(command -v pyright)"
   fi
@@ -177,7 +177,7 @@ check_tools() {
   # The generated parsers are the grammar noun's to say (#777): its status is grafted
   # after the tools. Here, the tool that generates them: antlr4 (antlr4-tools, a python
   # package the venv carries) running the tool jar on the machine's java.
-  if [[ -x "$VENV/bin/antlr4" ]]; then
+  if [[ -x "$CORPUS_YOGA_VENV/bin/antlr4" ]]; then
     if command -v java &>/dev/null; then
       ok "antlr4 and java" "antlr4-tools, java $(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')"
     else
@@ -191,10 +191,10 @@ check_tools() {
 
 check_venv() {
   sec "venv"
-  if [[ -x "$VENV/bin/python" ]]; then
-    ok "$VENV / minted" "$("$VENV/bin/python" --version 2>&1); VENV= names another"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
+    ok "$CORPUS_YOGA_VENV / minted" "$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1); CORPUS_YOGA_VENV= names another"
   else
-    todo "$VENV / minted" "no - nothing python runs, corpus-yoga included (#478); VENV= names another" "$(sync_remedy)" "mints it and installs src/requirements.txt"
+    todo "$CORPUS_YOGA_VENV / minted" "no - nothing python runs, corpus-yoga included (#478); CORPUS_YOGA_VENV= names another" "$(sync_remedy)" "mints it and installs src/requirements.txt"
   fi
 }
 
@@ -245,7 +245,7 @@ check_dependencies() {
 req_extract() { printf '%s' "$1" | sed -E 's/^[[:space:]]+//; s/[[:space:]].*//; s/[<>=!~;[].*//'; }
 req_probe() {
   local v
-  v="$("$VENV/bin/python" -c "import importlib.metadata as m; print(m.version('$1'))" 2>/dev/null)" || return 1
+  v="$("$CORPUS_YOGA_VENV/bin/python" -c "import importlib.metadata as m; print(m.version('$1'))" 2>/dev/null)" || return 1
   printf '%s %s' "$1" "$v"
 }
 
@@ -277,6 +277,19 @@ check_optional_modes() {
   fi
 }
 
+check_environment() {
+  # The variables this repository reads carry its name (#703); one exported under an old
+  # name is machine-local state no code reads any more, and is said so once here.
+  local old
+  for old in YOGA_NO_SEND YOGA_JOBS YOGA_GATE_TIMINGS; do
+    [[ -n "${!old-}" ]] || continue
+    todo "environment / $old" "exported, and no code reads it - CORPUS_YOGA_${old#YOGA_} is the name" "unset $old" "drops it from this shell"
+  done
+  if [[ -n "${VENV-}" && -z "${CORPUS_YOGA_VENV-}" ]]; then
+    info "environment / VENV" "exported, and corpus-yoga no longer reads it - CORPUS_YOGA_VENV names the venv; the default stands"
+  fi
+}
+
 check_machine() {
   # The binding names this machine (rsc/machine/README.md): rooted, gitignored,
   # and so spelt whole like anything else.
@@ -284,6 +297,7 @@ check_machine() {
   local rel="${binding#"$REPO_ROOT/"}"
   local registry="$REPO_ROOT/rsc/machine/machines.csv"
   sec "machine"
+  check_environment
   # The pre-move location, built in pieces — for the same reason the rooted
   # binding is not. This path must exist on NO clean clone, so a
   # committed literal naming it would be a dangling reference, and would resolve
@@ -374,7 +388,7 @@ check_pipeline_inputs() {
   # What each pipeline holds, by pipeline, provider and kind, as the store's own reading
   # counts it (src/main/corpus.py held): one count of one store (#771).
   sec "pipeline inputs"
-  if [[ -x "$VENV/bin/python" ]]; then
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
     local pipeline provider kind count input noun
     while IFS=$'\t' read -r pipeline provider kind count input noun; do
       [[ -n "$pipeline" ]] || continue
@@ -396,7 +410,7 @@ check_pipeline_inputs() {
   # ext/mnt/agent/<provider> (#636).
   local p_name p_live p_mount p_served p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
-  if [[ -x "$VENV/bin/python" ]]; then
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
     # provider, live store, the mount as provider.mount() derives it, and whether the agent
     # verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
     # each the rule's one home, none restated here.
@@ -506,10 +520,10 @@ sync() {
     if [[ "$a" == "$own" ]]; then
       # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
       assert_may_send "pip install from PyPI (corpus-yoga status sync --apply)" || exit 1
-      [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
-      "$VENV/bin/pip" install -q --upgrade pip
-      "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
-      echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
+      [[ -x "$CORPUS_YOGA_VENV/bin/python" ]] || python3 -m venv "$CORPUS_YOGA_VENV"
+      "$CORPUS_YOGA_VENV/bin/pip" install -q --upgrade pip
+      "$CORPUS_YOGA_VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
+      echo "  venv: $("$CORPUS_YOGA_VENV/bin/python" --version 2>&1), src/requirements.txt installed"
     else
       # a declared invocation is `corpus-yoga <command> ...`, bare words: run this tree's
       # shellcheck disable=SC2086
@@ -564,7 +578,7 @@ main() {
   # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
   # parse_argv renders under the venv's python (#478), so it answers only where the venv
   # stands; before the mint, parse_args below takes sync and --apply itself (#757)
-  if [[ "${1-}" == sync && -x "$VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
+  if [[ "${1-}" == sync && -x "$CORPUS_YOGA_VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi
 }

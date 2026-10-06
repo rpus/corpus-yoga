@@ -24,7 +24,7 @@
     "curl https://api.anthropic.com/v1/messages": [
       "PAID - POSTs the corpus for the semantic-concepts reading",
       "PAID - POSTs it again for the chat-categories reading",
-      "--dry-run sends neither, and works under YOGA_NO_SEND (refused loudly otherwise)"
+      "--dry-run sends neither, and works under CORPUS_YOGA_NO_SEND (refused loudly otherwise)"
     ]
   },
   "r": [

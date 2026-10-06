@@ -39,7 +39,7 @@
 #
 # Effects (declared in src/main/cli/mcp/reproduce.json): a git fetch from upstream
 # and a docker run (image pull, npm registry) - both sends; the temporary directory is removed on exit; nothing under the repo
-# is written. YOGA_NO_SEND=1 refuses the run (src/main/send.sh, assert_may_send).
+# is written. CORPUS_YOGA_NO_SEND=1 refuses the run (src/main/send.sh, assert_may_send).
 # Needs git, docker with its daemon running, and python3 (to read the provenance
 # rows).
 
