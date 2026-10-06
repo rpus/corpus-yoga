@@ -10,6 +10,18 @@
       "type": "",
       "cardinality": "",
       "help": "runs the command with every send refused; before or after the command word"
+    },
+    {
+      "name": "-h",
+      "type": "",
+      "cardinality": "",
+      "help": "the declaration of what the words name - every command with its summary at the top, a command's forms, arguments and effects after its name, a verb's after its verb"
+    },
+    {
+      "name": "--help",
+      "type": "",
+      "cardinality": "",
+      "help": "as -h"
     }
   ]
 }

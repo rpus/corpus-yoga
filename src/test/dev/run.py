@@ -2104,8 +2104,10 @@ def check_status_facts(run) -> None:
         run(f'cli: corpus-yoga {" ".join(words)} runs it with every send refused', 'refuses the send' in without_sends.stdout,
             None if 'refuses the send' in without_sends.stdout else f'it says {(without_sends.stdout + without_sends.stderr).strip()[:160]!r}', check='cli.no_send_flag')
     offered = cli_offer.completion_script(cli.commands())
-    run('cli: tab offers --no-send at every position', 'launcher=(--no-send)' in offered and 'compadd -- "${launcher[@]}"' in offered,
-        None if 'launcher=(--no-send)' in offered else 'what zsh evaluates names no launcher flag', check='cli.no_send_flag')
+    declared_flags = ' '.join(a['name'] for a in json.loads((CLI / 'corpus-yoga.json').read_text()).get('args', []))
+    run(f'cli: tab offers the launcher\'s flags, {declared_flags}, at every position (#510)',
+        f'launcher=({declared_flags})' in offered and 'compadd -- "${launcher[@]}"' in offered and '--no-send' in declared_flags and '-h' in declared_flags.split(),
+        None if f'launcher=({declared_flags})' in offered else f'what zsh evaluates names {offered.count("launcher")} launcher line(s), the flags declared being {declared_flags!r}', check='cli.no_send_flag')
 
     # The pipeline noun says each pipeline by its declaration and each staged unit by its
     # facts (#800): under `pipelines:` the pipelines alone, each with its declared input and
