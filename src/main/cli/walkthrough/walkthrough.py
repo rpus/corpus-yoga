@@ -1,23 +1,28 @@
 #!/usr/bin/env python
 """
 walkthrough.py - `corpus-yoga walkthrough`: the room's state as one tree, walked by the
-reader (#766). The tree's first level is the commands, the machine report first. Under
-each stand its status, where it has one - what its bare status prints, loaded when the
-walk first descends into it: the lines are the data (#753), so the walk has no second
-interface to any noun - and its help: its declaration, as it states it (#770). So help is
-read as the state is, with the same keys, and what does not vary with the room is read
-beside what does. Four keys move it, one row of the keyboard, and a fifth leaves:
+reader (#766). The walk starts on the top, which holds the commands, the machine report
+first. Under each stand its status, where it has one - what its bare status prints,
+loaded when the walk lands on it: the lines are the data (#753), so the walk has no
+second interface to any noun - and its help: its declaration, as it states it (#770). So
+help is read as the state is, with the same keys, and what does not vary with the room
+is read beside what does. Five keys work it, the bottom row of the keyboard, and a sixth
+leaves:
 
-  n  next   the next sibling at this depth - pressed from the top, the outline
-  m  more   into the node the walk stands on: its first child, or its value where it holds one
-  b  back   over the last move
-  x  run    the command the walk stands on, in the foreground; the state is read again after
+  x  run      the command the walk stands on, in the foreground; the state is read again after
+  v  value    shows the value the walk stands on
+  b  back     over the last move
+  n  next     the next sibling at this depth
+  m  members  into the node the walk stands on: its first key, or its first value
   q  quit
 
-A key is the head of what it holds, and a step says the head alone: the key, its place,
-and the size and shape of what m would give - so many keys, so many bare values, a value
-of so many words - never the thing itself, so the reader chooses to descend knowing what
-follows and no step scrolls. Every spot has an address, its JSON pointer (RFC 6901) from the top of the tree - a `/`
+A key is the head of what it holds, and a step says the head alone (#787): the key, and
+the size and shape of what stands beneath it, each under the name of the key that would
+bring it - `members:` so many keys or so many values, for m; `value:` so many words, for
+v, and after v the value itself; `next:` the sibling n goes to - never the thing itself,
+so the reader chooses knowing what follows and no step scrolls. A line that is absent is
+a key with nothing to bring. A status that cannot be read is no content: the step says
+`FAIL:` and why. Every spot has an address, its JSON pointer (RFC 6901) from the top of the tree - a `/`
 before each key, `~1` for a slash within one and `~0` for a tilde, a bare value by its
 place in its list (#775). A step says the spot's pointer; `corpus-yoga walkthrough
 <pointer>` starts there, reading what the pointer passes through - typed bare, a pointer
@@ -25,15 +30,15 @@ with a space in a key arrives as several words, and they are read as one; and on
 the walk says the command that continues from where it left, quoted for the shell.
 
 The exit says whether the walk went as asked (#782), so a caller can chain on it:
-  0  it stood where it was asked, and what x ran succeeded
-  1  a command run with x failed
+  0  it stood where it was asked, and what it ran succeeded
+  1  a command run with x failed, or a status the walk landed on could not be read
   2  the argument is no pointer: refused, and no walk
   3  the pointer names no spot: the walk started on the longest truncation of it that stands
 
 A key is read from the terminal as it is pressed, or as a
 line on stdin, so a model or a test walks as a reader does. Each step is said as facts,
 one YAML document per step, and the mark between two steps is the key that made the
-second - `-n-`, `-m-`, `-b-`, `-x-`, `-q-` - so the transcript is its own history. The
+second - `-n-`, `-m-`, `-v-`, `-b-`, `-x-`, `-q-` - so the transcript is its own history. The
 walk needs nothing outside the standard library: before the venv exists it has one noun,
 the machine report, whose remedies are the first steps.
 """
@@ -59,7 +64,8 @@ CLI = REPO / 'src' / 'main' / 'cli'
 REPORT = 'prerequisites'                              # the machine report: the first noun, and the one that runs before the venv
 REPORT_SCRIPT = './src/main/cli/prerequisites/prerequisites.sh'
 FIRST = (REPORT, 'stage', 'store')                    # the room's state, in the order a reader meets it
-KEYS = 'n next, m more, b back, x run, q quit'
+TOP = 'corpus-yoga'                                   # the key of the top, the one spot with no pointer token
+KEYS = 'n next, m members, v value, b back, x run, q quit'
 UNREAD = object()                                     # a noun whose status the walk has not yet read
 FAILED, REFUSED, GONE = 1, 2, 3                       # the walk's exits where it did not go as asked
 
@@ -109,19 +115,26 @@ def room() -> dict:
     return {noun: ({'status': UNREAD} if reports(noun) else {}) | {'help': help_of(noun)} for noun in nouns()}
 
 
+@dataclass(frozen=True)
+class Unreadable:
+    """A status the walk could not read, and why. It stands where the status would, and is
+    no content: a step says it as a FAIL."""
+    why: str
+
+
 def status(noun: str):
-    """A noun's facts: what its bare status prints, loaded - or, in words, why it cannot be read."""
+    """A noun's facts: what its bare status prints, loaded - or why it cannot be read."""
     if not venv() and noun != REPORT:
-        return f'unread - the venv is not minted; {REPORT} says how'
+        return Unreadable(f'the venv is not minted, so corpus-yoga {noun} cannot be asked - /{REPORT}/status says how to mint it')
     command = [str(REPO / 'corpus-yoga'), noun] if venv() else [REPORT_SCRIPT]
     asked = subprocess.run(command, capture_output=True, text=True, cwd=REPO)
     try:
         loaded = facts.load(asked.stdout)
     except ValueError as error:
-        return f'unreadable - {error}'
+        return Unreadable(f'what corpus-yoga {noun} printed does not load - {error}')
     if isinstance(loaded, dict):
         loaded.pop('usage', None)                     # the CLI's tail, not the noun's state
-    return loaded if loaded else f'nothing said (exit {asked.returncode})'
+    return loaded if loaded else Unreadable(f'corpus-yoga {noun} said nothing (exit {asked.returncode})')
 
 
 def pointer_of(tokens: list[str]) -> str:
@@ -159,12 +172,14 @@ def command_of(key: str) -> list[str] | None:
 
 @dataclass
 class Step:
-    """Where the walk stands: the node, its place among its siblings, and what it holds."""
+    """Where the walk stands, and what each key would bring from there: a line is named
+    for its key, and is absent where the key has nothing to bring."""
     at: str                                           # the spot's address: its JSON pointer from the top
     key: str
-    place: str                                        # its position among its siblings
-    holds: str | None = None                          # the size and shape of what m would give, never the thing
-    value: object = None                              # the value, once m has asked for it
+    members: str | None = None                        # what m goes into: so many keys, or so many values - never the things
+    value: object = None                              # what v shows: its size, and once v has asked, the value
+    FAIL: str | None = None                           # why the status that would stand here could not be read
+    following: str | None = facts.named('next', default=None)   # the sibling n goes to
     runs: str | None = None                           # what x would run, where the key is a command
     note: str | None = None                           # why the last key moved nothing
     keys: str | None = None
@@ -182,6 +197,8 @@ class Left:
     at: str
 
     def facts(self) -> dict:
+        if not self.at:                               # the top: the walk started bare stands there
+            return {'walkthrough': 'left at the top', 'corpus-yoga walkthrough': 'continues from there'}
         return {'walkthrough': f'left at {self.at}', f'corpus-yoga walkthrough {shlex.quote(self.at)}': 'continues from there'}
 
 
@@ -191,19 +208,20 @@ class Walk:
     tree: dict = field(default_factory=dict)
     path: list[str] = field(default_factory=list)
     history: list[tuple[list[str], bool]] = field(default_factory=list)
-    shown: bool = False                               # whether m has asked for the value the walk stands on
-    failed: bool = False                              # whether a command run with x has failed
+    shown: bool = False                               # whether v has asked for the value the walk stands on
+    failed: bool = False                              # whether a command run with x has failed, or a status could not be read
 
     def __post_init__(self):
         self.tree = room()
-        self.path = [next(iter(self.tree))]
+        self.path = []                                # the top
 
     def node(self, path: list[str], read: bool = False):
         """What stands at the path. A status is read where the path passes through it, or
-        ends on it and `read` asks; until then it stands unread."""
+        ends on it and `read` asks - the walk lands there; a status only beside or beneath
+        the walk's way stays unread, so starting the walk runs nothing."""
         at = self.tree
         for depth, key in enumerate(path):
-            if isinstance(at, list):
+            if isinstance(at, (list, Unreadable)):
                 return None
             if at[key] is UNREAD and (read or depth + 1 < len(path)):
                 at[key] = status(path[0])
@@ -234,11 +252,12 @@ class Walk:
                 path.append(str(here[int(token)]))
             else:
                 break
-        if path:
-            self.path = path
-        return None if len(path) == len(tokens) else f'no spot stands at {pointer} - the longest part of it that stands is {self.address()}'
+        self.path = path
+        return None if len(path) == len(tokens) else f'no spot stands at {pointer} - the longest part of it that stands is {self.address() or "the top"}'
 
     def siblings(self) -> list[str]:
+        if not self.path:
+            return []
         parent = self.node(self.path[:-1])
         if isinstance(parent, list):
             return [str(item) for item in parent]
@@ -253,29 +272,34 @@ class Walk:
 
     def leaf(self) -> bool:
         """Whether the walk stands on a key that holds one value."""
-        here = self.node(self.path)
-        return here is not UNREAD and not isinstance(here, (dict, list)) and isinstance(self.node(self.path[:-1]), dict)
+        here = self.node(self.path, read=True)
+        return bool(self.path) and not isinstance(here, (dict, list, Unreadable)) and isinstance(self.node(self.path[:-1]), dict)
 
     def move(self, key: str) -> str | None:
         """Take one key; the note where it moved nothing."""
         if key == 'n':
+            if not self.path:
+                return 'the top has no next - m goes into its members'
             around = self.siblings()
             place = around.index(self.path[-1])
             if place + 1 == len(around):
-                return f'the last of {len(around)} - b goes back'
+                return 'this is the last here - b goes back'
             self.history.append((list(self.path), self.shown))
             self.path[-1], self.shown = around[place + 1], False
         elif key == 'm':
             beneath = self.children()
-            if beneath:
-                self.history.append((list(self.path), self.shown))
-                self.path.append(beneath[0])
-                self.shown = False
-            elif self.leaf() and not self.shown:
-                self.history.append((list(self.path), self.shown))
-                self.shown = True
-            else:
-                return 'nothing more - n goes on, b goes back'
+            if not beneath:
+                return 'no members here - ' + ('v shows the value' if self.leaf() and not self.shown else 'n goes on, b goes back')
+            self.history.append((list(self.path), self.shown))
+            self.path.append(beneath[0])
+            self.shown = False
+        elif key == 'v':
+            if not self.leaf():
+                return 'no value here - ' + ('m goes into its members' if self.children() else 'n goes on, b goes back')
+            if self.shown:
+                return 'the value is shown - n goes on, b goes back'
+            self.history.append((list(self.path), self.shown))
+            self.shown = True
         elif key == 'b':
             if not self.history:
                 return 'the walk began here'
@@ -286,31 +310,31 @@ class Walk:
 
     def step(self, note: str | None = None, keys: bool = False) -> Step:
         around = self.siblings()
-        key = self.path[-1]
-        here = self.node(self.path)
-        if here is UNREAD:
-            holds = 'unread - m reads it'
+        key = self.path[-1] if self.path else TOP
+        here = self.node(self.path, read=True)        # the walk lands here: a status is read now
+        members = value = fail = None
+        if isinstance(here, Unreadable):
+            fail, self.failed = here.why, True
         elif isinstance(here, dict):
-            holds = f'{len(here)} key' + ('' if len(here) == 1 else 's')
+            members = f'{len(here)} key' + ('' if len(here) == 1 else 's')
         elif isinstance(here, list):
-            holds = f'{len(here)} bare value' + ('' if len(here) == 1 else 's')
+            members = f'{len(here)} value' + ('' if len(here) == 1 else 's')
         elif self.leaf():
             words = len(str(here).split())
-            holds = f'a value, {words} word' + ('' if words == 1 else 's')
-        else:
-            holds = None                              # a bare value: the key is all of it
-        command = command_of(key)
-        return Step(self.address(), key, f'{around.index(key) + 1} of {len(around)}',
-                    holds=holds, value=here if self.shown and here is not UNREAD else None,
+            value = here if self.shown else f'{words} word' + ('' if words == 1 else 's')
+        place = around.index(key) if self.path else 0
+        command = command_of(key) if self.path else None
+        return Step(self.address(), key, members=members, value=value, FAIL=fail,
+                    following=around[place + 1] if place + 1 < len(around) else None,
                     runs='x - ' + ' '.join(key.split()) if command else None,
                     note=note, keys=KEYS if keys else None)
 
     def run(self) -> Ran | str:
         """Run the command the walk stands on, in the foreground, then forget what was read."""
-        command = command_of(self.path[-1])
+        command = command_of(self.path[-1]) if self.path else None
         if command is None:
             return 'no command stands here - x runs a key that is a corpus-yoga command' + (
-                '; this one holds a placeholder, and is the reader\'s to type' if '<' in self.path[-1] else '')
+                '; this one holds a placeholder, and is the reader\'s to type' if self.path and '<' in self.path[-1] else '')
         sys.stdout.flush()
         done = subprocess.run(command, cwd=REPO)
         self.tree = room()
