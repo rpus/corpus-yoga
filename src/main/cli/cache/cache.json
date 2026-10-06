@@ -1,5 +1,5 @@
 {
-  "summary": "the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds",
+  "summary": "the rebuildable tmp/cache/ tier - clean removes orphans, sync rebuilds",
   "target": "src/main/cli/cache/cache.py",
   "calculus": "project",
   "args": [],

@@ -1,11 +1,11 @@
 {
-  "help": "record a false friend: a name_collision row lands in rsc/model/model_join.csv with the reason as its note",
+  "help": "record a false friend - a name_collision row lands in rsc/model/model_join.csv with the reason as its note",
   "args": [
     {
       "name": "--all",
       "type": "",
       "cardinality": "",
-      "help": "reject the whole worksheet as read — refused if it moved since corpus-yoga model sync rendered it; the one --reason is stamped on every row"
+      "help": "reject the whole worksheet as read - refused if it moved since corpus-yoga model sync rendered it; the one --reason is stamped on every row"
     },
     {
       "name": "--reason",

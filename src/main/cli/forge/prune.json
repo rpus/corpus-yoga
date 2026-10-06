@@ -1,11 +1,11 @@
 {
-  "help": "forget what the forge no longer has, and what it never needed after all \u2014 local branches whose work the base already holds or whose PR a force-push superseded, remote-tracking refs for branches it has deleted, and a closed-unmerged PR's own leftover server branch \u2014 a dry run unless --apply",
+  "help": "forget what the forge no longer has, and what it never needed after all - local branches whose work the base already holds or whose PR a force-push superseded, remote-tracking refs for branches it has deleted, and a closed-unmerged PR's own leftover server branch - a dry run unless --apply",
   "args": [
     {
       "name": "--apply",
       "type": "",
       "cardinality": "",
-      "help": "perform the deletions \u2014 without it, the branches and reasons are only reported"
+      "help": "perform the deletions - without it, the branches and reasons are only reported"
     }
   ],
   "sends": {

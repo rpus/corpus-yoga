@@ -1,11 +1,11 @@
 {
-  "help": "PAID \u2014 the model reads the corpus for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)",
+  "help": "PAID - the model reads the corpus for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)",
   "args": [
     {
       "name": "--conversations",
       "type": "<path>",
       "cardinality": "",
-      "help": "source override: a markdown corpus dir | a json/ dir | a conversations.json"
+      "help": "the source, in place of the corpus - a markdown corpus dir, a json/ dir or a conversations.json"
     },
     {
       "name": "--only",
@@ -17,13 +17,13 @@
       "name": "--dry-run",
       "type": "",
       "cardinality": "",
-      "help": "print the coverage this capture would re-read, and stop \u2014 spends nothing, needs no API key"
+      "help": "print the coverage this capture would re-read, and stop - spends nothing, needs no API key"
     }
   ],
   "sends": {
     "curl https://api.anthropic.com/v1/messages": [
-      "PAID: POSTs the corpus for the semantic-concepts reading",
-      "PAID: POSTs it again for the chat-categories reading",
+      "PAID - POSTs the corpus for the semantic-concepts reading",
+      "PAID - POSTs it again for the chat-categories reading",
       "--dry-run sends neither, and works under YOGA_NO_SEND (refused loudly otherwise)"
     ]
   },

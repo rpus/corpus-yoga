@@ -1,5 +1,5 @@
 {
-  "help": "rebuild the cross-reference table, write it, and report — idempotent (the only write)",
+  "help": "rebuild the cross-reference table, write it, and report - idempotent (the only write)",
   "args": [],
   "r": [
     "src",

@@ -5,7 +5,7 @@
       "name": "pipeline",
       "type": "<pipeline>",
       "cardinality": "",
-      "help": "one pipeline by name (bare: all of them)"
+      "help": "one pipeline by name; bare, all of them"
     }
   ],
   "r": [

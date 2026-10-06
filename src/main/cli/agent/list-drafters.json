@@ -1,5 +1,5 @@
 {
-  "help": "the Signatures on main against the sessions the store holds: per provider, the sessions main names as drafters and whether each is held, and each message read against its drafter's own record - reports, writes nothing",
+  "help": "the Signatures on main against the sessions the store holds - per provider, the sessions main names as drafters and whether each is held, and each message read against its drafter's own record; reports, writes nothing",
   "step": "code-transport",
   "args": [],
   "r": [

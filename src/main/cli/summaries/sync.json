@@ -1,5 +1,5 @@
 {
-  "help": "deposit new distinct readings and re-render each folder index — idempotent (the only write)",
+  "help": "deposit new distinct readings and re-render each folder index - idempotent (the only write)",
   "args": [],
   "step": "chat-export",
   "r": [

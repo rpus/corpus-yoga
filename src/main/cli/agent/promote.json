@@ -1,5 +1,5 @@
 {
-  "help": "promote what corpus-yoga agent capture staged into shared storage: each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the verdict corpus-yoga pipeline rehearse cached; copied over the held one where nothing held would be lost, the rest named; the stage is never written",
+  "help": "promote what corpus-yoga agent capture staged into shared storage - each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the verdict corpus-yoga pipeline rehearse cached; copied over the held one where nothing held would be lost, the rest named; the stage is never written",
   "args": [
     {
       "name": "--provider",
@@ -11,7 +11,7 @@
       "name": "--id",
       "type": "<prefix>",
       "cardinality": "",
-      "help": "one unit of the provider --provider names: a prefix of a component of its address under the provider (a conversation id, a session's uuid, a project's memory) matching exactly one; requires --provider"
+      "help": "one unit of the provider --provider names, by a prefix of a component of its address under the provider (a conversation id, a session's uuid, a project's memory) matching exactly one; requires --provider"
     },
     {
       "name": "--all",
@@ -23,7 +23,7 @@
       "name": "--rehearsal",
       "type": "<stamp>",
       "cardinality": "",
-      "help": "the rehearsal whose verdicts are read, by the stamp of its log (default: the newest under tmp/stage/rehearsal); a record's digests refuse a judgement of bytes since recaptured"
+      "help": "the rehearsal whose verdicts are read, by the stamp of its log (the newest under tmp/stage/rehearsal unless named); a record's digests refuse a judgement of bytes since recaptured"
     }
   ],
   "r": [

@@ -1,5 +1,5 @@
 {
-  "help": "clear the stage of what it no longer needs, as corpus-yoga cache clean clears the cache: every rehearsal under tmp/stage/rehearsal, named, which is the disposal of evidence; every entry under tmp/stage that is neither the input nor a rehearsal, an orphan; and every staged unit identical to the held one, a duplicate. A refused unit is evidence of another kind and stays",
+  "help": "clear the stage of what it no longer needs, as corpus-yoga cache clean clears the cache - every rehearsal under tmp/stage/rehearsal, named, which is the disposal of evidence; every entry under tmp/stage that is neither the input nor a rehearsal, an orphan; and every staged unit identical to the held one, a duplicate. A refused unit is evidence of another kind and stays",
   "args": [
     {
       "name": "--dry-run",

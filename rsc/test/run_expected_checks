@@ -32,6 +32,7 @@ cli.every_form_listed
 cli.exclusive_class_parses
 cli.flag_not_axis_value
 cli.help_is_the_declaration
+cli.prose_holds_no_pair
 cli.step_invokes_verb
 cli.subcommands_dispatch
 cli.table_parses

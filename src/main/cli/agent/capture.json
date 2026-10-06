@@ -11,7 +11,7 @@
       "name": "--id",
       "type": "<uuid-prefix>",
       "cardinality": "",
-      "help": "one session of the provider --provider names: a uuid prefix, eight characters or more, matching exactly one; requires --provider - a uuid's shape does not say whose it is, as the browser capture's --id says"
+      "help": "one session of the provider --provider names, by a uuid prefix of eight characters or more matching exactly one; requires --provider - a uuid's shape does not say whose it is, as the browser capture's --id says"
     },
     {
       "name": "--all",
