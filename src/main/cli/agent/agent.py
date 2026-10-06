@@ -169,7 +169,7 @@ def own_outbox(provider: str) -> Path | None:
     medium = tier.DATA / 'input'
     if not medium.is_dir():
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
-              '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
+              '(corpus-yoga status shows the convention), then run this again; skipped', file=sys.stderr)
         return None
     # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
     # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
@@ -236,7 +236,7 @@ def list_agents() -> Census:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
             absent[mount_path.relative_to(REPO).as_posix()] = Mount(
-                f'absent - no local {provider} rows', facts.Command('corpus-yoga prerequisites sync --apply', 'mounts it'))
+                f'absent - no local {provider} rows', facts.Command('corpus-yoga status sync --apply', 'mounts it'))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -260,12 +260,11 @@ class Status:
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
-    remedy: dict[str, str] | None
 
     def facts(self) -> dict:
         brief = self.drafters
         key = f'drafters on {brief.ref} @ {brief.head}' if brief is not None else 'drafters'
-        return {'sessions': self.sessions, 'mounts': self.mounts, key: brief, 'staged': self.staged, 'remedy': self.remedy}
+        return {'sessions': self.sessions, 'mounts': self.mounts, key: brief, 'staged': self.staged}
 
 
 def model_census() -> int:
@@ -389,7 +388,7 @@ def main() -> int:
         brief = drafters.brief()
         import corpus
         report = corpus.report_facts('agent')
-        facts.say(Status(census.sessions, census.mounts, brief, report.staged, report.remedy))
+        facts.say(Status(census.sessions, census.mounts, brief, report.staged))
         return 0
     if args.verb == 'mount':
         return mount(args.apply)

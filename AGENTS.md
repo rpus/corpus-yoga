@@ -72,7 +72,7 @@ eighth principle or a smell.
 - CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/
   syntactic-conflict rule, and the never-delete-local-files-for-a-gate
   corollary live there.
-- `corpus-yoga prerequisites` is the machine-remedy surface: the user runs it first
+- `corpus-yoga status` is the room's status and the machine-remedy surface: the user runs it first
   on every checkout. Machine-local state and remedies go into its report,
   never into PR prose or replies. Missing optional data means a stated skip
   and exit 0, never a failure.

@@ -131,8 +131,8 @@ They are stated, followed, and reviewed by people.
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
   `model`, `store`, `xref`); the command's *whole act* where it has no verb and that
-  act is one free idempotent step (`check`, `prerequisites` — `run` left this set when it
-  became `pipeline run`, and #40 takes `check` to `test run`, leaving `prerequisites` alone
+  act is one free idempotent step (`check`, `status` — `run` left this set when it
+  became `pipeline run`, and #40 takes `check` to `test run`, leaving `status` alone
   or nothing); and a *usage refusal* where the verb is required
   and bare is meaningless (`browser`, `cache`, `agent`).
 - **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the

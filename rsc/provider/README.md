@@ -13,7 +13,7 @@ attested" to every reader, never a guess.
 Every reader of a provider fact reads this file and nothing else: the commit
 hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
 declared provider whose declared variable the environment carries; the machine
-report (`corpus-yoga prerequisites`) and the mount verb (`corpus-yoga agent mount`)
+report (`corpus-yoga status`) and the mount verb (`corpus-yoga agent mount`)
 iterate the rows; the browser
 capture keys its mechanisms by declared names; `src/main/provider.py` is the
 library every reader shares: the python readers import it, and the shell readers

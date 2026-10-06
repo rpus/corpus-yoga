@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-report.py - `corpus-yoga prerequisites`' report: the rows prerequisites.sh collects as its
+report.py - `corpus-yoga status`' report: the rows status.sh collects as its
 checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,
 tab-separated, in the file named - typed and said as one shape (#759). A row is keyed by
 what it is about (#771); its commands are columns of their own, `<command> <what it does>`
@@ -19,7 +19,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-SELF = 'src/main/cli/prerequisites/report.py'
+SELF = 'src/main/cli/status/report.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -67,7 +67,7 @@ def grafted(noun: str, pointer: str, whole: bool):
         at.pop('usage', None)
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
         if not isinstance(at, dict) or token not in at:
-            return f'corpus-yoga {noun} says nothing at {pointer}'
+            return f'corpus-yoga {noun} says nothing at {pointer}' if whole else None   # a spot the noun has no occasion for: nothing to remedy
         at = at[token]
     return at if whole else needing(at)
 

@@ -896,7 +896,7 @@ def check_cli_surface(run) -> None:
         stem = Path(c['target']).stem
         # Case is part of a name, and the two kinds of target carry different conventions,
         # so each is held to ITS OWN rather than both to a case-folded comparison:
-        #   executable → named for its command exactly:      prerequisites.sh
+        #   executable → named for its command exactly:      status.sh
         #   document   → the repo's SHOUTING doc convention: CALCULUS.md
         # A .md target is PRINTED, not executed (see dispatch), and all 18 markdown
         # documents here are uppercase — four READMEs, eleven CHANGELOGs, WORKFLOW.
@@ -915,7 +915,7 @@ def check_cli_surface(run) -> None:
     # already prints.
     #
     # Absent, it skips with a CONSTANT label and no detail, so the committed report stays
-    # byte-identical on a clone without it (the zsh -n precedent). `corpus-yoga prerequisites`
+    # byte-identical on a clone without it (the zsh -n precedent). `corpus-yoga status`
     # is the one voice that says whether this machine has it.
     shellcheck = shutil.which('shellcheck')
     # src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and
@@ -1072,8 +1072,8 @@ def check_cli_surface(run) -> None:
             law='G17', check='output.prescriptions_are_commands')
         if not ok:
             continue
-        # A prescription ends where the SHELL takes over: `→ run: corpus-yoga prerequisites" >&2`
-        # prescribes `corpus-yoga prerequisites`, and `>&2` is the redirection of the echo that
+        # A prescription ends where the SHELL takes over: `→ run: corpus-yoga status" >&2`
+        # prescribes `corpus-yoga status`, and `>&2` is the redirection of the echo that
         # prints it, not a verb the reader types.
         tail = re.split(r'[|;&<>]|\)\s*$', rest, maxsplit=1)[0]
         words = [clean(w) for w in (tail if head == 'corpus-yoga' else f' {head}{tail}').split()]
@@ -1369,7 +1369,7 @@ def check_cli_surface(run) -> None:
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
                    if (p.is_file() or is_member(p))
-                   and p.name not in ('README.md', 'readings.md', '__pycache__')
+                   and p.name not in ('README.md', 'readings.md', 'corpus-yoga.json', '__pycache__')
                    and not p.name.endswith('.schema.json')
                    and p.suffix not in ('.py', '.sh')
                    and p.name not in declared)
@@ -1399,12 +1399,23 @@ def check_cli_surface(run) -> None:
     from referencing import Registry, Resource
     from referencing.jsonschema import DRAFT4
     schemas = {k: json.loads((cli_root / f'{k}.schema.json').read_text())
-               for k in ('command', 'subcommand', 'argument')}
+               for k in ('command', 'subcommand', 'argument', 'root') if (cli_root / f'{k}.schema.json').is_file()}
     # the same resolution idiom validate.py uses — RefResolver is deprecated and warns,
     # and a warning on stderr would land in a committed report that must stay byte-stable
     registry = Registry().with_resource(
         'argument.schema.json',
         Resource.from_contents(schemas['argument'], default_specification=DRAFT4))
+    # the top's own declaration (#807): what the tool is, and the commands bare `corpus-yoga` suggests
+    top_declaration = cli_root / 'corpus-yoga.json'
+    if 'root' in schemas and top_declaration.is_file():
+        top_errors = sorted(jsonschema.Draft4Validator(schemas['root']).iter_errors(json.loads(top_declaration.read_text())), key=lambda e: list(e.path))
+        unknown = [name for name in json.loads(top_declaration.read_text()).get('suggests', []) if name not in {c['command'] for c in cmds}]
+        run('cli: corpus-yoga.json: validates as the top\'s declaration, suggesting declared commands', not top_errors and not unknown,
+            None if not top_errors and not unknown else f'{top_errors[0].message}' if top_errors else f'suggests {unknown}, which no command is',
+            law='G3', check='structure.cli_declaration_validates')
+    else:
+        run('cli: corpus-yoga.json: validates as the top\'s declaration, suggesting declared commands', False,
+            'the top has no declaration: what bare corpus-yoga says is a tuple in cli.py', law='G3', check='structure.cli_declaration_validates')
     for c in cmds:
         name = c['command']
         d = cli_root / name
@@ -1448,7 +1459,8 @@ def check_cli_surface(run) -> None:
         except yaml.YAMLError as error:
             return f'does not load - {getattr(error, "problem", error)}', said
     menu, said = loaded('-h')
-    expected_menu = {'corpus-yoga': {f'corpus-yoga {c["command"]}': c['summary'] for c in cmds}}
+    root_declared = json.loads((CLI / 'corpus-yoga.json').read_text()) if (CLI / 'corpus-yoga.json').is_file() else {}
+    expected_menu = {'corpus-yoga': root_declared.get('summary'), **{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds}}
     run('cli: corpus-yoga -h is every command under corpus-yoga, each with its summary', menu == expected_menu,
         None if menu == expected_menu else f'it says {str(menu)[:160] if isinstance(menu, str) else said.strip()[:160]!r}', law='G8', check='cli.help_is_the_declaration')
     for c in cmds:
@@ -1844,7 +1856,7 @@ def check_status_facts(run) -> None:
         import yaml
     except ModuleNotFoundError:
         run('status: a YAML reader arbitrates the statuses', False,
-            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga prerequisites sync --apply',
+            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga status sync --apply',
             check='status.lines_load_as_yaml')
         return
 
@@ -1921,10 +1933,10 @@ def check_status_facts(run) -> None:
             run(f'remedy: {path.relative_to(REPO_ROOT)}:{node.lineno} names a command a reader types', why is None, why,
                 check='status.remedy_names_a_command')
 
-    # The prerequisites report's rows carry their commands as columns (#763): the same
+    # The status report's rows carry their commands as columns (#763): the same
     # judgement over each `todo` and `bad` call's command arguments, where they are literal.
     import shlex
-    report = CLI / 'prerequisites' / 'prerequisites.sh'
+    report = CLI / 'status' / 'status.sh'
     logical: list[tuple[int, str]] = []
     pending, opened = '', 0
     for number, text in enumerate(report.read_text().splitlines(), 1):
@@ -2017,12 +2029,19 @@ def check_status_facts(run) -> None:
         for key in keys:
             node = node.get(key) if isinstance(node, dict) else None
         return node
-    whole = said_by('prerequisites', '--show-all')
+    whole = said_by('status', '--show-all')
     grafts = {'completions': ('completions', 'completions'), 'pre-commit hook': ('test', 'test', 'pre-commit hook'),
-              'signature hook': ('test', 'test', 'signature hook'), 'render assets': ('server', 'server', 'render assets')}
+              'signature hook': ('test', 'test', 'signature hook'), 'render assets': ('server', 'server', 'render assets'),
+              'branches': ('forge', 'branches'), 'remote-tracking refs': ('forge', 'remote-tracking refs'),
+              'staged': ('pipeline', 'staged'), 'duplicates': ('store', 'duplicates')}
     for section, (noun, *spot) in grafts.items():
         own = at(said_by(noun), *spot)
-        same = own is not None and whole.get(section) == own
+        if not spot and isinstance(own, dict):
+            own = {key: value for key, value in own.items() if key != 'usage'}   # the CLI's tail, not the noun's state
+        said = whole.get(section)
+        if own is None and isinstance(said, dict) and len(said) == 1:
+            said = next(iter(said.values()))          # a string graft stands under its subject
+        same = own is not None and said == own or own is None and str(said).startswith(f'corpus-yoga {noun} says nothing at')
         run(f'report: its {section} section is what corpus-yoga {noun} says', same,
             None if same else f'the report says {str(whole.get(section))[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
             check='report.says_what_the_nouns_say')
@@ -2031,7 +2050,8 @@ def check_status_facts(run) -> None:
     run('report: its grammar section is what corpus-yoga grammar says', same,
         None if same else f'the report says {str(whole.get("grammar"))[:120]} where corpus-yoga grammar says {str(own)[:120]}',
         check='report.says_what_the_nouns_say')
-    by_forge = str(at(said_by('forge'), 'this checkout', 'pre-commit'))
+    by_forge = at(said_by('forge'), 'this checkout', 'pre-commit')
+    by_forge = str(next(iter(by_forge.values())) if isinstance(by_forge, dict) else by_forge)   # a row that owes a remedy says its state first
     by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed'))
     same = by_test.removeprefix('yes - ') == by_forge or by_forge.endswith(by_test)
     run('report: the forge says the commit hook as corpus-yoga test says it', same,
@@ -2079,7 +2099,7 @@ def check_status_facts(run) -> None:
             why = f'{name} says steps {each.get("steps")}, where its plan names {planned(name)}'
         if why:
             break
-    staged, remedy = pipeline_said.get('staged'), pipeline_said.get('remedy')
+    staged = pipeline_said.get('staged')
     if why is None and 'stage' in pipeline_said:
         why = f'it ends with a stage: sentence, {str(pipeline_said["stage"])[:80]!r}, where corpus-yoga stage says the counts'
     if why is None and not isinstance(staged, dict):
@@ -2089,8 +2109,8 @@ def check_status_facts(run) -> None:
             if not isinstance(unit, dict) or not {'relation', 'measure', 'judged'} <= set(unit):
                 why = f'the unit {address[:60]} is said as {str(unit)[:80]!r}, not by its facts'
                 break
-    if why is None and remedy is not None and not (isinstance(remedy, dict) and all(k.startswith('corpus-yoga ') for k in remedy)):
-        why = f'remedy: is {str(remedy)[:80]!r}'
+    if why is None and 'remedy' in pipeline_said:
+        why = 'a remedy stands at the top, beside no unit: one stands only beside the unit whose state is a fault'
     run('status: corpus-yoga pipeline says each pipeline by its declaration and each staged unit by its facts', why is None, why,
         check='status.pipeline_says_declarations_and_units')
     for noun in ('agent', 'browser', 'export'):
@@ -2102,9 +2122,9 @@ def check_status_facts(run) -> None:
 
     # The machine report gives no verdict on itself (#786): it ends at its last section,
     # and what needs doing is read from its remedies.
-    verdict = whole.get('prerequisites')
+    verdict = whole.get('status')
     run('report: it gives no verdict on itself', bool(whole) and verdict is None,
-        None if whole and verdict is None else f'the report ends `prerequisites: {str(verdict)[:120]}`' if whole else 'corpus-yoga prerequisites --show-all loads as nothing',
+        None if whole and verdict is None else f'the report ends `status: {str(verdict)[:120]}`' if whole else 'corpus-yoga status --show-all loads as nothing',
         check='report.gives_no_verdict_on_itself')
 
     # The bare word suggests what to run next, and runs none of it (#786): asked in this
@@ -2128,19 +2148,21 @@ def check_status_facts(run) -> None:
         suggested = yaml.load(heard.getvalue(), Loader=Strict)
     except yaml.YAMLError:
         suggested = None
-    suggested = suggested.get('corpus-yoga') if isinstance(suggested, dict) else None
+    suggested = suggested if isinstance(suggested, dict) and suggested else None
     summaries = {f"corpus-yoga {c['command']}": c['summary'] for c in cli.commands()}
+    root_summary = json.loads((CLI / 'corpus-yoga.json').read_text())['summary'] if (CLI / 'corpus-yoga.json').is_file() else None
     why = (f'it runs {", ".join(str(a if isinstance(a, str) else a[0]).removeprefix(f"{REPO_ROOT}/") for a in ran)}' if ran
-           else f'it says {heard.getvalue().strip()[:120] or "nothing"}, not commands under `corpus-yoga:`' if not isinstance(suggested, dict) or not suggested
-           else next((f'`{line}` is no command a reader types' for line in suggested if line not in summaries and line != 'corpus-yoga -h'), None)
+           else f'it says {heard.getvalue().strip()[:120] or "nothing"}, not what this is and the commands' if suggested is None
+           else f'its first line is {next(iter(suggested))!r}, not `corpus-yoga: <what this is>`' if next(iter(suggested)) != 'corpus-yoga' or suggested['corpus-yoga'] != root_summary
+           else next((f'`{line}` is no command a reader types' for line in suggested if line not in summaries and line not in ('corpus-yoga', 'corpus-yoga -h')), None)
            or next((f'`{line}` is said as {str(does)[:80]}, where its declaration says {summaries[line][:80]}'
                     for line, does in suggested.items() if line in summaries and does != summaries[line]), None)
-           or (None if 'corpus-yoga prerequisites' in suggested else 'the machine report is not among what it suggests'))
-    run('bare: corpus-yoga suggests what to run next, and runs none of it', why is None, why, check='cli.bare_suggests_and_runs_nothing')
+           or (None if 'corpus-yoga status' in suggested else 'the room\'s status is not among what it suggests'))
+    run('bare: corpus-yoga says what this is, suggests what to run next, and runs none of it', why is None, why, check='cli.bare_suggests_and_runs_nothing')
 
     # The machine report's rows are keyed by what each is about (#771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
-    proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'prerequisites', '--show-all'], capture_output=True, text=True,
+    proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'status', '--show-all'], capture_output=True, text=True,
                           env=env, cwd=REPO_ROOT, timeout=300)
     try:
         report = yaml.load(proc.stdout, Loader=Strict)
@@ -2344,11 +2366,11 @@ def check_walkthrough(run) -> None:
         return
     env = {**os.environ, 'YOGA_NO_SEND': '1'}
     commands = sorted(c['command'] for c in cli.commands())
-    order = [n for n in ('prerequisites', 'stage', 'store') if n in commands] + [n for n in commands if n not in ('prerequisites', 'stage', 'store')]
+    order = [n for n in ('status', 'stage', 'store') if n in commands] + [n for n in commands if n not in ('status', 'stage', 'store')]
     said = facts.load(subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'pipeline'], capture_output=True, text=True, env=env, cwd=REPO_ROOT).stdout)
     beneath = list(said['pipelines'])
     command = 'pipeline'                                      # the key at the top that x runs: the command's own name
-    declared = json.loads((CLI / 'prerequisites' / 'prerequisites.json').read_text())
+    declared = json.loads((CLI / 'status' / 'status.json').read_text())
     # from the top into the report, onto its status, along to its help, into that, the summary shown, and back to the top;
     # in again and along to the pipeline noun; into its status, onto the command; back, on, run
     probe = ['m', 'm', 'n', 'm', 'v', 'b', 'b', 'b', 'b', 'b']
@@ -2368,7 +2390,7 @@ def check_walkthrough(run) -> None:
     wants = [
         ('it starts on the top, which says how many commands it holds', step(0).get('at') == '' and step(0).get('key') == 'corpus-yoga'
          and step(0).get('members') == f'{len(commands)} keys' and 'next' not in step(0)),
-        ('m lands on the machine report, its status and its help beneath, the next command named', step(1).get('at') == '/prerequisites'
+        ('m lands on the machine report, its status and its help beneath, the next command named', step(1).get('at') == '/status'
          and step(1).get('members') == '2 keys' and step(1).get('next') == order[1]),
         ('a status is read where the walk lands on it', step(2).get('key') == 'status' and str(step(2).get('members', '')).endswith(' keys')),
         ('no status the walk stands on is unread', all('members' in s or 'value' in s or 'FAIL' in s
@@ -2425,24 +2447,24 @@ def check_walkthrough(run) -> None:
             except ValueError:
                 out.append({})
         return out
-    summary = walked('/prerequisites/help/summary', 'v\nq\n')
+    summary = walked('/status/help/summary', 'v\nq\n')
     top = walked('', 'q\n')
     slashed = walked('/stage/status/tmp~1stage', 'q\n')
-    astray = walked('/prerequisites/help/nonesuch/deeper', 'q\n')
-    spaced = '/prerequisites/help/explanation/pipeline inputs'
+    astray = walked('/status/help/nonesuch/deeper', 'q\n')
+    spaced = '/status/help/explanation/pipeline inputs'
     wants += [
-        ('a pointer starts the walk on its spot', summary[0].get('at') == '/prerequisites/help/summary' and summary[0].get('key') == 'summary'
+        ('a pointer starts the walk on its spot', summary[0].get('at') == '/status/help/summary' and summary[0].get('key') == 'summary'
          and summary[1].get('value') == declared['summary']),
         ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'tmp/stage' and slashed[0].get('at') == '/stage/status/tmp~1stage'),
-        ('where no spot stands the longest truncation that does, and the walk says so', astray[0].get('at') == '/prerequisites/help'
-         and 'the longest part of it that stands is /prerequisites/help' in str(astray[0].get('note'))),
-        ('its exit is 0 where it went as asked', proc.returncode == 0 and exits.get('/prerequisites/help/summary') == 0),
-        ('its exit is 3 where the pointer names no spot', exits.get('/prerequisites/help/nonesuch/deeper') == 3),
+        ('where no spot stands the longest truncation that does, and the walk says so', astray[0].get('at') == '/status/help'
+         and 'the longest part of it that stands is /status/help' in str(astray[0].get('note'))),
+        ('its exit is 0 where it went as asked', proc.returncode == 0 and exits.get('/status/help/summary') == 0),
+        ('its exit is 3 where the pointer names no spot', exits.get('/status/help/nonesuch/deeper') == 3),
         ('an argument that is no pointer is refused, exit 2, with no walk', walked('nonesuch', 'q\n') == [{}] and exits.get('nonesuch') == 2),
         ('a space within a key is read, quoted or typed bare', walked(spaced, 'q\n')[0].get('at') == spaced
          and walked(spaced, 'q\n', bare=True)[0].get('at') == spaced),
-        ('it leaves with the command that continues it', summary[-1].get('walkthrough') == 'left at /prerequisites/help/summary'
-         and summary[-1].get('corpus-yoga walkthrough /prerequisites/help/summary') == 'continues from there'),
+        ('it leaves with the command that continues it', summary[-1].get('walkthrough') == 'left at /status/help/summary'
+         and summary[-1].get('corpus-yoga walkthrough /status/help/summary') == 'continues from there'),
         ('the empty pointer is the top, and the walk left there continues bare', top[0].get('at') == '' and exits.get('') == 0
          and top[-1].get('walkthrough') == 'left at the top' and top[-1].get('corpus-yoga walkthrough') == 'continues from there'),
     ]
@@ -2526,11 +2548,11 @@ _corpus-yoga
             None if followed else 'the fourth tab does not run what src/main/cli/completions/offer.zsh became: zsh keeps the file it loaded, '
             'so a change to it is followed only by a new terminal, and nothing says so', check='completions.follows_its_own_change')
 
-    declared = json.loads((CLI / 'prerequisites' / 'sync.json').read_text()).get('x', [])
+    declared = json.loads((CLI / 'status' / 'sync.json').read_text()).get('x', [])
     install = getattr(cli_completions, 'INSTALL', '')
     ran = bool(install) and install.removeprefix('./') in declared
     run('completions: the machine\'s sync runs the remedy the status names', ran,
-        None if ran else f'{install or "the status names no one remedy"}: not among what corpus-yoga prerequisites sync runs ({", ".join(declared)}) - a reader types it by hand',
+        None if ran else f'{install or "the status names no one remedy"}: not among what corpus-yoga status sync runs ({", ".join(declared)}) - a reader types it by hand',
         check='completions.sync_runs_the_install')
 
     if zsh is None:
@@ -2938,7 +2960,7 @@ def check_grammar(run) -> None:
     """Every parser under src/gen/grammar/<project>/ (machine-local, gitignored) is
     present and, where the tool is present, what antlr4 generates from
     rsc/rpus/grammar/<project>/ now (#597). Absence fails by name - the mcp checks
-    need the parser, and corpus-yoga prerequisites sync --apply generates it. The
+    need the parser, and corpus-yoga status sync --apply generates it. The
     currency half needs the tool (antlr4 from antlr4-tools in the venv, java), whose
     first use fetches the tool jar, a send: YOGA_NO_SEND=1 skips that half and so does
     a machine without the tool - the label is CONSTANT and the result passes on
@@ -2949,7 +2971,7 @@ def check_grammar(run) -> None:
         ok, detail = bool(have), None
         if not have:
             detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
-                      f'rsc/rpus/grammar/{project.name} (corpus-yoga prerequisites sync --apply does so with the rest)')
+                      f'rsc/rpus/grammar/{project.name} (corpus-yoga status sync --apply does so with the rest)')
         elif may_send() and grammar_module.tool():
             want = grammar_module.generated(project)
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))

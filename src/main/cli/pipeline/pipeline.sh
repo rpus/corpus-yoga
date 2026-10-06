@@ -134,10 +134,10 @@ require_cmd() {
 }
 
 require_venv() {
-  # One creator (#478): prerequisites sync --apply mints the venv; this run
+  # One creator (#478): status sync --apply mints the venv; this run
   # requires it and names the mint rather than minting a second way.
   if [[ ! -f "$VENV/bin/activate" ]]; then
-    echo "error: venv not found at $VENV — mint it: ./src/main/cli/prerequisites/prerequisites.sh sync --apply" >&2
+    echo "error: venv not found at $VENV — mint it: ./src/main/cli/status/status.sh sync --apply" >&2
     exit 1
   fi
 }
@@ -415,7 +415,7 @@ print_plan() {
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
   echo "corpus-yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
-  echo "  tooling: require jq; require the venv at \$VENV (mint: ./src/main/cli/prerequisites/prerequisites.sh sync --apply); pip install src/requirements.txt"
+  echo "  tooling: require jq; require the venv at \$VENV (mint: ./src/main/cli/status/status.sh sync --apply); pip install src/requirements.txt"
   ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
   if should_run chat-capture; then
     "$REPO_ROOT/src/main/pipeline/chat-capture/run.sh" --plan | sed 's/^/  /'

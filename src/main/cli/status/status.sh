@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs.
+# src/main/cli/status/status.sh — what this machine has, and what it still needs.
 #
 # The BARE noun is strictly read-only: no directories created, no symlinks, no venv, no
 # installs. Safe as the first command on a fresh clone, which is the whole point of it.
@@ -13,14 +13,14 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention; a section with nothing to say is not shown
-#   src/main/cli/prerequisites/prerequisites.sh --show-all   # the full report, what is satisfied included
+#   src/main/cli/status/status.sh              # what still needs attention; a section with nothing to say is not shown
+#   src/main/cli/status/status.sh --show-all   # the full report, what is satisfied included
 #
 # A row is keyed by what it is about, its value what stands; the commands that act on it stand beside it.
 # corpus-yoga pipeline run writes only data/input/, tmp/cache/, data/output/, tmp/logs/ and the venv.
 
 set -euo pipefail
-SELF='src/main/cli/prerequisites/prerequisites.sh'
+SELF='src/main/cli/status/status.sh'
 _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
@@ -77,7 +77,7 @@ _row() {
   _rows+=("$row")
 }
 ok()     { if (( SHOW_ALL )); then _row ok "$1" "$2"; fi; }
-info()   { [[ $# -eq 2 ]] || { echo "prerequisites: info takes a subject and what stands - a row with a command is a todo or a bad" >&2; exit 2; }; _row note "$1" "$2"; }
+info()   { [[ $# -eq 2 ]] || { echo "status: info takes a subject and what stands - a row with a command is a todo or a bad" >&2; exit 2; }; _row note "$1" "$2"; }
 # todo is a row the reader acts on, and only it and `bad` carry commands; a command is the
 # report's data, so `sync` reads what to run from the report itself (#777), not from a tag.
 todo()   { _row todo "$@"; }
@@ -99,16 +99,16 @@ _say() {
     return 0
   fi
   local rows_file
-  rows_file="$(mktemp "${TMPDIR:-/tmp}/prerequisites.XXXXXX")"
+  rows_file="$(mktemp "${TMPDIR:-/tmp}/status.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
-  VENV="$VENV" "$python" "$REPO_ROOT/src/main/cli/prerequisites/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
+  VENV="$VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
   rm -f "$rows_file"
 }
 # The sync, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 sync_remedy() {
-  if [[ -x "$VENV/bin/python" ]]; then echo "corpus-yoga prerequisites sync --apply"
-  else echo "./src/main/cli/prerequisites/prerequisites.sh sync --apply"; fi
+  if [[ -x "$VENV/bin/python" ]]; then echo "corpus-yoga status sync --apply"
+  else echo "./src/main/cli/status/status.sh sync --apply"; fi
 }
 
 count_glob_dirs() {
@@ -439,26 +439,6 @@ check_pipeline_inputs() {
   fi
 }
 
-check_stage() {
-  # The room's stage, tmp/stage: what this room has captured and not yet promoted to shared
-  # storage (#687) - machine-local state, so it belongs in this report; the count is
-  # src/main/corpus.py's, read through the venv's python.
-  sec "stage"
-  [[ -x "$VENV/bin/python" ]] || return 0
-  local staged
-  staged="$("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" count 2>/dev/null || echo "?")"
-  if [[ "$staged" == "0" ]]; then
-    ok "tmp/stage/input" "nothing staged - every capture this room has made is promoted"
-  elif [[ "$staged" == "?" ]]; then
-    info "tmp/stage/input" "could not be read - corpus-yoga pipeline says why"
-  else
-    todo "tmp/stage/input" "holds $staged unit(s) captured and not yet promoted" \
-      "corpus-yoga pipeline rehearse" "judges them" \
-      "corpus-yoga stage" "counts them" \
-      "corpus-yoga pipeline" "relates each to the held one; a capturing noun's bare status names what its promote would do"
-  fi
-}
-
 check_migration() {
   # The moves a rename owes this machine's data/output, tmp/cache and ext/mnt, carried by
   # the scripts under rsc/migration (#661): each run bare states its pending steps and
@@ -496,9 +476,9 @@ _held() { report >/dev/null; _remedies="$(_say remedies)"; }
 sync() {
   local command does where declared own mine="" a
   own="$(sync_remedy)"
-  declared="$(jq -r '.x[]' "$REPO_ROOT/src/main/cli/prerequisites/sync.json")"
+  declared="$(jq -r '.x[]' "$REPO_ROOT/src/main/cli/status/sync.json")"
   _held
-  echo "corpus-yoga prerequisites sync — what this machine still needs:"
+  echo "corpus-yoga status sync — what this machine still needs:"
   if [[ -z "$_remedies" ]]; then
     echo "  nothing — every prerequisite is satisfied"
     return 0
@@ -525,7 +505,7 @@ sync() {
     echo "→ $a"
     if [[ "$a" == "$own" ]]; then
       # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
-      assert_may_send "pip install from PyPI (corpus-yoga prerequisites sync --apply)" || exit 1
+      assert_may_send "pip install from PyPI (corpus-yoga status sync --apply)" || exit 1
       [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
       "$VENV/bin/pip" install -q --upgrade pip
       "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
@@ -555,7 +535,7 @@ report() {
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "corpus-yoga prerequisites sync --apply, or automatically on the next corpus-yoga pipeline run"
+    "corpus-yoga status sync --apply, or automatically on the next corpus-yoga pipeline run"
   graft "render assets" server "/server/render assets"
   check_optional_modes
   graft completions completions "/completions"
@@ -563,8 +543,11 @@ report() {
   graft "pre-commit hook" test "/test/pre-commit hook"
   graft "signature hook" test "/test/signature hook"
   check_forge
+  graft branches forge "/branches"
+  graft "remote-tracking refs" forge "/remote-tracking refs"
   check_pipeline_inputs
-  check_stage
+  graft staged pipeline "/staged"
+  graft duplicates store "/duplicates"
   check_migration
 
   # A report is information: it exits 0 unless it could not BE produced. Severity
@@ -581,7 +564,7 @@ main() {
   # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
   # parse_argv renders under the venv's python (#478), so it answers only where the venv
   # stands; before the mint, parse_args below takes sync and --apply itself (#757)
-  if [[ "${1-}" == sync && -x "$VENV/bin/python" ]]; then parse_argv prerequisites sync "${@:2}"; fi
+  if [[ "${1-}" == sync && -x "$VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi
 }

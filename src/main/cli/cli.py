@@ -311,7 +311,7 @@ def usage_of(command: str) -> str:
     if not subcommands:
         return bare
     # The bare noun is an alternative like any other (G2: bare is status), and the flags
-    # that attach to it — `pipeline --names`, `prerequisites --show-all` — are typeable. Dropping the
+    # that attach to it — `pipeline --names`, `status --show-all` — are typeable. Dropping the
     # command-level rows once a subcommand exists left both unsayable in the one place
     # the whole surface is listed.
     return ' | '.join([bare or '(status)'] + [_join(s, _render_args(bysub[s])) for s in subcommands])
@@ -373,26 +373,38 @@ class Help:
         return {self.command: self.declared}
 
 
-# What bare `corpus-yoga` suggests, in the order a reader new to a checkout would type
-# them. The one place they are named; each is said with its own declared summary.
-SUGGESTED = ('prerequisites', 'walkthrough', 'pipeline')
+# the top's own declaration, src/main/cli/corpus-yoga.json, validated against src/main/cli/root.schema.json:
+# what the tool is, and the commands bare `corpus-yoga` suggests
+ROOT_DECLARATION = CLI / 'corpus-yoga.json'
+
+
+def root() -> dict:
+    return json.loads(ROOT_DECLARATION.read_text())
 
 
 @dataclass
 class Top:
-    suggested: dict[str, str] = facts.named('corpus-yoga')
+    """What bare `corpus-yoga` and `corpus-yoga -h` say: what this is, then the way in -
+    commands a reader types, each with its own declared summary."""
+    summary: str
+    commands: dict[str, str]
+
+    def facts(self) -> dict:
+        return {'corpus-yoga': self.summary, **self.commands}
 
 
 def suggestions(cmds: list[dict]) -> Top:
-    """What bare `corpus-yoga` says: a few commands to type next, and the menu."""
+    """Bare `corpus-yoga`: what this is, how to know whether everything is well, and how to
+    navigate for more - the commands the top's declaration suggests, and the menu."""
+    declared = root()
     summary = {c['command']: c['summary'] for c in cmds}
-    return Top({**{f'corpus-yoga {name}': summary[name] for name in SUGGESTED},
-                'corpus-yoga -h': 'every command, each with its summary'})
+    return Top(declared['summary'], {**{f'corpus-yoga {name}': summary[name] for name in declared['suggests']},
+                                     'corpus-yoga -h': 'every command, each with its summary'})
 
 
 def menu(cmds: list[dict]) -> Top:
-    """What `corpus-yoga -h` says: every command with its summary - the bare word's shape, whole."""
-    return Top({f'corpus-yoga {c["command"]}': c['summary'] for c in cmds})
+    """`corpus-yoga -h`: what this is, then every command with its summary."""
+    return Top(root()['summary'], {f'corpus-yoga {c["command"]}': c['summary'] for c in cmds})
 
 
 def _subcommand_desc(command: str, subcommand: str) -> str:

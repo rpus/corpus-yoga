@@ -5,7 +5,7 @@
 # the table; `corpus-yoga <command> --help` asks the target itself.
 #
 # Every python here runs in the venv (#478): the launcher refuses without it,
-# naming the mint — src/main/cli/prerequisites/prerequisites.sh sync --apply,
+# naming the mint — src/main/cli/status/status.sh sync --apply,
 # the one place the name python3 survives. cli.py stays stdlib-only, so the
 # surface never depends on what pip installed; the venv supplies the
 # interpreter, never imports.
@@ -27,7 +27,7 @@ elif [[ "${1-}" == walkthrough ]] && command -v python3 >/dev/null; then
   shift
   set -- python3 "$SCRIPT_DIR/src/main/cli/walkthrough/walkthrough.py" "$@"
 else
-  echo "error: venv not found at $VENV — pre-venv, the machine report and the mint are ./src/main/cli/prerequisites/prerequisites.sh [sync --apply], and corpus-yoga walkthrough walks them" >&2
+  echo "error: venv not found at $VENV — pre-venv, the machine report and the mint are ./src/main/cli/status/status.sh [sync --apply], and corpus-yoga walkthrough walks them" >&2
   exit 1
 fi
 

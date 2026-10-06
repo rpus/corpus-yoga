@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 provider.py - the provider registry (rsc/provider/providers.csv). A LIBRARY, not a
-command: nothing here reports. `corpus-yoga prerequisites` is the voice that says what
+command: nothing here reports. `corpus-yoga status` is the voice that says what
 this machine has of each provider.
 
 One fact: providers(), the declared providers in registry order, each row as its

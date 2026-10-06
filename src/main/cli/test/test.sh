@@ -22,12 +22,12 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
 # BOTH hooks this repo owns, because installing one without the other has no reason:
-# they are the same machinery (src/test/), on the same event, and `corpus-yoga prerequisites`
+# they are the same machinery (src/test/), on the same event, and `corpus-yoga status`
 # nags for both. Naming which to install would put a flag on an axis the command already
 # is (G21), and the answer would always be "both".
 #
 # pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what
-# an installed hook must be: install writes it, prerequisites and the gate compare against
+# an installed hook must be: install writes it, the status and the gate compare against
 # it. A copy that drifts is caught by that comparison rather than trusted — the objection
 # to copies is silent drift, and nothing here is silent.
 #

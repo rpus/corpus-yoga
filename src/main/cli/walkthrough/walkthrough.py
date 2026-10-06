@@ -62,8 +62,8 @@ import facts  # noqa: E402
 CLI = REPO / 'src' / 'main' / 'cli'
 sys.path.insert(0, str(CLI))
 from cli import help_of  # noqa: E402 - help is the declaration, from its one reader
-REPORT = 'prerequisites'                              # the machine report: the first noun, and the one that runs before the venv
-REPORT_SCRIPT = './src/main/cli/prerequisites/prerequisites.sh'
+REPORT = 'status'                              # the machine report: the first noun, and the one that runs before the venv
+REPORT_SCRIPT = './src/main/cli/status/status.sh'
 FIRST = (REPORT, 'stage', 'store')                    # the room's state, in the order a reader meets it
 TOP = 'corpus-yoga'                                   # the key of the top, the one spot with no pointer token
 KEYS = 'n next, m members, v value, b back, x run, q quit'

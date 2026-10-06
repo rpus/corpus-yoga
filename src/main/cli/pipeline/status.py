@@ -39,7 +39,6 @@ class Pipeline:
 class Status:
     pipelines: dict[str, Pipeline]
     staged: dict[str, corpus.Staged]
-    remedy: dict[str, str] | None
 
 
 def steps_of(name: str, prep: str | None) -> list[str]:
@@ -77,7 +76,7 @@ def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.count('\t') == 2]
     pipelines = {name: pipeline(name, None if prep == '-' else prep) for kind, name, prep in rows if kind == 'pipeline'}
     report = corpus.report_facts(None)
-    facts.say(Status(pipelines, report.staged, report.remedy))
+    facts.say(Status(pipelines, report.staged))
     return 0
 
 

@@ -23,16 +23,15 @@ from library import migration_note  # noqa: E402 - on the path audit.py inserts:
 
 @dataclass
 class Status(capture_audit.Audit):
-    """The audit's standing, then the staged units the browser captured and the commands on them."""
+    """The audit's standing, then the staged units the browser captured, each by its facts."""
     staged: dict[str, corpus.Staged] | None = None
-    remedy: dict[str, str] | None = None
 
 
 def main() -> int:
     migration_note()
     shape, found = capture_audit.audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')
     report = corpus.report_facts('browser')
-    facts.say(Status(shape.claude, shape.gemini, shape.claude_live, shape.gemini_live, report.staged, report.remedy))
+    facts.say(Status(shape.claude, shape.gemini, shape.claude_live, shape.gemini_live, report.staged))
     return 1 if found else 0
 
 

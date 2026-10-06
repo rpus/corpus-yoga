@@ -1,0 +1,7 @@
+{
+  "summary": "wrangles AI conversations - Claude and Gemini, chat and code - into one validated, readable, indexed corpus",
+  "suggests": [
+    "status",
+    "walkthrough"
+  ]
+}

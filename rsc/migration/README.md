@@ -10,7 +10,7 @@ step.sh.
 - bare, a script prints each step it would take and takes none; `--apply` takes them.
 - a step whose from is absent prints nothing: a second run does nothing.
 - a from and a to both present halt the script with the pair named; nothing here chooses.
-- `corpus-yoga prerequisites` runs every script bare and names one with steps to take,
+- `corpus-yoga status` runs every script bare and names one with steps to take,
   by its path, as the reader's remedy.
 
 rsc/naming holds the grammars of names that arrive from outside the repository, which

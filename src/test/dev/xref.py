@@ -65,7 +65,7 @@ SKIP_FILES = {'rsc/test/run.log', 'rsc/test/xref.csv'}
 # requirements name DISTRIBUTIONS, imports name MODULES, and they differ (PyYAML provides
 # yaml), so the correspondence is read from installed metadata rather than assumed. Falling
 # back to the declared names keeps the scan working on a machine whose venv is not built yet
-# — a state `corpus-yoga prerequisites` reports.
+# — a state `corpus-yoga status` reports.
 def _declared_modules() -> set[str]:
     req = REPO_ROOT / 'src' / 'requirements.txt'
     if not req.is_file():

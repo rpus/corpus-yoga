@@ -108,6 +108,6 @@ Signature: <machine>/<provider>/<session>
   ... then the author's evidence, beneath the list>
 - **use** — <per flow the PR changes, two columns — the commands typed on main beside the
   commands typed on the branch, each with what it writes; machine-local adoption belongs
-  in `corpus-yoga prerequisites`' report: state it cannot see is a species to add (the
+  in `corpus-yoga status`' report: state it cannot see is a species to add (the
   mount precedent), not prose to remember>
 - **do** — <what this raises or advances>

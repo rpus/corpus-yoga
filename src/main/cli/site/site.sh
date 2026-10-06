@@ -89,10 +89,10 @@ status() {
       printf 'deploy\t%s\n' "the mount ext/mnt/site is present; cp -R data/output/site/ ext/mnt/site/, then commit and push there"
     elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
       # a machine that once deployed and moved its clone — the reader most surprised by
-      # "no mount", and the one who least needs the convention; say what prerequisites says
+      # "no mount", and the one who least needs the convention; say what status says
       printf 'deploy\t%s\n' "ext/mnt/site is a dangling link to $(readlink "$REPO_DIR/ext/mnt/site") - repoint it at the site repo's clone, or remove it"
     else
-      printf 'deploy\t%s\n' "no ext/mnt/site mount on this machine - optional; corpus-yoga prerequisites shows the convention"
+      printf 'deploy\t%s\n' "no ext/mnt/site mount on this machine - optional; corpus-yoga status shows the convention"
     fi
   } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/site/status.py"
 }
@@ -106,7 +106,7 @@ publish() {
   [[ "${1-}" == "--apply" ]] && apply=1
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
-    echo "site publish: NOT DONE — ext/mnt/site is not a git clone; corpus-yoga prerequisites reports the mount"
+    echo "site publish: NOT DONE — ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
     return 1
   fi
   if [[ ! -d "$OUT" ]]; then
