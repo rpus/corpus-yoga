@@ -1080,12 +1080,6 @@ def _declares(noun: str, verb: str, flag: str) -> bool:
     return any(arg['name'] == flag for arg in declared.get('args', []))
 
 
-def _whole_extent(noun: str) -> str:
-    """The words after `promote` that name everything the noun staged: --all where its
-    promote declares the flag, nothing where the verb has no extent."""
-    return ' --all' if _declares(noun, 'promote', '--all') else ''
-
-
 @dataclass
 class Paired:
     """An export named by a star, as the status states it: what stands of it, held or
@@ -1157,20 +1151,18 @@ class StageReport:
 def report_facts(noun: str | None) -> StageReport:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
     `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759, #800): each unit by
-    its address with its facts beneath, and the commands that act on them. The counts are
+    its address with its facts beneath, and a remedy where a unit's state is one - unjudged,
+    incomplete or held already. A promotable unit is no fault, so no command is named for
+    it: what follows a capture is its noun's to say (#767). The counts are
     `corpus-yoga stage`'s to say. Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     staged: dict[str, Staged] = {}
-    by_noun: dict[str, int] = {}
     for row in rows:
-        if row.state == 'promotable':
-            n = noun_of(row.unit) or '?'
-            by_noun[n] = by_noun.get(n, 0) + 1
         verdict = REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing else (row.words or None)
         staged[row.unit.address.as_posix()] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
                                                      rehearsal_stamp() if row.unit.cache is not None else None)
     counts = tally(rows)
-    remedy = {f'corpus-yoga {n} promote{_whole_extent(n)}': f'promotes {k}' for n, k in sorted(by_noun.items())}
+    remedy: dict[str, str] = {}
     if counts['unjudged']:
         remedy['corpus-yoga pipeline rehearse'] = f"judges {counts['unjudged']} unjudged"
     removable = counts['held already'] + counts['incomplete']
