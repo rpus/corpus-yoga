@@ -65,6 +65,8 @@ empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
 facts.lines_are_yaml
 facts.reads_back_what_it_prints
+facts.wraps_and_reads_back
+facts.wraps_only_for_a_terminal
 files.required_exists
 grammar.citation_is_stated
 grammar.enforcement_map

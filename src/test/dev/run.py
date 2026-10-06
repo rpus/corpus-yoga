@@ -2139,6 +2139,81 @@ def check_facts(run) -> None:
     except ValueError:
         twice = None
     run('facts: the reader refuses a key that stands twice', twice is None, twice, check='facts.reads_back_what_it_prints')
+    # A value too long for the terminal continues on indented lines and loads as the same
+    # value (#790): at a given width no line passes it, each fact unbroken is one line, and
+    # what was broken loads as what was printed - under a YAML reader and under the
+    # printer's own - at every depth, plain or quoted, in a mapping or a list, and with no
+    # line opening on a dash the value held.
+    long = {'top': {'plain': 'walk the room - each word of this value is one a break may fall before, and - a dash - opens none',
+                    'quoted': 'said: a value YAML would misread, so it is quoted, and long enough to be broken more than once',
+                    'bare': ['a bare value in a list, long enough that it too continues on the lines beneath it'],
+                    'members': [{'name': 'a mapping in a list, whose first pair shares the dash and is long enough to continue', 'n': 1}],
+                    'short': 'stays'}}
+    width = 40
+    try:
+        narrow = facts.lines(long, width=width)
+    except TypeError:
+        narrow = None
+    if narrow is None:
+        why = 'the printer takes no width: a long value is one long line, and a terminal continues it at column 0, left of its own key'
+    else:
+        joined = '\n'.join(narrow)
+        try:
+            import yaml
+            theirs = yaml.safe_load(joined)
+        except ModuleNotFoundError:
+            theirs = long
+        except Exception as error:               # a YAML reader refusing the broken lines is the finding
+            theirs = f'refused - {error}'
+        try:
+            mine = load(joined)
+        except ValueError as error:
+            mine = f'refused - {error}'
+        over = [line for line in narrow if len(line) > width]
+        # a width at which the break would fall before the dash, were it allowed to
+        dashed = [line for line in facts.lines({'k': 'aaaa bbbb - cccc'}, width=12) if line.strip().startswith('-')]
+        why = (f'{len(over)} line(s) pass {width} columns: {over[0]!r}' if over
+               else f'a fact printed with no width is not one line: {len(facts.lines(long))} lines for 9 facts' if len(facts.lines(long)) != 9
+               else f'a YAML reader reads the broken lines as {str(theirs)[:160]}' if theirs != long
+               else f'the printer\'s reader reads the broken lines as {str(mine)[:160]}' if mine != long
+               else f'a continuation opens on a dash the value held: {dashed[0]!r}' if dashed
+               else None)
+    run('facts: a value too long for the width continues on indented lines and loads as the same value', why is None, why,
+        check='facts.wraps_and_reads_back')
+    # The width is the terminal's, read when the lines are printed (#790): said to a
+    # terminal 40 columns wide a long value is broken to fit it; said to a pipe it is one line.
+    import fcntl
+    import pty
+    import struct
+    import subprocess
+    import termios
+    said = 'a value long enough that a terminal forty columns wide cannot hold it on one line with its key'
+    program = (f'import sys; sys.path.insert(0, {str(SRC / "main")!r}); import facts; from dataclasses import dataclass\n'
+               f'@dataclass\nclass Said:\n    said: str\nfacts.say(Said({said!r}))')
+    quiet = {key: value for key, value in os.environ.items() if key not in ('COLUMNS', 'LINES')}
+    master, slave = pty.openpty()
+    try:
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 24, width, 0, 0))
+        saying = subprocess.Popen([sys.executable, '-c', program], stdout=slave, env=quiet)
+        os.close(slave)                           # the child holds the terminal; what it writes is read before it closes
+        shown = b''
+        while True:
+            try:
+                chunk = os.read(master, 4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            shown += chunk
+        saying.wait(timeout=60)
+    finally:
+        os.close(master)
+    to_terminal = shown.decode().replace('\r', '').strip('\n').split('\n')
+    to_pipe = subprocess.run([sys.executable, '-c', program], capture_output=True, text=True, env=quiet, timeout=60).stdout.strip('\n').split('\n')
+    why = (f'said to a pipe it is {len(to_pipe)} lines, not one' if len(to_pipe) != 1
+           else f'said to a terminal {width} columns wide it is {len(to_terminal)} line(s), the longest {max(map(len, to_terminal))} columns'
+           if len(to_terminal) < 2 or max(map(len, to_terminal)) > width else None)
+    run('facts: the width is the terminal\'s, and a pipe is given one line a fact', why is None, why, check='facts.wraps_only_for_a_terminal')
 
 
 def check_walkthrough(run) -> None:

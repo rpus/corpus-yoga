@@ -5,7 +5,9 @@ A status holds its facts as data - mappings of counts, lists of units, a verdict
 prints them here: one fact per line, a fact that qualifies another indented beneath it,
 a heading over the items it covers. The lines are YAML, so the same artifact is read by a
 human by its shape and loaded by a machine as data; no width is enforced, since a line
-that is one fact is as long as its fact. The emitter covers what a status holds -
+that is one fact is as long as its fact. Said to a terminal, a value too long for the
+terminal's width continues on lines indented beneath it (#790), which YAML and the reader
+here both read as the one value; said anywhere else a fact stays one line. The emitter covers what a status holds -
 mappings, lists, strings, numbers, booleans and None - and quotes a string wherever YAML
 would otherwise read it as something else.
 
@@ -25,6 +27,8 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
+import sys
 from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import PurePath
 from typing import TYPE_CHECKING
@@ -57,37 +61,90 @@ def scalar(value) -> str:
     return text if plain else json.dumps(text, ensure_ascii=False)
 
 
-def lines(facts, depth: int = 0) -> list[str]:
-    """The facts as lines: a mapping's keys in their given order, each a line, with a
-    nested mapping or list beneath it; a list's items each a line opening with a dash, a
-    mapping item carrying its first pair on that line and the rest beneath."""
-    pad = ' ' * (depth * STEP)
-    out: list[str] = []
+def _rows(facts, depth: int) -> list[tuple[int, str, str | None]]:
+    """The facts as rows: each a line's indentation, its head - a key and its colon, a
+    dash, both, or nothing - and the value that follows the head on that line, if any."""
+    indent = depth * STEP
+    out: list[tuple[int, str, str | None]] = []
+
+    def inline(value) -> str:
+        return scalar(value) if not isinstance(value, (dict, list)) else ('{}' if isinstance(value, dict) else '[]')
     if isinstance(facts, dict):
         if not facts:
-            return [pad + '{}']
+            return [(indent, '', '{}')]
         for key, value in facts.items():
             if isinstance(value, (dict, list)) and value:
-                out.append(f'{pad}{scalar(key)}:')
-                out.extend(lines(value, depth + 1))
+                out.append((indent, f'{scalar(key)}:', None))
+                out.extend(_rows(value, depth + 1))
             else:
-                out.append(f'{pad}{scalar(key)}: {scalar(value) if not isinstance(value, (dict, list)) else ("{}" if isinstance(value, dict) else "[]")}')
+                out.append((indent, f'{scalar(key)}:', inline(value)))
         return out
     if isinstance(facts, list):
         if not facts:
-            return [pad + '[]']
+            return [(indent, '', '[]')]
         for item in facts:
             if isinstance(item, dict) and item:
-                inner = lines(item, depth + 1)
-                out.append(f'{pad}- {inner[0].lstrip()}')
+                inner = _rows(item, depth + 1)
+                out.append((indent, f'- {inner[0][1]}', inner[0][2]))
                 out.extend(inner[1:])
             elif isinstance(item, list) and item:
-                out.append(f'{pad}-')
-                out.extend(lines(item, depth + 1))
+                out.append((indent, '-', None))
+                out.extend(_rows(item, depth + 1))
             else:
-                out.append(f'{pad}- {scalar(item) if not isinstance(item, (dict, list)) else ("{}" if isinstance(item, dict) else "[]")}')
+                out.append((indent, '-', inline(item)))
         return out
-    return [pad + scalar(facts)]
+    return [(indent, '', scalar(facts))]
+
+
+# A continuation line that opened on one of these would read as something other than the
+# rest of its value - an item, a comment, a key - so no break falls before such a word.
+_NO_BREAK_BEFORE = set('-?:#&*!|>%@`[]{},')
+
+
+def _broken(indent: int, head: str, value: str, width: int) -> list[str]:
+    """One row as lines no longer than `width` where its words allow: the value broken
+    between words, each continuation indented deeper than the row's key, or than its dash
+    where it has no key. YAML folds such lines into the one value, a space at each
+    break, plain or double-quoted - so a break falls only at a single space, and a value
+    holding two together, or none, stays one line."""
+    first = ' ' * indent + head + (' ' if head else '')
+    words = value.split(' ')
+    if len(first) + len(value) <= width or len(words) < 2 or '' in words:
+        return [first + value]
+    beneath = ' ' * (indent + (STEP if head.startswith('-') else 0) + (STEP if head.endswith(':') else 0))
+    out: list[str] = []
+    line: list[str] = [words[0]]
+    lead = first
+    for word in words[1:]:
+        if len(lead) + len(' '.join(line)) + 1 + len(word) <= width:
+            line.append(word)
+            continue
+        carried: list[str] = []
+        if word[0] in _NO_BREAK_BEFORE:               # the break moves a word earlier, and the word goes down with this one
+            if len(line) < 2 or line[-1][0] in _NO_BREAK_BEFORE:
+                line.append(word)                     # no earlier place to break: the line runs long
+                continue
+            carried = [line.pop()]
+        out.append(lead + ' '.join(line))
+        lead, line = beneath, [*carried, word]
+    out.append(lead + ' '.join(line))
+    return out
+
+
+def lines(facts, depth: int = 0, width: int | None = None) -> list[str]:
+    """The facts as lines: a mapping's keys in their given order, each a line, with a
+    nested mapping or list beneath it; a list's items each a line opening with a dash, a
+    mapping item carrying its first pair on that line and the rest beneath. Given a
+    width, a value that would pass it continues on indented lines; a key is never broken."""
+    out: list[str] = []
+    for indent, head, value in _rows(facts, depth):
+        if value is None:
+            out.append(' ' * indent + head)
+        elif width is None:
+            out.append(' ' * indent + head + (' ' if head else '') + value)
+        else:
+            out.extend(_broken(indent, head, value, width))
+    return out
 
 
 # -- reading: the printer's inverse ------------------------------------------------------------
@@ -124,6 +181,14 @@ def _pair(text: str) -> tuple[str, str] | None:
     return (text[:-1], '') if text.endswith(':') else None
 
 
+def _continued(rows: list[tuple[int, str]], at: int, indent: int, value: str) -> tuple[str, int]:
+    """A value with the lines that continue it - each deeper than `indent`, where its key
+    or its dash stands - joined by a space at each break: (the value, the row after it)."""
+    while at < len(rows) and rows[at][0] > indent:
+        value, at = f'{value} {rows[at][1]}', at + 1
+    return value, at
+
+
 def _block(rows: list[tuple[int, str]], start: int, indent: int):
     """The mapping or list whose lines stand at `indent` from row `start`: (it, the row after it)."""
     at = start
@@ -137,7 +202,8 @@ def _block(rows: list[tuple[int, str]], start: int, indent: int):
                 rows[at] = (indent + STEP, rest)
                 item, at = _block(rows, at, indent + STEP)
             else:
-                item, at = _scalar(rest), at + 1
+                rest, at = _continued(rows, at + 1, indent, rest)
+                item = _scalar(rest)
             items.append(item)
         return items, at
     out: dict = {}
@@ -149,7 +215,8 @@ def _block(rows: list[tuple[int, str]], start: int, indent: int):
         if key in out:
             raise ValueError(f'the key {key!r} stands twice in one mapping')
         if rest:
-            out[key], at = _scalar(rest), at + 1
+            rest, at = _continued(rows, at + 1, indent, rest)
+            out[key] = _scalar(rest)
         elif at + 1 < len(rows) and rows[at + 1][0] > indent:
             out[key], at = _block(rows, at + 1, rows[at + 1][0])
         else:
@@ -226,7 +293,13 @@ def plain(shape):
     return shape
 
 
+def terminal_width() -> int | None:
+    """The width of the terminal the lines are printed to; None where they go to a pipe,
+    a file or a capture, whose reader is given one line a fact."""
+    return shutil.get_terminal_size().columns if sys.stdout.isatty() else None
+
+
 def say(shape: DataclassInstance) -> None:
     """Print a status: its named shape, as YAML. A status is said once, whole, so that its
     keys are the fields of one type."""
-    print('\n'.join(lines(plain(shape))))
+    print('\n'.join(lines(plain(shape), width=terminal_width())))

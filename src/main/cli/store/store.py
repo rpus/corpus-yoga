@@ -260,7 +260,7 @@ def clean(apply: bool) -> int:
     if not rows and not apply:
         print('  []')
     for kind, item, paths in rows:
-        for line in facts.lines(facts.plain([item]), 1):
+        for line in facts.lines(facts.plain([item]), 1, width=facts.terminal_width()):
             print(line)
         if not apply:
             did[kind] += 1
