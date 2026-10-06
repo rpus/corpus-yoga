@@ -374,7 +374,7 @@ def _words_extent(staged, held, unit: Unit) -> str:
 
 def _words_mirror(staged, held, unit: Unit) -> str:
     removed = len(set(held or {}) - set(staged))
-    return f'mirrored: {len(held or ())} -> {len(staged)} file(s), {removed} removed'
+    return f'{len(held or ())} -> {len(staged)} file(s) mirrored, {removed} removed'
 
 
 def _words_whole(staged, held, unit: Unit) -> str:
