@@ -5,19 +5,19 @@
       "name": "--provider",
       "type": "claude|gemini",
       "cardinality": "1/browser-capture-1",
-      "help": "every conversation of ONE provider: claude | gemini; or with --id one of them"
+      "help": "every conversation of one provider, claude or gemini; with --id, one of them"
     },
     {
       "name": "--mechanism",
       "type": "API|DOM",
       "cardinality": "",
-      "help": "restrict to one mechanism: API | DOM (default: every mechanism the provider has)"
+      "help": "restrict to one mechanism, API or DOM; every mechanism the provider has unless named"
     },
     {
       "name": "--id",
       "type": "<id>",
       "cardinality": "",
-      "help": "capture ONE conversation (the audit FAILs name it); requires --provider — an id's shape does not say whose it is"
+      "help": "capture ONE conversation (the audit FAILs name it); requires --provider - an id's shape does not say whose it is"
     },
     {
       "name": "--all",
@@ -29,18 +29,18 @@
       "name": "--dry-run",
       "type": "",
       "cardinality": "",
-      "help": "discover and state the extent (captured / never-captured), then stop — captures nothing, writes nothing"
+      "help": "discover and state the extent (captured / never-captured), then stop - captures nothing, writes nothing"
     }
   ],
   "sends": {
     "osascript": [
-      "drives Safari against the logged-in session — navigating, and evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
+      "drives Safari against the logged-in session - navigating, and evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
     ],
     "urllib.request (claude.ai API)": [
       "fetches conversations over the session's own authenticated API (refused loudly under YOGA_NO_SEND)"
     ],
     "fetch (in-page, session-authenticated)": [
-      "claude: GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks — the capture completes the record (#422)"
+      "for claude, GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks - the capture completes the record (#422)"
     ]
   },
   "w": [

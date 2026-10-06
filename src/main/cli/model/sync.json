@@ -1,5 +1,5 @@
 {
-  "help": "(re-)generate every catalogue to agree with the schemas — idempotent",
+  "help": "(re-)generate every catalogue to agree with the schemas - idempotent",
   "args": [],
   "r": [
     "rsc/schema",

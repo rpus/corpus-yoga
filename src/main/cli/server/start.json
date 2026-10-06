@@ -5,13 +5,13 @@
       "name": "--markdown",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the markdown tree to serve (default: data/output/markdown)"
+      "help": "the markdown tree to serve; data/output/markdown unless named"
     },
     {
       "name": "--port",
       "type": "<n>",
       "cardinality": "",
-      "help": "port to serve on (default: 8182)"
+      "help": "port to serve on; 8182 unless named"
     },
     {
       "name": "--daemon",
@@ -22,7 +22,7 @@
   ],
   "sends": {
     "urllib.request.urlretrieve": [
-      "reaches ensure-assets when render libs are missing, so the first serve on a fresh clone downloads them (refused loudly under YOGA_NO_SEND: serve will not start half-rendered)"
+      "reaches ensure-assets when render libs are missing, so the first serve on a fresh clone downloads them (refused loudly under YOGA_NO_SEND - serve will not start half-rendered)"
     ]
   },
   "r": [

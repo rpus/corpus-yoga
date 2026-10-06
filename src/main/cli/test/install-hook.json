@@ -1,5 +1,5 @@
 {
-  "help": "point .git/hooks/pre-commit at src/test/dev/run.sh — idempotent, and repairs a link left dangling by a rename",
+  "help": "point .git/hooks/pre-commit at src/test/dev/run.sh - idempotent, and repairs a link left dangling by a rename",
   "args": [],
   "r": [
     "rsc/test"

@@ -14,7 +14,7 @@
       "name": "--api-capture",
       "type": "<dir>",
       "cardinality": "",
-      "help": "API-capture root — the rolling capture source",
+      "help": "API-capture root - the rolling capture source",
       "default": "data/input/claude/chat/API-capture"
     },
     {
@@ -28,7 +28,7 @@
       "name": "--summaries-output",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the summary deposit store — the write target",
+      "help": "the summary deposit store - the write target",
       "default": "data/output/markdown/claude/chat/summaries"
     }
   ]

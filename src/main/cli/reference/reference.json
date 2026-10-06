@@ -1,5 +1,5 @@
 {
-  "summary": "the upstream reference artefacts under rsc/reference, every lineage upstream publishes (bare: what upstream lists, what is held, what drifted)",
+  "summary": "the upstream reference artefacts under rsc/reference, every lineage upstream publishes (bare says what upstream lists, what is held, what drifted)",
   "target": "src/main/reference/reference.py",
   "calculus": "L9",
   "args": [],

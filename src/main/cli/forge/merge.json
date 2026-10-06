@@ -1,11 +1,21 @@
 {
-  "help": "the reviewer's one act (#483): reads the PR and refuses anything not OPEN, a body with no 'aims to complete #N' to flip, a title that copies no aimed issue's title (#479), an aimed issue whose open blocker the body does not aim to complete (#482), or refuse-class drift in the standing report; relocates once onto the base only if it moved - in a detached worktree of its own under tmp/forge/merge/, disposed of whatever happens, so this checkout never moves for it (#507): the lifetime's one rebase, replaying only the commits the base does not already hold, tree for tree - #585; rsc/test/ conflicts are the syntactic class, taken wholesale and settled by the gate's own regeneration; any other conflict aborts back to review - resyncs a clean checkout that holds the branch and says so, checks out the head being merged and runs the data gate there (corpus-yoga pipeline run, which opens on the commit gate - #541, #549: a red halts, the regenerated rsc/test/ is discarded and the checkout is put back where it was, and the halt is the last word, naming the gate, the failing stage(s) and the head - #601), then flips the body's phrasing to closes as the LAST edit before the squash - a refused squash restores the body as found, so a flipped-but-unmerged PR cannot exist - lands the squash pinned to the head every check saw (no message flags, so the body is assembled from the branch's commits and keeps their signatures), converges this checkout on the merge commit, sweeps what the merge orphaned via prune --apply, and the last word is one anchored verdict: forge merge: DONE naming the squash, or NOT DONE naming the halt",
+  "help": "the reviewer's one act (#483) - refuses what cannot merge, relocates once onto a moved base, runs the data gate on the head, flips the body's phrasing to closes, squashes pinned to that head, and converges this checkout; each step beneath",
+  "explanation": {
+    "refuses": "anything not OPEN, a body with no aims-to-complete line to flip, a title that copies no aimed issue's title (#479), an aimed issue whose open blocker the body does not aim to complete (#482), or refuse-class drift in the standing report",
+    "relocates": "once onto the base, only if it moved - in a detached worktree of its own under tmp/forge/merge/, disposed of whatever happens, so this checkout never moves for it (#507); the lifetime's one rebase, replaying only the commits the base does not already hold, tree for tree (#585); rsc/test/ conflicts are the syntactic class, taken wholesale and settled by the gate's own regeneration; any other conflict aborts back to review",
+    "resyncs": "a clean checkout that holds the branch, and says so",
+    "gates": "checks out the head being merged and runs the data gate there - corpus-yoga pipeline run, which opens on the commit gate (#541/#549); a red halts, the regenerated rsc/test/ is discarded, the checkout is put back where it was, and the halt is the last word, naming the gate, the failing stage(s) and the head (#601)",
+    "flips": "the body's phrasing to closes, as the LAST edit before the squash; a refused squash restores the body as found, so a flipped-but-unmerged PR cannot exist",
+    "squashes": "pinned to the head every check saw, with no message flags, so the body is assembled from the branch's commits and keeps their signatures",
+    "converges": "this checkout on the merge commit, and sweeps what the merge orphaned via prune --apply",
+    "ends": "with one anchored verdict - DONE naming the squash, or NOT DONE naming the halt, each headed forge merge"
+  },
   "args": [
     {
       "name": "pr",
       "type": "<pr>",
       "cardinality": "1",
-      "help": "the PR to merge: a number, a URL, or a branch"
+      "help": "the PR to merge, as a number, a URL or a branch"
     }
   ],
   "sends": {
@@ -15,10 +25,10 @@
       "reads a merged parent's final head when finding a stacked branch's relocation point (#585)"
     ],
     "gh issue view": [
-      "reads each aimed issue's title (#479): a title that copies none of them refuses the merge before any enacting step"
+      "reads each aimed issue's title (#479); a title that copies none of them refuses the merge before any enacting step"
     ],
     "gh api": [
-      "reads each aimed issue's open blockers (#482): a body that leaves one unaimed refuses the merge before any enacting step",
+      "reads each aimed issue's open blockers (#482); a body that leaves one unaimed refuses the merge before any enacting step",
       "reads, for each base commit since the merge-base, the PR that introduced it (commits/<sha>/pulls) and that PR's force-push timeline (superseded-heads.graphql), to find the point a stacked branch relocates from and name the merged parent (#585) - only when the base had moved"
     ],
     "git fetch origin <base> <head>": [
@@ -28,7 +38,7 @@
       "WRITES the relocated head back to the PR, leased against the sha the merge read - only when the base had moved (refused loudly under YOGA_NO_SEND)"
     ],
     "gh pr edit --body-file": [
-      "WRITES the flipped body as the last edit before the squash: every 'aims to complete #N' becomes 'closes #N' - and WRITES it back as found if the squash refuses (refused loudly under YOGA_NO_SEND)"
+      "WRITES the flipped body as the last edit before the squash, every aims-to-complete line becoming a closes line - and WRITES it back as found if the squash refuses (refused loudly under YOGA_NO_SEND)"
     ],
     "gh pr merge --squash": [
       "WRITES the merge, pinned to the merge's own sha of the head every check saw - fetched or just pushed, never re-read from the eventually-consistent API (#488; refused loudly under YOGA_NO_SEND)"

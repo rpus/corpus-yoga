@@ -1,5 +1,5 @@
 {
-  "help": "FREE \u2014 render index.html, the corpus page, from the captures + markdown corpus \u2014 idempotent",
+  "help": "FREE - render index.html, the corpus page, from the captures + markdown corpus - idempotent",
   "args": [],
   "r": [
     "data/output/markdown",

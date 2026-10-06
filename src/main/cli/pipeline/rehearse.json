@@ -1,5 +1,5 @@
 {
-  "help": "the stage's judgement, whole: every pipeline over everything staged, in a rehearsal of its own - the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and tmp/stage/rehearsal/<stamp>/tmp. It takes no extent, so the newest rehearsal is the verdict for every unit. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
+  "help": "the stage's judgement, whole - every pipeline over everything staged, in a rehearsal of its own - the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and tmp/stage/rehearsal/<stamp>/tmp. It takes no extent, so the newest rehearsal is the verdict for every unit. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
   "args": [],
   "r": [
     "tmp/stage/input",

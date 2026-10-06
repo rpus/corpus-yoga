@@ -5,7 +5,7 @@
       "name": "--id",
       "type": "<uuid-prefix>",
       "cardinality": "1/agent-install-1",
-      "help": "uuid(8) prefix of the agent to install — identity is never guessed"
+      "help": "uuid(8) prefix of the agent to install - identity is never guessed"
     },
     {
       "name": "--all",
@@ -17,13 +17,13 @@
       "name": "--from",
       "type": "<machine|dir>",
       "cardinality": "1",
-      "help": "the peer store to install from — a machine name (bare token) or a directory (./dir or a path)"
+      "help": "the peer store to install from - a machine name (bare token) or a directory (./dir or a path)"
     },
     {
       "name": "--apply",
       "type": "",
       "cardinality": "",
-      "help": "perform the merge — without it, a dry run that only reports"
+      "help": "perform the merge - without it, a dry run that only reports"
     }
   ],
   "r": [

@@ -5,13 +5,13 @@
       "name": "pipeline",
       "type": "<pipeline>",
       "cardinality": "",
-      "help": "one pipeline by name (bare: all of them); validated against the pipelines that exist"
+      "help": "one pipeline by name, validated against the pipelines that exist; bare, all of them"
     },
     {
       "name": "item",
       "type": "<item>",
       "cardinality": "",
-      "help": "one input item under that pipeline's root (bare: the whole root); passed to the pipeline's run.sh as --item"
+      "help": "one input item under that pipeline's root, passed to the pipeline's run.sh as --item; bare, the whole root"
     },
     {
       "name": "--plan",

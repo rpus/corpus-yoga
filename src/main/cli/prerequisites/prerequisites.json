@@ -1,10 +1,10 @@
 {
-  "summary": "what this machine has and what it still needs — bare reports, sync installs what is the repos to install",
+  "summary": "what this machine has and what it still needs - bare reports, sync installs what is the repo's to install",
   "explanation": {
     "machine": "its own name for itself - never shared, never transported; the Signature names it and capture addresses the store by it",
     "tools": {
       "jq": "every pipeline's json work runs through it",
-      "python3": "the one python3 that survives (#478): it mints the venv, and everything else runs the venv's python",
+      "python3": "the one python3 that survives (#478) - it mints the venv, and everything else runs the venv's python",
       "pyright": "corpus-yoga test run type-checks src/ against pyrightconfig.json with it",
       "shellcheck": "corpus-yoga test run lints every src/**/*.sh with it",
       "docker": "corpus-yoga test run reproduces the mcp snapshot through upstream's generator (mcp.reproducible); corpus-yoga mcp reproduce runs it alone",
@@ -17,14 +17,14 @@
     "render assets": "what corpus-yoga server renders markdown with, by its manifest src/main/model/serve_assets.txt; corpus-yoga server says them",
     "completions": "whether pressing tab after corpus-yoga offers its commands and flags in zsh; corpus-yoga completions says it",
     "git": "the tool, and the identity a commit requires",
-    "pre-commit hook": "the repo's commit gate: until installed, nothing vets a commit; corpus-yoga test says it",
-    "signature hook": "stamps Signature: machine/provider/session on a commit, and strips the model co-author; corpus-yoga test says it",
+    "pre-commit hook": "the repo's commit gate - until installed, nothing vets a commit; corpus-yoga test says it",
+    "signature hook": "stamps the Signature line, machine/provider/session, on a commit, and strips the model co-author; corpus-yoga test says it",
     "forge settings": "declared in src/main/cli/forge/forge.csv; server-side, so unverifiable offline",
     "pipeline inputs": "this repo ships no data; a room supplies its own, and each pipeline reads its store under data/input",
     "live stores": "each provider's own store of its sessions, harness-owned and expiring at the provider's will, read through a mount, ext/mnt/agent/<provider>",
     "deploy": "ext/mnt/site, the site repo's clone, which corpus-yoga site's tree copies to; only a deploying machine needs it",
-    "stage": "tmp/stage/input: what this room has captured and not yet promoted",
-    "migration": "rsc/migration: the moves a rename owes this machine's local roots, each a guarded script run once"
+    "stage": "tmp/stage/input - what this room has captured and not yet promoted",
+    "migration": "rsc/migration - the moves a rename owes this machine's local roots, each a guarded script run once"
   },
   "target": "src/main/cli/prerequisites/prerequisites.sh",
   "calculus": "L8",
@@ -33,7 +33,7 @@
       "name": "--show-all",
       "type": "",
       "cardinality": "",
-      "help": "show the full report, including satisfied (✓) items (default: only what needs attention)"
+      "help": "show the full report, satisfied items included; without it, only what needs attention"
     }
   ],
   "r": [

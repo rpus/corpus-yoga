@@ -3,7 +3,7 @@
   "args": [],
   "sends": {
     "urllib.request.urlretrieve": [
-      "downloads the 18 render libs named in src/main/model/serve_assets.txt \u2014 MISSING files only, so a warmed cache sends nothing (refused loudly under YOGA_NO_SEND; an offline or refused cache sync tolerates it)"
+      "downloads the 18 render libs named in src/main/model/serve_assets.txt - MISSING files only, so a warmed cache sends nothing (refused loudly under YOGA_NO_SEND; an offline or refused cache sync tolerates it)"
     ]
   },
   "r": [

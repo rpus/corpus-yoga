@@ -9,6 +9,27 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "explanation": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      },
+      "description": "What the verb's things or steps are, by topic (#795) - what reads the same in every room. The help says what the verb is for; this says the rest, each topic one sentence or the topics beneath it. `corpus-yoga <command> -h` and the walk show them beneath the verb's summary."
+    },
     "help": {
       "type": "string",
       "minLength": 1,

@@ -1,11 +1,11 @@
 {
-  "help": "stage a manifest and its payload: the manifest moved from where the download left it, each file it lists downloaded by navigating Safari to its one-use export_url - the export page fetches a signed storage URL and Safari takes the download, unpacking it where it opens safe files - and deposited into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
+  "help": "stage a manifest and its payload - the manifest moved from where the download left it, each file it lists downloaded by navigating Safari to its one-use export_url - the export page fetches a signed storage URL and Safari takes the download, unpacking it where it opens safe files - and deposited into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
   "args": [
     {
       "name": "--manifest",
       "type": "<file>",
       "cardinality": "1",
-      "help": "the manifest, wherever the download left it - required: each export_url is one-use, so no default picks one"
+      "help": "the manifest, wherever the download left it; required, since each export_url is one-use and no default may pick one"
     }
   ],
   "x": [

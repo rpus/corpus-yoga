@@ -12,7 +12,7 @@
       "name": "--names",
       "type": "",
       "cardinality": "",
-      "help": "the pipeline names alone, one per line — for a reader that is a program; `run` runs exactly these"
+      "help": "the pipeline names alone, one per line - for a reader that is a program; `run` runs exactly these"
     }
   ]
 }
