@@ -128,9 +128,10 @@ def tokens_of(pointer: str) -> list[str]:
 
 
 def command_of(key: str) -> list[str] | None:
-    """The key as a command the walk can run: corpus-yoga and a declared command, or the
-    machine report's own script, the one command there is before the launcher works. A
-    placeholder the reader must fill makes it theirs to type."""
+    """The key as a command the walk can run: a declared command's name, as the top holds
+    it; corpus-yoga and a declared command, as a remedy spells it; or the machine report's
+    own script, the one command there is before the launcher works. A placeholder the
+    reader must fill makes it theirs to type."""
     if '<' in key:
         return None
     try:
@@ -141,6 +142,8 @@ def command_of(key: str) -> list[str] | None:
         return None
     if words[0] == REPORT_SCRIPT:
         return words
+    if len(words) == 1 and (CLI / words[0] / f'{words[0]}.json').is_file():
+        return [str(REPO / 'corpus-yoga'), words[0]]     # a command's own name, as the top holds it
     if words[0].removeprefix('./') == 'corpus-yoga' and len(words) > 1 and (CLI / words[1] / f'{words[1]}.json').is_file():
         return [str(REPO / 'corpus-yoga'), *words[1:]]
     return None

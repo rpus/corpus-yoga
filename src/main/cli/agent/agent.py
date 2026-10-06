@@ -134,6 +134,7 @@ sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 import tier  # noqa: E402 — the tiers, one home (#702)
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import corpus  # noqa: E402 - the stage report, and the type of a staged unit
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
 from machine import bound_machine  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
@@ -258,13 +259,13 @@ class Status:
     sessions: Sessions | str
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
-    staged: dict[str, dict[str, str]] | None
-    stage: str
+    staged: dict[str, corpus.Staged]
+    remedy: dict[str, str] | None
 
     def facts(self) -> dict:
         brief = self.drafters
         key = f'drafters on {brief.ref} @ {brief.head}' if brief is not None else 'drafters'
-        return {'sessions': self.sessions, 'mounts': self.mounts, key: brief, 'staged': self.staged, 'stage': self.stage}
+        return {'sessions': self.sessions, 'mounts': self.mounts, key: brief, 'staged': self.staged, 'remedy': self.remedy}
 
 
 def model_census() -> int:
@@ -388,7 +389,7 @@ def main() -> int:
         brief = drafters.brief()
         import corpus
         report = corpus.report_facts('agent')
-        facts.say(Status(census.sessions, census.mounts, brief, report.staged, report.stage))
+        facts.say(Status(census.sessions, census.mounts, brief, report.staged, report.remedy))
         return 0
     if args.verb == 'mount':
         return mount(args.apply)

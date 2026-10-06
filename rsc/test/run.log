@@ -1,4 +1,4 @@
-run.py: code+schema 1590/1590
+run.py: code+schema 1592/1592
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -142,10 +142,11 @@ run.py: code+schema 1590/1590
   ✓ store.export_is_held_within_a_later_one
 
 ── check_status_facts ────────────────────────────────────────────────────────
-  ✓ status.remedy_names_a_command  (39/39)
+  ✓ status.remedy_names_a_command  (37/37)
   ✓ status.lines_load_as_yaml  (20/20)
   ✓ status.value_holds_no_pair  (22/22)
   ✓ report.says_what_the_nouns_say  (6/6)
+  ✓ status.pipeline_says_declarations_and_units  (4/4)
   ✓ report.gives_no_verdict_on_itself
   ✓ cli.bare_suggests_and_runs_nothing
   ✓ report.rows_are_keyed_by_subject
@@ -266,27 +267,27 @@ check_unit_state                       2     0   code      128
 check_store                            2     0   code      131
 check_facts                            5     0   code      135
 check_export_atoms                     1     0   code      141
-check_status_facts                    90     0   code      144
-check_walkthrough                      1     0   code      153
-check_completions                     10     0   code      156
-check_drafters                         2     0   code      163
-check_versioned_schema_diagnostics   374     0   schema    167
-check_schema_join                      2     0   schema    194
-check_model_join_versions              1     0   schema    198
-check_model_table                      1     0   schema    201
-check_model_occurrences                3     0   schema    204
-check_model_obligations              162     0   schema    209
-check_model_identity                   1     0   schema    213
-check_grammar                          2     0   schema    216
-check_provider_registry                2     0   code      219
-check_reference                       21     0   schema    223
-check_mcp_factoring                    9     0   schema    229
-check_mcp_reproducible                 1     0   schema    235
-check_expectation                      2     0   code      238
+check_status_facts                    92     0   code      144
+check_walkthrough                      1     0   code      154
+check_completions                     10     0   code      157
+check_drafters                         2     0   code      164
+check_versioned_schema_diagnostics   374     0   schema    168
+check_schema_join                      2     0   schema    195
+check_model_join_versions              1     0   schema    199
+check_model_table                      1     0   schema    202
+check_model_occurrences                3     0   schema    205
+check_model_obligations              162     0   schema    210
+check_model_identity                   1     0   schema    214
+check_grammar                          2     0   schema    217
+check_provider_registry                2     0   code      220
+check_reference                       21     0   schema    224
+check_mcp_factoring                    9     0   schema    230
+check_mcp_reproducible                 1     0   schema    236
+check_expectation                      2     0   code      239
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 149 types, 1590/1590 invocations passing
-checks[code]: 97 types, 913/913 invocations passing
+checks[code+schema]: 150 types, 1592/1592 invocations passing
+checks[code]: 98 types, 915/915 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1590/1590 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1592/1592 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

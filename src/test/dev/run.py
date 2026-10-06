@@ -2048,6 +2048,58 @@ def check_status_facts(run) -> None:
     run('status: what a measure says of a unit holds no colon followed by a space', paired is None,
         None if paired is None else f'the {paired[0][1:]} measure says {paired[1]}', check='status.value_holds_no_pair')
 
+    # The pipeline noun says each pipeline by its declaration and each staged unit by its
+    # facts (#800): under `pipelines:` the pipelines alone, each with its declared input and
+    # the steps its plan names; under `staged:` a mapping of units, each a mapping of facts;
+    # the counts left to `corpus-yoga stage`; the commands under `remedy:`.
+    pipeline_said = said_by('pipeline')
+    declared_pipelines = sorted(d.name for d in (SRC / 'main' / 'pipeline').iterdir() if (d / 'pipeline.json').is_file())
+    def planned(name: str) -> list[str]:
+        out = subprocess.run([str(SRC / 'main' / 'pipeline' / name / 'run.sh'), '--plan'], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
+        steps: list[str] = []
+        for line in out.splitlines():
+            if line.startswith('  ') and not line.rstrip().endswith(':'):
+                words = line.split()
+                word = ' '.join(words[:3]) if words[0] == 'corpus-yoga' else words[0]   # a step that is a corpus-yoga verb keeps its verb
+                if word not in steps:
+                    steps.append(word)
+        return steps
+    shown = pipeline_said.get('pipelines')
+    shown = shown if isinstance(shown, dict) else {}
+    why = (f'pipelines: holds {sorted(shown) or pipeline_said.get("pipelines")}, where the pipelines are {declared_pipelines}'
+           if sorted(shown) != declared_pipelines else None)
+    for name in declared_pipelines if why is None else []:
+        each = shown[name]
+        declared = json.loads((SRC / 'main' / 'pipeline' / name / 'pipeline.json').read_text())
+        if not isinstance(each, dict):
+            why = f'{name} is said as {str(each)[:80]!r}, not by its declaration'
+        elif each.get('input') != declared['input']:
+            why = f'{name} says input {each.get("input")!r}, where its declaration says {declared["input"]!r}'
+        elif not set(planned(name)) <= set(each.get('steps') or []):
+            why = f'{name} says steps {each.get("steps")}, where its plan names {planned(name)}'
+        if why:
+            break
+    staged, remedy = pipeline_said.get('staged'), pipeline_said.get('remedy')
+    if why is None and 'stage' in pipeline_said:
+        why = f'it ends with a stage: sentence, {str(pipeline_said["stage"])[:80]!r}, where corpus-yoga stage says the counts'
+    if why is None and not isinstance(staged, dict):
+        why = f'staged: is {str(staged)[:80]!r}, not a mapping of units'
+    if why is None and isinstance(staged, dict):
+        for address, unit in staged.items():
+            if not isinstance(unit, dict) or not {'relation', 'measure', 'judged'} <= set(unit):
+                why = f'the unit {address[:60]} is said as {str(unit)[:80]!r}, not by its facts'
+                break
+    if why is None and remedy is not None and not (isinstance(remedy, dict) and all(k.startswith('corpus-yoga ') for k in remedy)):
+        why = f'remedy: is {str(remedy)[:80]!r}'
+    run('status: corpus-yoga pipeline says each pipeline by its declaration and each staged unit by its facts', why is None, why,
+        check='status.pipeline_says_declarations_and_units')
+    for noun in ('agent', 'browser', 'export'):
+        own = said_by(noun)                       # a noun that refuses to report at all (an unbound room, #758) says neither key
+        why = (f'it ends with a stage: sentence, {str(own["stage"])[:80]!r}' if 'stage' in own
+               else 'its staged: is not a mapping of units' if 'staged' in own and not isinstance(own['staged'], dict) else None)
+        run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
+            check='status.pipeline_says_declarations_and_units')
+
     # The machine report gives no verdict on itself (#786): it ends at its last section,
     # and what needs doing is read from its remedies.
     verdict = whole.get('prerequisites')
@@ -2295,12 +2347,12 @@ def check_walkthrough(run) -> None:
     order = [n for n in ('prerequisites', 'stage', 'store') if n in commands] + [n for n in commands if n not in ('prerequisites', 'stage', 'store')]
     said = facts.load(subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'pipeline'], capture_output=True, text=True, env=env, cwd=REPO_ROOT).stdout)
     beneath = list(said['pipelines'])
-    command = 'corpus-yoga prerequisites'
+    command = 'pipeline'                                      # the key at the top that x runs: the command's own name
     declared = json.loads((CLI / 'prerequisites' / 'prerequisites.json').read_text())
     # from the top into the report, onto its status, along to its help, into that, the summary shown, and back to the top;
     # in again and along to the pipeline noun; into its status, onto the command; back, on, run
     probe = ['m', 'm', 'n', 'm', 'v', 'b', 'b', 'b', 'b', 'b']
-    keys = probe + ['m'] + ['n'] * order.index('pipeline') + ['m', 'm', 'm'] + ['n'] * beneath.index(command) + ['b', 'n', 'x', 'q']
+    keys = probe + ['m'] + ['n'] * order.index('pipeline') + ['m', 'm', 'm', 'b', 'b', 'b', 'n', 'b', 'x', 'q']
     proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough'], input='\n'.join(keys) + '\n', capture_output=True, text=True,
                           env=env, cwd=REPO_ROOT, timeout=300)
     steps = []
@@ -2312,7 +2364,7 @@ def check_walkthrough(run) -> None:
     def step(index):
         return steps[index] if -len(steps) <= index < len(steps) and isinstance(steps[index], dict) else {}
     at_noun = len(probe) + 1 + order.index('pipeline')        # the step that first stands on the pipeline noun
-    arrive = at_noun + 3 + beneath.index(command)             # the step that first stands on the command
+    arrive = at_noun + 6                                      # back on the pipeline noun, after three b
     wants = [
         ('it starts on the top, which says how many commands it holds', step(0).get('at') == '' and step(0).get('key') == 'corpus-yoga'
          and step(0).get('members') == f'{len(commands)} keys' and 'next' not in step(0)),
@@ -2328,9 +2380,10 @@ def check_walkthrough(run) -> None:
         ('n reaches the pipeline noun', step(at_noun).get('key') == 'pipeline'),
         ('m reads a status and descends into it', step(at_noun + 3).get('at') == f'/pipeline/status/pipelines/{beneath[0]}'),
         ('it stands on the command', step(arrive).get('key') == command and str(step(arrive).get('runs', '')).startswith('x - ')),
-        ('b goes back over the last move', step(arrive + 1).get('key') == beneath[beneath.index(command) - 1]),
+        ('b goes back over the last move', step(arrive + 1).get('key') == order[order.index('pipeline') + 1]
+         and step(arrive + 2).get('key') == command),
         ('x runs the command and says so', any(isinstance(s, dict) and s.get('ran') == command and s.get('exit') == 0 for s in steps)),
-        ('it says where it left', step(-1).get('walkthrough') == f'left at /pipeline/status/pipelines/{command}'),
+        ('it says where it left', step(-1).get('walkthrough') == 'left at /pipeline'),
         ('the marks between its steps are the keys pressed, in order',
          [mark for mark in re.findall(r'^-(.)-$', proc.stdout, re.M) if mark != '-'] == keys),
         ('a step says what a key would bring under that key\'s name, and no bare count', all(

@@ -66,29 +66,12 @@ input_of() {
 # is the same work as `corpus-yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  # the rows (#759): each pipeline with its phases, which status.py types and says with
-  # the stage's units as one shape
-  local name phases nested v
+  # the rows (#759, #800): each pipeline with its prep step where it has one, which status.py
+  # says by its declaration and its plan, with the stage's units as one shape
+  local name prep
   for name in $(pipelines); do
-    phases=""
-    prep_step "$name" >/dev/null 2>&1 && phases+="prep "
-    [[ -f "$REPO_ROOT/src/main/pipeline/$name/run.sh" ]] && phases+="run "
-    if [[ -f "$REPO_ROOT/src/main/pipeline/$name/validate.sh" ]]; then
-      phases+="validate"
-    else
-      # A phase may be NESTED. chat-capture validates per provider, because only claude
-      # has an API with a schema (apiConversation) and gemini is DOM-only with nothing to
-      # validate against — so its validate.sh lives at chat-capture/claude/. Reporting
-      # "no validate" there would be false, and `corpus-yoga test run` already carries a hand-written
-      # exception for the same file (check_required_files), which is the tell.
-      nested=""
-      for v in "$REPO_ROOT/src/main/pipeline/$name"/*/validate.sh; do
-        [[ -f "$v" ]] || continue
-        v="${v%/validate.sh}"; nested+="${nested:+,}$(basename "$v")"
-      done
-      [[ -n "$nested" ]] && phases+="validate($nested)"
-    fi
-    printf 'pipeline\t%s\t%s\n' "$name" "${phases% }"
+    prep="$(prep_step "$name" 2>/dev/null)" && prep="${prep%.sh}" || prep="-"
+    printf 'pipeline\t%s\t%s\n' "$name" "$prep"
   done | "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/pipeline/status.py"
 }
 

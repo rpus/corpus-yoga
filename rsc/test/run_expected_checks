@@ -123,6 +123,7 @@ shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart
 status.lines_load_as_yaml
+status.pipeline_says_declarations_and_units
 status.remedy_names_a_command
 status.value_holds_no_pair
 store.export_is_held_within_a_later_one
