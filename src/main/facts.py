@@ -38,8 +38,10 @@ if TYPE_CHECKING:
 
 STEP = 2   # the indentation of a subordinate fact
 
-# a plain scalar YAML reads as a number, a boolean, null or a time, or that its indicators would cut
-_NOT_PLAIN = re.compile(r'[-+]?(\d[\d_]*|\d*\.\d+|0x[0-9a-fA-F]+|\.inf|\.nan)|true|false|yes|no|on|off|null|~|\d{4}-\d\d-\d\d.*', re.I)
+# a plain scalar YAML reads as a number, a boolean, null, a date or a time - a time only where
+# its clock has colons, so a stamp like 2026-10-04T182101Z is text - or that its indicators would cut
+_NOT_PLAIN = re.compile(r'[-+]?(\d[\d_]*|\d*\.\d+|0x[0-9a-fA-F]+|\.inf|\.nan)|true|false|yes|no|on|off|null|~'
+                        r'|\d{4}-\d\d?-\d\d?([Tt ]\d\d?:\d\d:\d\d(\.\d*)?( ?(Z|[-+]\d\d?(:\d\d)?))?)?', re.I)
 _INDICATORS = set('?:,[]{}#&*!|>\'"%@`')
 
 

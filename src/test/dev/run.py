@@ -2213,7 +2213,7 @@ def check_facts(run) -> None:
                        'odd': ['121', 'true', '2026-09-30T121242Z', '-Users-x', 'a: b', 'word #tag', '', None, 2],
                        'empty': {}, 'none': []})
     expected = ['held:', '  a/b capture: 121', 'twice:', '  - memory: x/memory', '    identical to: y/memory', 'odd:',
-                '  - "121"', '  - "true"', '  - "2026-09-30T121242Z"', '  - -Users-x', '  - "a: b"', '  - "word #tag"',
+                '  - "121"', '  - "true"', '  - 2026-09-30T121242Z', '  - -Users-x', '  - "a: b"', '  - "word #tag"',
                 '  - ""', '  - null', '  - 2', 'empty: {}', 'none: []']
     run('facts: a status prints its facts as YAML a reader loads back', got == expected,
         None if got == expected else f'the lines read {got}', check='facts.lines_are_yaml')
@@ -2224,7 +2224,7 @@ def check_facts(run) -> None:
         run('facts: the printer reads back what it prints', False,
             'src/main/facts.py prints and does not read: a reader of a status needs a YAML library', check='facts.reads_back_what_it_prints')
         return
-    sample = {'held': {'a/b capture': 121}, 'odd': ['121', 'true', '2026-09-30T121242Z', '-Users-x', 'a: b', 'word #tag', '', None, 2, 1.5],
+    sample = {'held': {'a/b capture': 121}, 'odd': ['121', 'true', '2026-09-30T121242Z', '2026-09-30T12:12:42Z', '2026-09-30', '-Users-x', 'a: b', 'word #tag', '', None, 2, 1.5],
               'empty': {}, 'none': [], 'deep': {'x': {'y': {'z': ['p', 'q']}}}, 'a: key': 'v', 'of lists': [['a', 'b'], ['c']],
               'of mappings': [{'memory': 'x/memory', 'identical to': 'y/memory'}]}
     text = '\n'.join(facts.lines(sample))
