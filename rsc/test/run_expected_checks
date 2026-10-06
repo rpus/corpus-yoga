@@ -31,7 +31,7 @@ cli.docstring_flags_advertised
 cli.every_form_listed
 cli.exclusive_class_parses
 cli.flag_not_axis_value
-cli.help_one_screen
+cli.help_is_the_declaration
 cli.step_invokes_verb
 cli.subcommands_dispatch
 cli.table_parses

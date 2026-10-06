@@ -39,7 +39,7 @@ def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:
 
 
 def _takes_command_name(command: str) -> bool:
-    """True where a positional names another command (`corpus-yoga commands <command>`), so
+    """True where a positional names another command (its arg-type is `<command>`), so
     that position can complete the command list rather than nothing."""
     return any(r['arg-name'] and not r['arg-name'].startswith('--')
                and r['arg-type'] == '<command>' for r in command_rows(command))
