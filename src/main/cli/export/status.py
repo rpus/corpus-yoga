@@ -29,20 +29,19 @@ class Exports:
 @dataclass
 class Status:
     export: Exports | str
-    remedy: facts.Act | None
-    staged: dict[str, dict[str, str]] | None
-    stage: str
+    staged: dict[str, corpus.Staged]
+    remedy: facts.Act | dict[str, str] | None
 
 
 def main() -> int:
     pairs = corpus.pairs_facts('export')
     report = corpus.report_facts('export')
     if not pairs.held and not pairs.staged:
-        facts.say(Status('nothing held or staged', facts.Act(
+        facts.say(Status('nothing held or staged', report.staged, facts.Act(
             'request an export at https://claude.ai/settings/data-privacy-controls, then '
-            'corpus-yoga export capture --manifest <the downloaded manifest>'), report.staged, report.stage))
+            'corpus-yoga export capture --manifest <the downloaded manifest>')))
         return 0
-    facts.say(Status(Exports(held=pairs.held, staged=pairs.staged), None, report.staged, report.stage))
+    facts.say(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged, report.remedy))
     return 0
 
 

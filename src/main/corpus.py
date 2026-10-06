@@ -779,12 +779,6 @@ def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
     return f'{unit.address}: {RELATION_NAME[rel]} ({detail})'
 
 
-def _unit_fact(row: Judged) -> tuple[str, str]:
-    """A staged unit as one fact: its address, with its relation to the held one and the
-    measure's detail of it."""
-    return row.unit.address.as_posix(), f'{RELATION_NAME[row.relation]} ({row.detail})'
-
-
 def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
     """The heading a unit that is not promoted stands under: its state, then why. No
     heading prescribes a removal - an incomplete unit is the janitor's, named in its
@@ -1086,12 +1080,6 @@ def _declares(noun: str, verb: str, flag: str) -> bool:
     return any(arg['name'] == flag for arg in declared.get('args', []))
 
 
-def _whole_extent(noun: str) -> str:
-    """The words after `promote` that name everything the noun staged: --all where its
-    promote declares the flag, nothing where the verb has no extent."""
-    return ' --all' if _declares(noun, 'promote', '--all') else ''
-
-
 @dataclass
 class Paired:
     """An export named by a star, as the status states it: what stands of it, held or
@@ -1141,43 +1129,46 @@ def pairs_facts(noun: str) -> Pairs:
     return out
 
 
+@dataclass(frozen=True)
+class Staged:
+    """A staged unit as a status says it: its relation to the held one and the measure's
+    words for it, the state it is in, the verdict's words, and the rehearsal that judged it."""
+    relation: str
+    measure: str
+    judged: str
+    verdict: str | None = None
+    rehearsal: str | None = None
+
+
 @dataclass
 class StageReport:
-    """The stage as a noun's bare status shows it: the units under the verdict they share,
-    and the verdict."""
-    staged: dict[str, dict[str, str]] | None   # under the verdict they share, each address with its relation
-    stage: str
+    """The stage as a noun's bare status shows it: each unit under its address, and the
+    commands a reader may type."""
+    staged: dict[str, Staged]
+    remedy: dict[str, str] | None
 
 
 def report_facts(noun: str | None) -> StageReport:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
-    `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759): the units grouped
-    under the verdict they share - each an address with its relation - and the verdict last.
-    Writes nothing."""
+    `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759, #800): each unit by
+    its address with its facts beneath, and a remedy where a unit's state is one - unjudged,
+    incomplete or held already. A promotable unit is no fault, so no command is named for
+    it: what follows a capture is its noun's to say (#767). The counts are
+    `corpus-yoga stage`'s to say. Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
-    if not rows:
-        return StageReport(None, f'nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input')
-    groups: dict[str, dict[str, str]] = {}
-    by_noun: dict[str, int] = {}
+    staged: dict[str, Staged] = {}
     for row in rows:
-        if row.state == 'held already':
-            heading = f'held already, byte-equal - {row.words}'
-        elif row.state == 'promotable':
-            n = noun_of(row.unit) or '?'
-            by_noun[n] = by_noun.get(n, 0) + 1
-            heading = f'promotable - {row.words}'
-        else:
-            heading = _heading(row.unit, row.relation, row.judgement, row.words)
-        address, relation = _unit_fact(row)
-        groups.setdefault(heading, {})[address] = relation
+        verdict = REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing else (row.words or None)
+        staged[row.unit.address.as_posix()] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
+                                                     rehearsal_stamp() if row.unit.cache is not None else None)
     counts = tally(rows)
-    tail = ''.join(f'; corpus-yoga {n} promote{_whole_extent(n)} promotes {k}' for n, k in sorted(by_noun.items()))
+    remedy: dict[str, str] = {}
     if counts['unjudged']:
-        tail += f"; corpus-yoga pipeline rehearse judges {counts['unjudged']} unjudged"
+        remedy['corpus-yoga pipeline rehearse'] = f"judges {counts['unjudged']} unjudged"
     removable = counts['held already'] + counts['incomplete']
     if removable:
-        tail += f'; corpus-yoga stage clean removes {removable} held already or incomplete'
-    return StageReport(groups, f'{len(rows)} unit(s) - {counted(counts)}{tail}')
+        remedy['corpus-yoga stage clean --apply'] = f'removes {removable} held already or incomplete'
+    return StageReport(staged, remedy or None)
 
 
 def held_rows() -> list[tuple[str, str, str, int, str, str]]:

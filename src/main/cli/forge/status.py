@@ -68,8 +68,8 @@ class Status:
     branches: Section | None
     refs: Section | None = facts.named('remote-tracking refs', default=None)
     checkout: Section | None = facts.named('this checkout', default=None)
-    staged: dict[str, dict[str, str]] | None = None
-    stage: str | None = None
+    staged: dict[str, corpus.Staged] | None = None
+    remedy: dict[str, str] | None = None
     forge: str = ''               # the verdict
 
 
@@ -111,7 +111,7 @@ def main() -> int:
         forge='refuse-class drift - corpus-yoga forge merge refuses while it stands' if refused else 'ready - no refuse-class drift')
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')
-        out.staged, out.stage = report.staged, report.stage
+        out.staged, out.remedy = report.staged, report.remedy
     facts.say(out)
     return 1 if refused else 0
 
