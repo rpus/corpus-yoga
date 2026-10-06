@@ -1465,9 +1465,9 @@ def check_cli_surface(run) -> None:
                if forms != cli.command_forms(c['command']) else None)
         run(f'cli: {c["command"]}: -h is its declaration, said by the printer', why is None, why, law='G8', check='cli.help_is_the_declaration')
 
-    # A declaration's prose holds no colon followed by a space and no em dash (#795): each
-    # summary, help, argument, send and explanation is one plain sentence, so help, tab,
-    # the walk and the bare word say it unquoted.
+    # A declaration's prose holds no colon followed by a space, no em dash and no hash after
+    # a space - YAML's comment (#795): each summary, help, argument, send and explanation is
+    # one plain sentence, so help, tab, the walk and the bare word say it unquoted.
     def prose(d: dict):
         yield 'summary', d.get('summary', '')
         yield 'help', d.get('help', '')
@@ -1484,8 +1484,8 @@ def check_cli_surface(run) -> None:
                 yield f'explanation {topic}', said
     for declared in sorted(CLI.glob('*/*.json')):
         faults = [f'{where}: {text[:80]}' for where, text in prose(json.loads(declared.read_text()))
-                  if text and (': ' in text or text.endswith(':') or '\u2014' in text)]
-        run(f'cli: {declared.relative_to(CLI)}: its prose holds no colon followed by a space and no em dash', not faults,
+                  if text and (': ' in text or text.endswith(':') or ' #' in text or '\u2014' in text)]
+        run(f'cli: {declared.relative_to(CLI)}: its prose holds no colon followed by a space, no em dash and no hash after a space', not faults,
             None if not faults else '; '.join(faults)[:300], check='cli.prose_holds_no_pair')
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
