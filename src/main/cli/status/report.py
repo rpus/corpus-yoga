@@ -55,6 +55,15 @@ def needing(node):
 _said: dict[str, object] = {}     # each noun's status, read once a report, however many spots are grafted from it
 
 
+def read_at_once(nouns: list[str]) -> None:
+    """Read every grafted noun's status together, so the report takes the time of the
+    slowest and not their sum (#811): each is a process of its own, and none reads another."""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, len(nouns))) as pool:
+        for noun in nouns:
+            pool.submit(said_by, noun)
+
+
 def said_by(noun: str):
     """What the noun's bare status says, loaded; or, in words, why it could not be read."""
     if noun not in _said:
@@ -100,10 +109,11 @@ def main() -> int:
     mode, rows_file, stamp, show_all = (sys.argv[1:5] + ['', '', ''])[:4]
     whole = show_all == '1' or mode == 'remedies'       # sync reads every remedy, whatever the report shows
     sections: dict[str, dict] = {}
-    for line in Path(rows_file).read_text().splitlines():
-        if not line.strip():
-            continue
-        name, kind, subject, stands, *rest = line.split('\t')
+    rows = [line.split('\t') for line in Path(rows_file).read_text().splitlines() if line.strip()]
+    venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
+    if venv.is_file():
+        read_at_once(sorted({row[2] for row in rows if row[1] == 'graft'}))
+    for name, kind, subject, stands, *rest in rows:
         if kind == 'graft':
             # the section is the command (#812); beneath it, what stands at the pointer, under
             # the pointer's last key - or merged whole where the pointer names the noun itself
