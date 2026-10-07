@@ -105,9 +105,17 @@ def main() -> int:
             continue
         name, kind, subject, stands, *rest = line.split('\t')
         if kind == 'graft':
+            # the section is the command (#812); beneath it, what stands at the pointer, under
+            # the pointer's last key - or merged whole where the pointer names the noun itself
             said = grafted(subject, stands, whole)
-            if said is not None:
-                sections[name] = said if isinstance(said, dict) else {subject: said}
+            if said is None:
+                continue
+            last = stands.rsplit('/', 1)[-1].replace('~1', '/').replace('~0', '~')
+            section = sections.setdefault(name, {})
+            if isinstance(said, dict) and (not stands or last == subject):
+                section.update(said)
+            else:
+                section[last if last and last != subject else subject] = said
             continue
         at = sections.setdefault(name, {})
         *above, last = [part.strip() for part in subject.split(' / ')]

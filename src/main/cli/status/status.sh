@@ -82,7 +82,7 @@ info()   { [[ $# -eq 2 ]] || { echo "status: info takes a subject and what stand
 # report's data, so `sync` reads what to run from the report itself (#777), not from a tag.
 todo()   { _row todo "$@"; }
 bad()    { _row missing "$@"; }
-graft()  { _rows+=("$1"$'\t'"graft"$'\t'"$2"$'\t'"$3"); }
+graft()  { _rows+=("corpus-yoga $1"$'\t'"graft"$'\t'"$1"$'\t'"$2"); }   # <noun> <pointer>: the section is the command, its content what stands at the pointer
 
 # The rows said through report.py: the report (`report`), or the remedies it
 # holds as rows of their own - command \t what it does \t where it stands (`remedies`).
@@ -542,7 +542,7 @@ report() {
   _rows=()
   check_machine
   check_tools
-  graft grammar grammar ""
+  graft grammar ""
   check_venv
   check_dependencies \
     "python requirements" \
@@ -550,18 +550,18 @@ report() {
     req_extract req_probe \
     "requirements installed" \
     "corpus-yoga status sync --apply, or automatically on the next corpus-yoga pipeline run"
-  graft "render assets" server "/server/render assets"
+  graft server "/server/render assets"
   check_optional_modes
-  graft completions completions "/completions"
+  graft completions "/completions"
   check_git_identity
-  graft "pre-commit hook" test "/test/pre-commit hook"
-  graft "signature hook" test "/test/signature hook"
+  graft test "/test/pre-commit hook"
+  graft test "/test/signature hook"
   check_forge
-  graft branches forge "/branches"
-  graft "remote-tracking refs" forge "/remote-tracking refs"
+  graft forge "/branches"
+  graft forge "/remote-tracking refs"
   check_pipeline_inputs
-  graft staged pipeline "/staged"
-  graft duplicates store "/duplicates"
+  graft pipeline "/staged"
+  graft store "/duplicates"
   check_migration
 
   # A report is information: it exits 0 unless it could not BE produced. Severity

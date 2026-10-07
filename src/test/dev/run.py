@@ -2032,26 +2032,22 @@ def check_status_facts(run) -> None:
             node = node.get(key) if isinstance(node, dict) else None
         return node
     whole = said_by('status', '--show-all')
-    grafts = {'completions': ('completions', 'completions'), 'pre-commit hook': ('test', 'test', 'pre-commit hook'),
-              'signature hook': ('test', 'test', 'signature hook'), 'render assets': ('server', 'server', 'render assets'),
-              'branches': ('forge', 'branches'), 'remote-tracking refs': ('forge', 'remote-tracking refs'),
-              'staged': ('pipeline', 'staged'), 'duplicates': ('store', 'duplicates')}
-    for section, (noun, *spot) in grafts.items():
+    # a grafted section is headed by its command (#812): `corpus-yoga <noun>`, and beneath it what
+    # stands at each pointer under the pointer's last key, or the noun's whole status
+    grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
+              ('server', 'server', 'render assets'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
+              ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',)]
+    for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         if not spot and isinstance(own, dict):
             own = {key: value for key, value in own.items() if key != 'usage'}   # the CLI's tail, not the noun's state
-        said = whole.get(section)
-        if own is None and isinstance(said, dict) and len(said) == 1:
-            said = next(iter(said.values()))          # a string graft stands under its subject
+        section = whole.get(f'corpus-yoga {noun}')
+        last = spot[-1] if spot else ''
+        said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
         same = own is not None and said == own or own is None and str(said).startswith(f'corpus-yoga {noun} says nothing at')
-        run(f'report: its {section} section is what corpus-yoga {noun} says', same,
+        run(f'report: its corpus-yoga {noun} section{" / " + last if last and last != noun else ""} is what corpus-yoga {noun} says', same,
             None if same else f'the report says {str(whole.get(section))[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
             check='report.says_what_the_nouns_say')
-    own = {key: value for key, value in said_by('grammar').items() if key != 'usage'}
-    same = bool(own) and whole.get('grammar') == own
-    run('report: its grammar section is what corpus-yoga grammar says', same,
-        None if same else f'the report says {str(whole.get("grammar"))[:120]} where corpus-yoga grammar says {str(own)[:120]}',
-        check='report.says_what_the_nouns_say')
     by_forge = at(said_by('forge'), 'this checkout', 'pre-commit')
     by_forge = str(next(iter(by_forge.values())) if isinstance(by_forge, dict) else by_forge)   # a row that owes a remedy says its state first
     by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed'))
