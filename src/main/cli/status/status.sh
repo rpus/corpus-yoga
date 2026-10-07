@@ -26,9 +26,9 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
-: "${VENV:=$HOME/venvs/general}"
+: "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)
+source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 
@@ -42,7 +42,7 @@ parse_args() {
       --apply)    APPLY=1; shift ;;
       --show-all) SHOW_ALL=1; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) shift ;;
+      *) echo "status: NOT DONE - $1 is no word it takes; the words are --show-all, or sync [--apply]" >&2; exit 2 ;;
     esac
   done
 }
@@ -82,7 +82,7 @@ info()   { [[ $# -eq 2 ]] || { echo "status: info takes a subject and what stand
 # report's data, so `sync` reads what to run from the report itself (#777), not from a tag.
 todo()   { _row todo "$@"; }
 bad()    { _row missing "$@"; }
-graft()  { _rows+=("$1"$'\t'"graft"$'\t'"$2"$'\t'"$3"); }
+graft()  { _rows+=("corpus-yoga $1"$'\t'"graft"$'\t'"$1"$'\t'"$2"); }   # <noun> <pointer>: the section is the command, its content what stands at the pointer
 
 # The rows said through report.py: the report (`report`), or the remedies it
 # holds as rows of their own - command \t what it does \t where it stands (`remedies`).
@@ -90,7 +90,7 @@ graft()  { _rows+=("$1"$'\t'"graft"$'\t'"$2"$'\t'"$3"); }
 # the bare rows where neither runs (a row above says so).
 _say() {
   local mode="$1" python
-  if [[ -x "$VENV/bin/python" ]]; then python="$VENV/bin/python"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then python="$CORPUS_YOGA_VENV/bin/python"
   elif command -v python3 &>/dev/null; then python="$(command -v python3)"
   else
     [[ "$mode" == report ]] || return 0
@@ -101,13 +101,13 @@ _say() {
   local rows_file
   rows_file="$(mktemp "${TMPDIR:-/tmp}/status.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
-  VENV="$VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
+  CORPUS_YOGA_VENV="$CORPUS_YOGA_VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$SHOW_ALL"
   rm -f "$rows_file"
 }
 # The sync, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 sync_remedy() {
-  if [[ -x "$VENV/bin/python" ]]; then echo "corpus-yoga status sync --apply"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then echo "corpus-yoga status sync --apply"
   else echo "./src/main/cli/status/status.sh sync --apply"; fi
 }
 
@@ -136,13 +136,13 @@ check_tools() {
   # pyrightconfig.json the editor does — one declaration, three readers. It is a python
   # package, so the venv this repo builds carries it; shellcheck below is not, which is
   # why one arrives with `corpus-yoga pipeline run` and the other needs brew.
-  # Where the GATE looks, in the same order: $VENV/bin first, then PATH. Asking
+  # Where the GATE looks, in the same order: $CORPUS_YOGA_VENV/bin first, then PATH. Asking
   # `command -v` alone reported "not found" on any shell without the venv activated —
   # while the venv held it and corpus-yoga test run used it — so the report contradicted both
   # the gate and its own requirements line a few rows below.
   local pyright_bin=""
-  if [[ -x "$VENV/bin/pyright" ]]; then
-    pyright_bin="$VENV/bin/pyright"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/pyright" ]]; then
+    pyright_bin="$CORPUS_YOGA_VENV/bin/pyright"
   elif command -v pyright &>/dev/null; then
     pyright_bin="$(command -v pyright)"
   fi
@@ -177,7 +177,7 @@ check_tools() {
   # The generated parsers are the grammar noun's to say (#777): its status is grafted
   # after the tools. Here, the tool that generates them: antlr4 (antlr4-tools, a python
   # package the venv carries) running the tool jar on the machine's java.
-  if [[ -x "$VENV/bin/antlr4" ]]; then
+  if [[ -x "$CORPUS_YOGA_VENV/bin/antlr4" ]]; then
     if command -v java &>/dev/null; then
       ok "antlr4 and java" "antlr4-tools, java $(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')"
     else
@@ -191,10 +191,10 @@ check_tools() {
 
 check_venv() {
   sec "venv"
-  if [[ -x "$VENV/bin/python" ]]; then
-    ok "$VENV / minted" "$("$VENV/bin/python" --version 2>&1); VENV= names another"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
+    ok "$CORPUS_YOGA_VENV / minted" "$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1); CORPUS_YOGA_VENV= names another"
   else
-    todo "$VENV / minted" "no - nothing python runs, corpus-yoga included (#478); VENV= names another" "$(sync_remedy)" "mints it and installs src/requirements.txt"
+    todo "$CORPUS_YOGA_VENV / minted" "no - nothing python runs, corpus-yoga included (#478); CORPUS_YOGA_VENV= names another" "$(sync_remedy)" "mints it and installs src/requirements.txt"
   fi
 }
 
@@ -245,7 +245,7 @@ check_dependencies() {
 req_extract() { printf '%s' "$1" | sed -E 's/^[[:space:]]+//; s/[[:space:]].*//; s/[<>=!~;[].*//'; }
 req_probe() {
   local v
-  v="$("$VENV/bin/python" -c "import importlib.metadata as m; print(m.version('$1'))" 2>/dev/null)" || return 1
+  v="$("$CORPUS_YOGA_VENV/bin/python" -c "import importlib.metadata as m; print(m.version('$1'))" 2>/dev/null)" || return 1
   printf '%s %s' "$1" "$v"
 }
 
@@ -255,7 +255,7 @@ req_probe() {
 check_optional_modes() {
   sec "optional modes"
   if [[ "$(uname)" == "Darwin" ]] && command -v osascript &>/dev/null; then
-    ok "browser capture" "possible - macOS and osascript; Safari must be logged in to claude.ai / gemini.google.com"
+    ok "browser capture" "possible"
     # Modern Safari keeps this setting where `defaults` cannot see it, and the reliable
     # probe (`do JavaScript "1+1"`) would drive Safari — off-limits for this read-only
     # reporter. Report the state only when the legacy key happens to be readable;
@@ -264,16 +264,29 @@ check_optional_modes() {
     js_from_ae="$(defaults read -app Safari AllowJavaScriptFromAppleEvents 2>/dev/null || true)"
     case "$js_from_ae" in
       1) ok "Safari's Allow JavaScript from Apple Events" "enabled" ;;
-      0) info "Safari's Allow JavaScript from Apple Events" "disabled - capture will fail-fast; Settings, Advanced, Show features for web developers, then Settings, Developer, Allow JavaScript from Apple Events" ;;
-      *) info "Safari's Allow JavaScript from Apple Events" "cannot be verified read-only on this Safari version - if it is off, capture fail-fasts with a clear error naming this setting" ;;
+      0) info "Safari's Allow JavaScript from Apple Events" "disabled" ;;
+      *) ok "Safari's Allow JavaScript from Apple Events" "not verifiable read-only" ;;
     esac
   else
-    info "browser capture" "unavailable - needs macOS and osascript; other pipelines unaffected"
+    info "browser capture" "unavailable"
   fi
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-    ok "indexing capture" "possible - ANTHROPIC_API_KEY is set"
+    ok "indexing capture" "possible"
   else
-    info "indexing capture" "unavailable - ANTHROPIC_API_KEY not set; only the paid concept and category capture needs it"
+    info "indexing capture" "unavailable - ANTHROPIC_API_KEY is not set"
+  fi
+}
+
+check_environment() {
+  # The variables this repository reads carry its name (#703); one exported under an old
+  # name is machine-local state no code reads any more, and is said so once here.
+  local old
+  for old in YOGA_NO_SEND YOGA_JOBS YOGA_GATE_TIMINGS; do
+    [[ -n "${!old-}" ]] || continue
+    todo "environment / $old" "exported, and no code reads it - CORPUS_YOGA_${old#YOGA_} is the name" "unset $old" "drops it from this shell"
+  done
+  if [[ -n "${VENV-}" && -z "${CORPUS_YOGA_VENV-}" ]]; then
+    info "environment / VENV" "exported, and corpus-yoga no longer reads it - CORPUS_YOGA_VENV names the venv; the default stands"
   fi
 }
 
@@ -284,6 +297,7 @@ check_machine() {
   local rel="${binding#"$REPO_ROOT/"}"
   local registry="$REPO_ROOT/rsc/machine/machines.csv"
   sec "machine"
+  check_environment
   # The pre-move location, built in pieces — for the same reason the rooted
   # binding is not. This path must exist on NO clean clone, so a
   # committed literal naming it would be a dangling reference, and would resolve
@@ -302,18 +316,18 @@ check_machine() {
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo "binding / bound" "no - capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first" "echo <declared-machine-name> > $rel" "binds it"
+    todo "binding" "absent" "echo <declared-machine-name> > $rel" "binds it, to a name rsc/machine/machines.csv declares"
     declared="${declared% }"
-    info declared "${declared:-none}"
+    ok declared "${declared:-none}"
     return
   fi
   local name; name="$(cat "$binding")"
   if tail -n +2 "$registry" 2>/dev/null | cut -d, -f1 | grep -qxF "$name"; then
-    ok "binding / bound" "$name"
+    ok "binding" "$name"
   else
     # the same declaredness gate machine.py gives every consumer: an undeclared
     # binding would mint a phantom machine in the shared transport store
-    info "binding / bound" "$name - undeclared in rsc/machine/machines.csv (declared: ${declared:-none}); add a row for it there, or fix $rel"
+    info "binding" "$name, undeclared in rsc/machine/machines.csv"
   fi
 }
 
@@ -346,43 +360,15 @@ check_git_identity() {
   fi
 }
 
-check_forge() {
-  # The forge's merge settings decide how main's history is composed, yet they live on
-  # the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
-  # declaration; `corpus-yoga forge` is the ONE thing that reconciles it with reality, and this
-  # renders its rows in the machine report's voice — the reconciliation is derived once,
-  # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
-  # unverifiable is reported, never vetoed (the deterministic gate stays offline-
-  # reproducible, which is why this lives here and not in corpus-yoga test run).
-  sec "forge settings"
-  local status key detail remedy
-  while IFS=$'\t' read -r status key detail remedy; do
-    [[ -z "$status" ]] && continue
-    case "$status" in
-      OK)    ok   "$key" "$detail" ;;
-      DRIFT) todo "$key / live" "$detail" "$remedy" "sets it as declared" ;;
-      MOVED) todo "$key / names" "$detail" "$remedy" "names the repository as the forge answers for it" ;;
-      *)     info "$key" "$detail" ;;
-    esac
-  # Sourced in the subshell this substitution already is: `reconcile` is the derivation
-  # wanted, and only it runs. The subshell also keeps the two files' namespaces apart —
-  # both define a `sync`, and forge.sh's must not become this script's.
-  done < <(source "$REPO_ROOT/src/main/cli/forge/forge.sh"; reconcile 2>/dev/null)
-}
-
 check_pipeline_inputs() {
   # What each pipeline holds, by pipeline, provider and kind, as the store's own reading
   # counts it (src/main/corpus.py held): one count of one store (#771).
   sec "pipeline inputs"
-  if [[ -x "$VENV/bin/python" ]]; then
-    local pipeline provider kind count input noun
-    while IFS=$'\t' read -r pipeline provider kind count input noun; do
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
+    local pipeline provider kind count
+    while IFS=$'\t' read -r pipeline provider kind count _ _; do     # the store's address and its noun are the explanation's
       [[ -n "$pipeline" ]] || continue
-      if [[ "$count" -gt 0 ]]; then
-        ok "$pipeline / $provider / $kind" "$count held in $input"
-      else
-        info "$pipeline / $provider / $kind" "none held in $input - corpus-yoga ${noun:-its capturing noun} capture stages them"
-      fi
+      ok "$pipeline / $provider / $kind" "$count held"
     done < <("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" held 2>/dev/null)
   else
     info held "read by the venv's python - the rows follow the mint"
@@ -396,7 +382,7 @@ check_pipeline_inputs() {
   # ext/mnt/agent/<provider> (#636).
   local p_name p_live p_mount p_served p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
-  if [[ -x "$VENV/bin/python" ]]; then
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
     # provider, live store, the mount as provider.mount() derives it, and whether the agent
     # verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
     # each the rule's one home, none restated here.
@@ -411,14 +397,17 @@ check_pipeline_inputs() {
     # A capture names the act that does what it says: the provider's own extent of the
     # capture verb where an adapter serves it, and the missing adapter where none does.
     if [[ "$p_served" == served ]]; then
-      info "$p_name / $p_live" "live - harness-owned, expires at the provider's will; corpus-yoga agent capture --provider $p_name stashes it"
+      ok "$p_name / $p_live" "present"
     else
-      info "$p_name / $p_live" "live - harness-owned, expires at the provider's will; no harness adapter serves $p_name (src/main/cli/agent/$p_name/harness.py absent)"
+      info "$p_name / $p_live" "present, and no harness adapter serves $p_name"
     fi
-    if [[ -d "$REPO_ROOT/$p_mount" ]]; then
-      ok "$p_name / $p_mount" "a link to $p_live"
+    local target; target="$(readlink "$REPO_ROOT/$p_mount" 2>/dev/null || true)"
+    if [[ ! -e "$REPO_ROOT/$p_mount" && -z "$target" ]]; then
+      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount --apply" "mounts it"
+    elif [[ -n "$target" && "${target/#\~/$HOME}" != "${p_live/#\~/$HOME}" && "$(cd "$REPO_ROOT/$p_mount" 2>/dev/null && pwd -P)" != "$(cd "${p_live/#\~/$HOME}" 2>/dev/null && pwd -P)" ]]; then
+      todo "$p_name / $p_mount" "linked elsewhere - to $target" "corpus-yoga agent mount --apply" "points it at $p_live"
     else
-      todo "$p_name / $p_mount" "absent - the census and capture read the live store through it" "corpus-yoga agent mount --apply" "mounts it"
+      ok "$p_name / $p_mount" "linked"
     fi
   done <<< "$p_rows"
 
@@ -430,12 +419,12 @@ check_pipeline_inputs() {
   # optional affordance it is, with the hand-make convention the README declares.
   if [[ -L "$REPO_ROOT/ext/mnt/site" || -d "$REPO_ROOT/ext/mnt/site" ]]; then
     if [[ -d "$REPO_ROOT/ext/mnt/site/." ]]; then
-      ok "ext/mnt/site" "a link to $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null || echo "(a directory)")"
+      ok "ext/mnt/site" "linked"
     else
-      todo "ext/mnt/site" "a dangling link to $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null) - repoint it at the site repo's clone, or remove it"
+      todo "ext/mnt/site" "dangling - to $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null)" "rm ext/mnt/site" "removes it; ln -s <site-repo-clone> ext/mnt/site makes one that stands"
     fi
   else
-    info "ext/mnt/site" "absent - optional, only a deploying machine needs it; ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)"
+    ok "ext/mnt/site" "absent"
   fi
 }
 
@@ -506,10 +495,10 @@ sync() {
     if [[ "$a" == "$own" ]]; then
       # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
       assert_may_send "pip install from PyPI (corpus-yoga status sync --apply)" || exit 1
-      [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
-      "$VENV/bin/pip" install -q --upgrade pip
-      "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
-      echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
+      [[ -x "$CORPUS_YOGA_VENV/bin/python" ]] || python3 -m venv "$CORPUS_YOGA_VENV"
+      "$CORPUS_YOGA_VENV/bin/pip" install -q --upgrade pip
+      "$CORPUS_YOGA_VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
+      echo "  venv: $("$CORPUS_YOGA_VENV/bin/python" --version 2>&1), src/requirements.txt installed"
     else
       # a declared invocation is `corpus-yoga <command> ...`, bare words: run this tree's
       # shellcheck disable=SC2086
@@ -528,7 +517,7 @@ report() {
   _rows=()
   check_machine
   check_tools
-  graft grammar grammar ""
+  graft grammar ""
   check_venv
   check_dependencies \
     "python requirements" \
@@ -536,18 +525,18 @@ report() {
     req_extract req_probe \
     "requirements installed" \
     "corpus-yoga status sync --apply, or automatically on the next corpus-yoga pipeline run"
-  graft "render assets" server "/server/render assets"
+  graft server "/server/render assets"
   check_optional_modes
-  graft completions completions "/completions"
+  graft completions "/completions"
   check_git_identity
-  graft "pre-commit hook" test "/test/pre-commit hook"
-  graft "signature hook" test "/test/signature hook"
-  check_forge
-  graft branches forge "/branches"
-  graft "remote-tracking refs" forge "/remote-tracking refs"
+  graft test "/test/pre-commit hook"
+  graft test "/test/signature hook"
+  graft forge "/forge settings"
+  graft forge "/branches"
+  graft forge "/remote-tracking refs"
   check_pipeline_inputs
-  graft staged pipeline "/staged"
-  graft duplicates store "/duplicates"
+  graft pipeline "/staged"
+  graft store "/duplicates"
   check_migration
 
   # A report is information: it exits 0 unless it could not BE produced. Severity
@@ -564,7 +553,7 @@ main() {
   # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
   # parse_argv renders under the venv's python (#478), so it answers only where the venv
   # stands; before the mint, parse_args below takes sync and --apply itself (#757)
-  if [[ "${1-}" == sync && -x "$VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
+  if [[ "${1-}" == sync && -x "$CORPUS_YOGA_VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi
 }

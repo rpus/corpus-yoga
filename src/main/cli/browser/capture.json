@@ -34,10 +34,10 @@
   ],
   "sends": {
     "osascript": [
-      "drives Safari against the logged-in session - navigating, and evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
+      "drives Safari against the logged-in session - navigating, and evaluating JS in the front document (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "urllib.request (claude.ai API)": [
-      "fetches conversations over the session's own authenticated API (refused loudly under YOGA_NO_SEND)"
+      "fetches conversations over the session's own authenticated API (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "fetch (in-page, session-authenticated)": [
       "for claude, GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks - the capture completes the record (#422)"

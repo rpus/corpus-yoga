@@ -5,7 +5,8 @@
   "type": "object",
   "required": [
     "summary",
-    "suggests"
+    "suggests",
+    "args"
   ],
   "additionalProperties": false,
   "properties": {
@@ -22,6 +23,13 @@
         "minLength": 1
       },
       "description": "The commands bare `corpus-yoga` suggests, by name, in the order they are said; each must be a declared command."
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "$ref": "argument.schema.json"
+      },
+      "description": "The flags the launcher takes wherever they stand among the words, before any command parses them; each is offered at every position and said by `corpus-yoga -h`."
     }
   }
 }

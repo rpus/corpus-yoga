@@ -7,7 +7,7 @@ file byte-for-byte at the pin its provenance.csv row names.
 `reference` is a NOUN: what is held. A bare invocation reports it against upstream
 and writes nothing: per project, the lineages upstream lists against those held,
 and per held file whether the bytes at its URL still hash as pinned - the
-currency check, a send, so under YOGA_NO_SEND=1 it degrades to UNVERIFIED and
+currency check, a send, so under CORPUS_YOGA_NO_SEND=1 it degrades to UNVERIFIED and
 reports what is held. Only `sync` writes: it fetches every lineage upstream lists
 that is not held, and every held file whose bytes drifted, and rewrites
 provenance.csv; the lineage's changelog section (`## <pin>`) stays a hand act,
@@ -174,7 +174,7 @@ def status() -> int:
         table = rows(project)
         if not may_send():
             out[name] = Project(lineages_held=held, pinned_files=len(table),
-                                currency='UNVERIFIED - YOGA_NO_SEND=1 refuses the probe')
+                                currency='UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe')
             continue
         items, lines = _reading(project)
         listing = declaration(project).get('lineage_listing')

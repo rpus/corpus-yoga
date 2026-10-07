@@ -301,7 +301,7 @@ reaches it by the same family-dir grammar as any schema
 
 `corpus-yoga reference` is the currency check: per project, what upstream lists
 against what is held, and whether every held file's live bytes still hash as
-pinned - a send, UNVERIFIED under `YOGA_NO_SEND=1`. `corpus-yoga reference sync`
+pinned - a send, UNVERIFIED under `CORPUS_YOGA_NO_SEND=1`. `corpus-yoga reference sync`
 fetches every lineage not held and every file that drifted, and writes the
 provenance rows; the lineage's changelog section (`## <pin>`) is the hand act.
 `corpus-yoga test run` holds the hermetic residue (`check_reference`): the committed

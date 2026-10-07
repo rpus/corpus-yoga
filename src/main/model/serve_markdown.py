@@ -21,7 +21,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-from send import assert_may_send  # noqa: E402 — the python face of YOGA_NO_SEND (#29)
+from send import assert_may_send  # noqa: E402 — the python face of CORPUS_YOGA_NO_SEND (#29)
 
 REPO_ROOT  = REPO
 STATIC_DIR = REPO_ROOT / 'ext' / 'lib' / 'serve_markdown'  # pinned foreign artifacts, by copy
@@ -60,7 +60,7 @@ def ensure_assets() -> None:
             # The fetch IS the work (#29): refused, this raises — serve then refuses to
             # start half-rendered, and the --ensure-assets caller tolerates it exactly as
             # it tolerates offline. Reached only for MISSING files, so a warmed cache
-            # serves under YOGA_NO_SEND without a send.
+            # serves under CORPUS_YOGA_NO_SEND without a send.
             assert_may_send(f'download {dest_rel} (corpus-yoga server ensure-assets)')
             print(f'Downloading {dest_rel}…', flush=True)
             urllib.request.urlretrieve(url, dest)

@@ -13,7 +13,7 @@
   ],
   "sends": {
     "antlr4-tools (Maven Central)": [
-      "fetches antlr4-4.13.2-complete.jar into ~/.m2 on the tool's first use, then runs it on the machine's java (UNVERIFIED under YOGA_NO_SEND for the status; refused loudly for the sync)"
+      "fetches antlr4-4.13.2-complete.jar into ~/.m2 on the tool's first use, then runs it on the machine's java (UNVERIFIED under CORPUS_YOGA_NO_SEND for the status; refused loudly for the sync)"
     ]
   }
 }

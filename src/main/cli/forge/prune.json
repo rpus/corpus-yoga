@@ -16,7 +16,7 @@
       "reads a merged PR's force-push history to recognise a superseded former head"
     ],
     "git push origin --delete": [
-      "WRITES the deletion of a closed-unmerged PR's server branch (--apply only, refused loudly under YOGA_NO_SEND)"
+      "WRITES the deletion of a closed-unmerged PR's server branch (--apply only, refused loudly under CORPUS_YOGA_NO_SEND)"
     ]
   }
 }

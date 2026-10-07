@@ -10,7 +10,7 @@
   ],
   "sends": {
     "gh api -X PATCH repos/{owner}/{repo}": [
-      "WRITES settings others see (--apply only; refused loudly under YOGA_NO_SEND)"
+      "WRITES settings others see (--apply only; refused loudly under CORPUS_YOGA_NO_SEND)"
     ]
   }
 }

@@ -878,7 +878,7 @@ def check_cli_surface(run) -> None:
     zsh = shutil.which('zsh')
     parse_ok, parse_err = True, None
     if zsh:
-        with tempfile.NamedTemporaryFile('w', suffix='_yoga', delete=False) as f:
+        with tempfile.NamedTemporaryFile('w', suffix='_corpus-yoga', delete=False) as f:
             f.write(cli_offer.completion_script(cmds))
             tmp = f.name
         proc = subprocess.run([zsh, '-n', tmp], capture_output=True, text=True)
@@ -950,8 +950,8 @@ def check_cli_surface(run) -> None:
         # does, so the check examined nothing and passed. `every expected check ran`
         # caught it; a vacuous check that reports success is worse than no check.
         rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data'):
-            continue
+        if rel.parts[0] in ('tmp', '.git', 'data') or rel.parts[:2] == ('rsc', 'migration'):
+            continue                      # a migration names a retired address: that is its purpose
         try:
             text = path.read_text()
         except (UnicodeDecodeError, OSError):
@@ -1052,7 +1052,7 @@ def check_cli_surface(run) -> None:
     #   `$remedy`, `{c}`     the invocation is computed, and cannot be read here
     # And a STANDARD tool is not what #46 objects to — its complaint is a repo script
     # prescribed by path, which a reader cannot type and cannot find.
-    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'brew', 'echo', 'mkdir', 'open', 'pip'}
+    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'brew', 'echo', 'mkdir', 'open', 'pip', 'unset'}
     def clean(tok):
         return tok.strip('`\'",;)').lstrip('./')
 
@@ -1104,7 +1104,7 @@ def check_cli_surface(run) -> None:
     # files set it is a list that rots: a file is added and nothing points at it.
     venv_defaults = {}
     for sh in sorted((REPO_ROOT / 'src').rglob('*.sh')):
-        for m in re.finditer(r'\$\{VENV:=([^}]+)\}', sh.read_text()):
+        for m in re.finditer(r'\$\{CORPUS_YOGA_VENV:=([^}]+)\}', sh.read_text()):
             venv_defaults.setdefault(m.group(1), []).append(str(sh.relative_to(REPO_ROOT)))
     agree = len(venv_defaults) == 1
     run('venv: every entrypoint defaults it to the same place', agree,
@@ -1242,11 +1242,11 @@ def check_cli_surface(run) -> None:
     # --pythonpath names the venv explicitly: without it pyright resolves imports from
     # whatever python is on PATH, and a run without the venv reports 25 errors that are
     # nothing but unresolved third-party packages.
-    # The VENV the repo builds, ONE resolution for both halves: which pyright runs, and
+    # The CORPUS_YOGA_VENV the repo builds, ONE resolution for both halves: which pyright runs, and
     # which interpreter it analyses with. Looking pyright up on PATH alone made the check
     # depend on the reader's shell — it ran here only because that shell happens to put
     # the venv first, which is the same accident --pythonpath was added to avoid.
-    venv = Path(os.environ.get('VENV', str(Path.home() / 'venvs' / 'general')))
+    venv = Path(os.environ.get('CORPUS_YOGA_VENV', str(Path.home() / 'venvs' / 'general')))
     venv_pyright, venv_python = venv / 'bin' / 'pyright', venv / 'bin' / 'python'
     pyright = str(venv_pyright) if venv_pyright.exists() else shutil.which('pyright')
     py_ok, py_detail = True, None
@@ -1408,7 +1408,7 @@ def check_cli_surface(run) -> None:
     # the top's own declaration (#807): what the tool is, and the commands bare `corpus-yoga` suggests
     top_declaration = cli_root / 'corpus-yoga.json'
     if 'root' in schemas and top_declaration.is_file():
-        top_errors = sorted(jsonschema.Draft4Validator(schemas['root']).iter_errors(json.loads(top_declaration.read_text())), key=lambda e: list(e.path))
+        top_errors = sorted(jsonschema.Draft4Validator(schemas['root'], registry=registry).iter_errors(json.loads(top_declaration.read_text())), key=lambda e: list(e.path))
         unknown = [name for name in json.loads(top_declaration.read_text()).get('suggests', []) if name not in {c['command'] for c in cmds}]
         run('cli: corpus-yoga.json: validates as the top\'s declaration, suggesting declared commands', not top_errors and not unknown,
             None if not top_errors and not unknown else f'{top_errors[0].message}' if top_errors else f'suggests {unknown}, which no command is',
@@ -1451,7 +1451,7 @@ def check_cli_surface(run) -> None:
     # each with its summary - the bare word's shape, whole.
     import yaml
     help_of = getattr(cli, 'help_of', None)
-    env = {**os.environ, 'YOGA_NO_SEND': '1'}
+    env = {**os.environ, 'CORPUS_YOGA_NO_SEND': '1'}
     def loaded(*words):
         said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
         try:
@@ -1460,7 +1460,8 @@ def check_cli_surface(run) -> None:
             return f'does not load - {getattr(error, "problem", error)}', said
     menu, said = loaded('-h')
     root_declared = json.loads((CLI / 'corpus-yoga.json').read_text()) if (CLI / 'corpus-yoga.json').is_file() else {}
-    expected_menu = {'corpus-yoga': root_declared.get('summary'), **{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds}}
+    expected_menu = {'corpus-yoga': root_declared.get('summary'), **{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds},
+                     **{f'corpus-yoga <command> {a["name"]}': a['help'] for a in root_declared.get('args', [])}}
     run('cli: corpus-yoga -h is every command under corpus-yoga, each with its summary', menu == expected_menu,
         None if menu == expected_menu else f'it says {str(menu)[:160] if isinstance(menu, str) else said.strip()[:160]!r}', law='G8', check='cli.help_is_the_declaration')
     for c in cmds:
@@ -1523,7 +1524,7 @@ def check_cli_surface(run) -> None:
     block = ['fpath=(~/x $fpath)', "alias corpus-yoga='~/x/corpus-yoga'", cli_completions.COMPLETION_END]
     synthetic = ['# unrelated', '', stale, *block, '', cli_completions.COMPLETION_MARKER, *block, '',
                  'autoload -Uz compinit', 'compinit']
-    kept, _ = cli_completions.without_yoga_block(synthetic)
+    kept, _ = cli_completions.without_completion_block(synthetic)
     # survivors counted by a LITERAL test-side predicate, never by the function under
     # test: asking cli.is_completion_marker what survived is asking the bug whether it
     # is present, and the answer under the old code was "converged" while the stale
@@ -1896,7 +1897,7 @@ def check_status_facts(run) -> None:
         return None
 
     declared = {c['command'] for c in cli.commands()}
-    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'gh', 'brew', 'echo', 'mkdir', 'open', 'pip'}
+    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'gh', 'brew', 'echo', 'mkdir', 'open', 'pip', 'unset'}
 
     def no_command(words: list[str]) -> str | None:
         """Why the words name no command a reader types; None where they name one."""
@@ -1976,7 +1977,7 @@ def check_status_facts(run) -> None:
             return next((found for index, value in enumerate(node) if (found := pair_in_a_value(value, f'{at}/{index}'))), None)
         return (at, node) if isinstance(node, str) and (': ' in node or node.endswith(':')) else None
 
-    env = {**os.environ, 'YOGA_NO_SEND': '1'}
+    env = {**os.environ, 'CORPUS_YOGA_NO_SEND': '1'}
     for noun in sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command'])):
         proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), noun], capture_output=True, text=True,
                               env=env, cwd=REPO_ROOT, timeout=300)
@@ -2031,26 +2032,20 @@ def check_status_facts(run) -> None:
             node = node.get(key) if isinstance(node, dict) else None
         return node
     whole = said_by('status', '--show-all')
-    grafts = {'completions': ('completions', 'completions'), 'pre-commit hook': ('test', 'test', 'pre-commit hook'),
-              'signature hook': ('test', 'test', 'signature hook'), 'render assets': ('server', 'server', 'render assets'),
-              'branches': ('forge', 'branches'), 'remote-tracking refs': ('forge', 'remote-tracking refs'),
-              'staged': ('pipeline', 'staged'), 'duplicates': ('store', 'duplicates')}
-    for section, (noun, *spot) in grafts.items():
+    # a grafted section is headed by its command (#812): `corpus-yoga <noun>`, and beneath it what
+    # stands at each pointer under the pointer's last key, or the noun's whole status
+    grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
+              ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
+              ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',)]
+    for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
-        if not spot and isinstance(own, dict):
-            own = {key: value for key, value in own.items() if key != 'usage'}   # the CLI's tail, not the noun's state
-        said = whole.get(section)
-        if own is None and isinstance(said, dict) and len(said) == 1:
-            said = next(iter(said.values()))          # a string graft stands under its subject
+        section = whole.get(f'corpus-yoga {noun}')
+        last = spot[-1] if spot else ''
+        said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
         same = own is not None and said == own or own is None and str(said).startswith(f'corpus-yoga {noun} says nothing at')
-        run(f'report: its {section} section is what corpus-yoga {noun} says', same,
+        run(f'report: its corpus-yoga {noun} section{" / " + last if last and last != noun else ""} is what corpus-yoga {noun} says', same,
             None if same else f'the report says {str(whole.get(section))[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
             check='report.says_what_the_nouns_say')
-    own = {key: value for key, value in said_by('grammar').items() if key != 'usage'}
-    same = bool(own) and whole.get('grammar') == own
-    run('report: its grammar section is what corpus-yoga grammar says', same,
-        None if same else f'the report says {str(whole.get("grammar"))[:120]} where corpus-yoga grammar says {str(own)[:120]}',
-        check='report.says_what_the_nouns_say')
     by_forge = at(said_by('forge'), 'this checkout', 'pre-commit')
     by_forge = str(next(iter(by_forge.values())) if isinstance(by_forge, dict) else by_forge)   # a row that owes a remedy says its state first
     by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed'))
@@ -2068,6 +2063,45 @@ def check_status_facts(run) -> None:
     paired = pair_in_a_value(worded)
     run('status: what a measure says of a unit holds no colon followed by a space', paired is None,
         None if paired is None else f'the {paired[0][1:]} measure says {paired[1]}', check='status.value_holds_no_pair')
+
+    # Every environment variable the repository reads carries the command's name as its
+    # prefix (#703): no code reads an old name, and a python read of the environment names
+    # either CORPUS_YOGA_<name> or a variable that is another's - the OS's, the provider's.
+    old_names = ('YOGA_NO_SEND', 'YOGA_JOBS', 'YOGA_GATE_TIMINGS')
+    foreign = {'HOME', 'PATH', 'TMPDIR', 'TERM', 'SHELL', 'USER', 'PWD', 'COLUMNS', 'LINES', 'ZDOTDIR', 'USER_ZDOTDIR',
+               'GIT_INDEX_FILE', 'PYTHONUNBUFFERED', 'PYTHON_COLORS', 'NO_COLOR', 'ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL'}
+    read_badly: list[str] = []
+    # two files name the old names in order to find them: this check, and the status report's
+    # row that tells a machine it still exports one (#703)
+    detectors = {SRC / 'test' / 'dev' / 'run.py', CLI / 'status' / 'status.sh'}
+    for path in [REPO_ROOT / 'corpus-yoga', *sorted(SRC.rglob('*.py')), *sorted(SRC.rglob('*.sh'))]:
+        if not path.is_file() or 'gen/' in path.as_posix() or path in detectors:
+            continue
+        text = path.read_text(errors='ignore')
+        rel = path.relative_to(REPO_ROOT)
+        for name in old_names:
+            if re.search(rf'(?<![A-Z_]){name}\b', text):
+                read_badly.append(f'{rel} names {name}')
+        if re.search(r'\$\{VENV[:}]|\bVENV=|environ(\.get)?\(?\[?[\'"]VENV[\'"]', text):
+            read_badly.append(f'{rel} reads VENV')
+        if path.suffix == '.py':
+            for found in re.findall(r"""os\.environ(?:\.get)?\(?\[?['"]([A-Z_]+)['"]""", text):
+                if not found.startswith('CORPUS_YOGA_') and found not in foreign:
+                    read_badly.append(f'{rel} reads {found}')
+    run('environment: every variable the repository reads carries the prefix CORPUS_YOGA_', not read_badly,
+        None if not read_badly else '; '.join(sorted(set(read_badly))[:6]), check='environment.names_carry_the_prefix')
+    # --no-send before the command word refuses every send (#703), so a reader need not
+    # know the variable: the forge's status, which sends, says so.
+    sendless = {k: v for k, v in os.environ.items() if k not in ('YOGA_NO_SEND', 'CORPUS_YOGA_NO_SEND')}
+    for words in (['--no-send', 'forge'], ['forge', '--no-send']):
+        without_sends = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=sendless, cwd=REPO_ROOT, timeout=120)
+        run(f'cli: corpus-yoga {" ".join(words)} runs it with every send refused', 'refuses the send' in without_sends.stdout,
+            None if 'refuses the send' in without_sends.stdout else f'it says {(without_sends.stdout + without_sends.stderr).strip()[:160]!r}', check='cli.no_send_flag')
+    offered = cli_offer.completion_script(cli.commands())
+    declared_flags = ' '.join(a['name'] for a in json.loads((CLI / 'corpus-yoga.json').read_text()).get('args', []))
+    run(f'cli: tab offers the launcher\'s flags, {declared_flags}, at every position (#510)',
+        f'launcher=({declared_flags})' in offered and 'compadd -- "${launcher[@]}"' in offered and '--no-send' in declared_flags and '-h' in declared_flags.split(),
+        None if f'launcher=({declared_flags})' in offered else f'what zsh evaluates names {offered.count("launcher")} launcher line(s), the flags declared being {declared_flags!r}', check='cli.no_send_flag')
 
     # The pipeline noun says each pipeline by its declaration and each staged unit by its
     # facts (#800): under `pipelines:` the pipelines alone, each with its declared input and
@@ -2120,6 +2154,24 @@ def check_status_facts(run) -> None:
                else 'its staged: is not a mapping of units' if 'staged' in own and not isinstance(own['staged'], dict) else None)
         run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
             check='status.pipeline_says_declarations_and_units')
+
+    # The default report of a room with nothing to remedy is still one mapping (#807): the
+    # worktree the gate runs in always has remedies, so the empty case is made here.
+    import tempfile
+    with tempfile.NamedTemporaryFile('w', suffix='.rows', delete=False) as empty:
+        empty.write('x\tgraft\tnonesuch\t/nowhere\n')
+        empty_rows = empty.name
+    said_empty = subprocess.run([sys.executable, str(CLI / 'status' / 'report.py'), 'report', empty_rows, '0'],
+                                capture_output=True, text=True, env={**env, 'CORPUS_YOGA_VENV': sys.prefix}, cwd=REPO_ROOT, timeout=120).stdout
+    Path(empty_rows).unlink()
+    try:
+        loaded_empty = yaml.load(said_empty, Loader=Strict)
+    except yaml.YAMLError as error:
+        loaded_empty = f'does not load - {getattr(error, "problem", error)}'
+    run('status: the report of a room with nothing to remedy loads as one mapping that says so',
+        isinstance(loaded_empty, dict) and bool(loaded_empty) and 'remedy' in loaded_empty,
+        None if isinstance(loaded_empty, dict) and loaded_empty and 'remedy' in loaded_empty else f'it says {said_empty.strip()[:120]!r}',
+        check='status.lines_load_as_yaml')
 
     # The machine report gives no verdict on itself (#786): it ends at its last section,
     # and what needs doing is read from its remedies.
@@ -2365,7 +2417,7 @@ def check_walkthrough(run) -> None:
         run('walkthrough: a reader walks the room and runs a command it reaches', False,
             'corpus-yoga walkthrough is no command: a status is read whole, in the printer\'s order', check='walkthrough.walks_and_runs')
         return
-    env = {**os.environ, 'YOGA_NO_SEND': '1'}
+    env = {**os.environ, 'CORPUS_YOGA_NO_SEND': '1'}
     commands = sorted(c['command'] for c in cli.commands())
     order = [n for n in ('status', 'stage', 'store') if n in commands] + [n for n in commands if n not in ('status', 'stage', 'store')]
     said = facts.load(subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'pipeline'], capture_output=True, text=True, env=env, cwd=REPO_ROOT).stdout)
@@ -2393,7 +2445,7 @@ def check_walkthrough(run) -> None:
          and step(0).get('members') == f'{len(commands)} keys' and 'next' not in step(0)),
         ('m lands on the machine report, its status and its help beneath, the next command named', step(1).get('at') == '/status'
          and step(1).get('members') == '2 keys' and step(1).get('next') == order[1]),
-        ('a status is read where the walk lands on it', step(2).get('key') == 'status' and str(step(2).get('members', '')).endswith(' keys')),
+        ('a status is read where the walk lands on it', step(2).get('key') == 'status' and re.fullmatch(r'\d+ keys?', str(step(2).get('members', ''))) is not None),
         ('no status the walk stands on is unread', all('members' in s or 'value' in s or 'FAIL' in s
                                                        for s in steps if isinstance(s, dict) and s.get('key') == 'status')),
         ('help stands beside the status', step(3).get('key') == 'help'),
@@ -2420,7 +2472,7 @@ def check_walkthrough(run) -> None:
     # exists, where no noun but the machine report can be, the step carries FAIL and neither
     # members nor value, and the walk's exit is 1.
     unminted = subprocess.run([sys.executable, str(target), '/stage/status'], input='q\n', capture_output=True, text=True,
-                              env={**env, 'VENV': str(REPO_ROOT / 'tmp' / 'no-venv-stands-here')}, cwd=REPO_ROOT, timeout=300)
+                              env={**env, 'CORPUS_YOGA_VENV': str(REPO_ROOT / 'tmp' / 'no-venv-stands-here')}, cwd=REPO_ROOT, timeout=300)
     try:
         failing = facts.load(re.split(r'\n-.-\n', unminted.stdout)[0])
     except ValueError:
@@ -2532,7 +2584,7 @@ print -r -- 'print -r -- changed-since' >> {verbs}/offer.zsh
 _corpus-yoga
 '''
             pressed = subprocess.run([zsh, '-f', '-c', presses], capture_output=True, text=True, timeout=60,
-                                     env={**os.environ, 'VENV': sys.prefix})
+                                     env={**os.environ, 'CORPUS_YOGA_VENV': sys.prefix})
         first, second, third, fourth = (pressed.stdout.split('---') + ['', '', ''])[:4]
         before = [line.split(':')[0] for line in first.splitlines() if line.strip()]
         after = [line.split(':')[0] for line in second.splitlines() if line.strip()]
@@ -2582,7 +2634,7 @@ _corpus-yoga
             # rc from is left to follow HOME
             away = {key: value for key, value in os.environ.items() if key not in ('ZDOTDIR', 'USER_ZDOTDIR')}
             asked = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'completions'], capture_output=True, text=True, cwd=REPO_ROOT,
-                                   env={**away, 'HOME': str(home), 'VENV': sys.prefix, 'YOGA_NO_SEND': '1'}, timeout=120)
+                                   env={**away, 'HOME': str(home), 'CORPUS_YOGA_VENV': sys.prefix, 'CORPUS_YOGA_NO_SEND': '1'}, timeout=120)
         try:
             said = facts.load(asked.stdout).get('completions', {})
         except (ValueError, AttributeError):
@@ -2936,7 +2988,7 @@ def check_mcp_reproducible(run) -> None:
     committed schema.ts (#576): src/main/mcp/reproduce.sh fetches upstream at the
     pinned commit, runs its generator unchanged in a node container and diffs the
     result against the committed file. Two sends (a git fetch, a docker run), so
-    YOGA_NO_SEND=1 skips it - and so does a machine whose docker daemon is not
+    CORPUS_YOGA_NO_SEND=1 skips it - and so does a machine whose docker daemon is not
     reachable: the label is CONSTANT and the result passes when the run did not
     happen, as check_reference's currency probes do, so the committed report is
     byte-identical on a machine that cannot run it."""
@@ -2963,7 +3015,7 @@ def check_grammar(run) -> None:
     rsc/rpus/grammar/<project>/ now (#597). Absence fails by name - the mcp checks
     need the parser, and corpus-yoga status sync --apply generates it. The
     currency half needs the tool (antlr4 from antlr4-tools in the venv, java), whose
-    first use fetches the tool jar, a send: YOGA_NO_SEND=1 skips that half and so does
+    first use fetches the tool jar, a send: CORPUS_YOGA_NO_SEND=1 skips that half and so does
     a machine without the tool - the label is CONSTANT and the result passes on
     presence alone, as mcp.reproducible does, so the report is byte-identical
     everywhere."""
@@ -3719,7 +3771,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         print(f'  {len(replayed)} section(s) replayed unchanged '
               f'(code/schema subjects content-keyed, data subjects stat-keyed; '
               f'--fresh re-runs all)', file=sys.stderr)
-    if os.environ.get('YOGA_GATE_TIMINGS'):
+    if os.environ.get('CORPUS_YOGA_GATE_TIMINGS'):
         for _n, _ms in sorted(section_ms.items(), key=lambda kv: -kv[1]):
             print(f'  {_ms:8.1f} ms  {_n}', file=sys.stderr)
         print(f'  {sum(section_ms.values()):8.1f} ms  TOTAL (sections)', file=sys.stderr)

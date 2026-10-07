@@ -18,7 +18,7 @@ project's parser is present and what the tool generates from its grammar now, an
 writes nothing; only `sync` writes, generating what is absent, regenerating what
 differs and removing what the grammar no longer produces. Both need the tool:
 `antlr4` from antlr4-tools in the venv, which on first use fetches
-antlr4-<version>-complete.jar into ~/.m2 (a send, refused under YOGA_NO_SEND=1 - the
+antlr4-<version>-complete.jar into ~/.m2 (a send, refused under CORPUS_YOGA_NO_SEND=1 - the
 status then reports presence only) and runs it on the machine's java. Re-running
 is silence (L1). The dev gate holds every parser present and, where the tool is
 present, current (grammar.parser_current), and every mcp lineage's schema.ts parsed
@@ -126,7 +126,7 @@ def status() -> int:
             continue
         item = Project(rel.as_posix(), files=len(have))
         if not tool() or not may_send():
-            item.currency = 'UNVERIFIED - ' + ('YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv')
+            item.currency = 'UNVERIFIED - ' + ('CORPUS_YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv')
         else:
             want = generated(project)
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))

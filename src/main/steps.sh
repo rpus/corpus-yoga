@@ -161,8 +161,8 @@ latest_version_file() {
 # the dispatch is invisible in the artifact, bytes equal the serial loop's.
 # The pool is a FIFO of worker tokens (bash 3.2 has no wait -n): the dispatcher
 # blocks on the FIFO until a worker frees, so no task ever waits on a barrier.
-# YOGA_JOBS lives HERE and nowhere else — enumerators and workers never know it.
-YOGA_JOBS="${YOGA_JOBS:-$( (sysctl -n hw.ncpu || nproc || echo 4) 2>/dev/null | head -1 )}"
+# CORPUS_YOGA_JOBS lives HERE and nowhere else — enumerators and workers never know it.
+CORPUS_YOGA_JOBS="${CORPUS_YOGA_JOBS:-$( (sysctl -n hw.ncpu || nproc || echo 4) 2>/dev/null | head -1 )}"
 
 # dispatch <fn> <task>... — run fn once per task on the next free worker.
 # Leaves each task's output in $DISPATCH_DIR/<i>.out and status in
@@ -176,7 +176,7 @@ dispatch() {
   mkfifo "$DISPATCH_DIR/token"
   exec 9<>"$DISPATCH_DIR/token"
   local slot=0
-  while [[ "$slot" -lt "$YOGA_JOBS" ]]; do printf '\n' >&9; slot=$((slot + 1)); done
+  while [[ "$slot" -lt "$CORPUS_YOGA_JOBS" ]]; do printf '\n' >&9; slot=$((slot + 1)); done
   local task
   for task in "$@"; do
     read -r -u 9 _   # blocks until a worker slot frees — next-free dispatch

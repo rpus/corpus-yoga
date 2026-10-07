@@ -263,8 +263,10 @@ class Status:
 
     def facts(self) -> dict:
         brief = self.drafters
-        key = f'drafters on {brief.ref} @ {brief.head}' if brief is not None else 'drafters'
-        return {'sessions': self.sessions, 'mounts': self.mounts, key: brief, 'staged': self.staged}
+        if brief is None:                 # no machine binding: the drafters cannot be read against one (#758)
+            unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt': 'binds it, to a name rsc/machine/machines.csv declares'}}
+            return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged}
+        return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged}
 
 
 def model_census() -> int:
@@ -385,7 +387,8 @@ def main() -> int:
         # main names as drafters against it (#631), the stage's units of the agent's captures
         census = list_agents()
         import drafters
-        brief = drafters.brief()
+        import machine
+        brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (#758)
         import corpus
         report = corpus.report_facts('agent')
         facts.say(Status(census.sessions, census.mounts, brief, report.staged))

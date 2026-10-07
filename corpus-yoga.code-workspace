@@ -14,7 +14,7 @@
 			"importDir": "imports",
 			"outputDir": ".antlr"
 		},
-		// must name the same interpreter as the VENV default every shell entrypoint sets;
+		// must name the same interpreter as the CORPUS_YOGA_VENV default every shell entrypoint sets;
 		// held by check_venv_default, which reads them rather than trusting this line
 		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python",
 		// The import roots and type-checking mode live in pyrightconfig.json, which

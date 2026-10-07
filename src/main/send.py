@@ -1,11 +1,11 @@
 """
-The one reading of YOGA_NO_SEND, and the two ways of honouring it.
+The one reading of CORPUS_YOGA_NO_SEND, and the two ways of honouring it.
 
 A SEND is an outward call — driving Safari against a logged-in session, fetching over the
 network. It is the one effect with no scratch form: a read can be pointed at a fixture and
 a write at a temp tree, but redirecting where a capture LANDS does not stop the call going
 out. So the only way to exercise a send path without performing it is to refuse it, which
-is what YOGA_NO_SEND=1 does.
+is what CORPUS_YOGA_NO_SEND=1 does.
 
 Refusal means different things to the two kinds of caller, and both are named here so the
 difference reads as a decision rather than an oversight:
@@ -21,11 +21,11 @@ gets to disagree.
 """
 import os
 
-SWITCH = 'YOGA_NO_SEND'
+SWITCH = 'CORPUS_YOGA_NO_SEND'
 
 
 class SendRefused(RuntimeError):
-    """Raised in place of an outward call when YOGA_NO_SEND=1, naming the send refused.
+    """Raised in place of an outward call when CORPUS_YOGA_NO_SEND=1, naming the send refused.
 
     The sentence is composed here, once, so no raise site can word the refusal
     differently and every catcher can print the exception unadorned."""

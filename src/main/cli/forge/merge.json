@@ -35,16 +35,16 @@
       "reads both refs to judge whether the base moved"
     ],
     "git push --force-with-lease": [
-      "WRITES the relocated head back to the PR, leased against the sha the merge read - only when the base had moved (refused loudly under YOGA_NO_SEND)"
+      "WRITES the relocated head back to the PR, leased against the sha the merge read - only when the base had moved (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "gh pr edit --body-file": [
-      "WRITES the flipped body as the last edit before the squash, every aims-to-complete line becoming a closes line - and WRITES it back as found if the squash refuses (refused loudly under YOGA_NO_SEND)"
+      "WRITES the flipped body as the last edit before the squash, every aims-to-complete line becoming a closes line - and WRITES it back as found if the squash refuses (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "gh pr merge --squash": [
-      "WRITES the merge, pinned to the merge's own sha of the head every check saw - fetched or just pushed, never re-read from the eventually-consistent API (#488; refused loudly under YOGA_NO_SEND)"
+      "WRITES the merge, pinned to the merge's own sha of the head every check saw - fetched or just pushed, never re-read from the eventually-consistent API (#488; refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "git push origin --delete": [
-      "prune --apply, sweeping the server branches this merge and its siblings left (refused loudly under YOGA_NO_SEND)"
+      "prune --apply, sweeping the server branches this merge and its siblings left (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "git fetch origin": [
       "reads the squash back so the base can fast-forward"

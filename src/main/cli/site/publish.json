@@ -10,7 +10,7 @@
   ],
   "sends": {
     "git -C ext/mnt/site push": [
-      "WRITES what rpus.co serves (--apply only; refused loudly under YOGA_NO_SEND)"
+      "WRITES what rpus.co serves (--apply only; refused loudly under CORPUS_YOGA_NO_SEND)"
     ]
   },
   "r": [

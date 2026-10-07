@@ -18,7 +18,7 @@
 #   when absent; what no handle names stays on check_harvested's report — by-hand, stated.
 #   --id requires --provider (an id's shape cannot say whose it is); restrictions
 #   intersecting to nothing are reported, never defaulted around. --dry-run: the extent, then stop.
-#   YOGA_NO_SEND=1 refuses every outward call: a capture has no scratch form, so refusing
+#   CORPUS_YOGA_NO_SEND=1 refuses every outward call: a capture has no scratch form, so refusing
 #   it is the only way to exercise these paths without reaching the account.
 
 set -euo pipefail

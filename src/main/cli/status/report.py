@@ -9,13 +9,14 @@ in pairs, and stand under `remedy` beside it (#763, #777). A row `<section> graf
 (#777): whole in the full report, and otherwise what holds a remedy. Runs under the venv's
 python, or under python3 before the venv is minted, where no noun can be asked.
 
-usage: report.py report <rows-file> <stamp> <show-all: 0|1>
+usage: report.py report <rows-file> <show-all: 0|1>
        report.py remedies <rows-file> ...      # each remedy the report holds: command, what it does, where
 """
 from __future__ import annotations
 import os
 import subprocess
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,11 +35,10 @@ class Report:
     subject `a / b` stands beneath `a`, so its last part names the property the value is of,
     or is the thing itself by its address; the commands that act on a row stand under
     `remedy` beside its last part, each with what it does. No key names a kind."""
-    stamp: str
-    sections: dict[str, dict]
+    sections: Mapping[str, object]
 
     def facts(self) -> dict:
-        return {'report': self.stamp, **self.sections}
+        return {name: self.sections[name] for name in sorted(self.sections)}   # one order, a reader's: alphabetical
 
 
 def needing(node):
@@ -55,6 +55,15 @@ def needing(node):
 _said: dict[str, object] = {}     # each noun's status, read once a report, however many spots are grafted from it
 
 
+def read_at_once(nouns: list[str]) -> None:
+    """Read every grafted noun's status together, so the report takes the time of the
+    slowest and not their sum (#811): each is a process of its own, and none reads another."""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, len(nouns))) as pool:
+        for noun in nouns:
+            pool.submit(said_by, noun)
+
+
 def said_by(noun: str):
     """What the noun's bare status says, loaded; or, in words, why it could not be read."""
     if noun not in _said:
@@ -63,8 +72,6 @@ def said_by(noun: str):
             at = facts.load(asked.stdout)
         except ValueError as error:
             at = f'corpus-yoga {noun} is unreadable - {error}'
-        if isinstance(at, dict):
-            at.pop('usage', None)
         _said[noun] = at
     return _said[noun]
 
@@ -72,7 +79,7 @@ def said_by(noun: str):
 def grafted(noun: str, pointer: str, whole: bool):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
     short report has nothing of it to show."""
-    venv = Path(os.environ.get('VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
+    venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return 'unread - the venv is not minted' if whole else None
     at = said_by(noun)
@@ -97,17 +104,26 @@ def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
 
 
 def main() -> int:
-    mode, rows_file, stamp, show_all = (sys.argv[1:5] + ['', '', ''])[:4]
+    mode, rows_file, show_all = (sys.argv[1:4] + ['', ''])[:3]
     whole = show_all == '1' or mode == 'remedies'       # sync reads every remedy, whatever the report shows
     sections: dict[str, dict] = {}
-    for line in Path(rows_file).read_text().splitlines():
-        if not line.strip():
-            continue
-        name, kind, subject, stands, *rest = line.split('\t')
+    rows = [line.split('\t') for line in Path(rows_file).read_text().splitlines() if line.strip()]
+    venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
+    if venv.is_file():
+        read_at_once(sorted({row[2] for row in rows if row[1] == 'graft'}))
+    for name, kind, subject, stands, *rest in rows:
         if kind == 'graft':
+            # the section is the command (#812); beneath it, what stands at the pointer, under
+            # the pointer's last key - or merged whole where the pointer names the noun itself
             said = grafted(subject, stands, whole)
-            if said is not None:
-                sections[name] = said if isinstance(said, dict) else {subject: said}
+            if said is None:
+                continue
+            last = stands.rsplit('/', 1)[-1].replace('~1', '/').replace('~0', '~')
+            section = sections.setdefault(name, {})
+            if isinstance(said, dict) and (not stands or last == subject):
+                section.update(said)
+            else:
+                section[last if last and last != subject else subject] = said
             continue
         at = sections.setdefault(name, {})
         *above, last = [part.strip() for part in subject.split(' / ')]
@@ -126,7 +142,10 @@ def main() -> int:
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
-    facts.say(Report(stamp, sections))
+    if not sections and not whole:
+        facts.say(Report({'remedy': 'none - corpus-yoga status --show-all says what stands'}))   # a status loads as one mapping: the empty case says its one fact
+        return 0
+    facts.say(Report(sections))
     return 0
 
 

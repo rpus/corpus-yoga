@@ -55,11 +55,8 @@ class Section:
 
 @dataclass
 class Settings(Section):
-    declared: str = 'src/main/cli/forge/forge.csv'
-    live: str = "this checkout's remote"
-
-    def facts(self) -> dict:
-        return {'declared': self.declared, 'live': self.live, **self.rows}
+    """The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,
+    its drift and remedy where it does not, or the one row saying why the forge was not read."""
 
 
 @dataclass

@@ -28,7 +28,7 @@ source "$REPO_DIR/src/main/tier.sh"
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
 MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
 # shellcheck source=src/main/send.sh
-source "$REPO_DIR/src/main/send.sh"   # the shell face of YOGA_NO_SEND (#29)
+source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
@@ -351,7 +351,7 @@ capture() {
   # machine that cannot spend, or it cannot answer "what would this cost me?" there
   # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
   # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
-  # working under YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
+  # working under CORPUS_YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
   [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (corpus-yoga indexing capture)" || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money left no record of what it bought: terminal scrollback

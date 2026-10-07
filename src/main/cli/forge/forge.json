@@ -22,5 +22,11 @@
   },
   "r": [
     "rsc/test/pre-commit-hook.sh"
-  ]
+  ],
+  "explanation": {
+    "forge settings": "the forge's merge settings, declared in src/main/cli/forge/forge.csv and compared row by row with what the forge holds for this checkout's remote; a drift carries corpus-yoga forge sync --apply as its remedy, and a forge not read says why under live",
+    "branches": "each branch the forge or this clone holds, and whether it is kept or deletable - its work merged, or its PR superseded; corpus-yoga forge prune removes the deletable",
+    "remote-tracking refs": "the refs this clone keeps for branches the forge has deleted; corpus-yoga forge prune drops the stale",
+    "this checkout": "the branch the checkout is on against its upstream, and the commit hook, as corpus-yoga test says it"
+  }
 }

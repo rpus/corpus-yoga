@@ -337,10 +337,12 @@ def _forms(c: dict) -> list[str]:
 EFFECT = {'r': 'reads', 'w': 'writes', 'consumes': 'consumes', 'x': 'runs', 'sends': 'sends'}   # a declaration's effects, in words
 
 
-def _said(declared: dict, summary: str, form: str) -> dict:
+def _said(declared: dict, summary: str, form: str, usage: str | None = None) -> dict:
     """One declaration as help shows it: what it is for, its form as typed, its
     explanation where it has one, its arguments each with its help, and its effects."""
     out: dict = {'summary': declared.get(summary, ''), 'form': form}
+    if usage is not None:
+        out['usage'] = usage                  # the one line that names every verb and flag at once
     if declared.get('explanation'):
         out['explanation'] = declared['explanation']
     arguments = {a['name']: a['help'] for a in declared.get('args', [])}
@@ -355,7 +357,8 @@ def help_of(command: str) -> dict:
     `corpus-yoga <command> -h` says and the walk shows at /<command>/help, loaded from the
     declaration alone. Each form is generated from the same declaration (command_forms)."""
     forms = dict(zip([''] + subcommands_of(command), command_forms(command)))
-    out = _said(json.loads(_declaration(command).read_text()), 'summary', forms[''])
+    sketch = usage_of(command)
+    out = _said(json.loads(_declaration(command).read_text()), 'summary', forms[''], f'corpus-yoga {command} {sketch}' if sketch else None)
     verbs = {verb: _said(json.loads((CLI / command / f'{verb}.json').read_text()), 'help', forms[verb])
              for verb in subcommands_of(command)}
     if verbs:
@@ -402,9 +405,16 @@ def suggestions(cmds: list[dict]) -> Top:
                                      'corpus-yoga -h': 'every command, each with its summary'})
 
 
+def root_flags() -> dict[str, str]:
+    """The flags the launcher takes wherever they stand among the words, each with its help."""
+    return {a['name']: a['help'] for a in root().get('args', [])}
+
+
 def menu(cmds: list[dict]) -> Top:
-    """`corpus-yoga -h`: what this is, then every command with its summary."""
-    return Top(root()['summary'], {f'corpus-yoga {c["command"]}': c['summary'] for c in cmds})
+    """`corpus-yoga -h`: what this is, then every command with its summary, then the flags
+    the launcher takes with any command."""
+    return Top(root()['summary'], {**{f'corpus-yoga {c["command"]}': c['summary'] for c in cmds},
+                                  **{f'corpus-yoga <command> {flag}': help for flag, help in root_flags().items()}})
 
 
 def _subcommand_desc(command: str, subcommand: str) -> str:
@@ -481,26 +491,6 @@ def dispatch(row: dict, rest: list[str]) -> int:
     return 1  # unreachable
 
 
-def usage_line(c: dict) -> str:
-    """The tail every bare noun-status carries: the command's usage, GENERATED from
-    the declaration. It names EVERY verb and flag that applies — so there is no need to
-    guess a unique 'next' (a noun with several verbs has none)."""
-    usage = usage_of(c['command'])
-    return f"usage: corpus-yoga {c['command']}" + (f" {usage}" if usage else '')
-
-
-def _run_status(row: dict) -> int:
-    """Run a noun's bare (status) invocation as a CHILD, so the CLI can print the
-    usage tail after it returns. Only ever reached for a read-only status — no verb,
-    no args — so subprocess (not the execv dispatch uses) is safe: nothing here is
-    interactive, and the child's exit code is forwarded."""
-    target = REPO / row['target']
-    if target.suffix == '.py':
-        return subprocess.run([str(REPO / 'src' / 'run_python_script.sh'),
-                               str(target)]).returncode
-    return subprocess.run([str(target)]).returncode
-
-
 def main() -> int:
     argv = sys.argv[1:]
     cmds = commands()
@@ -523,15 +513,7 @@ def main() -> int:
     if rest and rest[0] in ('-h', '--help'):
         facts.say(Help(row['command'], help_of(row['command'])))
         return 0
-    # A bare noun (advertised verbs, no args) shows status, then tails with its usage
-    # — the one tail that works everywhere, naming every verb that applies. Verbs
-    # (check/run: no advertised verbs) act on a bare invocation, so they
-    # keep the plain execv path and no tail.
-    if not rest and subcommands_of(row['command']):
-        rc = _run_status(row)
-        print(usage_line(row))
-        return rc
-    return dispatch(row, rest)
+    return dispatch(row, rest)                # a bare noun is its status, facts alone; how it is typed is -h's to say
 
 
 if __name__ == '__main__':

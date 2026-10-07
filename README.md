@@ -103,7 +103,7 @@ reports it), rendered free by `corpus-yoga site render`. Disposal is computed, n
 ## Prerequisites
 
 `jq` and Python 3; `./src/main/cli/status/status.sh sync --apply` creates the
-shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -
+shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -
 the one place the name `python3` survives (#478): `corpus-yoga` itself and every `.py` run in the venv. Browser capture needs macOS + Safari. The repo ships no
 data — `data/input/ tmp/cache/ data/output/ tmp/logs/` are git-ignored. Install the hook (required;
 `corpus-yoga status` reports whether it is):

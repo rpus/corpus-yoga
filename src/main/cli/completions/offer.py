@@ -17,7 +17,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'cli'))
 from cli import (  # noqa: E402 - one reader of the declaration, and it is cli
-    PATH_ARG_TYPES, commands, command_rows, subcommands_of, _subcommand_desc,
+    PATH_ARG_TYPES, commands, command_rows, root_flags, subcommands_of, _subcommand_desc,
 )
 
 
@@ -95,11 +95,12 @@ def completion_script(cmds: list[dict]) -> str:
     lines = [
         'local -a cmds subcommands opts pathopts',
         'local wantcmd=0',
+        f"local -a launcher=({' '.join(root_flags())})",      # the launcher's flags, offered at every position
         'cmds=(',
         *[f"  '{esc(c['command'])}:{esc(c['summary'])}'" for c in cmds],
         ')',
         'if (( CURRENT == 2 )); then',
-        "  _describe -t commands 'corpus-yoga command' cmds",
+        '  if [[ ${words[CURRENT]} == -* ]]; then compadd -- "${launcher[@]}"; else _describe -t commands \'corpus-yoga command\' cmds; fi',
         '  return',
         'fi',
         'case "${words[2]}" in',
@@ -111,7 +112,7 @@ def completion_script(cmds: list[dict]) -> str:
         '  return',
         'fi',
         'if [[ ${words[CURRENT]} == -* ]]; then',
-        '  (( ${#opts} )) && compadd -- "${opts[@]}"',
+        '  compadd -- "${opts[@]}" "${launcher[@]}"',
         '  return',
         'fi',
         'if (( CURRENT == 3 )) && (( ${#subcommands} )); then',
