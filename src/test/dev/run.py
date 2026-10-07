@@ -2445,7 +2445,7 @@ def check_walkthrough(run) -> None:
          and step(0).get('members') == f'{len(commands)} keys' and 'next' not in step(0)),
         ('m lands on the machine report, its status and its help beneath, the next command named', step(1).get('at') == '/status'
          and step(1).get('members') == '2 keys' and step(1).get('next') == order[1]),
-        ('a status is read where the walk lands on it', step(2).get('key') == 'status' and str(step(2).get('members', '')).endswith(' keys')),
+        ('a status is read where the walk lands on it', step(2).get('key') == 'status' and re.fullmatch(r'\d+ keys?', str(step(2).get('members', ''))) is not None),
         ('no status the walk stands on is unread', all('members' in s or 'value' in s or 'FAIL' in s
                                                        for s in steps if isinstance(s, dict) and s.get('key') == 'status')),
         ('help stands beside the status', step(3).get('key') == 'help'),
