@@ -101,7 +101,7 @@ _say() {
   local rows_file
   rows_file="$(mktemp "${TMPDIR:-/tmp}/status.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
-  CORPUS_YOGA_VENV="$CORPUS_YOGA_VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
+  CORPUS_YOGA_VENV="$CORPUS_YOGA_VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$SHOW_ALL"
   rm -f "$rows_file"
 }
 # The sync, spelt as the reader can run it at the moment the row is read: through the

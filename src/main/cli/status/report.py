@@ -9,7 +9,7 @@ in pairs, and stand under `remedy` beside it (#763, #777). A row `<section> graf
 (#777): whole in the full report, and otherwise what holds a remedy. Runs under the venv's
 python, or under python3 before the venv is minted, where no noun can be asked.
 
-usage: report.py report <rows-file> <stamp> <show-all: 0|1>
+usage: report.py report <rows-file> <show-all: 0|1>
        report.py remedies <rows-file> ...      # each remedy the report holds: command, what it does, where
 """
 from __future__ import annotations
@@ -34,11 +34,10 @@ class Report:
     subject `a / b` stands beneath `a`, so its last part names the property the value is of,
     or is the thing itself by its address; the commands that act on a row stand under
     `remedy` beside its last part, each with what it does. No key names a kind."""
-    stamp: str
     sections: dict[str, dict]
 
     def facts(self) -> dict:
-        return {'report': self.stamp, **self.sections}
+        return {name: self.sections[name] for name in sorted(self.sections)}   # one order, a reader's: alphabetical
 
 
 def needing(node):
@@ -106,7 +105,7 @@ def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
 
 
 def main() -> int:
-    mode, rows_file, stamp, show_all = (sys.argv[1:5] + ['', '', ''])[:4]
+    mode, rows_file, show_all = (sys.argv[1:4] + ['', ''])[:3]
     whole = show_all == '1' or mode == 'remedies'       # sync reads every remedy, whatever the report shows
     sections: dict[str, dict] = {}
     rows = [line.split('\t') for line in Path(rows_file).read_text().splitlines() if line.strip()]
@@ -144,7 +143,7 @@ def main() -> int:
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
-    facts.say(Report(stamp, sections))
+    facts.say(Report(sections))
     return 0
 
 
