@@ -143,6 +143,9 @@ def main() -> int:
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
+    if not sections and not whole:
+        print('nothing needs doing - corpus-yoga status --show-all says what stands')   # an empty mapping would print as {}
+        return 0
     facts.say(Report(sections))
     return 0
 
