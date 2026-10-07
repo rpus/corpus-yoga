@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,7 +35,7 @@ class Report:
     subject `a / b` stands beneath `a`, so its last part names the property the value is of,
     or is the thing itself by its address; the commands that act on a row stand under
     `remedy` beside its last part, each with what it does. No key names a kind."""
-    sections: dict[str, dict]
+    sections: Mapping[str, object]
 
     def facts(self) -> dict:
         return {name: self.sections[name] for name in sorted(self.sections)}   # one order, a reader's: alphabetical
@@ -142,7 +143,7 @@ def main() -> int:
             print(f'{command}\t{does}\t{where}')
         return 0
     if not sections and not whole:
-        print('nothing needs doing - corpus-yoga status --show-all says what stands')   # an empty mapping would print as {}
+        facts.say(Report({'remedy': 'none - corpus-yoga status --show-all says what stands'}))   # a status loads as one mapping: the empty case says its one fact
         return 0
     facts.say(Report(sections))
     return 0

@@ -2155,6 +2155,24 @@ def check_status_facts(run) -> None:
         run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
             check='status.pipeline_says_declarations_and_units')
 
+    # The default report of a room with nothing to remedy is still one mapping (#807): the
+    # worktree the gate runs in always has remedies, so the empty case is made here.
+    import tempfile
+    with tempfile.NamedTemporaryFile('w', suffix='.rows', delete=False) as empty:
+        empty.write('x\tgraft\tnonesuch\t/nowhere\n')
+        empty_rows = empty.name
+    said_empty = subprocess.run([sys.executable, str(CLI / 'status' / 'report.py'), 'report', empty_rows, '0'],
+                                capture_output=True, text=True, env={**env, 'CORPUS_YOGA_VENV': sys.prefix}, cwd=REPO_ROOT, timeout=120).stdout
+    Path(empty_rows).unlink()
+    try:
+        loaded_empty = yaml.load(said_empty, Loader=Strict)
+    except yaml.YAMLError as error:
+        loaded_empty = f'does not load - {getattr(error, "problem", error)}'
+    run('status: the report of a room with nothing to remedy loads as one mapping that says so',
+        isinstance(loaded_empty, dict) and bool(loaded_empty) and 'remedy' in loaded_empty,
+        None if isinstance(loaded_empty, dict) and loaded_empty and 'remedy' in loaded_empty else f'it says {said_empty.strip()[:120]!r}',
+        check='status.lines_load_as_yaml')
+
     # The machine report gives no verdict on itself (#786): it ends at its last section,
     # and what needs doing is read from its remedies.
     verdict = whole.get('status')
