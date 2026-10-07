@@ -1,7 +1,10 @@
 {
   "summary": "whether everything is well - what this machine lacks, and what any noun says needs doing; sync does what is the repo's to do",
   "explanation": {
-    "machine": "its own name for itself - never shared, never transported; the Signature names it and capture addresses the store by it",
+    "machine": {
+      "binding": "machine-name.txt at the root, gitignored - this machine's own name for itself, one of those rsc/machine/machines.csv declares; without it capture cannot address the store and the Signature cannot name the machine",
+      "environment": "a variable exported under a name the repository no longer reads - YOGA_NO_SEND, YOGA_JOBS, YOGA_GATE_TIMINGS; the names are CORPUS_YOGA_<name>, and VENV is CORPUS_YOGA_VENV"
+    },
     "tools": {
       "jq": "every pipeline's json work runs through it",
       "python3": "the one python3 that survives (#478) - it mints the venv, and everything else runs the venv's python",
@@ -15,10 +18,18 @@
     "python requirements": "what corpus-yoga pipeline run needs, by its manifest src/requirements.txt",
     "git": "the tool, and the identity a commit requires",
     "forge settings": "declared in src/main/cli/forge/forge.csv; server-side, so unverifiable offline",
-    "pipeline inputs": "this repo ships no data; a room supplies its own, and each pipeline reads its store under data/input",
-    "live stores": "each provider's own store of its sessions, harness-owned and expiring at the provider's will, read through a mount, ext/mnt/agent/<provider>",
-    "deploy": "ext/mnt/site, the site repo's clone, which corpus-yoga site's tree copies to; only a deploying machine needs it",
-    "migration": "rsc/migration - the moves a rename owes this machine's local roots, each a guarded script run once"
+    "pipeline inputs": "what each pipeline holds in shared storage, a count per pipeline, provider and kind of unit, under data/input/<provider>/...; this repo ships no data, a room supplies its own, and the capturing noun's verb stages more - corpus-yoga browser capture, agent capture, export capture",
+    "live stores": {
+      "the live store": "the directory the provider's harness writes its sessions to - ~/.claude/projects, ~/.gemini/antigravity - outside the repository, harness-owned, and expiring at the provider's will; corpus-yoga agent capture --provider <provider> copies it into the room's stage",
+      "the mount": "ext/mnt/agent/<provider>, a link to the live store, through which the census and the capture read it; corpus-yoga agent mount --apply makes it, pointing where the provider registry says"
+    },
+    "deploy": "ext/mnt/site is a link to a clone of the site repository, which corpus-yoga site publish pushes to; optional - only a deploying machine has it, and ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)",
+    "migration": "rsc/migration - the moves a rename owes this machine's local roots, each a guarded script run once",
+    "optional modes": {
+      "browser capture": "possible on macOS with osascript, Safari logged in to claude.ai and gemini.google.com; unavailable elsewhere, the other pipelines unaffected",
+      "Safari's Allow JavaScript from Apple Events": "capture needs it on; disabled, capture fails fast naming it - Safari's Settings, Advanced, Show features for web developers, then Settings, Developer; on some Safari versions it cannot be read without changing it, and the row says so",
+      "indexing capture": "possible with ANTHROPIC_API_KEY set; only the paid concept and category capture needs it"
+    }
   },
   "target": "src/main/cli/status/status.sh",
   "calculus": "L8",

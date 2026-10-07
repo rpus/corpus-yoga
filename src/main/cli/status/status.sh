@@ -255,7 +255,7 @@ req_probe() {
 check_optional_modes() {
   sec "optional modes"
   if [[ "$(uname)" == "Darwin" ]] && command -v osascript &>/dev/null; then
-    ok "browser capture" "possible - macOS and osascript; Safari must be logged in to claude.ai / gemini.google.com"
+    ok "browser capture" "possible"
     # Modern Safari keeps this setting where `defaults` cannot see it, and the reliable
     # probe (`do JavaScript "1+1"`) would drive Safari — off-limits for this read-only
     # reporter. Report the state only when the legacy key happens to be readable;
@@ -264,16 +264,16 @@ check_optional_modes() {
     js_from_ae="$(defaults read -app Safari AllowJavaScriptFromAppleEvents 2>/dev/null || true)"
     case "$js_from_ae" in
       1) ok "Safari's Allow JavaScript from Apple Events" "enabled" ;;
-      0) info "Safari's Allow JavaScript from Apple Events" "disabled - capture will fail-fast; Settings, Advanced, Show features for web developers, then Settings, Developer, Allow JavaScript from Apple Events" ;;
-      *) info "Safari's Allow JavaScript from Apple Events" "cannot be verified read-only on this Safari version - if it is off, capture fail-fasts with a clear error naming this setting" ;;
+      0) info "Safari's Allow JavaScript from Apple Events" "disabled" ;;
+      *) ok "Safari's Allow JavaScript from Apple Events" "not verifiable read-only" ;;
     esac
   else
-    info "browser capture" "unavailable - needs macOS and osascript; other pipelines unaffected"
+    info "browser capture" "unavailable"
   fi
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-    ok "indexing capture" "possible - ANTHROPIC_API_KEY is set"
+    ok "indexing capture" "possible"
   else
-    info "indexing capture" "unavailable - ANTHROPIC_API_KEY not set; only the paid concept and category capture needs it"
+    info "indexing capture" "unavailable - ANTHROPIC_API_KEY is not set"
   fi
 }
 
@@ -316,18 +316,18 @@ check_machine() {
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo "binding / bound" "no - capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first" "echo <declared-machine-name> > $rel" "binds it"
+    todo "binding" "absent" "echo <declared-machine-name> > $rel" "binds it, to a name rsc/machine/machines.csv declares"
     declared="${declared% }"
-    info declared "${declared:-none}"
+    ok declared "${declared:-none}"
     return
   fi
   local name; name="$(cat "$binding")"
   if tail -n +2 "$registry" 2>/dev/null | cut -d, -f1 | grep -qxF "$name"; then
-    ok "binding / bound" "$name"
+    ok "binding" "$name"
   else
     # the same declaredness gate machine.py gives every consumer: an undeclared
     # binding would mint a phantom machine in the shared transport store
-    info "binding / bound" "$name - undeclared in rsc/machine/machines.csv (declared: ${declared:-none}); add a row for it there, or fix $rel"
+    info "binding" "$name, undeclared in rsc/machine/machines.csv"
   fi
 }
 
@@ -389,14 +389,10 @@ check_pipeline_inputs() {
   # counts it (src/main/corpus.py held): one count of one store (#771).
   sec "pipeline inputs"
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
-    local pipeline provider kind count input noun
-    while IFS=$'\t' read -r pipeline provider kind count input noun; do
+    local pipeline provider kind count
+    while IFS=$'\t' read -r pipeline provider kind count _ _; do     # the store's address and its noun are the explanation's
       [[ -n "$pipeline" ]] || continue
-      if [[ "$count" -gt 0 ]]; then
-        ok "$pipeline / $provider / $kind" "$count held in $input"
-      else
-        info "$pipeline / $provider / $kind" "none held in $input - corpus-yoga ${noun:-its capturing noun} capture stages them"
-      fi
+      ok "$pipeline / $provider / $kind" "$count held"
     done < <("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" held 2>/dev/null)
   else
     info held "read by the venv's python - the rows follow the mint"
@@ -425,14 +421,17 @@ check_pipeline_inputs() {
     # A capture names the act that does what it says: the provider's own extent of the
     # capture verb where an adapter serves it, and the missing adapter where none does.
     if [[ "$p_served" == served ]]; then
-      info "$p_name / $p_live" "live - harness-owned, expires at the provider's will; corpus-yoga agent capture --provider $p_name stashes it"
+      ok "$p_name / $p_live" "present"
     else
-      info "$p_name / $p_live" "live - harness-owned, expires at the provider's will; no harness adapter serves $p_name (src/main/cli/agent/$p_name/harness.py absent)"
+      info "$p_name / $p_live" "present, and no harness adapter serves $p_name"
     fi
-    if [[ -d "$REPO_ROOT/$p_mount" ]]; then
-      ok "$p_name / $p_mount" "a link to $p_live"
+    local target; target="$(readlink "$REPO_ROOT/$p_mount" 2>/dev/null || true)"
+    if [[ ! -e "$REPO_ROOT/$p_mount" && -z "$target" ]]; then
+      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount --apply" "mounts it"
+    elif [[ -n "$target" && "${target/#\~/$HOME}" != "${p_live/#\~/$HOME}" && "$(cd "$REPO_ROOT/$p_mount" 2>/dev/null && pwd -P)" != "$(cd "${p_live/#\~/$HOME}" 2>/dev/null && pwd -P)" ]]; then
+      todo "$p_name / $p_mount" "linked elsewhere - to $target" "corpus-yoga agent mount --apply" "points it at $p_live"
     else
-      todo "$p_name / $p_mount" "absent - the census and capture read the live store through it" "corpus-yoga agent mount --apply" "mounts it"
+      ok "$p_name / $p_mount" "linked"
     fi
   done <<< "$p_rows"
 
@@ -444,12 +443,12 @@ check_pipeline_inputs() {
   # optional affordance it is, with the hand-make convention the README declares.
   if [[ -L "$REPO_ROOT/ext/mnt/site" || -d "$REPO_ROOT/ext/mnt/site" ]]; then
     if [[ -d "$REPO_ROOT/ext/mnt/site/." ]]; then
-      ok "ext/mnt/site" "a link to $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null || echo "(a directory)")"
+      ok "ext/mnt/site" "linked"
     else
-      todo "ext/mnt/site" "a dangling link to $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null) - repoint it at the site repo's clone, or remove it"
+      todo "ext/mnt/site" "dangling - to $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null)" "rm ext/mnt/site" "removes it; ln -s <site-repo-clone> ext/mnt/site makes one that stands"
     fi
   else
-    info "ext/mnt/site" "absent - optional, only a deploying machine needs it; ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)"
+    ok "ext/mnt/site" "absent"
   fi
 }
 
