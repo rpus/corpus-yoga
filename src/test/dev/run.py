@@ -2039,8 +2039,6 @@ def check_status_facts(run) -> None:
               ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
-        if not spot and isinstance(own, dict):
-            own = {key: value for key, value in own.items() if key != 'usage'}   # the CLI's tail, not the noun's state
         section = whole.get(f'corpus-yoga {noun}')
         last = spot[-1] if spot else ''
         said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)

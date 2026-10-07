@@ -71,8 +71,6 @@ def said_by(noun: str):
             at = facts.load(asked.stdout)
         except ValueError as error:
             at = f'corpus-yoga {noun} is unreadable - {error}'
-        if isinstance(at, dict):
-            at.pop('usage', None)
         _said[noun] = at
     return _said[noun]
 

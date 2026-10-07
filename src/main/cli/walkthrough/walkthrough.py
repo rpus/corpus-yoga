@@ -108,8 +108,6 @@ def status(noun: str):
         loaded = facts.load(asked.stdout)
     except ValueError as error:
         return Unreadable(f'what corpus-yoga {noun} printed does not load - {error}')
-    if isinstance(loaded, dict):
-        loaded.pop('usage', None)                     # the CLI's tail, not the noun's state
     return loaded if loaded else Unreadable(f'corpus-yoga {noun} said nothing (exit {asked.returncode})')
 
 
