@@ -115,6 +115,8 @@ rsc/migration/667.sh,2,comment,rsc/migration/667.sh,Y,"# rsc/migration/667.sh - 
 rsc/migration/667.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/672.sh,2,comment,rsc/migration/672.sh,Y,# rsc/migration/672.sh - a family's catalogue sits under tmp/cache/model/catalogue at the
 rsc/migration/672.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/813.sh,2,comment,rsc/migration/813.sh,Y,"# rsc/migration/813.sh - the command prerequisites is status (#807), and an enacting verb"
+rsc/migration/813.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
 rsc/migration/README.md,16,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
 rsc/migration/step.sh,2,comment,rsc/migration/step.sh,Y,"# rsc/migration/step.sh - the steps a migration script is made of, sourced by each"
@@ -1395,6 +1397,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,rsc/migration/655.sh,Y,
 ,,self_only,rsc/migration/667.sh,Y,
 ,,self_only,rsc/migration/672.sh,Y,
+,,self_only,rsc/migration/813.sh,Y,
 ,,,rsc/migration/README.md,Y,
 ,,,rsc/reference/JSONSchema/README.md,Y,
 ,,,rsc/reference/JSONSchema/draft-04/CHANGELOG.md,Y,

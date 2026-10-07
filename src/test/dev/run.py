@@ -950,8 +950,8 @@ def check_cli_surface(run) -> None:
         # does, so the check examined nothing and passed. `every expected check ran`
         # caught it; a vacuous check that reports success is worse than no check.
         rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data'):
-            continue
+        if rel.parts[0] in ('tmp', '.git', 'data') or rel.parts[:2] == ('rsc', 'migration'):
+            continue                      # a migration names a retired address: that is its purpose
         try:
             text = path.read_text()
         except (UnicodeDecodeError, OSError):
