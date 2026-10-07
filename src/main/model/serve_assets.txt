@@ -2,7 +2,7 @@
 #
 # The requirements.txt of `corpus-yoga server`: serve_markdown.py fetches each artifact
 # below into ext/lib/serve_markdown/ on the first `corpus-yoga server start` (or `corpus-yoga server ensure-assets`),
-# and src/main/cli/prerequisites/prerequisites.sh reports how many are present. Two upstreams — marked 9 and
+# and src/main/cli/status/status.sh reports how many are present. Two upstreams — marked 9 and
 # KaTeX 0.16.9 — the js/css plus the woff2 webfonts KaTeX needs to render maths.
 #
 # Format: one artifact per line, "<dest> <url>", dest relative to tmp/cache/serve_markdown/.

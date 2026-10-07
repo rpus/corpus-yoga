@@ -10,7 +10,7 @@ each machine from the committed grammar by a declared tool at a declared version
 (antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version).
 Every reader of a grammar runs from it: the mcp extraction reads schema.ts through
 src/gen/grammar/TypeScript, so the mcp verbs and the dev gate's mcp checks need it
-generated first - `corpus-yoga prerequisites sync --apply` generates it with the
+generated first - `corpus-yoga status sync --apply` generates it with the
 rest of what a machine needs.
 
 `grammar` is a NOUN: the generated parsers. A bare invocation reports whether each
@@ -50,7 +50,7 @@ from send import may_send, assert_may_send, SendRefused  # noqa: E402
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
 GENERATED = REPO / 'src' / 'gen' / 'grammar'
 TOOL_VERSION = '4.13.2'      # the runtime src/requirements.txt pins is this version's
-REMEDY = 'antlr4 (antlr4-tools) is not in the venv - corpus-yoga prerequisites sync --apply installs src/requirements.txt'
+REMEDY = 'antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync --apply installs src/requirements.txt'
 
 
 def projects() -> list[Path]:

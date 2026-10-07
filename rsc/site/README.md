@@ -42,6 +42,6 @@ page's own terms, each data table compared by its identity column
 misstates the change. The copy lands new and changed files and mirrors no
 deletion: a page or directory that left the publish tree is removed from the
 site repo by hand. `ext/mnt/site` is the machine's hand-made symlink to the
-private site repo's clone (the mount by reference `corpus-yoga prerequisites`
+private site repo's clone (the mount by reference `corpus-yoga status`
 reports) - the repo's location itself is machine-local and not this repo's
 business.

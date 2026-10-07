@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-report.py - `corpus-yoga prerequisites`' report: the rows prerequisites.sh collects as its
+report.py - `corpus-yoga status`' report: the rows status.sh collects as its
 checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,
 tab-separated, in the file named - typed and said as one shape (#759). A row is keyed by
 what it is about (#771); its commands are columns of their own, `<command> <what it does>`
@@ -19,7 +19,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-SELF = 'src/main/cli/prerequisites/report.py'
+SELF = 'src/main/cli/status/report.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -52,22 +52,35 @@ def needing(node):
     return kept or None
 
 
+_said: dict[str, object] = {}     # each noun's status, read once a report, however many spots are grafted from it
+
+
+def said_by(noun: str):
+    """What the noun's bare status says, loaded; or, in words, why it could not be read."""
+    if noun not in _said:
+        asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO)
+        try:
+            at = facts.load(asked.stdout)
+        except ValueError as error:
+            at = f'corpus-yoga {noun} is unreadable - {error}'
+        if isinstance(at, dict):
+            at.pop('usage', None)
+        _said[noun] = at
+    return _said[noun]
+
+
 def grafted(noun: str, pointer: str, whole: bool):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
     short report has nothing of it to show."""
     venv = Path(os.environ.get('VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return 'unread - the venv is not minted' if whole else None
-    asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO)
-    try:
-        at = facts.load(asked.stdout)
-    except ValueError as error:
-        return f'corpus-yoga {noun} is unreadable - {error}'
-    if isinstance(at, dict):
-        at.pop('usage', None)
+    at = said_by(noun)
+    if isinstance(at, str):
+        return at
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
         if not isinstance(at, dict) or token not in at:
-            return f'corpus-yoga {noun} says nothing at {pointer}'
+            return f'corpus-yoga {noun} says nothing at {pointer}' if whole else None   # a spot the noun has no occasion for: nothing to remedy
         at = at[token]
     return at if whole else needing(at)
 

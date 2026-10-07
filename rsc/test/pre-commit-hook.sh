@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The accepted pre-commit hook. `corpus-yoga test install-hook` copies this file verbatim, and
-# both `corpus-yoga prerequisites` and the gate byte-compare the installed hook against it — so
+# both `corpus-yoga status` and the gate byte-compare the installed hook against it — so
 # "is the hook current" is decided by equality with this file, not by a pattern a longer
 # or conditional hook could also satisfy.
 #

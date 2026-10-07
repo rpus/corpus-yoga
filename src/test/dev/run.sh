@@ -30,7 +30,7 @@
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
-# machine-local fact that `corpus-yoga prerequisites` reports as an ERROR; a hook that RUNS
+# machine-local fact that `corpus-yoga status` reports as an ERROR; a hook that RUNS
 # while being the outdated form is refused below, since only a running hook can say so.
 # Read a failure:
 # git diff rsc/test/run.log
@@ -86,7 +86,7 @@ fi
 #
 # The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an
 # installed hook is — not a pattern, which a longer or conditional hook would satisfy
-# while doing something else entirely. `corpus-yoga prerequisites` asks the same question of the
+# while doing something else entirely. `corpus-yoga status` asks the same question of the
 # same file.
 if [[ -n "${GIT_INDEX_FILE:-}" ]]; then
   hook_path="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"

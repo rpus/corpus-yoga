@@ -45,7 +45,7 @@ sys.path.insert(0, str(GRAMMAR_PARSER))
 from antlr4 import CommonTokenStream, InputStream  # noqa: E402
 from antlr4.error.ErrorListener import ErrorListener  # noqa: E402
 PARSER_REMEDY = (f'{GRAMMAR_PARSER.relative_to(REPO)} is absent - corpus-yoga grammar sync generates it from '
-                 'rsc/rpus/grammar/TypeScript (corpus-yoga prerequisites sync --apply does so with the rest)')
+                 'rsc/rpus/grammar/TypeScript (corpus-yoga status sync --apply does so with the rest)')
 
 PRIMITIVES = {'string', 'number', 'boolean', 'null', 'unknown', 'any'}
 

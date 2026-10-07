@@ -1,5 +1,5 @@
 {
-  "help": "makes tab complete corpus-yoga in zsh, by adding four lines to ~/.zshrc - run by corpus-yoga prerequisites sync --apply",
+  "help": "makes tab complete corpus-yoga in zsh, by adding four lines to ~/.zshrc - run by corpus-yoga status sync --apply",
   "args": [],
   "sends": {
     "write ~/.zshrc": [

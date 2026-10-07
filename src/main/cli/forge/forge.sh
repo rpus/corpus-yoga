@@ -27,7 +27,7 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/provider.sh
 source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 
-# rows: STATUS \t key \t detail \t remedy — parsed by status() and `corpus-yoga prerequisites`
+# rows: STATUS \t key \t detail \t remedy — parsed by status() and `corpus-yoga status`
 reconcile() {
   [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno src/main/cli/forge/forge.csv — nothing declared\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\tgh not found (install: brew install gh)\t"; return; }

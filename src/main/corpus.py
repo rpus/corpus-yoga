@@ -1138,14 +1138,14 @@ class Staged:
     judged: str
     verdict: str | None = None
     rehearsal: str | None = None
+    remedy: dict[str, str] | None = None     # beside the unit whose state is a fault, and nowhere else
 
 
 @dataclass
 class StageReport:
-    """The stage as a noun's bare status shows it: each unit under its address, and the
-    commands a reader may type."""
+    """The stage as a noun's bare status shows it: each unit under its address, with its
+    facts and, where its state is a fault, the command that acts on it."""
     staged: dict[str, Staged]
-    remedy: dict[str, str] | None
 
 
 def report_facts(noun: str | None) -> StageReport:
@@ -1159,16 +1159,11 @@ def report_facts(noun: str | None) -> StageReport:
     staged: dict[str, Staged] = {}
     for row in rows:
         verdict = REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing else (row.words or None)
+        remedy = ({'corpus-yoga pipeline rehearse': 'judges it'} if row.state == 'unjudged'
+                  else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
         staged[row.unit.address.as_posix()] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
-                                                     rehearsal_stamp() if row.unit.cache is not None else None)
-    counts = tally(rows)
-    remedy: dict[str, str] = {}
-    if counts['unjudged']:
-        remedy['corpus-yoga pipeline rehearse'] = f"judges {counts['unjudged']} unjudged"
-    removable = counts['held already'] + counts['incomplete']
-    if removable:
-        remedy['corpus-yoga stage clean --apply'] = f'removes {removable} held already or incomplete'
-    return StageReport(staged, remedy or None)
+                                                     rehearsal_stamp() if row.unit.cache is not None else None, remedy)
+    return StageReport(staged)
 
 
 def held_rows() -> list[tuple[str, str, str, int, str, str]]:

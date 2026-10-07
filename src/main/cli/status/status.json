@@ -1,5 +1,5 @@
 {
-  "summary": "what this machine has and what it still needs - bare reports, sync installs what is the repo's to install",
+  "summary": "whether everything is well - what this machine lacks, and what any noun says needs doing; sync does what is the repo's to do",
   "explanation": {
     "machine": "its own name for itself - never shared, never transported; the Signature names it and capture addresses the store by it",
     "tools": {
@@ -26,7 +26,7 @@
     "stage": "tmp/stage/input - what this room has captured and not yet promoted",
     "migration": "rsc/migration - the moves a rename owes this machine's local roots, each a guarded script run once"
   },
-  "target": "src/main/cli/prerequisites/prerequisites.sh",
+  "target": "src/main/cli/status/status.sh",
   "calculus": "L8",
   "args": [
     {

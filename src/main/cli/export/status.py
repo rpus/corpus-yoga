@@ -30,7 +30,7 @@ class Exports:
 class Status:
     export: Exports | str
     staged: dict[str, corpus.Staged]
-    remedy: facts.Act | dict[str, str] | None
+    remedy: facts.Act | None
 
 
 def main() -> int:
@@ -41,7 +41,7 @@ def main() -> int:
             'request an export at https://claude.ai/settings/data-privacy-controls, then '
             'corpus-yoga export capture --manifest <the downloaded manifest>')))
         return 0
-    facts.say(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged, report.remedy))
+    facts.say(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged, None))
     return 0
 
 
