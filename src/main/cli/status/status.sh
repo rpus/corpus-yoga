@@ -360,30 +360,6 @@ check_git_identity() {
   fi
 }
 
-check_forge() {
-  # The forge's merge settings decide how main's history is composed, yet they live on
-  # the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
-  # declaration; `corpus-yoga forge` is the ONE thing that reconciles it with reality, and this
-  # renders its rows in the machine report's voice — the reconciliation is derived once,
-  # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
-  # unverifiable is reported, never vetoed (the deterministic gate stays offline-
-  # reproducible, which is why this lives here and not in corpus-yoga test run).
-  sec "forge settings"
-  local status key detail remedy
-  while IFS=$'\t' read -r status key detail remedy; do
-    [[ -z "$status" ]] && continue
-    case "$status" in
-      OK)    ok   "$key" "$detail" ;;
-      DRIFT) todo "$key / live" "$detail" "$remedy" "sets it as declared" ;;
-      MOVED) todo "$key / names" "$detail" "$remedy" "names the repository as the forge answers for it" ;;
-      *)     info "$key" "$detail" ;;
-    esac
-  # Sourced in the subshell this substitution already is: `reconcile` is the derivation
-  # wanted, and only it runs. The subshell also keeps the two files' namespaces apart —
-  # both define a `sync`, and forge.sh's must not become this script's.
-  done < <(source "$REPO_ROOT/src/main/cli/forge/forge.sh"; reconcile 2>/dev/null)
-}
-
 check_pipeline_inputs() {
   # What each pipeline holds, by pipeline, provider and kind, as the store's own reading
   # counts it (src/main/corpus.py held): one count of one store (#771).
@@ -555,7 +531,7 @@ report() {
   check_git_identity
   graft test "/test/pre-commit hook"
   graft test "/test/signature hook"
-  check_forge
+  graft forge "/forge settings"
   graft forge "/branches"
   graft forge "/remote-tracking refs"
   check_pipeline_inputs

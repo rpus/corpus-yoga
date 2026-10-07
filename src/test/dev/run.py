@@ -2035,7 +2035,7 @@ def check_status_facts(run) -> None:
     # a grafted section is headed by its command (#812): `corpus-yoga <noun>`, and beneath it what
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
-              ('server', 'server', 'render assets'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
+              ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
               ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)

@@ -17,7 +17,6 @@
     "venv": "the one interpreter every .py target runs in; CORPUS_YOGA_VENV= names another",
     "python requirements": "what corpus-yoga pipeline run needs, by its manifest src/requirements.txt",
     "git": "the tool, and the identity a commit requires",
-    "forge settings": "declared in src/main/cli/forge/forge.csv; server-side, so unverifiable offline",
     "pipeline inputs": "what each pipeline holds in shared storage, a count per pipeline, provider and kind of unit, under data/input/<provider>/...; this repo ships no data, a room supplies its own, and the capturing noun's verb stages more - corpus-yoga browser capture, agent capture, export capture",
     "live stores": {
       "the live store": "the directory the provider's harness writes its sessions to - ~/.claude/projects, ~/.gemini/antigravity - outside the repository, harness-owned, and expiring at the provider's will; corpus-yoga agent capture --provider <provider> copies it into the room's stage",
