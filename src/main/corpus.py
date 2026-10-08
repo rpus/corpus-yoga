@@ -496,6 +496,11 @@ class Refusal:
     def at(self) -> str:
         return f'{self.family} {self.version}'
 
+    @property
+    def leaf(self) -> str:
+        """The family's own name, its provider prefix dropped: said under a provider level."""
+        return self.family.rsplit('/', 1)[-1]
+
 
 MINT = 'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'   # what follows a family's refusal
 
@@ -954,9 +959,9 @@ class StageStatus:
     """Bare corpus-yoga stage: the tier's state, ending on what is refused and why and on
     what to run - the tail a reader acts on, as facts."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
-    units: dict[str, Kind] | str | None = None
-    refused: dict[str, dict[str, dict[str, int]]] | None = None   # by kind, by the family and version, by the reason: how many
-    remedy: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command: its verb, then each kind it acts on with how many
+    units: dict[str, object] | str | None = None     # pipeline, provider, kind: the counts
+    refused: dict[str, object] | None = None         # pipeline, provider, kind, family, version, reason: how many
+    remedy: dict[str, object] | str | None = None    # command, verb, pipeline, provider, kind: how many
 
 
 def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
@@ -1004,23 +1009,47 @@ def stage_facts() -> StageStatus:
     if not rows:
         out.units, out.remedy = 'none staged', 'none - nothing staged'
         return out
-    kinds: dict[str, list[Judged]] = {}
+    kinds: dict[tuple[str, str, str], list[Judged]] = {}
     for row in rows:
-        kinds.setdefault(counted_as(row.unit), []).append(row)
-    out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
-    out.refused = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)} or None
+        kinds.setdefault(kind_of(row.unit), []).append(row)
+    units: dict[str, object] = {}
+    refused: dict[str, object] = {}
+    for kind, of_kind in sorted(kinds.items()):
+        nest(units, kind, Kind.of(of_kind))
+        if refused_by(of_kind):
+            nest(refused, kind, refused_by(of_kind))
+    out.units, out.refused = units, refused or None
     out.remedy = stage_remedies(kinds) or 'none - nothing to do'
     return out
 
 
-def stage_remedies(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run, by command: its verb, then each kind it acts on with how many - every
-    count by kind, never summed across kinds."""
-    out: dict[str, dict[str, dict[str, int]]] = {}
+def stage_remedies(kinds: dict[tuple[str, str, str], list[Judged]]) -> dict[str, object]:
+    """What to run, by command: its verb, then each kind it acts on - pipeline, provider,
+    kind - with how many; every count by kind, never summed across kinds."""
+    out: dict[str, object] = {}
     for kind, rows in sorted(kinds.items()):
         for command, (verb, n) in remedies(rows, tally(rows)).items():
-            out.setdefault(command, {}).setdefault(verb, {})[kind] = n
+            nest(out, (command, verb) + kind, n)
     return out
+
+
+def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
+    """Place the value under the keys, each a level: the facts shape for a key that is
+    several facts."""
+    node = into
+    for key in path[:-1]:
+        below = node.get(key)
+        if not isinstance(below, dict):
+            below = {}
+            node[key] = below
+        node = below
+    node[path[-1]] = value
+
+
+def kind_of(unit: Unit) -> tuple[str, str, str]:
+    """What a count of the unit is a count of, as three facts: its pipeline, its provider,
+    and the name its selection's declaration gives it (#736)."""
+    return unit.pipeline or 'no pipeline', unit.provider or unit.address.parts[0], unit.kind
 
 
 def stage_status() -> int:
@@ -1049,20 +1078,24 @@ def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str,
     return out
 
 
-def refused_by(rows: list[Judged]) -> dict[str, dict[str, int]]:
-    """Each refusal once with how many units carry it: a family's under its family and
-    version, by the reason; a relation's under `relation`, by the relation's words."""
-    out: dict[str, dict[str, int]] = {}
+def refused_by(rows: list[Judged]) -> dict[str, object]:
+    """Each refusal once with how many units carry it: a family's under the family's own
+    name, then its version, then the reason; a relation's under `relation`, by the
+    relation's words."""
+    counts: dict[tuple[str, ...], int] = {}
     for row in rows:
         if row.state != 'refused':
             continue
         if row.relation in REFUSING:
-            at, why = 'relation', REMEDY[row.relation]
+            path: tuple[str, ...] = ('relation', REMEDY[row.relation])
         elif row.refusal is not None:
-            at, why = row.refusal.at, row.refusal.reason
+            path = (row.refusal.leaf, row.refusal.version, row.refusal.reason)
         else:
-            at, why = 'judgement', row.words
-        out.setdefault(at, {})[why] = out.setdefault(at, {}).get(why, 0) + 1
+            path = ('judgement', row.words)
+        counts[path] = counts.get(path, 0) + 1
+    out: dict[str, object] = {}
+    for path, n in sorted(counts.items()):
+        nest(out, path, n)
     return out
 
 
@@ -1251,7 +1284,7 @@ class Staged:
     measure: str
     judged: str
     verdict: str | None = None
-    refused: dict[str, str] | None = None    # the family and version that refused it, and the reason
+    refused: dict[str, dict[str, str]] | None = None   # the family that refused it, its version, the reason
     rehearsal: str | None = None
     remedy: dict[str, str] | None = None     # beside the unit whose state is a fault, and nowhere else
 
@@ -1281,7 +1314,7 @@ def report_facts(noun: str | None) -> StageReport:
                   else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
-                                 {refusal.at: refusal.reason} if refusal is not None else None,
+                                 {refusal.leaf: {refusal.version: refusal.reason}} if refusal is not None else None,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, remedy)
     return StageReport(staged)
 
