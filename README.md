@@ -29,7 +29,7 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `scratch/` and `rehearsal`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
+| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `scratch/` and `rehearsal.json`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
@@ -40,7 +40,7 @@ scratch, `tmp/stage/scratch/`, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's 
 `corpus-yoga pipeline rehearse` is the checkout's own code run under that name, its input
 the shared `tmp/stage/input/`, judging the staged units there and writing the scratch
 alone; what it saw and judged it then writes whole as the rehearsal record,
-`tmp/stage/rehearsal`, one file (`src/main/rehearsal.py`, its shape
+`tmp/stage/rehearsal.json` (`src/main/rehearsal.py`, its shape
 `src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote
 reads. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
 `agent promote`, `export promote`, `forge promote`, over the same extent words as its

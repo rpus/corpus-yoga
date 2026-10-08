@@ -4,7 +4,7 @@
   "r": [
     "tmp/stage/input/github/forge/gh-CLI",
     "data/input/github/forge/gh-CLI",
-    "tmp/stage/rehearsal"
+    "tmp/stage/rehearsal.json"
   ],
   "w": [
     "data/input/github/forge/gh-CLI"

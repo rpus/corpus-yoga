@@ -8,8 +8,8 @@ THE STAGE - the room's stage is one root, tmp/stage (src/main/tier.py, #702): tm
 input is what the captures write, at the address each unit will have under data/input;
 tmp/stage/scratch is what the last rehearsal's run derived - a data tier whose input links
 to tmp/stage/input and whose output is its preview, a tmp tier with the validation -
-replaced whole by the next run; and tmp/stage/rehearsal is the rehearsal record, one file,
-what the last rehearsal saw and judged (src/main/rehearsal.py, #815). A capture writes the
+replaced whole by the next run; and tmp/stage/rehearsal.json is the rehearsal record, one
+file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815). A capture writes the
 stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
 CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the scratch tiers, so
@@ -858,10 +858,16 @@ def human(n: float) -> str:
     return f'{n:.1f}T'
 
 
+BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # the directory of stamped rehearsals the layout before #815 left
+MIGRATION_815 = 'rsc/migration/815.sh --apply'   # removes it
+
+
 def orphans() -> list[Path]:
-    """What sits under tmp/stage and is neither the input, the scratch nor the record."""
+    """What sits under tmp/stage and is neither the input, the scratch, the record nor the
+    directory the layout before #815 left, which is the migration's."""
     stage = tier.TMP_STAGE
-    return [e for e in sorted(stage.iterdir()) if e.name not in ('input', 'scratch', 'rehearsal')] if stage.is_dir() else []
+    kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name, BEFORE_815.name)
+    return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
 
 
 @dataclass
@@ -890,7 +896,8 @@ class StageTier:
     input: str                    # the staged input's size, or that it is absent
     scratch: str                  # the last run's derived tiers' size, or that they are absent
     orphans: dict[str, Orphan]    # by path
-    rehearsal: Rehearsal | str    # the record, or why there is none
+    record: Rehearsal | str = facts.named('rehearsal.json')   # the record, or why there is none
+    rehearsal: str | None = None                              # the directory the layout before #815 left, while it stands
 
 
 @dataclass
@@ -954,8 +961,11 @@ def stage_facts() -> StageStatus:
         orphans={e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), 'nothing reads it',
                                                          facts.Command('corpus-yoga stage clean --apply', 'removes it'))
                  for e in orphans()},
-        rehearsal=(rehearsal_facts(record, rows) if isinstance(record, dict)
-                   else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record)))
+        record=(rehearsal_facts(record, rows) if isinstance(record, dict)
+                else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record),
+        rehearsal=(f'a directory of stamped rehearsals, the layout before #815, {human(size_of(BEFORE_815))} - '
+                   f'{MIGRATION_815} removes it, as corpus-yoga status says under migration'
+                   if BEFORE_815.is_dir() else None)))
     if not rows:
         out.units, out.stage = 'none staged', 'nothing staged'
         return out

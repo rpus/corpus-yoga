@@ -7,7 +7,7 @@
 #   corpus-yoga pipeline rehearse   # every pipeline over everything staged
 #
 # A rehearsal is the stage's judgement, whole: it takes no extent, and its record,
-# tmp/stage/rehearsal, is the verdict for every staged unit until the next rehearsal
+# tmp/stage/rehearsal.json, is the verdict for every staged unit until the next rehearsal
 # replaces it whole. A pipeline with nothing staged skips and says so. The store is large
 # and one pipeline's run is the usual act there; the stage is small by construction and
 # gets one judgement.
@@ -35,14 +35,7 @@ source "$REPO_ROOT/src/main/tier.sh"
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 
 main() {
-  local stamp log head record
-  record="$TMP_STAGE/rehearsal"
-  # the layout before #815 left a directory of stamped rehearsals where the record stands:
-  # the migration removes it, and nothing here chooses
-  if [[ -d "$record" ]]; then
-    echo "rehearse: NOT DONE - tmp/stage/rehearsal is a directory, the layout before #815; rsc/migration/815.sh --apply removes it"
-    return 1
-  fi
+  local stamp log head
   # the stage's word first (#721): a rehearsal judges a stage the stage reads as whole, and
   # no pipeline is shown an incomplete unit - the janitor is the remedy
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
@@ -55,7 +48,7 @@ main() {
   {
     echo "pipeline rehearse - $stamp - $(provider_signature "$REPO_ROOT") - $head"
     echo "corpus-yoga pipeline rehearse"
-    echo "rehearse: tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal, the record"
+    echo "rehearse: tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record"
     echo
     "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || exit 1
     local status=0

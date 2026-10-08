@@ -4,7 +4,7 @@
   "r": [
     "tmp/stage/input/claude/chat/bulk-export",
     "data/input/claude/chat/bulk-export",
-    "tmp/stage/rehearsal"
+    "tmp/stage/rehearsal.json"
   ],
   "w": [
     "data/input/claude/chat/bulk-export"

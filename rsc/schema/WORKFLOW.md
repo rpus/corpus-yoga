@@ -172,7 +172,7 @@ A datum the latest version refuses is, from #687, a datum the room has staged an
 cannot promote: the capturing noun's bare status names it, and the mint is tested over the
 room's stage before the merge that licenses its promotion - `corpus-yoga pipeline rehearse`
 runs the checkout's own code over the stage's scratch tiers under tmp/stage/scratch
-(src/main/tier.py) and records what it saw and judged as tmp/stage/rehearsal
+(src/main/tier.py) and records what it saw and judged as tmp/stage/rehearsal.json
 (src/main/rehearsal.py), so the run above is that one over the staged units.
 
 Validation runs each datum against its family's LATEST version only - the latest

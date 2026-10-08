@@ -7,8 +7,8 @@ stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its
     corpus-yoga stage clean --apply     # remove it
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch
-is what the last rehearsal's run derived, replaced whole by the next; rehearsal is the
-record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815).
+is what the last rehearsal's run derived, replaced whole by the next; rehearsal.json is
+the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815).
 The per-unit relations stay with each capturing noun's bare status and with bare
 corpus-yoga pipeline; this face counts them against the record. The janitor clears its
 tier as corpus-yoga cache clean clears its own: every staged unit identical to the held

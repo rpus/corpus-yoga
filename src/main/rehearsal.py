@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-rehearsal.py - the stage's rehearsal record, tmp/stage/rehearsal (#815): one file, what the
+rehearsal.py - the stage's rehearsal record, tmp/stage/rehearsal.json (#815): one file, what the
 last rehearsal saw and judged, whole.
 
     rehearsal.py begin <stamp>          # before the run: the extent, every staged unit's digests, under the scratch tiers
@@ -47,7 +47,6 @@ RECORD = tier.TMP_STAGE_REHEARSAL
 SCHEMA = REPO / 'src' / 'main' / 'rehearsal.schema.json'
 EXTENT = tier.TMP_STAGE_SCRATCH / 'extent.json'      # what begin writes and end reads: the units as the run began
 COMMAND = 'corpus-yoga pipeline rehearse'
-MIGRATION = 'rsc/migration/815.sh --apply'          # removes the stamped directories of the layout before #815
 
 
 def _rel(path: Path) -> str:
@@ -76,7 +75,7 @@ def read(path: Path = RECORD) -> dict | str | None:
 
 def _load(path: Path) -> dict | str | None:
     if path.is_dir():
-        return f'{_rel(path)} is a directory, the layout before #815 - {MIGRATION} removes it; then {COMMAND} judges the stage'
+        return f'{_rel(path)} is a directory, not a record - {COMMAND} remakes it'
     if not path.is_file():
         return None
     try:

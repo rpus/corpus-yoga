@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# rsc/migration/815.sh - the stage's rehearsal record is one file, tmp/stage/rehearsal (#815).
-# A room's tmp/stage/rehearsal/ from before is a directory of stamped rehearsals, each the
-# derived tiers of one run - verdicts and preview that corpus-yoga pipeline rehearse remakes
-# under tmp/stage/scratch - so each is discarded and the directory retires with them, and
-# the record can stand at its address.
+# rsc/migration/815.sh - the stage's rehearsal record is one file, tmp/stage/rehearsal.json
+# (#815). A room's tmp/stage/rehearsal/ from before is a directory of stamped rehearsals,
+# each the derived tiers of one run - verdicts and preview that corpus-yoga pipeline rehearse
+# remakes under tmp/stage/scratch - so each is discarded and the directory retires with them.
 set -euo pipefail
 SELF='rsc/migration/815.sh'
 # shellcheck source=rsc/migration/step.sh

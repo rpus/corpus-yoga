@@ -1752,8 +1752,7 @@ def check_rehearsal_record(run) -> None:
     from the extent and the scratch's verdicts validates against
     src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the
     validator's output where it refused, holds nothing of the later unit, is read back as
-    written, and is told apart from a directory of the layout before or from what is not
-    a record. From it a unit's standing is decidable: valid, refused, changed since,
+    written, and is told apart from a directory or from what is not a record. From it a unit's standing is decidable: valid, refused, changed since,
     unseen, seen without verdict, or judged by no family, each said with the stamp."""
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
@@ -1794,7 +1793,7 @@ def check_rehearsal_record(run) -> None:
         schema_faults = sorted(e.message for e in jsonschema.Draft4Validator(meta).iter_errors(json.loads(rehearsal.SCHEMA.read_text())))
         held = record.get('units', {})
         refused = held.get(b.address.as_posix(), {}).get('verdicts', {}).get('claude/apiConversation', {})
-        path = root / 'rehearsal'
+        path = root / 'rehearsal.json'
         rehearsal.write(record, path)
         back = rehearsal.read(path)
         (root / 'layout').mkdir()
@@ -1810,7 +1809,7 @@ def check_rehearsal_record(run) -> None:
             ('a green verdict carries none', 'output' not in held.get(a.address.as_posix(), {}).get('verdicts', {}).get('claude/apiConversation', {'output': 1}), None),
             ('a unit the run wrote no verdict for holds none', held.get(d.address.as_posix(), {}).get('verdicts') == {}, held.get(d.address.as_posix())),
             ('it reads back as written', back == record, str(back)[:120]),
-            ('a directory at its address is told apart, the migration named', isinstance(before, str) and 'rsc/migration/815.sh --apply' in before, before),
+            ('a directory at its address is told apart', isinstance(before, str) and 'is a directory' in before, before),
             ('what is not a record is told apart', isinstance(broken, str) and 'is not a record' in broken, broken),
         ]
         failed = [(what, detail) for what, ok, detail in wants if not ok]

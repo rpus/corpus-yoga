@@ -28,7 +28,7 @@ REPO = _root[0]
 TMP_STAGE = REPO / 'tmp' / 'stage'    # the checkout's stage, a constant
 TMP_STAGE_INPUT = TMP_STAGE / 'input'  # what the captures write
 TMP_STAGE_SCRATCH = TMP_STAGE / 'scratch'   # data/{input -> ../../input, output}, tmp/cache - the last run's, replaced whole
-TMP_STAGE_REHEARSAL = TMP_STAGE / 'rehearsal'   # the rehearsal record, one file
+TMP_STAGE_REHEARSAL = TMP_STAGE / 'rehearsal.json'   # the rehearsal record, one file
 SCRATCH_TMP = TMP_STAGE_SCRATCH / 'tmp'
 
 REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
