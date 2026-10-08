@@ -5,15 +5,15 @@ storage (#687). The home rsc/CALCULUS.md's roadmap names for the Mergeable proto
 its first face, promotion, and the four older comparisons it names stand as they are.
 
 THE STAGE - the room's stage is one root, tmp/stage (src/main/tier.py, #702): tmp/stage/
-input is what the captures write, at the address each unit will have under data/input, a
-tier shared by every rehearsal; and each rehearsal has a directory of its own, tmp/stage/
-rehearsal/<stamp>, named by the stamp of its log, holding only what it derived - a data tier
-whose input links to tmp/stage/input and whose output is its preview, a tmp tier with the
-verdicts. A capture writes the stage's input and reads nothing (L10). `corpus-yoga pipeline
-rehearse` (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
-CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to that rehearsal's tiers,
-so it judges the staged units alone and writes its own directory alone;
-a rehearsal is evidence, disposed of by corpus-yoga stage clean and nothing else.
+input is what the captures write, at the address each unit will have under data/input;
+tmp/stage/scratch is what the last rehearsal's run derived - a data tier whose input links
+to tmp/stage/input and whose output is its preview, a tmp tier with the validation -
+replaced whole by the next run; and tmp/stage/rehearsal.json is the rehearsal record, one
+file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815). A capture writes the
+stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
+(src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
+CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the scratch tiers, so
+it judges the staged units alone and writes the scratch and the record alone.
 
 UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipeline.json):
 under the declared input of each provider, every match of input_glob or extra_input_glob,
@@ -45,11 +45,13 @@ else:
     whole           held whole or not at all: identical, else diverged
 
 VERDICT - the pipelines are the one validator, and a rehearsal is where they judge the
-stage: each datum's verdict is the record the validation step wrote under the named
-rehearsal's cache, tmp/stage/rehearsal/<stamp>/tmp/cache, at the unit's cache address
-(src/main/validation_verdict.py, #701), at the family's latest version; the log beside it is
-never read. The promote verbs read the newest rehearsal unless --rehearsal names one. A unit is promotable when every family judged there has a
-current green record - its datum digest one of the staged unit's own files (or, for a
+stage: each datum's verdict is what the validation step wrote under the scratch's cache
+at the unit's cache address (src/main/validation_verdict.py, #701), at the family's latest
+version, and the rehearsal record holds it with the digests of every unit the run began
+over. Every verb reads the record, so the last rehearsal is the judgement of every unit.
+Against it a unit is unseen (absent from the record), changed since (its digests are not
+the record's), seen without verdict, or judged; and it is promotable when every family
+judged it green - its datum digest one of the staged unit's own files (or, for a
 converted datum, the recorded digest of its source one of them), and its schema digest
 that of origin/main's version of the family, so that a form only a branch's schema admits
 waits for the merge that licenses it. A unit no pipeline
@@ -64,10 +66,10 @@ w rows under tmp/stage/input). Every staged unit gets its verdict; the relation 
 only where the held copy would lose something (AHEAD, DIVERGED). Promotion is a copy,
 never a move: the unit's members are written over the held ones by address, byte-equal
 being silence, and the stage is never written by promote - the captures own it, and
-`corpus-yoga stage clean` is its one janitor, removing a rehearsal's derived tiers and the
-units the store holds byte-equal. A promoted unit's verdict stays in the stage's cache,
-and the plain run judges the promoted datum again from the same bytes - two hands on
-tmp/cache would break L6 as effects.writers_disjoint holds it. Each noun's bare status,
+`corpus-yoga stage clean` is its one janitor, removing the units the store holds
+byte-equal. A promoted unit's verdict stays in the record and the scratch, and the plain
+run judges the promoted datum again from the same bytes - two hands on tmp/cache would
+break L6 as effects.writers_disjoint holds it. Each noun's bare status,
 bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 """
 import argparse
@@ -95,16 +97,12 @@ from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
 import facts  # noqa: E402 - the one printer of a status's facts (#740)
+import rehearsal  # noqa: E402 - the rehearsal record, one home (#815)
 import tier  # noqa: E402 — the tiers, one home (#702)
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (#721)
 STORE = tier.DATA / 'input'
-REHEARSAL: str | None = None             # the rehearsal a verdict is read from; None is the newest
-
-
-def rehearsal_stamp() -> str | None:
-    return REHEARSAL or tier.newest_rehearsal()
 PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
 NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote
@@ -134,12 +132,12 @@ class Unit:
 
     @property
     def cache(self) -> Path | None:
-        """The datum's address under the named rehearsal's cache, where its verdict is."""
-        stamp = rehearsal_stamp()
-        if self.pipeline is None or stamp is None:
+        """The datum's address under the scratch tiers' cache, where the last run wrote its
+        validation: what the rehearsal record reduces from."""
+        if self.pipeline is None:
             return None
         rel = Path(cache_io.path_for(self.pipeline)).relative_to('tmp/cache')
-        return tier.rehearsal_tmp(stamp) / 'cache' / rel / (self.provider or '') / Path(*self.subject)
+        return tier.SCRATCH_TMP / 'cache' / rel / (self.provider or '') / Path(*self.subject)
 
 
 def pipelines() -> dict[str, dict]:
@@ -453,7 +451,7 @@ def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str]:
     return _digest(blob), versions[-1].rsplit('/', 1)[-1][:-5]
 
 
-def _own_digests(unit: Unit) -> set[str]:
+def own_digests(unit: Unit) -> set[str]:
     """What a verdict on this staged unit can name as its datum: each file's digest, and
     the digest of the unit's tree as run.sh records a converted directory's source."""
     own = {_digest((STAGE / rel).read_bytes()) for rel in unit.files}
@@ -468,53 +466,69 @@ def _own_digests(unit: Unit) -> set[str]:
 class Judgement(Enum):
     VALID = 'valid'          # every family judged it, green, at origin/main's versions
     REFUSED = 'refused'      # a family gave its verdict against it
+    UNSEEN = 'unseen'        # staged since the rehearsal began: absent from its record
+    CHANGED = 'changed'      # seen by the rehearsal with other digests than it has now
     UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its remedy
     NONE = 'none'            # no family judges it: promoted on its relation alone
 
 
-def verdict(unit: Unit) -> tuple[Judgement, str]:
-    """What the pipelines have found of the staged unit at origin/main's versions, and the
-    words for it."""
+REMEDY_REHEARSE = 'corpus-yoga pipeline rehearse judges it'
+
+
+def judges_of(unit: Unit) -> list[str]:
+    """The families of the unit's pipeline that judge its provider's units."""
+    schemas = pipelines()[unit.pipeline]['schemas'] if unit.pipeline else []
+    return [s for s in schemas if unit.provider is None or '/' not in s or s.startswith(unit.provider + '/')]
+
+
+def family_of(unit: Unit, leaf: str) -> str:
+    """The family, as the pipeline declares it, whose validation wrote under the leaf
+    directory of the unit's cache; the leaf itself where none is declared."""
+    return next((s for s in judges_of(unit) if s.rsplit('/', 1)[-1] == leaf.split('/')[0]), leaf)
+
+
+def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None = None,
+            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None) -> tuple[Judgement, str]:
+    """What the pipelines have found of the staged unit at origin/main's versions, read
+    from the rehearsal record (src/main/rehearsal.py), and the words for it. The record,
+    the unit's own digests and origin/main's schema digests are read where not given."""
     if unit.pipeline is None:
         return Judgement.NONE, 'no pipeline selects it - promoted on its relation alone'
-    schemas = pipelines()[unit.pipeline]['schemas']
-    judges = [s for s in schemas if unit.provider is None or '/' not in s or s.startswith(unit.provider + '/')]
+    judges = judges_of(unit)
     if not judges:
         return Judgement.NONE, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
-    cache = unit.cache
-    remedy = 'corpus-yoga pipeline rehearse judges it'
-    if cache is None:
-        return Judgement.UNJUDGED, f'no rehearsal - {remedy}'
-    # the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read
-    by_family: dict[str, list[Path]] = {}
-    for rec in (cache / 'validation').rglob(f'v*{verdicts.SUFFIX}'):
-        by_family.setdefault(rec.parent.relative_to(cache / 'validation').as_posix(), []).append(rec)
-    if not by_family:
-        return Judgement.UNJUDGED, f'no verdict - {remedy}'
-    own = _own_digests(unit)
-    recorded = cache / 'source.sha256'
-    converted = recorded.is_file() and recorded.read_text().strip() in own
+    record = rehearsal.read() if record is None else record
+    if record is None:
+        return Judgement.UNJUDGED, f'no rehearsal - {REMEDY_REHEARSE}'
+    if isinstance(record, str):
+        return Judgement.UNJUDGED, record
+    stamp = record['stamp']
+    seen = record['units'].get(unit.address.as_posix())
+    if seen is None:
+        return Judgement.UNSEEN, f'unseen by rehearsal {stamp} - {REMEDY_REHEARSE}'
+    own = own_digests(unit) if own is None else own
+    if set(seen['digests']) != own:
+        return Judgement.CHANGED, f'changed since rehearsal {stamp} - {REMEDY_REHEARSE}'
+    if not seen['verdicts']:
+        return Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written - {REMEDY_REHEARSE}'
+    converted = seen.get('source') in own
+    main_digest = _main_schema_digest if main_digest is None else main_digest
     words = []
-    for leaf, recs in sorted(by_family.items()):
-        latest = max(recs, key=lambda f: int(''.join(c for c in f.name.split('.')[0] if c.isdigit()) or 0))
-        version = latest.name[:-len(verdicts.SUFFIX)]
-        family = next((s for s in judges if s.rsplit('/', 1)[-1] == leaf.split('/')[0]), leaf)
-        record = verdicts.read(latest)
-        if record is None:
-            return Judgement.UNJUDGED, f'no verdict at {family} - {remedy}'
-        if record['datum_sha256'] not in own and not converted:
-            return Judgement.UNJUDGED, f'the verdict at {family} is not on this staged unit - {remedy}'
-        main_digest, main_version = _main_schema_digest(unit.pipeline, family)
-        if main_digest is None or record['schema_sha256'] != main_digest:
+    for family, one in sorted(seen['verdicts'].items()):
+        version = one['version']
+        if one['datum_sha256'] not in own and not converted:
+            return Judgement.CHANGED, f'the verdict at {family} is on other bytes than this staged unit - {REMEDY_REHEARSE}'
+        digest, main_version = main_digest(unit.pipeline, family)
+        if digest is None or one['schema_sha256'] != digest:
             if main_version == version:
                 return Judgement.UNJUDGED, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
                                'corpus-yoga pipeline rehearse re-judges it')
             return Judgement.REFUSED, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
                            f'({main_version} there) - the mint\'s merge licenses the promotion')
-        if record['verdict'] != 'valid':
+        if one['verdict'] != 'valid':
             return Judgement.REFUSED, f'fails {family} {version} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'
         words.append(f'{family} {version}')
-    return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {rehearsal_stamp()})'
+    return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {stamp})'
 
 
 # -- promote -------------------------------------------------------------------------------
@@ -561,7 +575,8 @@ class Judged:
 def survey(selected: list[Unit] | None = None) -> list[Judged]:
     """Each unit given, or everything staged, with its relation and its verdict. Every unit
     gets its verdict: an identical capture in a form the family refuses is refused like any
-    other."""
+    other, and a unit whose relation refuses it is still judged, so that the rehearsal's
+    counts are of every unit."""
     rows = []
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
@@ -571,7 +586,7 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
                                f'no {", ".join(unit.missing)} staged', Judgement.UNJUDGED,
                                INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
             continue
-        ok, words = verdict(unit) if rel not in REFUSING else (Judgement.NONE, '')
+        ok, words = verdict(unit)
         rows.append(Judged(unit, rel, detail, ok, words))
     return rows
 
@@ -601,6 +616,9 @@ def refuse_rehearsal() -> int:
 
 
 STATES: tuple[str, ...] = ('promotable', 'held already', 'refused', 'incomplete', 'unjudged')
+JUDGED = {Judgement.VALID: 'valid', Judgement.REFUSED: 'refused'}                     # a verdict the rehearsal gave
+NOT_JUDGED = {Judgement.CHANGED: 'changed since', Judgement.UNSEEN: 'unseen',          # none stands: why, or no family at all,
+              Judgement.UNJUDGED: 'seen without verdict', Judgement.NONE: 'no family'}   # which promotes on the relation alone
 
 
 def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
@@ -610,7 +628,7 @@ def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
         return 'incomplete'
     if rel in REFUSING or judgement is Judgement.REFUSED:
         return 'refused'
-    if judgement is Judgement.UNJUDGED:
+    if judgement in (Judgement.UNSEEN, Judgement.CHANGED, Judgement.UNJUDGED):
         return 'unjudged'
     return 'held already' if redundant(unit) else 'promotable'
 
@@ -788,16 +806,11 @@ def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
     return f'{state(unit, rel, ok).upper()} - {words}'
 
 
-def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
-    """Promote the units, their verdicts read from the named rehearsal (the newest unless
-    stamp): each promotable one copied over the held one by address, the rest named; the
-    stage is never written. The lines are grouped by what they share, the certified state
-    follows as evidence, and the verdict is the last line. Exit 1 while anything was refused."""
-    global REHEARSAL
-    if stamp is not None:
-        if not tier.rehearsal(stamp).is_dir():
-            sys.exit(f'error: no rehearsal {stamp} under tmp/stage/rehearsal - corpus-yoga stage lists them')
-        REHEARSAL = stamp
+def promote(noun: str, selected: list[Unit]) -> int:
+    """Promote the units, their verdicts read from the rehearsal record: each promotable
+    one copied over the held one by address, the rest named; the stage is never written.
+    The lines are grouped by what they share, the certified state follows as evidence, and
+    the verdict is the last line. Exit 1 while anything was refused."""
     rows = survey(selected)
     if not rows:
         print(f'{noun} promote: DONE - nothing staged')
@@ -845,22 +858,16 @@ def human(n: float) -> str:
     return f'{n:.1f}T'
 
 
-def rehearsal_header(stamp: str) -> str:
-    """The rehearsal's record: its log's header - time, Signature, commit - and the command as typed."""
-    log = tier.TMP / 'logs' / 'pipeline' / 'rehearse' / f'{stamp}.log'
-    if not log.is_file():
-        return 'no log under tmp/logs/pipeline/rehearse - run by path, not by the launcher'
-    return ' · '.join(log.read_text().splitlines()[:2])
-
-
-def rehearsals() -> list[str]:
-    return sorted(d.name for d in tier.REHEARSALS.iterdir() if d.is_dir()) if tier.REHEARSALS.is_dir() else []
+BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before #815 left: stamped rehearsals, or the record before its extension
+MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes
 
 
 def orphans() -> list[Path]:
-    """What sits under tmp/stage and is neither the input nor the rehearsals."""
+    """What sits under tmp/stage and is neither the input, the scratch, the record nor the
+    directory the layout before #815 left, which is the migration's."""
     stage = tier.TMP_STAGE
-    return [e for e in sorted(stage.iterdir()) if e.name not in ('input', 'rehearsal')] if stage.is_dir() else []
+    kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name, BEFORE_815.name)
+    return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
 
 
 @dataclass
@@ -872,15 +879,25 @@ class Orphan:
 
 @dataclass
 class Rehearsal:
-    size: str
-    record: str                   # the rehearsal's own header: what it judged, at which commit
+    """The rehearsal record as the stage says it: its anchor, and the staged units by what
+    it found of them - judged, valid or refused; not judged, and why."""
+    stamp: str
+    commit: str
+    tree: str                     # clean, or dirty with the count
+    signature: str
+    exit: int
+    extent: str                   # how many units the run began over
+    judged: dict[str, int]
+    not_judged: dict[str, int]
 
 
 @dataclass
 class StageTier:
     input: str                    # the staged input's size, or that it is absent
+    scratch: str                  # the last run's derived tiers' size, or that they are absent
     orphans: dict[str, Orphan]    # by path
-    rehearsals: dict[str, Rehearsal] | str   # by stamp
+    record: Rehearsal | str = facts.named('rehearsal.json')   # the record, or why there is none
+    rehearsal: Orphan | None = None                           # what the layout before #815 left, while it stands
 
 
 @dataclass
@@ -901,7 +918,6 @@ class Counts:
 
 @dataclass
 class StagedUnits(Counts):
-    judged_by: str | None         # the rehearsal the verdicts are read from
     relations: str                # where each unit's relation is read
     kinds: dict[str, Counts]      # the counts by what is counted: pipeline, provider, the unit's declared name (#736)
 
@@ -914,22 +930,46 @@ class StageStatus:
     stage: str | None = None      # the verdict
 
 
+def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
+    """The record's anchor, and the whole units by what it found of them."""
+    judged = {name: 0 for name in JUDGED.values()}
+    not_judged = {name: 0 for name in NOT_JUDGED.values()}
+    for row in rows:
+        if row.unit.missing:
+            continue                          # the janitor's, counted among the units
+        if row.judgement in JUDGED:
+            judged[JUDGED[row.judgement]] += 1
+        else:
+            not_judged[NOT_JUDGED[row.judgement]] += 1
+    return Rehearsal(record['stamp'], record['commit'], 'clean' if not record['dirty'] else f'dirty ({record["dirty"]})',
+                     record['signature'], record['exit'], f'{len(record["units"])} unit(s)', judged, not_judged)
+
+
 def stage_facts() -> StageStatus:
-    """Bare corpus-yoga stage as facts (#741, #759): the input's size, each orphan with the
-    janitor as its remedy, each rehearsal with its record, the units' counts against the
-    newest rehearsal by state, then by what each count is of, and the verdict last."""
+    """Bare corpus-yoga stage as facts (#741, #759): the input's size, the scratch's, each
+    orphan with the janitor as its remedy, the rehearsal record's anchor with the units by
+    what it found of them, the units' counts by state, then by what each count is of, and
+    the verdict last - the counts alone, since the record's block above says what it
+    judged."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
-    stamps = rehearsals()
+    rows = survey()
+    record = rehearsal.read()
     out = StageStatus(StageTier(
         input=human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent',
+        scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
         orphans={e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), 'nothing reads it',
                                                          facts.Command('corpus-yoga stage clean --apply', 'removes it'))
                  for e in orphans()},
-        rehearsals=({s: Rehearsal(human(size_of(tier.rehearsal(s))), rehearsal_header(s)) for s in stamps}
-                    if stamps else 'none - corpus-yoga pipeline rehearse makes one')))
-    rows = survey()
+        record=(rehearsal_facts(record, rows) if isinstance(record, dict)
+                else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record),
+        rehearsal=(Orphan(human(size_of(BEFORE_815)),
+                          ('a directory of stamped rehearsals, the layout before #815' if BEFORE_815.is_dir()
+                           else 'the record before its name carried its extension, which a record at its name supersedes')
+                          + f' - {MIGRATION_815} removes it',
+                          facts.Command('corpus-yoga migration sync --apply', 'takes the move'))
+                   if BEFORE_815.exists() else None)))
     if not rows:
         out.units, out.stage = 'none staged', 'nothing staged'
         return out
@@ -938,10 +978,9 @@ def stage_facts() -> StageStatus:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     counts = tally(rows)
     out.units = StagedUnits(len(rows), *(counts[s] for s in STATES),
-                            judged_by=f'rehearsal {stamps[-1]}' if stamps else None,
                             relations='corpus-yoga pipeline, or each capturing noun bare',
                             kinds={kind: Counts.of(of_kind) for kind, of_kind in sorted(kinds.items())})
-    out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}' + (f'; judged by rehearsal {stamps[-1]}' if stamps else '')
+    out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}'
     return out
 
 
@@ -1132,7 +1171,7 @@ def pairs_facts(noun: str) -> Pairs:
 @dataclass(frozen=True)
 class Staged:
     """A staged unit as a status says it: its relation to the held one and the measure's
-    words for it, the state it is in, the verdict's words, and the rehearsal that judged it."""
+    words for it, the state it is in, the verdict's words, and the rehearsal that saw it."""
     relation: str
     measure: str
     judged: str
@@ -1156,13 +1195,15 @@ def report_facts(noun: str | None) -> StageReport:
     it: what follows a capture is its noun's to say (#767). The counts are
     `corpus-yoga stage`'s to say. Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
+    record = rehearsal.read()
     staged: dict[str, Staged] = {}
     for row in rows:
         verdict = REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing else (row.words or None)
         remedy = ({'corpus-yoga pipeline rehearse': 'judges it'} if row.state == 'unjudged'
                   else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
-        staged[row.unit.address.as_posix()] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
-                                                     rehearsal_stamp() if row.unit.cache is not None else None, remedy)
+        address = row.unit.address.as_posix()
+        staged[address] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
+                                 record['stamp'] if isinstance(record, dict) and address in record['units'] else None, remedy)
     return StageReport(staged)
 
 
@@ -1193,14 +1234,13 @@ def main(argv: list[str]) -> int:
     pr.add_argument('--provider', default=None)
     pr.add_argument('--all', action='store_true')
     pr.add_argument('--id', default=None)
-    pr.add_argument('--rehearsal', default=None)
     sub.add_parser('count', add_help=False)
     sub.add_parser('held', add_help=False)
     args = ap.parse_args(argv)
     if args.act == 'promote':
         if args.id is not None and args.provider is None:
             sys.exit('error: --id names a unit within a provider - say which with --provider')
-        return promote(args.noun, extent(args.noun, args.provider, args.all, args.id), args.rehearsal)
+        return promote(args.noun, extent(args.noun, args.provider, args.all, args.id))
     if args.act == 'held':
         for row in held_rows():
             print('\t'.join(str(cell) for cell in row))

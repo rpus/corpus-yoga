@@ -1,5 +1,5 @@
 {
-  "help": "promote what corpus-yoga browser capture staged into shared storage - each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the verdict corpus-yoga pipeline rehearse cached; copied over the held one where nothing held would be lost, the rest named; the stage is never written",
+  "help": "promote what corpus-yoga browser capture staged into shared storage - each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the verdict corpus-yoga pipeline rehearse recorded; copied over the held one where nothing held would be lost, the rest named; the stage is never written",
   "args": [
     {
       "name": "--provider",
@@ -18,12 +18,6 @@
       "type": "",
       "cardinality": "1/browser-promote-1",
       "help": "every unit the browser capture staged, every provider"
-    },
-    {
-      "name": "--rehearsal",
-      "type": "<stamp>",
-      "cardinality": "",
-      "help": "the rehearsal whose verdicts are read, by the stamp of its log (the newest under tmp/stage/rehearsal unless named); a record's digests refuse a judgement of bytes since recaptured"
     }
   ],
   "r": [
@@ -31,7 +25,7 @@
     "tmp/stage/input/gemini/chat/DOM-capture",
     "data/input/claude/chat/API-capture",
     "data/input/gemini/chat/DOM-capture",
-    "tmp/stage/rehearsal"
+    "tmp/stage/rehearsal.json"
   ],
   "w": [
     "data/input/claude/chat/API-capture",

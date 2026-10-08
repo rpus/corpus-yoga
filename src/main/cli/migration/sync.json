@@ -1,0 +1,25 @@
+{
+  "help": "take every pending step of every script under rsc/migration - each script with steps named with how many, run with --apply, its own lines relayed as it takes them - then the status re-read beneath and the verdict last; a dry run unless --apply, the apply with the act elided. A halted script is named and left to the reader",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "run the scripts; without it, name each with its steps to take and run none"
+    }
+  ],
+  "r": [
+    "rsc/migration",
+    "data/input",
+    "data/output",
+    "tmp/cache",
+    "tmp/logs",
+    "tmp/stage",
+    "ext"
+  ],
+  "x": [
+    "rsc/migration/<issue>.sh --apply",
+    "git"
+  ],
+  "log": "self"
+}

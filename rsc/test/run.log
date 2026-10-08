@@ -1,4 +1,4 @@
-run.py: code+schema 1603/1603
+run.py: code+schema 1628/1628
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ run.py: code+schema 1603/1603
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (110/110)
+  ✓ structure.self_path_matches_address  (112/112)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -33,15 +33,15 @@ run.py: code+schema 1603/1603
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (22/22)
-  ✓ cli.calculus_defined  (22/22)
-  ✓ cli.advertised_flags_exist  (16/16)
-  ✓ cli.docstring_flags_advertised  (20/20)
-  ✓ cli.subcommands_dispatch  (20/20)
-  ✓ cli.target_flags_advertised  (20/20)
+  ✓ cli.target_exists  (23/23)
+  ✓ cli.calculus_defined  (23/23)
+  ✓ cli.advertised_flags_exist  (17/17)
+  ✓ cli.docstring_flags_advertised  (21/21)
+  ✓ cli.subcommands_dispatch  (21/21)
+  ✓ cli.target_flags_advertised  (21/21)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (22/22)
+  ✓ naming.target_stem_matches_command  (23/23)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (12/12)
   ✓ output.prescriptions_are_commands  (27/27)
@@ -51,13 +51,13 @@ run.py: code+schema 1603/1603
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (87/87)
-  ✓ structure.file_at_level_of_subject  (40/40)
-  ✓ structure.cli_declaration_mirrors_the_api  (23/23)
-  ✓ structure.cli_declaration_validates  (74/74)
-  ✓ cli.every_form_listed  (22/22)
-  ✓ cli.help_is_the_declaration  (23/23)
-  ✓ cli.prose_holds_no_pair  (73/73)
-  ✓ cli.flag_not_axis_value  (21/21)
+  ✓ structure.file_at_level_of_subject  (41/41)
+  ✓ structure.cli_declaration_mirrors_the_api  (24/24)
+  ✓ structure.cli_declaration_validates  (76/76)
+  ✓ cli.every_form_listed  (23/23)
+  ✓ cli.help_is_the_declaration  (24/24)
+  ✓ cli.prose_holds_no_pair  (75/75)
+  ✓ cli.flag_not_axis_value  (22/22)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (8/8)
@@ -122,6 +122,10 @@ run.py: code+schema 1603/1603
 ── check_verdict_record ──────────────────────────────────────────────────────
   ✓ validation.verdict_is_record  (2/2)
 
+── check_rehearsal_record ────────────────────────────────────────────────────
+  ✓ rehearsal.record_is_whole
+  ✓ rehearsal.states_are_decidable
+
 ── check_unit_companion ──────────────────────────────────────────────────────
   ✓ stage.export_is_one_unit
 
@@ -142,10 +146,10 @@ run.py: code+schema 1603/1603
   ✓ store.export_is_held_within_a_later_one
 
 ── check_status_facts ────────────────────────────────────────────────────────
-  ✓ status.remedy_names_a_command  (37/37)
-  ✓ status.lines_load_as_yaml  (21/21)
-  ✓ status.value_holds_no_pair  (22/22)
-  ✓ report.says_what_the_nouns_say  (11/11)
+  ✓ status.remedy_names_a_command  (39/39)
+  ✓ status.lines_load_as_yaml  (22/22)
+  ✓ status.value_holds_no_pair  (23/23)
+  ✓ report.says_what_the_nouns_say  (12/12)
   ✓ environment.names_carry_the_prefix
   ✓ cli.no_send_flag  (3/3)
   ✓ status.pipeline_says_declarations_and_units  (4/4)
@@ -245,11 +249,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations           20     0   code        7
 check_step_imports                     2     0   code       15
-check_self_paths                     110     0   code       18
+check_self_paths                     112     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    568     0   code       32
+check_cli_surface                    584     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           16     0   code       68
 check_effects                          3     0   code       71
@@ -264,32 +268,33 @@ check_schema_single_version           15     0   schema    112
 check_schema_changelogs               30     0   schema    115
 check_tier_contract                    1     0   code      119
 check_verdict_record                   2     0   code      122
-check_unit_companion                   1     0   code      125
-check_unit_state                       2     0   code      128
-check_store                            2     0   code      131
-check_facts                            5     0   code      135
-check_export_atoms                     1     0   code      141
-check_status_facts                   102     0   code      144
-check_walkthrough                      1     0   code      156
-check_completions                     10     0   code      159
-check_drafters                         2     0   code      166
-check_versioned_schema_diagnostics   374     0   schema    170
-check_schema_join                      2     0   schema    197
-check_model_join_versions              1     0   schema    201
-check_model_table                      1     0   schema    204
-check_model_occurrences                3     0   schema    207
-check_model_obligations              162     0   schema    212
-check_model_identity                   1     0   schema    216
-check_grammar                          2     0   schema    219
-check_provider_registry                2     0   code      222
-check_reference                       21     0   schema    226
-check_mcp_factoring                    9     0   schema    232
-check_mcp_reproducible                 1     0   schema    238
-check_expectation                      2     0   code      241
+check_rehearsal_record                 2     0   code      125
+check_unit_companion                   1     0   code      129
+check_unit_state                       2     0   code      132
+check_store                            2     0   code      135
+check_facts                            5     0   code      139
+check_export_atoms                     1     0   code      145
+check_status_facts                   107     0   code      148
+check_walkthrough                      1     0   code      160
+check_completions                     10     0   code      163
+check_drafters                         2     0   code      170
+check_versioned_schema_diagnostics   374     0   schema    174
+check_schema_join                      2     0   schema    201
+check_model_join_versions              1     0   schema    205
+check_model_table                      1     0   schema    208
+check_model_occurrences                3     0   schema    211
+check_model_obligations              162     0   schema    216
+check_model_identity                   1     0   schema    220
+check_grammar                          2     0   schema    223
+check_provider_registry                2     0   code      226
+check_reference                       21     0   schema    230
+check_mcp_factoring                    9     0   schema    236
+check_mcp_reproducible                 1     0   schema    242
+check_expectation                      2     0   code      245
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 152 types, 1603/1603 invocations passing
-checks[code]: 100 types, 926/926 invocations passing
+checks[code+schema]: 154 types, 1628/1628 invocations passing
+checks[code]: 102 types, 951/951 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1603/1603 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1628/1628 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

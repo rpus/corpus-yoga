@@ -68,7 +68,7 @@ eighth principle or a smell.
   process, changelog grammar included; rsc/naming/ holds the grammars of
   names that arrive from outside, as data - history is never encoded in
   comments or if-chains; rsc/migration/ holds the moves a rename owes the
-  machine-local roots, as guarded scripts the reader runs once.
+  machine-local roots, as guarded scripts `corpus-yoga migration sync` runs once.
 - CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/
   syntactic-conflict rule, and the never-delete-local-files-for-a-gate
   corollary live there.

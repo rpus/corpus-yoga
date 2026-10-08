@@ -1,5 +1,5 @@
 {
-  "summary": "the room's stage, tmp/stage - what is captured and not yet promoted, and what a rehearsal derived (bare is the tier's status; clean its one janitor)",
+  "summary": "the room's stage, tmp/stage - what is captured and not yet promoted, what the last rehearsal derived, and its record of what it saw and judged (bare is the tier's status; clean its one janitor)",
   "target": "src/main/cli/stage/stage.py",
   "calculus": "supersession L3 L4 L6 L10",
   "args": [],

@@ -11,7 +11,7 @@
 #   corpus-yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
 #   corpus-yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   corpus-yoga browser capture --provider claude --id <id>  # one conversation
-#   corpus-yoga browser promote --all | --provider <p> [--id <id>] [--rehearsal <stamp>]   # what capture staged, into data/input
+#   corpus-yoga browser promote --all | --provider <p> [--id <id>]   # what capture staged, into data/input
 #
 #   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/

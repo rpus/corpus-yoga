@@ -1,5 +1,5 @@
 {
-  "help": "the stage's judgement, whole - every pipeline over everything staged, in a rehearsal of its own - the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and tmp/stage/rehearsal/<stamp>/tmp. It takes no extent, so the newest rehearsal is the verdict for every unit. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
+  "help": "the stage's judgement, whole - every pipeline over everything staged, the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch/data, whose input is tmp/stage/input, and tmp/stage/scratch/tmp, made afresh for each run; then the record, tmp/stage/rehearsal.json, one file written whole after the run (src/main/rehearsal.py) - the stamp, the commit, the Signature, the run's exit, the digest of every staged unit as the run began, and each unit's verdicts with the validator's output where one is refused - which every promote reads, so that the last rehearsal is the verdict for every unit. It takes no extent. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
   "args": [],
   "r": [
     "tmp/stage/input",
@@ -8,7 +8,11 @@
     "rsc/naming/export_archive_members.csv"
   ],
   "w": [
-    "tmp/stage/rehearsal"
+    "tmp/stage/rehearsal.json",
+    "tmp/stage/scratch"
+  ],
+  "x": [
+    "git"
   ],
   "log": "self"
 }

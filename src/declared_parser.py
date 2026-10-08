@@ -66,9 +66,9 @@ def _path_arg_types() -> set:
 
 def _tier_path(declared: str) -> str:
     """A declared repo-relative path under the tiers in force (src/main/tier.py, #702): a
-    default naming data/ or tmp/ resolves to the rehearsal's when one is named, the
-    checkout's otherwise - never against the working directory, and never the checkout's
-    from inside a rehearsal."""
+    default naming data/ or tmp/ resolves to the stage's scratch when a rehearsal is named,
+    the checkout's otherwise - never against the working directory, and never the
+    checkout's from inside a rehearsal."""
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
     import tier
     return str(tier.path(declared))

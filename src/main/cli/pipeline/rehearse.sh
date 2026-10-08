@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 # rehearse.sh (corpus-yoga pipeline rehearse) — the pipelines over the stage, the checkout's
-# own code run over a rehearsal's own tiers (#687, #702).
+# own code run over the stage's scratch tiers, and the record of what it saw and judged
+# (#687, #702, #815).
 #
 # Usage:
 #   corpus-yoga pipeline rehearse   # every pipeline over everything staged
 #
-# A rehearsal is the stage's judgement, whole: it takes no extent, so the newest
-# rehearsal is the verdict for every staged unit, an older stamp is an older judgement
-# whole, and the stamps are one linear order. A pipeline with nothing staged skips and
-# says so. The store is large and one pipeline's run is the usual act there; the stage
-# is small by construction and gets one judgement.
+# A rehearsal is the stage's judgement, whole: it takes no extent, and its record,
+# tmp/stage/rehearsal.json, is the verdict for every staged unit until the next rehearsal
+# replaces it whole. A pipeline with nothing staged skips and says so. The store is large
+# and one pipeline's run is the usual act there; the stage is small by construction and
+# gets one judgement.
 #
-# A rehearsal is an act with an anchor - a commit, an extent, the staged bytes it judged -
-# and what it derives is evidence, so each has a directory of its own, tmp/stage/rehearsal/
-# <stamp>, and a log of its own, tmp/logs/pipeline/rehearse/<stamp>.log, one stamp for both.
-# <stamp>/data/input is a link to tmp/stage/input, the shared tier the captures wrote;
-# <stamp>/data/output is the preview of the staged units; <stamp>/tmp/cache holds their
-# verdicts. The run inside is corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=<stamp>,
-# the one name the tier contract (src/main/tier.py) resolves to those tiers, so every
-# script reads and writes the rehearsal alone: no copy of the code, no copy of the room's
-# cache or output, no link into data/input. The promote verbs read a named rehearsal, the
-# newest by default; corpus-yoga stage lists them, and stage clean removes them as the
-# disposal of evidence it is.
+# The run is corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=<stamp>, the one name the
+# tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch, so
+# every script reads and writes the scratch alone: no copy of the code, no copy of the
+# room's cache or output, no link into data/input. The scratch is made afresh for each run -
+# data/input a link to tmp/stage/input, the shared tier the captures wrote; data/output the
+# preview of the staged units; tmp/cache their validation - and what it holds is grist. The
+# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every
+# staged unit is taken; after it, the verdicts the run wrote are reduced with them into the
+# record, written whole, with the stamp, the commit, the Signature and the run's exit. The
+# log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp.
 
 set -euo pipefail
 
@@ -35,24 +35,27 @@ source "$REPO_ROOT/src/main/tier.sh"
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 
 main() {
-  local stamp rehearsal log head
+  local stamp log head
   # the stage's word first (#721): a rehearsal judges a stage the stage reads as whole, and
   # no pipeline is shown an incomplete unit - the janitor is the remedy
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
-  rehearsal="$TMP_STAGE/rehearsal/$stamp"
   log="$TMP_DIR/logs/pipeline/rehearse/$stamp.log"
-  mkdir -p "$TMP_STAGE/input" "$rehearsal/data/output" "$rehearsal/tmp" "$(dirname "$log")"
-  ln -s ../../../input "$rehearsal/data/input"   # tmp/stage/rehearsal/<stamp>/data/input -> tmp/stage/input
-  # the log's header is the rehearsal's record: the stamp, the Signature triad the commit
-  # hook stamps (#704), the commit, then the command as typed - what corpus-yoga stage reads
+  rm -rf "$TMP_STAGE_SCRATCH"
+  mkdir -p "$TMP_STAGE/input" "$TMP_STAGE_SCRATCH/data/output" "$TMP_STAGE_SCRATCH/tmp" "$(dirname "$log")"
+  ln -s ../../input "$TMP_STAGE_SCRATCH/data/input"   # tmp/stage/scratch/data/input -> tmp/stage/input
   head="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   {
-    echo "pipeline rehearse — $stamp · $(provider_signature "$REPO_ROOT") · $head"
+    echo "pipeline rehearse - $stamp - $(provider_signature "$REPO_ROOT") - $head"
     echo "corpus-yoga pipeline rehearse"
-    echo "rehearse: tmp/stage/rehearsal/$stamp - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input)"
+    echo "rehearse: tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record"
     echo
-    CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run
+    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || exit 1
+    local status=0
+    CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run || status=$?
+    echo
+    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status" || exit 1
+    exit "$status"
   } 2>&1 | tee "$log"
   return "${PIPESTATUS[0]}"
 }

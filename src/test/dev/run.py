@@ -1745,6 +1745,97 @@ def check_verdict_record(run) -> None:
             None if got == '✗' else f'read {got} - the verdict came from the text, not the record', check='validation.verdict_is_record')
 
 
+def check_rehearsal_record(run) -> None:
+    """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
+    judged (#815). Over a scratch fixture - two units the run began over, one validated
+    green and one refused with its log, a third staged after it began - the record reduced
+    from the extent and the scratch's verdicts validates against
+    src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the
+    validator's output where it refused, holds nothing of the later unit, is read back as
+    written, and is told apart from a directory or from what is not a record. From it a unit's standing is decidable: valid, refused, changed since,
+    unseen, seen without verdict, or judged by no family, each said with the stamp."""
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    try:
+        import rehearsal
+    except ImportError:
+        run('rehearsal: the record is one file, whole, validating against its schema', False,
+            'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
+            'and no record of what it saw', check='rehearsal.record_is_whole')
+        run("rehearsal: a unit's standing to the record is decidable from it", False,
+            'there is no record to decide from', check='rehearsal.states_are_decidable')
+        return
+    import corpus
+    import jsonschema
+    stamp, sha = '2026-10-08T000000Z', lambda c: c * 64
+    schema_digest = sha('c')
+    def unit(name: str, pipeline: str | None = 'chat-capture') -> corpus.Unit:
+        address = Path('claude/chat/API-capture') / name
+        return corpus.Unit(address, [address], [], [], 'message-uuids', pipeline, 'claude' if pipeline else None, subject=(name,))
+    a, b, c, d, e = unit('a'), unit('b'), unit('c'), unit('d'), unit('e', None)
+    digests = {'a': {sha('a')}, 'b': {sha('b')}, 'c': {sha('c')}, 'd': {sha('d')}}
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        for name, valid in (('a', True), ('b', False)):
+            log_dir = root / 'cache' / name / 'validation' / 'apiConversation'
+            log_dir.mkdir(parents=True)
+            (log_dir / 'v1.verdict.json').write_text(json.dumps({
+                'datum': f'{name}.json', 'datum_sha256': sha(name), 'datum_bytes': 2, 'datum_lines': 1,
+                'schema': 'v1.json', 'schema_sha256': schema_digest, 'version': 'v1',
+                'verdict': 'valid' if valid else 'invalid', 'reason': 'Valid!' if valid else 'Validation error',
+                'at': '2026-10-08T00:00:01+00:00'}))
+            (log_dir / 'v1.log').write_text('2026-10-08T00:00:01+00:00\nValidation error: x is not of type string\n')
+        seen = rehearsal.extent([a, b, d], lambda u: digests[u.address.name])
+        record = rehearsal.reduce(stamp, 'abc1234', 0, 'a-room/claude/e2d2039d', 0, seen, [a, b, c, d],
+                                  lambda u: root / 'cache' / u.address.name, corpus.family_of)
+        faults = rehearsal.faults(record)
+        meta = json.loads((REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json').read_text())
+        schema_faults = sorted(e.message for e in jsonschema.Draft4Validator(meta).iter_errors(json.loads(rehearsal.SCHEMA.read_text())))
+        held = record.get('units', {})
+        refused = held.get(b.address.as_posix(), {}).get('verdicts', {}).get('claude/apiConversation', {})
+        path = root / 'rehearsal.json'
+        rehearsal.write(record, path)
+        back = rehearsal.read(path)
+        (root / 'layout').mkdir()
+        before = rehearsal.read(root / 'layout')
+        (root / 'broken').write_text('{"stamp": "x"}')
+        broken = rehearsal.read(root / 'broken')
+        wants = [
+            ('the schema is draft-04', not schema_faults, '; '.join(schema_faults)),
+            ('the record validates', not faults, '; '.join(faults)),
+            ('it holds the units the run began over and no other', sorted(held) == sorted(u.address.as_posix() for u in (a, b, d)), sorted(held)),
+            ("each with its digests", held.get(a.address.as_posix(), {}).get('digests') == [sha('a')], held.get(a.address.as_posix())),
+            ("a refused verdict carries the validator's output", 'Validation error: x is not of type string' in refused.get('output', ''), refused),
+            ('a green verdict carries none', 'output' not in held.get(a.address.as_posix(), {}).get('verdicts', {}).get('claude/apiConversation', {'output': 1}), None),
+            ('a unit the run wrote no verdict for holds none', held.get(d.address.as_posix(), {}).get('verdicts') == {}, held.get(d.address.as_posix())),
+            ('it reads back as written', back == record, str(back)[:120]),
+            ('a directory at its address is told apart', isinstance(before, str) and 'is a directory' in before, before),
+            ('what is not a record is told apart', isinstance(broken, str) and 'is not a record' in broken, broken),
+        ]
+        failed = [(what, detail) for what, ok, detail in wants if not ok]
+        run('rehearsal: the record is one file, whole, validating against its schema', not failed,
+            None if not failed else '; '.join(f'{what}: {str(detail)[:160]}' for what, detail in failed[:3]),
+            check='rehearsal.record_is_whole')
+        main = lambda pipeline, family: (schema_digest, 'v1')   # noqa: E731
+        got = [corpus.verdict(a, record, digests['a'], main), corpus.verdict(b, record, digests['b'], main),
+               corpus.verdict(a, record, {sha('f')}, main), corpus.verdict(c, record, digests['c'], main),
+               corpus.verdict(d, record, digests['d'], main), corpus.verdict(e, record, set(), main)]
+    expected = [(corpus.Judgement.VALID, f'validates at claude/apiConversation v1 (origin/main; rehearsal {stamp})'),
+                (corpus.Judgement.REFUSED, 'fails claude/apiConversation v1'),
+                (corpus.Judgement.CHANGED, f'changed since rehearsal {stamp}'),
+                (corpus.Judgement.UNSEEN, f'unseen by rehearsal {stamp}'),
+                (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),
+                (corpus.Judgement.NONE, 'no pipeline selects it')]
+    wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
+    states = [corpus.state(a, corpus.Relation.ABSENT, j) for j in (corpus.Judgement.UNSEEN, corpus.Judgement.CHANGED, corpus.Judgement.NONE)]
+    counted = states == ['unjudged', 'unjudged', 'promotable']
+    run("rehearsal: a unit's standing to the record is decidable from it", not wrong and counted,
+        None if not wrong and counted else
+        f'{wrong[0][0][0].value}: {wrong[0][0][1][:100]!r}, where it is {wrong[0][1][0].value}: {wrong[0][1][1]!r}' if wrong
+        else f'unseen, changed and no family count as {states}, where they are unjudged, unjudged and promotable',
+        check='rehearsal.states_are_decidable')
+
+
 def check_unit_companion(run) -> None:
     """The staged bulk export <X> is one unit, named by <X>, by the chat-export declaration
     itself (#687): its member is data-<X>/, which promotion copies, and its record is
@@ -2036,7 +2127,7 @@ def check_status_facts(run) -> None:
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
-              ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',)]
+              ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')
@@ -3474,6 +3565,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_status_facts': ['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'],
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
+    'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
     'check_model_join_versions': SCHEMA + MODEL,
@@ -3727,6 +3819,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
         run_section(check_tier_contract, tier='code')
         run_section(check_verdict_record, tier='code')
+        run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')
         run_section(check_unit_state, tier='code')
         run_section(check_store, tier='code')

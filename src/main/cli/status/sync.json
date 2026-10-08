@@ -35,6 +35,7 @@
     "corpus-yoga grammar sync",
     "corpus-yoga agent mount --apply",
     "corpus-yoga test install-hook",
-    "corpus-yoga completions install"
+    "corpus-yoga completions install",
+    "corpus-yoga migration sync --apply"
   ]
 }
