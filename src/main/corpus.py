@@ -919,7 +919,7 @@ class Kind:
         counts = tally(rows)
         n = {state: counts[state] or None for state in STATES}
         return cls(len(rows), n['promotable'], n['held already'], n['refused'], n['incomplete'], n['unjudged'],
-                   refused_by(rows) or None, remedies(rows, counts) or None)
+                   refused_by(rows) or None, {command: f'{verb} {n}' for command, (verb, n) in remedies(rows, counts).items()} or None)
 
 
 @dataclass
@@ -978,17 +978,25 @@ def stage_facts() -> StageStatus:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     counts = tally(rows)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
-    out.stage = stage_verdict(rows, counts)
+    out.stage = stage_verdict(kinds, counts)
     return out
 
 
-def stage_verdict(rows: list[Judged], counts: dict[str, int]) -> str:
-    """The last line: what to run and how many it acts on, and what is refused and why -
-    each refusal's words up to their first dash, with how many carry them."""
-    parts = [f'{command} {does}' for command, does in remedies(rows, counts).items()]
+def stage_verdict(kinds: dict[str, list[Judged]], counts: dict[str, int]) -> str:
+    """The last line: each command to run with the kinds it acts on and how many of each,
+    and what is refused and why - each refusal's words up to their first dash, with how
+    many carry them - every count by kind, never summed across kinds."""
+    by_command: dict[str, tuple[str, dict[str, int]]] = {}
+    for kind, rows in sorted(kinds.items()):
+        for command, (verb, n) in remedies(rows, tally(rows)).items():
+            by_command.setdefault(command, (verb, {}))[1][kind] = n
+    parts = [f'{command} {verb} ' + ', '.join(f'{kind} ({n})' for kind, n in of.items()) for command, (verb, of) in by_command.items()]
     if counts['refused']:
-        parts.append(f'{counts["refused"]} refused - ' + ', '.join(f'{words.split(" - ")[0]} ({n})' for words, n in refused_by(rows).items()))
-    return f'{len(rows)} unit(s) staged - ' + ('; '.join(parts) if parts else 'nothing to do')
+        refused = {kind: refused_by(rows) for kind, rows in sorted(kinds.items()) if any(row.state == 'refused' for row in rows)}
+        parts.append(f'{counts["refused"]} refused - ' + ', '.join(
+            f'{kind} {words.split(" - ")[0]} ({n})' for kind, each in refused.items() for words, n in each.items()))
+    total = sum(len(rows) for rows in kinds.values())
+    return f'{total} unit(s) staged - ' + ('; '.join(parts) if parts else 'nothing to do')
 
 
 def stage_status() -> int:
@@ -998,22 +1006,22 @@ def stage_status() -> int:
     return 0
 
 
-def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, str]:
-    """Each command that acts on what the counts count, with how many: a capturing noun's
-    promote for its promotable units, the janitor for the held-already and incomplete, the
-    rehearsal for the unjudged - each only while its count is not zero."""
-    out: dict[str, str] = {}
+def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str, int]]:
+    """Each command that acts on what the counts count, with its verb and how many: a
+    capturing noun's promote for its promotable units, the janitor for the held-already and
+    incomplete, the rehearsal for the unjudged - each only while its count is not zero."""
+    out: dict[str, tuple[str, int]] = {}
     by_noun: dict[str, int] = {}
     for row in rows:
         noun = noun_of(row.unit) if row.state == 'promotable' else None
         if noun is not None:
             by_noun[noun] = by_noun.get(noun, 0) + 1
     for noun, n in sorted(by_noun.items()):
-        out[f'corpus-yoga {noun} promote --all'] = f'promotes {n}'
+        out[f'corpus-yoga {noun} promote --all'] = ('promotes', n)
     if counts['held already'] + counts['incomplete']:
-        out['corpus-yoga stage clean --apply'] = f'removes {counts["held already"] + counts["incomplete"]}'
+        out['corpus-yoga stage clean --apply'] = ('removes', counts['held already'] + counts['incomplete'])
     if counts['unjudged']:
-        out['corpus-yoga pipeline rehearse'] = f'judges {counts["unjudged"]}'
+        out['corpus-yoga pipeline rehearse'] = ('judges', counts['unjudged'])
     return out
 
 
