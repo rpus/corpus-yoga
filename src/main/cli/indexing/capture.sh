@@ -31,7 +31,7 @@ MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, 
 source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
-MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
+MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
 API_URL="https://api.anthropic.com/v1/messages"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 
