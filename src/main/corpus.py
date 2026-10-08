@@ -858,8 +858,8 @@ def human(n: float) -> str:
     return f'{n:.1f}T'
 
 
-BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # the directory of stamped rehearsals the layout before #815 left
-MIGRATION_815 = 'rsc/migration/815.sh --apply'   # removes it
+BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before #815 left: stamped rehearsals, or the record before its extension
+MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes
 
 
 def orphans() -> list[Path]:
@@ -897,7 +897,7 @@ class StageTier:
     scratch: str                  # the last run's derived tiers' size, or that they are absent
     orphans: dict[str, Orphan]    # by path
     record: Rehearsal | str = facts.named('rehearsal.json')   # the record, or why there is none
-    rehearsal: str | None = None                              # the directory the layout before #815 left, while it stands
+    rehearsal: Orphan | None = None                           # what the layout before #815 left, while it stands
 
 
 @dataclass
@@ -963,9 +963,11 @@ def stage_facts() -> StageStatus:
                  for e in orphans()},
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
                 else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record),
-        rehearsal=(f'a directory of stamped rehearsals, the layout before #815, {human(size_of(BEFORE_815))} - '
-                   f'{MIGRATION_815} removes it, as corpus-yoga status says under migration'
-                   if BEFORE_815.is_dir() else None)))
+        rehearsal=(Orphan(human(size_of(BEFORE_815)),
+                          ('a directory of stamped rehearsals, the layout before #815' if BEFORE_815.is_dir()
+                           else 'the record before its name carried its extension') + f' - {MIGRATION_815} moves it',
+                          facts.Command('corpus-yoga migration sync --apply', 'takes the move'))
+                   if BEFORE_815.exists() else None)))
     if not rows:
         out.units, out.stage = 'none staged', 'nothing staged'
         return out

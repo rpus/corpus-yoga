@@ -3,6 +3,8 @@
 # (#815). A room's tmp/stage/rehearsal/ from before is a directory of stamped rehearsals,
 # each the derived tiers of one run - verdicts and preview that corpus-yoga pipeline rehearse
 # remakes under tmp/stage/scratch - so each is discarded and the directory retires with them.
+# A room that ran the branch before the record carried its extension holds the record as
+# the file tmp/stage/rehearsal, which moves to its name.
 set -euo pipefail
 SELF='rsc/migration/815.sh'
 # shellcheck source=rsc/migration/step.sh
@@ -13,3 +15,4 @@ for stamp in tmp/stage/rehearsal/*/; do
   discard "${stamp%/}"
 done
 retire tmp/stage/rehearsal
+if [[ -f tmp/stage/rehearsal ]]; then move tmp/stage/rehearsal tmp/stage/rehearsal.json; fi

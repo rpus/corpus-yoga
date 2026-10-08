@@ -428,32 +428,6 @@ check_pipeline_inputs() {
   fi
 }
 
-check_migration() {
-  # The moves a rename owes this machine's data/output, tmp/cache and ext/mnt, carried by
-  # the scripts under rsc/migration (#661): each run bare states its pending steps and
-  # takes none; the reader runs the named script once with --apply.
-  sec "migration"
-  local script steps line step
-  for script in "$REPO_ROOT"/rsc/migration/[0-9]*.sh; do
-    [[ -e "$script" ]] || continue
-    local rel="${script#"$REPO_ROOT"/}"
-    local lines=()
-    if steps="$("$script" 2>&1)"; then
-      while IFS= read -r line; do lines+=("$line"); done <<< "$steps"
-      if [[ -n "$steps" ]]; then
-        todo "$rel / steps" "pending" "$rel --apply" "takes them"
-        step=0; for line in "${lines[@]}"; do step=$((step + 1)); info "$rel / step $step" "$line"; done
-      else
-        ok "$rel / steps" "none pending"
-      fi
-    else
-      while IFS= read -r line; do lines+=("$line"); done <<< "$steps"
-      todo "$rel / steps" "halted - resolve by hand what it names" "$rel --apply" "then takes them"
-      step=0; for line in "${lines[@]}"; do step=$((step + 1)); info "$rel / says $step" "$line"; done
-    fi
-  done
-}
-
 # What the report holds to act on, and of it what is sync's own to run (#777). The report
 # is run for its rows; its remedies - the checks' and the grafted nouns' alike - come back
 # as data, and sync runs each whose command its declaration names (sync.json's `x`), and
@@ -537,7 +511,7 @@ report() {
   check_pipeline_inputs
   graft pipeline "/staged"
   graft store "/duplicates"
-  check_migration
+  graft migration ""
 
   # A report is information: it exits 0 unless it could not BE produced. Severity
   # lives in the rows; refusal lives at the acts (forge merge refuses on the gate

@@ -2127,7 +2127,7 @@ def check_status_facts(run) -> None:
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
-              ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',)]
+              ('pipeline', 'staged'), ('store', 'duplicates'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')

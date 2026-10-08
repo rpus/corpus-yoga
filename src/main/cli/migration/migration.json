@@ -1,0 +1,22 @@
+{
+  "summary": "the moves a rename owes this machine's local roots - rsc/migration, one guarded script per causing issue, each run once (bare says each script's pending steps; sync takes them)",
+  "explanation": {
+    "scripts": "each script under rsc/migration, by its path - the steps it would take, none pending, or that it halted and what it said; a script with steps carries the sync as its remedy, a halted one names a from and a to that both stand, which the reader resolves by hand",
+    "migration": "the verdict - how many scripts, how many with steps pending, how many halted"
+  },
+  "target": "src/main/cli/migration/migration.py",
+  "calculus": "L9",
+  "args": [],
+  "r": [
+    "rsc/migration",
+    "data/input",
+    "data/output",
+    "tmp/cache",
+    "tmp/logs",
+    "tmp/stage",
+    "ext"
+  ],
+  "x": [
+    "rsc/migration/<issue>.sh"
+  ]
+}

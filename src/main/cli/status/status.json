@@ -23,7 +23,7 @@
       "the mount": "ext/mnt/agent/<provider>, a link to the live store, through which the census and the capture read it; corpus-yoga agent mount --apply makes it, pointing where the provider registry says"
     },
     "deploy": "ext/mnt/site is a link to a clone of the site repository, which corpus-yoga site publish pushes to; optional - only a deploying machine has it, and ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)",
-    "migration": "rsc/migration - the moves a rename owes this machine's local roots, each a guarded script run once",
+    "migration": "corpus-yoga migration - the moves a rename owes this machine's local roots, each a guarded script under rsc/migration run once; its sync takes the pending steps",
     "optional modes": {
       "browser capture": "possible on macOS with osascript, Safari logged in to claude.ai and gemini.google.com; unavailable elsewhere, the other pipelines unaffected",
       "Safari's Allow JavaScript from Apple Events": "capture needs it on; disabled, capture fails fast naming it - Safari's Settings, Advanced, Show features for web developers, then Settings, Developer; on some Safari versions it cannot be read without changing it, and the row says so",
@@ -54,7 +54,6 @@
     "rsc/rpus/grammar",
     "src/gen/grammar",
     "rsc/provider",
-    "rsc/migration",
     "tmp/stage/input"
   ]
 }
