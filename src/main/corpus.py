@@ -903,31 +903,29 @@ class StageTier:
 @dataclass
 class Kind:
     """One kind of staged unit - pipeline, provider, the unit's declared name (#736): how
-    many are staged, how many in each of STATES that any is in, each refusal's words once
-    with how many carry them, and each command that acts on them with how many."""
+    many are staged, and how many in each of STATES that any is in."""
     staged: int
     promotable: int | None
     held_already: int | None
     refused: int | None
     incomplete: int | None
     unjudged: int | None
-    refused_by: dict[str, int] | None
-    remedy: dict[str, str] | None
 
     @classmethod
     def of(cls, rows: list[Judged]) -> 'Kind':
         counts = tally(rows)
         n = {state: counts[state] or None for state in STATES}
-        return cls(len(rows), n['promotable'], n['held already'], n['refused'], n['incomplete'], n['unjudged'],
-                   refused_by(rows) or None, {command: f'{verb} {n}' for command, (verb, n) in remedies(rows, counts).items()} or None)
+        return cls(len(rows), n['promotable'], n['held already'], n['refused'], n['incomplete'], n['unjudged'])
 
 
 @dataclass
 class StageStatus:
-    """Bare corpus-yoga stage: the tier's state."""
+    """Bare corpus-yoga stage: the tier's state, ending on what is refused and why and on
+    what to run - the tail a reader acts on, as facts."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None
-    stage: str | None = None      # the verdict
+    refused: dict[str, dict[str, int]] | None = None          # by kind: each refusal's words once, with how many carry them
+    remedy: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command: its verb, then each kind it acts on with how many
 
 
 def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
@@ -948,9 +946,10 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
 def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (#741, #759, #822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
-    by what it found of them, the units by kind - each kind's counts, its refusals by their
-    words and the commands that act on it - and the verdict last: what to run and how many
-    it acts on, and what is refused and why, so that the tail is never a dead end."""
+    by what it found of them, the units by kind with each kind's counts, then what is
+    refused by kind with each refusal's words and how many carry them, and last what to
+    run - each command, its verb, and the kinds it acts on with how many - so that the tail
+    is never a dead end and never a sentence."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
@@ -971,32 +970,25 @@ def stage_facts() -> StageStatus:
                           facts.Command('corpus-yoga migration sync --apply', 'takes the move'))
                    if BEFORE_815.exists() else None)))
     if not rows:
-        out.units, out.stage = 'none staged', 'nothing staged'
+        out.units, out.remedy = 'none staged', 'none - nothing staged'
         return out
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
         kinds.setdefault(counted_as(row.unit), []).append(row)
-    counts = tally(rows)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
-    out.stage = stage_verdict(kinds, counts)
+    out.refused = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)} or None
+    out.remedy = stage_remedies(kinds) or 'none - nothing to do'
     return out
 
 
-def stage_verdict(kinds: dict[str, list[Judged]], counts: dict[str, int]) -> str:
-    """The last line: each command to run with the kinds it acts on and how many of each,
-    and what is refused and why - each refusal's words up to their first dash, with how
-    many carry them - every count by kind, never summed across kinds."""
-    by_command: dict[str, tuple[str, dict[str, int]]] = {}
+def stage_remedies(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, int]]]:
+    """What to run, by command: its verb, then each kind it acts on with how many - every
+    count by kind, never summed across kinds."""
+    out: dict[str, dict[str, dict[str, int]]] = {}
     for kind, rows in sorted(kinds.items()):
         for command, (verb, n) in remedies(rows, tally(rows)).items():
-            by_command.setdefault(command, (verb, {}))[1][kind] = n
-    parts = [f'{command} {verb} ' + ', '.join(f'{kind} ({n})' for kind, n in of.items()) for command, (verb, of) in by_command.items()]
-    if counts['refused']:
-        refused = {kind: refused_by(rows) for kind, rows in sorted(kinds.items()) if any(row.state == 'refused' for row in rows)}
-        parts.append(f'{counts["refused"]} refused - ' + ', '.join(
-            f'{kind} {words.split(" - ")[0]} ({n})' for kind, each in refused.items() for words, n in each.items()))
-    total = sum(len(rows) for rows in kinds.values())
-    return f'{total} unit(s) staged - ' + ('; '.join(parts) if parts else 'nothing to do')
+            out.setdefault(command, {}).setdefault(verb, {})[kind] = n
+    return out
 
 
 def stage_status() -> int:
