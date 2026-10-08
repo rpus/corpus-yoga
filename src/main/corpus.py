@@ -901,33 +901,32 @@ class StageTier:
 
 
 @dataclass
-class Counts:
-    """How many staged units, and how many in each of STATES."""
+class Kind:
+    """One kind of staged unit - pipeline, provider, the unit's declared name (#736): how
+    many are staged, how many in each of STATES that any is in, each refusal's words once
+    with how many carry them, and each command that acts on them with how many."""
     staged: int
-    promotable: int
-    held_already: int
-    refused: int
-    incomplete: int
-    unjudged: int
+    promotable: int | None
+    held_already: int | None
+    refused: int | None
+    incomplete: int | None
+    unjudged: int | None
+    refused_by: dict[str, int] | None
+    remedy: dict[str, str] | None
 
     @classmethod
-    def of(cls, rows: list[Judged]) -> 'Counts':
+    def of(cls, rows: list[Judged]) -> 'Kind':
         counts = tally(rows)
-        return cls(len(rows), *(counts[s] for s in STATES))
-
-
-@dataclass
-class StagedUnits(Counts):
-    remedy: dict[str, str] | None      # each command that acts on what is counted, with how many; absent where nothing is to do
-    refused_by: dict[str, int] | None  # each refusal's words once, with how many units carry them
-    kinds: dict[str, Counts]           # the counts by what is counted: pipeline, provider, the unit's declared name (#736)
+        n = {state: counts[state] or None for state in STATES}
+        return cls(len(rows), n['promotable'], n['held already'], n['refused'], n['incomplete'], n['unjudged'],
+                   refused_by(rows) or None, remedies(rows, counts) or None)
 
 
 @dataclass
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
-    units: StagedUnits | str | None = None
+    units: dict[str, Kind] | str | None = None
     stage: str | None = None      # the verdict
 
 
@@ -949,10 +948,9 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
 def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (#741, #759, #822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
-    by what it found of them, the units' counts by state with the commands that act on
-    them and each refusal's words once with how many carry them, then the counts by what
-    each is of, and the verdict last - the counts alone, since the record's block above
-    says what it judged."""
+    by what it found of them, the units by kind - each kind's counts, its refusals by their
+    words and the commands that act on it - and the verdict last: what to run and how many
+    it acts on, and what is refused and why, so that the tail is never a dead end."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
@@ -979,11 +977,18 @@ def stage_facts() -> StageStatus:
     for row in rows:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     counts = tally(rows)
-    out.units = StagedUnits(len(rows), *(counts[s] for s in STATES), remedy=remedies(rows, counts) or None,
-                            refused_by=refused_by(rows) or None,
-                            kinds={kind: Counts.of(of_kind) for kind, of_kind in sorted(kinds.items())})
-    out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}'
+    out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
+    out.stage = stage_verdict(rows, counts)
     return out
+
+
+def stage_verdict(rows: list[Judged], counts: dict[str, int]) -> str:
+    """The last line: what to run and how many it acts on, and what is refused and why -
+    each refusal's words up to their first dash, with how many carry them."""
+    parts = [f'{command} {does}' for command, does in remedies(rows, counts).items()]
+    if counts['refused']:
+        parts.append(f'{counts["refused"]} refused - ' + ', '.join(f'{words.split(" - ")[0]} ({n})' for words, n in refused_by(rows).items()))
+    return f'{len(rows)} unit(s) staged - ' + ('; '.join(parts) if parts else 'nothing to do')
 
 
 def stage_status() -> int:
