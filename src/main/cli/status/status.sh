@@ -64,10 +64,11 @@ parse_args() {
 #   info  <subject> <what stands>                            # how things stand: it takes no command
 #   todo  <subject> <what stands> [<command> <what it does>]...
 #   bad   <subject> <what stands> <command> <what it does> [...]   # required, and absent
-#   graft <section> <noun> <pointer>                         # what a noun's own status says there (#777)
+#   graft <section> <noun> <pointer> [standing]              # what a noun's own status says there (#777)
 # What a noun's status says is taken from that status, never probed a second way: a graft
 # row names the noun and the spot of its facts, and report.py loads them - whole in the
-# full report, and otherwise what holds a remedy.
+# full report, and otherwise what holds a remedy, or the spot as it stands where the row
+# says standing (#824): the stage's next steps remedy nothing and are still to be done.
 _hdr=""
 _rows=()
 sec()    { _hdr="$1"; }
@@ -82,7 +83,7 @@ info()   { [[ $# -eq 2 ]] || { echo "status: info takes a subject and what stand
 # report's data, so `sync` reads what to run from the report itself (#777), not from a tag.
 todo()   { _row todo "$@"; }
 bad()    { _row missing "$@"; }
-graft()  { _rows+=("corpus-yoga $1"$'\t'"graft"$'\t'"$1"$'\t'"$2"); }   # <noun> <pointer>: the section is the command, its content what stands at the pointer
+graft()  { _rows+=("corpus-yoga $1"$'\t'"graft"$'\t'"$1"$'\t'"$2"$'\t'"${3-}"); }   # <noun> <pointer> [standing]: the section is the command, its content what stands at the pointer
 
 # The rows said through report.py: the report (`report`), or the remedies it
 # holds as rows of their own - command \t what it does \t where it stands (`remedies`).
@@ -509,7 +510,9 @@ report() {
   graft forge "/branches"
   graft forge "/remote-tracking refs"
   check_pipeline_inputs
-  graft pipeline "/staged"
+  graft stage "/invalid" standing
+  graft stage "/refused" standing
+  graft stage "/next" standing
   graft store "/duplicates"
   graft migration ""
 
