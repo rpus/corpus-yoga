@@ -6,6 +6,43 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v20
+
+Two shapes Claude Code 2.1.289 writes that v19 had closed. Reading-room's session
+`be12fa7c-…`, captured on 2026-10-07 by `corpus-yoga agent capture --all` into the
+stage, is refused at v19 by the rehearsal of 2026-10-08T194222Z; validated record by
+record, 26 of its 36207 records fail and no other. Twenty-one are user turns from
+2026-10-05T21:25:50Z on, each a task notification, whose `origin` is
+`{"kind": "task-notification", "producer": "session-task"}` where `TurnOrigin` was
+closed over `kind` alone. Five are queue-operation records from 2026-10-06T18:36:53Z
+on, each a `remove` with reason `absorbed_mid_turn`, carrying `commandUuid` and
+`deliveryId`, two v4 uuids, where `QueueOperation` was closed without them. The copy
+of the session held under data/input, of 2026-10-04, carries neither key and
+validates at v19, as do the 19 other held sessions.
+
+The same records carry `promptSource` `system` and `turnOrigin` `task_notification`,
+both admitted as strings; `promptSource`'s description now records the value. The
+versions seen on the user turns carrying `producer` are 2.1.289 and 2.1.291.
+
+Validated by hand over the staged session's conversion on reading-room, 2026-10-08:
+v19 refuses the 26 records and no other; v20 refuses none (#827).
+
+### Replaces
+
+v19
+
+#### Relaxed
+
+- `TurnOrigin` - optional `producer`, a string, observed `session-task` on every
+  task-notification turn from 2026-10-05.
+- `QueueOperation` - optional `commandUuid` and `deliveryId`, each a `UuidV4`,
+  observed together on every remove with reason `absorbed_mid_turn` from 2026-10-06.
+
+#### Refactored
+
+- `promptSource` - its description records the observed value `system`. No
+  validation effect.
+
 ## v19
 
 A member observed where v18 had seen none. v18 declared a cost-state record's

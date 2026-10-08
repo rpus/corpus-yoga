@@ -104,6 +104,10 @@
         "workspace_upgraded": {
           "description": "Whether the conversation was carried into a workspace by claude.ai's upgrade. Observed reading-room 2026-09-27 on every one of the account's 121 conversations, false in each. Undeclared before v12.",
           "type": "boolean"
+        },
+        "is_multiplayer": {
+          "description": "Whether the conversation is shared with other accounts on claude.ai. Observed reading-room 2026-10-07 on every one of the account's 123 conversations, false in each; the captures of 2026-09-27 and before carry it not, so it is optional. Undeclared before v13.",
+          "type": "boolean"
         }
       }
     },
