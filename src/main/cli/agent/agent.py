@@ -403,9 +403,8 @@ def main() -> int:
     if args.verb == 'capture':
         return 1 if capture(args.id, args.provider) else 0
     if args.verb == 'promote':
-        # --rehearsal <stamp> names the rehearsal whose verdicts are read; bare, the newest
         import corpus
-        return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id), args.rehearsal)
+        return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id))
 
     projects, claude = _claude()
     if args.verb == 'demerge':

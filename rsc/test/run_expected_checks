@@ -111,6 +111,8 @@ reference.lineage_changelog
 reference.lineage_declared
 reference.provenance_declared
 reference.verbatim
+rehearsal.record_is_whole
+rehearsal.states_are_decidable
 report.gives_no_verdict_on_itself
 report.rows_are_keyed_by_subject
 report.says_what_the_nouns_say

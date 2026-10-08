@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Rehearsal",
+  "description": "The stage's rehearsal record, tmp/stage/rehearsal (#815): what the last rehearsal saw and judged, whole, written by src/main/rehearsal.py after corpus-yoga pipeline rehearse ran the pipelines over the stage. This schema lives beside its writer rather than under rsc/schema/, which is the data domain: the record is the repository's own, not corpus data.",
+  "type": "object",
+  "required": [
+    "stamp",
+    "commit",
+    "dirty",
+    "signature",
+    "command",
+    "exit",
+    "units"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "stamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{6}Z$",
+      "description": "the rehearsal's stamp, a label: its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares it"
+    },
+    "commit": {
+      "type": "string",
+      "description": "the commit the checkout stood at, as git rev-parse --short says it"
+    },
+    "dirty": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "how many entries git status --porcelain listed in the checkout; 0 is a clean tree"
+    },
+    "signature": {
+      "type": "string",
+      "description": "the Signature triad, <machine>/<provider>/<session>, or the machine alone where the environment names no session (src/main/provider.py)"
+    },
+    "command": {
+      "type": "string",
+      "enum": [
+        "corpus-yoga pipeline rehearse"
+      ],
+      "description": "the command as typed"
+    },
+    "exit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "the exit status of corpus-yoga pipeline run inside the rehearsal"
+    },
+    "units": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Unit"
+      },
+      "description": "every staged unit as the run began, by its address under tmp/stage/input; a unit staged later is absent, unseen by this rehearsal"
+    }
+  },
+  "definitions": {
+    "Digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "a sha256, hex"
+    },
+    "Unit": {
+      "type": "object",
+      "required": [
+        "digests",
+        "verdicts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "digests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Digest"
+          },
+          "description": "the unit's own digests as the run began (src/main/corpus.py, own_digests): each file's, and one of the listing of a directory's files; a unit whose digests are these now is the unit the rehearsal saw"
+        },
+        "source": {
+          "$ref": "#/definitions/Digest",
+          "description": "the digest a converting step recorded of the unit's source, source.sha256 beside the conversion, where a step converted the datum before validating it"
+        },
+        "verdicts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Verdict"
+          },
+          "description": "each family's verdict on the unit, by the family as the pipeline declares it, at the latest version the run judged; empty where the run wrote none"
+        }
+      }
+    },
+    "Verdict": {
+      "type": "object",
+      "required": [
+        "version",
+        "datum_sha256",
+        "schema_sha256",
+        "verdict",
+        "reason",
+        "at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^v[0-9]+$",
+          "description": "the family's version the datum was judged against"
+        },
+        "datum_sha256": {
+          "$ref": "#/definitions/Digest",
+          "description": "the digest of the datum judged: one of the unit's digests, or the conversion of its source"
+        },
+        "schema_sha256": {
+          "$ref": "#/definitions/Digest",
+          "description": "the digest of the version file judged against; a promotion holds it to origin/main's"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "valid",
+            "invalid"
+          ],
+          "description": "the validator's verdict"
+        },
+        "reason": {
+          "type": "string",
+          "description": "the validator's first line"
+        },
+        "at": {
+          "type": "string",
+          "description": "when the validation step wrote the verdict, a label"
+        },
+        "output": {
+          "type": "string",
+          "description": "the validator's whole output, the log beside the verdict, kept where the verdict is invalid: the evidence a refused unit is"
+        }
+      }
+    }
+  }
+}
