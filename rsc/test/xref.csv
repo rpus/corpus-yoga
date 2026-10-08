@@ -904,8 +904,8 @@ src/main/cli/site/status.py,12,path_str,src/main/cli/site/status.py,Y,SELF = 'sr
 src/main/cli/site/status.py,50,path_str,rsc/site,Y,"facts.say(Status(Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,20,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/stage/stage.json,8,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
-src/main/cli/stage/stage.json,14,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
+src/main/cli/stage/stage.json,9,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
+src/main/cli/stage/stage.json,15,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,11,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
@@ -970,10 +970,10 @@ src/main/corpus.py,28,comment,src/main/validation_audit.py,Y,"audit's subjects (
 src/main/corpus.py,33,comment,src/main/append_only.py,Y,"RELATION - the five relations of src/main/append_only.py, derived once from an order:"
 src/main/corpus.py,49,comment,src/main/validation_verdict.py,Y,"at the unit's cache address (src/main/validation_verdict.py, #701), at the family's latest"
 src/main/corpus.py,88,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
-src/main/corpus.py,441,path_str,rsc/schema/pipeline,Y,SCHEMA_ROOT = 'rsc/schema/pipeline'   # <pipeline>/<family as the pipeline declares it>/<version>.json
-src/main/corpus.py,906,path_str,rsc/migration/815.sh,Y,"MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes"
-src/main/corpus.py,209,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
-src/main/corpus.py,532,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
+src/main/corpus.py,444,path_str,rsc/schema/pipeline,Y,SCHEMA_ROOT = 'rsc/schema/pipeline'   # <pipeline>/<family as the pipeline declares it>/<version>.json
+src/main/corpus.py,913,path_str,rsc/migration/815.sh,Y,"MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes"
+src/main/corpus.py,210,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
+src/main/corpus.py,537,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,120,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
