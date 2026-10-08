@@ -950,22 +950,12 @@ class Kind:
 
 
 @dataclass
-class Refused:
-    """What is refused, by kind, then by the family and version that refused it, then by
-    the reason with how many units carry it; what follows a family's refusal; and where
-    the validator's whole output for each refused unit is."""
-    by_kind: dict[str, dict[str, dict[str, int]]]
-    remedy: facts.Act
-    output: str
-
-
-@dataclass
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state, ending on what is refused and why and on
     what to run - the tail a reader acts on, as facts."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None
-    refused: Refused | None = None
+    refused: dict[str, dict[str, dict[str, int]]] | None = None   # by kind, by the family and version, by the reason: how many
     remedy: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command: its verb, then each kind it acts on with how many
 
 
@@ -988,9 +978,10 @@ def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (#741, #759, #822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
-    refused by kind with each refusal's words and how many carry them, and last what to
-    run - each command, its verb, and the kinds it acts on with how many - so that the tail
-    is never a dead end and never a sentence."""
+    refused by kind, by the family and version, by the reason with how many carry it, and
+    last what to run - each command, its verb, and the kinds it acts on with how many - so
+    that the tail is never a dead end and never a sentence. What follows a refusal and
+    where its whole output is are constant, and the declaration's explanation says them."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
@@ -1017,10 +1008,7 @@ def stage_facts() -> StageStatus:
     for row in rows:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
-    by_kind = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)}
-    out.refused = Refused(by_kind, facts.Act(MINT),
-                          f'{tier.TMP_STAGE_REHEARSAL.relative_to(REPO).as_posix()} holds each refused unit\'s validator output '
-                          'under units, its address, verdicts, the family; corpus-yoga pipeline rehearse remakes it') if by_kind else None
+    out.refused = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)} or None
     out.remedy = stage_remedies(kinds) or 'none - nothing to do'
     return out
 

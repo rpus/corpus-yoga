@@ -1,5 +1,10 @@
 {
   "summary": "the room's stage, tmp/stage - what is captured and not yet promoted, what the last rehearsal derived, and its record of what it saw and judged (bare is the tier's status; clean its one janitor)",
+  "explanation": {
+    "units": "each kind of staged unit - pipeline, provider, the unit's declared name - with how many are staged and how many in each state any is in; never summed across kinds",
+    "refused": "by kind, then by the family and version that refused, then by the validator's reason with how many units carry it; a relation's refusal under relation. What follows a family's refusal is a version owed, or the datum ruled out at the mint (rsc/schema/WORKFLOW.md). Each refused unit's whole validator output is in tmp/stage/rehearsal.json under units, its address, verdicts, the family, and corpus-yoga pipeline rehearse remakes it",
+    "remedy": "each command that acts on the staged units, its verb, and the kinds it acts on with how many - a capturing noun's promote, the janitor, the rehearsal"
+  },
   "target": "src/main/cli/stage/stage.py",
   "calculus": "supersession L3 L4 L6 L10",
   "args": [],
