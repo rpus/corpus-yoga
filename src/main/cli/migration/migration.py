@@ -4,17 +4,18 @@ migration.py (corpus-yoga migration) - the moves a rename owes this machine's lo
 (#820): rsc/migration holds them, one guarded script per causing issue over the steps of
 rsc/migration/step.sh, and this noun says them and takes them.
 
-    corpus-yoga migration                 # status: each script - the steps it would take, none, or that it halted and on what
+    corpus-yoga migration                 # status: each script - how many steps it would take, none, or that it halted and on what
     corpus-yoga migration sync            # each script with steps and how many: the dry run, the apply with the act elided
     corpus-yoga migration sync --apply    # run each of them with --apply, its own lines relayed as it takes its steps
 
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
 The status is those three states, read by running every script bare: a script with
-steps carries the sync as its remedy, a halted one the reader's own act. The sync names
-each script with steps and how many - the steps themselves are the status's to say, and
-the script's own lines say them as it takes them - runs each with --apply, relays its
-lines, re-reads the status beneath them, and ends with the verdict - DONE only when every
+steps is said with how many and carries the sync as its remedy, a halted one with what it
+said and the reader's own act. The steps themselves are the script's to say - it is the
+declaration of its moves, and prints them bare - so no status restates them. The sync
+names each script with steps and how many, runs each with --apply, relays its lines as it
+takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken.
 Its log, tmp/logs/migration/sync/<stamp>.log, opens with the Signature triad as every
 verb's log does.
@@ -44,9 +45,9 @@ HALTED = facts.Act('resolve by hand what it names')
 
 @dataclass
 class Script:
-    """A script's state: the steps it would take, or that it halted and what it said."""
-    steps: list[str] | None = None
-    halted: list[str] | None = None
+    """A script's state: how many steps it would take, or that it halted and what it said."""
+    steps: str | None = None
+    halted: str | None = None
     remedy: facts.Command | facts.Act | None = None
 
 
@@ -66,18 +67,22 @@ def run(script: Path, apply: bool = False) -> tuple[int, list[str]]:
     return done.returncode, (done.stdout + done.stderr).strip().splitlines()
 
 
-def status_facts() -> Status:
+def survey() -> dict[str, tuple[int, list[str]]]:
+    """Every script run bare, by its path: its exit and its lines."""
+    return {script.relative_to(REPO).as_posix(): run(script) for script in scripts()}
+
+
+def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status:
+    seen = survey() if seen is None else seen
     out: dict[str, Script | str] = {}
     pending = halted = 0
-    for script in scripts():
-        name = script.relative_to(REPO).as_posix()
-        code, lines = run(script)
+    for name, (code, lines) in seen.items():
         if code != 0:
             halted += 1
-            out[name] = Script(halted=lines, remedy=HALTED)
+            out[name] = Script(halted='; '.join(lines), remedy=HALTED)
         elif lines:
             pending += 1
-            out[name] = Script(steps=lines, remedy=SYNC)
+            out[name] = Script(steps=f'{len(lines)} pending - the script run bare says them', remedy=SYNC)
         else:
             out[name] = 'none pending'
     return Status(out, f'{len(out)} script(s) - {pending} with steps pending, {halted} halted')
@@ -111,26 +116,25 @@ def sync(apply: bool) -> int:
     --apply after it is named. The status re-read is the certified state after the act,
     beneath the lines and above the verdict, which is the last line."""
     log = Log(apply)
-    before = status_facts()
-    owed = {name: s for name, s in before.scripts.items() if isinstance(s, Script) and s.steps}
-    halted = {name: s.halted or [] for name, s in before.scripts.items() if isinstance(s, Script) and s.halted}
-    steps = sum(len(s.steps or []) for s in owed.values())
+    seen = survey()
+    owed = {name: lines for name, (code, lines) in seen.items() if code == 0 and lines}
+    halted = {name: '; '.join(lines) for name, (code, lines) in seen.items() if code != 0}
+    steps = sum(len(lines) for lines in owed.values())
     taken = 0
     failed: list[str] = []
-    for name, script in owed.items():
-        n = len(script.steps or [])
-        log.say(f'  {name}: {n} step(s)' + ('' if apply else ' - --apply takes them'))
+    for name, pending in owed.items():
+        log.say(f'  {name}: {len(pending)} step(s)' + ('' if apply else ' - --apply takes them'))
         if not apply:
             continue
         code, lines = run(REPO / name, apply=True)
         for line in lines:
             log.say(f'    {line}')
         if code == 0:
-            taken += len(script.steps or [])
+            taken += len(pending)
         else:
             failed.append(name)
-    for name, lines in halted.items():
-        log.say(f'  {name} halted - {"; ".join(lines)}')
+    for name, words in halted.items():
+        log.say(f'  {name} halted - {words}')
     if not apply:
         log.say(f'migration sync: would run {len(owed)} script(s), {steps} step(s)' + (' (--apply runs them)' if steps else '')
                 + (f'; {len(halted)} halted, the reader\'s' if halted else ''))

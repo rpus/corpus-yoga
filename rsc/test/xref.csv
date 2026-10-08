@@ -837,7 +837,7 @@ src/main/cli/memories/sync.json,7,path_str,rsc/naming/memory_deposit_vintages.cs
 src/main/cli/migration/migration.json,7,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
 src/main/cli/migration/migration.json,11,path_str,rsc/migration,Y,"""rsc/migration"","
 src/main/cli/migration/migration.py,5,comment,rsc/migration/step.sh,Y,"rsc/migration/step.sh, and this noun says them and takes them."
-src/main/cli/migration/migration.py,28,path_str,src/main/cli/migration/migration.py,Y,SELF = 'src/main/cli/migration/migration.py'
+src/main/cli/migration/migration.py,29,path_str,src/main/cli/migration/migration.py,Y,SELF = 'src/main/cli/migration/migration.py'
 src/main/cli/migration/sync.json,12,path_str,rsc/migration,Y,"""rsc/migration"","
 src/main/cli/model/accept.json,18,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/accept.json,19,path_str,rsc/model,Y,"""rsc/model"","
