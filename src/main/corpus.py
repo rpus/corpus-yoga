@@ -479,10 +479,25 @@ REASON_WIDTH = 120   # a validator's first line may dump the instance; the recor
 
 
 def reason(first_line: str) -> str:
-    """The validator's first line as a status may say it: no colon-space pair, and cut where
-    it runs long - the record holds the whole output."""
-    text = first_line.replace(': ', ' - ')
+    """The validator's message as a status may say it: its 'Validation error' prefix dropped,
+    no colon-space pair, and cut where it runs long - the record holds the whole output."""
+    text = first_line.removeprefix('Validation error: ').replace(': ', ' - ')
     return text if len(text) <= REASON_WIDTH else text[:REASON_WIDTH - 3] + '...'
+
+
+@dataclass(frozen=True)
+class Refusal:
+    """A family's verdict against a unit: the family and version, and the reason."""
+    family: str
+    version: str
+    reason: str
+
+    @property
+    def at(self) -> str:
+        return f'{self.family} {self.version}'
+
+
+MINT = 'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'   # what follows a family's refusal
 
 
 def judges_of(unit: Unit) -> list[str]:
@@ -498,48 +513,52 @@ def family_of(unit: Unit, leaf: str) -> str:
 
 
 def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None = None,
-            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None) -> tuple[Judgement, str]:
+            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None
+            ) -> tuple[Judgement, str, Refusal | None]:
     """What the pipelines have found of the staged unit at origin/main's versions, read
-    from the rehearsal record (src/main/rehearsal.py), and the words for it. The record,
-    the unit's own digests and origin/main's schema digests are read where not given."""
+    from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where
+    a family refused the unit, the refusal as data - the family, the version and the
+    reason - from which the words derive. The record, the unit's own digests and
+    origin/main's schema digests are read where not given."""
     if unit.pipeline is None:
-        return Judgement.NONE, 'no pipeline selects it - promoted on its relation alone'
+        return Judgement.NONE, 'no pipeline selects it - promoted on its relation alone', None
     judges = judges_of(unit)
     if not judges:
-        return Judgement.NONE, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
+        return Judgement.NONE, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone', None
     record = rehearsal.read() if record is None else record
     if record is None:
-        return Judgement.UNJUDGED, f'no rehearsal - {REMEDY_REHEARSE}'
+        return Judgement.UNJUDGED, f'no rehearsal - {REMEDY_REHEARSE}', None
     if isinstance(record, str):
-        return Judgement.UNJUDGED, record
+        return Judgement.UNJUDGED, record, None
     stamp = record['stamp']
     seen = record['units'].get(unit.address.as_posix())
     if seen is None:
-        return Judgement.UNSEEN, f'unseen by rehearsal {stamp} - {REMEDY_REHEARSE}'
+        return Judgement.UNSEEN, f'unseen by rehearsal {stamp} - {REMEDY_REHEARSE}', None
     own = own_digests(unit) if own is None else own
     if set(seen['digests']) != own:
-        return Judgement.CHANGED, f'changed since rehearsal {stamp} - {REMEDY_REHEARSE}'
+        return Judgement.CHANGED, f'changed since rehearsal {stamp} - {REMEDY_REHEARSE}', None
     if not seen['verdicts']:
-        return Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written - {REMEDY_REHEARSE}'
+        return Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written - {REMEDY_REHEARSE}', None
     converted = seen.get('source') in own
     main_digest = _main_schema_digest if main_digest is None else main_digest
     words = []
     for family, one in sorted(seen['verdicts'].items()):
         version = one['version']
         if one['datum_sha256'] not in own and not converted:
-            return Judgement.CHANGED, f'the verdict at {family} is on other bytes than this staged unit - {REMEDY_REHEARSE}'
+            return Judgement.CHANGED, f'the verdict at {family} is on other bytes than this staged unit - {REMEDY_REHEARSE}', None
         digest, main_version = main_digest(unit.pipeline, family)
         if digest is None or one['schema_sha256'] != digest:
             if main_version == version:
                 return Judgement.UNJUDGED, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
-                               'corpus-yoga pipeline rehearse re-judges it')
-            return Judgement.REFUSED, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
-                           f'({main_version} there) - the mint\'s merge licenses the promotion')
+                               'corpus-yoga pipeline rehearse re-judges it'), None
+            refusal = Refusal(family, version, f'a version of this checkout, which origin/main does not hold ({main_version} there) - '
+                              'the mint\'s merge licenses the promotion')
+            return Judgement.REFUSED, f'at {refusal.at} - {refusal.reason}', refusal
         if one['verdict'] != 'valid':
-            return Judgement.REFUSED, (f'fails {family} {version} - {reason(one["reason"])} - a version is owed, or the datum is '
-                                       'ruled out (rsc/schema/WORKFLOW.md)')
+            refusal = Refusal(family, version, reason(one['reason']))
+            return Judgement.REFUSED, f'fails {refusal.at} - {refusal.reason} - {MINT}', refusal
         words.append(f'{family} {version}')
-    return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {stamp})'
+    return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {stamp})', None
 
 
 # -- promote -------------------------------------------------------------------------------
@@ -572,6 +591,7 @@ class Judged:
     detail: str                   # the measure's words for the relation
     judgement: Judgement
     words: str                    # the judgement's words
+    refusal: Refusal | None = None   # a family's verdict against it, as data, where one refused it
 
     @property
     def state(self) -> str:
@@ -597,8 +617,8 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
                                f'no {", ".join(unit.missing)} staged', Judgement.UNJUDGED,
                                INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
             continue
-        ok, words = verdict(unit)
-        rows.append(Judged(unit, rel, detail, ok, words))
+        ok, words, refusal = verdict(unit)
+        rows.append(Judged(unit, rel, detail, ok, words, refusal))
     return rows
 
 
@@ -931,9 +951,11 @@ class Kind:
 
 @dataclass
 class Refused:
-    """What is refused, by kind: each refusal's words once with how many carry them; and
-    where the validator's whole output for each refused unit is."""
-    by_kind: dict[str, dict[str, int]]
+    """What is refused, by kind, then by the family and version that refused it, then by
+    the reason with how many units carry it; what follows a family's refusal; and where
+    the validator's whole output for each refused unit is."""
+    by_kind: dict[str, dict[str, dict[str, int]]]
+    remedy: facts.Act
     output: str
 
 
@@ -996,8 +1018,9 @@ def stage_facts() -> StageStatus:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
     by_kind = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)}
-    out.refused = Refused(by_kind, f'{tier.TMP_STAGE_REHEARSAL.relative_to(REPO).as_posix()} holds each refused unit\'s validator '
-                          'output under units, its address, verdicts, the family; corpus-yoga pipeline rehearse remakes it') if by_kind else None
+    out.refused = Refused(by_kind, facts.Act(MINT),
+                          f'{tier.TMP_STAGE_REHEARSAL.relative_to(REPO).as_posix()} holds each refused unit\'s validator output '
+                          'under units, its address, verdicts, the family; corpus-yoga pipeline rehearse remakes it') if by_kind else None
     out.remedy = stage_remedies(kinds) or 'none - nothing to do'
     return out
 
@@ -1038,15 +1061,21 @@ def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str,
     return out
 
 
-def refused_by(rows: list[Judged]) -> dict[str, int]:
-    """Each refusal's words once - the relation's where it refuses, the verdict's otherwise -
-    with how many units carry them, the most first."""
-    out: dict[str, int] = {}
+def refused_by(rows: list[Judged]) -> dict[str, dict[str, int]]:
+    """Each refusal once with how many units carry it: a family's under its family and
+    version, by the reason; a relation's under `relation`, by the relation's words."""
+    out: dict[str, dict[str, int]] = {}
     for row in rows:
-        if row.state == 'refused':
-            words = REMEDY[row.relation] if row.relation in REFUSING else row.words
-            out[words] = out.get(words, 0) + 1
-    return dict(sorted(out.items(), key=lambda kv: -kv[1]))
+        if row.state != 'refused':
+            continue
+        if row.relation in REFUSING:
+            at, why = 'relation', REMEDY[row.relation]
+        elif row.refusal is not None:
+            at, why = row.refusal.at, row.refusal.reason
+        else:
+            at, why = 'judgement', row.words
+        out.setdefault(at, {})[why] = out.setdefault(at, {}).get(why, 0) + 1
+    return out
 
 
 def counted_as(unit: Unit) -> str:
@@ -1234,6 +1263,7 @@ class Staged:
     measure: str
     judged: str
     verdict: str | None = None
+    refused: dict[str, str] | None = None    # the family and version that refused it, and the reason
     rehearsal: str | None = None
     remedy: dict[str, str] | None = None     # beside the unit whose state is a fault, and nowhere else
 
@@ -1256,11 +1286,14 @@ def report_facts(noun: str | None) -> StageReport:
     record = rehearsal.read()
     staged: dict[str, Staged] = {}
     for row in rows:
-        verdict = REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing else (row.words or None)
+        refusal = row.refusal if row.relation not in REFUSING else None
+        verdict = (REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing
+                   else None if refusal is not None else (row.words or None))
         remedy = ({'corpus-yoga pipeline rehearse': 'judges it'} if row.state == 'unjudged'
                   else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
+                                 {refusal.at: refusal.reason} if refusal is not None else None,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, remedy)
     return StageReport(staged)
 
