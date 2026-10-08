@@ -1821,7 +1821,7 @@ def check_rehearsal_record(run) -> None:
                corpus.verdict(a, record, {sha('f')}, main), corpus.verdict(c, record, digests['c'], main),
                corpus.verdict(d, record, digests['d'], main), corpus.verdict(e, record, set(), main)]
     expected = [(corpus.Judgement.VALID, f'validates at claude/apiConversation v1 (origin/main; rehearsal {stamp})'),
-                (corpus.Judgement.REFUSED, 'fails claude/apiConversation v1'),
+                (corpus.Judgement.REFUSED, 'fails claude/apiConversation v1 - Validation error - a version is owed'),
                 (corpus.Judgement.CHANGED, f'changed since rehearsal {stamp}'),
                 (corpus.Judgement.UNSEEN, f'unseen by rehearsal {stamp}'),
                 (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),

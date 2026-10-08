@@ -475,6 +475,16 @@ class Judgement(Enum):
 REMEDY_REHEARSE = 'corpus-yoga pipeline rehearse judges it'
 
 
+REASON_WIDTH = 120   # a validator's first line may dump the instance; the record keeps the whole output
+
+
+def reason(first_line: str) -> str:
+    """The validator's first line as a status may say it: no colon-space pair, and cut where
+    it runs long - the record holds the whole output."""
+    text = first_line.replace(': ', ' - ')
+    return text if len(text) <= REASON_WIDTH else text[:REASON_WIDTH - 3] + '...'
+
+
 def judges_of(unit: Unit) -> list[str]:
     """The families of the unit's pipeline that judge its provider's units."""
     schemas = pipelines()[unit.pipeline]['schemas'] if unit.pipeline else []
@@ -526,7 +536,8 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
             return Judgement.REFUSED, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
                            f'({main_version} there) - the mint\'s merge licenses the promotion')
         if one['verdict'] != 'valid':
-            return Judgement.REFUSED, f'fails {family} {version} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'
+            return Judgement.REFUSED, (f'fails {family} {version} - {reason(one["reason"])} - a version is owed, or the datum is '
+                                       'ruled out (rsc/schema/WORKFLOW.md)')
         words.append(f'{family} {version}')
     return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {stamp})'
 
@@ -919,12 +930,20 @@ class Kind:
 
 
 @dataclass
+class Refused:
+    """What is refused, by kind: each refusal's words once with how many carry them; and
+    where the validator's whole output for each refused unit is."""
+    by_kind: dict[str, dict[str, int]]
+    output: str
+
+
+@dataclass
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state, ending on what is refused and why and on
     what to run - the tail a reader acts on, as facts."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None
-    refused: dict[str, dict[str, int]] | None = None          # by kind: each refusal's words once, with how many carry them
+    refused: Refused | None = None
     remedy: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command: its verb, then each kind it acts on with how many
 
 
@@ -976,7 +995,9 @@ def stage_facts() -> StageStatus:
     for row in rows:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
-    out.refused = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)} or None
+    by_kind = {kind: refused_by(of_kind) for kind, of_kind in sorted(kinds.items()) if refused_by(of_kind)}
+    out.refused = Refused(by_kind, f'{tier.TMP_STAGE_REHEARSAL.relative_to(REPO).as_posix()} holds each refused unit\'s validator '
+                          'output under units, its address, verdicts, the family; corpus-yoga pipeline rehearse remakes it') if by_kind else None
     out.remedy = stage_remedies(kinds) or 'none - nothing to do'
     return out
 
