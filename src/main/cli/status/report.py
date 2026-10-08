@@ -6,7 +6,9 @@ tab-separated, in the file named - typed and said as one shape (#759). A row is 
 what it is about (#771); its commands are columns of their own, `<command> <what it does>`
 in pairs, and stand under `remedy` beside it (#763, #777). A row `<section> graft <noun>
 <pointer>` is what that noun's own status says at that spot, loaded as the data it is
-(#777): whole in the full report, and otherwise what holds a remedy. Runs under the venv's
+(#777): whole in the full report, and otherwise what holds a remedy - or, with `standing`
+as a fifth column (#824), the spot's facts as they stand, since what the stage says to run
+next is no remedy and is still what the room needs doing. Runs under the venv's
 python, or under python3 before the venv is minted, where no noun can be asked.
 
 usage: report.py report <rows-file> <show-all: 0|1>
@@ -76,9 +78,11 @@ def said_by(noun: str):
     return _said[noun]
 
 
-def grafted(noun: str, pointer: str, whole: bool):
+def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
-    short report has nothing of it to show."""
+    short report has nothing of it to show: what holds a remedy, or, for a spot grafted as
+    standing (#824), its facts as they stand - a mapping or a list, never the sentence that
+    says the spot is empty."""
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return 'unread - the venv is not minted' if whole else None
@@ -89,7 +93,11 @@ def grafted(noun: str, pointer: str, whole: bool):
         if not isinstance(at, dict) or token not in at:
             return f'corpus-yoga {noun} says nothing at {pointer}' if whole else None   # a spot the noun has no occasion for: nothing to remedy
         at = at[token]
-    return at if whole else needing(at)
+    if whole:
+        return at
+    if standing:
+        return at if isinstance(at, (dict, list)) and at else None
+    return needing(at)
 
 
 def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
@@ -115,7 +123,7 @@ def main() -> int:
         if kind == 'graft':
             # the section is the command (#812); beneath it, what stands at the pointer, under
             # the pointer's last key - or merged whole where the pointer names the noun itself
-            said = grafted(subject, stands, whole)
+            said = grafted(subject, stands, whole, rest[:1] == ['standing'])
             if said is None:
                 continue
             last = stands.rsplit('/', 1)[-1].replace('~1', '/').replace('~0', '~')

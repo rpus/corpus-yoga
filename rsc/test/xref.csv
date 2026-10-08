@@ -910,7 +910,7 @@ src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tie
 src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,11,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
 src/main/cli/stage/stage.py,37,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
-src/main/cli/status/report.py,23,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
+src/main/cli/status/report.py,25,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
 src/main/cli/status/status.json,33,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
 src/main/cli/status/status.json,45,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/status/status.json,46,path_str,rsc/test,Y,"""rsc/test"","
@@ -925,10 +925,10 @@ src/main/cli/status/status.sh,17,comment,src/main/cli/status/status.sh,Y,"#   sr
 src/main/cli/status/status.sh,27,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/status/status.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/status/status.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/status/status.sh,294,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
-src/main/cli/status/status.sh,365,comment,src/main/corpus.py,Y,# counts it (src/main/corpus.py held): one count of one store (#771).
-src/main/cli/status/status.sh,380,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
-src/main/cli/status/status.sh,387,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
+src/main/cli/status/status.sh,295,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
+src/main/cli/status/status.sh,366,comment,src/main/corpus.py,Y,# counts it (src/main/corpus.py held): one count of one store (#771).
+src/main/cli/status/status.sh,381,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
+src/main/cli/status/status.sh,388,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
 src/main/cli/status/sync.json,21,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/status/sync.json,22,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/status/sync.json,28,path_str,src/requirements.txt,Y,"""src/requirements.txt"","

@@ -4,7 +4,7 @@
     "units": "each kind of staged unit, keyed by the selection that names it as a path in the input tree, tmp/stage/input (the same as data/input's) - the pipeline declaration's input with the provider filled in and its glob after it - with how many are staged and how many in each state any is in; never summed across kinds",
     "invalid": "what a family found invalid, keyed by the version file that found it so as a path in the schema tree, rsc/schema/pipeline - <pipeline>/<family>/<version>.json - then by the validator's reason with how many units carry it. What follows is a version owed, or the datum ruled out at the mint (rsc/schema/WORKFLOW.md). Each invalid unit's whole validator output is in tmp/stage/rehearsal.json under units, its address, verdicts, the family, and corpus-yoga pipeline rehearse remakes it",
     "refused": "what is refused short of a verdict - a relation under which the held copy would lose something, by its words; or a verdict at a version of this checkout that origin/main does not hold, by that version file's path in the schema tree - with how many units carry it",
-    "remedy": "each command that acts on the staged units, its verb, and the kinds it acts on with how many - a capturing noun's promote, the janitor, the rehearsal"
+    "next": "what can be run next - each command, its verb, and the kinds it acts on with how many - a capturing noun's promote, the janitor, the rehearsal; the workflow's steps, which remedy nothing"
   },
   "target": "src/main/cli/stage/stage.py",
   "calculus": "supersession L3 L4 L6 L10",

@@ -479,7 +479,7 @@ class Judgement(Enum):
     REFUSED = 'refused'      # judged at a version origin/main does not hold: a verdict it does not license
     UNSEEN = 'unseen'        # staged since the rehearsal began: absent from its record
     CHANGED = 'changed'      # seen by the rehearsal with other digests than it has now
-    UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its remedy
+    UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its next step
     NONE = 'none'            # no family judges it: promoted on its relation alone
 
 
@@ -974,12 +974,14 @@ class Kind:
 @dataclass
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state, ending on what is invalid and why, what is
-    refused and why, and what to run - the tail a reader acts on, as facts."""
+    refused and why, and what to run next - the tail a reader acts on, as facts. Nothing
+    under `next` remedies a fault: a promotion, a rehearsal and the janitor are the
+    workflow's steps, so the key is never `remedy` (#824)."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
     refused: dict[str, object] | None = None         # by what refuses short of a verdict - a relation, a version origin/main does not hold: how many
-    remedy: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many
+    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many
 
 
 def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
@@ -1026,7 +1028,7 @@ def stage_facts() -> StageStatus:
                           facts.Command('corpus-yoga migration sync --apply', 'takes the move'))
                    if BEFORE_815.exists() else None)))
     if not rows:
-        out.units, out.remedy = 'none staged', 'none - nothing staged'
+        out.units, out.next = 'none staged', 'none - nothing staged'
         return out
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
@@ -1034,16 +1036,16 @@ def stage_facts() -> StageStatus:
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
     out.invalid = invalid_by(rows) or None
     out.refused = refused_by(rows) or None
-    out.remedy = stage_remedies(kinds) or 'none - nothing to do'
+    out.next = stage_next(kinds) or 'none - nothing to do'
     return out
 
 
-def stage_remedies(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run, by command: its verb, then each kind it acts on with how many; every
-    count by kind, never summed across kinds."""
+def stage_next(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, int]]]:
+    """What to run next, by command: its verb, then each kind it acts on with how many;
+    every count by kind, never summed across kinds."""
     out: dict[str, dict[str, dict[str, int]]] = {}
     for kind, rows in sorted(kinds.items()):
-        for command, (verb, n) in remedies(rows, tally(rows)).items():
+        for command, (verb, n) in next_steps(rows, tally(rows)).items():
             out.setdefault(command, {}).setdefault(verb, {})[kind] = n
     return out
 
@@ -1076,8 +1078,8 @@ def stage_status() -> int:
     return 0
 
 
-def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str, int]]:
-    """Each command that acts on what the counts count, with its verb and how many: a
+def next_steps(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str, int]]:
+    """Each command that acts next on what the counts count, with its verb and how many: a
     capturing noun's promote for its promotable units, the janitor for the held-already and
     incomplete, the rehearsal for the unjudged - each only while its count is not zero."""
     out: dict[str, tuple[str, int]] = {}
@@ -1318,7 +1320,7 @@ class Staged:
     invalid: dict[str, str] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the reason
     refused: dict[str, str] | None = None    # the version file origin/main does not hold, by that path, and the reason
     rehearsal: str | None = None
-    remedy: dict[str, str] | None = None     # beside the unit whose state is a fault, and nowhere else
+    next: dict[str, str] | None = None       # the workflow's step that acts on it, where one does
 
 
 @dataclass
@@ -1331,10 +1333,10 @@ class StageReport:
 def report_facts(noun: str | None) -> StageReport:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
     `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759, #800): each unit by
-    its address with its facts beneath, and a remedy where a unit's state is one - unjudged,
-    incomplete or held already. A promotable unit is no fault, so no command is named for
-    it: what follows a capture is its noun's to say (#767). The counts are
-    `corpus-yoga stage`'s to say. Writes nothing."""
+    its address with its facts beneath, and the step that acts on it next where one does -
+    the rehearsal for an unjudged unit, the janitor for an incomplete or held-already one.
+    A promotable unit names none: what follows a capture is its noun's to say (#767). The
+    counts are `corpus-yoga stage`'s to say. Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     record = rehearsal.read()
     staged: dict[str, Staged] = {}
@@ -1344,12 +1346,12 @@ def report_facts(noun: str | None) -> StageReport:
                    else None if refusal is not None else (row.words or None))
         invalid = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.INVALID else None
         refused = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.REFUSED else None
-        remedy = ({'corpus-yoga pipeline rehearse': 'judges it'} if row.state == 'unjudged'
-                  else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
+        step = ({'corpus-yoga pipeline rehearse': 'judges it'} if row.state == 'unjudged'
+                else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
                                  invalid, refused,
-                                 record['stamp'] if isinstance(record, dict) and address in record['units'] else None, remedy)
+                                 record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)
     return StageReport(staged)
 
 
