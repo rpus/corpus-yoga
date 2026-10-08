@@ -1821,12 +1821,16 @@ def check_rehearsal_record(run) -> None:
                corpus.verdict(a, record, {sha('f')}, main), corpus.verdict(c, record, digests['c'], main),
                corpus.verdict(d, record, digests['d'], main), corpus.verdict(e, record, set(), main)]
     expected = [(corpus.Judgement.VALID, f'validates at claude/apiConversation v1 (origin/main; rehearsal {stamp})'),
-                (corpus.Judgement.REFUSED, 'fails claude/apiConversation v1'),
+                (corpus.Judgement.INVALID, 'invalid at claude/apiConversation v1 - Validation error - a version is owed'),
                 (corpus.Judgement.CHANGED, f'changed since rehearsal {stamp}'),
                 (corpus.Judgement.UNSEEN, f'unseen by rehearsal {stamp}'),
                 (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),
                 (corpus.Judgement.NONE, 'no pipeline selects it')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
+    refusal = got[1][2]
+    at = '/'.join(('chat-capture', 'claude/apiConversation', 'v1.json'))   # the fixture's version file under rsc/schema/pipeline, which no tree holds
+    if not wrong and (refusal is None or (refusal.path, refusal.reason) != (at, 'Validation error')):
+        wrong = [(got[1], (corpus.Judgement.INVALID, f'a refusal as data - family, version, reason - where it is {refusal}'))]
     states = [corpus.state(a, corpus.Relation.ABSENT, j) for j in (corpus.Judgement.UNSEEN, corpus.Judgement.CHANGED, corpus.Judgement.NONE)]
     counted = states == ['unjudged', 'unjudged', 'promotable']
     run("rehearsal: a unit's standing to the record is decidable from it", not wrong and counted,
