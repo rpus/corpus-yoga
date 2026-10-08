@@ -918,8 +918,9 @@ class Counts:
 
 @dataclass
 class StagedUnits(Counts):
-    relations: str                # where each unit's relation is read
-    kinds: dict[str, Counts]      # the counts by what is counted: pipeline, provider, the unit's declared name (#736)
+    remedy: dict[str, str] | None      # each command that acts on what is counted, with how many; absent where nothing is to do
+    refused_by: dict[str, int] | None  # each refusal's words once, with how many units carry them
+    kinds: dict[str, Counts]           # the counts by what is counted: pipeline, provider, the unit's declared name (#736)
 
 
 @dataclass
@@ -946,11 +947,12 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
 
 
 def stage_facts() -> StageStatus:
-    """Bare corpus-yoga stage as facts (#741, #759): the input's size, the scratch's, each
-    orphan with the janitor as its remedy, the rehearsal record's anchor with the units by
-    what it found of them, the units' counts by state, then by what each count is of, and
-    the verdict last - the counts alone, since the record's block above says what it
-    judged."""
+    """Bare corpus-yoga stage as facts (#741, #759, #822): the input's size, the scratch's,
+    each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
+    by what it found of them, the units' counts by state with the commands that act on
+    them and each refusal's words once with how many carry them, then the counts by what
+    each is of, and the verdict last - the counts alone, since the record's block above
+    says what it judged."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
@@ -977,8 +979,8 @@ def stage_facts() -> StageStatus:
     for row in rows:
         kinds.setdefault(counted_as(row.unit), []).append(row)
     counts = tally(rows)
-    out.units = StagedUnits(len(rows), *(counts[s] for s in STATES),
-                            relations='corpus-yoga pipeline, or each capturing noun bare',
+    out.units = StagedUnits(len(rows), *(counts[s] for s in STATES), remedy=remedies(rows, counts) or None,
+                            refused_by=refused_by(rows) or None,
                             kinds={kind: Counts.of(of_kind) for kind, of_kind in sorted(kinds.items())})
     out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}'
     return out
@@ -989,6 +991,36 @@ def stage_status() -> int:
     stage verb ends by relaying it."""
     facts.say(stage_facts())
     return 0
+
+
+def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, str]:
+    """Each command that acts on what the counts count, with how many: a capturing noun's
+    promote for its promotable units, the janitor for the held-already and incomplete, the
+    rehearsal for the unjudged - each only while its count is not zero."""
+    out: dict[str, str] = {}
+    by_noun: dict[str, int] = {}
+    for row in rows:
+        noun = noun_of(row.unit) if row.state == 'promotable' else None
+        if noun is not None:
+            by_noun[noun] = by_noun.get(noun, 0) + 1
+    for noun, n in sorted(by_noun.items()):
+        out[f'corpus-yoga {noun} promote --all'] = f'promotes {n}'
+    if counts['held already'] + counts['incomplete']:
+        out['corpus-yoga stage clean --apply'] = f'removes {counts["held already"] + counts["incomplete"]}'
+    if counts['unjudged']:
+        out['corpus-yoga pipeline rehearse'] = f'judges {counts["unjudged"]}'
+    return out
+
+
+def refused_by(rows: list[Judged]) -> dict[str, int]:
+    """Each refusal's words once - the relation's where it refuses, the verdict's otherwise -
+    with how many units carry them, the most first."""
+    out: dict[str, int] = {}
+    for row in rows:
+        if row.state == 'refused':
+            words = REMEDY[row.relation] if row.relation in REFUSING else row.words
+            out[words] = out.get(words, 0) + 1
+    return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
 
 def counted_as(unit: Unit) -> str:
