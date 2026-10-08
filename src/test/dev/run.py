@@ -1828,7 +1828,8 @@ def check_rehearsal_record(run) -> None:
                 (corpus.Judgement.NONE, 'no pipeline selects it')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
     refusal = got[1][2]
-    if not wrong and (refusal is None or (refusal.family, refusal.version, refusal.reason) != ('claude/apiConversation', 'v1', 'Validation error')):
+    at = f'{corpus.SCHEMA_ROOT}/chat-capture/claude/apiConversation/v1.json'   # the fixture's version file, which no tree holds
+    if not wrong and (refusal is None or (refusal.path, refusal.reason) != (at, 'Validation error')):
         wrong = [(got[1], (corpus.Judgement.REFUSED, f'a refusal as data - family, version, reason - where it is {refusal}'))]
     states = [corpus.state(a, corpus.Relation.ABSENT, j) for j in (corpus.Judgement.UNSEEN, corpus.Judgement.CHANGED, corpus.Judgement.NONE)]
     counted = states == ['unjudged', 'unjudged', 'promotable']

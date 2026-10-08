@@ -438,9 +438,16 @@ def relation(unit: Unit) -> tuple[Relation, str]:
 
 # -- verdict -------------------------------------------------------------------------------
 
+SCHEMA_ROOT = 'rsc/schema/pipeline'   # <pipeline>/<family as the pipeline declares it>/<version>.json
+
+
+def family_dir(pipeline: str, family: str) -> str:
+    return f'{SCHEMA_ROOT}/{pipeline}/{family}'
+
+
 def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str]:
     """The digest of origin/main's latest version file of a family, and the version's name."""
-    fam_dir = f'rsc/schema/pipeline/{pipeline}/{family}'
+    fam_dir = family_dir(pipeline, family)
     ls = subprocess.run(['git', '-C', str(REPO), 'ls-tree', '--name-only', 'origin/main', fam_dir + '/'],
                         capture_output=True, text=True).stdout.split()
     versions = sorted((v for v in ls if v.rsplit('/', 1)[-1].startswith('v') and v.endswith('.json')),
@@ -487,7 +494,9 @@ def reason(first_line: str) -> str:
 
 @dataclass(frozen=True)
 class Refusal:
-    """A family's verdict against a unit: the family and version, and the reason."""
+    """A family's verdict against a unit: the pipeline, the family and version, and the
+    reason. Its address is the version file's path, the one home the first three have."""
+    pipeline: str
     family: str
     version: str
     reason: str
@@ -497,9 +506,8 @@ class Refusal:
         return f'{self.family} {self.version}'
 
     @property
-    def leaf(self) -> str:
-        """The family's own name, its provider prefix dropped: said under a provider level."""
-        return self.family.rsplit('/', 1)[-1]
+    def path(self) -> str:
+        return f'{family_dir(self.pipeline, self.family)}/{self.version}.json'
 
 
 MINT = 'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'   # what follows a family's refusal
@@ -556,11 +564,11 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
             if main_version == version:
                 return Judgement.UNJUDGED, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
                                'corpus-yoga pipeline rehearse re-judges it'), None
-            refusal = Refusal(family, version, f'a version of this checkout, which origin/main does not hold ({main_version} there) - '
-                              'the mint\'s merge licenses the promotion')
+            refusal = Refusal(unit.pipeline, family, version, f'a version of this checkout, which origin/main does not hold '
+                              f'({main_version} there) - the mint\'s merge licenses the promotion')
             return Judgement.REFUSED, f'at {refusal.at} - {refusal.reason}', refusal
         if one['verdict'] != 'valid':
-            refusal = Refusal(family, version, reason(one['reason']))
+            refusal = Refusal(unit.pipeline, family, version, reason(one['reason']))
             return Judgement.REFUSED, f'fails {refusal.at} - {refusal.reason} - {MINT}', refusal
         words.append(f'{family} {version}')
     return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {stamp})', None
@@ -960,7 +968,7 @@ class StageStatus:
     what to run - the tail a reader acts on, as facts."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, object] | str | None = None     # pipeline, provider, kind: the counts
-    refused: dict[str, object] | None = None         # pipeline, provider, kind, family, version, reason: how many
+    refused: dict[str, object] | None = None         # the version file that refused, then the reason: how many
     remedy: dict[str, object] | str | None = None    # command, verb, pipeline, provider, kind: how many
 
 
@@ -983,8 +991,8 @@ def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (#741, #759, #822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
-    refused by kind, by the family and version, by the reason with how many carry it, and
-    last what to run - each command, its verb, and the kinds it acts on with how many - so
+    refused by the version file that refused it - its path under rsc/schema/pipeline - by
+    the reason with how many carry it, and last what to run - each command, its verb, and the kinds it acts on with how many - so
     that the tail is never a dead end and never a sentence. What follows a refusal and
     where its whole output is are constant, and the declaration's explanation says them."""
     stage = tier.TMP_STAGE
@@ -1013,12 +1021,9 @@ def stage_facts() -> StageStatus:
     for row in rows:
         kinds.setdefault(kind_of(row.unit), []).append(row)
     units: dict[str, object] = {}
-    refused: dict[str, object] = {}
     for kind, of_kind in sorted(kinds.items()):
         nest(units, kind, Kind.of(of_kind))
-        if refused_by(of_kind):
-            nest(refused, kind, refused_by(of_kind))
-    out.units, out.refused = units, refused or None
+    out.units, out.refused = units, refused_by(rows) or None
     out.remedy = stage_remedies(kinds) or 'none - nothing to do'
     return out
 
@@ -1079,8 +1084,8 @@ def remedies(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str,
 
 
 def refused_by(rows: list[Judged]) -> dict[str, object]:
-    """Each refusal once with how many units carry it: a family's under the family's own
-    name, then its version, then the reason; a relation's under `relation`, by the
+    """Each refusal once with how many units carry it: a family's under the path of the
+    version file that refused, then the reason; a relation's under `relation`, by the
     relation's words."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
@@ -1089,7 +1094,7 @@ def refused_by(rows: list[Judged]) -> dict[str, object]:
         if row.relation in REFUSING:
             path: tuple[str, ...] = ('relation', REMEDY[row.relation])
         elif row.refusal is not None:
-            path = (row.refusal.leaf, row.refusal.version, row.refusal.reason)
+            path = (row.refusal.path, row.refusal.reason)
         else:
             path = ('judgement', row.words)
         counts[path] = counts.get(path, 0) + 1
@@ -1284,7 +1289,7 @@ class Staged:
     measure: str
     judged: str
     verdict: str | None = None
-    refused: dict[str, dict[str, str]] | None = None   # the family that refused it, its version, the reason
+    refused: dict[str, str] | None = None    # the version file that refused it, by its path, and the reason
     rehearsal: str | None = None
     remedy: dict[str, str] | None = None     # beside the unit whose state is a fault, and nowhere else
 
@@ -1314,7 +1319,7 @@ def report_facts(noun: str | None) -> StageReport:
                   else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
-                                 {refusal.leaf: {refusal.version: refusal.reason}} if refusal is not None else None,
+                                 {refusal.path: refusal.reason} if refusal is not None else None,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, remedy)
     return StageReport(staged)
 
