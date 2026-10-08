@@ -949,7 +949,8 @@ def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (#741, #759): the input's size, the scratch's, each
     orphan with the janitor as its remedy, the rehearsal record's anchor with the units by
     what it found of them, the units' counts by state, then by what each count is of, and
-    the verdict last."""
+    the verdict last - the counts alone, since the record's block above says what it
+    judged."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
@@ -979,9 +980,7 @@ def stage_facts() -> StageStatus:
     out.units = StagedUnits(len(rows), *(counts[s] for s in STATES),
                             relations='corpus-yoga pipeline, or each capturing noun bare',
                             kinds={kind: Counts.of(of_kind) for kind, of_kind in sorted(kinds.items())})
-    judged = sum(1 for row in rows if not row.unit.missing and row.judgement in JUDGED)
-    out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}; ' + (
-        f'rehearsal {record["stamp"]} judged {judged}' if isinstance(record, dict) else 'no rehearsal')
+    out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}'
     return out
 
 
