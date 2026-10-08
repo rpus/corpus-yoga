@@ -4,7 +4,9 @@
 # each the derived tiers of one run - verdicts and preview that corpus-yoga pipeline rehearse
 # remakes under tmp/stage/scratch - so each is discarded and the directory retires with them.
 # A room that ran the branch before the record carried its extension holds the record as
-# the file tmp/stage/rehearsal, which moves to its name.
+# the file tmp/stage/rehearsal: superseded where a rehearsal has since written
+# tmp/stage/rehearsal.json, since the next rehearsal replaces the record whole, and moved
+# to that name otherwise.
 set -euo pipefail
 SELF='rsc/migration/815.sh'
 # shellcheck source=rsc/migration/step.sh
@@ -15,4 +17,7 @@ for stamp in tmp/stage/rehearsal/*/; do
   discard "${stamp%/}"
 done
 retire tmp/stage/rehearsal
-if [[ -f tmp/stage/rehearsal ]]; then move tmp/stage/rehearsal tmp/stage/rehearsal.json; fi
+if [[ -f tmp/stage/rehearsal ]]; then
+  if [[ -e tmp/stage/rehearsal.json ]]; then discard tmp/stage/rehearsal
+  else move tmp/stage/rehearsal tmp/stage/rehearsal.json; fi
+fi

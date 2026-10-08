@@ -39,17 +39,18 @@ remove() {
   if (( APPLY )); then rm "$link"; fi
 }
 
-# discard <directory>: a directory of rebuildable derivations at a retired address, removed
-# with what it holds; only under tmp/cache, where every file is a derivation some verb
-# rewrites, or a stamped rehearsal under the retired tmp/stage/rehearsal/ directory, which
-# corpus-yoga pipeline rehearse remakes under tmp/stage/scratch (#815).
+# discard <entry>: a file or directory of rebuildable derivations at a retired address,
+# removed with what it holds; only under tmp/cache, where every file is a derivation some
+# verb rewrites, or what the rehearsal layout before #815 left under tmp/stage - a stamped
+# rehearsal under tmp/stage/rehearsal/, or the record under that name before its extension
+# - which corpus-yoga pipeline rehearse remakes under tmp/stage/scratch and tmp/stage/rehearsal.json.
 discard() {
-  local dir="$1"
-  [[ "$dir" == tmp/cache/* || "$dir" == tmp/stage/rehearsal/* ]] \
-    || { echo "FAIL: discard $dir - only a directory under tmp/cache or tmp/stage/rehearsal is discarded" >&2; exit 1; }
-  [[ -d "$dir" && ! -L "$dir" ]] || return 0
-  echo "rm -r $dir"
-  if (( APPLY )); then rm -r "$dir"; else MOVED+=("$dir"); fi
+  local entry="$1"
+  [[ "$entry" == tmp/cache/* || "$entry" == tmp/stage/rehearsal || "$entry" == tmp/stage/rehearsal/* ]] \
+    || { echo "FAIL: discard $entry - only an entry under tmp/cache or tmp/stage/rehearsal is discarded" >&2; exit 1; }
+  [[ -e "$entry" && ! -L "$entry" ]] || return 0
+  echo "rm -r $entry"
+  if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
 }
 
 # retire <directory>: a directory nothing writes any more, removed once empty - bare,

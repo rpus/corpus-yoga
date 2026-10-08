@@ -965,7 +965,8 @@ def stage_facts() -> StageStatus:
                 else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record),
         rehearsal=(Orphan(human(size_of(BEFORE_815)),
                           ('a directory of stamped rehearsals, the layout before #815' if BEFORE_815.is_dir()
-                           else 'the record before its name carried its extension') + f' - {MIGRATION_815} moves it',
+                           else 'the record before its name carried its extension, which a record at its name supersedes')
+                          + f' - {MIGRATION_815} removes it',
                           facts.Command('corpus-yoga migration sync --apply', 'takes the move'))
                    if BEFORE_815.exists() else None)))
     if not rows:
