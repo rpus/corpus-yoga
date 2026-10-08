@@ -5,15 +5,17 @@ migration.py (corpus-yoga migration) - the moves a rename owes this machine's lo
 rsc/migration/step.sh, and this noun says them and takes them.
 
     corpus-yoga migration                 # status: each script - the steps it would take, none, or that it halted and on what
-    corpus-yoga migration sync            # what --apply would take: the dry run, the apply with the act elided
-    corpus-yoga migration sync --apply    # take every pending step, each script's own lines relayed
+    corpus-yoga migration sync            # each script with steps and how many: the dry run, the apply with the act elided
+    corpus-yoga migration sync --apply    # run each of them with --apply, its own lines relayed as it takes its steps
 
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
 The status is those three states, read by running every script bare: a script with
-steps carries the sync as its remedy, a halted one the reader's own act. The sync runs
-each script with steps with --apply, relays its lines as they stand, re-reads the status
-beneath them, and ends with the verdict - DONE only when every pending step was taken.
+steps carries the sync as its remedy, a halted one the reader's own act. The sync names
+each script with steps and how many - the steps themselves are the status's to say, and
+the script's own lines say them as it takes them - runs each with --apply, relays its
+lines, re-reads the status beneath them, and ends with the verdict - DONE only when every
+pending step was taken.
 Its log, tmp/logs/migration/sync/<stamp>.log, opens with the Signature triad as every
 verb's log does.
 """
@@ -106,8 +108,8 @@ class Log:
 
 def sync(apply: bool) -> int:
     """One list of the scripts with steps; the flag decides only whether each is run with
-    --apply after its steps are named. The status re-read is the certified state after the
-    act, beneath the lines and above the verdict, which is the last line."""
+    --apply after it is named. The status re-read is the certified state after the act,
+    beneath the lines and above the verdict, which is the last line."""
     log = Log(apply)
     before = status_facts()
     owed = {name: s for name, s in before.scripts.items() if isinstance(s, Script) and s.steps}
@@ -116,8 +118,8 @@ def sync(apply: bool) -> int:
     taken = 0
     failed: list[str] = []
     for name, script in owed.items():
-        for step in script.steps or []:
-            log.say(f'  {"will" if apply else "would"} take {step}  ({name})')
+        n = len(script.steps or [])
+        log.say(f'  {name}: {n} step(s)' + ('' if apply else ' - --apply takes them'))
         if not apply:
             continue
         code, lines = run(REPO / name, apply=True)
@@ -130,7 +132,7 @@ def sync(apply: bool) -> int:
     for name, lines in halted.items():
         log.say(f'  {name} halted - {"; ".join(lines)}')
     if not apply:
-        log.say(f'migration sync: would take {steps} step(s) of {len(owed)} script(s)' + (' (--apply takes them)' if steps else '')
+        log.say(f'migration sync: would run {len(owed)} script(s), {steps} step(s)' + (' (--apply runs them)' if steps else '')
                 + (f'; {len(halted)} halted, the reader\'s' if halted else ''))
         return 0
     log.say('')
