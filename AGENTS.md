@@ -151,7 +151,7 @@ eighth principle or a smell.
 - Before any act on a PR - closing, reviewing, commissioning - read its
   thread fresh: a standing review from another room is answered before new
   work is taken.
-- Division of labor: an agent drafts PRs and code; another agent and the
+- Division of labor: an agent drafts PRs and code; an agent and the
   user review. The actors align with the gates: the agent is the dev actor,
   fully vetted by the commit gate over a commit's content; the user is the
   usr actor, whose room alone holds the corpus and whose acts alone touch
