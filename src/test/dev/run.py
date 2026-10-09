@@ -2264,7 +2264,7 @@ def check_status_facts(run) -> None:
         why = f'staged: is {str(staged)[:80]!r}, not a mapping of units'
     if why is None and isinstance(staged, dict):
         for address, unit in staged.items():
-            if not isinstance(unit, dict) or not {'relation', 'measure', 'judged'} <= set(unit):
+            if not isinstance(unit, dict) or 'judged' not in unit:
                 why = f'the unit {address[:60]} is said as {str(unit)[:80]!r}, not by its facts'
                 break
     if why is None and 'remedy' in pipeline_said:
