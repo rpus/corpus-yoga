@@ -2168,7 +2168,7 @@ def check_status_facts(run) -> None:
         said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
         same = own is not None and said == own or own is None and str(said).startswith(f'corpus-yoga {noun} says nothing at')
         run(f'report: its corpus-yoga {noun} section{" / " + last if last and last != noun else ""} is what corpus-yoga {noun} says', same,
-            None if same else f'the report says {str(whole.get(section))[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
+            None if same else f'the report says {str(said)[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
             check='report.says_what_the_nouns_say')
     by_forge = at(said_by('forge'), 'this checkout', 'pre-commit')
     by_forge = str(next(iter(by_forge.values())) if isinstance(by_forge, dict) else by_forge)   # a row that owes a remedy says its state first
