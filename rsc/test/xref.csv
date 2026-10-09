@@ -31,38 +31,38 @@ README.md,31,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `c
 README.md,37,doc,src/main/tier.py,Y,"`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):"
 README.md,43,doc,src/main/rehearsal.py,Y,"`tmp/stage/rehearsal.json` (`src/main/rehearsal.py`, its shape"
 README.md,44,doc,src/main/rehearsal.schema.json,Y,"`src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote"
-README.md,77,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,78,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
-README.md,79,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,79,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,79,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,79,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,80,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,80,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,80,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,80,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,80,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,80,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,81,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
-README.md,82,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,82,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,82,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,82,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,82,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,83,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,83,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,84,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
-README.md,85,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
-README.md,86,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,87,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,88,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga statu"
-README.md,89,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
-README.md,97,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,107,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh sync --apply` creates the
-README.md,108,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
-README.md,126,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,133,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,133,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,79,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,80,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
+README.md,81,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,81,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,81,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,81,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,82,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,82,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,82,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,82,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,82,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,82,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,83,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
+README.md,84,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,84,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,84,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,84,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,84,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,85,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,85,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,86,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
+README.md,87,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
+README.md,88,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,89,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,90,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga statu"
+README.md,91,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,99,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,109,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh sync --apply` creates the
+README.md,110,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
+README.md,128,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,135,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,135,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/chat-capture,Y,"""src/main/pipeline/chat-capture"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-export,Y,"""src/main/pipeline/chat-export"","
@@ -906,8 +906,8 @@ src/main/cli/site/status.py,12,path_str,src/main/cli/site/status.py,Y,SELF = 'sr
 src/main/cli/site/status.py,50,path_str,rsc/site,Y,"facts.say(Status(Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,20,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/stage/stage.json,9,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
-src/main/cli/stage/stage.json,15,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
+src/main/cli/stage/stage.json,10,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
+src/main/cli/stage/stage.json,16,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,11,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
@@ -942,12 +942,13 @@ src/main/cli/status/sync.json,32,path_str,rsc/provider,Y,"""rsc/provider"""
 src/main/cli/store/clean.json,22,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
 src/main/cli/store/clean.json,23,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
 src/main/cli/store/clean.json,24,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
-src/main/cli/store/store.json,6,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
-src/main/cli/store/store.json,13,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
-src/main/cli/store/store.json,14,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
-src/main/cli/store/store.json,15,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
+src/main/cli/store/store.json,8,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
+src/main/cli/store/store.json,15,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/store.json,16,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/store.json,17,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.py,9,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
-src/main/cli/store/store.py,40,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
+src/main/cli/store/store.py,26,comment,src/main/live.py,Y,"(src/main/live.py), and this noun reads no live store."
+src/main/cli/store/store.py,38,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
 src/main/cli/subcommand.schema.json,50,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/test/install-hook.json,5,path_str,rsc/test,Y,"""rsc/test"""
@@ -981,6 +982,7 @@ src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,120,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
+src/main/live.py,15,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
 src/main/markdown_projection.py,11,comment,src/main/model/project_markdown.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py"

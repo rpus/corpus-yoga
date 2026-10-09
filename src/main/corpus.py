@@ -997,21 +997,34 @@ class StageTier:
 @dataclass
 class Kind:
     """One kind of staged unit - one selection of a pipeline's declaration, keyed by its
-    path under the input root (#736): how many are staged, and how many in each of STATES
-    that any is in."""
+    path under the input root (#736): how many are staged, and how many the rehearsal
+    found valid, invalid, refused, or has not judged, how many are incomplete, and how
+    many no family judges - the stage's own facts, nothing of the store (#842)."""
     staged: int
-    promotable: int | None
-    held_already: int | None
+    valid: int | None
     invalid: int | None
     refused: int | None
-    incomplete: int | None
     unjudged: int | None
+    incomplete: int | None
+    no_family: int | None
 
     @classmethod
     def of(cls, rows: list[Judged]) -> 'Kind':
-        counts = tally(rows)
-        n = {state: counts[state] or None for state in STATES}
-        return cls(len(rows), n['promotable'], n['held already'], n['invalid'], n['refused'], n['incomplete'], n['unjudged'])
+        n = {name: 0 for name in ('valid', 'invalid', 'refused', 'unjudged', 'incomplete', 'no family')}
+        for row in rows:
+            n[judged_as(row)] += 1
+        return cls(len(rows), *(n[name] or None for name in ('valid', 'invalid', 'refused', 'unjudged', 'incomplete', 'no family')))
+
+
+def judged_as(row: Judged) -> str:
+    """What the rehearsal found of the unit, as the stage counts it: valid, invalid,
+    refused, unjudged (unseen, changed since, superseded, or seen without verdict),
+    incomplete, or no family."""
+    if row.unit.missing:
+        return 'incomplete'
+    if row.judgement in JUDGED:
+        return JUDGED[row.judgement]
+    return 'no family' if row.judgement is Judgement.NONE else 'unjudged'
 
 
 @dataclass
@@ -1021,9 +1034,10 @@ class StageStatus:
     under `next` remedies a fault: a promotion, a rehearsal and the janitor are the
     workflow's steps, so the key is never `remedy` (#824)."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
-    units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the counts
+    units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
-    refused: dict[str, object] | None = None         # by what refuses short of a verdict - a relation, a version origin/main does not hold: how many
+    refused: dict[str, object] | None = None         # by the version file origin/main does not hold, then the reason: how many
+    live: dict | str | None = None                   # the live stores this room mounts against the stage (src/main/live.py, #842)
     next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many
 
 
@@ -1070,26 +1084,88 @@ def stage_facts() -> StageStatus:
                           + f' - {MIGRATION_815} removes it',
                           facts.Command('corpus-yoga migration sync --apply', 'takes the move'))
                    if BEFORE_815.exists() else None)))
-    if not rows:
-        out.units, out.next = 'none staged', 'none - nothing staged'
-        return out
+    import live   # the live stores against the stage: read here, so that every face of the stage says them
+    ahead, absent = live.ahead(STAGE)
+    items, found, level = live.ahead_facts(ahead, absent)
+    out.live = items if items else ('no live store is mounted in this workspace' if not ahead
+                                    else f'nothing beyond the stage: {level} live unit(s) level with the staged ones')
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
         kinds.setdefault(kind_of(row.unit), []).append(row)
-    out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())}
+    out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())} if rows else 'none staged'
     out.invalid = invalid_by(rows) or None
     out.refused = refused_by(rows) or None
-    out.next = stage_next(kinds) or 'none - nothing to do'
+    out.next = stage_next(kinds, ahead) or 'none - nothing to do'
     return out
 
 
-def stage_next(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next, by command: its verb, then each kind it acts on with how many;
-    every count by kind, never summed across kinds."""
+def stage_next(kinds: dict[str, list[Judged]], ahead: list) -> dict[str, dict[str, dict[str, int]]]:
+    """What to run next, by command: its verb, then each kind it acts on with how many -
+    the rehearsal for what is not judged, and a capture for each live thing ahead of the
+    stage; every count by kind, never summed across kinds."""
+    import live
     out: dict[str, dict[str, dict[str, int]]] = {}
     for kind, rows in sorted(kinds.items()):
-        for command, n in next_steps(rows, tally(rows)).items():
-            step(out, command, kind, n)
+        n = sum(1 for row in rows if judged_as(row) == 'unjudged')
+        if n:
+            step(out, 'corpus-yoga pipeline rehearse', kind, n)
+    live.captures(out, ahead)
+    return out
+
+
+@dataclass
+class Promotion:
+    """One kind of staged unit as it stands to the store (#842): how many are staged, and
+    how many are promotable, held already, refused by their relation, or pending the
+    stage's judgement."""
+    staged: int
+    promotable: int | None
+    held_already: int | None
+    refused: int | None
+    pending: int | None
+
+    @classmethod
+    def of(cls, rows: list[Judged]) -> 'Promotion':
+        counts = tally(rows)
+        pending = counts['invalid'] + counts['unjudged'] + counts['incomplete']
+        return cls(len(rows), counts['promotable'] or None, counts['held already'] or None,
+                   sum(1 for row in rows if row.state == 'refused' and row.relation in REFUSING) or None, pending or None)
+
+
+def promotion_facts(rows: list[Judged]) -> dict[str, Promotion]:
+    """The stage against the store, by selection: what the store's status says of it."""
+    kinds: dict[str, list[Judged]] = {}
+    for row in rows:
+        kinds.setdefault(kind_of(row.unit), []).append(row)
+    return {kind: Promotion.of(of_kind) for kind, of_kind in sorted(kinds.items())}
+
+
+def relation_refused(rows: list[Judged]) -> dict[str, object]:
+    """Each relation under which the held copy would lose something, by selection, by the
+    relation's words, with how many units carry it."""
+    counts: dict[tuple[str, ...], int] = {}
+    for row in rows:
+        if row.state == 'refused' and row.relation in REFUSING:
+            path = (kind_of(row.unit), REMEDY[row.relation])
+            counts[path] = counts.get(path, 0) + 1
+    out: dict[str, object] = {}
+    for path, n in sorted(counts.items()):
+        nest(out, path, n)
+    return out
+
+
+def promotion_next(rows: list[Judged]) -> dict[str, dict[str, dict[str, int]]]:
+    """What the store's status says to run on the stage: each capturing noun's promote for
+    its promotable units, and the stage's cleaner for what the store already holds."""
+    out: dict[str, dict[str, dict[str, int]]] = {}
+    for row in rows:
+        kind = kind_of(row.unit)
+        if row.state == 'promotable':
+            noun = noun_of(row.unit)
+            if noun is not None:
+                step(out, f'corpus-yoga {noun} promote --all', kind)
+        elif row.state == 'held already':
+            step(out, 'corpus-yoga stage clean --apply', kind)
     return out
 
 
@@ -1144,25 +1220,6 @@ def stage_status() -> int:
     stage verb ends by relaying it."""
     facts.say(stage_facts())
     return 0
-
-
-def next_steps(rows: list[Judged], counts: dict[str, int]) -> dict[str, int]:
-    """Each command that acts next on what the counts count, with how many: a capturing
-    noun's promote for its promotable units, the janitor for the held-already and
-    incomplete, the rehearsal for the unjudged - each only while its count is not zero."""
-    out: dict[str, int] = {}
-    by_noun: dict[str, int] = {}
-    for row in rows:
-        noun = noun_of(row.unit) if row.state == 'promotable' else None
-        if noun is not None:
-            by_noun[noun] = by_noun.get(noun, 0) + 1
-    for noun, n in sorted(by_noun.items()):
-        out[f'corpus-yoga {noun} promote --all'] = n
-    if counts['held already'] + counts['incomplete']:
-        out['corpus-yoga stage clean --apply'] = counts['held already'] + counts['incomplete']
-    if counts['unjudged']:
-        out['corpus-yoga pipeline rehearse'] = counts['unjudged']
-    return out
 
 
 def invalid_by(rows: list[Judged]) -> dict[str, object]:
@@ -1293,7 +1350,8 @@ class StoreStatus:
     stray: dict[str, Stray] | None = None     # by path: what no pipeline selects and no capturing noun writes
     surplus: dict[str, Surplus] | None = None   # by path: a file inside a held unit that its measure does not read (#833)
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
-    ahead: dict | str | None = None           # what this room's live stores hold beyond it - the store noun's reading
+    staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (#842)
+    refused: dict[str, object] | None = None  # by selection, by the relation's words: how many the held copy would lose by
     next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (#836)
 
 
@@ -1384,10 +1442,8 @@ def pairs_facts(noun: str) -> Pairs:
 
 @dataclass(frozen=True)
 class Staged:
-    """A staged unit as a status says it: its relation to the held one and the measure's
-    words for it, the state it is in, the verdict's words, and the rehearsal that saw it."""
-    relation: str
-    measure: str
+    """A staged unit as a status says it: what the rehearsal found of it, the verdict's
+    words, and the rehearsal that saw it - the stage's facts, nothing of the store (#842)."""
     judged: str
     verdict: str | None = None
     invalid: dict[str, str] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the reason
@@ -1407,23 +1463,22 @@ def report_facts(noun: str | None) -> StageReport:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
     `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759, #800): each unit by
     its address with its facts beneath, and the step that acts on it next where one does -
-    the rehearsal for an unjudged unit, the janitor for an incomplete or held-already one.
-    A promotable unit names none: what follows a capture is its noun's to say (#767). The
-    counts are `corpus-yoga stage`'s to say. Writes nothing."""
+    the rehearsal for an unjudged unit, the janitor for an incomplete one. Its relation to
+    the held unit is the store's to say and the promote's to act on (#842). The counts are
+    `corpus-yoga stage`'s to say. Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     record = rehearsal.read()
     staged: dict[str, Staged] = {}
     for row in rows:
-        refusal = row.refusal if row.relation not in REFUSING else None
-        verdict = (REMEDY[row.relation] if row.relation in REFUSING and not row.unit.missing
-                   else None if refusal is not None else (row.words or None))
+        refusal = row.refusal
+        verdict = None if refusal is not None else (row.words or None)
         invalid = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.INVALID else None
         refused = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.REFUSED else None
-        step = ({'corpus-yoga pipeline rehearse': 'judges it'} if row.state == 'unjudged'
-                else {'corpus-yoga stage clean --apply': 'removes it'} if row.state in ('held already', 'incomplete') else None)
+        found = judged_as(row)
+        step = ({'corpus-yoga pipeline rehearse': 'judges it'} if found == 'unjudged'
+                else {'corpus-yoga stage clean --apply': 'removes it'} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
-        staged[address] = Staged(RELATION_NAME[row.relation], row.detail, row.state, verdict,
-                                 invalid, refused,
+        staged[address] = Staged(found, verdict, invalid, refused,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)
     return StageReport(staged)
 

@@ -1,7 +1,9 @@
 {
-  "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, and what this room's live stores hold beyond it (bare is the status and writes nothing; clean its one janitor)",
+  "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, and the stage against the store (bare is the status and writes nothing; clean its one janitor)",
   "explanation": {
-    "next": "what to run next - each command, its verb, and the kinds it acts on with how many - the janitor for what the store no longer needs, by the selection each entry is counted under, and a capture, by provider, for each live thing a mounted store holds beyond the held; the workflow's steps, which remedy nothing"
+    "staged": "the stage against the store, by selection - how many are staged, promotable (judged valid and not held), held already (byte-equal to the held copy), refused (their relation would lose held data), or pending the stage's judgement",
+    "refused": "by selection, then by the relation under which the held copy would lose something, with how many units carry it; the reader reconciles the two",
+    "next": "what to run next - each command, its verb, and the kinds it acts on with how many - each capturing noun's promote for what the stage holds promotable, the stage's cleaner for what the store already holds, and this janitor for what the store no longer needs; the workflow's steps, which remedy nothing"
   },
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",
