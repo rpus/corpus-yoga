@@ -1089,8 +1089,14 @@ def stage_next(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, 
     out: dict[str, dict[str, dict[str, int]]] = {}
     for kind, rows in sorted(kinds.items()):
         for command, (verb, n) in next_steps(rows, tally(rows)).items():
-            out.setdefault(command, {}).setdefault(verb, {})[kind] = n
+            step(out, command, verb, kind, n)
     return out
+
+
+def step(out: dict[str, dict[str, dict[str, int]]], command: str, verb: str, key: str, n: int = 1) -> None:
+    """One more of a next: block's counts - by command, its verb, then the kind it acts on."""
+    kinds = out.setdefault(command, {}).setdefault(verb, {})
+    kinds[key] = kinds.get(key, 0) + n
 
 
 def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
