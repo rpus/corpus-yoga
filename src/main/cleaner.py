@@ -10,12 +10,11 @@ is the selection the entry is counted under by a next: block, where one applies.
 cleaner takes no flag (#844): what it would remove is what the noun's status names, so
 there is no dry run, and the act is one act.
 
-The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
-beneath, `{}` where there is none; `did: removed` or `did: NOT - <why>` beneath each after
-its act, so a log read after a crash shows the intention and, entry by entry, whether it
-was carried out. The noun's status is relayed beneath the acts, the certified state after
-them, and the verdict is the last line - DONE only when every entry went, NOT DONE
-naming each that was NOT removed.
+`will remove:` over the entries, each keyed with its facts beneath, `{}` where there is
+none; `could not remove: <why>` beneath an entry whose act left it. The noun's status is
+relayed beneath the acts, the certified state after them, and the verdict is the last
+line - DONE with the counts when every entry went, NOT DONE naming each the act could
+not remove. One verb, remove, in one form throughout.
 """
 from dataclasses import dataclass
 from typing import Callable
@@ -37,8 +36,8 @@ def count(n: int, kind: str, plural: dict[str, str]) -> str:
 
 
 def clean(noun: str, entries: list[Entry], plural: dict[str, str], status: Callable[[], object]) -> int:
-    """One loop over the one list: each entry said, then its act. Returns 1 while anything
-    named was NOT removed."""
+    """One loop over the one list: each entry said, then its act. Returns 1 while the act
+    could not remove anything named."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
     print('will remove:' + ('' if entries else ' {}'))
@@ -47,17 +46,16 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], status: Calla
             print(line)
         why = entry.act()
         if why is None:
-            print('    did: removed')
             did[entry.kind] += 1
         else:
-            print(f'    did: NOT - {why}')
+            print(f'    could not remove: {why}')
             left.append(f'{entry.kind}: {entry.key} - {why}')
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
     print()
     status()
     print()
     if left:
-        print(f'{noun} clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
+        print(f'{noun} clean: NOT DONE - {counts}; could not remove ' + '; '.join(left))
     else:
-        print(f'{noun} clean: DONE - removed {counts}')
+        print(f'{noun} clean: DONE - {counts}')
     return 1 if left else 0
