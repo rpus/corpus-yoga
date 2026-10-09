@@ -29,7 +29,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, move_workspace, place_log, project_key, strings, word_placement  # noqa: E402
+from transport import Relation, Session, move_workspace, place_log, project_key, relate, strings, word_placement  # noqa: E402
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')
@@ -138,13 +138,26 @@ def _snapshot(db: Path) -> bytes:
         return Path(tmp.name).read_bytes()
 
 
-def _capture_session(mount: Path, session: Session, summary: dict, dest: Path,
+def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, held: Path,
                      quiet_noop: bool = False) -> tuple[int, bool, bool]:
     """Mirror one session into <outbox>/<project>/<uuid>/. Returns (conflicts,
-    wrote, eventful) as the claude adapter's capture does."""
+    wrote, eventful) as the claude adapter's capture does. Where the stage holds
+    no copy, the held one under held is the baseline (#850): transcripts the
+    store holds identical or ahead are not staged, and one that diverges from
+    the held copy is a CONFLICT, as the promote would say."""
     lines = []
     conflicts, wrote, eventful = 0, False, False
     advanced = False
+    if not dest.is_dir() and held.is_dir():
+        against = {name: relate((_logs(session.path) / name).read_bytes(), (held / name).read_bytes())
+                   for name in TRANSCRIPTS if (_logs(session.path) / name).is_file() and (held / name).is_file()}
+        if against and all(r in (Relation.IDENTICAL, Relation.AHEAD, Relation.DIVERGED) for r in against.values()):
+            conflict = Relation.DIVERGED in against.values()
+            if conflict or not quiet_noop:
+                print(f'capture → {dest.parent.parent.name}/{session.project}: {session.id}')
+                for name, r in against.items():
+                    print(f'  {name}: {word_placement(r, "", "local", "held")} - nothing staged')
+            return (1 if conflict else 0), False, conflict
     for name in TRANSCRIPTS:
         src = _logs(session.path) / name
         if not src.is_file():
@@ -194,7 +207,7 @@ def _capture_session(mount: Path, session: Session, summary: dict, dest: Path,
     return conflicts, wrote, eventful
 
 
-def capture(mount: Path, outbox: Path, uuid8: str | None) -> int:
+def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> int:
     summaries = _summaries(mount)
     sessions = live_sessions(mount)
     if uuid8 is not None:
@@ -210,7 +223,7 @@ def capture(mount: Path, outbox: Path, uuid8: str | None) -> int:
     conflicts, written, quiet = 0, 0, []
     for s in sessions:
         c, wrote, eventful = _capture_session(mount, s, summaries[s.id], outbox / s.project / s.id,
-                                              quiet_noop=uuid8 is None)
+                                              held / s.project / s.id, quiet_noop=uuid8 is None)
         conflicts += c
         written += 1 if wrote else 0
         if not eventful:

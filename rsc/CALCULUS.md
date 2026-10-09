@@ -293,7 +293,10 @@ Each law names its current enforcement (or the incident that taught it).
 - **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
   what its source returned, under a stamp, into the room's stage, `tmp/stage/input/`,
   at the address its unit will have under `data/input/`, and reads no other capture
-  (#687). Whether a staged unit is the held one, extends it, falls short of it or
+  (#687) - of the store it reads the held unit at that one address, the baseline a
+  stage that holds no copy lacks, so that a capture writes only what the live store
+  holds beyond the fuller of the staged and the held copy (#850). Whether a staged
+  unit is the held one, extends it, falls short of it or
   diverges from it is decided at the one reduce that reaches shared storage,
   each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
   `src/main/append_only.py` over a measure per kind), and beyond it where the

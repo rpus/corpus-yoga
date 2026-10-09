@@ -1029,16 +1029,14 @@ def judged_as(row: Judged) -> str:
 
 @dataclass
 class StageStatus:
-    """Bare corpus-yoga stage: the tier's state, ending on what is invalid and why, what is
-    refused and why, and what to run next - the tail a reader acts on, as facts. Nothing
-    under `next` remedies a fault: a promotion, a rehearsal and the janitor are the
-    workflow's steps, so the key is never `remedy` (#824)."""
+    """Bare corpus-yoga stage: the tier's state as a report, ending on what is invalid and
+    why and what is refused and why, as facts. It names no act (#851): the stage is a
+    scratch tier between the live stores and the store, and the store's status, which
+    reads both, says what to run next."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
     refused: dict[str, object] | None = None         # by the version file origin/main does not hold, then the reason: how many
-    live: dict | str | None = None                   # the live stores this room mounts against the stage (src/main/live.py, #842)
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many
 
 
 def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
@@ -1062,9 +1060,9 @@ def stage_facts() -> StageStatus:
     by what it found of them, the units by kind with each kind's counts, then what is
     invalid by the version file that found it so - its path, relative to rsc/schema/pipeline,
     which the declaration's explanation names once - by the reason with how many carry it,
-    then what is refused short of a verdict, and last what to run - each command, its verb, and the kinds it acts on with how many - so
-    that the tail is never a dead end and never a sentence. What follows a refusal and
-    where its whole output is are constant, and the declaration's explanation says them."""
+    then what is refused short of a verdict. What follows a refusal and where its whole
+    output is are constant, and the declaration's explanation says them; what to run next
+    is the store's status's to say (#851)."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
@@ -1084,32 +1082,12 @@ def stage_facts() -> StageStatus:
                           + f' - {MIGRATION_815} removes it',
                           facts.Command('corpus-yoga migration sync --apply', 'would take the move'))
                    if BEFORE_815.exists() else None)))
-    import live   # the live stores against the stage: read here, so that every face of the stage says them
-    ahead, absent = live.ahead(STAGE)
-    items, found, level = live.ahead_facts(ahead, absent)
-    out.live = items if items else ('no live store is mounted in this workspace' if not ahead
-                                    else f'nothing beyond the stage: {level} live unit(s) level with the staged ones')
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
         kinds.setdefault(kind_of(row.unit), []).append(row)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())} if rows else 'none staged'
     out.invalid = invalid_by(rows) or None
     out.refused = refused_by(rows) or None
-    out.next = stage_next(kinds, ahead) or 'none - nothing to do'
-    return out
-
-
-def stage_next(kinds: dict[str, list[Judged]], ahead: list) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next, by command: its verb, then each kind it acts on with how many -
-    the rehearsal for what is not judged, and a capture for each live thing ahead of the
-    stage; every count by kind, never summed across kinds."""
-    import live
-    out: dict[str, dict[str, dict[str, int]]] = {}
-    for kind, rows in sorted(kinds.items()):
-        n = sum(1 for row in rows if judged_as(row) == 'unjudged')
-        if n:
-            step(out, 'corpus-yoga pipeline rehearse', kind, n)
-    live.captures(out, ahead)
     return out
 
 
@@ -1154,19 +1132,24 @@ def relation_refused(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-def promotion_next(rows: list[Judged]) -> dict[str, dict[str, dict[str, int]]]:
-    """What the store's status says to run on the stage: each capturing noun's promote for
-    its promotable units, and the stage's cleaner for what the store already holds."""
-    out: dict[str, dict[str, dict[str, int]]] = {}
+def promotion_next(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]) -> None:
+    """Into a next: block, what the store's status says to run on the stage, in the
+    workflow's order (#851): the rehearsal for what is not judged, each capturing noun's
+    promote for its promotable units, and the stage's cleaner for what the store already
+    holds, for each incomplete unit, and for each orphan under tmp/stage, by its path."""
     for row in rows:
-        kind = kind_of(row.unit)
+        if row.state == 'unjudged':
+            step(out, 'corpus-yoga pipeline rehearse', kind_of(row.unit))
+    for row in rows:
         if row.state == 'promotable':
             noun = noun_of(row.unit)
             if noun is not None:
-                step(out, f'corpus-yoga {noun} promote --all', kind)
-        elif row.state == 'held already':
-            step(out, 'corpus-yoga stage clean', kind)
-    return out
+                step(out, f'corpus-yoga {noun} promote --all', kind_of(row.unit))
+    for row in rows:
+        if row.state in ('held already', 'incomplete'):
+            step(out, 'corpus-yoga stage clean', kind_of(row.unit))
+    for e in orphans():
+        step(out, 'corpus-yoga stage clean', e.relative_to(REPO).as_posix())
 
 
 VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture'}   # what a next: command would do, by its verb word (#846)
@@ -1344,7 +1327,8 @@ class HeldTwice:
 
 @dataclass
 class StoreStatus:
-    """Bare corpus-yoga store: shared storage in the stage's terms."""
+    """Bare corpus-yoga store: shared storage in the stage's terms, and the one status that
+    names what to run next (#851)."""
     data_input: Held | str = facts.named('data/input')
     held: dict[str, int] | None = None        # the units by what each count is of
     stray: dict[str, Stray] | None = None     # by path: what no pipeline selects and no capturing noun writes
@@ -1353,6 +1337,7 @@ class StoreStatus:
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (#842)
     refused: dict[str, object] | None = None  # by selection, by the relation's words: how many the held copy would lose by
+    live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, #851)
     next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (#836)
 
 

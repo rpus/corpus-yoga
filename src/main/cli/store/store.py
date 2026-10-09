@@ -17,12 +17,18 @@ declaration selects, at an address. Three readings, and nothing written:
               capture wrote - a room's own sync puts one there (#833);
   staged      the stage against the store (#842): each staged unit as it stands to the held
               one of its address - promotable, held already, refused by its relation - by
-              selection, with the promote, the stage's cleaner and this janitor as the next
-              steps.
+              selection;
+  live        the live stores this room mounts against the fuller of the staged and the
+              held copy of each live thing (#851): each session and memory a harness holds
+              beyond both, with the capture that stages it; a mount that is absent, with
+              what mounts it.
 
-A tier's status compares the tier with the tier that feeds it: the stage feeds the store,
-so the store reads the stage; the live stores feed the stage, so the stage reads them
-(src/main/live.py), and this noun reads no live store.
+The store's status reads everything upstream of it (#851): the stage against the store,
+and the live stores against the fuller of the staged and the held copy
+(src/main/live.py), so that it alone
+names every act the room can take under next: - the captures, the rehearsal, the
+promotes, the stage's cleaner and its own, in the workflow's order. The stage's status is
+a report of its tier and names none.
 
 The janitor, store clean, acts on the second reading (#744): each duplicate, of either
 species, goes with what only it feeds - its members, its record and its shadow under the
@@ -45,7 +51,7 @@ from declared_parser import command_parser  # noqa: E402
 import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
 import corpus  # noqa: E402
 import facts  # noqa: E402
-import live  # noqa: E402 - the live stores' addresses, which the duplicates reading keeps the newest of (#744)
+import live  # noqa: E402 - the live stores: their addresses, which the duplicates reading keeps the newest of (#744), and their reading against both tiers (#851)
 
 
 KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows', 'surplus file': 'surplus files'}   # each kind of entry, and its plural
@@ -88,12 +94,16 @@ def entries() -> list[cleaner.Entry]:
     return out
 
 
-def store_next() -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next, by command: its verb, then each kind it acts on with how many -
-    each capturing noun's promote for what the stage holds promotable, the stage's cleaner
-    for what the stage holds that the store already does, and this janitor for what the
-    store no longer needs, by the selection each entry is counted under."""
-    out = corpus.promotion_next(corpus.survey())
+def store_next(rows: list[corpus.Judged], ahead: list[live.Ahead]) -> dict[str, dict[str, dict[str, int]]]:
+    """What to run next, by command, in the workflow's order (#851): its verb, then each
+    kind it acts on with how many - a capture for each live thing ahead of both tiers, the
+    rehearsal for what is staged and not judged, each capturing noun's promote for what is
+    promotable, the stage's cleaner for what the store already holds and for the stage's
+    incomplete units and orphans, and this janitor for what the store no longer needs, by
+    the selection each entry is counted under."""
+    out: dict[str, dict[str, dict[str, int]]] = {}
+    live.captures(out, ahead)
+    corpus.promotion_next(out, rows)
     for entry in entries():
         corpus.step(out, 'corpus-yoga store clean', entry.under)
     return out
@@ -101,12 +111,16 @@ def store_next() -> dict[str, dict[str, dict[str, int]]]:
 
 def status_facts() -> corpus.StoreStatus:
     """Bare corpus-yoga store, whole: the store's own readings, the stage against the
-    store, and what to run next."""
+    store, the live stores against both tiers, and what to run next."""
     out, held, twice = corpus.store_facts(*live.live_addresses())
     rows = corpus.survey()
     out.staged = corpus.promotion_facts(rows) if rows else 'none staged'
     out.refused = corpus.relation_refused(rows) or None
-    out.next = store_next() or 'none - nothing to do'
+    ahead, absent = live.ahead()
+    items, found, level = live.ahead_facts(ahead, absent)
+    out.live = items if items else ('no live store is mounted in this workspace' if not ahead
+                                    else f'nothing beyond the tiers: {level} live unit(s) level with the copies')
+    out.next = store_next(rows, ahead) or 'none - nothing to do'
     return out
 
 

@@ -171,9 +171,10 @@ def own_outbox(provider: str) -> Path | None:
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
               '(corpus-yoga status shows the convention), then run this again; skipped', file=sys.stderr)
         return None
-    # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
-    # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
-    # session to the held one and writes what extends it (#687)
+    # the outbox is the stage twin of the store, tmp/stage/input/...: a capture writes it,
+    # and reads of the store only the held unit at the address it would write, the baseline
+    # where the stage holds no copy (L10, #850); corpus-yoga agent promote relates each
+    # staged session to the held one and writes what extends it (#687)
     out = tier.TMP_STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
@@ -319,7 +320,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         if outbox is None:
             continue
         print(f'── {name}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
-        conflicts += adapter.capture(mount_path, outbox, uuid8)
+        conflicts += adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
     # the act names the next acts (#687): what was captured waits in the stage until
     # the pipeline has judged it and the same extent is promoted
     extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')

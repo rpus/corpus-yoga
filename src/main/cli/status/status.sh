@@ -512,7 +512,6 @@ report() {
   check_pipeline_inputs
   graft stage "/invalid" standing
   graft stage "/refused" standing
-  graft stage "/next" standing
   graft store "/next" standing
   graft migration ""
 
