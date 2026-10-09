@@ -265,11 +265,11 @@ def store_next(rows: list[Ahead]) -> dict[str, dict[str, dict[str, int]]]:
     counted under; a capture, by provider, for each live thing ahead of the held one."""
     out: dict[str, dict[str, dict[str, int]]] = {}
     for entry in entries():
-        corpus.step(out, 'corpus-yoga store clean --apply', 'removes', entry.under)
+        corpus.step(out, 'corpus-yoga store clean --apply', entry.under)
     for row in rows:
         if row.state in ('new', 'grown', 'changed', 'diverged'):
             key = corpus.selection_of('code-transport', row.provider, row.kind) or f'{row.provider} {row.kind}'
-            corpus.step(out, f'corpus-yoga agent capture --provider {row.provider}', 'captures', key)
+            corpus.step(out, f'corpus-yoga agent capture --provider {row.provider}', key)
     return out
 
 
