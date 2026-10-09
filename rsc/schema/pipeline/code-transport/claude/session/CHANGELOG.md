@@ -6,6 +6,30 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v21
+
+One key Claude Code 2.1.294 writes that v20 had closed. Reading-room's session
+`e2d2039d-…`, captured on 2026-10-09 by `corpus-yoga agent capture` into the stage, is
+refused at v20 by the rehearsal of 2026-10-09T131819Z; validated record by record, 3 of
+its 3216 records fail and no other. Each is a user turn, a task notification, from
+2026-10-09T10:57:30Z on, whose `origin` is
+`{"kind": "task-notification", "producer": "session-task", "runId": "0mv0upcup-38fcf3a9"}`
+where `TurnOrigin` was closed over `kind` and `producer`. The 20 sessions held under
+data/input on reading-room carry no `runId` and validate at v20, as do the two other
+claude sessions the rehearsal judged, 5c631cf4 and be12fa7c.
+
+Validated over the staged session's conversion on reading-room, 2026-10-09: v20 refuses
+the 3 records and no other; v21 refuses none (#847).
+
+### Replaces
+
+v20
+
+#### Relaxed
+
+- `TurnOrigin` - optional `runId`, a string, observed `0mv0upcup-38fcf3a9` on every
+  task-notification turn from 2026-10-09.
+
 ## v20
 
 Two shapes Claude Code 2.1.289 writes that v19 had closed. Reading-room's session

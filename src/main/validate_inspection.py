@@ -24,7 +24,7 @@ def _rel(path):
 
 def _walk(node, parts):
     for part in parts:
-        node = node[part]
+        node = node[int(part)] if isinstance(node, list) else node[part]
     return node
 
 
@@ -32,10 +32,12 @@ def inspect_failure(input_file, schema_file, result):
     """The inspection lines for a failed validate() result — empty when the
     verdict names no instance path (schema errors carry none)."""
     path_raw = None
+    schema_ptr = None
     for line in result:
         if line.startswith('Path: '):
             path_raw = line[len('Path: '):]
-            break
+        elif line.startswith('Schema path: '):
+            schema_ptr = line[len('Schema path: '):]
     if path_raw is None:
         return []
 
@@ -49,7 +51,8 @@ def inspect_failure(input_file, schema_file, result):
     out += json.dumps(_walk(instance, instance_path), indent=2, ensure_ascii=False).splitlines()
 
     instance_ptr = '/' + '/'.join(str(x) for x in instance_path)
-    schema_ptr = follow_path(instance_path, schema, schema)
+    if schema_ptr is None:   # a verdict from before #848 names no schema node: derive one from the instance path
+        schema_ptr = follow_path(instance_path, schema, schema)
     out += ['--- instance path ---', f'{_rel(input_file)}#{instance_ptr}']
     out += ['--- schema path ---', f'{_rel(schema_file)}{schema_ptr}']
 
