@@ -12,7 +12,7 @@ Usage:
 Examples:
     python src/main/model/gen_model_candidate.py conversations rsc/schema/pipeline/chat-export/claude/conversations/v21.json
     python src/main/model/gen_model_candidate.py memories      rsc/schema/pipeline/chat-export/claude/memories/v4.json
-    python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v20.json
+    python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v21.json
     python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v13.json
 
 Output: JSON to stdout. Redirect to tmp/cache/model/catalogue/<family's address>/<version>.json for review.

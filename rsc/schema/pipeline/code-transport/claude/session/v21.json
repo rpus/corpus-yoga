@@ -1346,6 +1346,10 @@
         "producer": {
           "description": "What produced a task-notification origin (2.1.289 onward). Observed value: \"session-task\", on every such turn of reading-room's session from 2026-10-05; earlier task notifications carry kind alone. Undeclared before v20.",
           "type": "string"
+        },
+        "runId": {
+          "description": "The run a task-notification origin belongs to (2.1.294 onward). Observed value: \"0mv0upcup-38fcf3a9\", a string that is no uuid, on every such turn of reading-room's session e2d2039d from 2026-10-09T10:57:30Z, beside kind and producer; earlier task notifications carry no run. Undeclared before v21.",
+          "type": "string"
         }
       }
     },
