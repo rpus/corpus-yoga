@@ -911,7 +911,8 @@ src/main/cli/stage/stage.json,15,path_str,rsc/naming/export_archive_members.csv,
 src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,11,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
-src/main/cli/stage/stage.py,37,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
+src/main/cli/stage/stage.py,21,comment,src/main/cleaner.py,Y,"The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (#837):"
+src/main/cli/stage/stage.py,30,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/status/report.py,25,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
 src/main/cli/status/status.json,33,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
 src/main/cli/status/status.json,45,path_str,rsc/machine,Y,"""rsc/machine"","

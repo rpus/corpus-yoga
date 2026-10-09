@@ -46,6 +46,7 @@ sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))   # the harness adapters: what a live store holds
 from declared_parser import command_parser  # noqa: E402
+import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
 import corpus  # noqa: E402
 import facts  # noqa: E402
 import provider as registry  # noqa: E402
@@ -221,10 +222,6 @@ def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[dict[str, Ahead |
 KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows', 'surplus file': 'surplus files'}   # each kind of entry, and its plural
 
 
-def _count(n: int, kind: str) -> str:
-    return f'{n} {kind if n == 1 else KINDS[kind]}'
-
-
 def _dispose_all(paths: list[Path]) -> str | None:
     for path in paths:
         why = corpus.dispose(path)
@@ -233,28 +230,32 @@ def _dispose_all(paths: list[Path]) -> str | None:
     return None
 
 
-def entries() -> list[tuple[str, str, dict, list[Path]]]:
-    """Everything the janitor acts on, in the order it acts: (kind, the selection it is
-    counted under, the entry's facts, the paths that go). The one list both faces walk."""
-    out: list[tuple[str, str, dict, list[Path]]] = []
+def entries() -> list[cleaner.Entry]:
+    """Everything the janitor acts on, in the order it acts, each with its kind, its address
+    or path, its facts, the act, and the selection it is counted under. The one list both
+    faces walk."""
+    out: list[cleaner.Entry] = []
     for duplicate in corpus.held_twice(corpus.STORE, *live_addresses()):
         unit, holder, how, by = duplicate.unit, duplicate.holder, duplicate.how, duplicate.by
         paths = [corpus.STORE / m for m in unit.members + unit.record]
         own = corpus.shadow(unit)
         if own is not None and own.exists():
             paths.append(own)
-        item = {unit.kind: unit.address.as_posix(), ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),
-                'by': by, 'size': corpus.human(sum(corpus.size_of(p) for p in paths)),
-                'goes': [p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p) for p in paths]}
-        out.append(('duplicate', corpus.kind_of(unit), item, paths))
+        out.append(cleaner.Entry('duplicate', unit.address.as_posix(),
+                                 {'duplicate': f'{"identical to" if how == "identical" else "contained by"} {holder.address.as_posix()}', 'by': by,
+                                  'size': corpus.human(sum(corpus.size_of(p) for p in paths)),
+                                  'goes': [p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p) for p in paths]},
+                                 lambda paths=paths: _dispose_all(paths), corpus.kind_of(unit)))
     for d in corpus.orphaned_shadows():
         shadow = d.relative_to(REPO).as_posix()
-        out.append(('orphaned shadow', '/'.join(shadow.split('/')[:3]), {'shadow': shadow, 'why': 'the store holds no unit it derives from',
-                                                                           'size': corpus.human(corpus.size_of(d))}, [d]))
+        out.append(cleaner.Entry('orphaned shadow', shadow,
+                                 {'orphaned shadow': 'the store holds no unit it derives from', 'size': corpus.human(corpus.size_of(d))},
+                                 lambda d=d: _dispose_all([d]), '/'.join(shadow.split('/')[:3])))
     for unit, rel in corpus.surplus(corpus.STORE):
-        out.append(('surplus file', corpus.kind_of(unit),
-                    {'surplus': rel.as_posix(), 'beside': f'{unit.path.name}.json', 'why': 'its measure does not read it, and no capture wrote it',
-                     'size': corpus.human(corpus.size_of(corpus.STORE / rel))}, [corpus.STORE / rel]))
+        out.append(cleaner.Entry('surplus file', rel.as_posix(),
+                                 {'surplus file': 'its measure does not read it, and no capture wrote it', 'beside': f'{unit.path.name}.json',
+                                  'size': corpus.human(corpus.size_of(corpus.STORE / rel))},
+                                 lambda rel=rel: _dispose_all([corpus.STORE / rel]), corpus.kind_of(unit)))
     return out
 
 
@@ -263,14 +264,12 @@ def store_next(rows: list[Ahead]) -> dict[str, dict[str, dict[str, int]]]:
     the janitor for what the store no longer needs, by the selection each entry is
     counted under; a capture, by provider, for each live thing ahead of the held one."""
     out: dict[str, dict[str, dict[str, int]]] = {}
-    for kind, key, item, paths in entries():
-        removes = out.setdefault('corpus-yoga store clean --apply', {}).setdefault('removes', {})
-        removes[key] = removes.get(key, 0) + 1
+    for entry in entries():
+        corpus.step(out, 'corpus-yoga store clean --apply', entry.under)
     for row in rows:
         if row.state in ('new', 'grown', 'changed', 'diverged'):
             key = corpus.selection_of('code-transport', row.provider, row.kind) or f'{row.provider} {row.kind}'
-            captures = out.setdefault(f'corpus-yoga agent capture --provider {row.provider}', {}).setdefault('captures', {})
-            captures[key] = captures.get(key, 0) + 1
+            corpus.step(out, f'corpus-yoga agent capture --provider {row.provider}', key)
     return out
 
 
@@ -286,38 +285,7 @@ def status_facts() -> corpus.StoreStatus:
 
 
 def clean(apply: bool) -> int:
-    """One loop over the one list; the flag decides only whether the act runs after the lines."""
-    rows = entries()
-    did = {kind: 0 for kind in KINDS}
-    left: list[str] = []
-    print('would remove:' if not apply else 'will remove:' if rows else 'will remove: []')
-    if not rows and not apply:
-        print('  []')
-    for kind, key, item, paths in rows:
-        for line in facts.lines(facts.plain([item]), 1, width=facts.terminal_width()):
-            print(line)
-        if not apply:
-            did[kind] += 1
-            continue
-        why = _dispose_all(paths)
-        if why is None:
-            print('    did: removed')
-            did[kind] += 1
-        else:
-            print(f'    did: NOT - {why}')
-            left.append(f'{kind}: {why}')
-    counts = ', '.join(_count(did[kind], kind) for kind in KINDS if did[kind]) or 'nothing'
-    if not apply:
-        print(f'store clean: would remove {counts}' + (' (--apply removes them)' if counts != 'nothing' else ''))
-        return 0
-    # the status over what remains is the certified state after the act: beneath the lines
-    # and above the verdict, informing and never gating
-    facts.say(status_facts())
-    if left:
-        print(f'store clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
-    else:
-        print(f'store clean: DONE - removed {counts}')
-    return 1 if left else 0
+    return cleaner.clean('store', entries(), KINDS, lambda: facts.say(status_facts()), apply)
 
 
 def main() -> int:

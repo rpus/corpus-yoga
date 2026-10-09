@@ -1088,9 +1088,23 @@ def stage_next(kinds: dict[str, list[Judged]]) -> dict[str, dict[str, dict[str, 
     every count by kind, never summed across kinds."""
     out: dict[str, dict[str, dict[str, int]]] = {}
     for kind, rows in sorted(kinds.items()):
-        for command, (verb, n) in next_steps(rows, tally(rows)).items():
-            out.setdefault(command, {}).setdefault(verb, {})[kind] = n
+        for command, n in next_steps(rows, tally(rows)).items():
+            step(out, command, kind, n)
     return out
+
+
+VERBS = {'promote': 'promotes', 'clean': 'removes', 'rehearse': 'judges', 'capture': 'captures'}   # what a next: command does, by its verb word
+
+
+def verb_of(command: str) -> str:
+    """What a command of a next: block does, from its verb word - `corpus-yoga <noun> <verb> ...`."""
+    return VERBS[command.split()[2]]
+
+
+def step(out: dict[str, dict[str, dict[str, int]]], command: str, key: str, n: int = 1) -> None:
+    """One more of a next: block's counts - by command, what it does, then the kind it acts on."""
+    kinds = out.setdefault(command, {}).setdefault(verb_of(command), {})
+    kinds[key] = kinds.get(key, 0) + n
 
 
 def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
@@ -1132,22 +1146,22 @@ def stage_status() -> int:
     return 0
 
 
-def next_steps(rows: list[Judged], counts: dict[str, int]) -> dict[str, tuple[str, int]]:
-    """Each command that acts next on what the counts count, with its verb and how many: a
-    capturing noun's promote for its promotable units, the janitor for the held-already and
+def next_steps(rows: list[Judged], counts: dict[str, int]) -> dict[str, int]:
+    """Each command that acts next on what the counts count, with how many: a capturing
+    noun's promote for its promotable units, the janitor for the held-already and
     incomplete, the rehearsal for the unjudged - each only while its count is not zero."""
-    out: dict[str, tuple[str, int]] = {}
+    out: dict[str, int] = {}
     by_noun: dict[str, int] = {}
     for row in rows:
         noun = noun_of(row.unit) if row.state == 'promotable' else None
         if noun is not None:
             by_noun[noun] = by_noun.get(noun, 0) + 1
     for noun, n in sorted(by_noun.items()):
-        out[f'corpus-yoga {noun} promote --all'] = ('promotes', n)
+        out[f'corpus-yoga {noun} promote --all'] = n
     if counts['held already'] + counts['incomplete']:
-        out['corpus-yoga stage clean --apply'] = ('removes', counts['held already'] + counts['incomplete'])
+        out['corpus-yoga stage clean --apply'] = counts['held already'] + counts['incomplete']
     if counts['unjudged']:
-        out['corpus-yoga pipeline rehearse'] = ('judges', counts['unjudged'])
+        out['corpus-yoga pipeline rehearse'] = counts['unjudged']
     return out
 
 
