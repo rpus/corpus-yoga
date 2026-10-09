@@ -480,6 +480,7 @@ class Judgement(Enum):
     UNSEEN = 'unseen'        # staged since the rehearsal began: absent from its record
     CHANGED = 'changed'      # seen by the rehearsal with other digests than it has now
     UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its next step
+    SUPERSEDED = 'superseded'   # judged at a version origin/main has since replaced: a rehearsal re-judges it (#830)
     NONE = 'none'            # no family judges it: promoted on its relation alone
 
 
@@ -516,6 +517,11 @@ class Refusal:
 
 
 MINT = 'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'   # what follows a family's refusal
+
+
+def version_number(version: str) -> int:
+    """The number of a version's name, vN; 0 where the name holds none."""
+    return int(''.join(c for c in version if c.isdigit()) or 0)
 
 
 def judges_of(unit: Unit) -> list[str]:
@@ -569,6 +575,9 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
             if main_version == version:
                 return Judgement.UNJUDGED, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
                                'corpus-yoga pipeline rehearse re-judges it'), None
+            if digest is None or version_number(version) < version_number(main_version or ''):
+                return Judgement.SUPERSEDED, (f'judged at {family} {version}; origin/main holds {main_version} - '
+                                              'corpus-yoga pipeline rehearse re-judges it'), None
             refusal = Refusal(unit.pipeline, family, version, f'a version of this checkout, which origin/main does not hold '
                               f'({main_version} there) - the mint\'s merge licenses the promotion')
             return Judgement.REFUSED, f'at {refusal.at} - {refusal.reason}', refusal
@@ -667,7 +676,8 @@ def refuse_rehearsal() -> int:
 STATES: tuple[str, ...] = ('promotable', 'held already', 'invalid', 'refused', 'incomplete', 'unjudged')
 JUDGED = {Judgement.VALID: 'valid', Judgement.INVALID: 'invalid', Judgement.REFUSED: 'refused'}   # a verdict the rehearsal gave
 NOT_JUDGED = {Judgement.CHANGED: 'changed since', Judgement.UNSEEN: 'unseen',          # none stands: why, or no family at all,
-              Judgement.UNJUDGED: 'seen without verdict', Judgement.NONE: 'no family'}   # which promotes on the relation alone
+              Judgement.SUPERSEDED: 'superseded', Judgement.UNJUDGED: 'seen without verdict',   # which promotes on the relation alone
+              Judgement.NONE: 'no family'}
 
 
 def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
@@ -679,7 +689,7 @@ def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
         return 'invalid'
     if rel in REFUSING or judgement is Judgement.REFUSED:
         return 'refused'
-    if judgement in (Judgement.UNSEEN, Judgement.CHANGED, Judgement.UNJUDGED):
+    if judgement in (Judgement.UNSEEN, Judgement.CHANGED, Judgement.SUPERSEDED, Judgement.UNJUDGED):
         return 'unjudged'
     return 'held already' if redundant(unit) else 'promotable'
 
