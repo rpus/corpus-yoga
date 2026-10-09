@@ -1,4 +1,4 @@
-run.py: code+schema 1630/1630
+run.py: code+schema 1636/1636
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -135,6 +135,7 @@ run.py: code+schema 1630/1630
 ── check_store ───────────────────────────────────────────────────────────────
   ✓ store.unit_names_its_kind
   ✓ store.held_twice_is_found
+  ✓ store.surplus_is_found
 
 ── check_facts ───────────────────────────────────────────────────────────────
   ✓ facts.lines_are_yaml
@@ -146,10 +147,10 @@ run.py: code+schema 1630/1630
   ✓ store.export_is_held_within_a_later_one
 
 ── check_status_facts ────────────────────────────────────────────────────────
-  ✓ status.remedy_names_a_command  (39/39)
+  ✓ status.remedy_names_a_command  (40/40)
   ✓ status.lines_load_as_yaml  (22/22)
   ✓ status.value_holds_no_pair  (23/23)
-  ✓ report.says_what_the_nouns_say  (14/14)
+  ✓ report.says_what_the_nouns_say  (18/18)
   ✓ environment.names_carry_the_prefix
   ✓ cli.no_send_flag  (3/3)
   ✓ status.pipeline_says_declarations_and_units  (4/4)
@@ -271,30 +272,30 @@ check_verdict_record                   2     0   code      122
 check_rehearsal_record                 2     0   code      125
 check_unit_companion                   1     0   code      129
 check_unit_state                       2     0   code      132
-check_store                            2     0   code      135
-check_facts                            5     0   code      139
-check_export_atoms                     1     0   code      145
-check_status_facts                   109     0   code      148
-check_walkthrough                      1     0   code      160
-check_completions                     10     0   code      163
-check_drafters                         2     0   code      170
-check_versioned_schema_diagnostics   374     0   schema    174
-check_schema_join                      2     0   schema    201
-check_model_join_versions              1     0   schema    205
-check_model_table                      1     0   schema    208
-check_model_occurrences                3     0   schema    211
-check_model_obligations              162     0   schema    216
-check_model_identity                   1     0   schema    220
-check_grammar                          2     0   schema    223
-check_provider_registry                2     0   code      226
-check_reference                       21     0   schema    230
-check_mcp_factoring                    9     0   schema    236
-check_mcp_reproducible                 1     0   schema    242
-check_expectation                      2     0   code      245
+check_store                            3     0   code      135
+check_facts                            5     0   code      140
+check_export_atoms                     1     0   code      146
+check_status_facts                   114     0   code      149
+check_walkthrough                      1     0   code      161
+check_completions                     10     0   code      164
+check_drafters                         2     0   code      171
+check_versioned_schema_diagnostics   374     0   schema    175
+check_schema_join                      2     0   schema    202
+check_model_join_versions              1     0   schema    206
+check_model_table                      1     0   schema    209
+check_model_occurrences                3     0   schema    212
+check_model_obligations              162     0   schema    217
+check_model_identity                   1     0   schema    221
+check_grammar                          2     0   schema    224
+check_provider_registry                2     0   code      227
+check_reference                       21     0   schema    231
+check_mcp_factoring                    9     0   schema    237
+check_mcp_reproducible                 1     0   schema    243
+check_expectation                      2     0   code      246
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 154 types, 1630/1630 invocations passing
-checks[code]: 102 types, 953/953 invocations passing
+checks[code+schema]: 155 types, 1636/1636 invocations passing
+checks[code]: 103 types, 959/959 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1630/1630 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1636/1636 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

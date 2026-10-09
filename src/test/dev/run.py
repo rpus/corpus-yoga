@@ -1939,6 +1939,27 @@ def check_store(run) -> None:
     expected = [('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained'), ('two/memory', 'one/memory', 'identical')]
     run('store: a unit another of its kind holds whole is found', got == expected,
         None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
+    # a file inside a held unit that its measure does not read is surplus (#833): iCloud's
+    # conflict copy beside a capture; a memory's every file is the mirror's, so none is
+    extra = getattr(corpus, 'surplus', None)
+    if extra is None:
+        run('store: a file inside a held unit that its measure does not read is found', False,
+            'src/main/corpus.py finds no file inside a held unit that no capture wrote', check='store.surplus_is_found')
+        return
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        capture = root / 'claude' / 'chat' / 'API-capture' / 'aaaaaaaa-0000-4000-8000-000000000000'
+        capture.mkdir(parents=True)
+        (capture / 'aaaaaaaa-0000-4000-8000-000000000000.json').write_text('{}')
+        (capture / 'aaaaaaaa-0000-4000-8000-000000000000 2.json').write_text('{}')
+        memory = root / 'claude' / 'code' / 'machine-transport' / 'a-room' / 'one' / 'memory'
+        memory.mkdir(parents=True)
+        (memory / 'note.md').write_text('x')
+        (memory / 'note 2.md').write_text('x')
+        got = sorted(rel.as_posix() for unit, rel in extra(root))
+    expected = ['claude/chat/API-capture/aaaaaaaa-0000-4000-8000-000000000000/aaaaaaaa-0000-4000-8000-000000000000 2.json']
+    run('store: a file inside a held unit that its measure does not read is found', got == expected,
+        None if got == expected else f'surplus read {got}, where it is {expected}', check='store.surplus_is_found')
 
 
 def check_status_facts(run) -> None:
@@ -2138,7 +2159,8 @@ def check_status_facts(run) -> None:
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
-              ('stage', 'invalid'), ('stage', 'refused'), ('stage', 'next'), ('store', 'duplicates'), ('grammar',), ('migration',)]
+              ('stage', 'invalid'), ('stage', 'refused'), ('stage', 'next'), ('store', 'stray'), ('store', 'surplus'),
+              ('store', 'duplicates'), ('store', 'ahead'), ('store', 'next'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')
@@ -2146,7 +2168,7 @@ def check_status_facts(run) -> None:
         said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
         same = own is not None and said == own or own is None and str(said).startswith(f'corpus-yoga {noun} says nothing at')
         run(f'report: its corpus-yoga {noun} section{" / " + last if last and last != noun else ""} is what corpus-yoga {noun} says', same,
-            None if same else f'the report says {str(whole.get(section))[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
+            None if same else f'the report says {str(said)[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
             check='report.says_what_the_nouns_say')
     by_forge = at(said_by('forge'), 'this checkout', 'pre-commit')
     by_forge = str(next(iter(by_forge.values())) if isinstance(by_forge, dict) else by_forge)   # a row that owes a remedy says its state first

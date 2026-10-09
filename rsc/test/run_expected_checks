@@ -132,6 +132,7 @@ status.remedy_names_a_command
 status.value_holds_no_pair
 store.export_is_held_within_a_later_one
 store.held_twice_is_found
+store.surplus_is_found
 store.unit_names_its_kind
 structure.all_definitions_reachable
 structure.bfs_order
