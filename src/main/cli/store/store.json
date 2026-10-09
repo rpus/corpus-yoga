@@ -1,9 +1,10 @@
 {
-  "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, and the stage against the store (bare is the status and writes nothing; clean its one janitor)",
+  "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, the stage against the store, and the live stores against the fuller of the staged and the held copy (bare is the status, the one that names what to run next, and writes nothing; clean its one janitor)",
   "explanation": {
     "staged": "the stage against the store, by selection - how many are staged, promotable (judged valid and not held), held already (byte-equal to the held copy), refused (their relation would lose held data), or pending the stage's judgement",
     "refused": "by selection, then by the relation under which the held copy would lose something, with how many units carry it; the reader reconciles the two",
-    "next": "what to run next - each command, its verb, and the kinds it acts on with how many - each capturing noun's promote for what the stage holds promotable, the stage's cleaner for what the store already holds, and this janitor for what the store no longer needs; the workflow's steps, which remedy nothing"
+    "live": "the live stores this room mounts, read against the fuller of the staged and the held copy of each live thing - each session and memory a harness holds beyond both tiers, or holds less of, with the capture that stages it; a mount that is absent, with what mounts it. A live thing the store holds level reads as level however empty the stage is",
+    "next": "what to run next, in the workflow's order - each command, its verb, and the kinds it acts on with how many - a capture for each live thing ahead of both tiers, the rehearsal for what is staged and not judged, each capturing noun's promote for what is promotable, the stage's cleaner for what the store already holds and for the stage's incomplete units and orphans, and this janitor for what the store no longer needs; the workflow's steps, which remedy nothing. The one status that names an act (#851)"
   },
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",

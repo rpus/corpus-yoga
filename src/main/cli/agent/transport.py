@@ -13,8 +13,11 @@ the store's shape:
 
     live_sessions(mount)              every session the live store holds
     held_sessions(machine_dir)        every session one machine's store dir holds
-    capture(mount, outbox, uuid8)     mirror one session (uuid8) or every session
-                                      (uuid8 None) into the outbox; the conflict count
+    capture(mount, outbox, held, uuid8)
+                                      mirror one session (uuid8) or every session
+                                      (uuid8 None) into the outbox, the stage, against
+                                      the staged copy where there is one, else the held
+                                      one under held (#850); the conflict count
     model_rows(mount)                 (project, session, model, records) per session
 
 The registry (rsc/provider/providers.csv) declares a provider; the adapter's

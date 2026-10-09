@@ -26,7 +26,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, may_replace, move_workspace, place_log, strings, word_placement  # noqa: E402
+from transport import Relation, Session, may_replace, move_workspace, place_log, relate, strings, word_placement  # noqa: E402
 
 PROVIDER = 'claude'
 
@@ -85,11 +85,11 @@ def written(session: Session) -> Iterator[str]:
                         yield from strings(block.get('input'))
 
 
-def capture(mount: Path, outbox: Path, uuid8: str | None) -> int:
+def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> int:
     if uuid8 is None:
-        return capture_all(mount, outbox)
+        return capture_all(mount, outbox, held)
     session = pick_session(mount, uuid8)
-    return capture_move(session.parent, outbox, session)
+    return capture_move(session.parent, outbox, held, session)
 
 
 def model_rows(mount: Path) -> list[tuple[str, str, str, int]]:
@@ -360,20 +360,31 @@ def demerge(proj_dir: Path, apply: bool) -> int:
     return 0
 
 
-def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False) -> bool:
+def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False, held_dirs: list[Path] = []) -> bool:
     """Transport writes the agent's OWN outbox — single-writer by construction —
     so the memory folder is MIRRORED, not merged: the outbox is a faithful
     projection of the agent's current aggregate (new files added, changed ones
     updated in place, absentees removed). Every merge subtlety stays in
     install, where two agents meet. Returns eventful (anything beyond L1
     silence); with quiet_noop an all-identical mirror narrates nothing —
-    the --all caller counts the silence instead."""
+    the --all caller counts the silence instead. Where the outbox holds no
+    copy, the held ones are the baseline (#850): a memory the store holds
+    identical under any of held_dirs - the project's own name, or a name
+    whose live memory is the same directory - is not mirrored again."""
     files = {p.relative_to(src_dir): p for p in sorted(src_dir.rglob('*'))
              if p.is_file() and p.name != '.DS_Store'} if src_dir.is_dir() else {}
     if not files:
         if not quiet_noop:
             print('  memory: none at source')
         return False
+    if not dest_dir.is_dir():
+        live = {rel: f.read_bytes() for rel, f in files.items()}
+        for held_dir in held_dirs:
+            if held_dir.is_dir() and live == {p.relative_to(held_dir): p.read_bytes() for p in sorted(held_dir.rglob('*'))
+                                              if p.is_file() and p.name != '.DS_Store'}:
+                if not quiet_noop:
+                    print('  memory: local and held hold identical files — no-op')
+                return False
     have = {p.relative_to(dest_dir): p for p in sorted(dest_dir.rglob('*'))
             if p.is_file() and p.name != '.DS_Store'} if dest_dir.is_dir() else {}
     new = updated = same = removed = 0
@@ -400,14 +411,33 @@ def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False) -> bo
     return eventful
 
 
-def _capture_session(src_proj: Path, dest_proj: Path, session: Path, label: str,
+def memory_names(src_root: Path, proj: Path) -> list[str]:
+    """The project names whose live memory is the one directory proj's is - its own first,
+    then those a link joins to it, the names a repository rename leaves (#744)."""
+    own = (proj / 'memory').resolve()
+    return [proj.name] + sorted(p.name for p in _projects(src_root)
+                                if p != proj and (p / 'memory').is_dir() and (p / 'memory').resolve() == own)
+
+
+def _capture_session(src_proj: Path, dest_proj: Path, held_proj: Path, session: Path, label: str,
                        quiet_noop: bool = False) -> tuple[int, bool, bool]:
-    """Mirror one session (log + workspace) into its project dir in the store.
+    """Mirror one session (log + workspace) into its project dir in the stage.
     Returns (conflicts, wrote, eventful) with move_workspace's semantics
     extended to the pair. With quiet_noop, a session that lands wholly on L1
     silence (identical log, identical-or-absent workspace) narrates NOTHING —
     the --all caller names the silent ones in one line instead of three each.
-    `label` is the header's destination spelling (<machine>/<project>)."""
+    `label` is the header's destination spelling (<machine>/<project>). Where
+    the stage holds no copy, the held one under held_proj is the baseline
+    (#850): a log the store holds identical or ahead is not staged, and one
+    that diverges from the held copy is a CONFLICT, as the promote would say."""
+    if not (dest_proj / session.name).exists() and (held_proj / session.name).exists():
+        against = relate(session.read_bytes(), (held_proj / session.name).read_bytes())
+        if against in (Relation.IDENTICAL, Relation.AHEAD, Relation.DIVERGED):
+            conflict = against is Relation.DIVERGED
+            if conflict or not quiet_noop:
+                print(f'capture → {label}: {session.name}')
+                print(f'  session: {word_placement(against, "", "local", "held")} - nothing staged')
+            return (1 if conflict else 0), False, conflict
     relation, detail = place_session(session, dest_proj / session.name, apply=True)
     conflicts = 1 if relation is Relation.DIVERGED else 0
     ws_narration = io.StringIO()
@@ -425,25 +455,26 @@ def _capture_session(src_proj: Path, dest_proj: Path, session: Path, label: str,
     return conflicts, wrote, eventful
 
 
-def capture_move(src_proj: Path, outbox: Path, session: Path) -> int:
-    """Mirror ONE named session (and its project's memory) into the store:
+def capture_move(src_proj: Path, outbox: Path, held: Path, session: Path) -> int:
+    """Mirror ONE named session (and its project's memory) into the stage:
     <outbox>/<project>/. The agent is the PRODUCT session × memory: a session
     CONFLICT withholds the memory mirror, or the store would hold a memory
     that reflects history its own session component does not contain."""
     dest_proj = outbox / src_proj.name
-    conflicts, _, _ = _capture_session(src_proj, dest_proj, session,
+    conflicts, _, _ = _capture_session(src_proj, dest_proj, held / src_proj.name, session,
                                          f'{outbox.name}/{src_proj.name}')
     if conflicts:
         print('  memory: WITHHELD — session CONFLICT above; the agent transports as a '
               'product, so reconcile the session first')
         print('DONE')
         return conflicts
-    mirror_memory(src_proj / 'memory', dest_proj / 'memory')
+    mirror_memory(src_proj / 'memory', dest_proj / 'memory',
+                  held_dirs=[held / n / 'memory' for n in memory_names(src_proj.parent, src_proj)])
     print('DONE')
     return conflicts
 
 
-def capture_all(src_root: Path, outbox: Path) -> int:
+def capture_all(src_root: Path, outbox: Path, held: Path) -> int:
     """git push --all, whole stable: mirror EVERY project's sessions, and each
     project's memory, into <outbox>/<project>/. The projects root is
     harness-owned and expires at Anthropic's pleasure; the store is the
@@ -466,7 +497,7 @@ def capture_all(src_root: Path, outbox: Path) -> int:
         total += len(sessions)
         proj_conflicts = 0
         for s in sessions:
-            c, wrote, eventful = _capture_session(proj, outbox / proj.name, s,
+            c, wrote, eventful = _capture_session(proj, outbox / proj.name, held / proj.name, s,
                                                     label, quiet_noop=True)
             conflicts += c
             proj_conflicts += c
@@ -481,7 +512,8 @@ def capture_all(src_root: Path, outbox: Path) -> int:
             mem_narration = io.StringIO()
             with contextlib.redirect_stdout(mem_narration):
                 mem_eventful = mirror_memory(proj / 'memory',
-                                             outbox / proj.name / 'memory', quiet_noop=True)
+                                             outbox / proj.name / 'memory', quiet_noop=True,
+                                             held_dirs=[held / n / 'memory' for n in memory_names(src_root, proj)])
             if mem_eventful:
                 print(f'capture → {label}: memory/')
                 print(mem_narration.getvalue(), end='')
