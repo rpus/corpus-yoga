@@ -13,6 +13,32 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v13
+
+claude.ai's API returns a third flag on every conversation that no version knew.
+Reading-room's browser capture of 2026-10-07 staged all 123 conversations of the
+account under tmp/stage/input, and the rehearsal of 2026-10-08T194222Z refused every
+one at v12: each carries `is_multiplayer` at the top of the conversation object, false
+in all 123, where the 121 captures held under data/input, of 2026-09-27 and before,
+carry no such key. It is admitted as an optional boolean beside `is_archived` and
+`workspace_upgraded`, so that every capture held before 2026-10-07 validates at v13
+unchanged; all 121 held and all 123 staged captures do, validated by hand over the
+room's data on reading-room, 2026-10-08 (#826). Nothing reached shared storage: the
+stage held the refused captures.
+
+### Replaces
+
+v12
+
+#### Relaxed
+
+- `ApiConversation`: optional `is_multiplayer`, a boolean, observed false on every
+  conversation of 2026-10-07.
+
+#### Refactored
+
+None.
+
 ## v12
 
 claude.ai's API returns two flags on every conversation that no version knew.
