@@ -650,8 +650,8 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
 
 
 REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
-UNPAIRED = 'unpaired, its record or its payload absent; corpus-yoga stage clean --apply removes it'
-INCOMPLETE = '{n} member(s) the record lists are not in the payload; corpus-yoga stage clean --apply removes it'
+UNPAIRED = 'unpaired, its record or its payload absent; corpus-yoga stage clean removes it'
+INCOMPLETE = '{n} member(s) the record lists are not in the payload; corpus-yoga stage clean removes it'
 
 
 def incomplete() -> list[Unit]:
@@ -669,7 +669,7 @@ def refuse_rehearsal() -> int:
     print(f'rehearse: NOT DONE - the stage holds {len(bad)} incomplete unit(s), which no pipeline is shown:')
     for u in bad:
         print(f'  {u.address}: missing {", ".join(u.missing)}')
-    print('    → run: corpus-yoga stage clean --apply')
+    print('    → run: corpus-yoga stage clean')
     return 1
 
 
@@ -1074,7 +1074,7 @@ def stage_facts() -> StageStatus:
         input=human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent',
         scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
         orphans={e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), 'nothing reads it',
-                                                         facts.Command('corpus-yoga stage clean --apply', 'removes it'))
+                                                         facts.Command('corpus-yoga stage clean', 'removes it'))
                  for e in orphans()},
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
                 else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record),
@@ -1165,7 +1165,7 @@ def promotion_next(rows: list[Judged]) -> dict[str, dict[str, dict[str, int]]]:
             if noun is not None:
                 step(out, f'corpus-yoga {noun} promote --all', kind)
         elif row.state == 'held already':
-            step(out, 'corpus-yoga stage clean --apply', kind)
+            step(out, 'corpus-yoga stage clean', kind)
     return out
 
 
@@ -1349,6 +1349,7 @@ class StoreStatus:
     held: dict[str, int] | None = None        # the units by what each count is of
     stray: dict[str, Stray] | None = None     # by path: what no pipeline selects and no capturing noun writes
     surplus: dict[str, Surplus] | None = None   # by path: a file inside a held unit that its measure does not read (#833)
+    orphaned_shadows: dict[str, Orphan] | None = None   # by path: a cache derivation of a unit the store no longer holds (#844)
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (#842)
     refused: dict[str, object] | None = None  # by selection, by the relation's words: how many the held copy would lose by
@@ -1376,11 +1377,14 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
                                                      'the record of a unit the store does not hold')
     twice = held_twice(STORE, live, newest)
     extra = {rel.as_posix(): Surplus(human(size_of(STORE / rel)), f'{unit.path.name}.json',
-                                     facts.Command('corpus-yoga store clean --apply', 'removes it'))
+                                     facts.Command('corpus-yoga store clean', 'removes it'))
              for unit, rel in surplus(STORE)}
     return StoreStatus(
         Held(human(size_of(STORE)), sum(len(u.files) for u in held), len(held)),
         held=dict(sorted(kinds.items())), stray=stray, surplus=extra,
+        orphaned_shadows={d.relative_to(REPO).as_posix(): Orphan(human(size_of(d)), 'the store holds no unit it derives from',
+                                                                 facts.Command('corpus-yoga store clean', 'removes it'))
+                          for d in orphaned_shadows()},
         duplicates={d.unit.address.as_posix(): HeldTwice(d, human(size_of(STORE / d.unit.path)), human(size_of(STORE / d.holder.path)))
                     for d in twice},
     ), len(held), len(twice)
@@ -1429,7 +1433,7 @@ def pairs_facts(noun: str) -> Pairs:
                 continue
             if unit.members and unit.record:
                 out.staged[unit.address.name] = Paired(standing=f'incomplete - {present}, missing {", ".join(unit.missing)}',
-                                                       remedy=facts.Command('corpus-yoga stage clean --apply', 'removes it'))
+                                                       remedy=facts.Command('corpus-yoga stage clean', 'removes it'))
                 continue
             item = Paired(standing=f'unpaired - {present} with no {", ".join(unit.missing)} beside it')
             if not unit.members and _declares(noun, 'capture', '--manifest'):
@@ -1476,7 +1480,7 @@ def report_facts(noun: str | None) -> StageReport:
         refused = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.REFUSED else None
         found = judged_as(row)
         step = ({'corpus-yoga pipeline rehearse': 'judges it'} if found == 'unjudged'
-                else {'corpus-yoga stage clean --apply': 'removes it'} if found == 'incomplete' else None)
+                else {'corpus-yoga stage clean': 'removes it'} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(found, verdict, invalid, refused,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)

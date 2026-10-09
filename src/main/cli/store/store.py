@@ -3,8 +3,7 @@
 store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (#738).
 
     corpus-yoga store                   # status: the units held, the duplicates, the surplus, the stage against the store
-    corpus-yoga store clean --dry-run   # what the janitor would remove: each duplicate with what only it feeds, each orphaned shadow
-    corpus-yoga store clean --apply     # remove it
+    corpus-yoga store clean             # remove what the status names: each duplicate with what only it feeds, each orphaned shadow, each surplus file
 
 The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 declaration selects, at an address. Three readings, and nothing written:
@@ -96,7 +95,7 @@ def store_next() -> dict[str, dict[str, dict[str, int]]]:
     store no longer needs, by the selection each entry is counted under."""
     out = corpus.promotion_next(corpus.survey())
     for entry in entries():
-        corpus.step(out, 'corpus-yoga store clean --apply', entry.under)
+        corpus.step(out, 'corpus-yoga store clean', entry.under)
     return out
 
 
@@ -111,14 +110,14 @@ def status_facts() -> corpus.StoreStatus:
     return out
 
 
-def clean(apply: bool) -> int:
-    return cleaner.clean('store', entries(), KINDS, lambda: facts.say(status_facts()), apply)
+def clean() -> int:
+    return cleaner.clean('store', entries(), KINDS, lambda: facts.say(status_facts()))
 
 
 def main() -> int:
     args = command_parser('store').parse_args()
     if args.verb == 'clean':
-        return clean(bool(args.apply))
+        return clean()
     facts.say(status_facts())
     return 0
 
