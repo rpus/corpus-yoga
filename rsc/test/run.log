@@ -1,4 +1,4 @@
-run.py: code+schema 1632/1632
+run.py: code+schema 1633/1633
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -51,7 +51,7 @@ run.py: code+schema 1632/1632
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (87/87)
-  ✓ structure.file_at_level_of_subject  (41/41)
+  ✓ structure.file_at_level_of_subject  (42/42)
   ✓ structure.cli_declaration_mirrors_the_api  (24/24)
   ✓ structure.cli_declaration_validates  (76/76)
   ✓ cli.every_form_listed  (23/23)
@@ -254,7 +254,7 @@ check_self_paths                     112     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    584     0   code       32
+check_cli_surface                    585     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           16     0   code       68
 check_effects                          3     0   code       71
@@ -294,8 +294,8 @@ check_mcp_reproducible                 1     0   schema    243
 check_expectation                      2     0   code      246
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 155 types, 1632/1632 invocations passing
-checks[code]: 103 types, 955/955 invocations passing
+checks[code+schema]: 155 types, 1633/1633 invocations passing
+checks[code]: 103 types, 956/956 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1632/1632 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1633/1633 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
