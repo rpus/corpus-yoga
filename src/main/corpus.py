@@ -1106,6 +1106,17 @@ def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
     node[path[-1]] = value
 
 
+def selection_of(pipeline: str, provider: str | None, kind: str) -> str | None:
+    """The selection a pipeline declares for a provider's units of a kind, as its path under
+    the input root - the form `kind_of` gives a unit's; None where none is declared."""
+    for store in stores():
+        if store.pipeline == pipeline and store.provider == provider:
+            for glob in store.globs:
+                if glob.kind == kind:
+                    return f'{store.input.as_posix()}/{glob.pattern}'
+    return None
+
+
 def kind_of(unit: Unit) -> str:
     """What a count of the unit is a count of: its selection, as the path under the input
     root - tmp/stage/input, or data/input - that the pipeline's declaration selects it by,
@@ -1269,7 +1280,7 @@ class StoreStatus:
     surplus: dict[str, Surplus] | None = None   # by path: a file inside a held unit that its measure does not read (#833)
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     ahead: dict | str | None = None           # what this room's live stores hold beyond it - the store noun's reading
-    store: str | None = None                  # the verdict
+    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (#836)
 
 
 def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, int]:

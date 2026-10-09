@@ -1,5 +1,8 @@
 {
   "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, and what this room's live stores hold beyond it (bare is the status and writes nothing; clean its one janitor)",
+  "explanation": {
+    "next": "what to run next - each command, its verb, and the kinds it acts on with how many - the janitor for what the store no longer needs, by the selection each entry is counted under, and a capture, by provider, for each live thing a mounted store holds beyond the held; the workflow's steps, which remedy nothing"
+  },
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",
   "args": [],

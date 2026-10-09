@@ -2160,7 +2160,7 @@ def check_status_facts(run) -> None:
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'remote-tracking refs'),
               ('stage', 'invalid'), ('stage', 'refused'), ('stage', 'next'), ('store', 'stray'), ('store', 'surplus'),
-              ('store', 'duplicates'), ('store', 'ahead'), ('grammar',), ('migration',)]
+              ('store', 'duplicates'), ('store', 'ahead'), ('store', 'next'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')

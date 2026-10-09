@@ -517,6 +517,7 @@ report() {
   graft store "/surplus" standing
   graft store "/duplicates" standing
   graft store "/ahead" standing
+  graft store "/next" standing
   graft migration ""
 
   # A report is information: it exits 0 unless it could not BE produced. Severity
