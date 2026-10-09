@@ -1,19 +1,6 @@
 {
-  "help": "clear the stage of what it no longer needs, as corpus-yoga cache clean clears the cache - every entry under tmp/stage that is neither the input, the scratch nor the rehearsal record, an orphan; every staged unit identical to the held one, a duplicate; and every unit whose record or payload is absent, incomplete. The scratch and the record are the rehearsal's to replace; a refused unit is evidence of another kind and stays",
-  "args": [
-    {
-      "name": "--dry-run",
-      "type": "",
-      "cardinality": "1/stage-clean-1",
-      "help": "name what would be removed, with sizes; remove nothing"
-    },
-    {
-      "name": "--apply",
-      "type": "",
-      "cardinality": "1/stage-clean-1",
-      "help": "remove it"
-    }
-  ],
+  "help": "clear the stage of what it no longer needs - what the status names, so the verb takes no flag - every entry under tmp/stage that is neither the input, the scratch nor the rehearsal record, an orphan; every staged unit identical to the held one, a duplicate; and every unit whose record or payload is absent, incomplete. The scratch and the record are the rehearsal's to replace; a refused unit is evidence of another kind and stays",
+  "args": [],
   "r": [
     "tmp/stage",
     "data/input",

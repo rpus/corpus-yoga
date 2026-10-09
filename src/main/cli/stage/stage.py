@@ -3,8 +3,7 @@
 stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its noun.
 
     corpus-yoga stage                   # status: the input, the scratch, each orphan, the rehearsal record, the units' counts
-    corpus-yoga stage clean --dry-run   # what the janitor would remove: each orphan, each duplicate of a held unit, each incomplete unit
-    corpus-yoga stage clean --apply     # remove it
+    corpus-yoga stage clean             # remove what the status names: each orphan, each duplicate of a held unit, each incomplete unit
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch
 is what the last rehearsal's run derived, replaced whole by the next; rehearsal.json is
@@ -75,14 +74,14 @@ def entries() -> list[cleaner.Entry]:
     return out
 
 
-def clean(apply: bool) -> int:
-    return cleaner.clean('stage', entries(), KINDS, corpus.stage_status, apply)
+def clean() -> int:
+    return cleaner.clean('stage', entries(), KINDS, corpus.stage_status)
 
 
 def main() -> int:
     args = command_parser('stage').parse_args()
     if args.verb == 'clean':
-        return clean(bool(args.apply))
+        return clean()
     return corpus.stage_status()
 
 

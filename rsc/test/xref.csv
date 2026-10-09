@@ -865,7 +865,7 @@ src/main/cli/pipeline/pipeline.sh,35,comment,src/main/cli/parse_argv.sh,Y,# shel
 src/main/cli/pipeline/pipeline.sh,37,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/pipeline/pipeline.sh,48,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)"
 src/main/cli/pipeline/pipeline.sh,361,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,409,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,404,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.json,8,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/pipeline/rehearse.sh,16,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch, so"
 src/main/cli/pipeline/rehearse.sh,21,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
@@ -905,14 +905,14 @@ src/main/cli/site/site.sh,118,comment,src/main/model/compare_pages.py,Y,"# chang
 src/main/cli/site/status.py,12,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
 src/main/cli/site/status.py,50,path_str,rsc/site,Y,"facts.say(Status(Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
-src/main/cli/stage/clean.json,20,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
+src/main/cli/stage/clean.json,7,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,10,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
 src/main/cli/stage/stage.json,16,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
-src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
-src/main/cli/stage/stage.py,11,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
-src/main/cli/stage/stage.py,21,comment,src/main/cleaner.py,Y,"The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (#837):"
-src/main/cli/stage/stage.py,30,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
+src/main/cli/stage/stage.py,8,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
+src/main/cli/stage/stage.py,8,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
+src/main/cli/stage/stage.py,10,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
+src/main/cli/stage/stage.py,20,comment,src/main/cleaner.py,Y,"The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (#837):"
+src/main/cli/stage/stage.py,29,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/status/report.py,25,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
 src/main/cli/status/status.json,33,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
 src/main/cli/status/status.json,45,path_str,rsc/machine,Y,"""rsc/machine"","
@@ -939,16 +939,16 @@ src/main/cli/status/sync.json,29,path_str,src/main/model/serve_assets.txt,Y,"""s
 src/main/cli/status/sync.json,30,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/status/sync.json,31,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
 src/main/cli/status/sync.json,32,path_str,rsc/provider,Y,"""rsc/provider"""
-src/main/cli/store/clean.json,22,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
-src/main/cli/store/clean.json,23,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
-src/main/cli/store/clean.json,24,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
+src/main/cli/store/clean.json,8,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/clean.json,9,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/clean.json,10,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.json,8,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
 src/main/cli/store/store.json,15,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
 src/main/cli/store/store.json,16,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
 src/main/cli/store/store.json,17,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
-src/main/cli/store/store.py,9,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
-src/main/cli/store/store.py,26,comment,src/main/live.py,Y,"(src/main/live.py), and this noun reads no live store."
-src/main/cli/store/store.py,38,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
+src/main/cli/store/store.py,8,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
+src/main/cli/store/store.py,25,comment,src/main/live.py,Y,"(src/main/live.py), and this noun reads no live store."
+src/main/cli/store/store.py,37,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
 src/main/cli/subcommand.schema.json,50,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/test/install-hook.json,5,path_str,rsc/test,Y,"""rsc/test"""

@@ -6,16 +6,16 @@ one way.
 An entry is what a noun's clean acts on: its kind (a word the noun's plural table knows),
 its key (the address or path it is said under), its facts (said beneath the key), and the
 act that removes it, returning None when it is gone and otherwise why it is not; `under`
-is the selection the entry is counted under by a next: block, where one applies. The dry
-run is the apply with the act elided: one list, one loop, the flag deciding only whether
-the act runs after the entry is said.
+is the selection the entry is counted under by a next: block, where one applies. A
+cleaner takes no flag (#844): what it would remove is what the noun's status names, so
+there is no dry run, and the act is one act.
 
-The lines keep their tenses - `would remove:` or `will remove:` over the entries, each
-keyed with its facts beneath, `{}` where there is none; under --apply `did: removed` or
-`did: NOT - <why>` beneath each after its act, so a log read after a crash shows the
-intention and, entry by entry, whether it was carried out. The noun's status is relayed
-beneath the acts, the certified state after them, and the verdict is the last line -
-DONE only when every entry went, NOT DONE naming each that was NOT removed.
+The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
+beneath, `{}` where there is none; `did remove:` or `did NOT remove: <why>` beneath each after
+its act, so a log read after a crash shows the intention and, entry by entry, whether it
+was carried out. The noun's status is relayed beneath the acts, the certified state after
+them, and the verdict is the last line - DONE only when every entry went, NOT DONE
+naming each that was NOT removed.
 """
 from dataclasses import dataclass
 from typing import Callable
@@ -36,34 +36,28 @@ def count(n: int, kind: str, plural: dict[str, str]) -> str:
     return f'{n} {kind if n == 1 else plural[kind]}'
 
 
-def clean(noun: str, entries: list[Entry], plural: dict[str, str], status: Callable[[], object], apply: bool) -> int:
-    """One loop over the one list; the flag decides only whether the act runs after the
-    entry is said. Returns 1 while anything named was NOT removed."""
+def clean(noun: str, entries: list[Entry], plural: dict[str, str], status: Callable[[], object]) -> int:
+    """One loop over the one list: each entry said, then its act. Returns 1 while anything
+    named was NOT removed."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
-    print(('would remove:' if not apply else 'will remove:') + ('' if entries else ' {}'))
+    print('will remove:' + ('' if entries else ' {}'))
     for entry in entries:
         for line in facts.lines(facts.plain({entry.key: entry.facts}), 1, width=facts.terminal_width()):
             print(line)
-        if not apply:
-            did[entry.kind] += 1
-            continue
         why = entry.act()
         if why is None:
-            print('    did: removed')
+            print('    did remove:')
             did[entry.kind] += 1
         else:
-            print(f'    did: NOT - {why}')
+            print(f'    did NOT remove: {why}')
             left.append(f'{entry.kind}: {entry.key} - {why}')
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
-    if not apply:
-        print(f'{noun} clean: would remove {counts}' + (' (--apply removes them)' if counts != 'nothing' else ''))
-        return 0
     print()
     status()
     print()
     if left:
-        print(f'{noun} clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
+        print(f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
     else:
-        print(f'{noun} clean: DONE - removed {counts}')
+        print(f'{noun} clean: DONE - did remove {counts}')
     return 1 if left else 0

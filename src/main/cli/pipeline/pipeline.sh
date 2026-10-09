@@ -393,13 +393,8 @@ run_corpus_tail() {
   step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/indexing/indexing.py"
   step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
   step_ok model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py"
-  # the store's janitor, its dry run (#744): what is duplicated and what the reader's
-  # apply would remove. The store of record is the checkout's, and a rehearsal's tiers are
-  # the stage's, so a rehearsal does not run it.
-  local outside=1
-  [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]] && outside=0
-  step_if_ok "$outside" 'outside a rehearsal' store "$REPO_ROOT/src/run_python_script.sh" \
-    "$REPO_ROOT/src/main/cli/store/store.py" clean --dry-run
+  # what the store no longer needs - its duplicates, surplus and orphaned shadows - is its
+  # status's reading, carried by corpus-yoga status (#844); the run reads it no more.
   # run in a pipeline (main's tee), where errexit is silent: the gating steps' failures
   # are this function's return, and the run states the atom (#749)
   steps_verdict

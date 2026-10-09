@@ -70,7 +70,7 @@ class Ahead:
         """The live thing as the status states it: its state, both sides, and what stages it."""
         staged_by: facts.Command | facts.Act | None = None
         if self.capture:
-            staged_by = facts.Command(self.capture, 'stages it')
+            staged_by = facts.Command(self.capture, 'would stage it')
         elif self.kind != 'session' and self.state in ('new', 'changed'):
             staged_by = facts.Act('with a session of its project')
         then = {'diverged': 'a capture of it would be refused at promotion; the reader reconciles the two',
@@ -85,7 +85,7 @@ class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
     state: str = 'absent'
     why: str = 'no live store is read there'
-    remedy: facts.Command = facts.Command('corpus-yoga agent mount --apply', 'mounts it')
+    remedy: facts.Command = facts.Command('corpus-yoga agent mount --apply', 'would mount it')
 
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
