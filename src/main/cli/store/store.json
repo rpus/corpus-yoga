@@ -1,5 +1,5 @@
 {
-  "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, and what this room's live stores hold beyond it (bare is the status and writes nothing; clean its one janitor)",
+  "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, and what this room's live stores hold beyond it (bare is the status and writes nothing; clean its one janitor)",
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",
   "args": [],

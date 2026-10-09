@@ -742,14 +742,29 @@ def _tree_files(path: Path) -> dict[str, Path]:
     return {f.relative_to(path).as_posix(): f for f in sorted(path.rglob('*')) if f.is_file() and f.name != '.DS_Store'}
 
 
+MIRRORS = ('mirror',)   # the measures under which the staged replaces the held whole, every state following every other
+
+
+def datum_files(unit: Unit) -> set[str] | None:
+    """The files the unit's measure reads, relative to its path; None where the measure
+    reads every file of the unit, so that none is surplus."""
+    if unit.measure == 'message-uuids':
+        return {f'{unit.path.name}.json'}
+    return None
+
+
 def redundant(unit: Unit) -> bool:
-    """Whether every member of the staged unit is byte-identical to the held one - a unit
-    already promoted, which only the stage's janitor removes."""
+    """Whether the held unit holds every file of the staged one byte-identical - a unit
+    already promoted, which only the stage's janitor removes. The held copy is read by the
+    staged member's files alone (#832): a file beside them is the store's, not the
+    stage's; under a mirror measure the two must match whole."""
     if not unit.members or unit.missing:
         return False
     for rel in unit.members:
         staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
-        if not held or staged.keys() != held.keys():   # an empty staged member and an absent held one are not the same thing
+        if not held or not staged.keys() <= held.keys():   # an empty staged member and an absent held one are not the same thing
+            return False
+        if unit.measure in MIRRORS and staged.keys() != held.keys():
             return False
         if any(staged[k].read_bytes() != held[k].read_bytes() for k in staged):
             return False
@@ -758,9 +773,11 @@ def redundant(unit: Unit) -> bool:
 
 def _copy(unit: Unit) -> int:
     """Write the unit over the held one by address, member by member: a file whose bytes
-    the store holds is left alone, a differing or missing file is written, a held file the
-    member no longer has is removed - the member replaced whole, byte-equal being silence.
-    The stage is not written. Returns the files written or removed."""
+    the store holds is left alone, a differing or missing file is written, and under a
+    mirror measure a held file the member no longer has is removed - the member replaced
+    whole, every state following every other. Under any other measure a held file outside
+    the member is left: it is the store's to name and its janitor's to remove (#832). The
+    stage is not written. Returns the files written or removed."""
     changed = 0
     for rel in unit.members:
         staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
@@ -773,11 +790,27 @@ def _copy(unit: Unit) -> int:
                 shutil.rmtree(dst)
             shutil.copy2(src, dst)
             changed += 1
-        for key, old in held.items():
-            if key not in staged:
-                old.unlink()
-                changed += 1
+        if unit.measure in MIRRORS:
+            for key, old in held.items():
+                if key not in staged:
+                    old.unlink()
+                    changed += 1
     return changed
+
+
+def surplus(root: Path) -> list[tuple[Unit, Path]]:
+    """Every file inside a held unit that its measure does not read (#833): the unit, and
+    the file's path relative to root. A room's own sync can put one there - iCloud's
+    conflict copy beside a capture is the first case - and no capture wrote it."""
+    out: list[tuple[Unit, Path]] = []
+    for unit in units(root):
+        reads = datum_files(unit)
+        if reads is None or not (root / unit.path).is_dir():
+            continue
+        for rel in _files_under(root, root / unit.path):
+            if rel.relative_to(unit.path).as_posix() not in reads:
+                out.append((unit, rel))
+    return out
 
 
 PASSES = 3   # the Finder writes into a directory being emptied; a second pass is the whole remedy
@@ -1142,13 +1175,6 @@ def refused_by(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-def counted_as(unit: Unit) -> str:
-    """What a count of the unit is a count of: its pipeline and provider, then the name its
-    selection's declaration gives it (#736)."""
-    where = '/'.join(x for x in (unit.pipeline or 'no pipeline', unit.provider or unit.address.parts[0]) if x)
-    return f'{where} {unit.kind}'
-
-
 @dataclass(frozen=True)
 class Duplicate:
     """A unit whose content another unit of its kind holds."""
@@ -1212,6 +1238,14 @@ class Stray:
 
 
 @dataclass
+class Surplus:
+    """A file inside a held unit that its measure does not read, which no capture wrote."""
+    size: str
+    beside: str                   # the file the measure reads
+    remedy: facts.Command
+
+
+@dataclass
 class HeldTwice:
     """A duplicate as the status states it: its kind and size, and the unit that holds it
     under how it does."""
@@ -1232,6 +1266,7 @@ class StoreStatus:
     data_input: Held | str = facts.named('data/input')
     held: dict[str, int] | None = None        # the units by what each count is of
     stray: dict[str, Stray] | None = None     # by path: what no pipeline selects and no capturing noun writes
+    surplus: dict[str, Surplus] | None = None   # by path: a file inside a held unit that its measure does not read (#833)
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     ahead: dict | str | None = None           # what this room's live stores hold beyond it - the store noun's reading
     store: str | None = None                  # the verdict
@@ -1247,7 +1282,7 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
     held = units(STORE)
     kinds: dict[str, int] = {}
     for unit in held:
-        kinds[counted_as(unit)] = kinds.get(counted_as(unit), 0) + 1
+        kinds[kind_of(unit)] = kinds.get(kind_of(unit), 0) + 1
     stray: dict[str, Stray] = {}
     for unit in held:
         if unit.pipeline is None and noun_of(unit) is None:
@@ -1257,9 +1292,12 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
             stray[unit.record[0].as_posix()] = Stray(human(size_of(STORE / unit.record[0])),
                                                      'the record of a unit the store does not hold')
     twice = held_twice(STORE, live, newest)
+    extra = {rel.as_posix(): Surplus(human(size_of(STORE / rel)), f'{unit.path.name}.json',
+                                     facts.Command('corpus-yoga store clean --apply', 'removes it'))
+             for unit, rel in surplus(STORE)}
     return StoreStatus(
         Held(human(size_of(STORE)), sum(len(u.files) for u in held), len(held)),
-        held=dict(sorted(kinds.items())), stray=stray,
+        held=dict(sorted(kinds.items())), stray=stray, surplus=extra,
         duplicates={d.unit.address.as_posix(): HeldTwice(d, human(size_of(STORE / d.unit.path)), human(size_of(STORE / d.holder.path)))
                     for d in twice},
     ), len(held), len(twice)

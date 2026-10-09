@@ -14,6 +14,8 @@ declaration selects, at an address. Three readings, and nothing written:
   duplicates  every unit whose content another unit of its kind holds - identical, the
               same at two addresses, or contained, whole within the other's by the measure
               its pipeline declares - with the unit that holds it;
+  surplus     every file inside a held unit that its measure does not read, which no
+              capture wrote - a room's own sync puts one there (#833);
   ahead       for each live store this room mounts, what it holds that the store does
               not - a session new, grown or diverged, a memory changed - related by the
               measure its pipeline declares, which is promotion's, with the capture, by
@@ -216,7 +218,7 @@ def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[dict[str, Ahead |
     return items, found, sum(1 for r in rows if r.state == 'level')
 
 
-KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows'}   # each kind of entry, and its plural
+KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows', 'surplus file': 'surplus files'}   # each kind of entry, and its plural
 
 
 def _count(n: int, kind: str) -> str:
@@ -248,6 +250,9 @@ def entries() -> list[tuple[str, dict, list[Path]]]:
     for d in corpus.orphaned_shadows():
         out.append(('orphaned shadow', {'shadow': d.relative_to(REPO).as_posix(), 'why': 'the store holds no unit it derives from',
                                          'size': corpus.human(corpus.size_of(d))}, [d]))
+    for unit, rel in corpus.surplus(corpus.STORE):
+        out.append(('surplus file', {'surplus': rel.as_posix(), 'beside': f'{unit.path.name}.json', 'why': 'its measure does not read it, and no capture wrote it',
+                                     'size': corpus.human(corpus.size_of(corpus.STORE / rel))}, [corpus.STORE / rel]))
     return out
 
 
@@ -295,7 +300,7 @@ def main() -> int:
     rows, absent = ahead()
     items, found, level = ahead_facts(rows, absent)
     out.ahead = items if items else ('no live store is mounted in this workspace' if not rows else f'nothing: {level} live unit(s) level with the held ones')
-    out.store = (f'{held} unit(s) held; {twice} duplicate(s); {found} ahead in this room\'s live stores'
+    out.store = (f'{held} unit(s) held; {twice} duplicate(s); {len(out.surplus or {})} surplus file(s); {found} ahead in this room\'s live stores'
                  + (f', {level} level' if found else ''))
     facts.say(out)
     return 0
