@@ -513,10 +513,6 @@ report() {
   graft stage "/invalid" standing
   graft stage "/refused" standing
   graft stage "/next" standing
-  graft store "/stray" standing
-  graft store "/surplus" standing
-  graft store "/duplicates" standing
-  graft store "/ahead" standing
   graft store "/next" standing
   graft migration ""
 
