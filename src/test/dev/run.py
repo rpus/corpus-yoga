@@ -1747,13 +1747,16 @@ def check_verdict_record(run) -> None:
 
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
-    judged (#815). Over a scratch fixture - two units the run began over, one validated
+    judged (#815, #830). Over a scratch fixture - two units the run began over, one validated
     green and one refused with its log, a third staged after it began - the record reduced
     from the extent and the scratch's verdicts validates against
     src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the
     validator's output where it refused, holds nothing of the later unit, is read back as
-    written, and is told apart from a directory or from what is not a record. From it a unit's standing is decidable: valid, refused, changed since,
-    unseen, seen without verdict, or judged by no family, each said with the stamp."""
+    written, and is told apart from a directory or from what is not a record. From it a
+    unit's standing is decidable: valid, invalid, changed since, unseen, seen without
+    verdict, judged by no family, superseded where origin/main has moved past the version
+    judged at, or refused where the record's version is ahead of main's, each said with
+    the stamp."""
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
     try:
@@ -1819,24 +1822,28 @@ def check_rehearsal_record(run) -> None:
         main = lambda pipeline, family: (schema_digest, 'v1')   # noqa: E731
         got = [corpus.verdict(a, record, digests['a'], main), corpus.verdict(b, record, digests['b'], main),
                corpus.verdict(a, record, {sha('f')}, main), corpus.verdict(c, record, digests['c'], main),
-               corpus.verdict(d, record, digests['d'], main), corpus.verdict(e, record, set(), main)]
+               corpus.verdict(d, record, digests['d'], main), corpus.verdict(e, record, set(), main),
+               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('d'), 'v2')),   # origin/main has moved past the record
+               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('d'), 'v0'))]   # the record is a branch's mint ahead of main
     expected = [(corpus.Judgement.VALID, f'validates at claude/apiConversation v1 (origin/main; rehearsal {stamp})'),
                 (corpus.Judgement.INVALID, 'invalid at claude/apiConversation v1 - Validation error - a version is owed'),
                 (corpus.Judgement.CHANGED, f'changed since rehearsal {stamp}'),
                 (corpus.Judgement.UNSEEN, f'unseen by rehearsal {stamp}'),
                 (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),
-                (corpus.Judgement.NONE, 'no pipeline selects it')]
+                (corpus.Judgement.NONE, 'no pipeline selects it'),
+                (corpus.Judgement.SUPERSEDED, 'judged at claude/apiConversation v1; origin/main holds v2 - corpus-yoga pipeline rehearse re-judges it'),
+                (corpus.Judgement.REFUSED, 'at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
     refusal = got[1][2]
     at = '/'.join(('chat-capture', 'claude/apiConversation', 'v1.json'))   # the fixture's version file under rsc/schema/pipeline, which no tree holds
     if not wrong and (refusal is None or (refusal.path, refusal.reason) != (at, 'Validation error')):
         wrong = [(got[1], (corpus.Judgement.INVALID, f'a refusal as data - family, version, reason - where it is {refusal}'))]
-    states = [corpus.state(a, corpus.Relation.ABSENT, j) for j in (corpus.Judgement.UNSEEN, corpus.Judgement.CHANGED, corpus.Judgement.NONE)]
-    counted = states == ['unjudged', 'unjudged', 'promotable']
+    states = [corpus.state(a, corpus.Relation.ABSENT, j) for j in (corpus.Judgement.UNSEEN, corpus.Judgement.CHANGED, corpus.Judgement.SUPERSEDED, corpus.Judgement.NONE)]
+    counted = states == ['unjudged', 'unjudged', 'unjudged', 'promotable']
     run("rehearsal: a unit's standing to the record is decidable from it", not wrong and counted,
         None if not wrong and counted else
         f'{wrong[0][0][0].value}: {wrong[0][0][1][:100]!r}, where it is {wrong[0][1][0].value}: {wrong[0][1][1]!r}' if wrong
-        else f'unseen, changed and no family count as {states}, where they are unjudged, unjudged and promotable',
+        else f'unseen, changed, superseded and no family count as {states}, where they are unjudged, unjudged, unjudged and promotable',
         check='rehearsal.states_are_decidable')
 
 
