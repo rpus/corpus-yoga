@@ -29,7 +29,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import LIVE, STAGE, STORE, Relation, Session, growth, may_replace, move_workspace, place_log, project_key, relate, strings, under, word_placement  # noqa: E402
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, place_tree, project_key, relate, strings  # noqa: E402
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')
@@ -138,89 +138,64 @@ def _snapshot(db: Path) -> bytes:
         return Path(tmp.name).read_bytes()
 
 
-def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, held: Path,
-                     quiet_noop: bool = False) -> tuple[int, bool, bool]:
-    """Mirror one session into <outbox>/<project>/<uuid>/. Returns (conflicts,
-    wrote, eventful) as the claude adapter's capture does. Where the stage holds
-    no copy, the held one under held is the baseline (#850): transcripts the
-    store holds identical or ahead are not staged, one that diverges from the
-    held copy is a CONFLICT, as the promote would say, and one that extends it
-    is written to the stage. Each relation is said as root, relation, root
-    beneath the session's address (#854)."""
-    address = (under(dest.parent.parent) / session.project / session.id).as_posix()
-    lines = []
-    conflicts, wrote, eventful = 0, False, False
-    advanced = False
+def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, held: Path, log: Log) -> bool:
+    """Mirror one session into <outbox>/<project>/<uuid>/, said into the log under its
+    outcome by its address with each file's relation beneath (#857). Where the stage holds
+    no copy, the held one under held is the baseline (#850): transcripts the store holds
+    identical or ahead are not staged and nothing else of the unit is written, one that
+    diverges from the held copy is a CONFLICT, as the promote would say, and one that
+    extends it is written to the stage. Returns whether the session conflicted."""
+    address = f'{session.project}/{session.id}/'
+    facts: dict[str, object] = {}
     against_store = not dest.is_dir() and held.is_dir()
+    base, base_root = (held, STORE) if against_store else (dest, STAGE)
+    written = conflict = advanced = False
     for name in TRANSCRIPTS:
         src = _logs(session.path) / name
         if not src.is_file():
             continue
         data = src.read_bytes()
-        if against_store:
-            existing = (held / name).read_bytes() if (held / name).is_file() else None
-            relation = relate(data, existing)
-            had, now = growth(data, existing)
-            detail = f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
-            if may_replace(relation):
-                (dest / name).parent.mkdir(parents=True, exist_ok=True)
-                (dest / name).write_bytes(data)
-            lines.append(f'  {name}: {word_placement(relation, detail, LIVE, STORE, written=STAGE)}')
-        else:
-            relation, detail = place_log(data, dest / name, apply=True)
-            lines.append(f'  {name}: {word_placement(relation, detail, LIVE, STAGE)}')
-        if relation is Relation.DIVERGED:
-            conflicts += 1
-        if relation in (Relation.ABSENT, Relation.EXTENDS):
-            wrote = True
-            advanced = True
-        if relation is not Relation.IDENTICAL:
-            eventful = True
+        existing = (base / name).read_bytes() if (base / name).is_file() else None
+        relation = relate(data, existing)
+        if may_replace(relation):
+            (dest / name).parent.mkdir(parents=True, exist_ok=True)
+            (dest / name).write_bytes(data)
+            written = advanced = True
+        conflict = conflict or relation is Relation.DIVERGED
+        facts[name] = fact(relation, data, existing, LIVE, base_root)
     if against_store and not advanced:
-        # the store holds every transcript identical or ahead, or one diverged: nothing of
-        # the unit is staged, so its record and its snapshot are not written either
-        if conflicts or not quiet_noop:
-            print(f'{address}/:')
-            for line in lines:
-                print(line)
-        return conflicts, False, bool(conflicts)
-    steps_narration = []
-    if (session.path / 'steps').is_dir():
-        import io, contextlib
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            c, w, e = move_workspace(session.path / 'steps', dest / 'steps', apply=True,
-                                     src_label=LIVE, dest_label=STAGE)
-        conflicts += c
-        wrote = wrote or w
-        eventful = eventful or e
-        steps_narration = buf.getvalue().splitlines()
+        # the store holds every transcript level, or one diverged: nothing of the unit is
+        # staged, so its record and its snapshot are not written either
+        log.say('conflict' if conflict else 'kept', address, facts, 'session')
+        return conflict
+    placed = place_tree(session.path / 'steps', dest / 'steps', True, LIVE, STAGE)
+    if placed is not None:
+        facts['steps/'] = placed[1]
+        conflict = conflict or placed[0] == 'conflict'
+        written = written or placed[0] == 'wrote'
     db = mount / 'conversations' / f'{session.id}.db'
-    if conflicts:
-        lines.append('  conversation.db: WITHHELD - transcript CONFLICT above; the record transports as a product')
+    if conflict:
+        facts['conversation.db'] = 'withheld - a transcript conflicted; the record transports as a product'
     elif db.is_file() and (advanced or not (dest / 'conversation.db').is_file()):
         dest.mkdir(parents=True, exist_ok=True)
         (dest / 'conversation.db').write_bytes(_snapshot(db))
-        lines.append('  conversation.db: snapshot written (the transcript advanced)')
-        wrote = eventful = True
+        facts['conversation.db'] = 'snapshot written - the transcript advanced'
+        written = True
     elif db.is_file():
-        lines.append('  conversation.db: snapshot kept (the transcript did not advance)')
+        facts['conversation.db'] = 'snapshot kept - the transcript did not advance'
     rendered = json.dumps(summary, sort_keys=True, indent=2) + '\n'
     summary_file = dest / 'summary.json'
     existed = summary_file.is_file()
-    if not conflicts and (not existed or summary_file.read_text() != rendered):
+    if not conflict and (not existed or summary_file.read_text() != rendered):
         dest.mkdir(parents=True, exist_ok=True)
         summary_file.write_text(rendered)
-        lines.append('  summary.json: ' + ('updated' if existed else 'written'))
-        wrote = eventful = True
-    if eventful or not quiet_noop:
-        print(f'{address}/:')
-        for line in lines + steps_narration:
-            print(line)
-    return conflicts, wrote, eventful
+        facts['summary.json'] = 'updated' if existed else 'written'
+        written = True
+    log.say('conflict' if conflict else 'wrote' if written else 'kept', address, facts, 'session')
+    return conflict
 
 
-def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> int:
+def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> Log:
     summaries = _summaries(mount)
     sessions = live_sessions(mount)
     if uuid8 is not None:
@@ -230,28 +205,10 @@ def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> int:
         if len(matches) > 1:
             sys.exit(f'error: {uuid8!r} is ambiguous here - matches: ' + ', '.join(s.id[:8] for s in matches))
         sessions = matches
-    if not sessions:
-        print(f'error: no sessions under {mount}', file=sys.stderr)
-        return 1
-    conflicts, written, quiet = 0, 0, []
+    log = Log(STAGE)
     for s in sessions:
-        c, wrote, eventful = _capture_session(mount, s, summaries[s.id], outbox / s.project / s.id,
-                                              held / s.project / s.id, quiet_noop=uuid8 is None)
-        conflicts += c
-        written += 1 if wrote else 0
-        if not eventful:
-            quiet.append(s.id[:8])
-    if quiet:
-        print(f'{len(quiet)} session(s) level - {STAGE} or {STORE} holds what {LIVE} holds: {", ".join(quiet)}')
-    if conflicts:
-        print(f'DONE - effect: {written} of {len(sessions)} session(s) written to {STAGE}, {conflicts} CONFLICT(S); '
-              f'postcondition: {STAGE} and {STORE} do NOT yet hold everything {LIVE} holds')
-    elif written:
-        print(f'DONE - effect: {written} of {len(sessions)} session(s) written to {STAGE}; '
-              f'postcondition: {STAGE} and {STORE} hold everything {LIVE} holds')
-    else:
-        print(f'DONE - no effect: {STAGE} and {STORE} already hold everything {LIVE} holds')
-    return conflicts
+        _capture_session(mount, s, summaries[s.id], outbox / s.project / s.id, held / s.project / s.id, log)
+    return log
 
 
 def model_rows(mount: Path) -> list[tuple[str, str, str, int]]:

@@ -31,7 +31,7 @@ workspace lands under one name in every provider's store.
 from collections.abc import Iterator
 import importlib.util
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
 
@@ -43,6 +43,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
 import provider as registry  # noqa: E402 - the live tier's root and the transport address (#853)
+import cleaner  # noqa: E402 - the count a verdict says a kind by (#857)
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
@@ -119,60 +120,117 @@ def place_log(data: bytes, dest: Path, apply: bool) -> tuple[Relation, str]:
     return relation, f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
 
 
-def word_placement(relation: Relation, detail: str, src: str, dest: str, written: str | None = None) -> str:
-    """One lattice state as one sentence, both sides named by root - ext/mnt,
-    tmp/stage/input or data/input - for the one address the unit has under each (#854):
-    root, relation, root, never a side word. The address is the line's header, so the
-    relation carries roots alone. written names the root the bytes went to where it is
-    not dest: a capture whose baseline is the held copy writes the stage."""
-    to = written or dest
+PLURAL = {'session': 'sessions', 'memory': 'memories', 'file': 'files'}   # the kinds a verdict counts
+
+
+def agreement(a: bytes, b: bytes | None) -> int:
+    """How many bytes two streams agree on before they part."""
+    b = b or b''
+    return next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
+
+
+def fact(relation: Relation, data: bytes, existing: bytes | None, src: str, dest: str) -> dict[str, str]:
+    """One lattice state as one fact (#854, #857): the relation as a whole-scalar key,
+    both sides named by root - ext/mnt, tmp/stage/input or data/input - and its measure
+    as the value. The unit's address is the fact's header, so the key carries roots alone."""
+    had, now = growth(data, existing)
     return {
-        Relation.ABSENT:    f'{dest} holds nothing yet - written to {to}',
-        Relation.IDENTICAL: f'{src} and {dest} hold identical bytes - no-op',
-        Relation.EXTENDS:   f'{src} extends {dest} ({detail}) - ' + (f'written to {to}' if written else f'{dest} copy superseded'),
-        Relation.AHEAD:     f'{dest} is ahead of {src} - no-op',
-        Relation.DIVERGED:  f'✗ CONFLICT: {src} and {dest} diverged - ' + (f'nothing written to {to}' if written else f'{dest} copy left in place'),
+        Relation.ABSENT:    {f'{dest} holds nothing yet': f'{now} bytes'},
+        Relation.IDENTICAL: {f'{src} and {dest} hold identical bytes': f'{now} bytes'},
+        Relation.EXTENDS:   {f'{src} extends {dest}': f'{had} → {now} bytes'},
+        Relation.AHEAD:     {f'{dest} is ahead of {src}': f'{had} > {now} bytes'},
+        Relation.DIVERGED:  {f'{src} and {dest} diverged': f'agree for {agreement(data, existing)} bytes'},
     }[relation]
 
 
-def move_workspace(src_ws: Path, dest_ws: Path, apply: bool,
-                   src_label: str, dest_label: str) -> tuple[int, bool, bool]:
-    """The session's eponymous workspace (subagent transcripts, persisted
-    tool-results — files the session log REFERENCES) rides along. The
-    filesystem, checked here and now, is the only oracle — no reconstruction
-    of what "ever existed": a destination folder that is absent takes the
-    workspace wholesale as a unit; one that is present (however it came to be)
-    merges with log semantics per file — new / identical / prefix-superseded;
-    divergence a loud CONFLICT, worded with both sides named by root (src_label
-    and dest_label, two of LIVE, STAGE and STORE). Returns (conflicts, wrote, eventful): wrote is
-    bytes-changed-at-destination; eventful adds anything else worth eyes
-    (ahead files, conflicts) — L1 silence is neither."""
+def outcome(relation: Relation) -> str:
+    """What a placement under the relation did to the destination: wrote, kept, or conflict."""
+    return 'wrote' if may_replace(relation) else 'conflict' if relation is Relation.DIVERGED else 'kept'
+
+
+@dataclass
+class Log:
+    """One transport's facts, nested by outcome (#857), as the cleaners' and the
+    promote's logs are: under each outcome - what the act did, or would do, to the root it
+    writes - every unit it touched by its address, and beneath the unit the relation that
+    decided it. A unit appears once, under the one thing that happened to it; the verdict
+    counts each outcome by kind."""
+    dest: str                        # the root the act writes: STAGE for a capture, LIVE for an install
+    tense: str = 'did'               # did, or would for a dry run
+    by: dict[str, dict[str, object]] = field(default_factory=dict)      # outcome → address → the unit's facts
+    counted: dict[tuple[str, str], int] = field(default_factory=dict)  # (outcome, kind) → how many
+
+    CONFLICT = '✗ CONFLICT'
+
+    def key(self, which: str) -> str:
+        """The outcome's key: wrote, kept or conflict as the log says it."""
+        return {'wrote': f'{self.tense} write to {self.dest}', 'kept': f'{self.tense} NOT write', 'conflict': self.CONFLICT}[which]
+
+    def say(self, which: str, address: str, facts: object, kind: str | None = None) -> None:
+        """One unit under its outcome; kind counts it toward the verdict."""
+        self.by.setdefault(self.key(which), {})[address] = facts
+        if kind:
+            self.counted[(which, kind)] = self.counted.get((which, kind), 0) + 1
+
+    @property
+    def conflicts(self) -> int:
+        return len(self.by.get(self.CONFLICT, {}))
+
+    def facts(self) -> dict[str, object]:
+        """The outcomes in the workflow's order: written, kept, conflicted."""
+        return {self.key(which): self.by[self.key(which)] for which in ('wrote', 'kept', 'conflict') if self.key(which) in self.by}
+
+
+def verdict(act: str, logs: list[Log]) -> str:
+    """The one line a transport ends on: DONE, or NOT DONE where any unit conflicted, then
+    each outcome with how many of each kind - the auxiliary and the infinitive carrying
+    the tense, as the cleaners' lines do."""
+    counted: dict[tuple[str, str], int] = {}
+    for log in logs:
+        for key, n in log.counted.items():
+            counted[key] = counted.get(key, 0) + n
+    tense, dest = (logs[0].tense, logs[0].dest) if logs else ('did', '')
+    clauses = []
+    for which, words in (('wrote', f'{tense} write'), ('kept', f'{tense} NOT write'), ('conflict', Log.CONFLICT)):
+        kinds = ', '.join(cleaner.count(counted[(which, kind)], kind, PLURAL) for kind in PLURAL if counted.get((which, kind)))
+        if kinds:
+            clauses.append(f'{words} {kinds}' + (f' to {dest}' if which == 'wrote' else ''))
+    done = 'NOT DONE' if any(log.conflicts for log in logs) else 'DONE'
+    return f'{act}: {done} - ' + ('; '.join(clauses) if clauses else 'nothing to transport')
+
+
+def place_tree(src_ws: Path, dest_ws: Path, apply: bool, src: str, dest: str) -> tuple[str, dict[str, object]] | None:
+    """A session's eponymous workspace (subagent transcripts, persisted tool-results -
+    files the session log REFERENCES) rides along. The filesystem, checked here and now,
+    is the only oracle: a destination folder that is absent takes the workspace wholesale
+    as a unit; one that is present (however it came to be) merges with log semantics per
+    file - new / identical / prefix-superseded, divergence a CONFLICT with the file named.
+    Returns (outcome, facts), or None where the source has no workspace."""
     if not src_ws.is_dir():
-        return 0, False, False
+        return None
     files = sorted(p for p in src_ws.rglob('*') if p.is_file() and p.name != '.DS_Store')
     if not dest_ws.exists():
-        print(f'  workspace {src_ws.name}/: {dest_label} holds nothing yet - '
-              f'written whole ({len(files)} file(s))')
         if apply:
             for f in files:
-                dest = dest_ws / f.relative_to(src_ws)
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                dest.write_bytes(f.read_bytes())
-        return 0, True, True
+                target = dest_ws / f.relative_to(src_ws)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(f.read_bytes())
+        return 'wrote', {f'{dest} holds nothing yet': f'{len(files)} file(s)'}
     tally = {r: 0 for r in Relation}
-    conflicts = 0
+    facts: dict[str, object] = {}
     for f in files:
         rel = f.relative_to(src_ws)
-        relation, detail = place_log(f.read_bytes(), dest_ws / rel, apply)
+        data = f.read_bytes()
+        existing = (dest_ws / rel).read_bytes() if (dest_ws / rel).exists() else None
+        relation = relate(data, existing)
+        if apply and may_replace(relation):
+            (dest_ws / rel).parent.mkdir(parents=True, exist_ok=True)
+            (dest_ws / rel).write_bytes(data)
+        tally[relation] += 1
         if relation is Relation.DIVERGED:
-            print(f'  workspace/{rel}: {word_placement(relation, detail, src_label, dest_label)}')
-            conflicts += 1
-        else:
-            tally[relation] += 1
-    print(f'  workspace {src_ws.name}/: '
-          + ', '.join(f'{n} {k}' for k, n in tally.items() if n)
-          + (f', {conflicts} CONFLICT(S)' if conflicts else '')
-          if any(tally.values()) or conflicts else
-          f'  workspace {src_ws.name}/: empty')
-    wrote = bool(tally[Relation.ABSENT] or tally[Relation.EXTENDS])
-    return conflicts, wrote, wrote or bool(conflicts or tally[Relation.AHEAD])
+            facts[rel.as_posix()] = fact(relation, data, existing, src, dest)
+    words = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'superseded',
+             Relation.AHEAD: 'ahead', Relation.DIVERGED: 'diverged'}
+    facts = {f'merged into {dest}': ', '.join(f'{n} {words[r]}' for r, n in tally.items() if n) or 'empty', **facts}
+    which = 'conflict' if tally[Relation.DIVERGED] else 'wrote' if tally[Relation.ABSENT] or tally[Relation.EXTENDS] else 'kept'
+    return which, facts

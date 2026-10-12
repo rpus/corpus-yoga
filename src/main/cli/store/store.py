@@ -119,7 +119,7 @@ def status_facts() -> corpus.StoreStatus:
     ahead, absent = live.ahead()
     items, found, level = live.ahead_facts(ahead, absent)
     out.live = items if items else ('no live store is mounted in this workspace' if not ahead
-                                    else f'nothing beyond the tiers: {level} live unit(s) level with the copies')
+                                    else f'nothing beyond the tiers - {level} live unit(s) level with the copies')
     out.next = store_next(rows, ahead) or 'none - nothing to do'
     return out
 

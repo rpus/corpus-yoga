@@ -26,7 +26,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import LIVE, STAGE, STORE, Relation, Session, growth, may_replace, move_workspace, place_log, relate, strings, under, word_placement  # noqa: E402
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, place_log, place_tree, relate, strings  # noqa: E402
 
 PROVIDER = 'claude'
 
@@ -85,7 +85,7 @@ def written(session: Session) -> Iterator[str]:
                         yield from strings(block.get('input'))
 
 
-def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> int:
+def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> Log:
     if uuid8 is None:
         return capture_all(mount, outbox, held)
     session = pick_session(mount, uuid8)
@@ -149,7 +149,7 @@ def place_session(src: Path, dest: Path, apply: bool) -> tuple[Relation, str]:
     return place_log(src.read_bytes(), dest, apply)
 
 
-def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> int:
+def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: Log, label: str) -> int:
     """Memory-folder merge — INSTALL only, where two agents actually meet
     (capture mirrors its own outbox instead; see mirror_memory). A leaf
     file's NAME is dressing; the fact is the identity — so per leaf: absent →
@@ -160,11 +160,14 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
     following (nothing lost, nothing silently overwritten, nothing blocking —
     reconciliation stays a human act, recorded in-folder). MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
-    facts rewritten to their new names. Returns the conflict count."""
+    facts rewritten to their new names. Each leaf is said into the log under
+    its outcome by its address, label/memory/<leaf> (#857). Returns the conflict count."""
     conflicts = 0
     if not src_dir.is_dir():
-        print('  memory: none at source')
         return 0
+
+    def said(which: str, rel, facts: dict[str, str]) -> None:
+        log.say(which, f'{label}/memory/{rel}', facts, 'file')
 
     def dressed(text: str, renames: dict[str, str]) -> str:
         for old, new in renames.items():
@@ -198,7 +201,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
         target = dest_dir / rel
         form = dressed(raw, renamed)
         if not target.exists():
-            print(f'  memory/{rel}: new')
+            said('wrote', rel, {f'{LIVE} holds nothing yet': f'{len(form)} bytes'})
             if apply:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(form)
@@ -206,25 +209,25 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
             continue
         have = target.read_text()
         if have == form:
-            print(f'  memory/{rel}: identical — no-op')
+            said('kept', rel, {f'{STORE} and {LIVE} hold identical text': f'{len(have)} bytes'})
         elif form.startswith(have):
-            print(f'  memory/{rel}: extends it — superseded (appendix)')
+            said('wrote', rel, {f'{STORE} extends {LIVE}': f'{len(have)} → {len(form)} bytes'})
             if apply:
                 target.write_text(form)
             acts.append(f'<!-- merge:act appendix {rel} prior={len(have)} '
                         f'post={len(form)} sha={_sha(form)} -->')
         elif have.startswith(form):
-            print(f'  memory/{rel}: destination is ahead — no-op')
+            said('kept', rel, {f'{LIVE} is ahead of {STORE}': f'{len(have)} > {len(form)} bytes'})
         else:
             twin = target.with_name(f'{renamed[target.stem]}{target.suffix}')
             twin_rel = rel.with_name(twin.name)
             if twin.exists() and twin.read_text() == form:
-                print(f'  memory/{rel}: diverged twin already installed as {twin.name} — no-op')
+                said('kept', rel, {f'{STORE} and {LIVE} diverged': f'the twin {twin.name} already holds it'})
             elif twin.exists():
-                print(f'  memory/{rel}: ✗ CONFLICT: diverged AND its twin {twin.name} differs — left in place')
+                said('conflict', rel, {f'{STORE} and {LIVE} diverged': f'and the twin {twin.name} differs - left in place'})
                 conflicts += 1
             else:
-                print(f'  memory/{rel}: diverged — both kept; incoming installed as {twin.name}')
+                said('wrote', rel, {f'{STORE} and {LIVE} diverged': f'both kept - installed as {twin.name}'})
                 if apply:
                     twin.write_text(form)
                 acts.append(f'<!-- merge:act new {twin_rel} sha={_sha(form)} len={len(form)} -->')
@@ -232,6 +235,8 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
     src_index = src_dir / 'MEMORY.md'
     dest_index = dest_dir / 'MEMORY.md'
     novel: list[str] = []
+    index: dict[str, str] = {}
+    which = 'kept'
     if src_index.exists():
         have_lines = dest_index.read_text().splitlines() if dest_index.exists() else []
         # A merge record is a fact about ITS OWN folder and never travels: the
@@ -246,30 +251,32 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
                 novel.append(line)
         if not dest_index.exists():
             filtered = '\n'.join(src_lines) + ('\n' if src_lines else '')
-            print('  memory/MEMORY.md: new')
+            index[f'{LIVE} holds nothing yet'] = f'{len(src_lines)} line(s)'
+            which = 'wrote'
             if apply:
                 dest_dir.mkdir(parents=True, exist_ok=True)
                 dest_index.write_text(filtered)
             acts.append(f'<!-- merge:act index-new sha={_sha_lines(filtered)} -->')
             novel = []  # the whole index arrived; no separate union lines
         elif novel:
-            print(f'  memory/MEMORY.md: index unioned — {len(novel)} line(s) appended '
-                  '(inside the merge marker)')
+            index['index unioned'] = f'{len(novel)} line(s) appended inside the merge marker'
+            which = 'wrote'
         else:
-            print('  memory/MEMORY.md: index already covers it — no-op')
+            index['index already covers it'] = f'{len(have_lines)} line(s)'
     # the merge marker: begin/end comments wrapping the unioned lines, then the
     # acts — MEMORY.md carries the record that makes this merge demergeable
     if acts or novel:
         stamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H%M%SZ')
         block = [f'<!-- merge:begin {stamp} from={machine} -->', *novel, *acts, '<!-- merge:end -->']
-        print(('  memory/MEMORY.md: merge marker recorded' if apply else
-               '  memory/MEMORY.md: would record merge marker')
-              + f' ({len(acts)} act(s); undo via: agent demerge)')
+        index['merge marker'] = f'{len(acts)} act(s); corpus-yoga agent demerge undoes them'
+        which = 'wrote'
         if apply:
             cur = dest_index.read_text() if dest_index.exists() else ''
             if cur and not cur.endswith('\n'):
                 cur += '\n'
             dest_index.write_text(cur + '\n'.join(block) + '\n')
+    if index:
+        said(which, 'MEMORY.md', index)
     return conflicts
 
 
@@ -360,37 +367,31 @@ def demerge(proj_dir: Path, apply: bool) -> int:
     return 0
 
 
-def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False, held_dirs: list[Path] = []) -> bool:
-    """Transport writes the agent's OWN outbox — single-writer by construction —
+def mirror_memory(src_dir: Path, dest_dir: Path, held_dirs: list[Path] = []) -> tuple[str, dict[str, str]] | None:
+    """Transport writes the agent's OWN outbox - single-writer by construction -
     so the memory folder is MIRRORED, not merged: the outbox is a faithful
     projection of the agent's current aggregate (new files added, changed ones
     updated in place, absentees removed). Every merge subtlety stays in
-    install, where two agents meet. Returns eventful (anything beyond L1
-    silence); with quiet_noop an all-identical mirror narrates nothing —
-    the --all caller counts the silence instead. Where the outbox holds no
-    copy, the held ones are the baseline (#850): a memory the store holds
-    identical under any of held_dirs - the project's own name, or a name
-    whose live memory is the same directory - is not mirrored again."""
+    install, where two agents meet. Where the outbox holds no copy, the held
+    ones are the baseline (#850): a memory the store holds identical under any
+    of held_dirs - the project's own name, or a name whose live memory is the
+    same directory - is not mirrored again. Returns (outcome, facts), or None
+    where the source has no memory."""
     files = {p.relative_to(src_dir): p for p in sorted(src_dir.rglob('*'))
              if p.is_file() and p.name != '.DS_Store'} if src_dir.is_dir() else {}
     if not files:
-        if not quiet_noop:
-            print(f'  {LIVE} holds none')
-        return False
+        return None
+    live = {rel: f.read_bytes() for rel, f in files.items()}
     if not dest_dir.is_dir():
-        live = {rel: f.read_bytes() for rel, f in files.items()}
         for held_dir in held_dirs:
             if held_dir.is_dir() and live == {p.relative_to(held_dir): p.read_bytes() for p in sorted(held_dir.rglob('*'))
                                               if p.is_file() and p.name != '.DS_Store'}:
-                if not quiet_noop:
-                    print(f'  {LIVE} and {STORE} hold identical files - no-op')
-                return False
+                return 'kept', {f'{LIVE} and {STORE} hold identical files': f'{len(files)} file(s)'}
     have = {p.relative_to(dest_dir): p for p in sorted(dest_dir.rglob('*'))
             if p.is_file() and p.name != '.DS_Store'} if dest_dir.is_dir() else {}
     new = updated = same = removed = 0
-    for rel, f in files.items():
+    for rel, data in live.items():
         target = dest_dir / rel
-        data = f.read_bytes()
         if rel not in have:
             new += 1
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -404,11 +405,10 @@ def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False, held_
         if rel not in files:
             removed += 1
             p.unlink()
-    eventful = bool(new or updated or removed)
-    if eventful or not quiet_noop:
-        print(f'  mirrored into {STAGE} - {new} new, {updated} updated, {same} identical'
-              + (f', {removed} removed (absent in {LIVE})' if removed else ''))
-    return eventful
+    if not (new or updated or removed):
+        return 'kept', {f'{LIVE} and {STAGE} hold identical files': f'{same} file(s)'}
+    return 'wrote', {f'mirrored into {STAGE}': f'{new} new, {updated} updated, {same} identical'
+                     + (f', {removed} removed (absent in {LIVE})' if removed else '')}
 
 
 def memory_names(src_root: Path, proj: Path) -> list[str]:
@@ -419,186 +419,118 @@ def memory_names(src_root: Path, proj: Path) -> list[str]:
                                 if p != proj and (p / 'memory').is_dir() and (p / 'memory').resolve() == own)
 
 
-def _capture_session(src_proj: Path, dest_proj: Path, held_proj: Path, session: Path, label: str,
-                       quiet_noop: bool = False) -> tuple[int, bool, bool]:
-    """Mirror one session (log + workspace) into its project dir in the stage.
-    Returns (conflicts, wrote, eventful) with move_workspace's semantics
-    extended to the pair. With quiet_noop, a session that lands wholly on L1
-    silence (identical log, identical-or-absent workspace) narrates NOTHING —
-    the --all caller names the silent ones in one line instead of three each.
-    `label` is the project's address under every root. Where the stage holds
-    no copy, the held one under held_proj is the baseline (#850): a log the
-    store holds identical or ahead is not staged, one that diverges from the
-    held copy is a CONFLICT, as the promote would say, and one that extends
-    it is written to the stage. Each relation is said as root, relation, root
-    beneath the session's address (#854)."""
+def _capture_session(src_proj: Path, dest_proj: Path, held_proj: Path, session: Path, log: Log) -> bool:
+    """Mirror one session (log + workspace) into its project dir in the stage, said into
+    the log under its outcome by its address, <project>/<session> (#857). Where the stage
+    holds no copy, the held one under held_proj is the baseline (#850): a log the store
+    holds identical or ahead is not staged and its workspace is not read, one that
+    diverges from the held copy is a CONFLICT, as the promote would say, and one that
+    extends it is written to the stage. Returns whether the session conflicted."""
     data = session.read_bytes()
     staged_log, held_log = dest_proj / session.name, held_proj / session.name
-    if staged_log.exists() or not held_log.exists():
-        relation, detail = place_log(data, staged_log, apply=True)
-        words = word_placement(relation, detail, LIVE, STAGE)
-    else:
-        held = held_log.read_bytes()
-        relation = relate(data, held)
-        had, now = growth(data, held)
-        detail = f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
-        if may_replace(relation):
-            staged_log.parent.mkdir(parents=True, exist_ok=True)
-            staged_log.write_bytes(data)
-        words = word_placement(relation, detail, LIVE, STORE, written=STAGE)
-        if not may_replace(relation):
-            conflict = relation is Relation.DIVERGED
-            if conflict or not quiet_noop:
-                print(f'{label}/{session.name}:')
-                print(f'  {words}')
-            return (1 if conflict else 0), False, conflict
-    conflicts = 1 if relation is Relation.DIVERGED else 0
-    ws_narration = io.StringIO()
-    with contextlib.redirect_stdout(ws_narration):
-        ws_conflicts, ws_wrote, ws_eventful = move_workspace(
-            src_proj / session.stem, dest_proj / session.stem, apply=True,
-            src_label=LIVE, dest_label=STAGE)
-    conflicts += ws_conflicts
-    wrote = ws_wrote or may_replace(relation)
-    eventful = wrote or bool(conflicts) or ws_eventful or relation is not Relation.IDENTICAL
-    if eventful or not quiet_noop:
-        print(f'{label}/{session.name}:')
-        print(f'  {words}')
-        print(ws_narration.getvalue(), end='')
-    return conflicts, wrote, eventful
+    against_store = not staged_log.exists() and held_log.exists()
+    existing = held_log.read_bytes() if against_store else staged_log.read_bytes() if staged_log.exists() else None
+    relation = relate(data, existing)
+    if may_replace(relation):
+        staged_log.parent.mkdir(parents=True, exist_ok=True)
+        staged_log.write_bytes(data)
+    which = outcome(relation)
+    log.say(which, f'{src_proj.name}/{session.name}', fact(relation, data, existing, LIVE, STORE if against_store else STAGE), 'session')
+    if against_store and which != 'wrote':
+        return which == 'conflict'
+    placed = place_tree(src_proj / session.stem, dest_proj / session.stem, True, LIVE, STAGE)
+    if placed is not None:
+        log.say(placed[0], f'{src_proj.name}/{session.stem}/', placed[1])
+        return which == 'conflict' or placed[0] == 'conflict'
+    return which == 'conflict'
 
 
-def capture_move(src_proj: Path, outbox: Path, held: Path, session: Path) -> int:
+def _capture_memory(src_root: Path, proj: Path, outbox: Path, held: Path, withheld: bool, log: Log) -> None:
+    """The project's memory into the stage, said under its outcome by its address."""
+    if not (proj / 'memory').is_dir():
+        return
+    if withheld:
+        log.say('kept', f'{proj.name}/memory/', {'withheld': 'a session of the project conflicted; the agent transports as a product'}, 'memory')
+        return
+    mirrored = mirror_memory(proj / 'memory', outbox / proj.name / 'memory',
+                             held_dirs=[held / n / 'memory' for n in memory_names(src_root, proj)])
+    if mirrored is not None:
+        log.say(mirrored[0], f'{proj.name}/memory/', mirrored[1], 'memory')
+
+
+def capture_move(src_proj: Path, outbox: Path, held: Path, session: Path) -> Log:
     """Mirror ONE named session (and its project's memory) into the stage:
     <outbox>/<project>/. The agent is the PRODUCT session × memory: a session
     CONFLICT withholds the memory mirror, or the store would hold a memory
     that reflects history its own session component does not contain."""
-    dest_proj = outbox / src_proj.name
-    label = (under(outbox) / src_proj.name).as_posix()
-    conflicts, _, _ = _capture_session(src_proj, dest_proj, held / src_proj.name, session, label)
-    print(f'{label}/memory/:')
-    if conflicts:
-        print('  WITHHELD - session CONFLICT above; the agent transports as a '
-              'product, so reconcile the session first')
-        print('DONE')
-        return conflicts
-    mirror_memory(src_proj / 'memory', dest_proj / 'memory',
-                  held_dirs=[held / n / 'memory' for n in memory_names(src_proj.parent, src_proj)])
-    print('DONE')
-    return conflicts
+    log = Log(STAGE)
+    conflicted = _capture_session(src_proj, outbox / src_proj.name, held / src_proj.name, session, log)
+    _capture_memory(src_proj.parent, src_proj, outbox, held, conflicted, log)
+    return log
 
 
-def capture_all(src_root: Path, outbox: Path, held: Path) -> int:
+def capture_all(src_root: Path, outbox: Path, held: Path) -> Log:
     """git push --all, whole stable: mirror EVERY project's sessions, and each
     project's memory, into <outbox>/<project>/. The projects root is
     harness-owned and expires at Anthropic's pleasure; the store is the
-    durable home, so the sweep covers every project, not just this repo's —
+    durable home, so the sweep covers every project, not just this repo's -
     and it is MONOTONE: a project absent from the projects root is left in
     the store untouched (outliving the harness is the point). Safe by the
-    prefix lattice per session: silence, fast-forward, ahead-no-op, or a loud
-    per-session CONFLICT — idempotent throughout. Narration is lattice-shaped:
-    sessions and memories landing on L1 silence are counted, not narrated,
-    and the tail keeps EFFECT (what this run wrote) and POSTCONDITION (what
-    the store now holds) apart."""
-    projects = sorted(d for d in src_root.glob('-Users-*') if d.is_dir())
-    if not projects:
-        print(f'error: no projects under {src_root}', file=sys.stderr)
-        return 1
-    conflicts, written, total, quiet, quiet_mem = 0, 0, 0, [], 0
-    for proj in projects:
-        label = (under(outbox) / proj.name).as_posix()
-        sessions = sorted(proj.glob('*.jsonl'))
-        total += len(sessions)
-        proj_conflicts = 0
-        for s in sessions:
-            c, wrote, eventful = _capture_session(proj, outbox / proj.name, held / proj.name, s,
-                                                    label, quiet_noop=True)
-            conflicts += c
-            proj_conflicts += c
-            written += 1 if wrote else 0
-            if not eventful:
-                quiet.append(s.stem[:8])
-        if (proj / 'memory').is_dir():
-            if proj_conflicts:
-                print(f'{label}/memory/: WITHHELD - session CONFLICT(S) in this '
-                      'project; the agent transports as a product, so reconcile first')
-                continue
-            mem_narration = io.StringIO()
-            with contextlib.redirect_stdout(mem_narration):
-                mem_eventful = mirror_memory(proj / 'memory',
-                                             outbox / proj.name / 'memory', quiet_noop=True,
-                                             held_dirs=[held / n / 'memory' for n in memory_names(src_root, proj)])
-            if mem_eventful:
-                print(f'{label}/memory/:')
-                print(mem_narration.getvalue(), end='')
-            else:
-                quiet_mem += 1
-    if quiet:
-        print(f'{len(quiet)} session(s) level - {STAGE} or {STORE} holds what {LIVE} holds '
-              f'(log and workspace): {", ".join(quiet)}')
-    if quiet_mem:
-        print(f'{quiet_mem} project memor(y/ies) level - {STAGE} or {STORE} holds what {LIVE} holds')
-    # The tail names the strongest true statement: with no effect, the
-    # PRECONDITION ("already held" — it was true before the run, so nothing
-    # needed doing); with writes, effect and postcondition as separate clauses.
-    if conflicts:
-        print(f'DONE - effect: {written} of {total} session(s) written to {STAGE}, '
-              f'{conflicts} CONFLICT(S); postcondition: {STAGE} and {STORE} do NOT '
-              f'yet hold everything {LIVE} holds - CONFLICT(S) above left in place, '
-              'their projects\' memories withheld')
-    elif written:
-        print(f'DONE - effect: {written} of {total} session(s) written to {STAGE}; '
-              f'postcondition: {STAGE} and {STORE} hold everything {LIVE} holds')
-    else:
-        print(f'DONE - no effect: {STAGE} and {STORE} already hold everything {LIVE} holds')
-    return conflicts
+    prefix lattice per session: silence, fast-forward, ahead-no-op, or a
+    per-session CONFLICT - idempotent throughout."""
+    log = Log(STAGE)
+    for proj in _projects(src_root):
+        conflicted = False
+        for s in sorted(proj.glob('*.jsonl')):
+            conflicted = _capture_session(proj, outbox / proj.name, held / proj.name, s, log) or conflicted
+        _capture_memory(src_root, proj, outbox, held, conflicted, log)
+    return log
 
 
-def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, machine: str) -> int:
-    print(f'install ← {machine}/{bundle_proj.name}: {session.name}')
-    relation, detail = place_session(session, dest_proj / session.name, apply)
-    print(f'  session: {word_placement(relation, detail, STORE, LIVE)}')
-    ws_conflicts, _, _ = move_workspace(bundle_proj / session.stem, dest_proj / session.stem, apply,
-                                        src_label=STORE, dest_label=LIVE)
-    return (1 if relation is Relation.DIVERGED else 0) + ws_conflicts
+def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, log: Log) -> bool:
+    """One held session into the projects root, said under its outcome by its address;
+    returns whether it conflicted."""
+    data = session.read_bytes()
+    target = dest_proj / session.name
+    existing = target.read_bytes() if target.exists() else None
+    relation = relate(data, existing)
+    if apply and may_replace(relation):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    which = outcome(relation)
+    log.say(which, f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, STORE, LIVE), 'session')
+    placed = place_tree(bundle_proj / session.stem, dest_proj / session.stem, apply, STORE, LIVE)
+    if placed is not None:
+        log.say(placed[0], f'{bundle_proj.name}/{session.stem}/', placed[1])
+        return which == 'conflict' or placed[0] == 'conflict'
+    return which == 'conflict'
 
 
-def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int:
+def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log:
     """git pull --all from one peer: every session in every project the machine
-    transported (and each project's memory, merged once per project — one
+    transported (and each project's memory, merged once per project - one
     marker block, one demerge, per project). The same lattice safety as
     capture --all, plus install's own guard: dry-run unless --apply. This
-    is the ONE deliberate writer of the harness-owned projects root — never
+    is the ONE deliberate writer of the harness-owned projects root - never
     run by any pipeline, only by a user's explicit command."""
-    projects = sorted(d for d in bundle.glob('-Users-*') if d.is_dir())
-    if not projects:
-        print(f'error: no projects in {bundle}', file=sys.stderr)
-        return 1
-    conflicts = total = 0
-    for proj in projects:
-        proj_conflicts = 0
+    log = Log(LIVE, 'did' if apply else 'would')
+    for proj in sorted(d for d in bundle.glob('-Users-*') if d.is_dir()):
+        conflicted = False
         for s in sorted(proj.glob('*.jsonl')):
-            total += 1
-            proj_conflicts += _install_session(proj, dest_root / proj.name, s, apply, machine)
-        conflicts += proj_conflicts
+            conflicted = _install_session(proj, dest_root / proj.name, s, apply, log) or conflicted
         if (proj / 'memory').is_dir():
-            if proj_conflicts:
-                print(f'install ← {machine}/{proj.name}: memory/ WITHHELD — session '
-                      'CONFLICT(S) in this project; the agent transports as a product, '
-                      'so reconcile first')
-                continue
-            conflicts += merge_memory(proj / 'memory', dest_root / proj.name / 'memory', apply, machine)
-    print(f'{"DONE" if apply else "dry run — pass --apply to write into the projects root"}'
-          f' — {total} session(s)' + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
-    return conflicts
+            if conflicted:
+                log.say('kept', f'{proj.name}/memory/', {'withheld': 'a session of the project conflicted; the agent transports as a product'}, 'memory')
+            else:
+                merge_memory(proj / 'memory', dest_root / proj.name / 'memory', apply, machine, log, proj.name)
+    return log
 
 
-def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> int:
-    conflicts = _install_session(bundle_proj, dest_root / bundle_proj.name, session, apply, machine)
-    if conflicts:
-        print('  memory: WITHHELD — session CONFLICT above; the agent transports as a '
-              'product, so reconcile the session first')
+def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> Log:
+    log = Log(LIVE, 'did' if apply else 'would')
+    conflicted = _install_session(bundle_proj, dest_root / bundle_proj.name, session, apply, log)
+    if conflicted:
+        log.say('kept', f'{bundle_proj.name}/memory/', {'withheld': 'the session conflicted; the agent transports as a product'}, 'memory')
     else:
-        conflicts += merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine)
-    print('DONE' if apply else 'dry run — pass --apply to write into the projects root')
-    return conflicts
+        merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine, log, bundle_proj.name)
+    return log
