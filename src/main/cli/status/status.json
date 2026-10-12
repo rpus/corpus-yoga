@@ -20,7 +20,7 @@
     "pipeline inputs": "what each pipeline holds in shared storage, a count per pipeline, provider and kind of unit, under data/input/<provider>/...; this repo ships no data, a room supplies its own, and the capturing noun's verb stages more - corpus-yoga browser capture, agent capture, export capture",
     "live stores": {
       "the live store": "the directory the provider's harness writes its sessions to - ~/.claude/projects, ~/.gemini/antigravity - outside the repository, harness-owned, and expiring at the provider's will; corpus-yoga agent capture --provider <provider> copies it into the room's stage",
-      "the mount": "ext/mnt/agent/<provider>, a link to the live store, through which the census and the capture read it; corpus-yoga agent mount --apply makes it, pointing where the provider registry says"
+      "the mount": "ext/mnt/<provider>/code/machine-transport/<machine>, a link to the live store at the address its units have under tmp/stage/input and data/input, through which the census and the capture read it; corpus-yoga agent mount --apply makes it, pointing where the provider registry says"
     },
     "deploy": "ext/mnt/site is a link to a clone of the site repository, which corpus-yoga site publish pushes to; optional - only a deploying machine has it, and ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)",
     "migration": "corpus-yoga migration - the moves a rename owes this machine's local roots, each a guarded script under rsc/migration run once; its sync takes the pending steps",

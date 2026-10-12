@@ -380,7 +380,7 @@ check_pipeline_inputs() {
   sec "live stores"
   # Per declared provider (rsc/provider/providers.csv): the code-transport store this
   # machine holds, and the live harness mount the census and capture read (#628),
-  # ext/mnt/agent/<provider> (#636).
+  # ext/mnt/<provider>/code/machine-transport/<machine> (#636, #853).
   local p_name p_live p_mount p_served p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then

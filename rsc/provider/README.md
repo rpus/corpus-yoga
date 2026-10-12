@@ -4,7 +4,7 @@ One fact about providers: which ones the repository knows, as data.
 
 | where | what |
 | --- | --- |
-| `providers.csv` (here) | the **registry**: every declared AI provider, one row each - the environment variable its sessions carry, its live session store, and the bot co-author pattern its harness writes. The store's mount is `ext/mnt/agent/<provider>`, derived from the row (#636). Committed - every clone carries the same one. |
+| `providers.csv` (here) | the **registry**: every declared AI provider, one row each - the environment variable its sessions carry, its live session store, and the bot co-author pattern its harness writes. The live store's mount is `ext/mnt/<provider>/code/machine-transport/<machine>`, derived from the row and the room's binding (#636, #853). Committed - every clone carries the same one. |
 
 A row states only what was observed, with the room and the date in its note; a
 column stays empty where nothing was observed, and an empty column means "not

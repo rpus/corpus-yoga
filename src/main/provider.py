@@ -111,11 +111,19 @@ def read_signature(line: str) -> tuple[str, str | None, str | None] | None:
     return (m.group(1), m.group(2), m.group(3)) if m else None
 
 
-MOUNT_ROOT = REPO / 'ext' / 'mnt' / 'agent'
+MOUNT_ROOT = REPO / 'ext' / 'mnt'                 # the live tier's root: the third root over the one address grammar (#853)
+TRANSPORT = Path('code') / 'machine-transport'    # the channel and the capture a provider's live sessions have under every tier root
+
+
+def address(row: dict[str, str]) -> Path | None:
+    """The address this machine's live store has under every tier root - ext/mnt,
+    tmp/stage/input and data/input alike (#853): <provider>/code/machine-transport/<machine>,
+    the machine this room's binding; None where the row observes no live store."""
+    return Path(row['provider']) / TRANSPORT / machine() if row['live_store'] else None
 
 
 def mount(row: dict[str, str]) -> Path | None:
-    """The by-reference mount of the live store, ext/mnt/agent/<provider> (#636) -
-    the provider name is the only segment the repository adds - or None where the
-    row observes no live store."""
-    return MOUNT_ROOT / row['provider'] if row['live_store'] else None
+    """The by-reference mount of the live store: its address under ext/mnt (#636, #853),
+    or None where the row observes no live store."""
+    found = address(row)
+    return MOUNT_ROOT / found if found is not None else None

@@ -121,6 +121,8 @@ rsc/migration/813.sh,2,comment,rsc/migration/813.sh,Y,"# rsc/migration/813.sh - 
 rsc/migration/813.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/815.sh,2,comment,rsc/migration/815.sh,Y,"# rsc/migration/815.sh - the stage's rehearsal record is one file, tmp/stage/rehearsal.json"
 rsc/migration/815.sh,12,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/853.sh,2,comment,rsc/migration/853.sh,Y,"# rsc/migration/853.sh - a live store mounts at ext/mnt/<provider>/code/machine-transport/<machine>,"
+rsc/migration/853.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
 rsc/migration/README.md,17,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
 rsc/migration/step.sh,2,comment,rsc/migration/step.sh,Y,"# rsc/migration/step.sh - the steps a migration script is made of, sourced by each"
@@ -716,19 +718,20 @@ src/main/cli/README.md,144,doc,src/main/cli/indexing/capture.sh,Y,`src/main/cli/
 src/main/cli/README.md,162,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 src/main/cli/agent/agent.json,3,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
-src/main/cli/agent/agent.py,24,comment,rsc/provider/providers.csv,Y,"ext/mnt/agent/<provider> per the registry (rsc/provider/providers.csv, #636) -"
-src/main/cli/agent/agent.py,40,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
-src/main/cli/agent/agent.py,77,comment,src/main/cli/agent/drafters.py,Y,corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
-src/main/cli/agent/agent.py,127,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,348,comment,rsc/migration/636.sh,Y,rsc/migration/636.sh's.
+src/main/cli/agent/agent.py,25,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, #636, #853), the address its units have under"
+src/main/cli/agent/agent.py,42,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
+src/main/cli/agent/agent.py,79,comment,src/main/cli/agent/drafters.py,Y,corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
+src/main/cli/agent/agent.py,129,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
+src/main/cli/agent/agent.py,350,comment,rsc/migration/636.sh,Y,--apply creates the links. A link at a retired address is rsc/migration/636.sh's or
+src/main/cli/agent/agent.py,351,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
 src/main/cli/agent/claude/harness.py,23,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/drafters.py,7,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
 src/main/cli/agent/drafters.py,29,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
 src/main/cli/agent/gemini/harness.py,26,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
 src/main/cli/agent/list-drafters.json,8,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"""
 src/main/cli/agent/mount.json,12,path_str,rsc/provider,Y,"""rsc/provider"","
-src/main/cli/agent/transport.py,23,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
-src/main/cli/agent/transport.py,36,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
+src/main/cli/agent/transport.py,25,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
+src/main/cli/agent/transport.py,38,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
 src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,30,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/browser/browser.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
@@ -939,13 +942,13 @@ src/main/cli/status/sync.json,29,path_str,src/main/model/serve_assets.txt,Y,"""s
 src/main/cli/status/sync.json,30,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/status/sync.json,31,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
 src/main/cli/status/sync.json,32,path_str,rsc/provider,Y,"""rsc/provider"""
-src/main/cli/store/clean.json,8,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
-src/main/cli/store/clean.json,9,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
-src/main/cli/store/clean.json,10,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
+src/main/cli/store/clean.json,9,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/clean.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/clean.json,11,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.json,9,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
-src/main/cli/store/store.json,16,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
-src/main/cli/store/store.json,17,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
-src/main/cli/store/store.json,18,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
+src/main/cli/store/store.json,17,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/store.json,18,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/store.json,19,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.py,8,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 src/main/cli/store/store.py,28,comment,src/main/live.py,Y,"(src/main/live.py), so that it alone"
 src/main/cli/store/store.py,43,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
@@ -982,7 +985,7 @@ src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,120,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
-src/main/live.py,17,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
+src/main/live.py,18,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
 src/main/markdown_projection.py,11,comment,src/main/model/project_markdown.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py"

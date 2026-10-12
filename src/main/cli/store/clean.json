@@ -4,7 +4,8 @@
   "r": [
     "data/input",
     "tmp/cache",
-    "ext/mnt/agent",
+    "ext/mnt/claude/code/machine-transport",
+    "ext/mnt/gemini/code/machine-transport",
     "rsc/provider/providers.csv",
     "rsc/naming/export_archive_members.csv",
     "rsc/cache_io.csv"

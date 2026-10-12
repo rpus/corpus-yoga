@@ -5,7 +5,9 @@ and the append-only placement the adapters share (#633).
 
 A harness is the program a provider ships to let its model act as a coding
 agent - Claude Code for claude, Antigravity for gemini - and each keeps a live
-session store of its own shape, mounted at ext/mnt/agent/<provider> (#636).
+session store of its own shape, mounted at ext/mnt/<provider>/code/machine-transport/<machine>
+(#636, #853), the address its units have under tmp/stage/input and data/input, so that
+ext/mnt, tmp/stage/input and data/input are three roots over one address grammar.
 The adapter for a provider lives at src/main/cli/agent/<provider>/harness.py,
 by function with provider subdirectories as the browser capture is laid out
 (#626), and exposes four functions the driver (agent.py) calls without knowing
@@ -40,9 +42,20 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
+import provider as registry  # noqa: E402 - the live tier's root and the transport address (#853)
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
+# The three roots a unit's one address is read under, as the narration names them (#854):
+# the live tier, the stage, the store.
+LIVE = registry.MOUNT_ROOT.relative_to(REPO).as_posix()
+STAGE = tier.TMP_STAGE_INPUT.relative_to(REPO).as_posix()
+STORE = (tier.DATA / 'input').relative_to(tier.DATA_ROOT).as_posix()
+
+
+def under(outbox: Path) -> Path:
+    """The address of an outbox's units under every root: the outbox under the stage."""
+    return outbox.relative_to(tier.TMP_STAGE_INPUT)
 
 
 @dataclass
@@ -76,7 +89,7 @@ def project_key(workspace: str) -> str:
 
 
 def store(provider: str) -> Path:
-    return tier.DATA / 'input' / provider / 'code' / 'machine-transport'
+    return tier.DATA / 'input' / provider / registry.TRANSPORT
 
 
 def adapter(provider: str) -> ModuleType | None:
@@ -106,18 +119,19 @@ def place_log(data: bytes, dest: Path, apply: bool) -> tuple[Relation, str]:
     return relation, f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
 
 
-def word_placement(relation: Relation, detail: str, src: str, dest: str) -> str:
-    """One lattice state as one sentence, both sides NAMED — noun extends noun
-    (user specification, 2026-07-11): the opposition is local/remote, never a
-    pronoun without an antecedent, never a metonym. A machine name is an ADDRESS
-    (which remote), not a side — both sides of a transport belong to the same
-    machine, so the name lives in the header/tail, not in the relation."""
+def word_placement(relation: Relation, detail: str, src: str, dest: str, written: str | None = None) -> str:
+    """One lattice state as one sentence, both sides named by root - ext/mnt,
+    tmp/stage/input or data/input - for the one address the unit has under each (#854):
+    root, relation, root, never a side word. The address is the line's header, so the
+    relation carries roots alone. written names the root the bytes went to where it is
+    not dest: a capture whose baseline is the held copy writes the stage."""
+    to = written or dest
     return {
-        Relation.ABSENT:    f'nothing in {dest} yet — written',
-        Relation.IDENTICAL: f'{src} and {dest} hold identical bytes — no-op',
-        Relation.EXTENDS:   f'{src} extends {dest} ({detail}) — {dest} copy superseded',
-        Relation.AHEAD:     f'{dest} is ahead of {src} — no-op',
-        Relation.DIVERGED:  f'✗ CONFLICT: {src} and {dest} diverged — {dest} copy left in place',
+        Relation.ABSENT:    f'{dest} holds nothing yet - written to {to}',
+        Relation.IDENTICAL: f'{src} and {dest} hold identical bytes - no-op',
+        Relation.EXTENDS:   f'{src} extends {dest} ({detail}) - ' + (f'written to {to}' if written else f'{dest} copy superseded'),
+        Relation.AHEAD:     f'{dest} is ahead of {src} - no-op',
+        Relation.DIVERGED:  f'✗ CONFLICT: {src} and {dest} diverged - ' + (f'nothing written to {to}' if written else f'{dest} copy left in place'),
     }[relation]
 
 
@@ -129,15 +143,15 @@ def move_workspace(src_ws: Path, dest_ws: Path, apply: bool,
     of what "ever existed": a destination folder that is absent takes the
     workspace wholesale as a unit; one that is present (however it came to be)
     merges with log semantics per file — new / identical / prefix-superseded;
-    divergence a loud CONFLICT, worded with both sides named (src_label /
-    dest_label). Returns (conflicts, wrote, eventful): wrote is
+    divergence a loud CONFLICT, worded with both sides named by root (src_label
+    and dest_label, two of LIVE, STAGE and STORE). Returns (conflicts, wrote, eventful): wrote is
     bytes-changed-at-destination; eventful adds anything else worth eyes
     (ahead files, conflicts) — L1 silence is neither."""
     if not src_ws.is_dir():
         return 0, False, False
     files = sorted(p for p in src_ws.rglob('*') if p.is_file() and p.name != '.DS_Store')
     if not dest_ws.exists():
-        print(f'  workspace {src_ws.name}/: nothing in {dest_label} yet — '
+        print(f'  workspace {src_ws.name}/: {dest_label} holds nothing yet - '
               f'written whole ({len(files)} file(s))')
         if apply:
             for f in files:

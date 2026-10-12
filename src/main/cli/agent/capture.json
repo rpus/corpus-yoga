@@ -21,7 +21,8 @@
     }
   ],
   "r": [
-    "ext/mnt/agent",
+    "ext/mnt/claude/code/machine-transport",
+    "ext/mnt/gemini/code/machine-transport",
     "data/input/claude/code/machine-transport",
     "data/input/gemini/code/machine-transport"
   ],

@@ -26,7 +26,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, may_replace, move_workspace, place_log, relate, strings, word_placement  # noqa: E402
+from transport import LIVE, STAGE, STORE, Relation, Session, growth, may_replace, move_workspace, place_log, relate, strings, under, word_placement  # noqa: E402
 
 PROVIDER = 'claude'
 
@@ -375,7 +375,7 @@ def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False, held_
              if p.is_file() and p.name != '.DS_Store'} if src_dir.is_dir() else {}
     if not files:
         if not quiet_noop:
-            print('  memory: none at source')
+            print(f'  {LIVE} holds none')
         return False
     if not dest_dir.is_dir():
         live = {rel: f.read_bytes() for rel, f in files.items()}
@@ -383,7 +383,7 @@ def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False, held_
             if held_dir.is_dir() and live == {p.relative_to(held_dir): p.read_bytes() for p in sorted(held_dir.rglob('*'))
                                               if p.is_file() and p.name != '.DS_Store'}:
                 if not quiet_noop:
-                    print('  memory: local and held hold identical files — no-op')
+                    print(f'  {LIVE} and {STORE} hold identical files - no-op')
                 return False
     have = {p.relative_to(dest_dir): p for p in sorted(dest_dir.rglob('*'))
             if p.is_file() and p.name != '.DS_Store'} if dest_dir.is_dir() else {}
@@ -406,8 +406,8 @@ def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False, held_
             p.unlink()
     eventful = bool(new or updated or removed)
     if eventful or not quiet_noop:
-        print(f'  memory: mirrored — {new} new, {updated} updated, {same} identical'
-              + (f', {removed} removed (absent at source)' if removed else ''))
+        print(f'  mirrored into {STAGE} - {new} new, {updated} updated, {same} identical'
+              + (f', {removed} removed (absent in {LIVE})' if removed else ''))
     return eventful
 
 
@@ -426,31 +426,44 @@ def _capture_session(src_proj: Path, dest_proj: Path, held_proj: Path, session: 
     extended to the pair. With quiet_noop, a session that lands wholly on L1
     silence (identical log, identical-or-absent workspace) narrates NOTHING —
     the --all caller names the silent ones in one line instead of three each.
-    `label` is the header's destination spelling (<machine>/<project>). Where
-    the stage holds no copy, the held one under held_proj is the baseline
-    (#850): a log the store holds identical or ahead is not staged, and one
-    that diverges from the held copy is a CONFLICT, as the promote would say."""
-    if not (dest_proj / session.name).exists() and (held_proj / session.name).exists():
-        against = relate(session.read_bytes(), (held_proj / session.name).read_bytes())
-        if against in (Relation.IDENTICAL, Relation.AHEAD, Relation.DIVERGED):
-            conflict = against is Relation.DIVERGED
+    `label` is the project's address under every root. Where the stage holds
+    no copy, the held one under held_proj is the baseline (#850): a log the
+    store holds identical or ahead is not staged, one that diverges from the
+    held copy is a CONFLICT, as the promote would say, and one that extends
+    it is written to the stage. Each relation is said as root, relation, root
+    beneath the session's address (#854)."""
+    data = session.read_bytes()
+    staged_log, held_log = dest_proj / session.name, held_proj / session.name
+    if staged_log.exists() or not held_log.exists():
+        relation, detail = place_log(data, staged_log, apply=True)
+        words = word_placement(relation, detail, LIVE, STAGE)
+    else:
+        held = held_log.read_bytes()
+        relation = relate(data, held)
+        had, now = growth(data, held)
+        detail = f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
+        if may_replace(relation):
+            staged_log.parent.mkdir(parents=True, exist_ok=True)
+            staged_log.write_bytes(data)
+        words = word_placement(relation, detail, LIVE, STORE, written=STAGE)
+        if not may_replace(relation):
+            conflict = relation is Relation.DIVERGED
             if conflict or not quiet_noop:
-                print(f'capture → {label}: {session.name}')
-                print(f'  session: {word_placement(against, "", "local", "held")} - nothing staged')
+                print(f'{label}/{session.name}:')
+                print(f'  {words}')
             return (1 if conflict else 0), False, conflict
-    relation, detail = place_session(session, dest_proj / session.name, apply=True)
     conflicts = 1 if relation is Relation.DIVERGED else 0
     ws_narration = io.StringIO()
     with contextlib.redirect_stdout(ws_narration):
         ws_conflicts, ws_wrote, ws_eventful = move_workspace(
             src_proj / session.stem, dest_proj / session.stem, apply=True,
-            src_label='local', dest_label='remote')
+            src_label=LIVE, dest_label=STAGE)
     conflicts += ws_conflicts
     wrote = ws_wrote or may_replace(relation)
     eventful = wrote or bool(conflicts) or ws_eventful or relation is not Relation.IDENTICAL
     if eventful or not quiet_noop:
-        print(f'capture → {label}: {session.name}')
-        print(f'  session: {word_placement(relation, detail, "local", "remote")}')
+        print(f'{label}/{session.name}:')
+        print(f'  {words}')
         print(ws_narration.getvalue(), end='')
     return conflicts, wrote, eventful
 
@@ -461,10 +474,11 @@ def capture_move(src_proj: Path, outbox: Path, held: Path, session: Path) -> int
     CONFLICT withholds the memory mirror, or the store would hold a memory
     that reflects history its own session component does not contain."""
     dest_proj = outbox / src_proj.name
-    conflicts, _, _ = _capture_session(src_proj, dest_proj, held / src_proj.name, session,
-                                         f'{outbox.name}/{src_proj.name}')
+    label = (under(outbox) / src_proj.name).as_posix()
+    conflicts, _, _ = _capture_session(src_proj, dest_proj, held / src_proj.name, session, label)
+    print(f'{label}/memory/:')
     if conflicts:
-        print('  memory: WITHHELD — session CONFLICT above; the agent transports as a '
+        print('  WITHHELD - session CONFLICT above; the agent transports as a '
               'product, so reconcile the session first')
         print('DONE')
         return conflicts
@@ -492,7 +506,7 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> int:
         return 1
     conflicts, written, total, quiet, quiet_mem = 0, 0, 0, [], 0
     for proj in projects:
-        label = f'{outbox.name}/{proj.name}'
+        label = (under(outbox) / proj.name).as_posix()
         sessions = sorted(proj.glob('*.jsonl'))
         total += len(sessions)
         proj_conflicts = 0
@@ -506,7 +520,7 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> int:
                 quiet.append(s.stem[:8])
         if (proj / 'memory').is_dir():
             if proj_conflicts:
-                print(f'capture → {label}: memory/ WITHHELD — session CONFLICT(S) in this '
+                print(f'{label}/memory/: WITHHELD - session CONFLICT(S) in this '
                       'project; the agent transports as a product, so reconcile first')
                 continue
             mem_narration = io.StringIO()
@@ -515,37 +529,37 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> int:
                                              outbox / proj.name / 'memory', quiet_noop=True,
                                              held_dirs=[held / n / 'memory' for n in memory_names(src_root, proj)])
             if mem_eventful:
-                print(f'capture → {label}: memory/')
+                print(f'{label}/memory/:')
                 print(mem_narration.getvalue(), end='')
             else:
                 quiet_mem += 1
     if quiet:
-        print(f'{len(quiet)} session(s) identical in local and remote '
+        print(f'{len(quiet)} session(s) level - {STAGE} or {STORE} holds what {LIVE} holds '
               f'(log and workspace): {", ".join(quiet)}')
     if quiet_mem:
-        print(f'{quiet_mem} project memor(y/ies) identical in local and remote')
+        print(f'{quiet_mem} project memor(y/ies) level - {STAGE} or {STORE} holds what {LIVE} holds')
     # The tail names the strongest true statement: with no effect, the
     # PRECONDITION ("already held" — it was true before the run, so nothing
     # needed doing); with writes, effect and postcondition as separate clauses.
     if conflicts:
-        print(f'DONE — effect: {written} of {total} session(s) written, '
-              f'{conflicts} CONFLICT(S); postcondition: remote ({outbox.name}) does NOT '
-              'yet hold everything local holds — CONFLICT(S) above left in place, '
+        print(f'DONE - effect: {written} of {total} session(s) written to {STAGE}, '
+              f'{conflicts} CONFLICT(S); postcondition: {STAGE} and {STORE} do NOT '
+              f'yet hold everything {LIVE} holds - CONFLICT(S) above left in place, '
               'their projects\' memories withheld')
     elif written:
-        print(f'DONE — effect: {written} of {total} session(s) written; '
-              f'postcondition: remote ({outbox.name}) holds everything local holds')
+        print(f'DONE - effect: {written} of {total} session(s) written to {STAGE}; '
+              f'postcondition: {STAGE} and {STORE} hold everything {LIVE} holds')
     else:
-        print(f'DONE — no effect: remote ({outbox.name}) already held everything local holds')
+        print(f'DONE - no effect: {STAGE} and {STORE} already hold everything {LIVE} holds')
     return conflicts
 
 
 def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, machine: str) -> int:
     print(f'install ← {machine}/{bundle_proj.name}: {session.name}')
     relation, detail = place_session(session, dest_proj / session.name, apply)
-    print(f'  session: {word_placement(relation, detail, "remote", "local")}')
+    print(f'  session: {word_placement(relation, detail, STORE, LIVE)}')
     ws_conflicts, _, _ = move_workspace(bundle_proj / session.stem, dest_proj / session.stem, apply,
-                                        src_label='remote', dest_label='local')
+                                        src_label=STORE, dest_label=LIVE)
     return (1 if relation is Relation.DIVERGED else 0) + ws_conflicts
 
 
