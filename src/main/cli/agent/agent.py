@@ -21,7 +21,9 @@ direction on an unchanged pair is silence (L1).
 
 Providers and harnesses: a provider's harness (Claude Code for claude,
 Antigravity for gemini) keeps a live session store of its own shape, mounted at
-ext/mnt/agent/<provider> per the registry (rsc/provider/providers.csv, #636) -
+ext/mnt/<provider>/code/machine-transport/<machine> per the registry
+(rsc/provider/providers.csv, #636, #853), the address its units have under
+tmp/stage/input and data/input -
 HARNESS-OWNED state the provider expires at will. Each shape is one adapter,
 src/main/cli/agent/<provider>/harness.py, keeping the contract transport.py
 states (#633); this driver knows no shape. Transported agents live in the
@@ -319,7 +321,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         outbox = own_outbox(name)
         if outbox is None:
             continue
-        print(f'── {name}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
+        print(f'── {registry.address(row)}: {transport.LIVE} → {transport.STAGE}')
         conflicts += adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
     # the act names the next acts (#687): what was captured waits in the stage until
     # the pipeline has judged it and the same extent is promoted
@@ -341,20 +343,23 @@ def _claude() -> tuple[Path, ModuleType]:
 
 
 def mount(apply: bool) -> int:
-    """The live agent stores mounted under ext/mnt/agent/<provider> (#636): one
-    symlink per declared provider whose live store this machine holds, the target
-    from the registry row. A dry run states every move as data, each provider
-    accounted for, and --apply creates the links. A link at a retired address is
-    rsc/migration/636.sh's."""
-    root = registry.MOUNT_ROOT
+    """The live agent stores mounted at the address their units have under every tier
+    root, ext/mnt/<provider>/code/machine-transport/<machine> (#636, #853): one symlink
+    per declared provider whose live store this machine holds, the target from the
+    registry row. A dry run states every move as data, each provider accounted for, and
+    --apply creates the links. A link at a retired address is rsc/migration/636.sh's or
+    rsc/migration/853.sh's."""
+    if registry.machine() == 'unbound':
+        print('agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
+        return 1
     verdict = 0
     for row in registry.providers():
         live = registry.live_store(row)
-        target = root / row['provider']
-        shown = target.relative_to(REPO)
-        if live is None:
-            print(f'{shown}: {row["provider"]} observes no live store - nothing to mount')
+        target = registry.mount(row)
+        if live is None or target is None:
+            print(f'{row["provider"]}: observes no live store - nothing to mount')
             continue
+        shown = target.relative_to(REPO)
         if not live.is_dir():
             print(f'{shown}: {row["live_store"]} absent on this machine - nothing to mount')
             continue
@@ -366,7 +371,7 @@ def mount(apply: bool) -> int:
             verdict = 1
             continue
         if apply:
-            root.mkdir(parents=True, exist_ok=True)
+            target.parent.mkdir(parents=True, exist_ok=True)
             target.symlink_to(live)
             print(f'{shown} → {row["live_store"]} (created)')
         else:

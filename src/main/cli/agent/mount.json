@@ -1,5 +1,5 @@
 {
-  "help": "mount the live agent stores under ext/mnt/agent/<provider> - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; a dry run unless --apply, stating every move",
+  "help": "mount the live agent stores at ext/mnt/<provider>/code/machine-transport/<machine>, the address their units have under tmp/stage/input and data/input - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; a dry run unless --apply, stating every move",
   "args": [
     {
       "name": "--apply",
@@ -13,6 +13,7 @@
     "ext"
   ],
   "w": [
-    "ext/mnt/agent"
+    "ext/mnt/claude/code/machine-transport",
+    "ext/mnt/gemini/code/machine-transport"
   ]
 }

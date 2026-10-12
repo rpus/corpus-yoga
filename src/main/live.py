@@ -1,7 +1,8 @@
 """
 live.py - the live stores this room mounts, read against the two tiers (#842, #851): every
-session and second-selection unit of each mounted store - ext/mnt/agent/<provider>, where
-the provider's harness writes - related to the fuller of the staged copy and the held copy
+session and second-selection unit of each mounted store - ext/mnt/<provider>/code/machine-transport/<machine>,
+a link to where the provider's harness writes, at the address its units have under the
+other two roots (#853) - related to the fuller of the staged copy and the held copy
 of it by the measure the pipeline declares for its kind, the one promotion relates by, so
 that no two readings can disagree. A live thing the store holds level reads as level
 however empty the stage is: the stage is a scratch tier between the live stores and the
@@ -36,15 +37,16 @@ def _tree(path: Path) -> dict[str, bytes]:
 
 
 def _live_extras(name: str, mount: Path) -> list[tuple[str, Path]]:
-    """What the provider's second selection finds in a live store: (kind, path). The
-    declaration's glob is over <machine>/<project>/...; a live store is one machine's, so
-    the glob without its first segment is the glob over the mount."""
+    """What the provider's second selection finds in the live store: (kind, path). The
+    declaration's glob is over <machine>/<project>/..., and the mount is this machine's
+    directory at that address under ext/mnt (#853), so the glob applies over the mount's
+    parent as it does over the other two roots."""
     out = []
     for store in corpus.stores():
-        if store.provider != name or not str(store.input).endswith('code/machine-transport'):
+        if store.provider != name or not str(store.input).endswith(registry.TRANSPORT.as_posix()):
             continue
         for extra in store.globs[1:]:
-            for found in sorted(mount.glob(extra.pattern.split('/', 1)[1].rstrip('/'))):
+            for found in sorted(mount.parent.glob(extra.pattern.rstrip('/'))):
                 if found.is_dir() == extra.pattern.endswith('/'):
                     out.append((extra.kind, found))
     return out

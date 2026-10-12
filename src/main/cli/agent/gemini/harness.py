@@ -29,7 +29,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, move_workspace, place_log, project_key, relate, strings, word_placement  # noqa: E402
+from transport import LIVE, STAGE, STORE, Relation, Session, growth, may_replace, move_workspace, place_log, project_key, relate, strings, under, word_placement  # noqa: E402
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')
@@ -143,27 +143,32 @@ def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, h
     """Mirror one session into <outbox>/<project>/<uuid>/. Returns (conflicts,
     wrote, eventful) as the claude adapter's capture does. Where the stage holds
     no copy, the held one under held is the baseline (#850): transcripts the
-    store holds identical or ahead are not staged, and one that diverges from
-    the held copy is a CONFLICT, as the promote would say."""
+    store holds identical or ahead are not staged, one that diverges from the
+    held copy is a CONFLICT, as the promote would say, and one that extends it
+    is written to the stage. Each relation is said as root, relation, root
+    beneath the session's address (#854)."""
+    address = (under(dest.parent.parent) / session.project / session.id).as_posix()
     lines = []
     conflicts, wrote, eventful = 0, False, False
     advanced = False
-    if not dest.is_dir() and held.is_dir():
-        against = {name: relate((_logs(session.path) / name).read_bytes(), (held / name).read_bytes())
-                   for name in TRANSCRIPTS if (_logs(session.path) / name).is_file() and (held / name).is_file()}
-        if against and all(r in (Relation.IDENTICAL, Relation.AHEAD, Relation.DIVERGED) for r in against.values()):
-            conflict = Relation.DIVERGED in against.values()
-            if conflict or not quiet_noop:
-                print(f'capture → {dest.parent.parent.name}/{session.project}: {session.id}')
-                for name, r in against.items():
-                    print(f'  {name}: {word_placement(r, "", "local", "held")} - nothing staged')
-            return (1 if conflict else 0), False, conflict
+    against_store = not dest.is_dir() and held.is_dir()
     for name in TRANSCRIPTS:
         src = _logs(session.path) / name
         if not src.is_file():
             continue
-        relation, detail = place_log(src.read_bytes(), dest / name, apply=True)
-        lines.append(f'  {name}: {word_placement(relation, detail, "local", "remote")}')
+        data = src.read_bytes()
+        if against_store:
+            existing = (held / name).read_bytes() if (held / name).is_file() else None
+            relation = relate(data, existing)
+            had, now = growth(data, existing)
+            detail = f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
+            if may_replace(relation):
+                (dest / name).parent.mkdir(parents=True, exist_ok=True)
+                (dest / name).write_bytes(data)
+            lines.append(f'  {name}: {word_placement(relation, detail, LIVE, STORE, written=STAGE)}')
+        else:
+            relation, detail = place_log(data, dest / name, apply=True)
+            lines.append(f'  {name}: {word_placement(relation, detail, LIVE, STAGE)}')
         if relation is Relation.DIVERGED:
             conflicts += 1
         if relation in (Relation.ABSENT, Relation.EXTENDS):
@@ -171,13 +176,21 @@ def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, h
             advanced = True
         if relation is not Relation.IDENTICAL:
             eventful = True
+    if against_store and not advanced:
+        # the store holds every transcript identical or ahead, or one diverged: nothing of
+        # the unit is staged, so its record and its snapshot are not written either
+        if conflicts or not quiet_noop:
+            print(f'{address}/:')
+            for line in lines:
+                print(line)
+        return conflicts, False, bool(conflicts)
     steps_narration = []
     if (session.path / 'steps').is_dir():
         import io, contextlib
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             c, w, e = move_workspace(session.path / 'steps', dest / 'steps', apply=True,
-                                     src_label='local', dest_label='remote')
+                                     src_label=LIVE, dest_label=STAGE)
         conflicts += c
         wrote = wrote or w
         eventful = eventful or e
@@ -201,7 +214,7 @@ def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, h
         lines.append('  summary.json: ' + ('updated' if existed else 'written'))
         wrote = eventful = True
     if eventful or not quiet_noop:
-        print(f'capture → {dest.parent.parent.name}/{session.project}: {session.id}')
+        print(f'{address}/:')
         for line in lines + steps_narration:
             print(line)
     return conflicts, wrote, eventful
@@ -229,15 +242,15 @@ def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> int:
         if not eventful:
             quiet.append(s.id[:8])
     if quiet:
-        print(f'{len(quiet)} session(s) identical in local and remote: {", ".join(quiet)}')
+        print(f'{len(quiet)} session(s) level - {STAGE} or {STORE} holds what {LIVE} holds: {", ".join(quiet)}')
     if conflicts:
-        print(f'DONE - effect: {written} of {len(sessions)} session(s) written, {conflicts} CONFLICT(S); '
-              f'postcondition: remote ({outbox.name}) does NOT yet hold everything local holds')
+        print(f'DONE - effect: {written} of {len(sessions)} session(s) written to {STAGE}, {conflicts} CONFLICT(S); '
+              f'postcondition: {STAGE} and {STORE} do NOT yet hold everything {LIVE} holds')
     elif written:
-        print(f'DONE - effect: {written} of {len(sessions)} session(s) written; '
-              f'postcondition: remote ({outbox.name}) holds everything local holds')
+        print(f'DONE - effect: {written} of {len(sessions)} session(s) written to {STAGE}; '
+              f'postcondition: {STAGE} and {STORE} hold everything {LIVE} holds')
     else:
-        print(f'DONE - no effect: remote ({outbox.name}) already held everything local holds')
+        print(f'DONE - no effect: {STAGE} and {STORE} already hold everything {LIVE} holds')
     return conflicts
 
 
