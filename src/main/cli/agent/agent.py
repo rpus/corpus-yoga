@@ -293,7 +293,9 @@ def capture(uuid8: str | None, provider: str | None) -> int:
     mount is present, each into its own store; --provider <name> is every
     session of that provider; --provider <name> --id <uuid-prefix> is one of
     them. A session is named within its provider, as the browser capture names
-    a conversation within its provider - a uuid's shape does not say whose it is."""
+    a conversation within its provider - a uuid's shape does not say whose it is.
+    The log is facts nested by outcome under each provider's address (#857), then
+    next:, then the one verdict."""
     names = [row['provider'] for row, _, _ in served()]
     if provider is not None and provider not in names:
         sys.exit(f'error: {provider!r} is not a provider the agent verb serves - served: ' + ', '.join(names))
@@ -315,21 +317,25 @@ def capture(uuid8: str | None, provider: str | None) -> int:
             sys.exit(f'error: {uuid8!r} names {len(matches)} records: '
                      + ', '.join(f'{s.project}/{s.id}' for s in matches)
                      + f" - --id names one session; to capture every record, take the provider's totality: --provider {row['provider']}")
-    conflicts = 0
+    out: dict[str, object] = {}
+    logs: list[transport.Log] = []
     for row, mount_path, adapter in targets:
         name = row['provider']
         outbox = own_outbox(name)
         if outbox is None:
             continue
-        print(f'── {registry.address(row)}: {transport.LIVE} → {transport.STAGE}')
-        conflicts += adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
+        log = adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
+        logs.append(log)
+        out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
     # the act names the next acts (#687): what was captured waits in the stage until
     # the pipeline has judged it and the same extent is promoted
     extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
-    print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
-          f'corpus-yoga pipeline rehearse, then corpus-yoga agent promote {extent}')
-    return conflicts
-
+    written = any(which == 'wrote' and n for log in logs for (which, _kind), n in log.counted.items())
+    out['next'] = ({'corpus-yoga pipeline rehearse': 'would judge it', f'corpus-yoga agent promote {extent}': 'would promote it'}
+                   if written else 'none - nothing staged')
+    print('\n'.join(facts.lines(facts.plain(out), width=facts.terminal_width())))
+    print(transport.verdict('agent capture', logs))
+    return sum(log.conflicts for log in logs)
 
 def _claude() -> tuple[Path, ModuleType]:
     """install and demerge write into Claude Code's projects root: the one
@@ -427,9 +433,20 @@ def main() -> int:
     # name as it stands under claude's store (or the directory's own name for a path)
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
-        return 1 if claude.install_all(bundle, projects, args.apply, machine) else 0
-    session = claude.pick_session(bundle, args.id)
-    return 1 if claude.install_move(session.parent, projects, session, args.apply, machine) else 0
+        log = claude.install_all(bundle, projects, args.apply, machine)
+    else:
+        session = claude.pick_session(bundle, args.id)
+        log = claude.install_move(session.parent, projects, session, args.apply, machine)
+    # the log is facts nested by outcome under the bundle's address (#857), then next:, then
+    # the one verdict; a dry run says what it would write and names the apply
+    extent = '--all' if args.all else f'--id {args.id}'
+    out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
+                              log.facts() or f'nothing - the bundle holds no session'}
+    out['next'] = ({f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
+                   if not args.apply and log.counted else 'none - nothing to do')
+    print('\n'.join(facts.lines(facts.plain(out), width=facts.terminal_width())))
+    print(transport.verdict('agent install', [log]))
+    return 1 if log.conflicts else 0
 
 
 if __name__ == '__main__':
