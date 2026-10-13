@@ -1,0 +1,15 @@
+{
+  "help": "remove what the forge's status names - each local branch whose work the base already holds or whose PR a force-push superseded, each closed-unmerged PR's own leftover server branch, and each remote-tracking ref for a branch the forge has deleted; the verb takes no flag, and prints what it will remove, what it did or did NOT remove, the forge's status, and the verdict",
+  "args": [],
+  "sends": {
+    "git ls-remote --heads origin": [
+      "reads server branches to find a closed-unmerged PR's leftover"
+    ],
+    "gh api graphql": [
+      "reads a merged PR's force-push history to recognise a superseded former head"
+    ],
+    "git push origin --delete": [
+      "WRITES the deletion of a closed-unmerged PR's server branch - refused loudly under CORPUS_YOGA_NO_SEND, the branch then NOT removed"
+    ]
+  }
+}

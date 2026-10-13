@@ -99,9 +99,9 @@ def main() -> int:
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
     out = Status(
         Settings(by_section.get('settings', {})),
-        Section(branches, facts.Command('corpus-yoga forge prune', 'removes each deletable branch')
+        Section(branches, facts.Command('corpus-yoga forge clean', 'would remove each deletable branch')
                 if any(row.state in ('deletable', 'server_deletable') for row in branches.values()) else None) if branches else None,
-        Section(refs, facts.Command('corpus-yoga forge prune', 'drops each stale ref')
+        Section(refs, facts.Command('corpus-yoga forge clean', 'would drop each stale ref')
                 if any(row.state == 'stale' for row in refs.values()) else None) if refs else None,
         Section(checkout) if checkout else None,
         forge='refuse-class drift - corpus-yoga forge merge refuses while it stands' if refused else 'ready - no refuse-class drift')
