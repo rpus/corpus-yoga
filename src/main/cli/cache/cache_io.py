@@ -100,3 +100,42 @@ def producers() -> list[str]:
     for r in rows():
         cmds.extend(r['written_by'])
     return cmds
+
+
+def orphans(root: Path) -> list[Path]:
+    """The tmp/cache/ entries the machinery neither writes nor reads (#865): an entry is
+    kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never
+    descended into), or an ancestor of one (descended to reach the owned child); every
+    other entry is an orphan, returned without descending. Paths compare repo-relative,
+    matching the registry's cache_path. The status names them and the cleaner removes them."""
+    owned = owned_paths()
+    found: list[Path] = []
+
+    def visit(d: Path) -> None:
+        rel = d.relative_to(REPO).as_posix()
+        if rel in owned:
+            return
+        if any(o.startswith(rel + '/') for o in owned):
+            for child in sorted(d.iterdir()):
+                visit(child)
+            return
+        found.append(d)
+
+    if root.is_dir():
+        for child in sorted(root.iterdir()):
+            visit(child)
+    return found
+
+
+def size_of(path: Path) -> int:
+    if path.is_file():
+        return path.stat().st_size
+    return sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
+
+
+def human(n: float) -> str:
+    for unit in ('B', 'K', 'M'):
+        if n < 1024:
+            return f'{n:.0f}{unit}' if unit == 'B' else f'{n:.1f}{unit}'
+        n /= 1024
+    return f'{n:.1f}G'
