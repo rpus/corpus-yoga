@@ -123,8 +123,10 @@ rsc/migration/815.sh,2,comment,rsc/migration/815.sh,Y,"# rsc/migration/815.sh - 
 rsc/migration/815.sh,12,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/853.sh,2,comment,rsc/migration/853.sh,Y,"# rsc/migration/853.sh - a live store mounts at ext/mnt/<provider>/code/machine-transport/<machine>,"
 rsc/migration/853.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/856.sh,2,comment,rsc/migration/856.sh,Y,# rsc/migration/856.sh - a held gemini unit holds the live store's files at their own
+rsc/migration/856.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
-rsc/migration/README.md,17,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
+rsc/migration/README.md,19,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
 rsc/migration/step.sh,2,comment,rsc/migration/step.sh,Y,"# rsc/migration/step.sh - the steps a migration script is made of, sourced by each"
 rsc/model/model_join.csv,2,path_str,rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ContentBlock,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ContentBlock,rsc/schema/pipeline/code-transport/claude"
 rsc/model/model_join.csv,2,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/ContentBlock,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ContentBlock,rsc/schema/pipeline/code-transport/claude"
@@ -727,7 +729,8 @@ src/main/cli/agent/agent.py,357,comment,rsc/migration/853.sh,Y,rsc/migration/853
 src/main/cli/agent/claude/harness.py,23,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/drafters.py,7,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
 src/main/cli/agent/drafters.py,29,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
-src/main/cli/agent/gemini/harness.py,26,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
+src/main/cli/agent/gemini/harness.py,19,comment,rsc/migration/856.sh,Y,rsc/migration/856.sh's to move. The
+src/main/cli/agent/gemini/harness.py,31,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
 src/main/cli/agent/list-drafters.json,8,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"""
 src/main/cli/agent/mount.json,12,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/agent/transport.py,25,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
@@ -1171,15 +1174,15 @@ src/main/pipeline/code-transport/claude/project_conversation.py,23,comment,src/r
 src/main/pipeline/code-transport/claude/project_conversation.py,23,comment,src/main/pipeline/code-transport/claude/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/project_conversation.py         <session-dir>    # read
 src/main/pipeline/code-transport/claude/session_to_json.sh,5,comment,src/main/pipeline/code-transport/claude/session_to_json.sh,Y,#   src/main/pipeline/code-transport/claude/session_to_json.sh <input.jsonl> <output.json>
 src/main/pipeline/code-transport/claude/session_to_json.sh,30,call,src/main/pipeline/code-transport/claude/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
-src/main/pipeline/code-transport/gemini/list_sessions.sh,11,comment,src/main/pipeline/code-transport/gemini/list_sessions.sh,Y,#   src/main/pipeline/code-transport/gemini/list_sessions.sh <store>/<machine>/<project>
+src/main/pipeline/code-transport/gemini/list_sessions.sh,12,comment,src/main/pipeline/code-transport/gemini/list_sessions.sh,Y,#   src/main/pipeline/code-transport/gemini/list_sessions.sh <store>/<machine>/<project>
 src/main/pipeline/code-transport/gemini/project_conversation.py,20,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/project_conversation.py         <session-dir>    # read
 src/main/pipeline/code-transport/gemini/project_conversation.py,20,comment,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/project_conversation.py         <session-dir>    # read
 src/main/pipeline/code-transport/gemini/project_conversation.py,28,path_str,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,SELF = 'src/main/pipeline/code-transport/gemini/project_conversation.py'
 src/main/pipeline/code-transport/gemini/session_to_json.sh,7,comment,src/main/pipeline/code-transport/gemini/session_to_json.sh,Y,#   src/main/pipeline/code-transport/gemini/session_to_json.sh <session-dir> <output.json>
 src/main/pipeline/code-transport/gemini/session_to_json.sh,19,call,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/transcript_to_json.py"" ""$1"" ""$2"""
-src/main/pipeline/code-transport/gemini/transcript_to_json.py,10,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py         <session-dir> <output.jso
-src/main/pipeline/code-transport/gemini/transcript_to_json.py,10,comment,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py         <session-dir> <output.jso
-src/main/pipeline/code-transport/gemini/transcript_to_json.py,17,path_str,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,SELF = 'src/main/pipeline/code-transport/gemini/transcript_to_json.py'
+src/main/pipeline/code-transport/gemini/transcript_to_json.py,11,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py         <session-dir> <output.jso
+src/main/pipeline/code-transport/gemini/transcript_to_json.py,11,comment,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py         <session-dir> <output.jso
+src/main/pipeline/code-transport/gemini/transcript_to_json.py,18,path_str,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,SELF = 'src/main/pipeline/code-transport/gemini/transcript_to_json.py'
 src/main/pipeline/code-transport/render_corpus.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/render_corpus.py [--out-root <dir>]
 src/main/pipeline/code-transport/render_corpus.py,24,comment,src/main/pipeline/code-transport/render_corpus.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/render_corpus.py [--out-root <dir>]
 src/main/pipeline/code-transport/render_corpus.py,31,path_str,src/main/pipeline/code-transport/render_corpus.py,Y,SELF = 'src/main/pipeline/code-transport/render_corpus.py'

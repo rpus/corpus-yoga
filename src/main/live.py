@@ -96,11 +96,11 @@ class AbsentMount:
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
     """The files a session's measure reads, by name: the session's own file, or under its
-    directory the files its pipeline's glob names, wherever the harness keeps them."""
+    directory the files the declaration's glob names below the unit - the same relative
+    path under the live store and under each tier (#856)."""
     if path.is_file():
         return {path.name: path.read_bytes()}
-    found = sorted(path.glob(pattern)) or sorted(path.rglob(pattern))
-    return {f.name: f.read_bytes() for f in found if f.is_file()}
+    return {f.name: f.read_bytes() for f in sorted(path.glob(pattern)) if f.is_file()}
 
 
 STATE = {corpus.Relation.ABSENT: 'new', corpus.Relation.IDENTICAL: 'level', corpus.Relation.EXTENDS: 'grown',
@@ -175,7 +175,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
         declared = next(s for s in corpus.stores() if s.pipeline == 'code-transport' and s.provider == name)
         glob, measure, kind = declared.globs[0].pattern, declared.globs[0].measure, declared.globs[0].kind
         _value, leq, _words = corpus.MEASURE[measure]
-        pattern = glob.rsplit('/', 1)[-1]
+        pattern = '/'.join(glob.split('/')[declared.depth:])   # the glob below the unit: what a session directory holds of it
         copies = _copies(adapter, roots)
         for s in adapter.live_sessions(mount):
             capture = f'corpus-yoga agent capture --provider {name} --id {s.id[:8]}'

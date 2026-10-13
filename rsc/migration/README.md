@@ -1,9 +1,11 @@
 # rsc/migration - the moves a rename owes the machine-local roots
 
 A commit renames a committed file and git carries the rename. A commit that renames
-what lives under data/output, tmp/cache or ext/mnt renames nothing there: those roots
-are laid out per room and no commit touches them. The script here named for the
-causing issue carries that move, as the move: `mv <from> <to>`, `rm <link>`, `rmdir
+what lives under data/input, data/output, tmp/cache or ext/mnt renames nothing there:
+those roots are laid out per room and no commit touches them - data/input the shared
+tier, which iCloud carries, so that one room's move reaches the others and their run of
+the same script finds nothing left to move. The script here named for the causing
+issue carries that move, as the move: `mv <from> <to>`, `rm <link>`, `rmdir
 <directory>` and, for rebuildable derivations only, `rm -r <directory>` lines over the
 steps of step.sh.
 

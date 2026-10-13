@@ -7,11 +7,16 @@ step) and transcript_full.jsonl beside it, a steps/ directory where present,
 the step database conversations/<uuid>.db (sqlite, payloads protobuf), and its
 row in conversation_summaries.db at the store's root (title, step count,
 workspace uris, project id, status). The store keeps a session as
-<machine>/<project>/<uuid>/: the two transcripts placed append-only (a copy
-supersedes an existing one iff the existing bytes are a prefix of it), steps/
-with the same semantics per file, conversation.db as a consistent snapshot
-taken through sqlite's backup API and replaced whenever the transcript
-advanced, and summary.json, the summaries row, replaced when it changed. The
+<machine>/<project>/<uuid>/ holding the live store's files at their own names
+and relative paths, selected and never renamed (#856): the two transcripts at
+.system_generated/logs/, placed append-only (a copy supersedes an existing
+one iff the existing bytes are a prefix of it); conversations/<uuid>.db, the
+step database as a consistent snapshot taken through sqlite's backup API and
+replaced whenever the transcript advanced; and the one rendered file,
+summary.json, the summaries row, at the session's top, replaced when it
+changed. A further selection of the session's tree is a glob the declaration
+adds, never adapter code; a unit held in the shape before #856 is
+rsc/migration/856.sh's to move. The
 model a step ran on sits inside the step database's protobuf payloads and is
 not decoded here - #634 describes that record; model_rows says so.
 """
@@ -29,7 +34,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, place_tree, project_key, relate, strings  # noqa: E402
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, project_key, relate, strings  # noqa: E402
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')
@@ -67,8 +72,15 @@ def _brain(mount: Path, session_id: str) -> Path:
     return mount / 'brain' / session_id
 
 
-def _logs(brain: Path) -> Path:
-    return brain / '.system_generated' / 'logs'
+def _logs(session_dir: Path) -> Path:
+    """Where a session keeps its transcripts, under its live brain and under its held
+    directory alike (#856)."""
+    return session_dir / '.system_generated' / 'logs'
+
+
+def _database(root: Path, session_id: str) -> Path:
+    """The step database, under the live mount and under the held session alike."""
+    return root / 'conversations' / f'{session_id}.db'
 
 
 def _size(paths: list[Path]) -> int:
@@ -82,10 +94,9 @@ def live_sessions(mount: Path) -> list[Session]:
         transcript = _logs(brain) / TRANSCRIPTS[0]
         if not transcript.is_file():
             continue
-        db = mount / 'conversations' / f'{session_id}.db'
         out.append(Session(PROVIDER, session_id, _project(summary), brain,
                            summary.get('title') or '(untitled)',
-                           _size([_logs(brain) / t for t in TRANSCRIPTS] + [db]),
+                           _size([_logs(brain) / t for t in TRANSCRIPTS] + [_database(mount, session_id)]),
                            transcript.stat().st_mtime))
     return out
 
@@ -98,9 +109,9 @@ def held_sessions(machine_dir: Path) -> list[Session]:
             if not summary_file.is_file():
                 continue
             summary = json.loads(summary_file.read_text())
-            transcript = s / TRANSCRIPTS[0]
+            transcript = _logs(s) / TRANSCRIPTS[0]
             out.append(Session(PROVIDER, s.name, proj.name, s, summary.get('title') or '(untitled)',
-                               _size([s / t for t in TRANSCRIPTS] + [s / 'conversation.db']),
+                               _size([_logs(s) / t for t in TRANSCRIPTS] + [_database(s, s.name)]),
                                transcript.stat().st_mtime if transcript.is_file() else 0.0))
     return out
 
@@ -109,7 +120,7 @@ def written(session: Session) -> Iterator[str]:
     """Every string a tool call of the session carried as its arguments - the commands
     it ran, the files it wrote - in the record's order (#631); from the full transcript
     where the session has one, since the other truncates long fields."""
-    logs = [d / t for t in reversed(TRANSCRIPTS) for d in (session.path, _logs(session.path))]
+    logs = [_logs(session.path) / t for t in reversed(TRANSCRIPTS)]
     log = next((p for p in logs if p.is_file()), None)
     if log is None:
         return
@@ -139,12 +150,13 @@ def _snapshot(db: Path) -> bytes:
 
 
 def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, held: Path, log: Log) -> bool:
-    """Mirror one session into <outbox>/<project>/<uuid>/, said into the log under its
-    outcome by its address with each file's relation beneath (#857). Where the stage holds
-    no copy, the held one under held is the baseline (#850): transcripts the store holds
-    identical or ahead are not staged and nothing else of the unit is written, one that
-    diverges from the held copy is a CONFLICT, as the promote would say, and one that
-    extends it is written to the stage. Returns whether the session conflicted."""
+    """Mirror one session into <outbox>/<project>/<uuid>/ - each selected file at its live
+    name and relative path (#856) - said into the log under its outcome by its address with
+    each file's relation beneath (#857). Where the stage holds no copy, the held one under
+    held is the baseline (#850): transcripts the store holds identical or ahead are not
+    staged and nothing else of the unit is written, one that diverges from the held copy
+    is a CONFLICT, as the promote would say, and one that extends it is written to the
+    stage. Returns whether the session conflicted."""
     address = f'{session.project}/{session.id}/'
     facts: dict[str, object] = {}
     against_store = not dest.is_dir() and held.is_dir()
@@ -155,34 +167,30 @@ def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, h
         if not src.is_file():
             continue
         data = src.read_bytes()
-        existing = (base / name).read_bytes() if (base / name).is_file() else None
+        existing = (_logs(base) / name).read_bytes() if (_logs(base) / name).is_file() else None
         relation = relate(data, existing)
         if may_replace(relation):
-            (dest / name).parent.mkdir(parents=True, exist_ok=True)
-            (dest / name).write_bytes(data)
+            (_logs(dest) / name).parent.mkdir(parents=True, exist_ok=True)
+            (_logs(dest) / name).write_bytes(data)
             written = advanced = True
         conflict = conflict or relation is Relation.DIVERGED
-        facts[name] = fact(relation, data, existing, LIVE, base_root)
+        facts[(_logs(Path('.')) / name).as_posix()] = fact(relation, data, existing, LIVE, base_root)
     if against_store and not advanced:
         # the store holds every transcript level, or one diverged: nothing of the unit is
         # staged, so its record and its snapshot are not written either
         log.say('conflict' if conflict else 'kept', address, facts, 'session')
         return conflict
-    placed = place_tree(session.path / 'steps', dest / 'steps', True, LIVE, STAGE)
-    if placed is not None:
-        facts['steps/'] = placed[1]
-        conflict = conflict or placed[0] == 'conflict'
-        written = written or placed[0] == 'wrote'
-    db = mount / 'conversations' / f'{session.id}.db'
+    db, snapshot = _database(mount, session.id), _database(dest, session.id)
+    database = snapshot.relative_to(dest).as_posix()
     if conflict:
-        facts['conversation.db'] = 'withheld - a transcript conflicted; the record transports as a product'
-    elif db.is_file() and (advanced or not (dest / 'conversation.db').is_file()):
-        dest.mkdir(parents=True, exist_ok=True)
-        (dest / 'conversation.db').write_bytes(_snapshot(db))
-        facts['conversation.db'] = 'snapshot written - the transcript advanced'
+        facts[database] = 'withheld - a transcript conflicted; the record transports as a product'
+    elif db.is_file() and (advanced or not snapshot.is_file()):
+        snapshot.parent.mkdir(parents=True, exist_ok=True)
+        snapshot.write_bytes(_snapshot(db))
+        facts[database] = 'snapshot written - the transcript advanced'
         written = True
     elif db.is_file():
-        facts['conversation.db'] = 'snapshot kept - the transcript did not advance'
+        facts[database] = 'snapshot kept - the transcript did not advance'
     rendered = json.dumps(summary, sort_keys=True, indent=2) + '\n'
     summary_file = dest / 'summary.json'
     existed = summary_file.is_file()

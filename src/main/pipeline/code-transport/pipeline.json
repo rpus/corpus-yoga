@@ -17,7 +17,7 @@
       "companion": "<stem>/"
     },
     "gemini": {
-      "input_glob": "*/*/*/transcript*.jsonl",
+      "input_glob": "*/*/*/.system_generated/logs/transcript*.jsonl",
       "extra_input_glob": "",
       "measure": "prefix",
       "extra_measure": "",

@@ -2,9 +2,10 @@
 """
 transcript_to_json.py - one captured Antigravity session directory to session.json, the
 gemini session family's datum (rsc/schema/pipeline/code-transport/gemini/session): the
-steps of transcript_full.jsonl where the capture holds it, else of transcript.jsonl, one
-line each, as one array. The summary row beside the transcripts (summary.json) is copied
-to <output>.summary, the projection's source for the title.
+steps of transcript_full.jsonl where the capture holds it, else of transcript.jsonl - at
+.system_generated/logs/ under the session, their live path (#856) - one line each, as one
+array. The summary row at the session's top (summary.json) is copied to <output>.summary,
+the projection's source for the title.
 
 Usage:
     src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py \
@@ -22,6 +23,7 @@ sys.path.insert(0, str(_root[0] / 'src' / 'main' / 'pipeline' / 'code-transport'
 from write_if_changed import write_if_changed  # noqa: E402
 
 TRANSCRIPTS = ('transcript_full.jsonl', 'transcript.jsonl')
+LOGS = Path('.system_generated') / 'logs'   # where a session keeps its transcripts, live and held alike
 
 
 def main() -> int:
@@ -29,9 +31,9 @@ def main() -> int:
         print(__doc__, file=sys.stderr)
         return 1
     session_dir, out = Path(sys.argv[1]), sys.argv[2]
-    source = next((session_dir / t for t in TRANSCRIPTS if (session_dir / t).is_file()), None)
+    source = next((session_dir / LOGS / t for t in TRANSCRIPTS if (session_dir / LOGS / t).is_file()), None)
     if source is None:
-        print(f'FAIL: {session_dir}: holds neither {" nor ".join(TRANSCRIPTS)}', file=sys.stderr)
+        print(f'FAIL: {session_dir}: holds neither {" nor ".join(TRANSCRIPTS)} under {LOGS}', file=sys.stderr)
         return 1
     lines = [l for l in source.read_text().splitlines() if l.strip()]
     for number, line in enumerate(lines, 1):
