@@ -32,16 +32,16 @@ DOES = {('settings', 'drift'): 'sets it as declared',
 @dataclass
 class Row:
     """One probe's answer, under what it is about (#779): the answer alone where the probe is
-    satisfied, the state's word first where it is not, and where a remedy stands, the answer
-    under that word with its `remedy` beside it (#777)."""
+    satisfied, the answer under the state's word where it is not - one fact a line, never
+    a sentence joining the two (#871) - and where a remedy stands, its `remedy` beside it (#777)."""
     answer: str
     state: str
     remedy: facts.Command | facts.Act | None = None
 
     def facts(self) -> dict | str:
-        if self.remedy is None:
-            return self.answer if self.state == 'ok' else f'{self.state} - {self.answer}'
-        return {self.state: self.answer, 'remedy': self.remedy}
+        if self.state == 'ok' and self.remedy is None:
+            return self.answer
+        return {self.state: self.answer, **({'remedy': self.remedy} if self.remedy is not None else {})}
 
 
 @dataclass
@@ -66,6 +66,7 @@ class Status:
     refs: Section | None = facts.named('remote-tracking refs', default=None)
     checkout: Section | None = facts.named('this checkout', default=None)
     staged: dict[str, corpus.Staged] | None = None
+    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (#871)
     forge: str = ''               # the verdict
 
 
@@ -97,17 +98,26 @@ def main() -> int:
     by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.remedy),
                               **by_section.get('checkout', {})}
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
+    # what to run next (#871): the cleaner over each branch and each tracking ref it would
+    # remove, by name, as the store's and the cache's statuses name theirs - the dry run is
+    # the status, and bare corpus-yoga status grafts this block
+    following: dict[str, dict[str, dict[str, int]]] = {}
+    for name, row in (branches or {}).items():
+        if row.state in ('deletable', 'server_deletable'):
+            corpus.step(following, 'corpus-yoga forge clean', name)
+    for name, row in (refs or {}).items():
+        if row.state == 'stale':
+            corpus.step(following, 'corpus-yoga forge clean', name)
     out = Status(
         Settings(by_section.get('settings', {})),
-        Section(branches, facts.Command('corpus-yoga forge clean', 'would remove each deletable branch')
-                if any(row.state in ('deletable', 'server_deletable') for row in branches.values()) else None) if branches else None,
-        Section(refs, facts.Command('corpus-yoga forge clean', 'would drop each stale ref')
-                if any(row.state == 'stale' for row in refs.values()) else None) if refs else None,
+        Section(branches) if branches else None,
+        Section(refs) if refs else None,
         Section(checkout) if checkout else None,
         forge='refuse-class drift - corpus-yoga forge merge refuses while it stands' if refused else 'ready - no refuse-class drift')
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')
         out.staged = report.staged
+    out.next = following or 'none - nothing to do'
     facts.say(out)
     return 1 if refused else 0
 

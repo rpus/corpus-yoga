@@ -508,7 +508,7 @@ report() {
   graft test "/test/signature hook"
   graft forge "/forge settings"
   graft forge "/branches"
-  graft forge "/remote-tracking refs"
+  graft forge "/next" standing
   check_pipeline_inputs
   graft stage "/invalid" standing
   graft stage "/refused" standing
