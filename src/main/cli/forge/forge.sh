@@ -5,7 +5,7 @@
 #   corpus-yoga forge                 # declared vs live
 #   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
-#   corpus-yoga forge prune [--apply] # forget what the forge no longer has
+#   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
 #   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
 
@@ -79,7 +79,7 @@ superseding_force_push() {  # <pr-number> <tip>
   done <<< "$events"
 }
 
-# rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and prune()
+# rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and clean()
 branches() {
   if ! command -v gh &>/dev/null; then
     echo -e "UNVERIFIED\tlive\tgh not installed"
@@ -200,7 +200,7 @@ branches() {
   fi
 }
 
-# rows: STATUS \t ref \t detail - parsed by status() and prune()
+# rows: STATUS \t ref \t detail - parsed by status() and clean()
 stale_tracking() {
   local out line ref
   if ! may_send; then
@@ -268,59 +268,64 @@ status() {
   } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" "$@"
 }
 
-prune() {
-  local apply="" st key detail n=0 unverified=""
-  [[ "${1-}" == "--apply" ]] && apply=1
-  while IFS=$'\t' read -r st key detail; do
-    case "$st" in
-      UNVERIFIED) unverified=1; continue ;;
-      DELETABLE)
-        n=$((n + 1))
-        if [[ -n "$apply" ]]; then
-          enact git -C "$REPO_DIR" branch -D "$key" >/dev/null && echo "deleted $key - $detail"
-        else
-          echo "would delete $key - $detail"
-        fi
-        ;;
-      SERVER_DELETABLE)
-        n=$((n + 1))
-        if [[ -n "$apply" ]]; then
-          if assert_may_send "git push origin --delete $key (forge prune --apply)"; then
-            enact git -C "$REPO_DIR" push origin --delete "$key" \
-              && echo "deleted $key on the forge - $detail; evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
-          fi
-        else
-          echo "would delete $key on the forge - $detail; evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
-        fi
-        ;;
-      *) continue ;;
-    esac
-  done < <(branches)
-  local stale_rows ref
-  stale_rows="$(stale_tracking)"
-  while IFS=$'\t' read -r st ref _; do
-    if [[ "$st" == UNVERIFIED ]]; then unverified=1; continue; fi
-    [[ "$st" == STALE ]] || continue
-    n=$((n + 1))
-    if [[ -n "$apply" ]]; then
-      enact git -C "$REPO_DIR" update-ref -d "refs/remotes/$ref" && echo "forgot $ref - the forge no longer has it"
-    else
-      echo "would forget $ref - the forge no longer has it"
-    fi
-  done <<< "$stale_rows"
+# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it.
+count() { if (( $1 == 1 )); then echo "$1 $2"; else echo "$1 $3"; fi; }
 
-  if [[ "$n" == 0 && -n "$unverified" ]]; then
-    echo 'could not tell - some rows are UNVERIFIED; see corpus-yoga forge for what and why'
-  elif [[ "$n" == 0 ]]; then
-    echo 'nothing to prune - corpus-yoga forge says why for each branch it keeps'
-  else
-    if [[ -z "$apply" ]]; then
-      echo "--- $n item(s); nothing removed. Add --apply to remove them"
+clean() {
+  # The forge's cleaner (#871): what it removes is what the status names - each DELETABLE
+  # or SERVER_DELETABLE branch, each STALE tracking ref - and its lines are the one shape
+  # every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or
+  # did NOT remove beneath each, the status relayed, the verdict last. No flag: the status
+  # is the dry run.
+  local rows stale st key detail kind why item removed_branches=0 removed_refs=0
+  local -a items=() left=()
+  rows="$(branches)" || return 1
+  stale="$(stale_tracking)" || return 1
+  while IFS=$'\t' read -r st key detail _; do
+    case "$st" in DELETABLE|SERVER_DELETABLE) items+=("branch"$'\t'"$st"$'\t'"$key"$'\t'"$detail") ;; esac
+  done <<< "$rows"
+  while IFS=$'\t' read -r st key detail; do
+    [[ "$st" == STALE ]] && items+=("ref"$'\t'"$st"$'\t'"$key"$'\t'"$detail")
+  done <<< "$stale"
+  if (( ${#items[@]} == 0 )); then echo 'will remove: {}'; else echo 'will remove:'; fi
+  for item in ${items[@]+"${items[@]}"}; do
+    IFS=$'\t' read -r kind st key detail <<< "$item"
+    echo "  $key:"
+    why=""
+    case "$st" in
+      DELETABLE)
+        echo "    deletable: $detail"
+        enact git -C "$REPO_DIR" branch -D "$key" >/dev/null 2>&1 || why="git branch -D failed" ;;
+      SERVER_DELETABLE)
+        echo "    deletable on the forge: $detail; evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
+        if assert_may_send "git push origin --delete $key (forge clean)"; then
+          enact git -C "$REPO_DIR" push origin --delete "$key" >/dev/null 2>&1 || why="git push origin --delete failed"
+        else
+          why="CORPUS_YOGA_NO_SEND=1 refuses the send git push origin --delete"
+        fi ;;
+      STALE)
+        echo "    stale: $detail"
+        enact git -C "$REPO_DIR" update-ref -d "refs/remotes/$key" >/dev/null 2>&1 || why="git update-ref -d failed" ;;
+    esac
+    if [[ -z "$why" ]]; then
+      echo '    did remove:'
+      if [[ "$kind" == branch ]]; then removed_branches=$((removed_branches + 1)); else removed_refs=$((removed_refs + 1)); fi
+    else
+      echo "    did NOT remove: $why"
+      left+=("$kind: $key - $why")
     fi
-    if [[ -n "$unverified" ]]; then
-      echo 'some rows are UNVERIFIED; see corpus-yoga forge for what and why'
-    fi
+  done
+  echo
+  status || true
+  echo
+  local counts=""
+  (( removed_branches )) && counts="$(count "$removed_branches" branch branches)"
+  (( removed_refs )) && counts="${counts:+$counts, }$(count "$removed_refs" ref refs)"
+  if (( ${#left[@]} )); then
+    echo "forge clean: NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
+    return 1
   fi
+  echo "forge clean: DONE - did remove ${counts:-nothing}"
 }
 
 sync() {
@@ -674,7 +679,7 @@ merge_chain() {
     return 1
   fi
   landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - merged, but the merge commit read failed; converge by hand: git fetch origin && git merge --ff-only"; return 1; }
-  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! prune --apply     || ! quote git -C "$REPO_DIR" status; then
+  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! clean     || ! quote git -C "$REPO_DIR" status; then
     echo "forge merge: NOT DONE - merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
     return 1
   fi
@@ -693,7 +698,7 @@ capture() {
 case "${1-}" in
   '')        status --stage ;;
   sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
-  prune)     shift; parse_argv forge prune "$@"; prune "$@" ;;
+  clean)     shift; parse_argv forge clean "$@"; clean "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
   capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   promote)   shift; parse_argv forge promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote forge "$@" ;;

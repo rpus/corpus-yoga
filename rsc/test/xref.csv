@@ -812,9 +812,11 @@ src/main/cli/forge/forge.sh,23,comment,src/main/enact.sh,Y,# shellcheck source=s
 src/main/cli/forge/forge.sh,25,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/forge/forge.sh,27,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/forge/forge.sh,67,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge/forge.sh,396,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
-src/main/cli/forge/forge.sh,535,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,684,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,271,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
+src/main/cli/forge/forge.sh,277,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
+src/main/cli/forge/forge.sh,401,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
+src/main/cli/forge/forge.sh,540,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
+src/main/cli/forge/forge.sh,689,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/reconcile.py,5,comment,src/main/cli/forge/forge.csv,Y,"src/main/cli/forge/forge.csv. One row per declared setting, OK or DRIFT, each"
 src/main/cli/forge/reconcile.py,15,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/forge/status.py,15,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
@@ -1514,10 +1516,10 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/export/promote.json,Y,
 ,,self_only,src/main/cli/export/status.py,Y,
 ,,,src/main/cli/forge/capture.json,Y,
+,,,src/main/cli/forge/clean.json,Y,
 ,,self_only,src/main/cli/forge/flip.py,Y,
 ,,,src/main/cli/forge/forge.json,Y,
 ,,,src/main/cli/forge/promote.json,Y,
-,,,src/main/cli/forge/prune.json,Y,
 ,,self_only,src/main/cli/forge/reconcile.py,Y,
 ,,self_only,src/main/cli/forge/status.py,Y,
 ,,,src/main/cli/grammar/grammar.json,Y,
