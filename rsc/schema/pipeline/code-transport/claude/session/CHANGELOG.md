@@ -6,6 +6,42 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v22
+
+One key Claude Code 2.1.283 writes that v21 had closed. Home-room's session
+`41ff13e9-…`, captured on 2026-10-13 by `corpus-yoga agent capture` into the stage, is
+refused at v21 by the rehearsal of 2026-10-13T092955Z; validated record by record, 1 of
+its 15647 records fails and no other. It is an `artifact-autoreact-ledger` record of
+2026-09-27T20:16:32Z whose one entry, for the artifact `3329fd9e-…` titled "Corpus Site
+Dataflow", carries `"interrupted": true` between `turnTimestamps` and `threads`, where
+`ArtifactLedgerEntry` was closed over its six required keys. The ledger record before it
+for the same artifact and the one 32 seconds after it carry no `interrupted`, nor do the
+session's other 270 ledger records or its 31 comment-monitor records. The 21 sessions
+held under data/input on home-room carry no `interrupted` and validate at v21, the held
+copy of the same session, of 2026-09-17, among them.
+
+The record is saved in the same millisecond as a queue operation carrying the user's
+interrupt of a tool use, "[Request interrupted by user for tool use]", and two records
+before a task notification whose summary is "1 artifact auto-reply subscription paused by
+the interrupt"; the ledger record after the user's next typed message carries no
+`interrupted`. The key is read, from that notification, as the watch's paused state. That
+is an inference: the session's two earlier interrupts, of 2026-09-15, precede its first
+comment-monitor record, and reading-room's session be12fa7c, held under data/input, has
+a plain interrupt of 2026-10-07 (2.1.291) under an armed watch with no ledger record
+saved and no such notification, so what makes the harness write the key is not known.
+
+Validated over the staged session's conversion on home-room, 2026-10-13: v21 refuses
+the 1 record and no other; v22 refuses none (#860).
+
+### Replaces
+
+v21
+
+#### Relaxed
+
+- `ArtifactLedgerEntry` - optional `interrupted`, a boolean, observed `true` on one
+  entry of 2026-09-27 and absent on every other.
+
 ## v21
 
 One key Claude Code 2.1.294 writes that v20 had closed. Reading-room's session
