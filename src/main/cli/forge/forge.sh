@@ -79,7 +79,10 @@ superseding_force_push() {  # <pr-number> <tip>
   done <<< "$events"
 }
 
-# rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and clean()
+# rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and clean(). A KEPT row
+# whose keeping rests on evidence - commits the base or the merge does not hold - carries
+# the reader's act in words as its remedy, never a command, so that bare status says it
+# and status sync never runs it (#866).
 branches() {
   if ! command -v gh &>/dev/null; then
     echo -e "UNVERIFIED\tlive\tgh not installed"
@@ -119,7 +122,7 @@ branches() {
       elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "refs/heads/$base" 2>/dev/null; then
         echo -e "DELETABLE\t$b\tno PR refers to it, and ${tip:0:8} is contained in $base"
       else
-        echo -e "KEPT\t$b\tno PR on the forge refers to it, and it holds commit(s) $base does not"
+        echo -e "KEPT\t$b\tno PR on the forge refers to it, and it holds commit(s) $base does not\tread git log $base..$b for what it holds; raise a PR for it, or delete the branch when nothing of it is owed"
       fi
       continue
     fi
@@ -154,7 +157,7 @@ branches() {
         elif [[ "$tip" == "$oid" ]] || git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
           echo -e "DELETABLE\t$b\t#$n is CLOSED with ${tip:0:8} in its head - evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
         else
-          echo -e "KEPT\t$b\t#$n is CLOSED, and $unique commit(s) of it are not in $base or in the PR's own head - this is the only copy; git log $base..$b says what"
+          echo -e "KEPT\t$b\t#$n is CLOSED, and $unique commit(s) of it are not in $base or in the PR's own head - this is the only copy\tread git log $base..$b for what it holds; raise a PR for it, or delete the branch when nothing of it is owed"
         fi
       fi
     elif [[ "$st" != MERGED ]]; then
@@ -179,7 +182,7 @@ branches() {
         created="$(jq -r .createdAt <<< "$match")"
         echo -e "DELETABLE\t$b\t#$n merged; ${tip:0:8} was a former head, force-pushed to ${after:0:8} at $created - superseded, not diverged"
       else
-        echo -e "KEPT\t$b\t#$n merged, but ${tip:0:8} is not contained in it - it holds commits the squash did not"
+        echo -e "KEPT\t$b\t#$n merged, but ${tip:0:8} is not contained in it - it holds commits the squash did not\tread git log $base..$b for what the squash did not take; raise a PR for it, or delete the branch when nothing of it is owed"
       fi
     fi
   done < <(git -C "$REPO_DIR" for-each-ref --format='%(refname:short)' refs/heads/ \

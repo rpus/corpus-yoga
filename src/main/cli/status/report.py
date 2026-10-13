@@ -80,9 +80,10 @@ def said_by(noun: str):
 
 def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
-    short report has nothing of it to show: what holds a remedy, or, for a spot grafted as
-    standing (#824), its facts as they stand - a mapping or a list, never the sentence that
-    says the spot is empty."""
+    short report has nothing of it to show: what holds a remedy - a command the reader
+    types, or the reader's own act in words, which is shown and never run (#866) - or, for
+    a spot grafted as standing (#824), its facts as they stand - a mapping or a list, never
+    the sentence that says the spot is empty."""
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return 'unread - the venv is not minted' if whole else None
@@ -101,7 +102,8 @@ def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
 
 
 def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
-    """Each remedy the report holds: its command, what it does, and where it stands."""
+    """Each remedy the report holds that the reader types: its command, what it does, and
+    where it stands. An act in words is no row here: status sync takes only commands."""
     if not isinstance(node, dict):
         return []
     out = [(command, does, where) for command, does in node['remedy'].items()] if isinstance(node.get('remedy'), dict) else []
