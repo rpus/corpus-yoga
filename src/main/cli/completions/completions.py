@@ -219,12 +219,17 @@ class Status:
 def loads() -> bool | None:
     """Whether an interactive zsh has a completion for corpus-yoga, asked of zsh: a line
     in ~/.zshrc below compinit stands there and does nothing, so the file's text is not
-    the fact. None where there is no zsh."""
+    the fact. The zsh asked starts without the caller's FPATH (#861): zsh ties fpath to
+    it, so an exported FPATH holding a completion would answer for the home's shell
+    configuration, which is the one thing asked about - a new terminal's zsh inherits no
+    such export. None where there is no zsh."""
+    import os
     import shutil
     import subprocess
     if shutil.which('zsh') is None:
         return None
-    asked = subprocess.run(['zsh', '-ic', 'print -r -- ${+_comps[corpus-yoga]}'], capture_output=True, text=True)
+    environment = {name: value for name, value in os.environ.items() if name != 'FPATH'}
+    asked = subprocess.run(['zsh', '-ic', 'print -r -- ${+_comps[corpus-yoga]}'], capture_output=True, text=True, env=environment)
     return (asked.stdout.strip().splitlines() or [''])[-1] == '1'
 
 
