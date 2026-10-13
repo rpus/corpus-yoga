@@ -1208,7 +1208,7 @@
     },
     "ArtifactLedgerEntry": {
       "title": "ArtifactLedgerEntry",
-      "description": "One published artifact's auto-reply ledger, keyed in the ledger record by the artifact uuid (observed reading-room 2026-09-02 to 2026-09-15): when it was saved, the high-water stamp of replies, whether it was ever baselined or ever had threads, and the turn timestamps and threads seen. All six present on every observed entry.",
+      "description": "One published artifact's auto-reply ledger, keyed in the ledger record by the artifact uuid (observed reading-room 2026-09-02 to 2026-09-15, home-room to 2026-09-29): when it was saved, the high-water stamp of replies, whether it was ever baselined or ever had threads, the turn timestamps and threads seen, and whether the reply was interrupted. The six required keys are present on every observed entry; interrupted on one.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1251,6 +1251,10 @@
         "threads": {
           "description": "Comment threads seen on the artifact. Observed only empty; the element form is unobserved.",
           "type": "array"
+        },
+        "interrupted": {
+          "description": "Whether the automatic reply on the artifact was interrupted (2.1.283 onward). Observed value: true, on one entry of home-room's session 41ff13e9, written 2026-09-27T20:16:32Z between turnTimestamps and threads; the entries saved before and after it carry no interrupted. Undeclared before v22.",
+          "type": "boolean"
         }
       }
     },
