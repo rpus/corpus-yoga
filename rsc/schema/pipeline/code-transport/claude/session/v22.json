@@ -1208,7 +1208,7 @@
     },
     "ArtifactLedgerEntry": {
       "title": "ArtifactLedgerEntry",
-      "description": "One published artifact's auto-reply ledger, keyed in the ledger record by the artifact uuid (observed reading-room 2026-09-02 to 2026-09-15, home-room to 2026-09-29): when it was saved, the high-water stamp of replies, whether it was ever baselined or ever had threads, the turn timestamps and threads seen, and whether the reply was interrupted. The six required keys are present on every observed entry; interrupted on one.",
+      "description": "One published artifact's auto-reply ledger, keyed in the ledger record by the artifact uuid (observed reading-room 2026-09-02 to 2026-09-15, home-room to 2026-09-29): when it was saved, the high-water stamp of replies, whether it was ever baselined or ever had threads, the turn timestamps and threads seen, and once an interrupted flag. The six required keys are present on every observed entry; interrupted on one.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1253,7 +1253,7 @@
           "type": "array"
         },
         "interrupted": {
-          "description": "Whether the automatic reply on the artifact was interrupted (2.1.283 onward). Observed value: true, on one entry of home-room's session 41ff13e9, written 2026-09-27T20:16:32Z between turnTimestamps and threads; the entries saved before and after it carry no interrupted. Undeclared before v22.",
+          "description": "Observed once: true, on the entry of home-room's session 41ff13e9 saved 2026-09-27T20:16:32Z (2.1.283), between turnTimestamps and threads, in the same millisecond as a user's interrupt of a tool use and two records before a task notification saying '1 artifact auto-reply subscription paused by the interrupt'; the entry saved after the user's next typed message carries no interrupted. Read, from that notification, as the watch's paused state - an inference. A plain interrupt under an armed watch on reading-room, 2026-10-07 (2.1.291), wrote no such entry, so what makes the harness write it is not known. Undeclared before v22.",
           "type": "boolean"
         }
       }
