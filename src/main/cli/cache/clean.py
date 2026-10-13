@@ -1,37 +1,30 @@
 #!/usr/bin/env python
 """
-clean.py — remove ORPHANED tmp/cache/ subtrees: paths the machinery neither writes
-nor reads.
+clean.py - remove the ORPHANED tmp/cache/ entries bare corpus-yoga cache names: paths the
+machinery neither writes nor reads (src/main/cli/cache/cache_io.py `orphans`).
 
-tmp/cache/ is the workshop — rebuildable derivations, every live subtree OWNED by a
-pipeline (its validation/derivation tree) or an out-of-band command (its
-output). A path under tmp/cache/ that is neither an owned subtree, nor inside one,
-nor an ancestor of one (a parent kept only to reach owned children) is
-RESIDUE: a former output whose producer moved or was renamed — e.g. the
-projected markdown that moved to data/output/markdown/claude/chat/conversations, orphaning
-tmp/cache/chat-capture/markdown; or a tmp/cache/<old-name>/ left by a pipeline rename.
+tmp/cache/ is the workshop - rebuildable derivations, every live subtree OWNED by a
+pipeline (its validation/derivation tree) or an out-of-band command (its output). A path
+under tmp/cache/ that is neither an owned subtree, nor inside one, nor an ancestor of one
+(a parent kept only to reach owned children) is RESIDUE: a former output whose producer
+moved or was renamed - the completion home before #785, tmp/cache/completions, is the
+latest case. Being derived, an orphan is safe to remove (nothing regenerates it here); and
+even a mistaken removal of a LIVE subtree costs only a pipeline re-run, never data - that
+is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
 
-"Not written AND not read" is the criterion — coverage by the machinery in
-either direction is what makes a tmp/cache/ path live. Being derived, an orphan is
-safe to remove (nothing regenerates it here); and even a mistaken removal of a
-LIVE subtree costs only a pipeline re-run, never data — that is the tmp/cache/
-contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
+The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync and
+`corpus-yoga test run`'s check_cache_io - one registry, three consumers.
 
-The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync
-and `corpus-yoga test run`'s check_cache_io — one registry, three consumers.
-
-STDLIB-ONLY. One of --dry-run / --apply is REQUIRED: cleaning is deliberate,
-never a default, and never a silent no-op.
+The verb takes no flag (#865), as the stage's and the store's cleaners do (#844): what it
+would remove is what the status names, and its faces are src/main/cleaner.py's - will
+remove: before each act, did or did NOT after, the status relayed, the verdict last.
 
 Usage:
-    corpus-yoga cache clean --dry-run   # list orphaned tmp/cache/ subtrees with sizes; remove nothing
-    corpus-yoga cache clean --apply     # remove them
+    corpus-yoga cache clean
 """
 import shutil
 import sys
 from pathlib import Path
-
-from cache_io import owned_paths
 
 SELF = 'src/main/cli/cache/clean.py'
 _file = Path(__file__).resolve()
@@ -39,85 +32,42 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
+import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
+import facts  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from declared_parser import verb_parser
+from declared_parser import verb_parser  # noqa: E402
+sys.path.insert(0, str(_file.parent))
+import cache as noun  # noqa: E402 - the status the cleaner relays
+from cache_io import human, orphans, size_of  # noqa: E402
 
 REPO = REPO_ROOT
 CACHE = tier.TMP / 'cache'
+KINDS = {'orphan': 'orphans'}
 
 
-def orphans(root: Path) -> list[Path]:
-    """The tmp/cache/ entries the machinery neither writes nor reads. An entry is KEPT
-    when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we
-    never descend into owned dirs), or an ANCESTOR of one (descend to reach the
-    owned child); everything else is returned as an orphan, without descending.
-    Paths compare repo-relative (`tmp/cache/…`), matching the registry's cache_path."""
-    owned = owned_paths()
-    found: list[Path] = []
-
-    def visit(d: Path) -> None:
-        rel = d.relative_to(REPO).as_posix()
-        if rel in owned:
-            return  # owned subtree — keep whole, do not descend
-        if any(o.startswith(rel + '/') for o in owned):
-            for child in sorted(d.iterdir()):       # ancestor of an owned path
-                visit(child)
-            return
-        found.append(d)  # neither owned, inside-owned, nor ancestor-of-owned
-
-    for child in sorted(root.iterdir()):
-        visit(child)
-    return found
+def _dispose(path: Path) -> str | None:
+    try:
+        if path.is_dir() and not path.is_symlink():
+            shutil.rmtree(path)
+        elif path.exists() or path.is_symlink():
+            path.unlink()
+    except OSError as e:
+        return (e.strerror or str(e)).lower()
+    return None if not (path.exists() or path.is_symlink()) else 'still present'
 
 
-def _size(p: Path) -> int:
-    if p.is_file():
-        return p.stat().st_size
-    return sum(f.stat().st_size for f in p.rglob('*') if f.is_file())
-
-
-def _human(n: float) -> str:
-    for unit in ('B', 'K', 'M'):
-        if n < 1024:
-            return f'{n:.0f}{unit}' if unit == 'B' else f'{n:.1f}{unit}'
-        n /= 1024
-    return f'{n:.1f}G'
+def entries() -> list[cleaner.Entry]:
+    """Everything the janitor acts on: each orphan by its path, with its size."""
+    return [cleaner.Entry('orphan', p.relative_to(REPO).as_posix(),
+                          {'orphan': 'no current step writes or reads it', 'size': human(size_of(p))},
+                          lambda p=p: _dispose(p), p.relative_to(REPO).as_posix())
+            for p in orphans(CACHE)]
 
 
 def main() -> int:
-    # Generated from the declaration (#476): the required --dry-run|--apply
-    # exclusivity is the declared 1/-class.
-    args = verb_parser('cache', 'clean').parse_args()
-
-    if not CACHE.is_dir():
-        print('no tmp/cache/ — nothing to clean')
-        return 0
-
-    found = orphans(CACHE)
-    if not found:
-        print('tmp/cache/ is clean — every subtree is written or read by a current step')
-        return 0
-
-    total = 0
-    for p in found:
-        n = _size(p)
-        total += n
-        rel = p.relative_to(REPO).as_posix()
-        verb = 'orphan' if args.dry_run else 'removing'
-        print(f'  {verb}: {rel}  ({_human(n)}) — not written or read by any current step')
-        if args.apply:
-            if p.is_dir():
-                shutil.rmtree(p)
-            else:
-                p.unlink()
-
-    if args.dry_run:
-        print(f'DONE — dry run: {len(found)} orphan(s), {_human(total)} — pass --apply to remove')
-        print('    → run: corpus-yoga cache clean --apply')
-    else:
-        print(f'DONE — removed {len(found)} orphan(s), {_human(total)} freed')
-    return 0
+    verb_parser('cache', 'clean').parse_args()
+    return cleaner.clean('cache', entries(), KINDS, lambda: facts.say(noun.status_facts()))
 
 
 if __name__ == '__main__':

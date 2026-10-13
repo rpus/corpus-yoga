@@ -1,19 +1,6 @@
 {
-  "help": "remove orphaned tmp/cache/ subtrees (neither written nor read by any registry producer)",
-  "args": [
-    {
-      "name": "--dry-run",
-      "type": "",
-      "cardinality": "1/cache-clean-1",
-      "help": "list the orphaned subtrees; remove nothing"
-    },
-    {
-      "name": "--apply",
-      "type": "",
-      "cardinality": "1/cache-clean-1",
-      "help": "remove the orphaned subtrees"
-    }
-  ],
+  "help": "remove the orphaned tmp/cache/ entries the status names - neither written nor read by any registry producer; prints what it will remove, what it did remove, the status, and the verdict",
+  "args": [],
   "r": [
     "rsc/cache_io.csv",
     "tmp/cache"

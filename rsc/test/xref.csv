@@ -753,16 +753,18 @@ src/main/cli/browser/capture.sh,26,comment,src/main/tier.sh,Y,# shellcheck sourc
 src/main/cli/browser/capture.sh,57,call,src/main/cli/browser/capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" \"
 src/main/cli/browser/claude/api.py,13,path_str,src/main/cli/browser/claude/api.py,Y,SELF = 'src/main/cli/browser/claude/api.py'
 src/main/cli/browser/status.py,10,path_str,src/main/cli/browser/status.py,Y,SELF = 'src/main/cli/browser/status.py'
-src/main/cli/cache/cache.json,3,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
-src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
-src/main/cli/cache/cache.py,12,comment,src/main/cli/cache/sync.py,Y,src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
+src/main/cli/cache/cache.json,7,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
+src/main/cli/cache/cache.py,10,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
+src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/sync.py,Y,src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
 src/main/cli/cache/cache_io.py,3,comment,rsc/cache_io.csv,Y,"cache_io.py — the reader for rsc/cache_io.csv, the declared tmp/cache/ IO registry."
 src/main/cli/cache/cache_io.py,25,path_str,src/main/cli/cache/cache_io.py,Y,SELF = 'src/main/cli/cache/cache_io.py'
-src/main/cli/cache/clean.json,18,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"","
-src/main/cli/cache/clean.py,18,comment,rsc/CALCULUS.md,Y,"contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
-src/main/cli/cache/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync"
-src/main/cli/cache/clean.py,36,path_str,src/main/cli/cache/clean.py,Y,SELF = 'src/main/cli/cache/clean.py'
-src/main/cli/cache/clean.py,52,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
+src/main/cli/cache/cache_io.py,107,comment,rsc/cache_io.csv,Y,"kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never"
+src/main/cli/cache/clean.json,5,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"","
+src/main/cli/cache/clean.py,4,comment,src/main/cli/cache/cache_io.py,Y,machinery neither writes nor reads (src/main/cli/cache/cache_io.py `orphans`).
+src/main/cli/cache/clean.py,13,comment,rsc/CALCULUS.md,Y,"is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
+src/main/cli/cache/clean.py,15,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync and"
+src/main/cli/cache/clean.py,19,comment,src/main/cleaner.py,Y,"would remove is what the status names, and its faces are src/main/cleaner.py's - will"
+src/main/cli/cache/clean.py,29,path_str,src/main/cli/cache/clean.py,Y,SELF = 'src/main/cli/cache/clean.py'
 src/main/cli/cache/sync.json,12,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/cache/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/cli/cache/sync.py,37,path_str,src/main/cli/cache/sync.py,Y,SELF = 'src/main/cli/cache/sync.py'
@@ -1499,7 +1501,6 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/browser/promote.json,Y,
 ,,self_only,src/main/cli/browser/status.py,Y,
 ,,,src/main/cli/cache/cache.json,Y,
-,,self_only,src/main/cli/cache/cache_io.py,Y,
 ,,,src/main/cli/cache/clean.json,Y,
 ,,,src/main/cli/cache/sync.json,Y,
 ,,,src/main/cli/calculus/calculus.json,Y,

@@ -1,5 +1,9 @@
 {
-  "summary": "the rebuildable tmp/cache/ tier - clean removes orphans, sync rebuilds",
+  "summary": "the rebuildable tmp/cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; sync rebuilds",
+  "explanation": {
+    "orphans": "each entry under tmp/cache that no current step writes or reads, by its path, with its size and corpus-yoga cache clean as its remedy - a former output whose producer moved or was renamed",
+    "next": "what to run next - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where every entry is owned"
+  },
   "target": "src/main/cli/cache/cache.py",
   "calculus": "project",
   "args": [],

@@ -513,6 +513,7 @@ report() {
   graft stage "/invalid" standing
   graft stage "/refused" standing
   graft store "/next" standing
+  graft cache "/next" standing
   graft migration ""
 
   # A report is information: it exits 0 unless it could not BE produced. Severity

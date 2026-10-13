@@ -3,16 +3,16 @@
 cache.py — the `corpus-yoga cache` dispatcher. `cache` is a NOUN: the rebuildable tmp/cache/
 tier. Bare shows its state and writes nothing; the verbs do the work.
 
-    corpus-yoga cache                    # status: the tmp/cache/ subtrees present
-    corpus-yoga cache clean --dry-run    # report orphaned tmp/cache/ subtrees (neither written nor read)
-    corpus-yoga cache clean --apply      # remove them
+    corpus-yoga cache                    # status: the tmp/cache/ subtrees present, each orphan, and what to run next
+    corpus-yoga cache clean              # remove the orphaned subtrees the status names (neither written nor read)
     corpus-yoga cache sync [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
 
 Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
 src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
-are the two halves of the reproduction ritual: `corpus-yoga cache clean --apply &&
+are the two halves of the reproduction ritual: `corpus-yoga cache clean &&
 corpus-yoga cache sync` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
-idempotent regenerator (L1); `clean` is the only destructive verb.
+idempotent regenerator (L1); `clean` is the only destructive verb, and takes no flag
+(#865): what it would remove is what bare cache names under orphans: and next:.
 STDLIB-ONLY, like everything it routes to.
 """
 import os
@@ -25,6 +25,8 @@ REPO = HERE.parents[3]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
+sys.path.insert(0, str(HERE))
+from cache_io import human, orphans, size_of  # noqa: E402 - the registry, and what it does not own (#865)
 VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
 USAGE = (__doc__ or '').strip()
 
@@ -35,16 +37,36 @@ class Tree:
 
 
 @dataclass
+class Orphan:
+    """An entry under tmp/cache that no current step writes or reads, with the act that removes it."""
+    size: str
+    why: str = 'no current step writes or reads it'
+    remedy: facts.Command = facts.Command('corpus-yoga cache clean', 'would remove it')
+
+
+@dataclass
 class Status:
+    """Bare corpus-yoga cache: the subtrees present, each orphan by its path, and under
+    next: the cleaner over what it would remove, by path (#865), so that bare status, which
+    grafts next:, names an orphaned subtree a room carries."""
     tmp_cache: Tree = facts.named('tmp/cache')
+    orphans: dict[str, Orphan] | None = None
+    next: dict[str, dict[str, dict[str, int]]] | str | None = None
     cache: str = ''               # the verdict
 
 
-def status() -> int:
-    """The bare-noun default: show current state, write nothing."""
+def status_facts() -> Status:
+    """The bare-noun default as facts: the state, nothing written."""
     cache = tier.TMP / 'cache'
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
-    facts.say(Status(Tree(subs or 'none'), f'{len(subs)} subtree(s) present'))
+    found = {p.relative_to(REPO).as_posix(): Orphan(human(size_of(p))) for p in orphans(cache)}
+    return Status(Tree(subs or 'none'), found,
+                  {'corpus-yoga cache clean': {'would remove': {rel: 1 for rel in found}}} if found else 'none - nothing to do',
+                  f'{len(subs)} subtree(s) present' + (f', {len(found)} orphan(s)' if found else ''))
+
+
+def status() -> int:
+    facts.say(status_facts())
     return 0
 
 
