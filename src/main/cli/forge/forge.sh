@@ -124,6 +124,23 @@ branches() {
       continue
     fi
     n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); oid=$(jq -r .headRefOid <<< "$pr_json")
+    # The verdict on a merged PR's branch is a function of the branch and the merge, never
+    # of which objects this checkout happens to hold (#864): a head pushed from another
+    # room and deleted at the merge is fetched from the PR's own ref before containment
+    # is judged, and where it cannot be held the row is UNVERIFIED, never KEPT.
+    if [[ "$st" == MERGED ]] && ! git -C "$REPO_DIR" cat-file -e "$oid^{commit}" 2>/dev/null; then
+      if may_send; then
+        quiet git -C "$REPO_DIR" fetch --quiet origin "refs/pull/$n/head" || true
+      fi
+      if ! git -C "$REPO_DIR" cat-file -e "$oid^{commit}" 2>/dev/null; then
+        if may_send; then
+          echo -e "UNVERIFIED\t$b\t#$n merged, but its head ${oid:0:8} is not held here and the fetch of refs/pull/$n/head did not bring it"
+        else
+          echo -e "UNVERIFIED\t$b\t#$n merged, but its head ${oid:0:8} is not held here and CORPUS_YOGA_NO_SEND=1 refuses the send git fetch"
+        fi
+        continue
+      fi
+    fi
     if [[ "$st" == CLOSED ]]; then
       if [[ -n "$holder" ]]; then
         echo -e "KEPT\t$b\t#$n is CLOSED, but the branch is checked out at $holder\tgit checkout $base"
