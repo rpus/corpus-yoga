@@ -1,17 +1,16 @@
-<!-- How this file reaches you: the web form serves it into a new issue's
-     description box from the default branch; `gh issue create` offers it
-     interactively; with `--body-file` (both rooms' practice) it is the
-     PROTOTYPE you copy from — a stale clone's copy lags the remote until
-     pulled, and nothing checks that.
-
-     The body opens with a Signature line, the same triad the commit hook
-     stamps (src/test/prepare_commit_msg.sh's header is the one authority for
-     the grammar): `Signature: <machine>/<provider>/<session>`. Written by
-     hand — no hook stamps a body — since raise time has no commit to hook.
-     The Signature is the body's ONE attribution. A harness default that
-     appends its own — a generated-with footer, a co-author line — has no
-     licensed position in a body, exactly as prepare_commit_msg.sh's stamp
-     already rules for commits; strip it before raising.
+<!-- How this file reaches you: `corpus-yoga forge raise issue --title <should>
+     --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]` raises the
+     issue (#887). The body FILE you draft holds the sections below from
+     "## currently" on, without "### as at": the forge stamps the Signature from the
+     triad the commit hook uses, derives the as-at anchor from the forge's main, and
+     wires each relation given as an argument through the blocked_by API, posting a
+     superseded issue's ledger note itself. The web form still serves this file as
+     the prototype, but a body that carries a Signature line, an as-at, a harness
+     footer, or a relation in prose - blocked by, blocks, part of, supersedes,
+     closes, sub-issue - is refused by the raise: the argument wires what the phrase
+     only narrated. The Signature is the body's ONE attribution; a harness default
+     that appends its own has no licensed position in a body, exactly as
+     prepare_commit_msg.sh's stamp already rules for commits.
 
      The grammar: an issue is a SHOULD. The title states it in one sentence,
      in should-form — the word appears — the property that should hold, never
@@ -28,10 +27,11 @@
      nothing — and review should reject it like any other defect. The worked
      example: #259.
 
-     Relations vocabulary, referring only: "part of #N", "supersedes #N",
-     "guards #N". No word in an issue body enacts anything — `closes` is the
-     PR grammar's one enacting word (.github/PULL_REQUEST_TEMPLATE.md) and
-     has no licensed position here.
+     Relations are the raise's arguments, wired as data: --blocked-by, --blocks
+     (the parent of a part), --supersedes. In prose, "guards #N" refers to the
+     check that holds an issue; "part of #N" and "supersedes #N" are refused, since
+     the argument wires them, and `closes` is the PR grammar's one enacting word
+     (.github/PULL_REQUEST_TEMPLATE.md) with no licensed position here.
 
      Closure: a PR that closes this issue should read as asserted compliance
      with "but, in future"; a standing property should end as a named check

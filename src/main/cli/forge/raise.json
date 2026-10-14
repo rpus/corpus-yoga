@@ -1,39 +1,80 @@
 {
-  "help": "raise the PR for a branch from the issues it aims to complete - the title the central issue's verbatim copy, the why section one aim line per issue, both generated, so that no aim is written by hand; the body file carries the Signature and the what, how and to sections",
+  "help": "raise a PR or an issue, the kind the first word - pr, from the issues it aims to complete, its title the first issue's verbatim copy and its why section one aim line per issue; issue, from its should and its relations, each wired as it is raised; the Signature and, for an issue, the as-at anchor stamped by the forge, so that no aim, no relation and no attribution is written by hand; the body file carries the drafter's sections alone",
   "args": [
+    {
+      "name": "kind",
+      "type": "<pr|issue>",
+      "cardinality": "1",
+      "help": "what is raised"
+    },
     {
       "name": "issue",
       "type": "<issue>",
       "cardinality": "*",
-      "help": "the issues the PR aims to complete, by number, the central one first - its title becomes the PR's"
+      "help": "pr - the issues the PR aims to complete, by number, the central one first; its title becomes the PR's"
     },
     {
       "name": "--head",
       "type": "<branch>",
-      "cardinality": "1",
-      "help": "the branch the forge holds, pushed already"
+      "cardinality": "",
+      "help": "pr - the branch the forge holds, pushed already"
+    },
+    {
+      "name": "--title",
+      "type": "<should>",
+      "cardinality": "",
+      "help": "issue - the should, in one sentence that carries the word and no issue number"
     },
     {
       "name": "--body",
       "type": "<file>",
       "cardinality": "1",
-      "help": "the body as drafted - its first line the Signature, then the what, how and to sections; it carries no aim line and no why section, which the forge writes"
+      "help": "the body as drafted - a PR's what, how and to; an issue's currently with its as is, and its but, in future; it carries no Signature, no aim line, no as-at and no narrated relation, which the forge writes or wires"
+    },
+    {
+      "name": "--blocked-by",
+      "type": "<issue>",
+      "cardinality": "*",
+      "help": "issue - an open issue this one waits on, wired as it is raised; repeatable"
+    },
+    {
+      "name": "--blocks",
+      "type": "<issue>",
+      "cardinality": "*",
+      "help": "issue - an open issue that waits on this one, the parent of a part, wired as it is raised; repeatable"
+    },
+    {
+      "name": "--supersedes",
+      "type": "<issue>",
+      "cardinality": "",
+      "help": "issue - the open issue this one replaces, closed as not planned with its relations transferred and the ledger note posted, in the one act"
     }
   ],
   "sends": {
     "gh issue view": [
-      "reads each aimed issue's state and title; a closed issue refuses the raise, and the first issue's title becomes the PR's"
+      "reads each named issue's state and title; a closed issue refuses the raise, and a PR's title is its first issue's"
     ],
     "gh api": [
-      "reads each aimed issue's open blockers (#482); an open blocker not aimed at refuses the raise, as it would the merge"
+      "reads each aimed issue's open blockers (#482); an open blocker not aimed at refuses the raise, as it would the merge",
+      "reads the forge's main, its sha and subject, for an issue's as-at anchor",
+      "WRITES each blocked_by edge an issue is raised with, and the edges a superseded issue held, then reads the raised issue's edges back (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "gh repo view": [
-      "reads the default branch, the PR's base"
+      "reads the default branch, the PR's base and the issue's anchor"
     ],
     "gh pr create": [
       "WRITES the PR with the generated title and body (refused loudly under CORPUS_YOGA_NO_SEND)"
+    ],
+    "gh issue create": [
+      "WRITES the issue with its should as the title and the composed body (refused loudly under CORPUS_YOGA_NO_SEND)"
+    ],
+    "gh issue close": [
+      "WRITES the superseded issue closed as not planned, with the ledger note naming its successor, the room and the date (refused loudly under CORPUS_YOGA_NO_SEND)"
     ]
   },
+  "r": [
+    "machine-name.txt"
+  ],
   "w": [
     "tmp/forge/raise"
   ]

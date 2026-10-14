@@ -4,7 +4,8 @@
 # Usage:
 #   corpus-yoga forge                 # declared vs live
 #   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-#   corpus-yoga forge raise <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (#884)
+#   corpus-yoga forge raise pr <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (#884)
+#   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (#887)
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
 #   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged

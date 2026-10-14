@@ -3191,6 +3191,33 @@ def check_forge_aim(run) -> None:
     flipped_ok = '- closes #876 - the first should' in armed and '- closes #801 - the second should' in armed and aim.PHRASE not in armed.replace('`aims to complete #1`', '')
     run('forge: the flip rewrites each aim line to closes and nothing else', flipped_ok,
         None if flipped_ok else f'the armed body reads {armed[:200]}', check='forge.aim_one_line_per_issue')
+    # An issue is raised from its should and its relations (#887): a title that is not a
+    # should, and a relation narrated in prose, are refused before any send.
+    try:
+        should = importlib.import_module('should')
+    except ModuleNotFoundError:
+        run('forge: an issue\'s title is a should and its relations are wired, never narrated', False,
+            'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_is_a_should_with_wired_relations')
+        return
+    def refuses(call) -> bool:
+        try:
+            call()
+        except ValueError:
+            return True
+        return False
+    title_held = (refuses(lambda: should.check_title('the forge noun becomes dev'))
+                  and refuses(lambda: should.check_title('the merge should close #801'))
+                  and not refuses(lambda: should.check_title('an issue should be raised by the forge')))
+    run('forge: an issue\'s title is a should and its relations are wired, never narrated', title_held,
+        None if title_held else 'a title without the word, or with an issue number, passed as a should', check='forge.issue_is_a_should_with_wired_relations')
+    clean = '## currently\n\n### as is\n\n- a fact.\n\n## but, in future\n\n- a should; `part of #1` said about.\n'
+    body_held = (not refuses(lambda: should.check_body(clean))
+                 and refuses(lambda: should.check_body(clean.replace('a fact.', 'a fact, blocked by #3.')))
+                 and refuses(lambda: should.check_body(clean.replace('a should;', 'a should, part of #740;')))
+                 and refuses(lambda: should.check_body(clean.replace('## currently', '## currently\n\n### as at\n\nmain @ abc')))
+                 and refuses(lambda: should.check_body('## but, in future\n\n- a should.\n\n## currently\n\n### as is\n')))
+    run('forge: an issue\'s body is the template\'s sections, and narrates no relation', body_held,
+        None if body_held else 'a narrated relation, a hand-written as-at, or sections out of order passed', check='forge.issue_is_a_should_with_wired_relations')
 
 
 def check_provider_registry(run) -> None:
