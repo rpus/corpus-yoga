@@ -34,8 +34,8 @@ The janitor, store clean, acts on the second reading (#744): each duplicate, of 
 species, goes with what only it feeds - its members, its record and its shadow under the
 cache - and the holder stays; an orphaned shadow, the cache's derivation of a unit the
 store no longer holds, goes too. Its lines keep their tenses - will remove before each
-act, did or did NOT after - the status is re-read beneath them, and the verdict is the
-last line, DONE only when every entry went; the dry run is the apply with the act elided.
+act, did or did NOT after - then next:, what the room can do after the act, corpus-yoga
+status last (#801), and the verdict is the last line, DONE only when every entry went.
 """
 import sys
 from pathlib import Path
@@ -95,18 +95,9 @@ def entries() -> list[cleaner.Entry]:
 
 
 def store_next(rows: list[corpus.Judged], ahead: list[live.Ahead]) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next, by command, in the workflow's order (#851): its verb, then each
-    kind it acts on with how many - a capture for each live thing ahead of both tiers, the
-    rehearsal for what is staged and not judged, each capturing noun's promote for what is
-    promotable, the stage's cleaner for what the store already holds and for the stage's
-    incomplete units and orphans, and this janitor for what the store no longer needs, by
-    the selection each entry is counted under."""
-    out: dict[str, dict[str, dict[str, int]]] = {}
-    live.captures(out, ahead)
-    corpus.promotion_next(out, rows)
-    for entry in entries():
-        corpus.step(out, 'corpus-yoga store clean', entry.under)
-    return out
+    """What to run next, by command, in the workflow's order (#851): the room's one reading,
+    corpus.room_next, over the rows and the live reading this status has already read."""
+    return corpus.room_next(rows, ahead)
 
 
 def status_facts() -> corpus.StoreStatus:
@@ -125,7 +116,7 @@ def status_facts() -> corpus.StoreStatus:
 
 
 def clean() -> int:
-    return cleaner.clean('store', entries(), KINDS, lambda: facts.say(status_facts()))
+    return cleaner.clean('store', entries(), KINDS, corpus.room_next)
 
 
 def main() -> int:

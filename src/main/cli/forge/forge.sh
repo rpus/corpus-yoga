@@ -274,12 +274,19 @@ status() {
 # count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it.
 count() { if (( $1 == 1 )); then echo "$1 $2"; else echo "$1 $3"; fi; }
 
+# tail_of <verdict>: what an act reports after its lines (#801, #875), through
+# src/main/facts.py - next:, the room's to-do re-read after the effect, corpus-yoga status
+# last, then the verdict as the last line.
+tail_of() {
+  "$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus, facts; facts.report(None, corpus.room_next(), sys.argv[2])' "$REPO_DIR/src/main" "$1"
+}
+
 clean() {
   # The forge's cleaner (#871): what it removes is what the status names - each DELETABLE
   # or SERVER_DELETABLE branch, each STALE tracking ref - and its lines are the one shape
   # every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or
-  # did NOT remove beneath each, the status relayed, the verdict last. No flag: the status
-  # is the dry run.
+  # did NOT remove beneath each, next: and the verdict last (#801). No flag: the status is
+  # the dry run.
   local rows stale st key detail kind why item removed_branches=0 removed_refs=0
   local -a items=() left=()
   rows="$(branches)" || return 1
@@ -318,17 +325,14 @@ clean() {
       left+=("$kind: $key - $why")
     fi
   done
-  echo
-  status || true
-  echo
   local counts=""
   (( removed_branches )) && counts="$(count "$removed_branches" branch branches)"
   (( removed_refs )) && counts="${counts:+$counts, }$(count "$removed_refs" ref refs)"
   if (( ${#left[@]} )); then
-    echo "forge clean: NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
+    tail_of "forge clean: NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
     return 1
   fi
-  echo "forge clean: DONE - did remove ${counts:-nothing}"
+  tail_of "forge clean: DONE - did remove ${counts:-nothing}"
 }
 
 sync() {
@@ -682,11 +686,11 @@ merge_chain() {
     return 1
   fi
   landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - merged, but the merge commit read failed; converge by hand: git fetch origin && git merge --ff-only"; return 1; }
-  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! clean     || ! quote git -C "$REPO_DIR" status; then
+  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! clean     || ! quiet git -C "$REPO_DIR" status; then
     echo "forge merge: NOT DONE - merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
     return 1
   fi
-  echo "forge merge: DONE - #$pr squashed as ${landed:0:8} ($n should(s) closed); this checkout converged on it"
+  tail_of "forge merge: DONE - #$pr squashed as ${landed:0:8} ($n should(s) closed); this checkout converged on it"
 }
 
 # The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.

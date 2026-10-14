@@ -17,7 +17,7 @@ The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with syn
 
 The verb takes no flag (#865), as the stage's and the store's cleaners do (#844): what it
 would remove is what the status names, and its faces are src/main/cleaner.py's - will
-remove: before each act, did or did NOT after, the status relayed, the verdict last.
+remove: before each act, did or did NOT after, next: and the verdict last (#801).
 
 Usage:
     corpus-yoga cache clean
@@ -33,6 +33,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
 import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#875)
 import facts  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
@@ -67,7 +68,7 @@ def entries() -> list[cleaner.Entry]:
 
 def main() -> int:
     verb_parser('cache', 'clean').parse_args()
-    return cleaner.clean('cache', entries(), KINDS, lambda: facts.say(noun.status_facts()))
+    return cleaner.clean('cache', entries(), KINDS, lambda: {**corpus.room_next(), **(following if isinstance(following := noun.status_facts().next, dict) else {})})
 
 
 if __name__ == '__main__':

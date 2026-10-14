@@ -29,6 +29,7 @@ sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
 import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#875)
 import facts  # noqa: E402
 import tier  # noqa: E402
 
@@ -136,7 +137,7 @@ def entries() -> list[cleaner.Entry]:
 def main() -> int:
     args = command_parser('logs').parse_args()
     if args.verb == 'clean':
-        return cleaner.clean('logs', entries(), KINDS, lambda: facts.say(status_facts()))
+        return cleaner.clean('logs', entries(), KINDS, lambda: {**corpus.room_next(), **(own if isinstance(own := status_facts().next, dict) else {})})
     facts.say(status_facts())
     return 0
 
