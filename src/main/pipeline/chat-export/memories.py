@@ -51,6 +51,7 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 # renamed on import: this file's own deposit() puts memory STATES into the
 # library; the shared one puts rendered FILES into a directory (#426)
 from markdown_projection import deposit as deposit_files  # noqa: E402
@@ -193,10 +194,14 @@ def sync(chat_export_cache: Path, memories_output: Path, markdown: Path) -> int:
     Free, local, idempotent (L1) — the only path here that writes."""
     states = memory_states(chat_export_cache)
     if not states:
-        print(f'no archived memory states under {chat_export_cache} — nothing to accumulate')
+        cache = Path(chat_export_cache)
+        facts.report(None, corpus.room_next(), 'memories sync: DONE - no archived memory states under '
+                     f'{cache.relative_to(REPO) if cache.is_relative_to(REPO) else cache}; nothing to accumulate')
         return 0
     deposits, conflicts = deposit(states, memories_output)
     render(deposits, markdown)
+    facts.report(None, corpus.room_next(), f'memories sync: {"NOT DONE" if conflicts else "DONE"} - {len(deposits)} deposit(s)'
+                 + (f'; {conflicts} CONFLICT(S), each left in place' if conflicts else ''))
     return 1 if conflicts else 0
 
 

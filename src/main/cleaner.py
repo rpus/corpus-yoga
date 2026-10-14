@@ -11,7 +11,7 @@ cleaner takes no flag (#844): what it would remove is what the noun's status nam
 there is no dry run, and the act is one act.
 
 The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
-beneath, `{}` where there is none; `did remove:` or `did NOT remove: <why>` beneath each after
+beneath, `{}` where there is none; `did remove: it` or `did NOT remove: <why>` beneath each after
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
 was carried out. Then next:, the acts the room can take after this one, corpus-yoga status
 last (#801), and the verdict is the last line - DONE only when every entry went, NOT DONE
@@ -41,17 +41,18 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Ca
     block after the acts. Returns 1 while anything named was NOT removed."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
-    print('will remove:' + ('' if entries else ' {}'))
+    width = facts.terminal_width()
+    print(facts.opening('will remove') if entries else facts.lines({'will remove': {}})[0])
     for entry in entries:
-        for line in facts.lines(facts.plain({entry.key: entry.facts}), 1, width=facts.terminal_width()):
+        for line in facts.lines(facts.plain({entry.key: entry.facts}), 1, width=width):
             print(line)
         why = entry.act()
         if why is None:
-            print('    did remove:')
             did[entry.kind] += 1
         else:
-            print(f'    did NOT remove: {why}')
             left.append(f'{entry.kind}: {entry.key} - {why}')
+        for line in facts.lines({'did remove': 'it'} if why is None else {'did NOT remove': why}, 2, width=width):
+            print(line)
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
     if left:
         facts.report(None, following(), f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))

@@ -363,7 +363,6 @@ def demerge(proj_dir: Path, apply: bool) -> int:
             idx.write_text('\n'.join(remaining) + ('\n' if remaining else ''))
     print('note: session .jsonl files and their eponymous workspace dirs are '
           'visit residue demerge does not touch')
-    print('DONE' if apply else 'dry run — pass --apply to undo the merge')
     return 0
 
 

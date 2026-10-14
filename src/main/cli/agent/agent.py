@@ -425,6 +425,10 @@ def main() -> int:
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj, args.apply) else 0)
+        # what an act reports (#876): next: - the apply of a dry run - and the verdict
+        facts.report(None, {**corpus.room_next(), **({'corpus-yoga agent demerge --apply': 'would undo them'} if not args.apply else {})},
+                     f'agent demerge: {"NOT DONE" if rc else "DONE"} - {"did" if args.apply else "would"} undo the latest merge of each project above'
+                     + ('; a conflict left one in place' if rc else ''))
         return rc
 
     bundle = peer_bundle(args.source)

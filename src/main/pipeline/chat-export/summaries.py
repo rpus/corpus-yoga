@@ -52,6 +52,7 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 from markdown_projection import REPO, find_api_json
 
 from declared_parser import command_parser  # noqa: E402
@@ -227,8 +228,10 @@ def main():
         # L8: absence is a signal. No projected corpus means an upstream failure
         # (or a corpus-less clone) — depositing under fallback names would file
         # readings wrongly and then hold them immutable. Skip, loudly.
-        print(f'summaries: no projected conversations under {args.conversations_output} — '
-              'skipping (deposits key on the projection; run the chat-capture pipeline first)')
+        conversations = Path(args.conversations_output)
+        facts.report(None, corpus.room_next(), 'summaries sync: DONE - skipped; no projected conversations under '
+                     f'{conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations}; '
+                     'deposits key on the projection, which corpus-yoga pipeline run chat-capture makes')
         return 0
     readings = readings_by_uuid(Path(args.chat_export_cache))
     captured = capture_summaries(Path(args.api_capture))
@@ -296,12 +299,12 @@ def main():
         names = sorted(f.name for f in folder.glob('*.md') if f.name != 'index.md')
         _write_if_changed(folder / 'index.md', index_text(u, stem, title, names))
 
-    print(f'summaries: {deposited} reading(s) deposited, {unchanged} already held, '
-          f'{renamed} folder(s) renamed -> {root.relative_to(REPO) if root.is_relative_to(REPO) else root}'
-          + (f'; {conflicts} CONFLICT(S)' if conflicts else ''))
     # the standing twin detector runs on every sync too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
+    facts.report(None, corpus.room_next(), f'summaries sync: {"NOT DONE" if conflicts else "DONE"} - {deposited} reading(s) deposited, {unchanged} already held, '
+                 f'{renamed} folder(s) renamed, under {root.relative_to(REPO) if root.is_relative_to(REPO) else root}'
+                 + (f'; {conflicts} CONFLICT(S)' if conflicts else ''))
     return 1 if conflicts else 0
 
 

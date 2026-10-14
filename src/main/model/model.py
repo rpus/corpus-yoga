@@ -35,6 +35,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
@@ -160,23 +161,26 @@ def curation_report() -> tuple[Table, Join]:
 def sync() -> None:
     """The verb: bring tmp/cache/model into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
+    written = removed = 0
     for name, schema, target in _catalogues():
         target.parent.mkdir(parents=True, exist_ok=True)
         text = generate(name, schema)
         if target.exists() and target.read_text() == text:
             continue   # content-keyed (#494): current means no write
         target.write_text(text)
+        written += 1
         print(f'  ✓ {target.relative_to(REPO_ROOT)}')
     for stale in _underived():
         stale.unlink()
+        removed += 1
         print(f'  removed {stale.relative_to(REPO_ROOT)} - no schema version derives it')
     for directory in sorted((d for d in CATALOGUE_DIR.rglob('*') if d.is_dir()), reverse=True):
         if not any(directory.iterdir()):
             directory.rmdir()
     render_collision_worksheet()
-    # the report is status's (bare corpus-yoga model): a sync writes, and the run's
-    # tail probes status right after it - reporting here too would state every
-    # finding twice in one section (#494)
+    # the findings are status's (bare corpus-yoga model): a sync writes, and what an act
+    # reports (#876) is next: and the verdict, the last line
+    facts.report(None, corpus.room_next(), f'model sync: DONE - {written} catalogue(s) written, {removed} removed')
 
 
 def render_collision_worksheet() -> None:
@@ -295,12 +299,15 @@ def main():
             parser.error(f'{args.verb} takes a <name> or --all, not both and not neither')
         from datetime import date
         today = date.today().isoformat()
+        disposed = 0
         for row in _disposal_rows(parser, args):
             if args.verb == 'accept':
                 print(accept_shared_name(row, today))
             else:
                 print(reject_shared_name(row, args.reason, today))
+            disposed += 1
         render_collision_worksheet()
+        facts.report(None, corpus.room_next(), f'model {args.verb}: DONE - {disposed} shared name(s) {args.verb}ed')
     else:
         # bare → status (read-only); only the verbs above write
         status()

@@ -34,6 +34,8 @@ source "$REPO_ROOT/src/main/steps.sh"
 source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_ROOT/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 # shellcheck source=src/main/provider.sh
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
@@ -114,12 +116,18 @@ parse_args() {
 sync_matrices() {
   parse_args "$@"
   [[ -z "$item" ]] || { echo "corpus-yoga pipeline sync: takes a pipeline, not an item ($item)" >&2; exit 1; }
-  local p
+  local p rc=0
   for p in $(pipelines); do
     should_run "$p" || continue
     "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/test/dev/gen_changelog_matrix.py" \
-      --pipeline "$p" --write
+      --pipeline "$p" --write || rc=1
   done
+  if (( rc == 0 )); then
+    tail_of "pipeline sync: DONE - each datum's matrix.md re-rendered from its validation logs"
+  else
+    tail_of "pipeline sync: NOT DONE - a pipeline's matrices were not rendered; the line above names it" "corpus-yoga pipeline run" "validates the data the matrices read"
+  fi
+  return $rc
 }
 
 # Does this pipeline run? True when unfiltered or when --only names it.
@@ -540,9 +548,15 @@ main() {
   # served. The data-tier coupling this line once narrated (pipelines move what the
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
-  echo "outputs: data/output/markdown/index.md · read served: corpus-yoga server start --daemon (http://localhost:8182)"
+  echo "outputs: data/output/markdown/index.md"
   echo "Log: $LOG_FILE"
-  # The verdict must leave this function: callers chain on $?.
+  # what an act reports (#876): the usr gate's own verdict stands above; next: and the
+  # act's verdict end the run. The verdict must leave this function: callers chain on $?.
+  if [[ ${#verdict_failures[@]} -eq 0 ]]; then
+    tail_of "pipeline run: DONE - usr gate PASS; all pipelines completed" "corpus-yoga server start --daemon" "serves data/output/markdown at http://localhost:8182"
+  else
+    tail_of "pipeline run: NOT DONE - usr gate FAIL; the failing stage(s) are named above"
+  fi
   return $(( ${#verdict_failures[@]} > 0 ))
 }
 
