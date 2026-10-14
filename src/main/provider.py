@@ -18,6 +18,7 @@ read in one place.
 import csv
 import os
 import re
+import subprocess
 from pathlib import Path
 
 SELF = 'src/main/provider.py'
@@ -80,6 +81,15 @@ def machine() -> str:
         name = re.sub(r'[^A-Za-z0-9_-]', '', BINDING.read_text())
     except OSError:
         name = ''
+    if not name:
+        # a worktree holds no binding of its own: it is on the machine of the checkout it
+        # was added from, whose .git is git's common dir (#887)
+        try:
+            common = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--git-common-dir'],
+                                    capture_output=True, text=True, check=True).stdout.strip()
+            name = re.sub(r'[^A-Za-z0-9_-]', '', (Path(common).resolve().parent / BINDING.name).read_text())
+        except (OSError, subprocess.CalledProcessError):
+            name = ''
     return name or 'unbound'
 
 

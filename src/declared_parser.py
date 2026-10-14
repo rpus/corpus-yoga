@@ -107,6 +107,8 @@ def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
         if r['arg-name'].startswith('--'):
             if r['arg-type']:
                 kwargs.setdefault('metavar', r['arg-type'])
+                if card == '*':
+                    kwargs.setdefault('action', 'append')   # repeatable: each occurrence one value
             else:
                 kwargs.setdefault('action', 'store_true')
             if card == '1':

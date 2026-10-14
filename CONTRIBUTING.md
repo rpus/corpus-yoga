@@ -1,12 +1,18 @@
 # Contributing
 
-Raise with `./corpus-yoga forge raise <issue>... --head <branch> --body <file>` (#884): the
-title is the first issue's title, verbatim, and the why section is one aim line per
-issue, `- aims to complete #N - <title>`, both generated, so that no aim is written by
-hand and the merge reads exactly what the forge wrote. The body file carries the
-Signature line and the what, how and to sections as .github/PULL_REQUEST_TEMPLATE.md
-teaches them, and nothing the forge writes. An open blocker not aimed at refuses the
-raise as it would the merge (#482). The body as sent is kept under `tmp/forge/raise/`.
+Raise a PR with `./corpus-yoga forge raise pr <issue>... --head <branch> --body <file>`
+(#884): the title is the first issue's title, verbatim, and the why section is one aim
+line per issue, `- aims to complete #N - <title>`, both generated, so that no aim is
+written by hand and the merge reads exactly what the forge wrote. Raise an issue with
+`./corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]...
+[--blocks N]... [--supersedes N]` (#887): the title is held to be a should, each
+relation is wired through the blocked_by API as the issue is raised and read back, and a
+superseded issue is closed with its relations transferred and its ledger note posted,
+in the one act. Both faces stamp the Signature from the triad the commit hook uses and
+derive what they can - the PR's base, the issue's as-at anchor from the forge's main -
+so the body file carries the drafter's sections alone, as the two templates teach them,
+and nothing the forge writes. An open blocker not aimed at refuses a PR's raise as it
+would the merge (#482). The body as sent is kept under `tmp/forge/raise/`.
 
 Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
 line of echoed commands — refuse, relocate if the base moved (in a detached worktree

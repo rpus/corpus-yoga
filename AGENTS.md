@@ -171,17 +171,19 @@ eighth principle or a smell.
 
 - An issue's record is body PLUS comments: `gh issue view <n> --json
   body,comments` before building it.
-- blocked_by is the one issue relation - sub-issue/parent was retired
-  2026-08-07; never use the sub_issues API. Wire it via
-  `gh api -X POST repos/<o>/<r>/issues/<n>/dependencies/blocked_by
-  -F issue_id=<id>`, never merely narrate it in prose ("part of #N" and its
-  kin are refer-only vocabulary, per the issue template). Supersession
-  transfers the old issue's relations.
-- A PR is raised by `corpus-yoga forge raise <issue>... --head <branch>
+- An issue is raised by `corpus-yoga forge raise issue --title <should>
+  --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]`
+  (#887): the title is held to be a should, the Signature and the as-at
+  anchor are stamped by the forge, and blocked_by - the one issue relation;
+  sub-issue/parent was retired 2026-08-07, and the verb never calls the
+  sub_issues API - is wired from the arguments as the issue is raised and
+  read back, never narrated in prose. `--supersedes N` is the one act:
+  the old issue closed, its relations transferred, its ledger note posted.
+- A PR is raised by `corpus-yoga forge raise pr <issue>... --head <branch>
   --body <file>` (#884): its title and its aim lines - one per issue,
   "aims to complete #N" until the merge - are generated from the issues,
-  never written by hand; the body file carries the Signature and the what,
-  how and to sections. The PR aims at every OPEN blocker of what it aims at
+  never written by hand, and the Signature is stamped by the forge; the
+  body file carries the what, how and to sections. The PR aims at every OPEN blocker of what it aims at
   (#482; the raise and the merge refuse otherwise). The merge, on the reviewer's word only, is
   `corpus-yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
   title (#479), relocates a moved base - the lifetime's one rebase, in a

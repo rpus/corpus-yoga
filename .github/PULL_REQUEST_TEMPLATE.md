@@ -1,8 +1,9 @@
-<!-- How this file reaches you: `corpus-yoga forge raise <issue>... --head <branch>
+<!-- How this file reaches you: `corpus-yoga forge raise pr <issue>... --head <branch>
      --body <file>` raises the PR (#884) - the title and the why section's aim lines
-     are generated from the issues, and the body FILE you draft holds the rest: the
-     Signature line first, then what, how and to, copied from this prototype. A body
-     that carries an aim line, a why section or `closes` is refused by the raise.
+     are generated from the issues, the Signature is stamped from the triad the commit
+     hook uses (#887), and the body FILE you draft holds the rest: what, how and to,
+     copied from this prototype. A body that carries a Signature line, an aim line, a
+     why section or `closes` is refused by the raise.
 
      The body opens with a Signature line, the same triad the commit hook
      stamps (src/test/prepare_commit_msg.sh's header is the one authority for
