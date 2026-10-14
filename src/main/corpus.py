@@ -476,7 +476,7 @@ def own_digests(unit: Unit) -> set[str]:
 class Judgement(Enum):
     VALID = 'valid'          # every family judged it, green, at origin/main's versions
     INVALID = 'invalid'      # a family gave its verdict against it
-    REFUSED = 'refused'      # judged at a version origin/main does not hold: a verdict it does not license
+    UNLICENSED = 'unlicensed'   # judged valid at a version origin/main does not hold: valid here, unlicensed there, the mint's merge licensing the promotion (#867)
     UNSEEN = 'unseen'        # staged since the rehearsal began: absent from its record
     CHANGED = 'changed'      # seen by the rehearsal with other digests than it has now
     UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its next step
@@ -580,7 +580,7 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                                               'corpus-yoga pipeline rehearse re-judges it'), None
             refusal = Refusal(unit.pipeline, family, version, f'a version of this checkout, which origin/main does not hold '
                               f'({main_version} there) - the mint\'s merge licenses the promotion')
-            return Judgement.REFUSED, f'at {refusal.at} - {refusal.reason}', refusal
+            return Judgement.UNLICENSED, f'valid at {refusal.at} - {refusal.reason}', refusal
         if one['verdict'] != 'valid':
             refusal = Refusal(unit.pipeline, family, version, reason(one['reason']))
             return Judgement.INVALID, f'invalid at {refusal.at} - {refusal.reason} - {MINT}', refusal
@@ -673,22 +673,26 @@ def refuse_rehearsal() -> int:
     return 1
 
 
-STATES: tuple[str, ...] = ('promotable', 'held already', 'invalid', 'refused', 'incomplete', 'unjudged')
-JUDGED = {Judgement.VALID: 'valid', Judgement.INVALID: 'invalid', Judgement.REFUSED: 'refused'}   # a verdict the rehearsal gave
+STATES: tuple[str, ...] = ('promotable', 'held already', 'invalid', 'unlicensed', 'would lose', 'incomplete', 'unjudged')
+JUDGED = {Judgement.VALID: 'valid', Judgement.INVALID: 'invalid', Judgement.UNLICENSED: 'unlicensed'}   # a verdict the rehearsal gave
 NOT_JUDGED = {Judgement.CHANGED: 'changed since', Judgement.UNSEEN: 'unseen',          # none stands: why, or no family at all,
               Judgement.SUPERSEDED: 'superseded', Judgement.UNJUDGED: 'seen without verdict',   # which promotes on the relation alone
               Judgement.NONE: 'no family'}
 
 
 def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
-    """The one of STATES a staged unit is in. Refused is a verdict given against it, by its
-    relation or by a family; unjudged is the state before any verdict."""
+    """The one of STATES a staged unit is in (#867): invalid where a family gave its verdict
+    against it; would lose where its relation would cost the held copy something, which the
+    promote, asked, refuses; unlicensed where it is valid at a version origin/main does not
+    hold; unjudged before any verdict. A status asks for no act, so no state is refused."""
     if unit.missing:
         return 'incomplete'
     if judgement is Judgement.INVALID:
         return 'invalid'
-    if rel in REFUSING or judgement is Judgement.REFUSED:
-        return 'refused'
+    if rel in REFUSING:
+        return 'would lose'
+    if judgement is Judgement.UNLICENSED:
+        return 'unlicensed'
     if judgement in (Judgement.UNSEEN, Judgement.CHANGED, Judgement.SUPERSEDED, Judgement.UNJUDGED):
         return 'unjudged'
     return 'held already' if redundant(unit) else 'promotable'
@@ -875,7 +879,7 @@ def remove(unit: Unit) -> None:
 
 def say(groups: dict[str, list[str]]) -> None:
     """A verdict shared by many units is said once, with its count, and the units listed
-    beneath it by address and relation: a stage of 121 units refused for one reason reads
+    beneath it by address and relation: a stage of 121 units held back for one reason reads
     as one reason and 121 addresses, and a unit that differs stands alone under its own."""
     for heading, lines in groups.items():
         print(f'  {heading}: {len(lines)} unit' + ('' if len(lines) == 1 else 's'))
@@ -894,7 +898,7 @@ def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
 def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
     """The heading a unit that is not promoted stands under: its state, then why. No
     heading prescribes a removal - an incomplete unit is the janitor's, named in its
-    words (#721), and a refused one the reader's to reconcile."""
+    words (#721), and one that would lose the reader's to reconcile."""
     if rel in REFUSING and not unit.missing:
         return f'REFUSED - {rel.name.lower()}: {REMEDY[rel]}'
     return f'{state(unit, rel, ok).upper()} - {words}'
@@ -904,7 +908,8 @@ def promote(noun: str, selected: list[Unit]) -> int:
     """Promote the units, their verdicts read from the rehearsal record: each promotable
     one copied over the held one by address, the rest named; the stage is never written.
     The lines are grouped by what they share, the certified state follows as evidence, and
-    the verdict is the last line. Exit 1 while anything was refused."""
+    the verdict is the last line - a unit that would lose counted as refused, since the act
+    was asked and declined it (#867). Exit 1 while anything asked for was left undone."""
     rows = survey(selected)
     if not rows:
         print(f'{noun} promote: DONE - nothing staged')
@@ -934,7 +939,7 @@ def promote(noun: str, selected: list[Unit]) -> int:
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
     undone = sum(left.values())
     print(f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
-          + ', '.join(f'{s} {left[s]}' for s in left))
+          + ', '.join(f'{"refused" if s == "would lose" else s} {left[s]}' for s in left))
     return 1 if undone else 0
 
 
@@ -974,7 +979,7 @@ class Orphan:
 @dataclass
 class Rehearsal:
     """The rehearsal record as the stage says it: its anchor, and the staged units by what
-    it found of them - judged, valid or refused; not judged, and why."""
+    it found of them - judged, valid, invalid or unlicensed; not judged, and why."""
     stamp: str
     commit: str
     tree: str                     # clean, or dirty with the count
@@ -998,27 +1003,27 @@ class StageTier:
 class Kind:
     """One kind of staged unit - one selection of a pipeline's declaration, keyed by its
     path under the input root (#736): how many are staged, and how many the rehearsal
-    found valid, invalid, refused, or has not judged, how many are incomplete, and how
+    found valid, invalid, unlicensed, or has not judged, how many are incomplete, and how
     many no family judges - the stage's own facts, nothing of the store (#842)."""
     staged: int
     valid: int | None
     invalid: int | None
-    refused: int | None
+    unlicensed: int | None
     unjudged: int | None
     incomplete: int | None
     no_family: int | None
 
     @classmethod
     def of(cls, rows: list[Judged]) -> 'Kind':
-        n = {name: 0 for name in ('valid', 'invalid', 'refused', 'unjudged', 'incomplete', 'no family')}
+        n = {name: 0 for name in ('valid', 'invalid', 'unlicensed', 'unjudged', 'incomplete', 'no family')}
         for row in rows:
             n[judged_as(row)] += 1
-        return cls(len(rows), *(n[name] or None for name in ('valid', 'invalid', 'refused', 'unjudged', 'incomplete', 'no family')))
+        return cls(len(rows), *(n[name] or None for name in ('valid', 'invalid', 'unlicensed', 'unjudged', 'incomplete', 'no family')))
 
 
 def judged_as(row: Judged) -> str:
     """What the rehearsal found of the unit, as the stage counts it: valid, invalid,
-    refused, unjudged (unseen, changed since, superseded, or seen without verdict),
+    unlicensed, unjudged (unseen, changed since, superseded, or seen without verdict),
     incomplete, or no family."""
     if row.unit.missing:
         return 'incomplete'
@@ -1030,13 +1035,13 @@ def judged_as(row: Judged) -> str:
 @dataclass
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state as a report, ending on what is invalid and
-    why and what is refused and why, as facts. It names no act (#851): the stage is a
+    why and what is unlicensed and why, as facts. It names no act (#851): the stage is a
     scratch tier between the live stores and the store, and the store's status, which
     reads both, says what to run next."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
-    refused: dict[str, object] | None = None         # by the version file origin/main does not hold, then the reason: how many
+    unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (#867)
 
 
 def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
@@ -1060,7 +1065,8 @@ def stage_facts() -> StageStatus:
     by what it found of them, the units by kind with each kind's counts, then what is
     invalid by the version file that found it so - its path, relative to rsc/schema/pipeline,
     which the declaration's explanation names once - by the reason with how many carry it,
-    then what is refused short of a verdict. What follows a refusal and where its whole
+    then what is valid at a version origin/main does not hold, unlicensed there. What
+    follows an invalid verdict and where its whole
     output is are constant, and the declaration's explanation says them; what to run next
     is the store's status's to say (#851)."""
     stage = tier.TMP_STAGE
@@ -1087,19 +1093,20 @@ def stage_facts() -> StageStatus:
         kinds.setdefault(kind_of(row.unit), []).append(row)
     out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())} if rows else 'none staged'
     out.invalid = invalid_by(rows) or None
-    out.refused = refused_by(rows) or None
+    out.unlicensed = unlicensed_by(rows) or None
     return out
 
 
 @dataclass
 class Promotion:
     """One kind of staged unit as it stands to the store (#842): how many are staged, and
-    how many are promotable, held already, refused by their relation, or pending the
-    stage's judgement."""
+    how many are promotable, held already, would lose by their relation, unlicensed at a
+    version origin/main does not hold, or pending the stage's judgement (#867)."""
     staged: int
     promotable: int | None
     held_already: int | None
-    refused: int | None
+    would_lose: int | None
+    unlicensed: int | None
     pending: int | None
 
     @classmethod
@@ -1107,7 +1114,7 @@ class Promotion:
         counts = tally(rows)
         pending = counts['invalid'] + counts['unjudged'] + counts['incomplete']
         return cls(len(rows), counts['promotable'] or None, counts['held already'] or None,
-                   sum(1 for row in rows if row.state == 'refused' and row.relation in REFUSING) or None, pending or None)
+                   counts['would lose'] or None, counts['unlicensed'] or None, pending or None)
 
 
 def promotion_facts(rows: list[Judged]) -> dict[str, Promotion]:
@@ -1118,12 +1125,12 @@ def promotion_facts(rows: list[Judged]) -> dict[str, Promotion]:
     return {kind: Promotion.of(of_kind) for kind, of_kind in sorted(kinds.items())}
 
 
-def relation_refused(rows: list[Judged]) -> dict[str, object]:
+def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     """Each relation under which the held copy would lose something, by selection, by the
-    relation's words, with how many units carry it."""
+    relation's words, with how many units carry it - what the promote, asked, refuses (#867)."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
-        if row.state == 'refused' and row.relation in REFUSING:
+        if row.state == 'would lose':
             path = (kind_of(row.unit), REMEDY[row.relation])
             counts[path] = counts.get(path, 0) + 1
     out: dict[str, object] = {}
@@ -1219,20 +1226,15 @@ def invalid_by(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-def refused_by(rows: list[Judged]) -> dict[str, object]:
-    """Each refusal short of a verdict once, with how many units carry it: a relation's
-    under `relation`, by the relation's words; a version origin/main does not hold under
-    its version file's path, then the reason."""
+def unlicensed_by(rows: list[Judged]) -> dict[str, object]:
+    """Each version of this checkout that origin/main does not hold, under which a unit was
+    judged valid, once, by its version file's path, then the reason, with how many units
+    carry it (#867)."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
-        if row.state != 'refused':
+        if row.judgement is not Judgement.UNLICENSED or row.refusal is None:
             continue
-        if row.relation in REFUSING:
-            path: tuple[str, ...] = ('relation', REMEDY[row.relation])
-        elif row.refusal is not None:
-            path = (row.refusal.path, row.refusal.reason)
-        else:
-            path = ('judgement', row.words)
+        path = (row.refusal.path, row.refusal.reason)
         counts[path] = counts.get(path, 0) + 1
     out: dict[str, object] = {}
     for path, n in sorted(counts.items()):
@@ -1336,7 +1338,7 @@ class StoreStatus:
     orphaned_shadows: dict[str, Orphan] | None = None   # by path: a cache derivation of a unit the store no longer holds (#844)
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (#842)
-    refused: dict[str, object] | None = None  # by selection, by the relation's words: how many the held copy would lose by
+    would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (#867)
     live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, #851)
     next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (#836)
 
@@ -1436,7 +1438,7 @@ class Staged:
     judged: str
     verdict: str | None = None
     invalid: dict[str, str] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the reason
-    refused: dict[str, str] | None = None    # the version file origin/main does not hold, by that path, and the reason
+    unlicensed: dict[str, str] | None = None    # valid at a version origin/main does not hold: that version file, by its path, and the reason
     rehearsal: str | None = None
     next: dict[str, str] | None = None       # the workflow's step that acts on it, where one does
 
@@ -1462,12 +1464,12 @@ def report_facts(noun: str | None) -> StageReport:
         refusal = row.refusal
         verdict = None if refusal is not None else (row.words or None)
         invalid = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.INVALID else None
-        refused = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.REFUSED else None
+        unlicensed = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.UNLICENSED else None
         found = judged_as(row)
         step = ({'corpus-yoga pipeline rehearse': 'would judge it'} if found == 'unjudged'
                 else {'corpus-yoga stage clean': 'would remove it'} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
-        staged[address] = Staged(found, verdict, invalid, refused,
+        staged[address] = Staged(found, verdict, invalid, unlicensed,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)
     return StageReport(staged)
 

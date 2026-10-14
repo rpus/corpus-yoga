@@ -14,8 +14,8 @@ tier as corpus-yoga cache clean clears its own: every staged unit identical to t
 one, a duplicate, already promoted; every unit whose record or payload is absent,
 incomplete; and every entry under tmp/stage that is neither the input, the scratch nor
 the record, an orphan of an earlier layout. The scratch and the record are the
-rehearsal's to replace, never the janitor's; a refused unit is evidence of another kind
-and is never the janitor's.
+rehearsal's to replace, never the janitor's; a unit that is unlicensed or would lose is
+evidence of another kind and is never the janitor's.
 
 The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (#837):
 this noun names its entries - each orphan, duplicate and incomplete unit, keyed by its

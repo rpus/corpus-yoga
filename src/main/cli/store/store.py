@@ -16,8 +16,8 @@ declaration selects, at an address. Three readings, and nothing written:
   surplus     every file inside a held unit that its measure does not read, which no
               capture wrote - a room's own sync puts one there (#833);
   staged      the stage against the store (#842): each staged unit as it stands to the held
-              one of its address - promotable, held already, refused by its relation - by
-              selection;
+              one of its address - promotable, held already, would lose by its relation,
+              unlicensed at a version origin/main does not hold - by selection;
   live        the live stores this room mounts against the fuller of the staged and the
               held copy of each live thing (#851): each session and memory a harness holds
               beyond both, with the capture that stages it; a mount that is absent, with
@@ -115,7 +115,7 @@ def status_facts() -> corpus.StoreStatus:
     out, held, twice = corpus.store_facts(*live.live_addresses())
     rows = corpus.survey()
     out.staged = corpus.promotion_facts(rows) if rows else 'none staged'
-    out.refused = corpus.relation_refused(rows) or None
+    out.would_lose = corpus.relation_would_lose(rows) or None
     ahead, absent = live.ahead()
     items, found, level = live.ahead_facts(ahead, absent)
     out.live = items if items else ('no live store is mounted in this workspace' if not ahead

@@ -511,7 +511,7 @@ report() {
   graft forge "/next" standing
   check_pipeline_inputs
   graft stage "/invalid" standing
-  graft stage "/refused" standing
+  graft stage "/unlicensed" standing
   graft store "/next" standing
   graft cache "/next" standing
   graft migration ""
