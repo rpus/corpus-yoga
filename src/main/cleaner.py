@@ -13,8 +13,8 @@ there is no dry run, and the act is one act.
 The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
 beneath, `{}` where there is none; `did remove:` or `did NOT remove: <why>` beneath each after
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
-was carried out. The noun's status is relayed beneath the acts, the certified state after
-them, and the verdict is the last line - DONE only when every entry went, NOT DONE
+was carried out. Then next:, the acts the room can take after this one, corpus-yoga status
+last (#801), and the verdict is the last line - DONE only when every entry went, NOT DONE
 naming each that was NOT removed.
 """
 from dataclasses import dataclass
@@ -36,9 +36,9 @@ def count(n: int, kind: str, plural: dict[str, str]) -> str:
     return f'{n} {kind if n == 1 else plural[kind]}'
 
 
-def clean(noun: str, entries: list[Entry], plural: dict[str, str], status: Callable[[], object]) -> int:
-    """One loop over the one list: each entry said, then its act. Returns 1 while anything
-    named was NOT removed."""
+def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Callable[[], object]) -> int:
+    """One loop over the one list: each entry said, then its act; following gives the next:
+    block after the acts. Returns 1 while anything named was NOT removed."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
     print('will remove:' + ('' if entries else ' {}'))
@@ -53,11 +53,8 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], status: Calla
             print(f'    did NOT remove: {why}')
             left.append(f'{entry.kind}: {entry.key} - {why}')
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
-    print()
-    status()
-    print()
     if left:
-        print(f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
+        facts.report(None, following(), f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
     else:
-        print(f'{noun} clean: DONE - did remove {counts}')
+        facts.report(None, following(), f'{noun} clean: DONE - did remove {counts}')
     return 1 if left else 0

@@ -305,3 +305,26 @@ def say(shape: DataclassInstance) -> None:
     """Print a status: its named shape, as YAML. A status is said once, whole, so that its
     keys are the fields of one type."""
     print('\n'.join(lines(plain(shape), width=terminal_width())))
+
+
+ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every act's next: (#801)
+
+
+def report_lines(outcomes, following, verdict: str) -> list[str]:
+    """What an act reports (#801), as lines - the one shape every effecting verb ends on:
+    its facts by outcome, where it has not already printed them act by act; then next:, the
+    acts the room can take after this one in the statuses' grammar, corpus-yoga status last
+    so that next: is never empty and never relays the whole status; then the verdict, the
+    last line. following is a next: block, or None or a sentence where the act leaves none."""
+    shape: dict[str, object] = {}
+    if outcomes:
+        said = plain(outcomes)
+        if isinstance(said, dict):
+            shape.update(said)
+    shape['next'] = {**(following if isinstance(following, dict) else {}), ROOM.line: ROOM.does}
+    return lines(plain(shape), width=terminal_width()) + [verdict]
+
+
+def report(outcomes, following, verdict: str) -> None:
+    """Print what an act reports (#801): report_lines, each a line."""
+    print('\n'.join(report_lines(outcomes, following, verdict)))

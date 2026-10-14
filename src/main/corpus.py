@@ -907,8 +907,8 @@ def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
 def promote(noun: str, selected: list[Unit]) -> int:
     """Promote the units, their verdicts read from the rehearsal record: each promotable
     one copied over the held one by address, the rest named; the stage is never written.
-    The lines are grouped by what they share, the certified state follows as evidence, and
-    the verdict is the last line - a unit that would lose counted as refused, since the act
+    The lines are grouped by what they share, next: names what the room can do after the
+    act (#801), and the verdict is the last line - a unit that would lose counted as refused, since the act
     was asked and declined it (#867). Exit 1 while anything asked for was left undone."""
     rows = survey(selected)
     if not rows:
@@ -931,15 +931,10 @@ def promote(noun: str, selected: list[Unit]) -> int:
             groups.setdefault(_heading(row.unit, row.relation, row.judgement, row.words), []).append(line)
             left[row.state] += 1
     say(groups)
-    # the noun's read-only status is the certified state after the act: evidence, beneath
-    # the lines and above the verdict, informing and never gating
-    print()
-    stage_status()
-    print()
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
     undone = sum(left.values())
-    print(f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
-          + ', '.join(f'{"refused" if s == "would lose" else s} {left[s]}' for s in left))
+    facts.report(None, flow_next(), f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
+                 + ', '.join(f'{"refused" if s == "would lose" else s} {left[s]}' for s in left))
     return 1 if undone else 0
 
 
@@ -1136,6 +1131,19 @@ def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     out: dict[str, object] = {}
     for path, n in sorted(counts.items()):
         nest(out, path, n)
+    return out
+
+
+def flow_next() -> dict[str, dict[str, dict[str, int]]]:
+    """What to run next on the flow from the live stores to the store, as the store's status
+    names it (#851), for an act's tail (#801): the captures, the rehearsal, the promotes,
+    the stage's cleaner - every act the room can take after this one, the store's own
+    cleaner being the store's status's to add."""
+    import live
+    out: dict[str, dict[str, dict[str, int]]] = {}
+    ahead, _absent = live.ahead()
+    live.captures(out, ahead)
+    promotion_next(out, survey())
     return out
 
 

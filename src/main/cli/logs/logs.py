@@ -136,7 +136,7 @@ def entries() -> list[cleaner.Entry]:
 def main() -> int:
     args = command_parser('logs').parse_args()
     if args.verb == 'clean':
-        return cleaner.clean('logs', entries(), KINDS, lambda: facts.say(status_facts()))
+        return cleaner.clean('logs', entries(), KINDS, lambda: status_facts().next)
     facts.say(status_facts())
     return 0
 

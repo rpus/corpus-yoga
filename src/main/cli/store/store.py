@@ -34,8 +34,8 @@ The janitor, store clean, acts on the second reading (#744): each duplicate, of 
 species, goes with what only it feeds - its members, its record and its shadow under the
 cache - and the holder stays; an orphaned shadow, the cache's derivation of a unit the
 store no longer holds, goes too. Its lines keep their tenses - will remove before each
-act, did or did NOT after - the status is re-read beneath them, and the verdict is the
-last line, DONE only when every entry went; the dry run is the apply with the act elided.
+act, did or did NOT after - then next:, what the room can do after the act, corpus-yoga
+status last (#801), and the verdict is the last line, DONE only when every entry went.
 """
 import sys
 from pathlib import Path
@@ -125,7 +125,7 @@ def status_facts() -> corpus.StoreStatus:
 
 
 def clean() -> int:
-    return cleaner.clean('store', entries(), KINDS, lambda: facts.say(status_facts()))
+    return cleaner.clean('store', entries(), KINDS, lambda: store_next(corpus.survey(), live.ahead()[0]))
 
 
 def main() -> int:

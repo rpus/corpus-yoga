@@ -327,14 +327,9 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         log = adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
         logs.append(log)
         out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
-    # the act names the next acts (#687): what was captured waits in the stage until
-    # the pipeline has judged it and the same extent is promoted
-    extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
-    written = any(which == 'wrote' and n for log in logs for (which, _kind), n in log.counted.items())
-    out['next'] = ({'corpus-yoga pipeline rehearse': 'would judge it', f'corpus-yoga agent promote {extent}': 'would promote it'}
-                   if written else 'none - nothing staged')
-    print('\n'.join(facts.lines(facts.plain(out), width=facts.terminal_width())))
-    print(transport.verdict('agent capture', logs))
+    # what an act reports (#801): its facts by outcome, next: - what the room can do after
+    # the capture, as the store's status names it - and the verdict
+    facts.report(out, corpus.flow_next(), transport.verdict('agent capture', logs))
     return sum(log.conflicts for log in logs)
 
 def _claude() -> tuple[Path, ModuleType]:
@@ -356,9 +351,10 @@ def mount(apply: bool) -> int:
     --apply creates the links. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
-        print('agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
+        facts.report(None, None, 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
         return 1
     verdict = 0
+    present = created = 0
     for row in registry.providers():
         live = registry.live_store(row)
         target = registry.mount(row)
@@ -371,17 +367,22 @@ def mount(apply: bool) -> int:
             continue
         if target.is_symlink() and target.resolve() == live.resolve():
             print(f'{shown} → {row["live_store"]} (present)')
+            present += 1
             continue
         if target.exists() or target.is_symlink():
             print(f'{shown}: exists and is not the link to {row["live_store"]} - not touched; remove it by hand')
             verdict = 1
             continue
+        created += 1
         if apply:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.symlink_to(live)
             print(f'{shown} → {row["live_store"]} (created)')
         else:
             print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
+    # what an act reports (#801): next: and the verdict, the last line
+    did = f'{"did" if apply else "would"} create {created}, present {present}'
+    facts.report(None, None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
     return verdict
 
 
@@ -442,10 +443,8 @@ def main() -> int:
     extent = '--all' if args.all else f'--id {args.id}'
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
-    out['next'] = ({f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
-                   if not args.apply and log.counted else 'none - nothing to do')
-    print('\n'.join(facts.lines(facts.plain(out), width=facts.terminal_width())))
-    print(transport.verdict('agent install', [log]))
+    facts.report(out, {f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
+                 if not args.apply and log.counted else None, transport.verdict('agent install', [log]))
     return 1 if log.conflicts else 0
 
 

@@ -1,5 +1,5 @@
 {
-  "help": "remove the orphaned tmp/cache/ entries the status names - neither written nor read by any registry producer; prints what it will remove, what it did remove, the status, and the verdict",
+  "help": "remove the orphaned tmp/cache/ entries the status names - neither written nor read by any registry producer; prints what it will remove, what it did remove, what to run next, and the verdict",
   "args": [],
   "r": [
     "rsc/cache_io.csv",

@@ -113,8 +113,8 @@ class Log:
 
 def sync(apply: bool) -> int:
     """One list of the scripts with steps; the flag decides only whether each is run with
-    --apply after it is named. The status re-read is the certified state after the act,
-    beneath the lines and above the verdict, which is the last line."""
+    --apply after it is named. Then what an act reports (#801): next:, and the verdict as
+    the last line."""
     log = Log(apply)
     seen = survey()
     owed = {name: lines for name, (code, lines) in seen.items() if code == 0 and lines}
@@ -139,15 +139,11 @@ def sync(apply: bool) -> int:
         log.say(f'migration sync: would run {len(owed)} script(s), {steps} step(s)' + (' (--apply runs them)' if steps else '')
                 + (f'; {len(halted)} halted, the reader\'s' if halted else ''))
         return 0
-    log.say('')
-    for line in facts.lines(facts.plain(status_facts())):
-        log.say(line)
-    log.say('')
     undone = failed + list(halted)
-    if undone:
-        log.say(f'migration sync: NOT DONE - took {taken} of {steps} step(s); NOT taken ' + ', '.join(undone))
-    else:
-        log.say(f'migration sync: DONE - took {taken} step(s) of {len(owed)} script(s)')
+    verdict = (f'migration sync: NOT DONE - took {taken} of {steps} step(s); NOT taken ' + ', '.join(undone) if undone
+               else f'migration sync: DONE - took {taken} step(s) of {len(owed)} script(s)')
+    for line in facts.report_lines(None, None, verdict):
+        log.say(line)
     return 1 if undone else 0
 
 
