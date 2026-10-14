@@ -177,17 +177,22 @@ eighth principle or a smell.
   -F issue_id=<id>`, never merely narrate it in prose ("part of #N" and its
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
-- A PR body phrases completion "aims to complete #N" until the merge - and
-  aims at every OPEN blocker of what it aims at (#482; the merge refuses
-  otherwise). The merge, on the reviewer's word only, is
+- A PR is raised by `corpus-yoga forge raise <issue>... --head <branch>
+  --body <file>` (#884): its title and its aim lines - one per issue,
+  "aims to complete #N" until the merge - are generated from the issues,
+  never written by hand; the body file carries the Signature and the what,
+  how and to sections. The PR aims at every OPEN blocker of what it aims at
+  (#482; the raise and the merge refuse otherwise). The merge, on the reviewer's word only, is
   `corpus-yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
   title (#479), relocates a moved base - the lifetime's one rebase, in a
   detached worktree of its own (#507) - and
   resyncs a clean checkout that holds the branch, announced; flips the
   body's phrasing to `closes` as the LAST edit before the squash (a
   refused squash restores the body as found, so a flipped-but-unmerged PR
-  cannot exist - #483); squashes pinned to the head every check saw; and
-  converges the checkout. Commits are never rewritten (no squash, no
+  cannot exist - #483); reads the forge's closing references back and
+  refuses where they are not the aimed set (#884); squashes pinned to the
+  head every check saw; reads each aimed issue's state after the squash
+  (#735); and converges the checkout. Commits are never rewritten (no squash, no
   reword - the branch merges as reviewed) and never carry the parser's
   words. Its declaration (src/main/cli/forge/merge.json) is the authority
   for its steps. Never rebase eagerly: no open branch can know which merge
@@ -199,7 +204,8 @@ eighth principle or a smell.
   subject line and every commit's message and Signature as its body. A
   pre-merge rewrite destroys the review record and its corpus join keys.
 - A PR's title is a verbatim copy of the title of an issue its body aims to
-  complete - the central one when it aims at several (#479, superseding
+  complete - the central one when it aims at several, the first named to
+  `corpus-yoga forge raise`, which copies it (#479, superseding
   #300's title practice). The should keeps its one home in issue-space, the
   subject is copied rather than authored, and main's log reads as the
   disposed shoulds - ready-made release notes. Vetting is contingent all the

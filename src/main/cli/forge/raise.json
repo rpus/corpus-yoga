@@ -1,0 +1,40 @@
+{
+  "help": "raise the PR for a branch from the issues it aims to complete - the title the central issue's verbatim copy, the why section one aim line per issue, both generated, so that no aim is written by hand; the body file carries the Signature and the what, how and to sections",
+  "args": [
+    {
+      "name": "issue",
+      "type": "<issue>",
+      "cardinality": "*",
+      "help": "the issues the PR aims to complete, by number, the central one first - its title becomes the PR's"
+    },
+    {
+      "name": "--head",
+      "type": "<branch>",
+      "cardinality": "1",
+      "help": "the branch the forge holds, pushed already"
+    },
+    {
+      "name": "--body",
+      "type": "<file>",
+      "cardinality": "1",
+      "help": "the body as drafted - its first line the Signature, then the what, how and to sections; it carries no aim line and no why section, which the forge writes"
+    }
+  ],
+  "sends": {
+    "gh issue view": [
+      "reads each aimed issue's state and title; a closed issue refuses the raise, and the first issue's title becomes the PR's"
+    ],
+    "gh api": [
+      "reads each aimed issue's open blockers (#482); an open blocker not aimed at refuses the raise, as it would the merge"
+    ],
+    "gh repo view": [
+      "reads the default branch, the PR's base"
+    ],
+    "gh pr create": [
+      "WRITES the PR with the generated title and body (refused loudly under CORPUS_YOGA_NO_SEND)"
+    ]
+  },
+  "w": [
+    "tmp/forge/raise"
+  ]
+}

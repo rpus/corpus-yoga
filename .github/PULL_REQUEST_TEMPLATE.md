@@ -1,6 +1,8 @@
-<!-- How this file reaches you: the web form serves it into a new PR's description
-     box; `gh pr create` reads it only via --template .github/PULL_REQUEST_TEMPLATE.md;
-     with --body-file (both rooms' practice) it is the PROTOTYPE you copy from.
+<!-- How this file reaches you: `corpus-yoga forge raise <issue>... --head <branch>
+     --body <file>` raises the PR (#884) - the title and the why section's aim lines
+     are generated from the issues, and the body FILE you draft holds the rest: the
+     Signature line first, then what, how and to, copied from this prototype. A body
+     that carries an aim line, a why section or `closes` is refused by the raise.
 
      The body opens with a Signature line, the same triad the commit hook
      stamps (src/test/prepare_commit_msg.sh's header is the one authority for
@@ -49,7 +51,7 @@ Signature: <machine>/<provider>/<session>
 
 ## why
 
-- aims to complete #N — <the intent, in issue-graph terms — achievement-agnostic; this line is the machine's own phrase, and the merge flips it to "closes" in place>
+- aims to complete #N - <the issue's title; written by `corpus-yoga forge raise`, one line per issue, never by hand (#884); the merge flips it to "closes" in place>
 
 ## what
 
