@@ -314,7 +314,7 @@ clean() {
         enact git -C "$REPO_DIR" update-ref -d "refs/remotes/$key" >/dev/null 2>&1 || why="git update-ref -d failed" ;;
     esac
     if [[ -z "$why" ]]; then
-      echo '    did remove:'
+      echo '    did remove: it'
       if [[ "$kind" == branch ]]; then removed_branches=$((removed_branches + 1)); else removed_refs=$((removed_refs + 1)); fi
     else
       echo "    did NOT remove: $why"

@@ -11,7 +11,7 @@ cleaner takes no flag (#844): what it would remove is what the noun's status nam
 there is no dry run, and the act is one act.
 
 The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
-beneath, `{}` where there is none; `did remove:` or `did NOT remove: <why>` beneath each after
+beneath, `{}` where there is none; `did remove: it` or `did NOT remove: <why>` beneath each after
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
 was carried out. Then next:, the acts the room can take after this one, corpus-yoga status
 last (#801), and the verdict is the last line - DONE only when every entry went, NOT DONE
@@ -47,7 +47,7 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Ca
             print(line)
         why = entry.act()
         if why is None:
-            print('    did remove:')
+            print('    did remove: it')
             did[entry.kind] += 1
         else:
             print(f'    did NOT remove: {why}')
