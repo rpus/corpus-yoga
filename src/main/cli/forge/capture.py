@@ -54,6 +54,8 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
+import facts  # noqa: E402
 from enact import quote  # noqa: E402
 from send import SendRefused, assert_may_send  # noqa: E402
 
@@ -140,10 +142,10 @@ def main(argv: list[str]) -> int:
         assert_may_send('gh api (forge capture)')
         got = fetch()
     except SendRefused as refused:
-        print(f'forge capture: NOT DONE - {refused}')
+        facts.report(None, corpus.room_next(), f'forge capture: NOT DONE - {refused}')
         return 1
     except subprocess.CalledProcessError:
-        print('forge capture: NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
+        facts.report(None, corpus.room_next(), 'forge capture: NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
         return 1
     rel = STORE.relative_to(REPO)
     target = STORE / stamp
@@ -151,9 +153,9 @@ def main(argv: list[str]) -> int:
     for name in ROSTER:
         (target / name).write_bytes(render(got[name]))
         print(f'  {name}: {count(name, got[name])}')
-    print(f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
-    # the act names the next act (#687): no pipeline reads the ledger, so no rehearsal
-    print('forge capture: staged under tmp/stage/input/github/forge/gh-CLI, not promoted - corpus-yoga forge promote')
+    # what an act reports (#876): next: - the promote, since no pipeline reads the ledger and
+    # no rehearsal is owed - and the verdict as the last line
+    facts.report(None, corpus.room_next(), f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
     return 0
 
 

@@ -31,6 +31,8 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 
 main() {
   case "${1-}" in
@@ -127,20 +129,15 @@ main() {
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
-  # The act names the next acts (#687): what was captured waits in the stage until the
-  # pipeline has judged it and the same extent is promoted. The line is said where
-  # something is staged, and it is part of the capture's record: each provider's log
-  # carries it, as it carries the line that opened the capture.
-  if [[ -z "$dry_run" ]]; then
-    local extent="--all" staged=""
-    [[ -n "$provider" ]] && extent="--provider $provider${id:+ --id $id}"
-    for p in ${providers[@]+"${providers[@]}"}; do
-      compgen -G "$TMP_STAGE/input/$p/chat/*/*" > /dev/null && staged="1"
-    done
-    if [[ -n "$staged" ]]; then
-      echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse, then corpus-yoga browser promote $extent" \
-        | tee -a ${logs[@]+"${logs[@]}"}
-    fi
+  # what an act reports (#876): next: - the rehearsal that judges what was staged, as the
+  # store's status names it - and the verdict, the last line, carried into each provider's
+  # log as the line that opened the capture is
+  if [[ -n "$dry_run" ]]; then
+    tail_of "browser capture: DONE - dry run; nothing staged, nothing spent" | tee -a ${logs[@]+"${logs[@]}"}
+  elif [[ "$rc" -eq 0 ]]; then
+    tail_of "browser capture: DONE - each provider's capture stands above" | tee -a ${logs[@]+"${logs[@]}"}
+  else
+    tail_of "browser capture: NOT DONE - a provider's capture above failed (exit $rc)" | tee -a ${logs[@]+"${logs[@]}"}
   fi
   return $rc
 }

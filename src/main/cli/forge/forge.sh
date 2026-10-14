@@ -26,6 +26,8 @@ source "$REPO_DIR/src/main/enact.sh"
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/provider.sh
 source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
+# shellcheck source=src/main/report.sh
+source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 
 # rows: STATUS \t key \t detail \t remedy - parsed by status() and `corpus-yoga status`
 reconcile() {
@@ -274,12 +276,6 @@ status() {
 # count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it.
 count() { if (( $1 == 1 )); then echo "$1 $2"; else echo "$1 $3"; fi; }
 
-# tail_of <verdict>: what an act reports after its lines (#801, #875), through
-# src/main/facts.py - next:, the room's to-do re-read after the effect, corpus-yoga status
-# last, then the verdict as the last line.
-tail_of() {
-  "$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus, facts; facts.report(None, corpus.room_next(), sys.argv[2])' "$REPO_DIR/src/main" "$1"
-}
 
 clean() {
   # The forge's cleaner (#871): what it removes is what the status names - each DELETABLE
@@ -357,17 +353,18 @@ sync() {
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
-      echo "corpus-yoga forge sync: the live settings could not be read - nothing verified, nothing to agree" >&2
+      tail_of "forge sync: NOT DONE - the live settings could not be read; nothing verified, nothing to agree"
       return 1
     fi
-    echo "no drift - the forge already agrees with src/main/cli/forge/forge.csv; nothing to do"
+    tail_of "forge sync: DONE - no drift; the forge agrees with src/main/cli/forge/forge.csv"
     return 0
   fi
-  [[ -n "$apply" ]] || { echo "--dry-run by default: nothing changed. Re-run with --apply."; return 0; }
+  [[ -n "$apply" ]] || { tail_of "forge sync: DONE - would set each drifted setting above" "corpus-yoga forge sync --apply" "sets them"; return 0; }
   echo "after:"
   reconcile | while IFS=$'\t' read -r st key detail _; do
     [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
   done
+  tail_of "forge sync: DONE - did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv"
 }
 
 # The merge is the reviewer's one act (#483): every refusal (OPEN, an aims-to-

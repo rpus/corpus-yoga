@@ -49,6 +49,8 @@ MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
+import facts  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
@@ -117,7 +119,7 @@ def main() -> int:
     if not entries:
         # a room with no corpus skips, stated (#406, #494): the run's step must not fail
         rel = md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root
-        print(f'site render: skipped — no projected corpus under {rel} (corpus-yoga pipeline run projects it)')
+        facts.report(None, corpus.room_next(), f'site render: DONE - skipped; no projected corpus under {rel}, which corpus-yoga pipeline run projects')
         return 0
 
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -225,13 +227,13 @@ def main() -> int:
     if page.exists() and page.read_bytes() == html.read_bytes():
         # content-keyed (#494): current inputs mean no write, and a quiet run stays quiet
         html.unlink()
-        print(f'  index.html current — nothing written')
+        facts.report(None, corpus.room_next(), 'site render: DONE - index.html current; nothing written')
         return 0
     page.unlink(missing_ok=True)
     shutil.move(str(html), str(page))
     print(f'  title: {title}')
     print(f'  data tables: {out_dir.relative_to(REPO)}/')
-    print(f'→ {page.relative_to(REPO) if page.is_relative_to(REPO) else page}')
+    facts.report(None, corpus.room_next(), f'site render: DONE - {page.relative_to(REPO) if page.is_relative_to(REPO) else page} rendered')
     return 0
 
 

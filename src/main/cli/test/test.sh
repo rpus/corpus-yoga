@@ -20,6 +20,8 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 
 # BOTH hooks this repo owns, because installing one without the other has no reason:
 # they are the same machinery (src/test/), on the same event, and `corpus-yoga status`
@@ -52,15 +54,19 @@ install_hook() {
 
   ln -sfn "../../rsc/test/prepare-commit-msg-hook.sh" "$git_dir/prepare-commit-msg"
   echo "hook: $git_dir/prepare-commit-msg → $(readlink "$git_dir/prepare-commit-msg")"
-
-  echo "  every commit now runs corpus-yoga test run and is stamped with its Signature;"
-  echo "  deliberate WIP is git commit --no-verify"
+  tail_of "test install-hook: DONE - every commit now runs corpus-yoga test run and is stamped with its Signature; deliberate WIP is git commit --no-verify"
 }
 
 case "${1-}" in
   '')           exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/test/status.py" ;;
   run)          shift; parse_argv test run "$@"; exec "$REPO_DIR/src/test/dev/run.sh" "$@" ;;
-  xref)         shift; parse_argv test xref "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@" ;;
+  xref)         shift; parse_argv test xref "$@"
+                # the test tier's python imports nothing of main's, so the act's tail is said here (#876)
+                if "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@"; then
+                  tail_of "test xref: DONE - rsc/test/xref.csv rewritten; its summary line stands above"
+                else
+                  tail_of "test xref: NOT DONE - the cross-reference table was not rewritten; the lines above name why"; exit 1
+                fi ;;
   install-hook) shift; parse_argv test install-hook "$@"; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   *) echo "Usage: corpus-yoga test [run [--fix] [--fresh] | xref | install-hook]  (corpus-yoga test -h for details)" >&2; exit 1 ;;

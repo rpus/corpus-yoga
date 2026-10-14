@@ -27,6 +27,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))   # src/main/, for send
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 from send import SendRefused, assert_may_send  # noqa: E402 — ~/.zshrc is outside the tree: a send (#29)
 from cli import REPO  # noqa: E402
 
@@ -152,7 +153,7 @@ def install_completion() -> int:
         where = f'added at line {idx + 1}, above compinit'
     text = '\n'.join(lines) + '\n'
     if text == before and loads() is not False:
-        print(f'{tilde(zshrc)}: tab-completion is already set up - nothing written')
+        facts.report(None, corpus.room_next(), f'completions install: DONE - {tilde(zshrc)} already sets tab-completion up; nothing written')
         return 0
     if text == before:
         print(f'{tilde(zshrc)}: the four lines stand as they should, and zsh does not load them')
@@ -160,7 +161,7 @@ def install_completion() -> int:
         try:
             assert_may_send('write ~/.zshrc (completions install)')
         except SendRefused as refused:
-            print(f'completions install: NOT DONE - {refused}')
+            facts.report(None, corpus.room_next(), f'completions install: NOT DONE - {refused}')
             return 1
         zshrc.write_text(text)
         print(f'{tilde(zshrc)}: four lines {where}')
@@ -173,7 +174,8 @@ def install_completion() -> int:
         d.unlink()
     if dumps:
         print(f'  ~/.zcompdump*: {len(dumps)} removed - the next terminal rebuilds it')
-    print('open a new terminal for tab to complete corpus-yoga')
+    facts.report(None, {**corpus.room_next(), 'open a new terminal': 'tab completes corpus-yoga from then on'},
+                 f'completions install: DONE - {tilde(zshrc)} holds the four lines')
     return 0
 
 
@@ -188,20 +190,20 @@ def uninstall_completion() -> int:
     removing it could break what was built on top."""
     zshrc = Path.home() / '.zshrc'
     if not zshrc.exists():
-        print(f'{tilde(zshrc)}: no such file — nothing to remove')
+        facts.report(None, corpus.room_next(), f'completions uninstall: DONE - {tilde(zshrc)} is no file; nothing to remove')
         return 0
     kept, removed_line_count = without_completion_block(zshrc.read_text().splitlines())
     if not removed_line_count:
-        print(f'{tilde(zshrc)}: no corpus-yoga lines found - nothing to remove')
+        facts.report(None, corpus.room_next(), f'completions uninstall: DONE - {tilde(zshrc)} holds no corpus-yoga lines; nothing to remove')
         return 0
     try:
         assert_may_send('write ~/.zshrc (completions uninstall)')
     except SendRefused as refused:
-        print(f'completions uninstall: NOT DONE - {refused}')
+        facts.report(None, corpus.room_next(), f'completions uninstall: NOT DONE - {refused}')
         return 1
     zshrc.write_text('\n'.join(kept) + '\n')
-    print(f'{tilde(zshrc)}: removed the corpus-yoga lines ({removed_line_count}) - nothing else touched')
-    print('open a new terminal for it to take effect')
+    facts.report(None, {**corpus.room_next(), 'open a new terminal': 'the removal takes effect from then on'},
+                 f'completions uninstall: DONE - removed the corpus-yoga lines ({removed_line_count}) from {tilde(zshrc)}; nothing else touched')
     return 0
 
 

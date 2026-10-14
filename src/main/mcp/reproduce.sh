@@ -51,6 +51,8 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 
 PROJECT="$REPO_DIR/rsc/reference/mcp"
 
@@ -95,8 +97,8 @@ GENERATED="$WORK/schema/$LINEAGE/schema.json"
 STATUS=0
 diff "$COMMITTED" "$GENERATED" || STATUS=1
 if [[ $STATUS -eq 0 ]]; then
-  echo "reproduce: rsc/reference/mcp/$LINEAGE/schema.json is byte-identical to what upstream's generator makes of schema.ts - reproduced"
+  tail_of "mcp reproduce: DONE - rsc/reference/mcp/$LINEAGE/schema.json is byte-identical to what upstream's generator makes of schema.ts"
 else
-  echo "reproduce: NOT reproduced - the diff above is committed (<) against generated (>)"
+  tail_of "mcp reproduce: NOT DONE - not reproduced; the diff above is committed (<) against generated (>)"
 fi
 exit $STATUS

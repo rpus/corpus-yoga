@@ -19,6 +19,8 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 # run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
 # One immutable log per daemon start (#370): stamped, colon-free, under the verb directory.
@@ -44,8 +46,7 @@ start() {
     nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    echo "Stop with: corpus-yoga server stop"
-    echo "Logs: $LOG_FILE"
+    tail_of "server start: DONE - serving in the background; its log is ${LOG_FILE#"$REPO_DIR/"}" "corpus-yoga server stop" "stops it"
   else
     "${PY[@]}" "${pyargs[@]}"
   fi

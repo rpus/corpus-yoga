@@ -28,6 +28,8 @@ source "$REPO_DIR/src/main/send.sh"
 source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 SRC="$REPO_DIR/rsc/site"
 OUT="$DATA_DIR/output/site"
 MODEL_DIR="$REPO_DIR/src/main/model"
@@ -106,11 +108,11 @@ publish() {
   [[ "${1-}" == "--apply" ]] && apply=1
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
-    echo "site publish: NOT DONE — ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
+    tail_of "site publish: NOT DONE - ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
     return 1
   fi
   if [[ ! -d "$OUT" ]]; then
-    echo "site publish: NOT DONE — no publish tree at data/output/site/; corpus-yoga site sync assembles it"
+    tail_of "site publish: NOT DONE - no publish tree at data/output/site/" "corpus-yoga site sync" "assembles it"
     return 1
   fi
   # what differs: new or changed files the copy would land (deletions are not
@@ -133,12 +135,12 @@ publish() {
     fi
   done < <(find "$OUT" -type f | sort)
   if [[ "$delta" == 0 && -z "$(git -C "$mount" status --porcelain)" ]]; then
-    echo "site publish: no effect — rpus.co's clone already holds the publish tree as assembled"
+    tail_of "site publish: DONE - no effect; rpus.co's clone already holds the publish tree as assembled"
     return 0
   fi
   if [[ -z "$apply" ]]; then
     [[ -n "$(git -C "$mount" status --porcelain)" ]] && echo "  (the clone also holds uncommitted changes of its own — --apply commits them with the copy)"
-    echo "site publish: dry run — the copy, commit and push above await --apply"
+    tail_of "site publish: DONE - would copy, commit and push the files above" "corpus-yoga site publish --apply" "publishes them"
     return 0
   fi
   assert_may_send "git -C ext/mnt/site push (site publish --apply)" || return 1
@@ -150,7 +152,7 @@ publish() {
     echo "  nothing to commit — the clone already held the tree"
   fi
   enact git -C "$mount" push || return 1
-  echo "site publish: DONE — rpus.co serves the publish tree on Netlify's next build"
+  tail_of "site publish: DONE - rpus.co serves the publish tree on Netlify's next build"
 }
 
 
@@ -186,9 +188,9 @@ sync() {
     eventful=1
   done < <(page_files "$SRC")
   if [[ $eventful -eq 1 ]]; then
-    echo "DONE - effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
+    tail_of "site sync: DONE - effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
   else
-    echo "DONE — no effect: data/output/site/ already serves rsc/site/ as authored"
+    tail_of "site sync: DONE - no effect; data/output/site/ already serves rsc/site/ as authored"
   fi
 }
 

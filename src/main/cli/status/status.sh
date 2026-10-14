@@ -31,6 +31,8 @@ source "$REPO_ROOT/src/main/tier.sh"
 source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/report.sh
+source "$REPO_ROOT/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
 
 SHOW_ALL=0
 SYNC=0
@@ -444,7 +446,7 @@ sync() {
   _held
   echo "corpus-yoga status sync — what this machine still needs:"
   if [[ -z "$_remedies" ]]; then
-    echo "  nothing — every prerequisite is satisfied"
+    tail_of "status sync: DONE - nothing; every prerequisite is satisfied"
     return 0
   fi
   while IFS=$'\t' read -r command does where; do
@@ -456,12 +458,13 @@ sync() {
   done <<< "$_remedies"
   echo
   if [[ -z "$mine" ]]; then
-    echo "none of these is mine to run — each is the reader's"
+    tail_of "status sync: DONE - none of these is mine to run; each is the reader's"
     return 0
   fi
   if [[ "$APPLY" != 1 ]]; then
-    echo "--apply would run:"
+    echo "would run:"
     while IFS= read -r a; do [[ -z "$a" ]] || echo "  $a"; done <<< "$mine"
+    tail_of "status sync: DONE - would run the $(grep -c . <<< "$mine") above" "corpus-yoga status sync --apply" "runs them"
     return 0
   fi
   while IFS= read -r a; do
@@ -481,11 +484,12 @@ sync() {
     fi
   done <<< "$mine"
   echo
-  echo "what remains — re-derived, not assumed:"
+  echo "what remains - re-derived, not assumed:"
   _held
   if [[ -z "$_remedies" ]]; then echo "  nothing"; else
     while IFS=$'\t' read -r command does where; do [[ -z "$command" ]] || echo "  – $where: $command - $does"; done <<< "$_remedies"
   fi
+  tail_of "status sync: DONE - ran the $(grep -c . <<< "$mine") named; what remains is above, each the reader's"
 }
 
 report() {
