@@ -149,6 +149,14 @@ def lines(facts, depth: int = 0, width: int | None = None) -> list[str]:
     return out
 
 
+def opening(key: str, depth: int = 0) -> str:
+    """The line that opens a mapping whose members are printed one by one as they become
+    known - an act's loop, which says each entry before its act - so that a verb that
+    prints progressively still prints no head of its own; `lines` prints the members
+    at depth + 1, and the whole reads back as the mapping."""
+    return ' ' * (depth * STEP) + scalar(key) + ':'
+
+
 # -- reading: the printer's inverse ------------------------------------------------------------
 
 _NUMBER = re.compile(r'-?\d+(\.\d+)?(e[-+]?\d+)?')

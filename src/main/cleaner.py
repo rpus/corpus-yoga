@@ -41,17 +41,18 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Ca
     block after the acts. Returns 1 while anything named was NOT removed."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
-    print('will remove:' + ('' if entries else ' {}'))
+    width = facts.terminal_width()
+    print(facts.opening('will remove') if entries else facts.lines({'will remove': {}})[0])
     for entry in entries:
-        for line in facts.lines(facts.plain({entry.key: entry.facts}), 1, width=facts.terminal_width()):
+        for line in facts.lines(facts.plain({entry.key: entry.facts}), 1, width=width):
             print(line)
         why = entry.act()
         if why is None:
-            print('    did remove: it')
             did[entry.kind] += 1
         else:
-            print(f'    did NOT remove: {why}')
             left.append(f'{entry.kind}: {entry.key} - {why}')
+        for line in facts.lines({'did remove': 'it'} if why is None else {'did NOT remove': why}, 2, width=width):
+            print(line)
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
     if left:
         facts.report(None, following(), f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
