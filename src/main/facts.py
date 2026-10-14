@@ -313,9 +313,10 @@ ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entr
 def report_lines(outcomes, following, verdict: str) -> list[str]:
     """What an act reports (#801), as lines - the one shape every effecting verb ends on:
     its facts by outcome, where it has not already printed them act by act; then next:, the
-    acts the room can take after this one in the statuses' grammar, corpus-yoga status last
+    room's to-do re-read after the effect - corpus.room_next, the one reading, with a noun's
+    own next: merged where it has one - in the statuses' grammar, corpus-yoga status last
     so that next: is never empty and never relays the whole status; then the verdict, the
-    last line. following is a next: block, or None or a sentence where the act leaves none."""
+    last line. following is that block, or None where a verb can read none."""
     shape: dict[str, object] = {}
     if outcomes:
         said = plain(outcomes)

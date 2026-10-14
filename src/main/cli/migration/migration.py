@@ -142,7 +142,8 @@ def sync(apply: bool) -> int:
     undone = failed + list(halted)
     verdict = (f'migration sync: NOT DONE - took {taken} of {steps} step(s); NOT taken ' + ', '.join(undone) if undone
                else f'migration sync: DONE - took {taken} step(s) of {len(owed)} script(s)')
-    for line in facts.report_lines(None, None, verdict):
+    import corpus
+    for line in facts.report_lines(None, corpus.room_next(), verdict):
         log.say(line)
     return 1 if undone else 0
 

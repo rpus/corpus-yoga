@@ -95,18 +95,9 @@ def entries() -> list[cleaner.Entry]:
 
 
 def store_next(rows: list[corpus.Judged], ahead: list[live.Ahead]) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next, by command, in the workflow's order (#851): its verb, then each
-    kind it acts on with how many - a capture for each live thing ahead of both tiers, the
-    rehearsal for what is staged and not judged, each capturing noun's promote for what is
-    promotable, the stage's cleaner for what the store already holds and for the stage's
-    incomplete units and orphans, and this janitor for what the store no longer needs, by
-    the selection each entry is counted under."""
-    out: dict[str, dict[str, dict[str, int]]] = {}
-    live.captures(out, ahead)
-    corpus.promotion_next(out, rows)
-    for entry in entries():
-        corpus.step(out, 'corpus-yoga store clean', entry.under)
-    return out
+    """What to run next, by command, in the workflow's order (#851): the room's one reading,
+    corpus.room_next, over the rows and the live reading this status has already read."""
+    return corpus.room_next(rows, ahead)
 
 
 def status_facts() -> corpus.StoreStatus:
@@ -125,7 +116,7 @@ def status_facts() -> corpus.StoreStatus:
 
 
 def clean() -> int:
-    return cleaner.clean('store', entries(), KINDS, lambda: store_next(corpus.survey(), live.ahead()[0]))
+    return cleaner.clean('store', entries(), KINDS, corpus.room_next)
 
 
 def main() -> int:

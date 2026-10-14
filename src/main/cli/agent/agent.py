@@ -329,7 +329,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
     # what an act reports (#801): its facts by outcome, next: - what the room can do after
     # the capture, as the store's status names it - and the verdict
-    facts.report(out, corpus.flow_next(), transport.verdict('agent capture', logs))
+    facts.report(out, corpus.room_next(), transport.verdict('agent capture', logs))
     return sum(log.conflicts for log in logs)
 
 def _claude() -> tuple[Path, ModuleType]:
@@ -351,7 +351,7 @@ def mount(apply: bool) -> int:
     --apply creates the links. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
-        facts.report(None, None, 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
+        facts.report(None, corpus.room_next(), 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
         return 1
     verdict = 0
     present = created = 0
@@ -382,7 +382,7 @@ def mount(apply: bool) -> int:
             print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
     # what an act reports (#801): next: and the verdict, the last line
     did = f'{"did" if apply else "would"} create {created}, present {present}'
-    facts.report(None, None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
+    facts.report(None, corpus.room_next(), f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
     return verdict
 
 
@@ -402,7 +402,6 @@ def main() -> int:
         import drafters
         import machine
         brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (#758)
-        import corpus
         report = corpus.report_facts('agent')
         facts.say(Status(census.sessions, census.mounts, brief, report.staged))
         return 0
@@ -416,7 +415,6 @@ def main() -> int:
     if args.verb == 'capture':
         return 1 if capture(args.id, args.provider) else 0
     if args.verb == 'promote':
-        import corpus
         return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id))
 
     projects, claude = _claude()
@@ -443,8 +441,8 @@ def main() -> int:
     extent = '--all' if args.all else f'--id {args.id}'
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
-    facts.report(out, {f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
-                 if not args.apply and log.counted else None, transport.verdict('agent install', [log]))
+    facts.report(out, {**corpus.room_next(), **({f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
+                                                 if not args.apply and log.counted else {})}, transport.verdict('agent install', [log]))
     return 1 if log.conflicts else 0
 
 

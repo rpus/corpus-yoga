@@ -933,7 +933,7 @@ def promote(noun: str, selected: list[Unit]) -> int:
     say(groups)
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
     undone = sum(left.values())
-    facts.report(None, flow_next(), f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
+    facts.report(None, room_next(), f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
                  + ', '.join(f'{"refused" if s == "would lose" else s} {left[s]}' for s in left))
     return 1 if undone else 0
 
@@ -1134,16 +1134,26 @@ def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-def flow_next() -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next on the flow from the live stores to the store, as the store's status
-    names it (#851), for an act's tail (#801): the captures, the rehearsal, the promotes,
-    the stage's cleaner - every act the room can take after this one, the store's own
-    cleaner being the store's status's to add."""
+def room_next(rows: list[Judged] | None = None, ahead: list | None = None) -> dict[str, dict[str, dict[str, int]]]:
+    """The room's to-do, the one reading (#851, #875): what the store's status names under
+    next: - the captures for what the live stores hold beyond both tiers, the rehearsal for
+    what is staged and not judged, the promotes, the stage's cleaner, the store's cleaner -
+    read now. Bare corpus-yoga store says it, and every act ends on it re-read after its
+    effect, so that no verb carries a reading of the workflow of its own. rows and ahead,
+    where the caller has read them already, are not read again."""
     import live
     out: dict[str, dict[str, dict[str, int]]] = {}
-    ahead, _absent = live.ahead()
+    if ahead is None:
+        ahead, _absent = live.ahead()
     live.captures(out, ahead)
-    promotion_next(out, survey())
+    promotion_next(out, survey() if rows is None else rows)
+    if STORE.is_dir():
+        for twice in held_twice(STORE, *live.live_addresses()):
+            step(out, 'corpus-yoga store clean', kind_of(twice.unit))
+        for shadow_dir in orphaned_shadows():
+            step(out, 'corpus-yoga store clean', '/'.join(shadow_dir.relative_to(REPO).as_posix().split('/')[:3]))
+        for unit, _rel in surplus(STORE):
+            step(out, 'corpus-yoga store clean', kind_of(unit))
     return out
 
 

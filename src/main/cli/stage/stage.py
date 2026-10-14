@@ -75,7 +75,7 @@ def entries() -> list[cleaner.Entry]:
 
 
 def clean() -> int:
-    return cleaner.clean('stage', entries(), KINDS, corpus.flow_next)
+    return cleaner.clean('stage', entries(), KINDS, corpus.room_next)
 
 
 def main() -> int:

@@ -274,10 +274,11 @@ status() {
 # count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it.
 count() { if (( $1 == 1 )); then echo "$1 $2"; else echo "$1 $3"; fi; }
 
-# tail <verdict>: what an act reports after its lines (#801), through src/main/facts.py -
-# next:, corpus-yoga status last, then the verdict as the last line.
+# tail_of <verdict>: what an act reports after its lines (#801, #875), through
+# src/main/facts.py - next:, the room's to-do re-read after the effect, corpus-yoga status
+# last, then the verdict as the last line.
 tail_of() {
-  "$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts; facts.report(None, None, sys.argv[2])' "$REPO_DIR/src/main" "$1"
+  "$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus, facts; facts.report(None, corpus.room_next(), sys.argv[2])' "$REPO_DIR/src/main" "$1"
 }
 
 clean() {
