@@ -1755,7 +1755,7 @@ def check_rehearsal_record(run) -> None:
     written, and is told apart from a directory or from what is not a record. From it a
     unit's standing is decidable: valid, invalid, changed since, unseen, seen without
     verdict, judged by no family, superseded where origin/main has moved past the version
-    judged at, or refused where the record's version is ahead of main's, each said with
+    judged at, or unlicensed where the record's version is ahead of main's, each said with
     the stamp."""
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
@@ -1832,7 +1832,7 @@ def check_rehearsal_record(run) -> None:
                 (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),
                 (corpus.Judgement.NONE, 'no pipeline selects it'),
                 (corpus.Judgement.SUPERSEDED, 'judged at claude/apiConversation v1; origin/main holds v2 - corpus-yoga pipeline rehearse re-judges it'),
-                (corpus.Judgement.REFUSED, 'at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)')]
+                (corpus.Judgement.UNLICENSED, 'valid at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
     refusal = got[1][2]
     at = '/'.join(('chat-capture', 'claude/apiConversation', 'v1.json'))   # the fixture's version file under rsc/schema/pipeline, which no tree holds
@@ -1877,28 +1877,30 @@ def check_unit_companion(run) -> None:
 
 
 def check_unit_state(run) -> None:
-    """A staged unit is in one of five states, and the stage's counts are of those states
-    (#687): promotable, held already, refused - a relation or a family gave its verdict
-    against it - incomplete, and unjudged, the state before any verdict, whose remedy is
-    a rehearsal. No status line prescribes a removal: a refused unit is the reader's to
-    reconcile, an incomplete one the janitor's."""
+    """A staged unit is in one of seven states, and the stage's counts are of those states
+    (#687, #867): promotable, held already, invalid - a family gave its verdict against it -
+    would lose - its relation would cost the held copy something, which the promote, asked,
+    refuses - unlicensed - valid at a version origin/main does not hold - incomplete, and
+    unjudged, the state before any verdict, whose remedy is a rehearsal. No status line
+    prescribes a removal: a unit that would lose is the reader's to reconcile, an incomplete
+    one the janitor's; and no state of a status is refused, since a status asks for no act."""
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
     from append_only import Relation
     state = getattr(corpus, 'state', None)
     judgement = getattr(corpus, 'Judgement', None)
     if state is None or judgement is None:
-        run('stage: a unit not yet judged is counted unjudged, never refused', False,
-            'src/main/corpus.py derives no state: its counts call refused whatever is not promotable',
+        run('stage: a unit not yet judged is counted unjudged, never held back', False,
+            'src/main/corpus.py derives no state: its counts hold back whatever is not promotable',
             check='stage.states_are_told_apart')
         return
     whole = corpus.Unit(Path('a/b'), [Path('a/b')], [], [], 'prefix', 'chat-capture', 'claude')
     lacking = corpus.Unit(Path('a/c'), [Path('a/c')], [], [], 'whole', 'chat-export', None, missing=['x.json'])
     got = [state(lacking, Relation.ABSENT, judgement.UNJUDGED), state(whole, Relation.ABSENT, judgement.UNJUDGED),
-           state(whole, Relation.EXTENDS, judgement.REFUSED), state(whole, Relation.DIVERGED, judgement.NONE),
+           state(whole, Relation.EXTENDS, judgement.UNLICENSED), state(whole, Relation.DIVERGED, judgement.NONE),
            state(whole, Relation.ABSENT, judgement.VALID)]
-    expected = ['incomplete', 'unjudged', 'refused', 'refused', 'promotable']
-    run('stage: a unit not yet judged is counted unjudged, never refused', got == expected,
+    expected = ['incomplete', 'unjudged', 'unlicensed', 'would lose', 'promotable']
+    run('stage: a unit not yet judged is counted unjudged, never held back', got == expected,
         None if got == expected else f'the states read {got}, where they are {expected}',
         check='stage.states_are_told_apart')
     prescribed = [line.strip() for line in (SRC / 'main' / 'corpus.py').read_text().splitlines()
@@ -2159,7 +2161,7 @@ def check_status_facts(run) -> None:
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'next'),
-              ('stage', 'invalid'), ('stage', 'refused'), ('store', 'next'), ('cache', 'next'), ('grammar',), ('migration',)]
+              ('stage', 'invalid'), ('stage', 'unlicensed'), ('store', 'next'), ('cache', 'next'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')
