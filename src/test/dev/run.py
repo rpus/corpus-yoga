@@ -3160,6 +3160,39 @@ def check_grammar(run) -> None:
             check='grammar.parser_current')
 
 
+def check_forge_aim(run) -> None:
+    """A PR's aim is one line per issue in the aim's one grammar (#884): the merge reads
+    the aimed set from it and refuses any other spelling, so that the set the flip
+    rewrites and the set the forge closes are one. The fixture is the live bug: #879's
+    body aimed at two issues in one line, the merge read one, and #801 stayed open."""
+    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'forge'))
+    import importlib
+    try:
+        aim = importlib.import_module('aim')
+    except ModuleNotFoundError:
+        run('forge: a PR\'s aim is one line per issue in one grammar', False,
+            'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue')
+        return
+    one_line_two_issues = ('## why\n\n- aims to complete #876 - every effecting verb not on the flow reports through '
+                           'the act\'s one shape - and, with #877 merged, #801, whose every effecting verb then reports\n')
+    refused = False
+    try:
+        aim.aimed(one_line_two_issues)
+    except ValueError:
+        refused = True
+    run('forge: a line that aims at two issues is refused', refused,
+        None if refused else '#879\'s aim line was read as one aim and #801 stayed open', check='forge.aim_one_line_per_issue')
+    body = '\n'.join(['Signature: a/b/0123abcd', '', '## why', '', aim.line(876, 'the first should'), aim.line(801, 'the second should'),
+                      '', '## what', '', 'a mention wears backticks: `aims to complete #1` is said about, not aimed'])
+    read = aim.aimed(body)
+    run('forge: the aim lines raise writes are the aims merge reads', read == [876, 801],
+        None if read == [876, 801] else f'read {read}', check='forge.aim_one_line_per_issue')
+    armed = aim.flipped(body)
+    flipped_ok = '- closes #876 - the first should' in armed and '- closes #801 - the second should' in armed and aim.PHRASE not in armed.replace('`aims to complete #1`', '')
+    run('forge: the flip rewrites each aim line to closes and nothing else', flipped_ok,
+        None if flipped_ok else f'the armed body reads {armed[:200]}', check='forge.aim_one_line_per_issue')
+
+
 def check_provider_registry(run) -> None:
     """The provider registry (rsc/provider/providers.csv, #628) parses, and every
     provider src/ names - by a directory under the two browser trees or the agent command, or by a
@@ -3608,6 +3641,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_obligations': SCHEMA + MODEL + ['src'],
     'check_reference': ['rsc/reference'],
     'check_provider_registry': ['rsc/provider', 'src'],
+    'check_forge_aim': ['src/main/cli/forge', 'src/test'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
     'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],
     'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],
@@ -3872,6 +3906,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_identity, tier='schema')
         run_section(check_grammar, tier='schema')
         run_section(check_provider_registry, tier='code')
+        run_section(check_forge_aim, tier='code')
         run_section(check_reference, tier='schema')
         run_section(check_mcp_factoring, tier='schema')
         run_section(check_mcp_reproducible, tier='schema')

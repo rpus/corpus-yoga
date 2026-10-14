@@ -4,6 +4,7 @@
 # Usage:
 #   corpus-yoga forge                 # declared vs live
 #   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
+#   corpus-yoga forge raise <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (#884)
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
 #   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
@@ -568,12 +569,16 @@ merge_chain() {
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE - #$pr is $state; only an open PR merges"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE - the body read failed"; return 1; }
-  grep -Eq 'aims to complete #[0-9]+' <<< "$body"     || { echo "forge merge: NOT DONE - the body carries no 'aims to complete #N' to flip"; return 1; }
+  # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, #884): one
+  # line per issue, as corpus-yoga forge raise writes them; a line that says the phrase
+  # otherwise refuses here, before any enacting step, since the flip could not read it either.
+  local aimed
+  aimed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" aimed <<< "$body")"     || { echo "forge merge: NOT DONE - the body's aim lines are not in the aim's grammar; the line above names it, and corpus-yoga forge raise writes them (#884)"; return 1; }
+  [[ -n "$aimed" ]]     || { echo "forge merge: NOT DONE - the body carries no aim line to flip"; return 1; }
   # The title is a verbatim COPY of the title of an issue the body aims to
   # complete (#479): the should's one home is the issue, main's subject becomes
   # the disposed should, and a non-copy refuses HERE, before any enacting step.
-  local aimed title issue_number issue_title copied=0
-  aimed="$(grep -oE 'aims to complete #[0-9]+' <<< "$body" | grep -oE '[0-9]+' | sort -u)"
+  local title issue_number issue_title copied=0
   title="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json title --jq .title)"     || { echo "forge merge: NOT DONE - the title read failed"; return 1; }
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
@@ -667,12 +672,26 @@ merge_chain() {
     return 1
   fi
   echo "data gate: green at ${oid:0:8}"
-  n="$(grep -Ec 'aims to complete #[0-9]+' <<< "$body")"
-  flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/flip.py" <<< "$body")"
+  flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" flip <<< "$body")"
   printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - the flip failed; the body still aims, nothing merged$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
   # The squash is pinned to the head every check above saw; between the flip
   # and here the closes phrasing exists for an instant, and a refused squash
   # restores the body as found (#483).
+  # The forge's reading of the aim against GitHub's (#884): what the squash will close is
+  # the PR's closing references, bound by GitHub from the flipped body; where they are not
+  # the aimed set, the body is restored and nothing merges - the two readings cannot differ
+  # on main. The references settle a moment after the edit, so the read is tried a few times.
+  local closing
+  for _ in 1 2 3 4 5; do
+    closing="$(cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F "pr=$pr" -F "query=@$REPO_DIR/src/main/cli/forge/closing-issues.graphql" --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[].number' | sort -n)" || closing=""
+    [[ "$closing" == "$(sort -n <<< "$aimed")" ]] && break
+    sleep 2
+  done
+  if [[ "$closing" != "$(sort -n <<< "$aimed")" ]]; then
+    printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -) && echo "the body is restored as found - it aims again, nothing closed"
+    echo "forge merge: NOT DONE - the forge would close [$(tr '\n' ' ' <<< "$closing")] where the body aims at [$(tr '\n' ' ' <<< "$aimed")]; nothing merged (#884)"
+    return 1
+  fi
   if ! (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid"); then
     if printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -); then
       echo "the body is restored as found - it aims again, nothing closed"
@@ -687,7 +706,18 @@ merge_chain() {
     echo "forge merge: NOT DONE - merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
     return 1
   fi
-  tail_of "forge merge: DONE - #$pr squashed as ${landed:0:8} ($n should(s) closed); this checkout converged on it"
+  # Each aimed issue's state after the squash, read from the forge (#735, #884): the
+  # verdict counts what the forge closed, never what the body promised.
+  local closed=0 total=0 state
+  echo "aimed:"
+  while read -r issue_number; do
+    [[ -n "$issue_number" ]] || continue
+    total=$((total + 1))
+    state="$(cd "$REPO_DIR" && quote gh issue view "$issue_number" --json state --jq .state)" || state="unread"
+    [[ "$state" == CLOSED ]] && closed=$((closed + 1))
+    echo "  #$issue_number: $(tr '[:upper:]' '[:lower:]' <<< "$state")"
+  done <<< "$aimed"
+  tail_of "forge merge: DONE - #$pr squashed as ${landed:0:8}; did close $closed of $total aimed issue(s); this checkout converged on it"
 }
 
 # The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
@@ -703,6 +733,7 @@ case "${1-}" in
   '')        status --stage ;;
   sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
   clean)     shift; parse_argv forge clean "$@"; clean "$@" ;;
+  raise)     shift; parse_argv forge raise "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/raise.py" "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
   capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   promote)   shift; parse_argv forge promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote forge "$@" ;;

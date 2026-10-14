@@ -1,5 +1,13 @@
 # Contributing
 
+Raise with `./corpus-yoga forge raise <issue>... --head <branch> --body <file>` (#884): the
+title is the first issue's title, verbatim, and the why section is one aim line per
+issue, `- aims to complete #N - <title>`, both generated, so that no aim is written by
+hand and the merge reads exactly what the forge wrote. The body file carries the
+Signature line and the what, how and to sections as .github/PULL_REQUEST_TEMPLATE.md
+teaches them, and nothing the forge writes. An open blocker not aimed at refuses the
+raise as it would the merge (#482). The body as sent is kept under `tmp/forge/raise/`.
+
 Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
 line of echoed commands — refuse, relocate if the base moved (in a detached worktree
 under `tmp/forge/merge/`, never in this checkout - #507), stand at the head and run
@@ -28,11 +36,14 @@ landed idea; if a PR can't be squashed, it was not atomic. A branch may hold man
 commits — the squash keeps every one of their messages and signatures. The flip is a
 STEP of the merge, not a command (#483): `corpus-yoga forge merge <pr>` refuses first (a
 non-OPEN PR, a body with nothing to flip, a title that copies no aimed issue — #479 —
-an unaimed open blocker — #482 — or refuse-class drift), relocates a moved base -
+an unaimed open blocker — #482 — an aim line outside the aim's grammar — #884 — or refuse-class drift), relocates a moved base -
 replaying only the commits the base does not already hold, tree for tree, so a
 stacked branch sheds its merged parent (#585) - and resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
 edit before the squash — a refused squash restores the body as found
-(.github/PULL_REQUEST_TEMPLATE.md holds that grammar): the squash publishes the
+(.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
+references back from the forge and refuses, restoring the body, where they are not the
+aimed set (#884), so what the flip rewrote and what the squash closes are one set; after
+the squash it reads each aimed issue's state and counts what the forge closed: the squash publishes the
 title — a verbatim copy of the title of an issue the body aims to complete — as
 main's subject line, and the commits as reviewed, every message and Signature
 intact.

@@ -71,6 +71,7 @@ facts.reads_back_what_it_prints
 facts.wraps_and_reads_back
 facts.wraps_only_for_a_terminal
 files.required_exists
+forge.aim_one_line_per_issue
 grammar.citation_is_stated
 grammar.enforcement_map
 grammar.gated_is_cited
