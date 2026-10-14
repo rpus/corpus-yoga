@@ -30,7 +30,7 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
 | `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `scratch/` and `rehearsal.json`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
-| `tmp/logs/` | run history | local | disposable |
+| `tmp/logs/` | run history | local | disposable - `corpus-yoga logs` names the directories of commands and verbs that no longer exist, and `corpus-yoga logs clean` is the tier's janitor |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
 A capture writes to `tmp/stage/input/`, at the address its unit will have under

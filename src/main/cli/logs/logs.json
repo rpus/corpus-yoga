@@ -1,0 +1,15 @@
+{
+  "summary": "the room's logs, tmp/logs - one directory per command, one beneath it per verb, each act's log stamped within - the orphans among them, directories of a command or verb that no longer exists, and the act that removes them (bare is the status, naming what its cleaner would remove; clean its one janitor)",
+  "explanation": {
+    "tmp/logs": "the tier whole - how many commands have a directory, how many logs they hold, and their size",
+    "orphans": "each directory of a command that no longer exists, or of a verb its command no longer declares, by its path, with how many logs it holds, their size, why it is an orphan, and corpus-yoga logs clean as its remedy; a log is the record of an act, so its disposal is the reader's, which the cleaner's run is",
+    "next": "what to run next - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where every directory is a current command's or verb's"
+  },
+  "target": "src/main/cli/logs/logs.py",
+  "calculus": "project",
+  "args": [],
+  "r": [
+    "tmp/logs",
+    "src/main/cli"
+  ]
+}
