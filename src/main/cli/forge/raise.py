@@ -50,7 +50,7 @@ def drafted(path: Path) -> tuple[str, str]:
     lines = text.split('\n')
     if not lines or not SIGNATURE.match(lines[0]):
         raise Refused(f'the body\'s first line is not a Signature triad: {lines[0][:60]!r}')
-    bare = re.sub(r'`[^`]*`', '', text)
+    bare = aim.bare(text)
     if aim.PHRASE in bare:
         raise Refused(f'the body says {aim.PHRASE}; the forge writes the aim lines')
     for word in FORBIDDEN:

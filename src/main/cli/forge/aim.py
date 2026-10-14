@@ -26,7 +26,8 @@ assert [p for p in _file.parents if p / SELF == _file], f'{_file} is not at its 
 PHRASE = 'aims to complete'
 CLOSES = 'closes'
 _AIM = re.compile(r'^- aims to complete #(\d+) - ([^#]*)$')
-_CODE = re.compile(r'`[^`]*`')
+_FENCE = re.compile(r'```.*?```', re.S)
+_CODE = re.compile(r'`[^`\n]*`')
 
 
 def line(number: int, title: str) -> str:
@@ -36,12 +37,18 @@ def line(number: int, title: str) -> str:
     return f'- {PHRASE} #{number} - {title}'
 
 
+def bare(body: str) -> str:
+    """The body with every mention stripped - a fenced block, then each backticked span -
+    so that what remains says the phrase only where it aims."""
+    return _CODE.sub('', _FENCE.sub('', body))
+
+
 def aimed(body: str) -> list[int]:
     """The issues the body aims to complete, in order, each once; a line that says the
     phrase and is not one aim line is refused by name."""
     numbers: list[int] = []
-    for raw in body.splitlines():
-        if PHRASE not in _CODE.sub('', raw):
+    for raw in bare(body).splitlines():
+        if PHRASE not in raw:
             continue
         match = _AIM.match(raw.rstrip())
         if not match:
