@@ -6,6 +6,67 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v23
+
+Three record types Claude Code 2.1.300 writes that v22 did not declare. Home-room's
+session `67f2899c-…`, captured on 2026-10-15 by `corpus-yoga agent capture` into the stage,
+is refused at v22 by the rehearsal of 2026-10-15T110202Z at its record 835, the first
+record it wrote under 2.1.300, at 2026-10-15T10:15:23Z; validation stops at the first
+fault, and 187 of its 1399 records carry a type v22 does not declare. They are:
+`api-request-shape`, once, the system prompt's text blocks and fifteen tool definitions
+under a hash; `api-request-blob`, 157 times, one message each under a hash, the messages'
+blocks of the five types text, thinking, tool_use, tool_result and `tool_addition`, the
+last carrying one MCP tool's definition; and `api-request`, 29 times, one per assistant
+turn, the request's parameters, its shape by hash, its messages by reference - `base`, the
+previous record's id, `keep`, a count, and `tail`, blob hashes - with cache control and a
+request digest. Together they are 46 percent of the file's bytes. The 21 sessions held
+under data/input on home-room carry none of the three types, nor does the other session
+in home-room's live store, 41ff13e9, last written 2026-09-30.
+
+Read, from the hashes and the references, as the harness recording each API call it makes,
+content-addressed - the shape once, each message once, each call as its parameters plus
+what it reuses and what it adds. That is an inference: 135 of the 292 hashes the first
+request's tail names have no blob in the file, and the next harness version may write
+otherwise.
+
+Two members are declared open at this mint, a decision recorded here: a tool definition's
+`input_schema`, a JSON Schema document whose keys are the tool's, and a safeguard's
+`classifier_context`, about 55K bytes a record nested seven deep, whose eighteen observed
+top-level keys the description names. Their members are undeclared until a reading needs
+them.
+
+Validated over the staged session's conversion on home-room, 2026-10-15: v22 refuses it
+at record 835 and stops; v23 refuses none. v23 adds alternatives and definitions and
+narrows nothing, so every datum v22 admits, v23 admits (#892).
+
+### Replaces
+
+v22
+
+#### Relaxed
+
+- `Record` - three alternatives: `ApiRequestShapeRecord`, `ApiRequestBlobRecord` and
+  `ApiRequestRecord`, each closed over the keys observed.
+- `ApiRequestShapeRecord` - `shape`, an `ApiRequestShape` of `system`, text blocks, and
+  `tools`, each a `ToolDefinition` closed over the seven keys observed across the shape's
+  tools and the tool_addition blocks, `name` alone required.
+- `ApiRequestBlobRecord` - `message`, an `ApiRequestMessage` whose `role` is user,
+  assistant or system, whose content is a string or `ApiRequestContentBlock`s - the four
+  turn block types observed plus `ToolAdditionBlock`, a `ToolAddition` carrying a
+  `ToolDefinition` - with optional `output_config` and `clear_at`, each observed once.
+- `ApiRequestRecord` - `params`, an `ApiRequestParams` of `model`, `betas`, `max_tokens`,
+  `thinking`, `context_management` with its edits, `safeguards` with an open
+  `classifier_context`, and `output_config`; `base` optional, absent on the first record;
+  `keep`; `tail`, empty on one record; `cacheControl` entries of a path and a value;
+  `requestDigest`.
+- `HexDigest64` - a 64-character lowercase hexadecimal string, every hash and digest
+  the three records carry.
+
+#### Refactored
+
+- `TextBlock` - moves earlier in the file, the BFS order repair placing it where
+  `ApiRequestShape` first references it. No validation effect.
+
 ## v22
 
 One key Claude Code 2.1.283 writes that v21 had closed. Home-room's session
