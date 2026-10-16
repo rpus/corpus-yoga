@@ -91,7 +91,7 @@ class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
     state: str = 'absent'
     why: str = 'no live store is read there'
-    remedy: facts.Command = facts.Command('corpus-yoga agent mount --apply', 'would mount it')
+    remedy: facts.Command = facts.Command('corpus-yoga agent mount', 'would mount it')
 
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:

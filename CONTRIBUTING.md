@@ -33,9 +33,9 @@ captured session corpus. A hand-written `--body` discards them all.
 
 `./corpus-yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
 can see what the forge does to a merge without having to merge one to find out; and
-`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
-printing a `gh` command for someone to copy. It is `--apply`-gated because it writes
-outside the repo, to a server other people see.
+`./corpus-yoga forge sync` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+printing a `gh` command for someone to copy; what it would set is the bare `./corpus-yoga forge`'s
+to say, since the status is the dry run (#881). It writes outside the repo, to a server other people see.
 
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
