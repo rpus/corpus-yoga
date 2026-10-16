@@ -90,6 +90,8 @@ def main() -> int:
         section, state, said = cells[0], cells[1].lower(), cells[4] if len(cells) > 4 else ''
         remedy = None if not said else facts.Command(said, DOES.get((section, state), 'then it is deletable')) \
             if said.startswith(TYPED) else facts.Act(said)
+        if section == 'settings' and state == 'drift':
+            remedy = facts.Command('corpus-yoga forge sync', 'would set it as declared')   # the act; the status is its dry run (#881)
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())

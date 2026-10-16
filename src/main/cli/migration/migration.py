@@ -6,7 +6,7 @@ rsc/migration/step.sh, and this noun says them and takes them.
 
     corpus-yoga migration                 # status: each script - how many steps it would take, none, or that it halted and on what
     corpus-yoga migration sync            # each script with steps and how many: the dry run, the apply with the act elided
-    corpus-yoga migration sync --apply    # run each of them with --apply, its own lines relayed as it takes its steps
+    corpus-yoga migration sync            # run each of them, its own lines relayed as it takes its steps; the status says what it would take
 
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
@@ -14,7 +14,7 @@ The status is those three states, read by running every script bare: a script wi
 steps is said with how many and carries the sync as its remedy, a halted one with what it
 said and the reader's own act. The steps themselves are the script's to say - it is the
 declaration of its moves, and prints them bare - so no status restates them. The sync
-names each script with steps and how many, runs each with --apply, relays its lines as it
+names each script with steps and how many, runs each, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken.
 Its log, tmp/logs/migration/sync/<stamp>.log, opens with the Signature triad as every
@@ -39,7 +39,7 @@ import provider  # noqa: E402
 import tier  # noqa: E402
 
 SCRIPTS = REPO / 'rsc' / 'migration'
-SYNC = facts.Command('corpus-yoga migration sync --apply', 'takes them')
+SYNC = facts.Command('corpus-yoga migration sync', 'would take them')
 HALTED = facts.Act('resolve by hand what it names')
 
 
@@ -101,7 +101,7 @@ class Log:
         self.file = path.open('w')
         head = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True).stdout.strip()
         self.say(f'migration sync - {stamp} - {provider.signature()} - {head or "(no git)"}')
-        self.say('corpus-yoga migration sync --apply')
+        self.say('corpus-yoga migration sync')
         self.say('')
 
     def say(self, line: str = '') -> None:
@@ -111,11 +111,11 @@ class Log:
             self.file.flush()
 
 
-def sync(apply: bool) -> int:
-    """One list of the scripts with steps; the flag decides only whether each is run with
-    --apply after it is named. Then what an act reports (#801): next:, and the verdict as
+def sync() -> int:
+    """One list of the scripts with steps, each run after it is named (#881: what it would
+    take is the bare status's). Then what an act reports (#801): next:, and the verdict as
     the last line."""
-    log = Log(apply)
+    log = Log(True)
     seen = survey()
     owed = {name: lines for name, (code, lines) in seen.items() if code == 0 and lines}
     halted = {name: '; '.join(lines) for name, (code, lines) in seen.items() if code != 0}
@@ -123,9 +123,7 @@ def sync(apply: bool) -> int:
     taken = 0
     failed: list[str] = []
     for name, pending in owed.items():
-        log.say(f'  {name}: {len(pending)} step(s)' + ('' if apply else ' - --apply takes them'))
-        if not apply:
-            continue
+        log.say(f'  {name}: {len(pending)} step(s)')
         code, lines = run(REPO / name, apply=True)
         for line in lines:
             log.say(f'    {line}')
@@ -135,10 +133,6 @@ def sync(apply: bool) -> int:
             failed.append(name)
     for name, words in halted.items():
         log.say(f'  {name} halted - {words}')
-    if not apply:
-        log.say(f'migration sync: would run {len(owed)} script(s), {steps} step(s)' + (' (--apply runs them)' if steps else '')
-                + (f'; {len(halted)} halted, the reader\'s' if halted else ''))
-        return 0
     undone = failed + list(halted)
     verdict = (f'migration sync: NOT DONE - took {taken} of {steps} step(s); NOT taken ' + ', '.join(undone) if undone
                else f'migration sync: DONE - took {taken} step(s) of {len(owed)} script(s)')
@@ -151,7 +145,7 @@ def sync(apply: bool) -> int:
 def main() -> int:
     args = command_parser('migration').parse_args()
     if args.verb == 'sync':
-        return sync(bool(args.apply))
+        return sync()
     facts.say(status_facts())
     return 0
 

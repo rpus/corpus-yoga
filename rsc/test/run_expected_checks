@@ -163,6 +163,7 @@ templates.teach_signature
 tier.paths_from_contract
 validate.undeclared_type_names_the_union
 validation.verdict_is_record
+verbs.status_is_the_dry_run
 walkthrough.walks_and_runs
 xref.no_bad_pointers
 xref.score_matches_expectation

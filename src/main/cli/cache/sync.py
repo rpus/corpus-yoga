@@ -5,7 +5,7 @@ sync.py — rebuild tmp/cache/ by running its producers.
 tmp/cache/ is the workshop — rebuildable derivations. Its producer commands are
 DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,
 in registry-row order (no dedup — the row is the unit of the claim). Paired with clean, this is the reproduction the tmp/cache/
-contract promises: `corpus-yoga cache clean --apply && corpus-yoga cache sync` gives a fresh tmp/cache/ from
+contract promises: `corpus-yoga cache clean && corpus-yoga cache sync` gives a fresh tmp/cache/ from
 data/input/ + data/output/ alone. The one fetched store, ext/lib/serve_markdown's render
 libraries (KaTeX + marked), lives outside tmp/cache/ and outside this registry:
 `corpus-yoga server ensure-assets` rebuilds it (offline it says NOT DONE and exits 1;

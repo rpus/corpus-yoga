@@ -3,7 +3,8 @@
 status.py - bare `corpus-yoga site`: the publish tree against its sources, the corpus page and
 the deploy mount, read as rows on stdin from site.sh, which holds what a page is (#759):
 `pages <standing>`, `page <file> <standing>`, `index <title>` or `index ABSENT`,
-`deploy <words>`, tab-separated. Reads; writes nothing.
+`deploy <words>`, `land <file> <what changes>` for each file corpus-yoga site publish would
+land on rpus.co (#881), tab-separated. Reads; writes nothing.
 """
 import sys
 from dataclasses import dataclass
@@ -25,12 +26,20 @@ class CorpusPage:
 
 
 @dataclass
+class Publish:
+    """What corpus-yoga site publish would land on rpus.co: each file with what changes in it, and the act (#881)."""
+    would_land: dict[str, str]
+    remedy: facts.Command = facts.Command('corpus-yoga site publish', 'would copy, commit and push them')
+
+
+@dataclass
 class Site:
     publish_tree: str
     sources: str
     pages: dict[str, str] | str   # each stale page by its file, or that all are current
     index: CorpusPage | facts.Finding = facts.named('index.html')
     deploy: str = ''
+    publish: Publish | str = 'nothing to land - rpus.co holds the tree as assembled'
 
 
 @dataclass
@@ -47,8 +56,14 @@ def main() -> int:
     if title == 'ABSENT':
         index = facts.Finding('absent - the corpus page is unbuilt',
                               facts.Command('corpus-yoga pipeline run', 'renders it, or corpus-yoga site render'))
-    facts.say(Status(Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,
-                          next((row[1] for row in rows if row[0] == 'deploy'), ''))))
+    land = {row[1]: row[2] for row in rows if row[0] == 'land' and len(row) > 2}
+    site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,
+                next((row[1] for row in rows if row[0] == 'deploy'), ''))
+    if land:
+        site.publish = Publish(land)
+    elif not site.deploy.startswith('the mount ext/mnt/site is present'):
+        site.publish = 'nothing can land - no clone of rpus.co is mounted'
+    facts.say(Status(site))
     return 0
 
 

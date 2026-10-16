@@ -18,7 +18,7 @@ main() {
   parse_args "$@"
 
   if [[ ! -f "$CORPUS_YOGA_VENV/bin/python" ]]; then
-    echo "error: venv not found at $CORPUS_YOGA_VENV - the mint is corpus-yoga status sync --apply, pre-venv ./src/main/cli/status/status.sh sync --apply (override location via CORPUS_YOGA_VENV=...)" >&2
+    echo "error: venv not found at $CORPUS_YOGA_VENV - the mint is corpus-yoga status sync, pre-venv ./src/main/cli/status/status.sh sync (override location via CORPUS_YOGA_VENV=...)" >&2
     exit 1
   fi
   "$CORPUS_YOGA_VENV/bin/python" "$@"
