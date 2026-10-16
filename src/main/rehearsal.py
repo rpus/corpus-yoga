@@ -156,21 +156,22 @@ def end(stamp: str, exit_code: int) -> int:
     import corpus
     seen = json.loads(EXTENT.read_text()) if EXTENT.is_file() else None
     if not isinstance(seen, dict) or seen.get('stamp') != stamp:
-        facts.report(None, corpus.room_next(), f'pipeline rehearse: NOT DONE - {_rel(EXTENT)} is not the extent of rehearsal {stamp}; no record written')
+        facts.report(None, f'pipeline rehearse: NOT DONE - {_rel(EXTENT)} is not the extent of rehearsal {stamp}; no record written')
         return 1
     units = corpus.units(corpus.STAGE) if corpus.STAGE.is_dir() else []
     record = reduce(stamp, _git('rev-parse', '--short', 'HEAD') or '(no git)', len(_git('status', '--porcelain').splitlines()),
                     provider.signature(), exit_code, seen['units'], units, lambda u: u.cache, corpus.family_of)
     bad = faults(record)
     if bad:
-        facts.report(None, corpus.room_next(), f'pipeline rehearse: NOT DONE - the record does not validate against {_rel(SCHEMA)} - {bad[0]}; no record written')
+        facts.report(None, f'pipeline rehearse: NOT DONE - the record does not validate against {_rel(SCHEMA)} - {bad[0]}; no record written')
         return 1
     write(record)
     judged = sum(1 for unit in record['units'].values() if unit['verdicts'])
-    # what an act reports (#801): next: - what the room can do now that the stage is judged -
-    # and the verdict, DONE where the run completed, its record written either way
+    # what an act reports (#801, #896): its effect, DONE where the run completed, its record
+    # written either way; the launcher replies with next:, what the room can do now that
+    # the stage is judged
     saw = f'rehearsal {stamp} saw {len(record["units"])} unit(s), judged {judged} - the record is {_rel(RECORD)}'
-    facts.report(None, corpus.room_next(), f'pipeline rehearse: {"DONE" if exit_code == 0 else "NOT DONE"} - {saw}'
+    facts.report(None, f'pipeline rehearse: {"DONE" if exit_code == 0 else "NOT DONE"} - {saw}'
                  + ('' if exit_code == 0 else f'; the run exited {exit_code}'))
     return 0
 

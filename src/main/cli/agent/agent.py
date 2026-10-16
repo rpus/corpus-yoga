@@ -327,9 +327,9 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         log = adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
         logs.append(log)
         out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
-    # what an act reports (#801): its facts by outcome, next: - what the room can do after
-    # the capture, as the store's status names it - and the verdict
-    facts.report(out, corpus.room_next(), transport.verdict('agent capture', logs))
+    # what an act reports (#801, #896): its facts by outcome and its effect; the launcher
+    # replies with next:, what the room can do after the capture
+    facts.report(out, transport.verdict('agent capture', logs))
     return sum(log.conflicts for log in logs)
 
 def _claude() -> tuple[Path, ModuleType]:
@@ -351,7 +351,7 @@ def mount(apply: bool) -> int:
     --apply creates the links. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
-        facts.report(None, corpus.room_next(), 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
+        facts.report(None, 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
         return 1
     verdict = 0
     present = created = 0
@@ -380,9 +380,9 @@ def mount(apply: bool) -> int:
             print(f'{shown} → {row["live_store"]} (created)')
         else:
             print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
-    # what an act reports (#801): next: and the verdict, the last line
+    # what an act reports (#801, #896): the effect line, handed up to the launcher's reply
     did = f'{"did" if apply else "would"} create {created}, present {present}'
-    facts.report(None, corpus.room_next(), f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
+    facts.report(None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
     return verdict
 
 
@@ -425,10 +425,11 @@ def main() -> int:
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj, args.apply) else 0)
-        # what an act reports (#876): next: - the apply of a dry run - and the verdict
-        facts.report(None, {**corpus.room_next(), **({'corpus-yoga agent demerge --apply': 'would undo them'} if not args.apply else {})},
-                     f'agent demerge: {"NOT DONE" if rc else "DONE"} - {"did" if args.apply else "would"} undo the latest merge of each project above'
-                     + ('; a conflict left one in place' if rc else ''))
+        # what an act reports (#876, #896): the effect, with the apply of a dry run as the
+        # act's own next: entry, handed up to the launcher's reply
+        facts.report(None, f'agent demerge: {"NOT DONE" if rc else "DONE"} - {"did" if args.apply else "would"} undo the latest merge of each project above'
+                     + ('; a conflict left one in place' if rc else ''),
+                     {'corpus-yoga agent demerge --apply': 'would undo them'} if not args.apply else None)
         return rc
 
     bundle = peer_bundle(args.source)
@@ -440,13 +441,13 @@ def main() -> int:
     else:
         session = claude.pick_session(bundle, args.id)
         log = claude.install_move(session.parent, projects, session, args.apply, machine)
-    # the log is facts nested by outcome under the bundle's address (#857), then next:, then
-    # the one verdict; a dry run says what it would write and names the apply
+    # the log is facts nested by outcome under the bundle's address (#857), then the one
+    # effect; a dry run says what it would write and names the apply as its own next: entry
     extent = '--all' if args.all else f'--id {args.id}'
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
-    facts.report(out, {**corpus.room_next(), **({f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
-                                                 if not args.apply and log.counted else {})}, transport.verdict('agent install', [log]))
+    facts.report(out, transport.verdict('agent install', [log]),
+                 {f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'} if not args.apply and log.counted else None)
     return 1 if log.conflicts else 0
 
 

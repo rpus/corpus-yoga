@@ -32,7 +32,7 @@ source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 
 main() {
   case "${1-}" in
@@ -129,15 +129,15 @@ main() {
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
-  # what an act reports (#876): next: - the rehearsal that judges what was staged, as the
-  # store's status names it - and the verdict, the last line, carried into each provider's
-  # log as the line that opened the capture is
+  # what an act reports (#876, #896): the effect, the last line where no launcher asked for
+  # it, carried into each provider's log as the line that opened the capture is; the
+  # launcher replies with next:, the rehearsal that judges what was staged
   if [[ -n "$dry_run" ]]; then
-    tail_of "browser capture: DONE - dry run; nothing staged, nothing spent" | tee -a ${logs[@]+"${logs[@]}"}
+    effect "browser capture: DONE - dry run; nothing staged, nothing spent" | tee -a ${logs[@]+"${logs[@]}"}
   elif [[ "$rc" -eq 0 ]]; then
-    tail_of "browser capture: DONE - each provider's capture stands above" | tee -a ${logs[@]+"${logs[@]}"}
+    effect "browser capture: DONE - each provider's capture stands above" | tee -a ${logs[@]+"${logs[@]}"}
   else
-    tail_of "browser capture: NOT DONE - a provider's capture above failed (exit $rc)" | tee -a ${logs[@]+"${logs[@]}"}
+    effect "browser capture: NOT DONE - a provider's capture above failed (exit $rc)" | tee -a ${logs[@]+"${logs[@]}"}
   fi
   return $rc
 }

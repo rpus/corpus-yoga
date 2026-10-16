@@ -179,8 +179,8 @@ def sync() -> None:
             directory.rmdir()
     render_collision_worksheet()
     # the findings are status's (bare corpus-yoga model): a sync writes, and what an act
-    # reports (#876) is next: and the verdict, the last line
-    facts.report(None, corpus.room_next(), f'model sync: DONE - {written} catalogue(s) written, {removed} removed')
+    # reports (#876, #896) is its effect line
+    facts.report(None, f'model sync: DONE - {written} catalogue(s) written, {removed} removed')
 
 
 def render_collision_worksheet() -> None:
@@ -307,7 +307,7 @@ def main():
                 print(reject_shared_name(row, args.reason, today))
             disposed += 1
         render_collision_worksheet()
-        facts.report(None, corpus.room_next(), f'model {args.verb}: DONE - {disposed} shared name(s) {args.verb}ed')
+        facts.report(None, f'model {args.verb}: DONE - {disposed} shared name(s) {args.verb}ed')
     else:
         # bare → status (read-only); only the verbs above write
         status()

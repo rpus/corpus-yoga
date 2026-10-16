@@ -119,7 +119,7 @@ def main() -> int:
     if not entries:
         # a room with no corpus skips, stated (#406, #494): the run's step must not fail
         rel = md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root
-        facts.report(None, corpus.room_next(), f'site render: DONE - skipped; no projected corpus under {rel}, which corpus-yoga pipeline run projects')
+        facts.report(None, f'site render: DONE - skipped; no projected corpus under {rel}, which corpus-yoga pipeline run projects')
         return 0
 
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -227,13 +227,13 @@ def main() -> int:
     if page.exists() and page.read_bytes() == html.read_bytes():
         # content-keyed (#494): current inputs mean no write, and a quiet run stays quiet
         html.unlink()
-        facts.report(None, corpus.room_next(), 'site render: DONE - index.html current; nothing written')
+        facts.report(None, 'site render: DONE - index.html current; nothing written')
         return 0
     page.unlink(missing_ok=True)
     shutil.move(str(html), str(page))
     print(f'  title: {title}')
     print(f'  data tables: {out_dir.relative_to(REPO)}/')
-    facts.report(None, corpus.room_next(), f'site render: DONE - {page.relative_to(REPO) if page.is_relative_to(REPO) else page} rendered')
+    facts.report(None, f'site render: DONE - {page.relative_to(REPO) if page.is_relative_to(REPO) else page} rendered')
     return 0
 
 

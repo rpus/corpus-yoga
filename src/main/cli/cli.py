@@ -432,26 +432,29 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
 PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
 
 
-def _log_enacting(row: dict, rest: list[str]) -> None:
-    """#453: the run-log obligation derives from the declaration - a verb with
-    declared w or sends is enacting and leaves an anchored log under
-    tmp/logs/<command>/<verb>/; a read-only face (no rows) leaves none, and a
-    verb declaring "log": "self" writes its own. The log is a tee child the
-    target's fds flow through: exec still hands signals, exit codes and stdin
-    to the target - tee is a sink beside it, never a process between. stderr
-    merges into the one stream, and python targets run unbuffered so an
-    interrupt loses nothing."""
+def enacting(row: dict, rest: list[str]) -> dict | None:
+    """The verb's declaration where the invocation is an act - a verb with declared w,
+    consumes or sends, not a help face - and None for a read face, which leaves no log
+    and gets no reply."""
     verb = rest[0] if rest else ''
     declaration = CLI / row['command'] / f'{verb}.json'
     if not verb or verb.startswith('-') or not declaration.exists():
-        return
+        return None
     if any(t in ('-h', '--help') for t in rest):
-        return  # a help invocation is a read-only face, log-free by construction (#474)
+        return None  # a help invocation is a read-only face, log-free by construction (#474)
     d = json.loads(declaration.read_text())
-    if not (d.get('w') or d.get('consumes') or d.get('sends')) or d.get('log') == 'self':
+    return d if (d.get('w') or d.get('consumes') or d.get('sends')) else None
+
+
+def _log_enacting(row: dict, verb: str, d: dict, stamp: str, rest: list[str]) -> None:
+    """#453: the run-log obligation derives from the declaration - an enacting verb
+    leaves an anchored log under tmp/logs/<command>/<verb>/; a verb declaring
+    "log": "self" writes its own. The log is a tee child the target's fds flow
+    through - a sink beside the target, never a process between. stderr merges
+    into the one stream, and python targets run unbuffered so an interrupt loses
+    nothing."""
+    if d.get('log') == 'self':
         return
-    import time
-    stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
     log_dir = tier.TMP / 'logs' / row['command'] / verb
     log_dir.mkdir(parents=True, exist_ok=True)
     log = log_dir / f'{stamp}.log'
@@ -473,22 +476,48 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     print(' '.join(['corpus-yoga', row['command'], *rest]), flush=True)
 
 
+def command_line(target: pathlib.Path, rest: list[str]) -> list[str]:
+    if target.suffix == '.py':
+        runner = REPO / 'src' / 'run_python_script.sh'
+        return [str(runner), str(target), *rest]
+    return [str(target), *rest]
+
+
 def dispatch(row: dict, rest: list[str]) -> int:
-    """Exec the row's target, args forwarded verbatim; a .md target is printed.
-    exec (not subprocess) so signals, exit codes, and interactivity are the
-    target's own — the CLI leaves no process between the user and the script.
-    An enacting verb's output flows through a tee into its run log first
-    (_log_enacting) - the sink beside the target, not between."""
+    """Run the row's target, args forwarded verbatim; a .md target is printed. A read
+    face is exec'd, so signals, exit codes and interactivity are the target's own. An
+    act the reader typed - an enacting verb, dispatched by no outer launcher - runs as
+    the launcher's child, its output through a tee into its run log (_log_enacting), and
+    the launcher replies after it (#896): next:, the room's to-do read once after the
+    act, then the act's effect line, handed up by the verb through the file
+    facts.EFFECT names. Only the launcher says next:, so a verb run as a step of another verb says
+    none; an inner launcher - one the outer act runs - finds ACT set and execs as a read
+    face does, its verb's effect line the step's last line; facts.ACT names the outer act. Signals from the terminal
+    reach the child through the process group; the launcher's exit code is the child's."""
     target = REPO / row['target']
     if target.suffix == '.md':
         print(target.read_text(), end='')
         return 0
-    _log_enacting(row, rest)
-    if target.suffix == '.py':
-        runner = REPO / 'src' / 'run_python_script.sh'
-        os.execv(str(runner), [runner.name, str(target), *rest])
-    os.execv(str(target), [str(target), *rest])
-    return 1  # unreachable
+    d = enacting(row, rest)
+    if d is None or os.environ.get(facts.ACT):
+        os.execv(command_line(target, rest)[0], [command_line(target, rest)[0].rsplit('/', 1)[-1], *command_line(target, rest)[1:]])
+        return 1  # unreachable
+    import time
+    verb = rest[0]
+    stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+    _log_enacting(row, verb, d, stamp, rest)
+    effect_dir = tier.TMP / 'logs' / row['command'] / verb
+    effect_dir.mkdir(parents=True, exist_ok=True)
+    effect = effect_dir / f'{stamp}.effect'
+    os.environ[facts.ACT] = f"{row['command']} {verb}"    # the act, and the file it hands its effect through (#896)
+    os.environ[facts.EFFECT] = str(effect)
+    try:
+        code = subprocess.call(command_line(target, rest))
+    except KeyboardInterrupt:
+        code = 130
+    reply = subprocess.call([str(REPO / 'src' / 'run_python_script.sh'), str(REPO / 'src' / 'main' / 'reply.py'),
+                             os.environ[facts.ACT], str(effect), str(code)])
+    return code if code else reply
 
 
 def main() -> int:

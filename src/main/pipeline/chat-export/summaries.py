@@ -52,7 +52,6 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 from markdown_projection import REPO, find_api_json
 
 from declared_parser import command_parser  # noqa: E402
@@ -229,7 +228,7 @@ def main():
         # (or a corpus-less clone) — depositing under fallback names would file
         # readings wrongly and then hold them immutable. Skip, loudly.
         conversations = Path(args.conversations_output)
-        facts.report(None, corpus.room_next(), 'summaries sync: DONE - skipped; no projected conversations under '
+        facts.report(None, 'summaries sync: DONE - skipped; no projected conversations under '
                      f'{conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations}; '
                      'deposits key on the projection, which corpus-yoga pipeline run chat-capture makes')
         return 0
@@ -302,7 +301,7 @@ def main():
     # the standing twin detector runs on every sync too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
-    facts.report(None, corpus.room_next(), f'summaries sync: {"NOT DONE" if conflicts else "DONE"} - {deposited} reading(s) deposited, {unchanged} already held, '
+    facts.report(None, f'summaries sync: {"NOT DONE" if conflicts else "DONE"} - {deposited} reading(s) deposited, {unchanged} already held, '
                  f'{renamed} folder(s) renamed, under {root.relative_to(REPO) if root.is_relative_to(REPO) else root}'
                  + (f'; {conflicts} CONFLICT(S)' if conflicts else ''))
     return 1 if conflicts else 0

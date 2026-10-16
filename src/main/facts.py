@@ -26,7 +26,9 @@ a status module beside it, which types them: no shell builds facts.
 from __future__ import annotations
 
 import json
+import os
 import re
+from pathlib import Path
 import shutil
 import sys
 from dataclasses import dataclass, field, fields, is_dataclass
@@ -315,25 +317,44 @@ def say(shape: DataclassInstance) -> None:
     print('\n'.join(lines(plain(shape), width=terminal_width())))
 
 
-ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every act's next: (#801)
+ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every next: (#801)
+ACT = 'CORPUS_YOGA_ACT'          # the launcher names the act it dispatched, `<command> <verb>` (#896)
+EFFECT = 'CORPUS_YOGA_EFFECT'    # and the file the act hands its effect up through
 
 
-def report_lines(outcomes, following, verdict: str) -> list[str]:
-    """What an act reports (#801), as lines - the one shape every effecting verb ends on:
-    its facts by outcome, where it has not already printed them act by act; then next:, the
-    room's to-do re-read after the effect - corpus.room_next, the one reading, with a noun's
-    own next: merged where it has one - in the statuses' grammar, corpus-yoga status last
-    so that next: is never empty and never relays the whole status; then the verdict, the
-    last line. following is that block, or None where a verb can read none."""
-    shape: dict[str, object] = {}
+def handed_up(effect: str, following) -> bool:
+    """Whether this effect is the launcher's to say: the launcher named the act it
+    dispatched and the file to hand the effect through, and the effect line is that act's
+    - `<command> <verb>: …` - not an inner verb's. Where it is, the effect and the act's own
+    following entries are written there, in the printer's lines, for src/main/reply.py."""
+    act, path = os.environ.get(ACT, ''), os.environ.get(EFFECT, '')
+    if not act or not path or not effect.startswith(act + ':'):
+        return False
+    handed = {'following': following if isinstance(following, dict) else {}, 'effect': effect}
+    Path(path).write_text('\n'.join(lines(plain(handed))) + '\n')
+    return True
+
+
+def report_lines(outcomes, effect: str, following=None) -> list[str]:
+    """What an act reports (#801, #896), as lines: its facts by outcome, where it has not
+    already printed them act by act; then its effect line, `<noun> <verb>: DONE - …` or
+    `NOT DONE - …`. next: is the launcher's reply, never the verb's: where the launcher
+    dispatched this act the effect is handed up and the launcher says next: then the
+    effect; where none did - an inner invocation, a step of another verb - the effect is
+    the last line and no next: is said. following: the act's own next: entries, a command
+    beside what it does, handed up with the effect."""
+    out: list[str] = []
     if outcomes:
         said = plain(outcomes)
         if isinstance(said, dict):
-            shape.update(said)
-    shape['next'] = {**(following if isinstance(following, dict) else {}), ROOM.line: ROOM.does}
-    return lines(plain(shape), width=terminal_width()) + [verdict]
+            out = lines(plain(said), width=terminal_width())
+    if handed_up(effect, following):
+        return out
+    return out + [effect]
 
 
-def report(outcomes, following, verdict: str) -> None:
-    """Print what an act reports (#801): report_lines, each a line."""
-    print('\n'.join(report_lines(outcomes, following, verdict)))
+def report(outcomes, effect: str, following=None) -> None:
+    """Print what an act reports (#801, #896): report_lines, each a line."""
+    said = report_lines(outcomes, effect, following)
+    if said:
+        print('\n'.join(said), flush=True)

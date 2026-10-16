@@ -33,7 +33,6 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
 import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#875)
 import facts  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
@@ -68,7 +67,7 @@ def entries() -> list[cleaner.Entry]:
 
 def main() -> int:
     verb_parser('cache', 'clean').parse_args()
-    return cleaner.clean('cache', entries(), KINDS, lambda: {**corpus.room_next(), **(following if isinstance(following := noun.status_facts().next, dict) else {})})
+    return cleaner.clean('cache', entries(), KINDS, lambda: own if isinstance(own := noun.status_facts().next, dict) else {})
 
 
 if __name__ == '__main__':

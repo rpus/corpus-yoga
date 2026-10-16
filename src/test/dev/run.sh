@@ -153,14 +153,15 @@ main() {
     rc=1
   fi
 
-  # what an act reports (#876): the dev gate's own verdict stands above, read by the
-  # hook and the pipeline's run; next: and the act's verdict end the run
+  # what an act reports (#876, #896): the dev gate's own verdict stands above, read by the
+  # hook and the pipeline's run; the act's effect line ends the run, or is handed to the
+  # launcher where the reader typed it
   # shellcheck source=src/main/report.sh
   source "$REPO_DIR/src/main/report.sh"
   if (( rc == 0 )); then
-    tail_of "test run: DONE - the dev gate passed; its verdict line stands above"
+    effect "test run: DONE - the dev gate passed; its verdict line stands above"
   else
-    tail_of "test run: NOT DONE - the dev gate failed, or its artifacts are not staged; the lines above name it"
+    effect "test run: NOT DONE - the dev gate failed, or its artifacts are not staged; the lines above name it"
   fi
   exit $rc
 }
