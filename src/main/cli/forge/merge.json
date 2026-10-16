@@ -56,7 +56,6 @@
   "r": [
     "machine-name.txt"
   ],
-  "log": "self",
   "w": [
     "tmp/forge/merge"
   ]

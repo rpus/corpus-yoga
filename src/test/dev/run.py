@@ -71,17 +71,19 @@ RSC_MODEL                = RSC / 'model'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
 SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 
-# The machine log is IMMUTABLE (#370): one stamped, colon-free file per run
-# under the verb directory, never rewritten; a same-second twin gains a numeric
-# suffix instead of overwriting. The committed surface names only the stable
-# directory — a stamp is machine-varying and may not enter it (L2).
-_MACHINE_LOG_STAMP = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
-MACHINE_LOG = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_MACHINE_LOG_STAMP}.log'
+# The per-check report is an ARTIFACT beside the act's record (#708), IMMUTABLE (#370):
+# one stamped, colon-free file per run under the verb directory, <stamp>.report, never
+# rewritten; a same-second twin gains a numeric suffix instead of overwriting. The record
+# itself, <stamp>.log, is the launcher's tee of the whole verb, and the stamp is the
+# launcher's where it ran the verb, so the pair share it. The committed surface names
+# only the stable directory — a stamp is machine-varying and may not enter it (L2).
+_REPORT_STAMP = os.environ.get('CORPUS_YOGA_STAMP') or time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
 _twin = 2
-while MACHINE_LOG.exists():
-    MACHINE_LOG = MACHINE_LOG.with_name(f'{_MACHINE_LOG_STAMP}-{_twin}.log')
+while REPORT.exists():
+    REPORT = REPORT.with_name(f'{_REPORT_STAMP}-{_twin}.report')
     _twin += 1
-MACHINE_LOG_REL = str(MACHINE_LOG.relative_to(REPO_ROOT))
+REPORT_REL = str(REPORT.relative_to(REPO_ROOT))
 CLI                      = SRC / 'main' / 'cli'
 
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
@@ -3277,6 +3279,17 @@ def check_forge_aim(run) -> None:
         None if body_held else 'a narrated relation, a hand-written as-at, or sections out of order passed', check='forge.issue_is_a_should_with_wired_relations')
 
 
+def check_record_is_the_launchers(run) -> None:
+    """The record of an effective verb is the launcher's tee of the whole verb, and no verb
+    writes a log of its own (#708): no declaration under src/main/cli carries a `log` key -
+    `"log": "self"` was the exception that let eight verbs write their own, each in a header
+    shape of its own, with the verb's tail outside the record."""
+    own = sorted(str(p.relative_to(REPO_ROOT)) for p in CLI.glob('*/*.json') if 'log' in json.loads(p.read_text()))
+    run('logs: no declaration under src/main/cli lets its verb log for itself', not own,
+        None if not own else 'these declare a log of their own, which the launcher would not tee: ' + ', '.join(own),
+        check='logs.no_verb_logs_for_itself')
+
+
 def check_provider_registry(run) -> None:
     """The provider registry (rsc/provider/providers.csv, #628) parses, and every
     provider src/ names - by a directory under the two browser trees or the agent command, or by a
@@ -3725,6 +3738,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_occurrences': SCHEMA + MODEL + ['src'],
     'check_model_obligations': SCHEMA + MODEL + ['src'],
     'check_reference': ['rsc/reference'],
+    'check_record_is_the_launchers': ['src/main/cli'],
     'check_provider_registry': ['rsc/provider', 'src'],
     'check_forge_aim': ['src/main/cli/forge', 'src/test'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
@@ -3822,8 +3836,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
     results = []
     # Two buffers: the committed rsc/test/run.log renders from results (identical
     # on any clone); the machine buffer holds the per-invocation body and the run's
-    # anchor, written under tmp/logs/test/run/ (machine-facing, like the serve
-    # daemon's logs) - a committed artifact never carries a machine fact.
+    # anchor, written as the per-check report beside the record under tmp/logs/test/run/
+    # (machine-facing) - a committed artifact never carries a machine fact.
     committed_buffer = io.StringIO()
     machine_buffer   = io.StringIO()
     cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
@@ -3991,6 +4005,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
         run_section(check_grammar, tier='schema')
+        run_section(check_record_is_the_launchers, tier='code')
         run_section(check_provider_registry, tier='code')
         run_section(check_forge_aim, tier='code')
         run_section(check_reference, tier='schema')
@@ -4072,7 +4087,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
     # any clone; this script writes it to rsc/test/run.log itself) and the
     # FULL report (adds the run's anchor and the per-invocation body — printed to
-    # stdout and written under tmp/logs/test/run/, run-facing like the serve daemon's logs).
+    # stdout and written as the <stamp>.report beside the record under tmp/logs/test/run/).
 
 
     def _fix_lines(fail_list, hints):
@@ -4157,7 +4172,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         ✗s were hard to find. The count carries what the old body could not: `(16/17)` is one
         command misbehaving, `(3/17)` is something structural.
 
-        Every invocation stays in the machine-local log (one stamped file per run under tmp/logs/test/run/),
+        Every invocation stays in the per-check report (one stamped .report per run under tmp/logs/test/run/, beside the record),
         where evidence belongs; this is the file a human reads in a diff."""
         out, seen_section = io.StringIO(), None
         order: dict[tuple, list] = {}
@@ -4183,7 +4198,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         """Render one report variant; returns (text, runnable fix lines) — results ->
         artifact bytes, a pure function of (results, surface) (#249). Three surfaces:
         'committed' is rsc/test/run.log (code+schema only, byte-identical on any
-        clone); 'full' is the stamped tmp/logs/test/run/ log (adds the run's anchor and body);
+        clone); 'full' is the stamped .report under tmp/logs/test/run/ (adds the run's anchor and body);
         'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
         at the full report for detail — pass its already-rendered text as
         full_report, since the terminal has no body of its own to anchor its stage
@@ -4217,7 +4232,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
-            out.write(f'  full per-check report → {MACHINE_LOG_REL}\n')
+            out.write(f'  full per-check report → {REPORT_REL}\n')
 
         # One row per STAGE — the same shape `corpus-yoga pipeline run` prints, so a reader of
         # either report answers the same question the same way: which stages ran, what
@@ -4238,7 +4253,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # line number to fake.
         if surface == 'terminal':
             assert full_report is not None, 'terminal render needs the full report to anchor into'
-            anchor_source, anchor_prefix = full_report, f'{MACHINE_LOG_REL}:'
+            anchor_source, anchor_prefix = full_report, f'{REPORT_REL}:'
         else:
             anchor_source, anchor_prefix = out.getvalue(), ''
         banner_line: dict[str, int] = {}
@@ -4265,7 +4280,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
                       f'{stage_tier[stage]:<{tier_width}}   {anchors[stage]:>{anchor_width}}\n')
         if surface == 'terminal':
-            out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
+            out.write(f'  (line = {REPORT_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
         else:
             out.write('  (line = where that stage begins in this report; every check is '
@@ -4395,11 +4410,11 @@ def main():
     ]
     final = settled_result if settled_result is not None else run_result
 
-    # The machine-local log and the terminal report are per-run emissions —
+    # The per-check report and the terminal report are per-run emissions —
     # unlike the committed artifacts, nothing gates whether they are written;
     # they always describe this invocation's final (settled or faulted) state.
-    MACHINE_LOG.parent.mkdir(parents=True, exist_ok=True)
-    MACHINE_LOG.write_text(final.full_text)
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
+    REPORT.write_text(final.full_text)
 
     print(final.terminal_text, end='')
 

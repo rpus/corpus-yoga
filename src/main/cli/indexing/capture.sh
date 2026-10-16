@@ -355,14 +355,9 @@ capture() {
   # working under CORPUS_YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
   [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (corpus-yoga indexing capture)" || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
-  # The one command that spends money left no record of what it bought: terminal scrollback
-  # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
-  # convenience here — it is the only evidence. Path per the command/verb rule (#54).
-  local log
-  log="$TMP_DIR/logs/indexing/capture/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
-  mkdir -p "$(dirname "$log")"
-  exec > >(tee -a "$log") 2>&1
-  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  # The one command that spends money: a paid call is not reproducible for free, so its
+  # record is the evidence. The record is the launcher's tee of the whole verb (#708),
+  # tmp/logs/indexing/capture/<stamp>.log, header included - nothing is written here.
   local conv
   conv="${conversations:-$(corpus_conversations || true)}"
   [[ -n "$conv" && -e "$conv" ]] || { tail_of "indexing capture: NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }

@@ -62,23 +62,24 @@ from safari import (  # noqa: E402
 from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's completion)
 import provider as registry  # noqa: E402  (rsc/provider/providers.csv - the one source of provider names)
 
-# ── channels (#413): the run log carries the narrative, the terminal the anchor,
-# one line per conversation, and the verdict. TERM is the real terminal; when
-# --run-log is given, sys.stdout becomes the log (line-buffered — nothing sits
+# ── channels (#413): the progress artifact carries the narrative, the terminal - and
+# the launcher's record, its tee (#708) - the anchor, one line per conversation, and the
+# verdict. TERM is the real terminal; when --progress is given, sys.stdout becomes the
+# progress file (line-buffered — nothing sits
 # in a buffer a ctrl-C could erase, #415) and sys.stderr writes to both.
 TERM = sys.stdout
 
 
 def emit(line=''):
-    """A terminal-altitude line: printed to the terminal, recorded in the log
-    (they are the same stream until --run-log splits them)."""
+    """A terminal-altitude line: printed to the terminal, recorded in the progress file
+    (they are the same stream until --progress splits them)."""
     print(line)
     if TERM is not sys.stdout:
         print(line, file=TERM, flush=True)
 
 
 class _BothStreams:
-    """stderr under --run-log: failures belong on the terminal AND in the record."""
+    """stderr under --progress: failures belong on the terminal AND in the progress file."""
     def __init__(self, *streams):
         self.streams = streams
 
@@ -110,8 +111,8 @@ RUN = {'t0': None, 'total': 0, 'done': 0, 'failed': [], 'at': '', 'log': None}
 
 
 def anchor(provider, mechanisms, conv_id):
-    """The log's first words (#412): stamp, the Signature triad the commit hook stamps
-    (#704), commit, invocation — written before any work, so a wordless log is
+    """The progress file's first words (#412): stamp, the Signature triad the commit hook
+    stamps (#704), commit, invocation — written before any work, so a wordless artifact is
     impossible."""
     head = subprocess.run(['git', '-C', str(REPO_DIR), 'rev-parse', '--short', 'HEAD'],
                           capture_output=True, text=True).stdout.strip() or '(no commit)'
@@ -200,8 +201,8 @@ def write_ordering(cfg, ids, dom_root):
         '# gemini/project_markdown for NN- naming.\n'
         # Provenance, not a clock-label: the run log holds the sweep this listing
         # came from, and its stamped name carries the when.
-        + (f'# Captured by corpus-yoga browser capture — run log: {rel(RUN["log"])}\n'
-           if RUN['log'] else '# Captured by capture.py (no run log named).\n')
+        + (f'# Captured by corpus-yoga browser capture — progress: {rel(RUN["log"])}\n'
+           if RUN['log'] else '# Captured by capture.py (no progress file named).\n')
     )
     out.write_text(header + '\n'.join(reversed(ids)) + '\n')
     print(f'ordering: {len(ids)} conversation(s) → {rel(out)}')
@@ -489,7 +490,7 @@ def main():
     ap.add_argument('--dry-run', action='store_true',
                     help='discover and state the extent (captured / never-captured), '
                          'then stop — the bracket\'s first call run alone; captures nothing')
-    ap.add_argument('--run-log', default=None,
+    ap.add_argument('--progress', default=None,
                     help='the run log capture.sh names: stdout becomes this file '
                          '(line-buffered), the terminal keeps the anchor, one line per '
                          'conversation, and the verdict (#413)')
@@ -499,9 +500,9 @@ def main():
     # first (#412 — a wordless log is impossible), the terminal kept for the
     # human-altitude lines via TERM/emit, stderr on both.
     global TERM
-    if args.run_log:
+    if args.progress:
         # append: browser.sh may have opened this log with the audit preamble
-        log_fh = open(args.run_log, 'a', buffering=1)
+        log_fh = open(args.progress, 'a', buffering=1)
         TERM = sys.stdout
         sys.stdout = log_fh
         sys.stderr = _BothStreams(log_fh, sys.__stderr__)

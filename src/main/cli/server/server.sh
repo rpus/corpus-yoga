@@ -21,10 +21,10 @@ source "$REPO_DIR/src/main/tier.sh"
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
-# run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
-# datum-keyed derived state (validation logs are memoisation + matrix input)
-# One immutable log per daemon start (#370): stamped, colon-free, under the verb directory.
-LOG_FILE="$TMP_DIR/logs/server/start/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+# The record of the act is the launcher's tee (#708), tmp/logs/server/start/<stamp>.log. The
+# daemon outlives the act and writes beside it: one immutable artifact per start (#370),
+# stamped, colon-free, named <stamp>.daemon by the launcher's stamp, never as the record.
+LOG_FILE="$TMP_DIR/logs/server/start/${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}.daemon"
 PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),
@@ -46,7 +46,7 @@ start() {
     nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    tail_of "server start: DONE - serving in the background; its log is ${LOG_FILE#"$REPO_DIR/"}" "corpus-yoga server stop" "stops it"
+    tail_of "server start: DONE - serving in the background; the daemon writes ${LOG_FILE#"$REPO_DIR/"}" "corpus-yoga server stop" "stops it"
   else
     "${PY[@]}" "${pyargs[@]}"
   fi

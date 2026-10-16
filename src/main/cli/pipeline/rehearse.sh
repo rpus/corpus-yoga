@@ -21,7 +21,7 @@
 # record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every
 # staged unit is taken; after it, the verdicts the run wrote are reduced with them into the
 # record, written whole, with the stamp, the commit, the Signature and the run's exit. The
-# log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp.
+# record, tmp/logs/pipeline/rehearse/<stamp>.log, the launcher's tee, shares the stamp (#708).
 
 set -euo pipefail
 
@@ -35,29 +35,24 @@ source "$REPO_ROOT/src/main/tier.sh"
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 
 main() {
-  local stamp log head
+  local stamp
   # the stage's word first (#721): a rehearsal judges a stage the stage reads as whole, and
   # no pipeline is shown an incomplete unit - the janitor is the remedy
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
-  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
-  log="$TMP_DIR/logs/pipeline/rehearse/$stamp.log"
+  # the rehearsal's stamp is the launcher's where it ran the verb (#708), so the record,
+  # tmp/logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
+  stamp="${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}"
   rm -rf "$TMP_STAGE_SCRATCH"
-  mkdir -p "$TMP_STAGE/input" "$TMP_STAGE_SCRATCH/data/output" "$TMP_STAGE_SCRATCH/tmp" "$(dirname "$log")"
+  mkdir -p "$TMP_STAGE/input" "$TMP_STAGE_SCRATCH/data/output" "$TMP_STAGE_SCRATCH/tmp"
   ln -s ../../input "$TMP_STAGE_SCRATCH/data/input"   # tmp/stage/scratch/data/input -> tmp/stage/input
-  head="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
-  {
-    echo "pipeline rehearse - $stamp - $(provider_signature "$REPO_ROOT") - $head"
-    echo "corpus-yoga pipeline rehearse"
-    echo "rehearse: tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record"
-    echo
-    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || exit 1
-    local status=0
-    CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run || status=$?
-    echo
-    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status" || exit 1
-    exit "$status"
-  } 2>&1 | tee "$log"
-  return "${PIPESTATUS[0]}"
+  echo "rehearse: tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record"
+  echo
+  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || return 1
+  local status=0
+  CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run || status=$?
+  echo
+  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status" || return 1
+  return "$status"
 }
 
 main "$@"

@@ -20,6 +20,5 @@
   "x": [
     "rsc/migration/<issue>.sh --apply",
     "git"
-  ],
-  "log": "self"
+  ]
 }

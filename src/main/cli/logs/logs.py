@@ -7,7 +7,10 @@ their nouns (#814).
     corpus-yoga logs clean              # remove the orphaned directories the status names
 
 The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
-the bare command's logs, tmp/logs/<command>/<verb>/ each verb's, one stamped log per act.
+the bare command's logs, tmp/logs/<command>/<verb>/ each verb's, one stamped log per act -
+the launcher's tee of the whole verb, the one record (#708) - beside which a verb keeps
+the artifacts it names by the same stamp: the gate's <stamp>.report, a capture's
+<stamp>.<provider>.progress, a daemon's <stamp>.daemon.
 A directory is an orphan where its command has no declaration under src/main/cli, or its
 verb none beside its command's - the log directory of a command or verb that no longer
 exists, which nothing writes and no status read. The status names each with its count and
