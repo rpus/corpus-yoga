@@ -45,7 +45,6 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 from declared_parser import command_parser  # noqa: E402
 
 import mcp_factoring as factoring  # noqa: E402  (sibling module)
@@ -256,7 +255,7 @@ def main():
     args = parser.parse_args()
     if args.verb == 'sync':
         code = sync()
-        facts.report(None, corpus.room_next(), 'mcp sync: ' + ('DONE - the derivations are current' if code == 0
+        facts.report(None, 'mcp sync: ' + ('DONE - the derivations are current' if code == 0
                                                               else 'NOT DONE - a derivation failed; the line above names it'))
         sys.exit(code)
     if args.verb == 'reproduce':

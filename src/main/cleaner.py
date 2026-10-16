@@ -13,9 +13,9 @@ there is no dry run, and the act is one act.
 The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
 beneath, `{}` where there is none; `did remove: it` or `did NOT remove: <why>` beneath each after
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
-was carried out. Then next:, the acts the room can take after this one, corpus-yoga status
-last (#801), and the verdict is the last line - DONE only when every entry went, NOT DONE
-naming each that was NOT removed.
+was carried out. Then the effect line (#801, #896) - DONE only when every entry went, NOT
+DONE naming each that was NOT removed - handed to the launcher, which replies with next:,
+the acts the room can take after this one, corpus-yoga status last.
 """
 from dataclasses import dataclass
 from typing import Callable
@@ -36,9 +36,10 @@ def count(n: int, kind: str, plural: dict[str, str]) -> str:
     return f'{n} {kind if n == 1 else plural[kind]}'
 
 
-def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Callable[[], object]) -> int:
-    """One loop over the one list: each entry said, then its act; following gives the next:
-    block after the acts. Returns 1 while anything named was NOT removed."""
+def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Callable[[], dict] | None = None) -> int:
+    """One loop over the one list: each entry said, then its act; following gives the noun's
+    own next: entries, handed up with the effect where the noun has some. Returns 1 while
+    anything named was NOT removed."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
     width = facts.terminal_width()
@@ -54,8 +55,9 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Ca
         for line in facts.lines({'did remove': 'it'} if why is None else {'did NOT remove': why}, 2, width=width):
             print(line)
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
+    own = following() if following else None
     if left:
-        facts.report(None, following(), f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
+        facts.report(None, f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left), own)
     else:
-        facts.report(None, following(), f'{noun} clean: DONE - did remove {counts}')
+        facts.report(None, f'{noun} clean: DONE - did remove {counts}', own)
     return 1 if left else 0

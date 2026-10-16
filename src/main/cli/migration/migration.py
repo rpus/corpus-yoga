@@ -142,9 +142,11 @@ def sync(apply: bool) -> int:
     undone = failed + list(halted)
     verdict = (f'migration sync: NOT DONE - took {taken} of {steps} step(s); NOT taken ' + ', '.join(undone) if undone
                else f'migration sync: DONE - took {taken} step(s) of {len(owed)} script(s)')
-    import corpus
-    for line in facts.report_lines(None, corpus.room_next(), verdict):
+    said = facts.report_lines(None, verdict)
+    for line in said:
         log.say(line)
+    if verdict not in said and log.file:      # handed up to the launcher: the sync's own log still carries its effect
+        log.file.write(verdict + '\n')
     return 1 if undone else 0
 
 

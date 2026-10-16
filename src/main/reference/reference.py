@@ -42,7 +42,6 @@ sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 from latest import lineages  # noqa: E402
 
@@ -214,7 +213,7 @@ def sync() -> int:
         for lineage, pin in sorted(minted):
             print(f'  write the section `## {pin}` in {(project / lineage / "CHANGELOG.md").relative_to(REPO)} '
                   '(the dev gate holds reference.lineage_changelog)')
-    facts.report(None, corpus.room_next(), 'reference sync: DONE - each project holds what upstream publishes at its pin')
+    facts.report(None, 'reference sync: DONE - each project holds what upstream publishes at its pin')
     return 0
 
 
@@ -224,7 +223,7 @@ def main():
     try:
         sys.exit(sync() if args.verb == 'sync' else status())
     except SendRefused as refused:
-        facts.report(None, corpus.room_next(), f'reference sync: NOT DONE - {refused}')
+        facts.report(None, f'reference sync: NOT DONE - {refused}')
         sys.exit(1)
 
 

@@ -28,7 +28,6 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'forge'))
 import aim  # noqa: E402 - the aim's one grammar
 import should  # noqa: E402 - the issue's one grammar
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 import facts  # noqa: E402
 import provider  # noqa: E402 - the Signature triad, derived once
 import tier  # noqa: E402
@@ -213,12 +212,12 @@ def main(argv: list[str]) -> int:
         face = raise_pr if args.kind == 'pr' else raise_issue
         outcomes, following, effect = face(args, f'Signature: {signature}', text, stamp)
     except (Refused, SendRefused, ValueError) as why:
-        facts.report(None, corpus.room_next(), f'forge raise: NOT DONE - {why}')
+        facts.report(None, f'forge raise: NOT DONE - {why}')
         return 1
     except subprocess.CalledProcessError:
-        facts.report(None, corpus.room_next(), 'forge raise: NOT DONE - a gh call failed; the NOT-done line above names it')
+        facts.report(None, 'forge raise: NOT DONE - a gh call failed; the NOT-done line above names it')
         return 1
-    facts.report(outcomes, {**corpus.room_next(), **following}, effect)
+    facts.report(outcomes, effect, {**following})
     return 0 if effect.startswith('forge raise: DONE') else 1
 
 

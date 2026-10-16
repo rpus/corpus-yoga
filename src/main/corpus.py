@@ -933,7 +933,7 @@ def promote(noun: str, selected: list[Unit]) -> int:
     say(groups)
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
     undone = sum(left.values())
-    facts.report(None, room_next(), f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
+    facts.report(None, f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
                  + ', '.join(f'{"refused" if s == "would lose" else s} {left[s]}' for s in left))
     return 1 if undone else 0
 
