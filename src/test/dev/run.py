@@ -1709,6 +1709,36 @@ def check_tier_contract(run) -> None:
         check='tier.paths_from_contract')
 
 
+def check_validate_verdict(run) -> None:
+    """A verdict on a record whose discriminator no alternative admits names the union and
+    the declared set (#894), never an alternative chosen by the count of its faults. The
+    fixture is the live case of home-room's rehearsal 2026-10-15T110202Z: a record of a
+    type the union did not declare, judged a malformed frame-link."""
+    import importlib
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    validate = importlib.import_module('validate')
+    schema = {'$schema': 'http://json-schema.org/draft-04/schema#', 'type': 'array', 'items': {'$ref': '#/definitions/Record'},
+              'definitions': {
+                  'Record': {'oneOf': [{'$ref': '#/definitions/A'}, {'$ref': '#/definitions/B'}]},
+                  'A': {'type': 'object', 'properties': {'type': {'enum': ['a']}, 'x': {}}, 'required': ['type', 'x'], 'additionalProperties': False},
+                  'B': {'type': 'object', 'properties': {'type': {'enum': ['b']}, 'y': {}, 'z': {}}, 'required': ['type', 'y', 'z'], 'additionalProperties': False}}}
+    with tempfile.TemporaryDirectory() as scratch:
+        s, d = Path(scratch) / 'schema.json', Path(scratch) / 'data.json'
+        s.write_text(json.dumps(schema))
+        d.write_text(json.dumps([{'type': 'c'}]))
+        undeclared = validate.validate(str(d), str(s))
+        d.write_text(json.dumps([{'type': 'b', 'y': 1}]))
+        malformed = validate.validate(str(d), str(s))
+    union = (undeclared[0] == "Validation error: type: 'c' is not a type the union declares - declared: ['a', 'b']"
+             and undeclared[1] == "Path: [0, 'type']" and undeclared[2] == 'Schema path: #/definitions/Record')
+    run('validate: a record of a type no alternative declares is judged by the union, naming the declared set', union,
+        None if union else f'the verdict read {undeclared}', check='validate.undeclared_type_names_the_union')
+    selected = malformed[2] == 'Schema path: #/definitions/B' and "'z' is a required property" in malformed[0]
+    run('validate: a record whose type one alternative declares is judged within that alternative', selected,
+        None if selected else f'the verdict read {malformed}', check='validate.undeclared_type_names_the_union')
+
+
 def check_verdict_record(run) -> None:
     """A verdict is read from its record, never from the log's text (#701): a red log whose
     inspection dumps a datum that carries the validator's own word must read red. The
@@ -3659,6 +3689,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_status_facts': ['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'],
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
+    'check_validate_verdict': ['src/main/validate.py', 'src/test'],
     'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -3913,6 +3944,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_schema_changelogs, tier='schema')
 
         run_section(check_tier_contract, tier='code')
+        run_section(check_validate_verdict, tier='code')
         run_section(check_verdict_record, tier='code')
         run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')

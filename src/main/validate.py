@@ -47,6 +47,14 @@ def _refused(error):
     return error.validator in ('enum', 'const') and len(error.relative_path) == 1
 
 
+def _discriminators(error):
+    """The enum or const faults a refusal rests on: the error itself, or, through a nested
+    oneOf/anyOf every alternative of which is refused, each alternative's own."""
+    if not error.context:
+        return [error]
+    return [leaf for subs in _alternatives(error).values() for sub in subs if _refused(sub) for leaf in _discriminators(sub)]
+
+
 def _alternatives(error):
     """The context of a oneOf/anyOf error by alternative: index to its faults."""
     alternatives = {}
@@ -55,13 +63,36 @@ def _alternatives(error):
     return alternatives
 
 
+def _undeclared(error, alternatives):
+    """Where the instance's discriminator refuses every alternative of a oneOf/anyOf, the
+    verdict is the union's (#894): the discriminator's property, the value the instance
+    carries, and the values the alternatives declare - never an alternative chosen by the
+    count of its faults, which would name a type the record was not of."""
+    refusals = [[leaf for sub in subs if _refused(sub) for leaf in _discriminators(sub)] for subs in alternatives.values()]
+    if not all(refusals) or len({tuple(leaf.relative_path) for leaves in refusals for leaf in leaves}) != 1:
+        return None
+    refusals = [leaf for leaves in refusals for leaf in leaves]
+    prop = refusals[0].relative_path[0]
+    declared = sorted({str(v) for sub in refusals
+                       for v in (sub.validator_value if isinstance(sub.validator_value, list) else [sub.validator_value])})
+    carried = refusals[0].instance
+    message = f'{carried!r} is not a {prop} the union declares - declared: {declared}'
+    return jsonschema.ValidationError(message, path=list(error.absolute_path) + [prop],
+                                      schema_path=list(error.absolute_schema_path), instance=carried)
+
+
 def legible(error):
     """The fault a reader acts on, found through each oneOf/anyOf: the alternative the
     instance's discriminator selects - no alternative is refused by it - with the fewest
-    faults, and within it the deepest; the top error otherwise."""
+    faults, and within it the deepest; the union itself where the discriminator refuses
+    every alternative (#894); the top error otherwise."""
     while error.context:
         alternatives = _alternatives(error)
         selected = [subs for subs in alternatives.values() if not any(_refused(sub) for sub in subs)]
+        if not selected:
+            undeclared = _undeclared(error, alternatives)
+            if undeclared is not None:
+                return undeclared
         subs = min(selected or alternatives.values(), key=len)
         error = max(subs, key=lambda sub: len(sub.absolute_path))
     return error
