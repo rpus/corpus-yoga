@@ -1722,7 +1722,13 @@ def check_validate_verdict(run) -> None:
               'definitions': {
                   'Record': {'oneOf': [{'$ref': '#/definitions/A'}, {'$ref': '#/definitions/B'}]},
                   'A': {'type': 'object', 'properties': {'type': {'enum': ['a']}, 'x': {}}, 'required': ['type', 'x'], 'additionalProperties': False},
-                  'B': {'type': 'object', 'properties': {'type': {'enum': ['b']}, 'y': {}, 'z': {}}, 'required': ['type', 'y', 'z'], 'additionalProperties': False}}}
+                  'B': {'type': 'object', 'properties': {'type': {'enum': ['b']}, 'y': {}, 'z': {}}, 'required': ['type', 'y', 'z'], 'additionalProperties': False},
+                  'T': {'type': 'object', 'properties': {'type': {'enum': ['t']}, 'content': {'type': 'array', 'items': {'$ref': '#/definitions/ContentBlock'}}},
+                        'required': ['type', 'content'], 'additionalProperties': False},
+                  'ContentBlock': {'oneOf': [{'$ref': '#/definitions/X'}, {'$ref': '#/definitions/Y'}]},
+                  'X': {'type': 'object', 'properties': {'type': {'enum': ['x']}}, 'required': ['type'], 'additionalProperties': False},
+                  'Y': {'type': 'object', 'properties': {'type': {'enum': ['y']}}, 'required': ['type'], 'additionalProperties': False}}}
+    schema['definitions']['Record']['oneOf'].append({'$ref': '#/definitions/T'})
     with tempfile.TemporaryDirectory() as scratch:
         s, d = Path(scratch) / 'schema.json', Path(scratch) / 'data.json'
         s.write_text(json.dumps(schema))
@@ -1730,13 +1736,22 @@ def check_validate_verdict(run) -> None:
         undeclared = validate.validate(str(d), str(s))
         d.write_text(json.dumps([{'type': 'b', 'y': 1}]))
         malformed = validate.validate(str(d), str(s))
-    union = (undeclared[0] == "Validation error: type: 'c' is not a type the union declares - declared: ['a', 'b']"
+        d.write_text(json.dumps([{'type': 't', 'content': [{'type': 'z'}]}]))
+        nested = validate.validate(str(d), str(s))
+    union = (undeclared[0] == "Validation error: type: 'c' is not a type the union declares - declared: ['a', 'b', 't']"
              and undeclared[1] == "Path: [0, 'type']" and undeclared[2] == 'Schema path: #/definitions/Record')
     run('validate: a record of a type no alternative declares is judged by the union, naming the declared set', union,
         None if union else f'the verdict read {undeclared}', check='validate.undeclared_type_names_the_union')
     selected = malformed[2] == 'Schema path: #/definitions/B' and "'z' is a required property" in malformed[0]
     run('validate: a record whose type one alternative declares is judged within that alternative', selected,
         None if selected else f'the verdict read {malformed}', check='validate.undeclared_type_names_the_union')
+    # the reviewer's case (home-room, 2026-10-16, on PR #900): a record of a declared type
+    # carrying a nested block of an undeclared type is judged at the nested union, never at
+    # the record's by the accident that every discriminator is spelled type
+    inner = (nested[0] == "Validation error: content/type: 'z' is not a type the union declares - declared: ['x', 'y']"
+             and nested[1] == "Path: [0, 'content', 0, 'type']" and nested[2] == 'Schema path: #/definitions/ContentBlock')
+    run('validate: a declared record carrying an undeclared nested type is judged at the nested union', inner,
+        None if inner else f'the verdict read {nested}', check='validate.undeclared_type_names_the_union')
 
 
 def check_verdict_record(run) -> None:

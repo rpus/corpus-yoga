@@ -41,9 +41,11 @@ def follow_pointer(doc, pointer):
 def _refused(error):
     """Whether the instance's discriminator refuses the alternative this error belongs
     to: an enum or const fault on a property at the alternative's own level, or a
-    oneOf/anyOf every alternative of which is so refused."""
+    oneOf/anyOf at that level every alternative of which is so refused. A union deeper
+    in the instance - a turn's content block - is not the alternative's discriminator:
+    its refusal is that union's to judge, reached by the descent (#894)."""
     if error.context:
-        return all(any(_refused(sub) for sub in subs) for subs in _alternatives(error).values())
+        return not error.relative_path and all(any(_refused(sub) for sub in subs) for subs in _alternatives(error).values())
     return error.validator in ('enum', 'const') and len(error.relative_path) == 1
 
 
@@ -72,6 +74,10 @@ def _undeclared(error, alternatives):
     if not all(refusals) or len({tuple(leaf.relative_path) for leaves in refusals for leaf in leaves}) != 1:
         return None
     refusals = [leaf for leaves in refusals for leaf in leaves]
+    # every discriminator sits at the alternative's own level: a refusal that rests on a
+    # nested union's leaves is that union's to judge, found by the descent, never this one's
+    if any(len(leaf.absolute_path) != len(error.absolute_path) + 1 for leaf in refusals):
+        return None
     prop = refusals[0].relative_path[0]
     declared = sorted({str(v) for sub in refusals
                        for v in (sub.validator_value if isinstance(sub.validator_value, list) else [sub.validator_value])})
