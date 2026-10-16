@@ -80,6 +80,15 @@
         },
         {
           "$ref": "#/definitions/CostStateRecord"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestShapeRecord"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestBlobRecord"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestRecord"
         }
       ]
     },
@@ -713,6 +722,156 @@
         }
       }
     },
+    "ApiRequestShapeRecord": {
+      "title": "ApiRequestShapeRecord",
+      "description": "A record of type api-request-shape, written by Claude Code 2.1.300 and later. Observed once in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, at 2026-10-15T10:15:23.861Z, the session's first record under 2.1.300: the system prompt's text blocks and the tool definitions, under a hash the api-request records of the same session name as their shapeHash. Read as the part of a request that is the same from one request to the next, written once - an inference from the hash and the references. All six keys present. Undeclared before v23.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "shapeHash",
+        "timestamp",
+        "version",
+        "shape"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-request-shape"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "shapeHash": {
+          "$ref": "#/definitions/HexDigest64"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "version": {
+          "description": "Claude Code version string that wrote this record. Observed value: \"2.1.300\". Likely an open set as new versions are released.",
+          "type": "string"
+        },
+        "shape": {
+          "$ref": "#/definitions/ApiRequestShape"
+        }
+      }
+    },
+    "ApiRequestBlobRecord": {
+      "title": "ApiRequestBlobRecord",
+      "description": "A record of type api-request-blob, written by Claude Code 2.1.300 and later. Observed 157 times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, each holding one message under a hash the api-request records of the same session name among their tail. Read as a message written once and referred to by hash - an inference from the hash and the references; 135 of the hashes the first api-request record's tail names have no blob in the file. All four keys present. Undeclared before v23.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "hash",
+        "message"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-request-blob"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "hash": {
+          "$ref": "#/definitions/HexDigest64"
+        },
+        "message": {
+          "$ref": "#/definitions/ApiRequestMessage"
+        }
+      }
+    },
+    "ApiRequestRecord": {
+      "title": "ApiRequestRecord",
+      "description": "A record of type api-request, written by Claude Code 2.1.300 and later. Observed 29 times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, one at each timestamp an assistant turn began: the request's parameters, the shape it uses by hash, and its messages by reference - base, the id of the api-request record before it, keep, a count, and tail, message hashes. Read as one API call recorded as its parameters plus what it reuses from the call before and what it adds - an inference from the names and from base equalling the previous record's id on every record but the first, which has no base. Twelve keys present on every record, base on all but the first. Undeclared before v23.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "id",
+        "timestamp",
+        "version",
+        "querySource",
+        "shapeHash",
+        "params",
+        "keep",
+        "tail",
+        "cacheControl",
+        "requestDigest"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-request"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "id": {
+          "description": "This record's own id, which the next api-request record names as its base.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "version": {
+          "description": "Claude Code version string that wrote this record. Observed value: \"2.1.300\". Likely an open set as new versions are released.",
+          "type": "string"
+        },
+        "querySource": {
+          "description": "Observed value: \"sdk\". Likely an open set.",
+          "type": "string"
+        },
+        "shapeHash": {
+          "description": "The shapeHash of an api-request-shape record of the same session.",
+          "$ref": "#/definitions/HexDigest64"
+        },
+        "params": {
+          "$ref": "#/definitions/ApiRequestParams"
+        },
+        "base": {
+          "description": "The id of the api-request record before this one. Absent on the first record observed, present and equal to the previous record's id on the other 28.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "keep": {
+          "description": "A count. Observed 0 on the first record, then 286 and rising by the previous record's tail length; read as the number of messages kept from the base request - an inference.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "tail": {
+          "description": "Message hashes, each the hash of an api-request-blob record. Observed 286 on the first record, then 0 to 4; empty on one record of 29.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HexDigest64"
+          }
+        },
+        "cacheControl": {
+          "description": "Where cache control is set in the request, each a path and a value. Observed three per record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/CacheControlEntry"
+          }
+        },
+        "requestDigest": {
+          "$ref": "#/definitions/HexDigest64"
+        }
+      }
+    },
     "TurnBase": {
       "title": "TurnBase",
       "description": "Fields shared by all turn-like records: user, assistant, attachment, and system. Carries the session envelope \u2014 context about the environment in which the turn occurred. No additionalProperties: false because this schema is used in allOf alongside subtype schemas that add further properties; in draft-4, additionalProperties on a base schema does not see properties defined in sibling allOf/oneOf schemas.",
@@ -1303,6 +1462,148 @@
         }
       }
     },
+    "HexDigest64": {
+      "title": "HexDigest64",
+      "description": "A string of 64 lowercase hexadecimal characters. Pattern: ^[0-9a-f]{64}$. Observed as every shapeHash, hash, requestDigest and tail member of the api-request records of home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15; read as a SHA-256 digest, an inference from its length. Undeclared before v23.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ApiRequestShape": {
+      "title": "ApiRequestShape",
+      "description": "What an api-request-shape record holds: the system prompt as text blocks and the tool definitions. Observed once in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: three text blocks and fifteen tool definitions. Both keys present.",
+      "type": "object",
+      "required": [
+        "system",
+        "tools"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "description": "The system prompt's blocks. Observed: three text blocks.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/TextBlock"
+          }
+        },
+        "tools": {
+          "description": "The tool definitions the request carries. Observed: fifteen, fourteen with an input schema and one advisor tool naming a model.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ToolDefinition"
+          }
+        }
+      }
+    },
+    "ApiRequestMessage": {
+      "title": "ApiRequestMessage",
+      "description": "The message an api-request-blob record holds, in the API's shape: a role and content. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: 155 of 157 carry role and content alone; one system message carries output_config, one system message carries clear_at.",
+      "type": "object",
+      "required": [
+        "role",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "description": "(discriminator) Observed values: \"user\", \"assistant\", \"system\".",
+          "type": "string",
+          "enum": [
+            "user",
+            "assistant",
+            "system"
+          ]
+        },
+        "content": {
+          "$ref": "#/definitions/ApiRequestMessageContent"
+        },
+        "output_config": {
+          "description": "Observed once, on a system message.",
+          "$ref": "#/definitions/OutputConfig"
+        },
+        "clear_at": {
+          "description": "Observed once, on a system message, value \"next_user_message\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ApiRequestParams": {
+      "title": "ApiRequestParams",
+      "description": "The parameters of an api-request record. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15 with the same seven keys on every record, and no system, messages or tools among them.",
+      "type": "object",
+      "required": [
+        "model",
+        "betas",
+        "max_tokens",
+        "thinking",
+        "context_management",
+        "safeguards",
+        "output_config"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "$ref": "#/definitions/ModelId"
+        },
+        "betas": {
+          "description": "Beta feature names. Observed: twenty on every record, each a name with a date suffix.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_tokens": {
+          "description": "Observed value: 64000.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "thinking": {
+          "$ref": "#/definitions/ThinkingParams"
+        },
+        "context_management": {
+          "$ref": "#/definitions/ContextManagementParams"
+        },
+        "safeguards": {
+          "description": "Observed: one safeguard per record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Safeguard"
+          }
+        },
+        "output_config": {
+          "$ref": "#/definitions/OutputConfig"
+        }
+      }
+    },
+    "CacheControlEntry": {
+      "title": "CacheControlEntry",
+      "description": "One cache control setting of an api-request record: where in the request, and what. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: three per record.",
+      "type": "object",
+      "required": [
+        "path",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "The position in the request, as keys and indices. Observed: [\"system\", <index>] and [\"messages\", <index>, \"content\", <index>].",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          }
+        },
+        "value": {
+          "$ref": "#/definitions/CacheControlValue"
+        }
+      }
+    },
     "Entrypoint": {
       "title": "Entrypoint",
       "description": "The Claude Code surface that created this record. Observed values: \"cli\" (terminal), \"claude-vscode\" (VS Code extension). Likely an open set as new integrations are added.",
@@ -1512,6 +1813,178 @@
         }
       }
     },
+    "TextBlock": {
+      "title": "TextBlock",
+      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text"
+          ],
+          "description": "(discriminator)"
+        },
+        "text": {
+          "description": "The text content.",
+          "type": "string"
+        }
+      }
+    },
+    "ToolDefinition": {
+      "title": "ToolDefinition",
+      "description": "One tool as a request declares it, observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15 in the api-request-shape record's tools and in a tool_addition block's tool. Three key sets observed: name, description, input_schema and eager_input_streaming (sixteen of seventeen); name, description, input_schema and defer_loading (one); name, type, model and defer_loading (one, the advisor tool). Only name is present on every one.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "The tool's name as the request names it. Observed: Claude Code's own tools in PascalCase, MCP tools as mcp__<server>__<tool>, and \"advisor\".",
+          "type": "string"
+        },
+        "description": {
+          "description": "The tool's description as the request carries it. Absent on the advisor tool.",
+          "type": "string"
+        },
+        "input_schema": {
+          "description": "The tool's input as a JSON Schema document of its own, left open here: its keys are the tool's, not the harness's. Absent on the advisor tool.",
+          "type": "object"
+        },
+        "eager_input_streaming": {
+          "description": "Observed only true, on thirteen of the shape record's tools and on every tool_addition block's tool.",
+          "type": "boolean"
+        },
+        "defer_loading": {
+          "description": "Observed only true, on two of the shape record's tools.",
+          "type": "boolean"
+        },
+        "type": {
+          "description": "A typed tool's kind. Observed value: \"advisor_20260301\", on the advisor tool alone. Likely an open set.",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model a typed tool names. Observed on the advisor tool alone.",
+          "$ref": "#/definitions/ModelId"
+        }
+      }
+    },
+    "ApiRequestMessageContent": {
+      "title": "ApiRequestMessageContent",
+      "description": "The content of a message an api-request-blob record holds: a plain string or an array of typed blocks. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: 66 strings, 91 arrays.",
+      "type": [
+        "string",
+        "array"
+      ],
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/ApiRequestContentBlock"
+      }
+    },
+    "OutputConfig": {
+      "title": "OutputConfig",
+      "description": "An output configuration, observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15 as every api-request record's params.output_config and once as a system message's output_config: the one key effort.",
+      "type": "object",
+      "required": [
+        "effort"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "effort": {
+          "description": "Observed value: \"high\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ThinkingParams": {
+      "title": "ThinkingParams",
+      "description": "The thinking parameter of an api-request record. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"adaptive\", display \"updates\", on every record.",
+      "type": "object",
+      "required": [
+        "type",
+        "display"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"adaptive\". Likely an open set.",
+          "type": "string"
+        },
+        "display": {
+          "description": "Observed value: \"updates\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ContextManagementParams": {
+      "title": "ContextManagementParams",
+      "description": "The context_management parameter of an api-request record. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: one edit on every record.",
+      "type": "object",
+      "required": [
+        "edits"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "edits": {
+          "description": "Observed: one edit per record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ContextManagementEdit"
+          }
+        }
+      }
+    },
+    "Safeguard": {
+      "title": "Safeguard",
+      "description": "One safeguard of an api-request record's parameters. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"dangerous_tool_use\" with a classifier_context, on every record.",
+      "type": "object",
+      "required": [
+        "type",
+        "classifier_context"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"dangerous_tool_use\". Likely an open set.",
+          "type": "string"
+        },
+        "classifier_context": {
+          "description": "What the harness hands its classifier, left open at this mint: an object of about 55K bytes a record, nested seven deep, whose eighteen observed top-level keys are artifact_consent_holdback, artifacts, auto_mode, case_insensitive_paths, classify_all_shell, git_state, home_dir, is_remote_mode, live_cwd, permission_mode, platform, prior_turn_context, restricted, rule_roots, rules, trusted_directories, user_identity and v; its members are the harness's own and are undeclared until a reading needs them.",
+          "type": "object"
+        }
+      }
+    },
+    "CacheControlValue": {
+      "title": "CacheControlValue",
+      "description": "A cache control value. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"ephemeral\" and ttl \"1h\" on all 87, scope \"global\" on 29.",
+      "type": "object",
+      "required": [
+        "type",
+        "ttl"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"ephemeral\". Likely an open set.",
+          "type": "string"
+        },
+        "ttl": {
+          "description": "Observed value: \"1h\". Likely an open set.",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Observed value: \"global\", on the first system block's entry of each record. Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
     "MessageContent": {
       "title": "MessageContent",
       "description": "The content of a message. Either a plain string (simple text prompt) or an array of typed content blocks. The string form is observed for short user prompts; the array form is used when the message contains structured blocks (tool calls, thinking, etc.).",
@@ -1595,25 +2068,49 @@
         }
       }
     },
-    "TextBlock": {
-      "title": "TextBlock",
-      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
+    "ApiRequestContentBlock": {
+      "title": "ApiRequestContentBlock",
+      "description": "A block of a message an api-request-blob record holds. Discriminated by type: text, tool_use, tool_result, thinking, or tool_addition, the five observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15; a turn's ContentBlock also admits image, document and fallback, unobserved here.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TextBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/ThinkingBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolAdditionBlock"
+        }
+      ]
+    },
+    "ContextManagementEdit": {
+      "title": "ContextManagementEdit",
+      "description": "One context management edit. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"clear_thinking_20251015\", keep \"all\", on every record.",
       "type": "object",
       "required": [
         "type",
-        "text"
+        "keep"
       ],
       "additionalProperties": false,
       "properties": {
         "type": {
-          "type": "string",
-          "enum": [
-            "text"
-          ],
-          "description": "(discriminator)"
+          "description": "Observed value: \"clear_thinking_20251015\". Likely an open set.",
+          "type": "string"
         },
-        "text": {
-          "description": "The text content.",
+        "keep": {
+          "description": "Observed value: \"all\". Likely an open set.",
           "type": "string"
         }
       }
@@ -1750,6 +2247,28 @@
         }
       }
     },
+    "ToolAdditionBlock": {
+      "title": "ToolAdditionBlock",
+      "description": "A block of type tool_addition, observed three times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, each in a system message of an api-request-blob record, each carrying one MCP tool's definition. Read as a tool declared after the request shape was written - an inference from its position. Both keys present.",
+      "type": "object",
+      "required": [
+        "type",
+        "tool"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tool_addition"
+          ],
+          "description": "(discriminator)"
+        },
+        "tool": {
+          "$ref": "#/definitions/ToolAddition"
+        }
+      }
+    },
     "ImageBlock": {
       "title": "ImageBlock",
       "description": "An image content block. Observed when the user pastes or drags an image into the prompt. Corresponds to MCP ImageContent (rsc/reference/mcp#/$defs/ImageContent); the CLI format uses a nested source object rather than top-level data/mimeType fields.",
@@ -1863,6 +2382,25 @@
               "$ref": "#/definitions/ModelId"
             }
           }
+        }
+      }
+    },
+    "ToolAddition": {
+      "title": "ToolAddition",
+      "description": "What a tool_addition block carries: a kind and a tool definition. Observed three times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, the kind always tool_definition.",
+      "type": "object",
+      "required": [
+        "type",
+        "definition"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"tool_definition\". Likely an open set.",
+          "type": "string"
+        },
+        "definition": {
+          "$ref": "#/definitions/ToolDefinition"
         }
       }
     }
