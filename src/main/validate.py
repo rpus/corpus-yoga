@@ -87,20 +87,42 @@ def _undeclared(error, alternatives):
                                       schema_path=list(error.absolute_schema_path), instance=carried)
 
 
+def _name(alternative):
+    """An alternative as a reader names it: the definition it refers to, its type, or its
+    index among the union's."""
+    if isinstance(alternative, dict):
+        if isinstance(alternative.get('$ref'), str):
+            return alternative['$ref'].rsplit('/', 1)[-1]
+        if isinstance(alternative.get('type'), str):
+            return alternative['type']
+    return 'alternative'
+
+
+def _unmatched(error):
+    """The union's verdict where no single alternative is selected and no discriminator
+    declares a set (#894): the instance matches none of the alternatives, named - the
+    library's own sentence, which is all a reader can honestly be told, never an
+    alternative chosen by the count of its faults."""
+    names = ', '.join(_name(alternative) for alternative in error.validator_value)
+    return jsonschema.ValidationError(f'matches none of: {names}', path=list(error.absolute_path),
+                                      schema_path=list(error.absolute_schema_path), instance=error.instance)
+
+
 def legible(error):
-    """The fault a reader acts on, found through each oneOf/anyOf: the alternative the
-    instance's discriminator selects - no alternative is refused by it - with the fewest
-    faults, and within it the deepest; the union itself where the discriminator refuses
-    every alternative (#894); the top error otherwise."""
+    """The fault a reader acts on, found through each oneOf/anyOf: within the one
+    alternative the instance's discriminator selects - no alternative is refused by it -
+    the deepest fault; the union itself where the discriminator refuses every alternative
+    (#894, the declared set named) or selects no single one (the alternatives named); the
+    top error otherwise. No fault count chooses: at a discriminated union the verdict is a
+    function of the discriminator's value and the schema, and at an undiscriminated one
+    it is the union's."""
     while error.context:
         alternatives = _alternatives(error)
         selected = [subs for subs in alternatives.values() if not any(_refused(sub) for sub in subs)]
-        if not selected:
-            undeclared = _undeclared(error, alternatives)
-            if undeclared is not None:
-                return undeclared
-        subs = min(selected or alternatives.values(), key=len)
-        error = max(subs, key=lambda sub: len(sub.absolute_path))
+        if len(selected) != 1:
+            undeclared = _undeclared(error, alternatives) if not selected else None
+            return undeclared if undeclared is not None else _unmatched(error)
+        error = max(selected[0], key=lambda sub: len(sub.absolute_path))
     return error
 
 

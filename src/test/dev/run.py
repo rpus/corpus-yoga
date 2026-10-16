@@ -1727,8 +1727,10 @@ def check_validate_verdict(run) -> None:
                         'required': ['type', 'content'], 'additionalProperties': False},
                   'ContentBlock': {'oneOf': [{'$ref': '#/definitions/X'}, {'$ref': '#/definitions/Y'}]},
                   'X': {'type': 'object', 'properties': {'type': {'enum': ['x']}}, 'required': ['type'], 'additionalProperties': False},
-                  'Y': {'type': 'object', 'properties': {'type': {'enum': ['y']}}, 'required': ['type'], 'additionalProperties': False}}}
+                  'Y': {'type': 'object', 'properties': {'type': {'enum': ['y']}}, 'required': ['type'], 'additionalProperties': False},
+                  'S': {'type': 'object', 'properties': {'category': {}}, 'required': ['category'], 'additionalProperties': False}}}
     schema['definitions']['Record']['oneOf'].append({'$ref': '#/definitions/T'})
+    schema['definitions']['T']['properties']['stop'] = {'oneOf': [{'type': 'null'}, {'$ref': '#/definitions/S'}]}
     with tempfile.TemporaryDirectory() as scratch:
         s, d = Path(scratch) / 'schema.json', Path(scratch) / 'data.json'
         s.write_text(json.dumps(schema))
@@ -1738,6 +1740,8 @@ def check_validate_verdict(run) -> None:
         malformed = validate.validate(str(d), str(s))
         d.write_text(json.dumps([{'type': 't', 'content': [{'type': 'z'}]}]))
         nested = validate.validate(str(d), str(s))
+        d.write_text(json.dumps([{'type': 't', 'content': [], 'stop': 'x'}]))
+        unmatched = validate.validate(str(d), str(s))
     union = (undeclared[0] == "Validation error: type: 'c' is not a type the union declares - declared: ['a', 'b', 't']"
              and undeclared[1] == "Path: [0, 'type']" and undeclared[2] == 'Schema path: #/definitions/Record')
     run('validate: a record of a type no alternative declares is judged by the union, naming the declared set', union,
@@ -1752,6 +1756,14 @@ def check_validate_verdict(run) -> None:
              and nested[1] == "Path: [0, 'content', 0, 'type']" and nested[2] == 'Schema path: #/definitions/ContentBlock')
     run('validate: a declared record carrying an undeclared nested type is judged at the nested union', inner,
         None if inner else f'the verdict read {nested}', check='validate.undeclared_type_names_the_union')
+    # the reviewer's fourth case (home-room, 2026-10-16, on PR #900): a union whose
+    # alternatives carry no discriminator - null or an object - given a value neither admits
+    # is judged by the union naming its alternatives, never by the alternative with the
+    # fewest faults, which no record and no schema selects
+    none = (unmatched[0] == "Validation error: stop: matches none of: null, S" and unmatched[1] == "Path: [0, 'stop']"
+            and unmatched[2] == 'Schema path: #/definitions/T/properties/stop')
+    run('validate: a value no alternative of an undiscriminated union admits is judged by the union naming them', none,
+        None if none else f'the verdict read {unmatched}', check='validate.undeclared_type_names_the_union')
 
 
 def check_verdict_record(run) -> None:
