@@ -38,6 +38,5 @@
     "shellcheck",
     "pyright",
     "docker"
-  ],
-  "log": "self"
+  ]
 }

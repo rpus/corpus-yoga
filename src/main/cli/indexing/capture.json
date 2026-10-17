@@ -35,6 +35,5 @@
   "w": [
     "tmp/cache/indexing",
     "data/output/indexing"
-  ],
-  "log": "self"
+  ]
 }

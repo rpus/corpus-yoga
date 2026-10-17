@@ -104,17 +104,18 @@ main() {
   # that first call run alone (G19: discovery + extent, nothing captured),
   # forwarded below like any other restriction.
   #
-  # The run logs are still named HERE (#412/#413): browser.sh opens each with
-  # the "capturing by" line and hands it down via --run-log for the capture to
-  # append — one anchored record per provider, preamble or no preamble.
+  # The record is the launcher's tee of the whole verb (#708). Each provider's capture
+  # narrative - one line per step, #413 - is an artifact beside it, named by the same
+  # stamp: tmp/logs/browser/capture/<stamp>.<provider>.progress, handed down as
+  # --progress for the capture to write; the terminal and the record keep the anchors.
   local stamp providers=() provider_mechs=() logs=() p mechs
-  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
+  stamp="${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}"
   while read -r p mechs; do
     [[ -n "$p" ]] || continue
     providers+=("$p")
     provider_mechs+=("$mechs")
-    logs+=("$TMP_DIR/logs/browser/capture/$p/$stamp.log")
-    mkdir -p "$TMP_DIR/logs/browser/capture/$p"
+    logs+=("$TMP_DIR/logs/browser/capture/$stamp.$p.progress")
+    mkdir -p "$TMP_DIR/logs/browser/capture"
   done <<< "$scope"
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
@@ -124,20 +125,19 @@ main() {
   local rc=0 i=0
   for p in ${providers[@]+"${providers[@]}"}; do
     mechs="${provider_mechs[$i]}"
-    echo "$p: capturing by ${mechs//+/ and }" | tee -a "${logs[$i]}"
-    "$SCRIPT_DIR/capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
+    echo "$p: capturing by ${mechs//+/ and }"
+    "$SCRIPT_DIR/capture.sh" --progress "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
   # what an act reports (#876): next: - the rehearsal that judges what was staged, as the
-  # store's status names it - and the verdict, the last line, carried into each provider's
-  # log as the line that opened the capture is
+  # store's status names it - and the verdict, the last line; the record carries them
   if [[ -n "$dry_run" ]]; then
-    tail_of "browser capture: DONE - dry run; nothing staged, nothing spent" | tee -a ${logs[@]+"${logs[@]}"}
+    tail_of "browser capture: DONE - dry run; nothing staged, nothing spent"
   elif [[ "$rc" -eq 0 ]]; then
-    tail_of "browser capture: DONE - each provider's capture stands above" | tee -a ${logs[@]+"${logs[@]}"}
+    tail_of "browser capture: DONE - each provider's capture stands above"
   else
-    tail_of "browser capture: NOT DONE - a provider's capture above failed (exit $rc)" | tee -a ${logs[@]+"${logs[@]}"}
+    tail_of "browser capture: NOT DONE - a provider's capture above failed (exit $rc)"
   fi
   return $rc
 }

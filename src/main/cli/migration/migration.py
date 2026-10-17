@@ -17,12 +17,11 @@ declaration of its moves, and prints them bare - so no status restates them. The
 names each script with steps and how many, runs each with --apply, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken.
-Its log, tmp/logs/migration/sync/<stamp>.log, opens with the Signature triad as every
-verb's log does.
+Its record, tmp/logs/migration/sync/<stamp>.log, is the launcher's tee of the whole verb,
+header included (#708); the declaration's x rows are what make the verb enacting.
 """
 import subprocess
 import sys
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,7 +34,6 @@ sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
 import facts  # noqa: E402
-import provider  # noqa: E402
 import tier  # noqa: E402
 
 SCRIPTS = REPO / 'rsc' / 'migration'
@@ -89,26 +87,15 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
 
 
 class Log:
-    """The sync's own log (the declaration says so): every line said is written there too."""
+    """What the sync says, line by line. The record of the act is the launcher's tee of the
+    whole verb (#708), tmp/logs/migration/sync/<stamp>.log, header included; nothing is
+    written here."""
 
     def __init__(self, apply: bool) -> None:
-        self.file = None
-        if not apply:
-            return
-        stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
-        path = tier.TMP / 'logs' / 'migration' / 'sync' / f'{stamp}.log'
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self.file = path.open('w')
-        head = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True).stdout.strip()
-        self.say(f'migration sync - {stamp} - {provider.signature()} - {head or "(no git)"}')
-        self.say('corpus-yoga migration sync --apply')
-        self.say('')
+        self.apply = apply
 
     def say(self, line: str = '') -> None:
         print(line)
-        if self.file:
-            self.file.write(line + '\n')
-            self.file.flush()
 
 
 def sync(apply: bool) -> int:

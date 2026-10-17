@@ -2,6 +2,8 @@
 # tier.sh — the tiers as a declared contract (#702), the shell twin of src/main/tier.py.
 # Every script computes its code root itself; the one fact it lacks is which layout its
 # tiers are read from, and that is one name: CORPUS_YOGA_REHEARSAL, a rehearsal's stamp,
+# (CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG are the launcher's: the stamp of the act it
+# dispatched and the record it tees the whole verb into - src/main/tier.py, #708)
 # names the stage's scratch root, tmp/stage/scratch, unset the checkout's. DATA_ROOT is
 # that root, DATA_DIR and TMP_DIR its data and tmp; TMP_STAGE is the checkout's stage, a
 # constant, and TMP_STAGE_SCRATCH the scratch whatever tiers are in force. tier_path turns

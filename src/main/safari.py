@@ -244,15 +244,17 @@ def process_chain() -> str:
     return ' ← '.join(chain)
 
 
-def collect_md_and_log(after_time, dest_dir, log_dir):
+def collect_md_and_log(after_time, dest_dir, evidence_dir):
     """Move freshly-downloaded .md files into dest_dir (the capture's data directory under
-    data/input/) and the .log into log_dir (under tmp/logs/ -- data/input/ holds data only). The .log holds
-    the in-browser capture log -- including errors like 'No copy buttons found!' -- so it
-    is PERSISTED (and printed), not discarded: a failed scrape must leave its error in the
-    filesystem, not merely scroll past the terminal. An empty return means the scrape
-    produced no markdown (a failure -- read the log)."""
+    data/input/ - it holds data only) and print the .log, the in-browser capture log -
+    including errors like 'No copy buttons found!' - into the capture's progress artifact,
+    which stdout is under --progress (#413, #708): a failed scrape leaves its error in the
+    progress file beside the record, never in a second file of its own, and the download
+    is removed once said. A walk refused for being shorter than the record is kept as
+    evidence in evidence_dir, the verb's log directory, as <stamp>.<provider>.<id>.short.md
+    beside the record, the stamp the launcher's where it ran the verb. An empty return
+    means the scrape produced no markdown (a failure - read the progress file)."""
     dest_dir.mkdir(parents=True, exist_ok=True)
-    log_dir.mkdir(parents=True, exist_ok=True)
     moved = []
     try:
         downloads = sorted(DOWNLOADS.iterdir())
@@ -265,7 +267,7 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
               '    grant the outermost app Downloads access (System Settings → Privacy & '
               'Security; Full Disk Access takes manual additions where Files and Folders '
               f'shows nothing). The scraped files are stranded in ~/Downloads — move the '
-              f'.md into {dest_dir} and the .log into {log_dir} by hand, or recapture '
+              f'.md into {dest_dir} by hand, or recapture '
               'from an already-granted Terminal:\n'
               f'    → run: corpus-yoga browser capture '
               f'--provider {dest_dir.parent.name} --id {dest_dir.name}'
@@ -277,10 +279,8 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
         if f.stat().st_mtime <= after_time:
             continue
         if f.suffix == '.log':
-            print(_colour_log_levels(f.read_text()), end='')
-            # name the diagnostic log by the conversation id (the dir), not the page title: on a
-            # failed scrape the title is junk, and a stable name overwrites rather than accumulates
-            shutil.move(str(f), log_dir / f'{dest_dir.name}.log')
+            print(_colour_log_levels(f.read_text()), end='')   # into the progress artifact, the one copy
+            f.unlink()
         elif f.suffix == '.md':
             fresh_md.append(f)
 
@@ -297,14 +297,17 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
         before = max((turn_extent(m.read_text()) for m in dest_dir.glob('*.md')), default=(0, 0))
         after = max((turn_extent(m.read_text()) for m in fresh_md), default=(0, 0))
         if before > (0, 0) and (after[0] < before[0] or after[1] < before[1]):
-            # kept, not discarded: the short capture is the evidence for why this failed
+            # kept, not discarded: the short capture is the evidence for why this failed - an
+            # artifact beside the record, named by the act's stamp (#708)
+            stamp = os.environ.get('CORPUS_YOGA_STAMP') or time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+            evidence = evidence_dir / f'{stamp}.{dest_dir.parent.parent.parent.name}.{dest_dir.name}.short.md'
+            evidence_dir.mkdir(parents=True, exist_ok=True)
             for m in fresh_md:
-                shutil.move(str(m), log_dir / f'{dest_dir.name}.short.md')
+                shutil.move(str(m), evidence)
             print(f'  REFUSED: this walk captured {after[0]} human turns of {after[1]}, '
                   f'against {before[0]} of {before[1]} already recorded — an append-only '
                   f'conversation cannot shrink, so the walk failed partway. The record is '
-                  f'untouched; the short capture is kept at '
-                  f'{log_dir / f"{dest_dir.name}.short.md"}')
+                  f'untouched; the short capture is kept at {evidence}')
             print(f'    → run: corpus-yoga browser capture --provider {dest_dir.parent.parent.parent.name} '
                   f'--id {dest_dir.name}  # retry the walk')
             return []

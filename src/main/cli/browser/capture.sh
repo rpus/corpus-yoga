@@ -27,36 +27,36 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/tier.sh"
 
 main() {
-  # --run-log: a caller that already opened the run's log (browser.sh, whose
-  # audit preamble is its first content) hands it down; the capture narrative
-  # appends. Without it — the applescripts, a direct run — this file names one.
-  local run_log=""
-  if [[ "${1-}" == "--run-log" ]]; then run_log="$2"; shift 2; fi
+  # --progress: the artifact the capture narrative is written to, one line per step
+  # (#413), named by the caller (browser.sh, by the launcher's stamp - #708); without it,
+  # a direct run, this file names one by its own stamp. The record of the act is the
+  # launcher's tee; the terminal and the record keep the anchors.
+  local progress=""
+  if [[ "${1-}" == "--progress" ]]; then progress="$2"; shift 2; fi
   local provider=""
   case "${1-}" in
     --provider) provider="$2"; shift 2 ;;
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: $0 [--run-log <path>] --provider claude|gemini [--id <id>]" >&2; exit 1 ;;
+    *) echo "Usage: $0 [--progress <path>] --provider claude|gemini [--id <id>]" >&2; exit 1 ;;
   esac
   if [[ "$provider" != "claude" && "$provider" != "gemini" ]]; then
-    echo "Usage: $0 [--run-log <path>] --provider claude|gemini [--id <id>]" >&2; exit 1
+    echo "Usage: $0 [--progress <path>] --provider claude|gemini [--id <id>]" >&2; exit 1
   fi
   echo "src/main/cli/browser/$(basename "$0") ($provider)"
   local log rc=0
-  log="${run_log:-$TMP_DIR/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H%M%SZ').log}"
+  log="${progress:-$TMP_DIR/logs/browser/capture/${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}.$provider.progress}"
   mkdir -p "$(dirname "$log")"
-  # Name the log FIRST: a Shortcut invocation shows this output in a transient
-  # dialog (if at all), and any 'see the run log' advice is useless unless the
-  # log's own path has been said out loud somewhere durable-feeling.
-  echo "Log: $log"
+  # Name the progress artifact FIRST: a Shortcut invocation shows this output in a
+  # transient dialog (if at all), and any 'see the progress' advice is useless unless its
+  # path has been said out loud somewhere durable-feeling.
+  echo "progress: ${log#"$REPO_DIR/"}"
   # No tee (#413/#415): the python owns both channels — the full narrative goes
-  # to the run log (line-buffered, anchored before any work), the terminal gets
-  # the anchor, one line per conversation, and the verdict. A pipe here once
+  # to the progress artifact (line-buffered, anchored before any work), the terminal
+  # gets the anchor, one line per conversation, and the verdict. A pipe here once
   # held the whole story in a buffer a ctrl-C erased while the terminal had
   # shown it — the 0-byte-log class.
   caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/capture.py" \
-    --provider "$provider" --run-log "$log" "$@" || rc=$?
-  echo "Log: $log"
+    --provider "$provider" --progress "$log" "$@" || rc=$?
   return $rc
 }
 

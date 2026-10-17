@@ -355,7 +355,11 @@ prep_pipeline_safe() {
   fi
 }
 
-LOG_FILE="$TMP_DIR/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+# The record of the run is the launcher's tee (#708), named in CORPUS_YOGA_LOG; the stage
+# anchors above read it back. A run no launcher dispatched - the merge's gating step, a
+# direct call - keeps a disposable copy of its own output for those anchors, named below
+# and removed after, never a log.
+LOG_FILE="${CORPUS_YOGA_LOG:-}"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -549,7 +553,7 @@ main() {
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
   echo "outputs: data/output/markdown/index.md"
-  echo "Log: $LOG_FILE"
+  if [[ -n "${CORPUS_YOGA_LOG:-}" ]]; then echo "Log: ${CORPUS_YOGA_LOG#"$REPO_ROOT/"}"; fi
   # what an act reports (#876): the usr gate's own verdict stands above; next: and the
   # act's verdict end the run. The verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
@@ -584,7 +588,14 @@ esac
 parse_args "$@"
 # shellcheck disable=SC2031  # this reads parse_args' plan; print_plan's subshell plan=1 is deliberately confined
 if [[ -n "$plan" ]]; then print_plan; exit 0; fi
-mkdir -p "$(dirname "$LOG_FILE")"
-# `set -o pipefail` makes the pipeline's status the first non-zero in it, so main's
-# verdict survives the tee rather than being replaced by tee's own success.
-main "$@" 2>&1 | tee "$LOG_FILE"
+if [[ -n "$LOG_FILE" ]]; then
+  main "$@"
+else
+  LOG_FILE="$(mktemp -t corpus-yoga-pipeline-run)"
+  # `set -o pipefail` makes the pipeline's status the first non-zero in it, so main's
+  # verdict survives the tee rather than being replaced by tee's own success.
+  rc=0
+  main "$@" 2>&1 | tee "$LOG_FILE" || rc=$?
+  rm -f "$LOG_FILE"
+  exit "$rc"
+fi
