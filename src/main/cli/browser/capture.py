@@ -217,7 +217,7 @@ def outcome(do_api, do_scrape, files, had_md):
     if do_api and not has_json:
         return 'apiConversation JSON fetch failed — the FAIL: line above carries the remedy', None
     if do_scrape and not has_md:
-        why = 'no markdown — see the scrape log under tmp/logs/browser/capture/<provider>/scrape/'
+        why = 'no markdown — the in-browser scrape log is in the progress file, tmp/logs/browser/capture/<stamp>.<provider>.progress'
         if had_md:
             why += ' (previous .md retained, now STALE)'
         return (None, why) if do_api else (why, None)
@@ -278,7 +278,7 @@ def scrape_state():
         return None
 
 
-def scrape_one(out_dir, js_script, log_dir):
+def scrape_one(out_dir, js_script, evidence_dir):
     """Inject the DOM scraper and WATCH its in-page flag rather than waiting out a timeout: abort
     fast if it never starts (page wedged) or stalls (no new message), finish the moment it signals
     done. Returns the collected md filenames, or None if the scrape produced no markdown."""
@@ -308,7 +308,7 @@ def scrape_one(out_dir, js_script, log_dir):
                 return None
         time.sleep(0.5)
     time.sleep(SETTLE_PAUSE)   # let the .md/.log downloads land
-    return collect_md_and_log(start, out_dir, log_dir)
+    return collect_md_and_log(start, out_dir, evidence_dir)
 
 
 def ids_from_safari(provider, cfg):
@@ -384,8 +384,8 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     do_api = 'API' in mechanisms
     do_scrape = 'DOM' in mechanisms
     js_script = SCRIPT_DIR / provider / 'dom.js'
-    # per-conversation scrape diagnostics go under tmp/logs/ (data/input/ holds captured data only)
-    scrape_log_dir = tier.TMP / 'logs' / 'browser' / 'capture' / provider / 'scrape'
+    # a refused walk's evidence is kept beside the record, in the verb's log directory (#708)
+    evidence_dir = tier.TMP / 'logs' / 'browser' / 'capture'
     # The operation is CAPTURE either way — discovery is ids_from_safari, the
     # listing sweep that found the ids; navigate is a mode, not a name. The old
     # label spelled the whole pass 'discover', so a 52-minute capture log opened
@@ -450,7 +450,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
                         where = safari_eval_js('String(location.pathname)') or '(URL unreadable)'
                         print(f'  still no {cfg["ready_sel"]} after {READY_TIMEOUT * 5}s at {where} — scraping anyway')
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
-            files += scrape_one(dom_dir, js_script, scrape_log_dir) or []
+            files += scrape_one(dom_dir, js_script, evidence_dir) or []
         fatal, note = outcome(do_api, do_scrape, files, had_md)
         if note:
             print(f'  note: {note}', file=sys.stderr)

@@ -3617,9 +3617,9 @@ def check_capture_monotone(run) -> None:
             run('capture: a refused walk reports no markdown', moved == [],
                 None if moved == [] else f'returned {moved} — the caller would file it as a '
                 f'successful capture', law='L4', check='capture.monotone_record')
-            evidence = (logs / 'abc123.short.md')
-            run('capture: the refused walk is kept as evidence', evidence.exists(),
-                None if evidence.exists() else 'the short capture was discarded, so the '
+            evidence = next(logs.glob('*.gemini.abc123.short.md'), None)   # <stamp>.<provider>.<id>.short.md beside the record (#708)
+            run('capture: the refused walk is kept as evidence', evidence is not None,
+                None if evidence is not None else 'the short capture was discarded, so the '
                 'reason for the refusal cannot be inspected', law='L4', check='capture.monotone_record')
 
             shutil.rmtree(dl)

@@ -62,7 +62,9 @@ def logs_in(path: Path) -> int:
 def orphans() -> list[tuple[Path, str]]:
     """Each entry under tmp/logs that no current command or verb writes: a directory of a
     command with no declaration under src/main/cli, a verb's directory with no declaration
-    beside its command's, or a file where only a command's directory belongs; with why."""
+    beside its command's, a file where only a command's directory belongs, or a directory
+    beneath a verb's - a verb keeps files beside its record, never a directory (#708), so
+    the per-provider directories the browser capture once wrote are named here; with why."""
     out: list[tuple[Path, str]] = []
     if not LOGS.is_dir():
         return out
@@ -79,6 +81,11 @@ def orphans() -> list[tuple[Path, str]]:
         for verb in sorted(command.iterdir()):
             if verb.is_dir() and not (CLI / command.name / f'{verb.name}.json').is_file():
                 out.append((verb, f'no verb corpus-yoga {command.name} {verb.name}'))
+                continue
+            if verb.is_dir():
+                for entry in sorted(verb.iterdir()):
+                    if entry.is_dir():
+                        out.append((entry, f'a directory beneath a verb\'s: corpus-yoga {command.name} {verb.name} keeps files beside its record, never a directory'))
     return out
 
 
