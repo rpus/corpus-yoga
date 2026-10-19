@@ -374,7 +374,8 @@ merge() {
   local pr="$1" rc=0
   # the record is the launcher's tee of the whole verb (#708), header included
   merge_chain "$pr" || rc=$?
-  if [[ -n "${CORPUS_YOGA_LOG:-}" ]]; then echo "Log: ${CORPUS_YOGA_LOG#"$REPO_DIR/"}"; fi
+  local record; record="$(record_of forge merge)"
+  if [[ -n "$record" ]]; then echo "Log: ${record#"$REPO_DIR/"}"; fi
   return "$rc"
 }
 

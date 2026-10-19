@@ -32,8 +32,30 @@ TMP_STAGE_REHEARSAL = TMP_STAGE / 'rehearsal.json'   # the rehearsal record, one
 SCRATCH_TMP = TMP_STAGE_SCRATCH / 'tmp'
 
 REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
-STAMP = 'CORPUS_YOGA_STAMP'   # the launcher names the stamp of the act it dispatched, so a verb's own artifacts share it (#708)
-LOG = 'CORPUS_YOGA_LOG'       # and the record it tees the whole verb into, tmp/logs/<command>/<verb>/<stamp>.log, so a verb can name it
+ACT = 'CORPUS_YOGA_ACT'       # the launcher names the act it dispatched, `<command> <verb>` (#896)
+STAMP = 'CORPUS_YOGA_STAMP'   # the stamp of that act, so the act's own artifacts share it (#708)
+LOG = 'CORPUS_YOGA_LOG'       # and the record it tees the whole act into, tmp/logs/<command>/<verb>/<stamp>.log
+
+
+def dispatched(act: str) -> bool:
+    """Whether the launcher dispatched this act, `<command> <verb>` - the one case in which
+    the stamp and the record it names are this verb's own. A verb another verb runs inherits
+    the names and must not take them (#912)."""
+    return os.environ.get(ACT) == act
+
+
+def stamp_of(act: str) -> str:
+    """The act's stamp: the launcher's where it dispatched the act, a fresh one otherwise -
+    the one reading of CORPUS_YOGA_STAMP (#912)."""
+    import time
+    return (os.environ.get(STAMP) if dispatched(act) else None) or time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+
+
+def record_of(act: str) -> Path | None:
+    """The act's record, the launcher's tee, where the launcher dispatched the act; None
+    otherwise - the one reading of CORPUS_YOGA_LOG (#912). No verb writes into it."""
+    named = os.environ.get(LOG) if dispatched(act) else None
+    return Path(named) if named else None
 DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else REPO
 DATA = DATA_ROOT / 'data'
 TMP = DATA_ROOT / 'tmp'

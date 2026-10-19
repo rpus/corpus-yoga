@@ -355,11 +355,12 @@ prep_pipeline_safe() {
   fi
 }
 
-# The record of the run is the launcher's tee (#708), named in CORPUS_YOGA_LOG; the stage
-# anchors above read it back. A run no launcher dispatched - the merge's gating step, a
-# direct call - keeps a disposable copy of its own output for those anchors, named below
-# and removed after, never a log.
-LOG_FILE="${CORPUS_YOGA_LOG:-}"
+# The record of the run is the launcher's tee (#708), where the launcher dispatched this
+# run; the stage anchors above read it back, and nothing here writes into it (#912). A run
+# no launcher dispatched - the merge's gating step, a direct call - keeps a disposable copy
+# of its own output for those anchors, named below and removed after, never a log.
+RECORD="$(record_of pipeline run)"
+LOG_FILE="$RECORD"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -508,7 +509,7 @@ main() {
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
   # --only run re-indexing the unchanged rest is silence, not distortion
-  if ! run_corpus_tail 2>&1 | tee -a "$LOG_FILE"; then
+  if ! run_corpus_tail 2>&1; then
     if ! section_has_fail corpus; then
       local corpus_last
       corpus_last="$(section_last_words corpus)"
@@ -553,7 +554,7 @@ main() {
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
   echo "outputs: data/output/markdown/index.md"
-  if [[ -n "${CORPUS_YOGA_LOG:-}" ]]; then echo "Log: ${CORPUS_YOGA_LOG#"$REPO_ROOT/"}"; fi
+  if [[ -n "$RECORD" ]]; then echo "Log: ${RECORD#"$REPO_ROOT/"}"; fi
   # what an act reports (#876, #896): the usr gate's own verdict stands above; the act's
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.

@@ -41,7 +41,7 @@ main() {
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
   # the rehearsal's stamp is the launcher's where it ran the verb (#708), so the record,
   # tmp/logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
-  stamp="${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}"
+  stamp="$(stamp_of pipeline rehearse)"
   rm -rf "$TMP_STAGE_SCRATCH"
   mkdir -p "$TMP_STAGE/input" "$TMP_STAGE_SCRATCH/data/output" "$TMP_STAGE_SCRATCH/tmp"
   ln -s ../../input "$TMP_STAGE_SCRATCH/data/input"   # tmp/stage/scratch/data/input -> tmp/stage/input

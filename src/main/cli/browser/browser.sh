@@ -109,7 +109,7 @@ main() {
   # stamp: tmp/logs/browser/capture/<stamp>.<provider>.progress, handed down as
   # --progress for the capture to write; the terminal and the record keep the anchors.
   local stamp providers=() provider_mechs=() logs=() p mechs
-  stamp="${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}"
+  stamp="$(stamp_of browser capture)"
   while read -r p mechs; do
     [[ -n "$p" ]] || continue
     providers+=("$p")

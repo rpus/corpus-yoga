@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import sys
 import time
+
+import tier  # noqa: E402 - the act's stamp, one reading (#912)
 from pathlib import Path
 
 SELF = 'src/main/safari.py'
@@ -299,7 +301,7 @@ def collect_md_and_log(after_time, dest_dir, evidence_dir):
         if before > (0, 0) and (after[0] < before[0] or after[1] < before[1]):
             # kept, not discarded: the short capture is the evidence for why this failed - an
             # artifact beside the record, named by the act's stamp (#708)
-            stamp = os.environ.get('CORPUS_YOGA_STAMP') or time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+            stamp = tier.stamp_of('browser capture')
             evidence = evidence_dir / f'{stamp}.{dest_dir.parent.parent.parent.name}.{dest_dir.name}.short.md'
             evidence_dir.mkdir(parents=True, exist_ok=True)
             for m in fresh_md:

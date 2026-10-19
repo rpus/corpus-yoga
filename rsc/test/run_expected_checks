@@ -110,6 +110,7 @@ output.prescriptions_are_commands
 provider.names_declared
 provider.registry_parses
 python.pyright_clean
+record.names_read_once
 reference.lineage_changelog
 reference.lineage_declared
 reference.provenance_declared
