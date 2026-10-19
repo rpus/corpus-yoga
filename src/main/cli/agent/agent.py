@@ -46,7 +46,7 @@ outbox is single-writer by construction, so capture MIRRORS each project's
 memory (updated in place, absentees removed); every merge subtlety lives in
 install, where two agents actually meet. The doctrine: capture is the one
 READER of a live store - sweep early, sweep often; install is the one WRITER
-of it, only ever by a user's explicit --apply, never a pipeline's, and serves
+of it, only ever by a user's explicit verb, never a pipeline's, and serves
 claude alone: writing into Antigravity's databases is no transport this verb
 vouches for. The pipelines source from the store, which the repo owns and the
 medium carries.
@@ -77,13 +77,13 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent
     corpus-yoga agent list-models
     corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
-    corpus-yoga agent mount [--apply]
+    corpus-yoga agent mount
     corpus-yoga agent capture --provider <provider> --id <uuid-prefix>
     corpus-yoga agent capture --provider <provider>
-    corpus-yoga agent install   --id <uuid-prefix> --from <machine|dir> [--apply]
+    corpus-yoga agent install   --id <uuid-prefix> --from <machine|dir>
     corpus-yoga agent capture --all
-    corpus-yoga agent install   --all --from <machine|dir> [--apply]
-    corpus-yoga agent demerge [--apply]
+    corpus-yoga agent install   --all --from <machine|dir>
+    corpus-yoga agent demerge
 
 capture takes --provider <name> (every session of one provider), --provider
 <name> --id <uuid-prefix> (one of them, by uuid prefix, exactly one) or --all;
@@ -93,8 +93,8 @@ pull --all, safe because each per-session placement independently lands on
 the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
 component moves ONCE either way (mirrored out; merged in under a single
 marker block, so `install --all --from <machine>` is still one demerge). What is never
-accepted is an INFERENCE: no recency guessing, no automatic choice. install
-stays dry-run by default regardless — --apply is the write gate, totality or
+accepted is an INFERENCE: no recency guessing, no automatic choice. What install
+would write is the agent noun's status, per peer store held (#881), totality or
 not.
 
 The endpoint asymmetry is the model, not an accident: capture takes NO
@@ -105,8 +105,9 @@ is a machine, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
 
 capture writes to the store immediately (it is not precious).
-install and demerge are dry-run by default and only --apply writes into this
-machine's projects root — that is harness-owned state. Exit 1 on any CONFLICT.
+install and demerge write into this machine's projects root — harness-owned state —
+and the agent noun's status says what each would write before it is asked. Exit 1
+on any CONFLICT.
 
 Field note (2026-07-07, first scripted teleport): a received agent that does
 not appear in the VSCode sidebar was probably trash-buttoned there once — the
@@ -239,7 +240,7 @@ def list_agents() -> Census:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
             absent[mount_path.relative_to(REPO).as_posix()] = Mount(
-                f'absent - no local {provider} rows', facts.Command('corpus-yoga status sync --apply', 'mounts it'))
+                f'absent - no local {provider} rows', facts.Command('corpus-yoga agent mount', 'would mount it'))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -258,18 +259,57 @@ def list_agents() -> Census:
 
 
 @dataclass
+class Peer:
+    """A peer machine's store held here, and what corpus-yoga agent install would write from it
+    into this machine's live store (#881): the install's facts by outcome, read dry."""
+    would_write: dict | str
+    remedy: facts.Command
+
+
+@dataclass
+class Merge:
+    """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (#881)."""
+    latest: str
+    remedy: facts.Command = facts.Command('corpus-yoga agent demerge', 'would undo it')
+
+
+def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
+    """What the two writes into the live store would do, read dry (#881): per peer machine
+    held under claude's store, the install of all its sessions; per project, the latest
+    merge record. The verbs act; the status says what they would do."""
+    row = registry.provider('claude')
+    projects, adapter = registry.mount(row), transport.adapter('claude')
+    if projects is None or adapter is None or not projects.is_dir():
+        return 'none - the claude store is not mounted', 'none - the claude store is not mounted'
+    peers: dict[str, Peer] = {}
+    store = transport.store('claude')
+    for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
+        if machine.name == registry.machine():
+            continue
+        log = adapter.install_all(machine, projects, False, machine.name)
+        peers[machine.name] = Peer(log.facts() or 'nothing - the store holds no session of it',
+                                   facts.Command(f'corpus-yoga agent install --from {machine.name} --all', 'would write them'))
+    merges = {proj.name: Merge(label) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
+              if (label := adapter.latest_merge(proj)) is not None}
+    return peers or 'none - no peer machine held', merges or 'none - no merge record'
+
+
+@dataclass
 class Status:
     sessions: Sessions | str
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
+    install: dict[str, Peer] | str = 'none'               # per peer store held, what install would write (#881)
+    merges: dict[str, Merge] | str = 'none'               # per project, what demerge would undo (#881)
 
     def facts(self) -> dict:
         brief = self.drafters
         if brief is None:                 # no machine binding: the drafters cannot be read against one (#758)
             unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt': 'binds it, to a name rsc/machine/machines.csv declares'}}
-            return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged}
-        return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged}
+            return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'install': self.install, 'merges': self.merges}
+        return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged,
+                'install': self.install, 'merges': self.merges}
 
 
 def model_census() -> int:
@@ -304,7 +344,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
     targets = [(row, mount_path, adapter) for row, mount_path, adapter in served()
                if mount_path.is_dir() and (provider is None or row['provider'] == provider)]
     if not targets:
-        sys.exit('error: no live store mounted - corpus-yoga agent mount --apply creates the symlinks')
+        sys.exit('error: no live store mounted - corpus-yoga agent mount creates the symlinks')
     if uuid8 is not None:
         row, mount_path, adapter = targets[0]
         matches = [s for s in adapter.live_sessions(mount_path) if s.id.startswith(uuid8)]
@@ -339,16 +379,16 @@ def _claude() -> tuple[Path, ModuleType]:
     mount_path, adapter = registry.mount(row), transport.adapter('claude')
     assert mount_path is not None and adapter is not None
     if not mount_path.is_dir():
-        sys.exit(f'error: {mount_path.relative_to(REPO)} missing - corpus-yoga agent mount --apply creates the symlink')
+        sys.exit(f'error: {mount_path.relative_to(REPO)} missing - corpus-yoga agent mount creates the symlink')
     return mount_path, adapter
 
 
-def mount(apply: bool) -> int:
+def mount() -> int:
     """The live agent stores mounted at the address their units have under every tier
     root, ext/mnt/<provider>/code/machine-transport/<machine> (#636, #853): one symlink
     per declared provider whose live store this machine holds, the target from the
-    registry row. A dry run states every move as data, each provider accounted for, and
-    --apply creates the links. A link at a retired address is rsc/migration/636.sh's or
+    registry row. The links it would create are corpus-yoga agent's status (#881); this
+    creates them. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
         facts.report(None, corpus.room_next(), 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
@@ -374,14 +414,11 @@ def mount(apply: bool) -> int:
             verdict = 1
             continue
         created += 1
-        if apply:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.symlink_to(live)
-            print(f'{shown} → {row["live_store"]} (created)')
-        else:
-            print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.symlink_to(live)
+        print(f'{shown} → {row["live_store"]} (created)')
     # what an act reports (#801): next: and the verdict, the last line
-    did = f'{"did" if apply else "would"} create {created}, present {present}'
+    did = f'did create {created}, present {present}'
     facts.report(None, corpus.room_next(), f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
     return verdict
 
@@ -403,10 +440,11 @@ def main() -> int:
         import machine
         brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (#758)
         report = corpus.report_facts('agent')
-        facts.say(Status(census.sessions, census.mounts, brief, report.staged))
+        peers, merges = peers_and_merges()
+        facts.say(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
         return 0
     if args.verb == 'mount':
-        return mount(args.apply)
+        return mount()
     if args.verb == 'list-models':
         return model_census()
     if args.verb == 'list-drafters':
@@ -424,10 +462,10 @@ def main() -> int:
         rc = 0
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
             print(f'{proj.name}:')
-            rc = max(rc, 1 if claude.demerge(proj, args.apply) else 0)
-        # what an act reports (#876): next: - the apply of a dry run - and the verdict
-        facts.report(None, {**corpus.room_next(), **({'corpus-yoga agent demerge --apply': 'would undo them'} if not args.apply else {})},
-                     f'agent demerge: {"NOT DONE" if rc else "DONE"} - {"did" if args.apply else "would"} undo the latest merge of each project above'
+            rc = max(rc, 1 if claude.demerge(proj) else 0)
+        # what an act reports (#876): next: and the verdict; what it would undo is the status's (#881)
+        facts.report(None, corpus.room_next(),
+                     f'agent demerge: {"NOT DONE" if rc else "DONE"} - did undo the latest merge of each project above'
                      + ('; a conflict left one in place' if rc else ''))
         return rc
 
@@ -436,17 +474,15 @@ def main() -> int:
     # name as it stands under claude's store (or the directory's own name for a path)
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
-        log = claude.install_all(bundle, projects, args.apply, machine)
+        log = claude.install_all(bundle, projects, True, machine)
     else:
         session = claude.pick_session(bundle, args.id)
-        log = claude.install_move(session.parent, projects, session, args.apply, machine)
+        log = claude.install_move(session.parent, projects, session, True, machine)
     # the log is facts nested by outcome under the bundle's address (#857), then next:, then
-    # the one verdict; a dry run says what it would write and names the apply
-    extent = '--all' if args.all else f'--id {args.id}'
+    # the one verdict; what an install would write is corpus-yoga agent's status (#881)
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
-    facts.report(out, {**corpus.room_next(), **({f'corpus-yoga agent install --from {args.source} {extent} --apply': 'would write them'}
-                                                 if not args.apply and log.counted else {})}, transport.verdict('agent install', [log]))
+    facts.report(out, corpus.room_next(), transport.verdict('agent install', [log]))
     return 1 if log.conflicts else 0
 
 

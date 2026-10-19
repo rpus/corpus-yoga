@@ -5,7 +5,7 @@
 # installs. Safe as the first command on a fresh clone, which is the whole point of it.
 #
 # `sync` is the effecting verb, and prints the remedies the report holds rather than the
-# report. It is --apply-gated because it writes outside the repo, and it runs only what is
+# report. What it would run is the report's (#881); it writes outside the repo, and it runs only what is
 # the repo's to run: the mint of its venv, and each remedy its declaration names - the
 # parsers, the live stores' mounts, the hooks. A brew install is not ours to perform; the
 # machine binding is a decision, not a derivation.
@@ -36,15 +36,13 @@ source "$REPO_ROOT/src/main/report.sh"   # tail_of - what an act reports after i
 
 SHOW_ALL=0
 SYNC=0
-APPLY=0
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       sync)       SYNC=1; shift ;;
-      --apply)    APPLY=1; shift ;;
       --show-all) SHOW_ALL=1; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "status: NOT DONE - $1 is no word it takes; the words are --show-all, or sync [--apply]" >&2; exit 2 ;;
+      *) echo "status: NOT DONE - $1 is no word it takes; the words are --show-all, or sync" >&2; exit 2 ;;
     esac
   done
 }
@@ -110,8 +108,8 @@ _say() {
 # The sync, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 sync_remedy() {
-  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then echo "corpus-yoga status sync --apply"
-  else echo "./src/main/cli/status/status.sh sync --apply"; fi
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then echo "corpus-yoga status sync"
+  else echo "./src/main/cli/status/status.sh sync"; fi
 }
 
 count_glob_dirs() {
@@ -406,9 +404,9 @@ check_pipeline_inputs() {
     fi
     local target; target="$(readlink "$REPO_ROOT/$p_mount" 2>/dev/null || true)"
     if [[ ! -e "$REPO_ROOT/$p_mount" && -z "$target" ]]; then
-      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount --apply" "mounts it"
+      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount" "mounts it"
     elif [[ -n "$target" && "${target/#\~/$HOME}" != "${p_live/#\~/$HOME}" && "$(cd "$REPO_ROOT/$p_mount" 2>/dev/null && pwd -P)" != "$(cd "${p_live/#\~/$HOME}" 2>/dev/null && pwd -P)" ]]; then
-      todo "$p_name / $p_mount" "linked elsewhere - to $target" "corpus-yoga agent mount --apply" "points it at $p_live"
+      todo "$p_name / $p_mount" "linked elsewhere - to $target" "corpus-yoga agent mount" "points it at $p_live"
     else
       ok "$p_name / $p_mount" "linked"
     fi
@@ -417,7 +415,7 @@ check_pipeline_inputs() {
   sec "deploy"
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
-  # it), so sync --apply cannot create it and absence is not a todo — deploying is
+  # it), so sync cannot create it and absence is not a todo — deploying is
   # optional per machine. Present it is verified and named; absent it is stated as the
   # optional affordance it is, with the hand-make convention the README declares.
   if [[ -L "$REPO_ROOT/ext/mnt/site" || -d "$REPO_ROOT/ext/mnt/site" ]]; then
@@ -461,18 +459,12 @@ sync() {
     tail_of "status sync: DONE - none of these is mine to run; each is the reader's"
     return 0
   fi
-  if [[ "$APPLY" != 1 ]]; then
-    echo "would run:"
-    while IFS= read -r a; do [[ -z "$a" ]] || echo "  $a"; done <<< "$mine"
-    tail_of "status sync: DONE - would run the $(grep -c . <<< "$mine") above" "corpus-yoga status sync --apply" "runs them"
-    return 0
-  fi
   while IFS= read -r a; do
     [[ -n "$a" ]] || continue
     echo "→ $a"
     if [[ "$a" == "$own" ]]; then
       # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
-      assert_may_send "pip install from PyPI (corpus-yoga status sync --apply)" || exit 1
+      assert_may_send "pip install from PyPI (corpus-yoga status sync)" || exit 1
       [[ -x "$CORPUS_YOGA_VENV/bin/python" ]] || python3 -m venv "$CORPUS_YOGA_VENV"
       "$CORPUS_YOGA_VENV/bin/pip" install -q --upgrade pip
       "$CORPUS_YOGA_VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
@@ -503,7 +495,7 @@ report() {
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "corpus-yoga status sync --apply, or automatically on the next corpus-yoga pipeline run"
+    "corpus-yoga status sync, or automatically on the next corpus-yoga pipeline run"
   graft server "/server/render assets"
   check_optional_modes
   graft completions "/completions"
@@ -534,7 +526,7 @@ main() {
   # The sync verb's argv is the declaration's to answer (#474); the command-level
   # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
   # parse_argv renders under the venv's python (#478), so it answers only where the venv
-  # stands; before the mint, parse_args below takes sync and --apply itself (#757)
+  # stands; before the mint, parse_args below takes sync itself (#757)
   if [[ "${1-}" == sync && -x "$CORPUS_YOGA_VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi

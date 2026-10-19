@@ -1,4 +1,4 @@
-run.py: code+schema 1666/1666
+run.py: code+schema 1669/1669
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ run.py: code+schema 1666/1666
   ✓ cli.commands_alphabetical
   ✓ cli.target_exists  (24/24)
   ✓ cli.calculus_defined  (24/24)
-  ✓ cli.advertised_flags_exist  (15/15)
+  ✓ cli.advertised_flags_exist  (13/13)
   ✓ cli.docstring_flags_advertised  (22/22)
   ✓ cli.subcommands_dispatch  (22/22)
   ✓ cli.target_flags_advertised  (22/22)
@@ -150,7 +150,7 @@ run.py: code+schema 1666/1666
   ✓ store.export_is_held_within_a_later_one
 
 ── check_status_facts ────────────────────────────────────────────────────────
-  ✓ status.remedy_names_a_command  (42/42)
+  ✓ status.remedy_names_a_command  (46/46)
   ✓ status.lines_load_as_yaml  (23/23)
   ✓ status.value_holds_no_pair  (24/24)
   ✓ report.says_what_the_nouns_say  (15/15)
@@ -238,6 +238,9 @@ run.py: code+schema 1666/1666
   ✓ forge.aim_one_line_per_issue  (3/3)
   ✓ forge.issue_is_a_should_with_wired_relations  (2/2)
 
+── check_status_is_the_dry_run ───────────────────────────────────────────────
+  ✓ verbs.status_is_the_dry_run
+
 ── check_reference ───────────────────────────────────────────────────────────
   ✓ reference.provenance_declared  (2/2)
   ✓ reference.lineage_declared  (2/2)
@@ -264,7 +267,7 @@ check_self_paths                     116     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    604     0   code       32
+check_cli_surface                    602     0   code       32
 check_cli_verb_help                   24     0   code       65
 check_cli_exclusive_classes           10     0   code       68
 check_effects                          3     0   code       71
@@ -286,7 +289,7 @@ check_unit_state                       2     0   code      135
 check_store                            3     0   code      138
 check_facts                            5     0   code      143
 check_export_atoms                     1     0   code      149
-check_status_facts                   115     0   code      152
+check_status_facts                   119     0   code      152
 check_walkthrough                      1     0   code      164
 check_completions                     10     0   code      167
 check_drafters                         2     0   code      174
@@ -301,14 +304,15 @@ check_grammar                          2     0   schema    227
 check_record_is_the_launchers          1     0   code      230
 check_provider_registry                2     0   code      233
 check_forge_aim                        5     0   code      237
-check_reference                       21     0   schema    241
-check_mcp_factoring                    9     0   schema    247
-check_mcp_reproducible                 1     0   schema    253
-check_expectation                      2     0   code      256
+check_status_is_the_dry_run            1     0   code      241
+check_reference                       21     0   schema    244
+check_mcp_factoring                    9     0   schema    250
+check_mcp_reproducible                 1     0   schema    256
+check_expectation                      2     0   code      259
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 159 types, 1666/1666 invocations passing
-checks[code]: 107 types, 989/989 invocations passing
+checks[code+schema]: 160 types, 1669/1669 invocations passing
+checks[code]: 108 types, 992/992 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1666/1666 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1669/1669 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

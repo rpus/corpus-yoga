@@ -1,16 +1,9 @@
 {
-  "help": "make the forge settings agree with src/main/cli/forge/forge.csv - a dry run unless --apply, because it writes outside the repo",
-  "args": [
-    {
-      "name": "--apply",
-      "type": "",
-      "cardinality": "",
-      "help": "perform the PATCHes - without it, the drift and the commands are only reported"
-    }
-  ],
+  "help": "make the forge settings agree with src/main/cli/forge/forge.csv - what it would set is corpus-yoga forge's status; it writes outside the repo",
+  "args": [],
   "sends": {
     "gh api -X PATCH repos/{owner}/{repo}": [
-      "WRITES settings others see (--apply only; refused loudly under CORPUS_YOGA_NO_SEND)"
+      "WRITES settings others see (refused loudly under CORPUS_YOGA_NO_SEND)"
     ]
   }
 }

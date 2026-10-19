@@ -280,7 +280,17 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
     return conflicts
 
 
-def demerge(proj_dir: Path, apply: bool) -> int:
+def latest_merge(proj_dir: Path) -> str | None:
+    """The label of the latest merge record in the project's memory, which demerge would
+    undo (#881); None where no record stands."""
+    idx = proj_dir / 'memory' / 'MEMORY.md'
+    if not idx.exists():
+        return None
+    begins = [l for l in idx.read_text().splitlines() if l.startswith('<!-- merge:begin ')]
+    return begins[-1].removeprefix('<!-- merge:begin ').removesuffix(' -->') if begins else None
+
+
+def demerge(proj_dir: Path) -> int:
     """Undo the LATEST merge recorded in MEMORY.md, exactly and all-or-nothing:
     delete the recorded additions (novelties, twins), truncate the recorded
     appendices to their pre-merge lengths, drop the marker block (with the
@@ -351,16 +361,15 @@ def demerge(proj_dir: Path, apply: bool) -> int:
     if conflicts:
         print(f'{conflicts} conflict(s) — NOTHING undone (all-or-nothing; reconcile by hand, or accept the merge)')
         return conflicts
-    if apply:
-        for kind, f, n in ops:
-            if kind == 'rm':
-                f.unlink()
-            else:
-                f.write_text(f.read_text()[:n])
-        if index_new:
-            idx.unlink()
+    for kind, f, n in ops:
+        if kind == 'rm':
+            f.unlink()
         else:
-            idx.write_text('\n'.join(remaining) + ('\n' if remaining else ''))
+            f.write_text(f.read_text()[:n])
+    if index_new:
+        idx.unlink()
+    else:
+        idx.write_text('\n'.join(remaining) + ('\n' if remaining else ''))
     print('note: session .jsonl files and their eponymous workspace dirs are '
           'visit residue demerge does not touch')
     return 0
@@ -509,7 +518,7 @@ def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log
     """git pull --all from one peer: every session in every project the machine
     transported (and each project's memory, merged once per project - one
     marker block, one demerge, per project). The same lattice safety as
-    capture --all, plus install's own guard: dry-run unless --apply. This
+    capture --all; what it would write is corpus-yoga agent's status (#881). This
     is the ONE deliberate writer of the harness-owned projects root - never
     run by any pipeline, only by a user's explicit command."""
     log = Log(LIVE, 'did' if apply else 'would')
