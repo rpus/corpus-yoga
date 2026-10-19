@@ -686,13 +686,31 @@ merge_chain() {
     return 1
   fi
   landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - merged, but the merge commit read failed; converge by hand: git fetch origin && git merge --ff-only"; return 1; }
-  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! clean     || ! quiet git -C "$REPO_DIR" status; then
+  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"; then
     echo "forge merge: NOT DONE - merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
+    return 1
+  fi
+  # The steps after the fast-forward run the tree the checkout converged on (#910): a
+  # fresh bash of the new main's forge.sh, sourced as a library, runs conclude below.
+  # This process read its forge.sh and report.sh before the squash, and the printer it
+  # would call is read from disk at the call, so a merge that changes an interface
+  # these steps use would break them here; the new tree runs them as one whole instead.
+  bash -c 'source "$1"; conclude "$2" "$3" "$4"' _ "$REPO_DIR/src/main/cli/forge/forge.sh" "$pr" "$landed" "$aimed"
+}
+
+# conclude <pr> <squash> <aimed issues, one per line>: conclude the merge - the steps after
+# the fast-forward: the cleaner, git's quiet status, each aimed issue's state, the effect -
+# run by the forge.sh of the tree merged onto (#910). The name is the one contract between
+# the tree that merged and the tree merged onto, and does not change.
+conclude() {
+  local pr="$1" landed="$2" aimed="$3"
+  if ! clean || ! quiet git -C "$REPO_DIR" status; then
+    echo "forge merge: NOT DONE - merged as ${landed:0:8} and this checkout converged on it, but the sweep after it did not complete; the last NOT-done line above names where"
     return 1
   fi
   # Each aimed issue's state after the squash, read from the forge (#735, #884): the
   # verdict counts what the forge closed, never what the body promised.
-  local closed=0 total=0 state
+  local closed=0 total=0 state issue_number
   echo "aimed:"
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
