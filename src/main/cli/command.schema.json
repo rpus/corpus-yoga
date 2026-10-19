@@ -37,13 +37,14 @@
       "description": "What the command's things are, by topic (#770): what reads the same in every room. A status says how this room stands and this says what it is the state of - a section of a report, a tool, a pipeline - so the status carries no explanation of its own. A topic is one sentence, or the topics beneath it; `corpus-yoga walkthrough` shows them under the command's help."
     },
     "wording": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
         "type": "string",
         "minLength": 1
       },
-      "description": "Every sentence the command's status can say, by the kind of row that says it (#909): a why, a remedy's words, a standing, with its places in braces - {command}, {verb} - which the status fills through facts.wording. The gate holds the map total with no room's state, so a sentence written for one state is checked wherever the gate runs."
+      "description": "Every sentence the command's status can say (#909): a why, a remedy's words, a standing, each with its places in braces - {command}, {verb} - which the status says through facts.sentence, quoting it. The gate holds the array total with no room's state, so a sentence written for one state is checked wherever the gate runs, and holds that each sentence is declared once and said once."
     },
     "target": {
       "type": "string",

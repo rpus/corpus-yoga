@@ -2242,27 +2242,32 @@ def check_status_facts(run) -> None:
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
         None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.room_round_trip_holds_no_pair')
-    # The sentences a status can say are its noun's declared wording (#909, #914): the one
-    # property - no value holds a colon followed by a space - judged over every sentence,
-    # in every room alike, with no room's state; and every declared kind said by its noun.
+    # The sentences a status can say are its noun's declared wording (#909, #914), each its
+    # own identity: the one property - no value holds a colon followed by a space - judged
+    # over every sentence, in every room alike, with no room's state; each sentence declared
+    # once across the nouns; and every declared sentence said by its noun, quoted.
+    held_by: dict[str, str] = {}
     for declaration in sorted(CLI.glob('*/*.json')):
         noun = declaration.parent.name
         if declaration.stem != noun:
             continue
-        worded = json.loads(declaration.read_text()).get('wording') or {}
+        worded = json.loads(declaration.read_text()).get('wording') or []
         if not worded:
             continue
-        faults = [f'{kind}: {sentence[:80]}' for kind, sentence in worded.items()
-                  if ': ' in sentence or sentence.endswith(':') or ' #' in sentence or '\u2014' in sentence]
-        run(f'status: corpus-yoga {noun}: no declared wording holds a colon followed by a space', not faults,
+        faults = [said[:80] for said in worded if ': ' in said or said.endswith(':') or ' #' in said or '\u2014' in said]
+        run(f'status: corpus-yoga {noun}: no declared sentence holds a colon followed by a space', not faults,
             None if not faults else '; '.join(faults)[:300] + ' - a pair is a fact of its own beneath, or the sentence says it without the colon',
             check='status.value_holds_no_pair')
+        twice = [said for said in worded if said in held_by]
+        run(f'wording: corpus-yoga {noun}: each sentence is declared once', not twice,
+            None if not twice else f'also declared by corpus-yoga {held_by[twice[0]]}: {twice[0][:80]}', check='wording.each_sentence_is_said')
+        held_by.update({said: noun for said in worded})
         sources = ''.join(f.read_text() for f in declaration.parent.glob('*') if f.suffix in ('.py', '.sh'))
         target = REPO_ROOT / json.loads(declaration.read_text())['target']
         sources += target.read_text() if target.is_file() else ''
-        unsaid = [kind for kind in worded if f"'{kind}'" not in sources and f'"{kind}"' not in sources]
-        run(f'wording: corpus-yoga {noun}: every declared kind is said by its noun', not unsaid,
-            None if not unsaid else f'declared and said by no row: {", ".join(unsaid)}', check='wording.each_kind_is_said')
+        unsaid = [said for said in worded if said not in sources]
+        run(f'wording: corpus-yoga {noun}: every declared sentence is said by its noun, quoted', not unsaid,
+            None if not unsaid else f'declared and said by no row: {"; ".join(s[:60] for s in unsaid)}', check='wording.each_sentence_is_said')
     # what a measure says of a unit is a value of the stage's and the store's statuses, read here
     # without a store: the worktree a commit is gated in holds none
     import corpus as corpus_relations
