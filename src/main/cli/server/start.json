@@ -32,6 +32,5 @@
   ],
   "w": [
     "ext/lib/serve_markdown"
-  ],
-  "log": "self"
+  ]
 }

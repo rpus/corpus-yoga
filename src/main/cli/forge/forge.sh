@@ -381,17 +381,10 @@ sync() {
 # carry the parser's words through this command. The chain is teed into one run
 # log; PIPESTATUS carries the verdict past the tee, so the pipe launders nothing.
 merge() {
-  local pr="$1"
-  local stamp log rc
-  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
-  mkdir -p "$TMP_DIR/logs/forge/merge"
-  log="$TMP_DIR/logs/forge/merge/$stamp.log"
-  { echo "forge merge - $stamp · $(provider_signature "$REPO_DIR") · $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null)"
-    echo "corpus-yoga forge merge $pr"
-    merge_chain "$pr"
-  } 2>&1 | tee "$log"
-  rc="${PIPESTATUS[0]}"
-  echo "Log: $log"
+  local pr="$1" rc=0
+  # the record is the launcher's tee of the whole verb (#708), header included
+  merge_chain "$pr" || rc=$?
+  if [[ -n "${CORPUS_YOGA_LOG:-}" ]]; then echo "Log: ${CORPUS_YOGA_LOG#"$REPO_DIR/"}"; fi
   return "$rc"
 }
 
@@ -664,7 +657,7 @@ merge_chain() {
   }
   if [[ "$gate_rc" -ne 0 ]]; then
     put_back
-    echo "forge merge: NOT DONE - data gate red at ${oid:0:8}: usr gate FAIL, failing stage(s) ${stages:-unstated} (the run's own log names the findings); checkout restored to $was"
+    echo "forge merge: NOT DONE - data gate red at ${oid:0:8}: usr gate FAIL, failing stage(s) ${stages:-unstated} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings); checkout restored to $was"
     return 1
   fi
   if [[ -n "$(git -C "$REPO_DIR" status --porcelain)" ]]; then

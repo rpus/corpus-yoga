@@ -32,6 +32,8 @@ TMP_STAGE_REHEARSAL = TMP_STAGE / 'rehearsal.json'   # the rehearsal record, one
 SCRATCH_TMP = TMP_STAGE_SCRATCH / 'tmp'
 
 REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
+STAMP = 'CORPUS_YOGA_STAMP'   # the launcher names the stamp of the act it dispatched, so a verb's own artifacts share it (#708)
+LOG = 'CORPUS_YOGA_LOG'       # and the record it tees the whole verb into, tmp/logs/<command>/<verb>/<stamp>.log, so a verb can name it
 DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else REPO
 DATA = DATA_ROOT / 'data'
 TMP = DATA_ROOT / 'tmp'

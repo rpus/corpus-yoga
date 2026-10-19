@@ -7,7 +7,10 @@ their nouns (#814).
     corpus-yoga logs clean              # remove the orphaned directories the status names
 
 The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
-the bare command's logs, tmp/logs/<command>/<verb>/ each verb's, one stamped log per act.
+the bare command's logs, tmp/logs/<command>/<verb>/ each verb's, one stamped log per act -
+the launcher's tee of the whole verb, the one record (#708) - beside which a verb keeps
+the artifacts it names by the same stamp: the gate's <stamp>.report, a capture's
+<stamp>.<provider>.progress, a daemon's <stamp>.daemon.
 A directory is an orphan where its command has no declaration under src/main/cli, or its
 verb none beside its command's - the log directory of a command or verb that no longer
 exists, which nothing writes and no status read. The status names each with its count and
@@ -59,7 +62,9 @@ def logs_in(path: Path) -> int:
 def orphans() -> list[tuple[Path, str]]:
     """Each entry under tmp/logs that no current command or verb writes: a directory of a
     command with no declaration under src/main/cli, a verb's directory with no declaration
-    beside its command's, or a file where only a command's directory belongs; with why."""
+    beside its command's, a file where only a command's directory belongs, or a directory
+    beneath a verb's - a verb keeps files beside its record, never a directory (#708), so
+    the per-provider directories the browser capture once wrote are named here; with why."""
     out: list[tuple[Path, str]] = []
     if not LOGS.is_dir():
         return out
@@ -76,6 +81,11 @@ def orphans() -> list[tuple[Path, str]]:
         for verb in sorted(command.iterdir()):
             if verb.is_dir() and not (CLI / command.name / f'{verb.name}.json').is_file():
                 out.append((verb, f'no verb corpus-yoga {command.name} {verb.name}'))
+                continue
+            if verb.is_dir():
+                for entry in sorted(verb.iterdir()):
+                    if entry.is_dir():
+                        out.append((entry, f'a directory beneath a verb\'s - corpus-yoga {command.name} {verb.name} keeps files beside its record, never a directory'))
     return out
 
 

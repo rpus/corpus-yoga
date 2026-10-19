@@ -1,4 +1,4 @@
-run.py: code+schema 1659/1659
+run.py: code+schema 1666/1666
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ run.py: code+schema 1659/1659
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (24/24)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (12/12)
+  ✓ naming.log_path_derives_from_command  (18/18)
   ✓ output.prescriptions_are_commands  (25/25)
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -227,6 +227,9 @@ run.py: code+schema 1659/1659
 ── check_grammar ─────────────────────────────────────────────────────────────
   ✓ grammar.parser_current  (2/2)
 
+── check_record_is_the_launchers ─────────────────────────────────────────────
+  ✓ logs.no_verb_logs_for_itself
+
 ── check_provider_registry ───────────────────────────────────────────────────
   ✓ provider.registry_parses
   ✓ provider.names_declared
@@ -261,7 +264,7 @@ check_self_paths                     116     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    598     0   code       32
+check_cli_surface                    604     0   code       32
 check_cli_verb_help                   24     0   code       65
 check_cli_exclusive_classes           10     0   code       68
 check_effects                          3     0   code       71
@@ -295,16 +298,17 @@ check_model_occurrences                3     0   schema    215
 check_model_obligations              162     0   schema    220
 check_model_identity                   1     0   schema    224
 check_grammar                          2     0   schema    227
-check_provider_registry                2     0   code      230
-check_forge_aim                        5     0   code      234
-check_reference                       21     0   schema    238
-check_mcp_factoring                    9     0   schema    244
-check_mcp_reproducible                 1     0   schema    250
-check_expectation                      2     0   code      253
+check_record_is_the_launchers          1     0   code      230
+check_provider_registry                2     0   code      233
+check_forge_aim                        5     0   code      237
+check_reference                       21     0   schema    241
+check_mcp_factoring                    9     0   schema    247
+check_mcp_reproducible                 1     0   schema    253
+check_expectation                      2     0   code      256
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 158 types, 1659/1659 invocations passing
-checks[code]: 106 types, 982/982 invocations passing
+checks[code+schema]: 159 types, 1666/1666 invocations passing
+checks[code]: 107 types, 989/989 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1659/1659 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1666/1666 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

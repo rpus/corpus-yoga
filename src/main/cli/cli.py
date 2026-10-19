@@ -433,14 +433,18 @@ PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
 
 
 def _log_enacting(row: dict, rest: list[str]) -> None:
-    """#453: the run-log obligation derives from the declaration - a verb with
-    declared w or sends is enacting and leaves an anchored log under
-    tmp/logs/<command>/<verb>/; a read-only face (no rows) leaves none, and a
-    verb declaring "log": "self" writes its own. The log is a tee child the
-    target's fds flow through: exec still hands signals, exit codes and stdin
-    to the target - tee is a sink beside it, never a process between. stderr
-    merges into the one stream, and python targets run unbuffered so an
-    interrupt loses nothing."""
+    """#453, #708: the run-log obligation derives from the declaration - a verb with
+    declared w, consumes, x or sends is enacting - it writes, dequeues, runs something or
+    reaches outside the tree - and leaves an anchored log under
+    tmp/logs/<command>/<verb>/<stamp>.log, the record of the whole verb: this header,
+    the target's every line, the verb's own tail; a read-only face (no rows) leaves
+    none. No verb writes a log of its own: the launcher names the stamp and the record
+    in the environment (tier.STAMP, tier.LOG), so a target that keeps an artifact
+    beside the record - the gate's per-check report, a capture's progress, a daemon's
+    output - names it by the same stamp, never as the record. The log is a tee child the
+    target's fds flow through: exec still hands signals, exit codes and stdin to the
+    target - tee is a sink beside it, never a process between. stderr merges into the one
+    stream, and python targets run unbuffered so an interrupt loses nothing."""
     verb = rest[0] if rest else ''
     declaration = CLI / row['command'] / f'{verb}.json'
     if not verb or verb.startswith('-') or not declaration.exists():
@@ -448,7 +452,7 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     if any(t in ('-h', '--help') for t in rest):
         return  # a help invocation is a read-only face, log-free by construction (#474)
     d = json.loads(declaration.read_text())
-    if not (d.get('w') or d.get('consumes') or d.get('sends')) or d.get('log') == 'self':
+    if not (d.get('w') or d.get('consumes') or d.get('x') or d.get('sends')):
         return
     import time
     stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
@@ -465,6 +469,8 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     os.dup2(tee.stdin.fileno(), 2)
     tee.stdin.close()
     os.environ['PYTHONUNBUFFERED'] = '1'
+    os.environ[tier.STAMP] = stamp
+    os.environ[tier.LOG] = str(log)
     head = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--short', 'HEAD'],
                           capture_output=True, text=True).stdout.strip()
     # the header names who ran the verb by the Signature triad the commit hook stamps (#704)

@@ -53,6 +53,5 @@
     "data/input/gemini/chat",
     "data/output/markdown",
     "machine-name.txt"
-  ],
-  "log": "self"
+  ]
 }
