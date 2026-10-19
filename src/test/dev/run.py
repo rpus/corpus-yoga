@@ -3222,9 +3222,9 @@ def check_grammar(run) -> None:
 def check_status_is_the_dry_run(run) -> None:
     """A verb that takes --apply has no dry rendering of its own (#881): its noun's status says
     what it would do, and the verb acts, so no declaration under src/main/cli carries the
-    flag. The six that did - agent mount, agent demerge, forge sync, migration sync, site
-    publish, status sync - each rendered a dry run of their own when bare, restating a
-    section their noun's status says."""
+    flag. The seven that did - agent mount, agent demerge, agent install, forge sync,
+    migration sync, site publish, status sync - each rendered a dry run of their own when
+    bare, restating a section their noun's status says or should say."""
     own = sorted(str(p.relative_to(REPO_ROOT)) for p in CLI.glob('*/*.json')
                  if any(a.get('name') == '--apply' for a in json.loads(p.read_text()).get('args', [])))
     run('verbs: no declaration takes --apply, the noun\'s status being the dry run', not own,
