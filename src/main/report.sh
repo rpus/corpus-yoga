@@ -6,6 +6,14 @@
 # verb - the effect line is printed as the last line. Through src/main/facts.py, so that
 # no bash verb prints a tail of its own. Sourced after the script's root is known as
 # REPO_DIR or REPO_ROOT.
+# wording <noun> <kind> [<place>=<value>]...: the sentence the noun's declaration gives
+# for a kind of row, its places filled - facts.wording's shell twin (#909).
+wording() {
+  "${REPO_DIR:-$REPO_ROOT}/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
+places = dict(part.split("=", 1) for part in sys.argv[4:])
+print(facts.wording(sys.argv[2], sys.argv[3], **places))' "${REPO_DIR:-$REPO_ROOT}/src/main" "$@"
+}
+
 effect() {
   "${REPO_DIR:-$REPO_ROOT}/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
 extra = dict(zip(sys.argv[3::2], sys.argv[4::2]))

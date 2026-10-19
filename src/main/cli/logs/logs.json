@@ -5,6 +5,16 @@
     "orphans": "each directory of a command that no longer exists, or of a verb its command no longer declares, by its path, with how many logs it holds, their size, why it is an orphan, and corpus-yoga logs clean as its remedy; a log is the record of an act, so its disposal is the reader's, which the cleaner's run is",
     "next": "what to run next - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where every directory is a current command's or verb's"
   },
+  "wording": {
+    "stray file": "no command keeps it",
+    "file where a command's directory belongs": "no command keeps a log here",
+    "no command": "no command corpus-yoga {command}",
+    "no verb": "no verb corpus-yoga {command} {verb}",
+    "directory beneath a verb": "a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, never a directory",
+    "would remove": "would remove it",
+    "no logs": "absent - no act has been logged",
+    "nothing to do": "none - nothing to do"
+  },
   "target": "src/main/cli/logs/logs.py",
   "calculus": "project",
   "args": [],

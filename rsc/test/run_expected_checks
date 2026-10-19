@@ -134,6 +134,7 @@ stage.states_are_told_apart
 status.lines_load_as_yaml
 status.pipeline_says_declarations_and_units
 status.remedy_names_a_command
+status.room_round_trip_holds_no_pair
 status.value_holds_no_pair
 store.export_is_held_within_a_later_one
 store.held_twice_is_found
@@ -168,5 +169,6 @@ validate.undeclared_type_names_the_union
 validation.verdict_is_record
 verbs.status_is_the_dry_run
 walkthrough.walks_and_runs
+wording.each_kind_is_said
 xref.no_bad_pointers
 xref.score_matches_expectation

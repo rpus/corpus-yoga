@@ -69,22 +69,22 @@ def orphans() -> list[tuple[Path, str]]:
         return out
     for command in sorted(LOGS.iterdir()):
         if command.name == '.DS_Store':
-            out.append((command, 'no command keeps it'))
+            out.append((command, facts.wording('logs', 'stray file')))
             continue
         if not command.is_dir():
-            out.append((command, 'no command keeps a log here'))
+            out.append((command, facts.wording('logs', "file where a command's directory belongs")))
             continue
         if not (CLI / command.name / f'{command.name}.json').is_file():
-            out.append((command, f'no command corpus-yoga {command.name}'))
+            out.append((command, facts.wording('logs', 'no command', command=command.name)))
             continue
         for verb in sorted(command.iterdir()):
             if verb.is_dir() and not (CLI / command.name / f'{verb.name}.json').is_file():
-                out.append((verb, f'no verb corpus-yoga {command.name} {verb.name}'))
+                out.append((verb, facts.wording('logs', 'no verb', command=command.name, verb=verb.name)))
                 continue
             if verb.is_dir():
                 for entry in sorted(verb.iterdir()):
                     if entry.is_dir():
-                        out.append((entry, f'a directory beneath a verb\'s - corpus-yoga {command.name} {verb.name} keeps files beside its record, never a directory'))
+                        out.append((entry, facts.wording('logs', 'directory beneath a verb', command=command.name, verb=verb.name)))
     return out
 
 
@@ -100,7 +100,7 @@ class Orphan:
     logs: int
     size: str
     why: str
-    remedy: facts.Command = facts.Command('corpus-yoga logs clean', 'would remove it')
+    remedy: facts.Command = facts.Command('corpus-yoga logs clean', facts.wording('logs', 'would remove'))
 
 
 @dataclass
@@ -116,11 +116,11 @@ class Status:
 
 def status_facts() -> Status:
     if not LOGS.is_dir():
-        return Status('absent - no act has been logged', {}, 'none - nothing to do', 'no logs')
+        return Status(facts.wording('logs', 'no logs'), {}, facts.wording('logs', 'nothing to do'), 'no logs')
     commands = [d for d in LOGS.iterdir() if d.is_dir()]
     found = {p.relative_to(REPO).as_posix(): Orphan(logs_in(p), human(size_of(p)), why) for p, why in orphans()}
     return Status(Tier(len(commands), logs_in(LOGS), human(size_of(LOGS))), found,
-                  {'corpus-yoga logs clean': {'would remove': {rel: 1 for rel in found}}} if found else 'none - nothing to do',
+                  {'corpus-yoga logs clean': {'would remove': {rel: 1 for rel in found}}} if found else facts.wording('logs', 'nothing to do'),
                   f'{len(commands)} command(s), {logs_in(LOGS)} log(s)' + (f', {len(found)} orphan(s)' if found else ''))
 
 

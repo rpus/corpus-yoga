@@ -2199,9 +2199,9 @@ def check_status_facts(run) -> None:
             paired = pair_in_a_value(yaml.load(proc.stdout, Loader=Strict))
         except yaml.YAMLError:
             paired = None                         # said above
-        run(f'status: corpus-yoga {noun}: no value holds a colon followed by a space', paired is None,
+        run(f'status: corpus-yoga {noun}: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
             None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]} - a pair is a fact of its own beneath, or the sentence says it without the colon',
-            check='status.value_holds_no_pair')
+            check='status.room_round_trip_holds_no_pair')
 
     # The machine report says what a noun's status says, taken from that status (#777):
     # each section it grafts is, in the full report, the noun's own facts at that spot.
@@ -2240,15 +2240,36 @@ def check_status_facts(run) -> None:
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
 
     paired = pair_in_a_value(whole)
-    run('status: the full machine report: no value holds a colon followed by a space', paired is None,
-        None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.value_holds_no_pair')
+    run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
+        None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.room_round_trip_holds_no_pair')
+    # The sentences a status can say are its noun's declared wording (#909, #914): the one
+    # property - no value holds a colon followed by a space - judged over every sentence,
+    # in every room alike, with no room's state; and every declared kind said by its noun.
+    for declaration in sorted(CLI.glob('*/*.json')):
+        noun = declaration.parent.name
+        if declaration.stem != noun:
+            continue
+        worded = json.loads(declaration.read_text()).get('wording') or {}
+        if not worded:
+            continue
+        faults = [f'{kind}: {sentence[:80]}' for kind, sentence in worded.items()
+                  if ': ' in sentence or sentence.endswith(':') or ' #' in sentence or '\u2014' in sentence]
+        run(f'status: corpus-yoga {noun}: no declaration wording holds a colon followed by a space', not faults,
+            None if not faults else '; '.join(faults)[:300] + ' - a pair is a fact of its own beneath, or the sentence says it without the colon',
+            check='status.value_holds_no_pair')
+        sources = ''.join(f.read_text() for f in declaration.parent.glob('*') if f.suffix in ('.py', '.sh'))
+        target = REPO_ROOT / json.loads(declaration.read_text())['target']
+        sources += target.read_text() if target.is_file() else ''
+        unsaid = [kind for kind in worded if f"'{kind}'" not in sources and f'"{kind}"' not in sources]
+        run(f'wording: corpus-yoga {noun}: every declaration kind is said by its noun', not unsaid,
+            None if not unsaid else f'declaration and said by no row: {", ".join(unsaid)}', check='wording.each_kind_is_said')
     # what a measure says of a unit is a value of the stage's and the store's statuses, read here
     # without a store: the worktree a commit is gated in holds none
     import corpus as corpus_relations
     worded = {name: words({'a': b'x'}, {'a': b'x'}, None) for name, (_, _, words) in corpus_relations.MEASURE.items() if name in ('mirror', 'message-uuids')}
     paired = pair_in_a_value(worded)
     run('status: what a measure says of a unit holds no colon followed by a space', paired is None,
-        None if paired is None else f'the {paired[0][1:]} measure says {paired[1]}', check='status.value_holds_no_pair')
+        None if paired is None else f'the {paired[0][1:]} measure says {paired[1]}', check='status.room_round_trip_holds_no_pair')
 
     # Every environment variable the repository reads carries the command's name as its
     # prefix (#703): no code reads an old name, and a python read of the environment names

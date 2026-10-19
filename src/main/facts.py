@@ -355,6 +355,22 @@ def report_lines(outcomes, effect: str, following=None) -> list[str]:
     return out + [effect]
 
 
+_WORDING: dict[str, dict[str, str]] = {}
+
+
+def wording(noun: str, kind: str, **places) -> str:
+    """The sentence a status says for a kind of row, read from the noun's declaration -
+    the `wording` map of src/main/cli/<noun>/<noun>.json - with its places filled (#909).
+    A kind the declaration does not name is unrepresentable: it raises here, in every
+    room, rather than printing in the one room whose state selects it."""
+    if noun not in _WORDING:
+        declared = Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli' / noun / f'{noun}.json'
+        _WORDING[noun] = json.loads(declared.read_text()).get('wording', {})
+    if kind not in _WORDING[noun]:
+        raise KeyError(f'corpus-yoga {noun} declares no wording for {kind!r}')
+    return _WORDING[noun][kind].format_map(places)
+
+
 def report(outcomes, effect: str, following=None) -> None:
     """Print what an act reports (#801, #896): report_lines, each a line."""
     said = report_lines(outcomes, effect, following)
