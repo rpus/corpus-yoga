@@ -85,7 +85,7 @@ def orphans() -> list[tuple[Path, str]]:
             if verb.is_dir():
                 for entry in sorted(verb.iterdir()):
                     if entry.is_dir():
-                        out.append((entry, f'a directory beneath a verb\'s: corpus-yoga {command.name} {verb.name} keeps files beside its record, never a directory'))
+                        out.append((entry, f'a directory beneath a verb\'s - corpus-yoga {command.name} {verb.name} keeps files beside its record, never a directory'))
     return out
 
 

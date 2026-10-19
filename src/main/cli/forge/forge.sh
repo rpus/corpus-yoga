@@ -657,7 +657,7 @@ merge_chain() {
   }
   if [[ "$gate_rc" -ne 0 ]]; then
     put_back
-    echo "forge merge: NOT DONE - data gate red at ${oid:0:8}: usr gate FAIL, failing stage(s) ${stages:-unstated} (the run's own log names the findings); checkout restored to $was"
+    echo "forge merge: NOT DONE - data gate red at ${oid:0:8}: usr gate FAIL, failing stage(s) ${stages:-unstated} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings); checkout restored to $was"
     return 1
   fi
   if [[ -n "$(git -C "$REPO_DIR" status --porcelain)" ]]; then
