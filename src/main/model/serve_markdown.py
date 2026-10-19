@@ -22,7 +22,6 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 from send import assert_may_send  # noqa: E402 — the python face of CORPUS_YOGA_NO_SEND (#29)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 import facts  # noqa: E402
 
 REPO_ROOT  = REPO
@@ -331,9 +330,9 @@ if __name__ == '__main__':
         try:
             ensure_assets()
         except Exception as e:
-            facts.report(None, corpus.room_next(), f'server ensure-assets: NOT DONE - could not fetch render assets ({e}); the next corpus-yoga server start retries')
+            facts.report(None, f'server ensure-assets: NOT DONE - could not fetch render assets ({e}); the next corpus-yoga server start retries')
             sys.exit(1)
-        facts.report(None, corpus.room_next(), f'server ensure-assets: DONE - render assets present under {STATIC_DIR.relative_to(REPO_ROOT)}/')
+        facts.report(None, f'server ensure-assets: DONE - render assets present under {STATIC_DIR.relative_to(REPO_ROOT)}/')
         sys.exit(0)
 
     if not args.markdown:

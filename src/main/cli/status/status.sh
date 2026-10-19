@@ -32,7 +32,7 @@ source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of C
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_ROOT/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 
 SHOW_ALL=0
 SYNC=0
@@ -444,7 +444,7 @@ sync() {
   _held
   echo "corpus-yoga status sync — what this machine still needs:"
   if [[ -z "$_remedies" ]]; then
-    tail_of "status sync: DONE - nothing; every prerequisite is satisfied"
+    effect "status sync: DONE - nothing; every prerequisite is satisfied"
     return 0
   fi
   while IFS=$'\t' read -r command does where; do
@@ -456,7 +456,7 @@ sync() {
   done <<< "$_remedies"
   echo
   if [[ -z "$mine" ]]; then
-    tail_of "status sync: DONE - none of these is mine to run; each is the reader's"
+    effect "status sync: DONE - none of these is mine to run; each is the reader's"
     return 0
   fi
   while IFS= read -r a; do
@@ -481,7 +481,7 @@ sync() {
   if [[ -z "$_remedies" ]]; then echo "  nothing"; else
     while IFS=$'\t' read -r command does where; do [[ -z "$command" ]] || echo "  – $where: $command - $does"; done <<< "$_remedies"
   fi
-  tail_of "status sync: DONE - ran the $(grep -c . <<< "$mine") named; what remains is above, each the reader's"
+  effect "status sync: DONE - ran the $(grep -c . <<< "$mine") named; what remains is above, each the reader's"
 }
 
 report() {

@@ -3232,6 +3232,49 @@ def check_status_is_the_dry_run(run) -> None:
         check='verbs.status_is_the_dry_run')
 
 
+def check_reply(run) -> None:
+    """next: is the launcher's reply, never the verb's (#896): where the launcher named the
+    act it dispatched and the file to hand the effect through, the printer's report says
+    no next: and writes the effect there; where no launcher asked, or the effect is an inner
+    verb's, the effect line is the last line and still no next: is said. The live bug is
+    reading-room's rehearsal log of 2026-10-14, five next: blocks in one run."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import contextlib
+    import importlib
+    import io
+    import tempfile
+    facts = importlib.import_module('facts')
+    with tempfile.TemporaryDirectory() as scratch:
+        handed = Path(scratch) / 'act.effect'
+        env = {'CORPUS_YOGA_ACT': 'stage clean', 'CORPUS_YOGA_EFFECT': str(handed)}
+        kept = {k: os.environ.get(k) for k in env}
+        os.environ.update(env)
+        try:
+            outer, inner = io.StringIO(), io.StringIO()
+            try:
+                with contextlib.redirect_stdout(outer):
+                    facts.report(None, 'stage clean: DONE - did remove 1 duplicate', {'corpus-yoga x': 'would y'})
+                with contextlib.redirect_stdout(inner):
+                    facts.report(None, 'indexing sync: DONE - written')
+                said = 'the printer says next: itself' if 'next:' in outer.getvalue() + inner.getvalue() else None
+            except TypeError as error:
+                said = f'the printer takes the room\'s to-do from the verb: {error}'
+            read = facts.load(handed.read_text()) if handed.is_file() else None
+        finally:
+            for k, v in kept.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+    handed_ok = (said is None and isinstance(read, dict) and read.get('effect') == 'stage clean: DONE - did remove 1 duplicate'
+                 and read.get('following') == {'corpus-yoga x': 'would y'} and outer.getvalue().strip() == '')
+    run('reply: an act the launcher dispatched hands its effect up and says no next:', handed_ok,
+        said or (None if handed_ok else f'handed {read!r}; printed {outer.getvalue()!r}'), check='reply.next_is_the_launchers')
+    inner_ok = said is None and inner.getvalue().strip() == 'indexing sync: DONE - written'
+    run('reply: an inner verb ends on its effect line and says no next:', inner_ok,
+        said or (None if inner_ok else f'printed {inner.getvalue()!r}'), check='reply.next_is_the_launchers')
+
+
 def check_forge_aim(run) -> None:
     """A PR's aim is one line per issue in the aim's one grammar (#884): the merge reads
     the aimed set from it and refuses any other spelling, so that the set the flip
@@ -3755,6 +3798,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_provider_registry': ['rsc/provider', 'src'],
     'check_forge_aim': ['src/main/cli/forge', 'src/test'],
     'check_status_is_the_dry_run': ['src/main/cli'],
+    'check_reply': ['src/main', 'src/test'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
     'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],
     'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],
@@ -4023,6 +4067,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_provider_registry, tier='code')
         run_section(check_forge_aim, tier='code')
         run_section(check_status_is_the_dry_run, tier='code')
+        run_section(check_reply, tier='code')
         run_section(check_reference, tier='schema')
         run_section(check_mcp_factoring, tier='schema')
         run_section(check_mcp_reproducible, tier='schema')

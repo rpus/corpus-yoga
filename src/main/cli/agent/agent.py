@@ -367,9 +367,9 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         log = adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
         logs.append(log)
         out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
-    # what an act reports (#801): its facts by outcome, next: - what the room can do after
-    # the capture, as the store's status names it - and the verdict
-    facts.report(out, corpus.room_next(), transport.verdict('agent capture', logs))
+    # what an act reports (#801, #896): its facts by outcome and its effect; the launcher
+    # replies with next:, what the room can do after the capture
+    facts.report(out, transport.verdict('agent capture', logs))
     return sum(log.conflicts for log in logs)
 
 def _claude() -> tuple[Path, ModuleType]:
@@ -391,7 +391,7 @@ def mount() -> int:
     creates them. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
-        facts.report(None, corpus.room_next(), 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
+        facts.report(None, 'agent mount: NOT DONE - machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one')
         return 1
     verdict = 0
     present = created = 0
@@ -417,9 +417,9 @@ def mount() -> int:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(live)
         print(f'{shown} → {row["live_store"]} (created)')
-    # what an act reports (#801): next: and the verdict, the last line
+    # what an act reports (#801, #896): the effect line, handed up to the launcher's reply
     did = f'did create {created}, present {present}'
-    facts.report(None, corpus.room_next(), f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
+    facts.report(None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; a link at another target is not touched' if verdict else ''))
     return verdict
 
 
@@ -463,9 +463,8 @@ def main() -> int:
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj) else 0)
-        # what an act reports (#876): next: and the verdict; what it would undo is the status's (#881)
-        facts.report(None, corpus.room_next(),
-                     f'agent demerge: {"NOT DONE" if rc else "DONE"} - did undo the latest merge of each project above'
+        # what an act reports (#876, #896): the effect, handed up to the launcher's reply; what it would undo is the status's (#881)
+        facts.report(None, f'agent demerge: {"NOT DONE" if rc else "DONE"} - did undo the latest merge of each project above'
                      + ('; a conflict left one in place' if rc else ''))
         return rc
 
@@ -478,11 +477,11 @@ def main() -> int:
     else:
         session = claude.pick_session(bundle, args.id)
         log = claude.install_move(session.parent, projects, session, True, machine)
-    # the log is facts nested by outcome under the bundle's address (#857), then next:, then
-    # the one verdict; what an install would write is corpus-yoga agent's status (#881)
+    # the log is facts nested by outcome under the bundle's address (#857), then the one
+    # effect; what an install would write is corpus-yoga agent's status (#881)
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
-    facts.report(out, corpus.room_next(), transport.verdict('agent install', [log]))
+    facts.report(out, transport.verdict('agent install', [log]))
     return 1 if log.conflicts else 0
 
 

@@ -30,7 +30,7 @@ MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, 
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (#29)
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
@@ -305,7 +305,7 @@ capture_dashboard() {
           read -r before_captured _ _ _ <<< "$b"
         fi
         if [[ "$captured" -lt "$before_captured" ]]; then
-          tail_of "indexing capture: NOT DONE - coverage would fall from $before_captured to $captured; not promoted, the staged reading left in ${stage#"$REPO_DIR/"} for inspection"
+          effect "indexing capture: NOT DONE - coverage would fall from $before_captured to $captured; not promoted, the staged reading left in ${stage#"$REPO_DIR/"} for inspection"
           return 1
         fi
       fi
@@ -317,7 +317,7 @@ capture_dashboard() {
 
   [[ "$want_concepts"   == 1 ]] && mv "$stage/inferred-semantic-concepts.json" "$dest/inferred-semantic-concepts.json"
   [[ "$want_categories" == 1 ]] && mv "$stage/inferred-chat-categories.json"   "$dest/inferred-chat-categories.json"
-  tail_of "indexing capture: DONE - promoted into data/output/indexing/ as inferred-semantic-concepts.json and inferred-chat-categories.json, which both machines share"
+  effect "indexing capture: DONE - promoted into data/output/indexing/ as inferred-semantic-concepts.json and inferred-chat-categories.json, which both machines share"
 }
 
 # ── the capture source ────────────────────────────────────────────────────────
@@ -360,7 +360,7 @@ capture() {
   # tmp/logs/indexing/capture/<stamp>.log, header included - nothing is written here.
   local conv
   conv="${conversations:-$(corpus_conversations || true)}"
-  [[ -n "$conv" && -e "$conv" ]] || { tail_of "indexing capture: NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { effect "indexing capture: NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
   # A dry run is the leading half, run alone: the extent and the intent, and nothing else.
@@ -368,7 +368,7 @@ capture() {
   # also why it cannot lie about an effect it did not perform. Worth most on this verb of
   # all: the others preview a free or reversible act, this one previews a purchase.
   if [[ -n "$dry_run" ]]; then
-    tail_of "indexing capture: DONE - dry run; nothing captured, nothing promoted, nothing spent"
+    effect "indexing capture: DONE - dry run; nothing captured, nothing promoted, nothing spent"
     return 0
   fi
   capture_dashboard "$conv" "$only"
