@@ -8,7 +8,8 @@
     "flips": "the body's phrasing to closes, as the LAST edit before the squash; a refused squash restores the body as found, so a flipped-but-unmerged PR cannot exist",
     "verifies": "that the forge's closing references of the flipped body are the aimed set, read back from the forge (#884); where they differ the body is restored and nothing merges, so what the flip rewrote and what the squash closes cannot differ on main",
     "squashes": "pinned to the head every check saw, with no message flags, so the body is assembled from the branch's commits and keeps their signatures",
-    "converges": "this checkout on the merge commit, then runs the steps after it - the sweep via corpus-yoga forge clean, each aimed issue's state, the effect - as a fresh process of the tree converged on (#910), so that a merge that changes an interface those steps call cannot break them",
+    "converges": "this checkout on the merge commit",
+    "concludes": "the merge as a fresh process of the tree converged on (#910) - the sweep via corpus-yoga forge clean, each aimed issue's state, the effect - so that a merge that changes an interface those steps call cannot break them",
     "ends": "with each aimed issue's state read from the forge after the squash (#735), next:, and one anchored verdict - DONE naming the squash and how many aimed issues the forge closed, or NOT DONE naming the halt, each headed forge merge"
   },
   "args": [

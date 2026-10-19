@@ -691,18 +691,18 @@ merge_chain() {
     return 1
   fi
   # The steps after the fast-forward run the tree the checkout converged on (#910): a
-  # fresh bash of the new main's forge.sh, sourced as a library, runs converged below.
+  # fresh bash of the new main's forge.sh, sourced as a library, runs conclude below.
   # This process read its forge.sh and report.sh before the squash, and the printer it
   # would call is read from disk at the call, so a merge that changes an interface
   # these steps use would break them here; the new tree runs them as one whole instead.
-  bash -c 'source "$1"; converged "$2" "$3" "$4"' _ "$REPO_DIR/src/main/cli/forge/forge.sh" "$pr" "$landed" "$aimed"
+  bash -c 'source "$1"; conclude "$2" "$3" "$4"' _ "$REPO_DIR/src/main/cli/forge/forge.sh" "$pr" "$landed" "$aimed"
 }
 
-# converged <pr> <squash> <aimed issues, one per line>: the merge's steps after the fast-
-# forward - the cleaner, git's quiet status, each aimed issue's state, the effect - run by
-# the forge.sh of the tree merged onto (#910). The name is the one contract between the
-# tree that merged and the tree merged onto, and does not change.
-converged() {
+# conclude <pr> <squash> <aimed issues, one per line>: conclude the merge - the steps after
+# the fast-forward: the cleaner, git's quiet status, each aimed issue's state, the effect -
+# run by the forge.sh of the tree merged onto (#910). The name is the one contract between
+# the tree that merged and the tree merged onto, and does not change.
+conclude() {
   local pr="$1" landed="$2" aimed="$3"
   if ! clean || ! quiet git -C "$REPO_DIR" status; then
     echo "forge merge: NOT DONE - merged as ${landed:0:8} and this checkout converged on it, but the sweep after it did not complete; the last NOT-done line above names where"
