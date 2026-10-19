@@ -1,4 +1,4 @@
-run.py: code+schema 1672/1672
+run.py: code+schema 1673/1673
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -230,6 +230,9 @@ run.py: code+schema 1672/1672
 ── check_record_is_the_launchers ─────────────────────────────────────────────
   ✓ logs.no_verb_logs_for_itself
 
+── check_record_names_read_once ──────────────────────────────────────────────
+  ✓ record.names_read_once
+
 ── check_provider_registry ───────────────────────────────────────────────────
   ✓ provider.registry_parses
   ✓ provider.names_declared
@@ -305,18 +308,19 @@ check_model_obligations              162     0   schema    220
 check_model_identity                   1     0   schema    224
 check_grammar                          2     0   schema    227
 check_record_is_the_launchers          1     0   code      230
-check_provider_registry                2     0   code      233
-check_forge_aim                        5     0   code      237
-check_status_is_the_dry_run            1     0   code      241
-check_reply                            2     0   code      244
-check_reference                       21     0   schema    247
-check_mcp_factoring                    9     0   schema    253
-check_mcp_reproducible                 1     0   schema    259
-check_expectation                      2     0   code      262
+check_record_names_read_once           1     0   code      233
+check_provider_registry                2     0   code      236
+check_forge_aim                        5     0   code      240
+check_status_is_the_dry_run            1     0   code      244
+check_reply                            2     0   code      247
+check_reference                       21     0   schema    250
+check_mcp_factoring                    9     0   schema    256
+check_mcp_reproducible                 1     0   schema    262
+check_expectation                      2     0   code      265
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 161 types, 1672/1672 invocations passing
-checks[code]: 109 types, 995/995 invocations passing
+checks[code+schema]: 162 types, 1673/1673 invocations passing
+checks[code]: 110 types, 996/996 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1672/1672 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1673/1673 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

@@ -77,7 +77,9 @@ SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 # itself, <stamp>.log, is the launcher's tee of the whole verb, and the stamp is the
 # launcher's where it ran the verb, so the pair share it. The committed surface names
 # only the stable directory — a stamp is machine-varying and may not enter it (L2).
-_REPORT_STAMP = os.environ.get('CORPUS_YOGA_STAMP') or time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+sys.path.insert(0, str(SRC / 'main'))  # tier: the act's stamp, one reading (#912)
+import tier  # noqa: E402
+_REPORT_STAMP = tier.stamp_of('test run')
 REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
 _twin = 2
 while REPORT.exists():
@@ -3335,6 +3337,24 @@ def check_forge_aim(run) -> None:
         None if body_held else 'a narrated relation, a hand-written as-at, or sections out of order passed', check='forge.issue_is_a_should_with_wired_relations')
 
 
+def check_record_names_read_once(run) -> None:
+    """The launcher's stamp and record names, CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG, are read
+    by the tier contract alone - tier.py's stamp_of and record_of, tier.sh's twins - and only
+    for the act the launcher dispatched (#912), so that a verb run inside another act cannot
+    take the outer act's record or stamp as its own, and no verb writes into a record by
+    path. The case: the data gate's corpus tail appended into the merge's record."""
+    faces = {REPO_ROOT / 'src' / 'main' / 'tier.py', REPO_ROOT / 'src' / 'main' / 'tier.sh'}
+    names = r'CORPUS_YOGA_(STAMP|LOG)'
+    readers = sorted(str(f.relative_to(REPO_ROOT)) for f in (REPO_ROOT / 'src').rglob('*')
+                     if f.is_file() and f not in faces and f != Path(__file__).resolve()
+                     and ((f.suffix == '.py' and re.search(rf"environ(\.get)?\(\s*['\"]{names}", f.read_text()))
+                          or (f.suffix == '.sh' and re.search(rf'\$\{{?{names}', f.read_text()))))
+    run('record: only the tier faces read the launcher\'s stamp and record names', not readers,
+        None if not readers else f'{", ".join(readers)} reads them directly - a verb takes tier.stamp_of or '
+        f'tier.record_of (stamp_of, record_of in the shell), which answer only for the act the launcher dispatched',
+        check='record.names_read_once')
+
+
 def check_record_is_the_launchers(run) -> None:
     """The record of an effective verb is the launcher's tee of the whole verb, and no verb
     writes a log of its own (#708): no declaration under src/main/cli carries a `log` key -
@@ -3795,6 +3815,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_obligations': SCHEMA + MODEL + ['src'],
     'check_reference': ['rsc/reference'],
     'check_record_is_the_launchers': ['src/main/cli'],
+    'check_record_names_read_once': ['src'],
     'check_provider_registry': ['rsc/provider', 'src'],
     'check_forge_aim': ['src/main/cli/forge', 'src/test'],
     'check_status_is_the_dry_run': ['src/main/cli'],
@@ -4064,6 +4085,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_identity, tier='schema')
         run_section(check_grammar, tier='schema')
         run_section(check_record_is_the_launchers, tier='code')
+        run_section(check_record_names_read_once, tier='code')
         run_section(check_provider_registry, tier='code')
         run_section(check_forge_aim, tier='code')
         run_section(check_status_is_the_dry_run, tier='code')

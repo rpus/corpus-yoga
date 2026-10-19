@@ -24,7 +24,7 @@ source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its
 # The record of the act is the launcher's tee (#708), tmp/logs/server/start/<stamp>.log. The
 # daemon outlives the act and writes beside it: one immutable artifact per start (#370),
 # stamped, colon-free, named <stamp>.daemon by the launcher's stamp, never as the record.
-LOG_FILE="$TMP_DIR/logs/server/start/${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}.daemon"
+LOG_FILE="$TMP_DIR/logs/server/start/$(stamp_of server start).daemon"
 PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),

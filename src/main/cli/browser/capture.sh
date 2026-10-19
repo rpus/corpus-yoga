@@ -44,7 +44,7 @@ main() {
   fi
   echo "src/main/cli/browser/$(basename "$0") ($provider)"
   local log rc=0
-  log="${progress:-$TMP_DIR/logs/browser/capture/${CORPUS_YOGA_STAMP:-$(date -u '+%Y-%m-%dT%H%M%SZ')}.$provider.progress}"
+  log="${progress:-$TMP_DIR/logs/browser/capture/$(stamp_of browser capture).$provider.progress}"
   mkdir -p "$(dirname "$log")"
   # Name the progress artifact FIRST: a Shortcut invocation shows this output in a
   # transient dialog (if at all), and any 'see the progress' advice is useless unless its

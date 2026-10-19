@@ -318,7 +318,9 @@ def say(shape: DataclassInstance) -> None:
 
 
 ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every next: (#801)
-ACT = 'CORPUS_YOGA_ACT'          # the launcher names the act it dispatched, `<command> <verb>` (#896)
+import tier  # noqa: E402 - the launcher's names, one home
+
+ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (#896)
 EFFECT = 'CORPUS_YOGA_EFFECT'    # and the file the act hands its effect up through
 
 
