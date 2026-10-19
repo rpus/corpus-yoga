@@ -355,6 +355,31 @@ def report_lines(outcomes, effect: str, following=None) -> list[str]:
     return out + [effect]
 
 
+_DECLARED_SENTENCES: dict[str, str] | None = None
+
+
+def declared_sentences() -> dict[str, str]:
+    """Every sentence a status can say, by the noun whose declaration holds it: the
+    `wording` arrays of src/main/cli/<noun>/<noun>.json (#909)."""
+    global _DECLARED_SENTENCES
+    if _DECLARED_SENTENCES is None:
+        _DECLARED_SENTENCES = {}
+        for declared in sorted((Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli').glob('*/*.json')):
+            if declared.stem == declared.parent.name:
+                for said in json.loads(declared.read_text()).get('wording', []):
+                    _DECLARED_SENTENCES[said] = declared.parent.name
+    return _DECLARED_SENTENCES
+
+
+def sentence(template: str, **places) -> str:
+    """A sentence a status says, quoted as its noun's declaration holds it, with its places
+    filled (#909). A sentence no declaration holds is unrepresentable: it raises here, in
+    every room, rather than printing in the one room whose state selects it."""
+    if template not in declared_sentences():
+        raise KeyError(f'no declaration holds the sentence {template!r}')
+    return template.format_map(places)
+
+
 def report(outcomes, effect: str, following=None) -> None:
     """Print what an act reports (#801, #896): report_lines, each a line."""
     said = report_lines(outcomes, effect, following)
