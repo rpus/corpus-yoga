@@ -117,7 +117,11 @@ landing() {
       printf 'land\t%s\t%s\n' "$rel" "new on rpus.co"
     elif ! cmp -s "$f" "$mount/$rel"; then
       if [[ "$rel" == index.html ]]; then
-        printf 'land\t%s\t%s\n' "$rel" "$("$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f" | tr '\n' ';' | sed 's/;$//')"
+        # one row per line of the comparison: each a fact of the page, which the status
+        # nests beneath the file, never one sentence
+        "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f" | while IFS= read -r line; do
+          [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
+        done
       else
         printf 'land\t%s\t%s\n' "$rel" "changed"
       fi

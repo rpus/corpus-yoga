@@ -930,8 +930,8 @@ src/main/cli/site/site.sh,29,comment,src/main/cli/parse_argv.sh,Y,# shellcheck s
 src/main/cli/site/site.sh,31,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/site/site.sh,36,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/site.sh,110,comment,src/main/model/compare_pages.py,Y,"# (#652, src/main/model/compare_pages.py), since a line diff of two renders misstates it."
-src/main/cli/site/status.py,13,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
-src/main/cli/site/status.py,60,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
+src/main/cli/site/status.py,14,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
+src/main/cli/site/status.py,73,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,7,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,8,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","

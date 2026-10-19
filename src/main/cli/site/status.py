@@ -4,7 +4,8 @@ status.py - bare `corpus-yoga site`: the publish tree against its sources, the c
 the deploy mount, read as rows on stdin from site.sh, which holds what a page is (#759):
 `pages <standing>`, `page <file> <standing>`, `index <title>` or `index ABSENT`,
 `deploy <words>`, `land <file> <what changes>` for each file corpus-yoga site publish would
-land on rpus.co (#881), tab-separated. Reads; writes nothing.
+land on rpus.co (#881) - the corpus page one row per line of its comparison, `<part>: <words>`,
+said as facts beneath the file - tab-separated. Reads; writes nothing.
 """
 import sys
 from dataclasses import dataclass
@@ -28,7 +29,7 @@ class CorpusPage:
 @dataclass
 class Publish:
     """What corpus-yoga site publish would land on rpus.co: each file with what changes in it, and the act (#881)."""
-    would_land: dict[str, str]
+    would_land: dict[str, str | dict[str, str]]
     remedy: facts.Command = facts.Command('corpus-yoga site publish', 'would copy, commit and push them')
 
 
@@ -56,7 +57,19 @@ def main() -> int:
     if title == 'ABSENT':
         index = facts.Finding('absent - the corpus page is unbuilt',
                               facts.Command('corpus-yoga pipeline run', 'renders it, or corpus-yoga site render'))
-    land = {row[1]: row[2] for row in rows if row[0] == 'land' and len(row) > 2}
+    land: dict[str, str | dict[str, str]] = {}
+    for row in rows:
+        if row[0] != 'land' or len(row) < 3:
+            continue
+        said = {} if ': ' in row[2] or row[1] in land else None
+        if said is None and row[1] not in land:
+            land[row[1]] = row[2]
+            continue
+        parts = land.setdefault(row[1], {})
+        if isinstance(parts, str):
+            parts = land[row[1]] = {}
+        key, _, words = row[2].partition(': ')
+        parts[key] = words.replace(': ', ' - ') if words else key
     site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,
                 next((row[1] for row in rows if row[0] == 'deploy'), ''))
     if land:
