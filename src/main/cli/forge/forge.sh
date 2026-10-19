@@ -29,7 +29,7 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/provider.sh
 source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 
 # rows: STATUS \t key \t detail \t remedy - parsed by status() and `corpus-yoga status`
 reconcile() {
@@ -283,7 +283,7 @@ clean() {
   # The forge's cleaner (#871): what it removes is what the status names - each DELETABLE
   # or SERVER_DELETABLE branch, each STALE tracking ref - and its lines are the one shape
   # every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or
-  # did NOT remove beneath each, next: and the verdict last (#801). No flag: the status is
+  # did NOT remove beneath each, the effect last (#801, #896). No flag: the status is
   # the dry run.
   local rows stale st key detail kind why item removed_branches=0 removed_refs=0
   local -a items=() left=()
@@ -327,10 +327,10 @@ clean() {
   (( removed_branches )) && counts="$(count "$removed_branches" branch branches)"
   (( removed_refs )) && counts="${counts:+$counts, }$(count "$removed_refs" ref refs)"
   if (( ${#left[@]} )); then
-    tail_of "forge clean: NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
+    effect "forge clean: NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
     return 1
   fi
-  tail_of "forge clean: DONE - did remove ${counts:-nothing}"
+  effect "forge clean: DONE - did remove ${counts:-nothing}"
 }
 
 # The act (#881): what it would set is the bare status's, drift by drift; this sets each.
@@ -346,17 +346,17 @@ sync() {
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
-      tail_of "forge sync: NOT DONE - the live settings could not be read; nothing verified, nothing to agree"
+      effect "forge sync: NOT DONE - the live settings could not be read; nothing verified, nothing to agree"
       return 1
     fi
-    tail_of "forge sync: DONE - no drift; the forge agrees with src/main/cli/forge/forge.csv"
+    effect "forge sync: DONE - no drift; the forge agrees with src/main/cli/forge/forge.csv"
     return 0
   fi
   echo "after:"
   reconcile | while IFS=$'\t' read -r st key detail _; do
     [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
   done
-  tail_of "forge sync: DONE - did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv"
+  effect "forge sync: DONE - did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv"
 }
 
 # The merge is the reviewer's one act (#483): every refusal (OPEN, an aims-to-
@@ -701,7 +701,7 @@ merge_chain() {
     [[ "$state" == CLOSED ]] && closed=$((closed + 1))
     echo "  #$issue_number: $(tr '[:upper:]' '[:lower:]' <<< "$state")"
   done <<< "$aimed"
-  tail_of "forge merge: DONE - #$pr squashed as ${landed:0:8}; did close $closed of $total aimed issue(s); this checkout converged on it"
+  effect "forge merge: DONE - #$pr squashed as ${landed:0:8}; did close $closed of $total aimed issue(s); this checkout converged on it"
 }
 
 # The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.

@@ -35,7 +35,7 @@ source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of CORPUS_Y
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_ROOT/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 # shellcheck source=src/main/provider.sh
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
@@ -123,9 +123,9 @@ sync_matrices() {
       --pipeline "$p" --write || rc=1
   done
   if (( rc == 0 )); then
-    tail_of "pipeline sync: DONE - each datum's matrix.md re-rendered from its validation logs"
+    effect "pipeline sync: DONE - each datum's matrix.md re-rendered from its validation logs"
   else
-    tail_of "pipeline sync: NOT DONE - a pipeline's matrices were not rendered; the line above names it" "corpus-yoga pipeline run" "validates the data the matrices read"
+    effect "pipeline sync: NOT DONE - a pipeline's matrices were not rendered; the line above names it" "corpus-yoga pipeline run" "validates the data the matrices read"
   fi
   return $rc
 }
@@ -554,12 +554,13 @@ main() {
   # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
   echo "outputs: data/output/markdown/index.md"
   if [[ -n "${CORPUS_YOGA_LOG:-}" ]]; then echo "Log: ${CORPUS_YOGA_LOG#"$REPO_ROOT/"}"; fi
-  # what an act reports (#876): the usr gate's own verdict stands above; next: and the
-  # act's verdict end the run. The verdict must leave this function: callers chain on $?.
+  # what an act reports (#876, #896): the usr gate's own verdict stands above; the act's
+  # effect line ends the run, or is handed to the launcher where the reader typed it. The
+  # verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    tail_of "pipeline run: DONE - usr gate PASS; all pipelines completed" "corpus-yoga server start --daemon" "serves data/output/markdown at http://localhost:8182"
+    effect "pipeline run: DONE - usr gate PASS; all pipelines completed" "corpus-yoga server start --daemon" "serves data/output/markdown at http://localhost:8182"
   else
-    tail_of "pipeline run: NOT DONE - usr gate FAIL; the failing stage(s) are named above"
+    effect "pipeline run: NOT DONE - usr gate FAIL; the failing stage(s) are named above"
   fi
   return $(( ${#verdict_failures[@]} > 0 ))
 }

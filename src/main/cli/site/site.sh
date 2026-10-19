@@ -29,7 +29,7 @@ source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 SRC="$REPO_DIR/rsc/site"
 OUT="$DATA_DIR/output/site"
 MODEL_DIR="$REPO_DIR/src/main/model"
@@ -135,17 +135,17 @@ landing() {
 publish() {
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
-    tail_of "site publish: NOT DONE - ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
+    effect "site publish: NOT DONE - ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
     return 1
   fi
   if [[ ! -d "$OUT" ]]; then
-    tail_of "site publish: NOT DONE - no publish tree at data/output/site/" "corpus-yoga site sync" "assembles it"
+    effect "site publish: NOT DONE - no publish tree at data/output/site/" "corpus-yoga site sync" "assembles it"
     return 1
   fi
   local rows
   rows="$(landing)"
   if [[ -z "$rows" ]]; then
-    tail_of "site publish: DONE - no effect; rpus.co's clone already holds the publish tree as assembled"
+    effect "site publish: DONE - no effect; rpus.co's clone already holds the publish tree as assembled"
     return 0
   fi
   echo "did land:"
@@ -159,7 +159,7 @@ publish() {
     echo "  nothing to commit — the clone already held the tree"
   fi
   enact git -C "$mount" push || return 1
-  tail_of "site publish: DONE - rpus.co serves the publish tree on Netlify's next build"
+  effect "site publish: DONE - rpus.co serves the publish tree on Netlify's next build"
 }
 
 
@@ -195,9 +195,9 @@ sync() {
     eventful=1
   done < <(page_files "$SRC")
   if [[ $eventful -eq 1 ]]; then
-    tail_of "site sync: DONE - effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
+    effect "site sync: DONE - effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
   else
-    tail_of "site sync: DONE - no effect; data/output/site/ already serves rsc/site/ as authored"
+    effect "site sync: DONE - no effect; data/output/site/ already serves rsc/site/ as authored"
   fi
 }
 

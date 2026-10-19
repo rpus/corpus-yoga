@@ -40,7 +40,6 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#875)
 import facts  # noqa: E402
 from send import SendRefused, assert_may_send  # noqa: E402
 from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,  # noqa: E402
@@ -244,9 +243,9 @@ def main(argv: list[str]) -> int:
         print(f'export capture: NOT DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
               f'{staged_manifest.name} beside it')
         return 1
-    # what an act reports (#801): next: - the rehearsal that judges what was staged, as the
-    # store's status names it - and the verdict, the last line
-    facts.report(None, corpus.room_next(), f'export capture: DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
+    # what an act reports (#801, #896): the effect; the launcher's reply names the
+    # rehearsal that judges what was staged, as the store's status names it
+    facts.report(None, f'export capture: DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
                  f'{staged_manifest.name} beside it')
     return 0
 

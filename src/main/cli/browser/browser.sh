@@ -32,7 +32,7 @@ source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # tail_of - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
 
 main() {
   case "${1-}" in
@@ -130,14 +130,15 @@ main() {
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
-  # what an act reports (#876): next: - the rehearsal that judges what was staged, as the
-  # store's status names it - and the verdict, the last line; the record carries them
+  # what an act reports (#876, #896): the effect, the last line where no launcher asked for
+  # it, carried in the record; the launcher replies with next:, the rehearsal that judges
+  # what was staged
   if [[ -n "$dry_run" ]]; then
-    tail_of "browser capture: DONE - dry run; nothing staged, nothing spent"
+    effect "browser capture: DONE - dry run; nothing staged, nothing spent"
   elif [[ "$rc" -eq 0 ]]; then
-    tail_of "browser capture: DONE - each provider's capture stands above"
+    effect "browser capture: DONE - each provider's capture stands above"
   else
-    tail_of "browser capture: NOT DONE - a provider's capture above failed (exit $rc)"
+    effect "browser capture: NOT DONE - a provider's capture above failed (exit $rc)"
   fi
   return $rc
 }

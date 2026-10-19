@@ -672,7 +672,7 @@ def main():
         else:
             print(accept(accepted_path, args.term, args.aliases))
         pending_report(accepted_path, rejected_path)
-        facts.report(None, corpus.room_next(), 'indexing accept: DONE - ' + ('the queue disposed as read' if args.all else f'{args.term} accepted'))
+        facts.report(None, 'indexing accept: DONE - ' + ('the queue disposed as read' if args.all else f'{args.term} accepted'))
         return
     if args.verb == 'reject':
         if args.all == bool(args.concept):
@@ -682,7 +682,7 @@ def main():
         else:
             print(reject(accepted_path, rejected_path, args.concept, args.reason))
         pending_report(accepted_path, rejected_path)
-        facts.report(None, corpus.room_next(), 'indexing reject: DONE - ' + ('the queue disposed as read' if args.all else f'{args.concept} rejected'))
+        facts.report(None, 'indexing reject: DONE - ' + ('the queue disposed as read' if args.all else f'{args.concept} rejected'))
         return
     if args.verb == 'sync':
         root = MARKDOWN_DIR
@@ -690,12 +690,12 @@ def main():
         # sibling in the corpus tail names its absence; this step must not be
         # the one that presumes its input into existence and tracebacks.
         if not root.is_dir():
-            facts.report(None, corpus.room_next(), f'indexing sync: DONE - skipped; no corpus at {root.relative_to(REPO)}, which corpus-yoga pipeline run projects')
+            facts.report(None, f'indexing sync: DONE - skipped; no corpus at {root.relative_to(REPO)}, which corpus-yoga pipeline run projects')
             return
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)
-        facts.report(None, corpus.room_next(), f'indexing sync: DONE - {out.relative_to(REPO) if out.is_relative_to(REPO) else out} written; '
+        facts.report(None, f'indexing sync: DONE - {out.relative_to(REPO) if out.is_relative_to(REPO) else out} written; '
                      + text.rstrip().rsplit(chr(10), 1)[-1])
         return
 

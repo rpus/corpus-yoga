@@ -45,7 +45,6 @@ sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (#753)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
@@ -149,7 +148,7 @@ def status() -> int:
 def sync() -> int:
     assert_may_send('running antlr4-tools, which fetches the tool jar on first use')
     if not tool():
-        facts.report(None, corpus.room_next(), f'grammar sync: NOT DONE - {REMEDY}')
+        facts.report(None, f'grammar sync: NOT DONE - {REMEDY}')
         return 1
     written = removed = 0
     for project in projects():
@@ -168,7 +167,7 @@ def sync() -> int:
                 (out / name).unlink()
                 removed += 1
                 print(f'  ✓ {(out / name).relative_to(REPO)} removed - the grammar no longer generates it')
-    facts.report(None, corpus.room_next(), f'grammar sync: DONE - {written} file(s) written, {removed} removed')
+    facts.report(None, f'grammar sync: DONE - {written} file(s) written, {removed} removed')
     return 0
 
 
@@ -178,7 +177,7 @@ def main():
     try:
         sys.exit(sync() if args.verb == 'sync' else status())
     except SendRefused as refused:
-        facts.report(None, corpus.room_next(), f'grammar sync: NOT DONE - {refused}')
+        facts.report(None, f'grammar sync: NOT DONE - {refused}')
         sys.exit(1)
 
 
