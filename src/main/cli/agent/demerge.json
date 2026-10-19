@@ -1,13 +1,6 @@
 {
   "help": "undo the latest installed merge (memory only, all-or-nothing per project)",
-  "args": [
-    {
-      "name": "--apply",
-      "type": "",
-      "cardinality": "",
-      "help": "perform the undo - without it, a dry run that only reports"
-    }
-  ],
+  "args": [],
   "r": [
     "ext/mnt/claude/code/machine-transport"
   ],

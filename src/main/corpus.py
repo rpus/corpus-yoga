@@ -1081,7 +1081,7 @@ def stage_facts() -> StageStatus:
                           ('a directory of stamped rehearsals, the layout before #815' if BEFORE_815.is_dir()
                            else 'the record before its name carried its extension, which a record at its name supersedes')
                           + f' - {MIGRATION_815} removes it',
-                          facts.Command('corpus-yoga migration sync --apply', 'would take the move'))
+                          facts.Command('corpus-yoga migration sync', 'would take the move'))
                    if BEFORE_815.exists() else None)))
     kinds: dict[str, list[Judged]] = {}
     for row in rows:

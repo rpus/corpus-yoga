@@ -1,13 +1,6 @@
 {
-  "help": "mount the live agent stores at ext/mnt/<provider>/code/machine-transport/<machine>, the address their units have under tmp/stage/input and data/input - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; a dry run unless --apply, stating every move",
-  "args": [
-    {
-      "name": "--apply",
-      "type": "",
-      "cardinality": "",
-      "help": "create the links - without it, what would be created is only reported"
-    }
-  ],
+  "help": "mount the live agent stores at ext/mnt/<provider>/code/machine-transport/<machine>, the address their units have under tmp/stage/input and data/input - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; what it would create is corpus-yoga agent's status, stating every move",
+  "args": [],
   "r": [
     "rsc/provider",
     "ext"

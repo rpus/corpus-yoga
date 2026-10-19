@@ -1,5 +1,5 @@
 {
-  "help": "install a peer store's claude sessions into this machine's live Claude Code store (dry-run; --apply writes) - the one adapter that vouches for a write into a live store",
+  "help": "install a peer store's claude sessions into this machine's live Claude Code store - what it would write is corpus-yoga agent's status, per peer store held; the one adapter that vouches for a write into a live store",
   "args": [
     {
       "name": "--id",
@@ -18,12 +18,6 @@
       "type": "<machine|dir>",
       "cardinality": "1",
       "help": "the peer store to install from - a machine name (bare token) or a directory (./dir or a path)"
-    },
-    {
-      "name": "--apply",
-      "type": "",
-      "cardinality": "",
-      "help": "perform the merge - without it, a dry run that only reports"
     }
   ],
   "r": [

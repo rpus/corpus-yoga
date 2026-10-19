@@ -2041,7 +2041,7 @@ def check_status_facts(run) -> None:
         import yaml
     except ModuleNotFoundError:
         run('status: a YAML reader arbitrates the statuses', False,
-            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga status sync --apply',
+            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga status sync',
             check='status.lines_load_as_yaml')
         return
 
@@ -3197,7 +3197,7 @@ def check_grammar(run) -> None:
     """Every parser under src/gen/grammar/<project>/ (machine-local, gitignored) is
     present and, where the tool is present, what antlr4 generates from
     rsc/rpus/grammar/<project>/ now (#597). Absence fails by name - the mcp checks
-    need the parser, and corpus-yoga status sync --apply generates it. The
+    need the parser, and corpus-yoga status sync generates it. The
     currency half needs the tool (antlr4 from antlr4-tools in the venv, java), whose
     first use fetches the tool jar, a send: CORPUS_YOGA_NO_SEND=1 skips that half and so does
     a machine without the tool - the label is CONSTANT and the result passes on
@@ -3208,7 +3208,7 @@ def check_grammar(run) -> None:
         ok, detail = bool(have), None
         if not have:
             detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
-                      f'rsc/rpus/grammar/{project.name} (corpus-yoga status sync --apply does so with the rest)')
+                      f'rsc/rpus/grammar/{project.name} (corpus-yoga status sync does so with the rest)')
         elif may_send() and grammar_module.tool():
             want = grammar_module.generated(project)
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
@@ -3217,6 +3217,19 @@ def check_grammar(run) -> None:
                                       f'antlr4 {grammar_module.TOOL_VERSION} generates - corpus-yoga grammar sync regenerates')
         run(f'grammar: {project.name}: the parser is generated and what its grammar generates', ok, detail,
             check='grammar.parser_current')
+
+
+def check_status_is_the_dry_run(run) -> None:
+    """A verb that takes --apply has no dry rendering of its own (#881): its noun's status says
+    what it would do, and the verb acts, so no declaration under src/main/cli carries the
+    flag. The seven that did - agent mount, agent demerge, agent install, forge sync,
+    migration sync, site publish, status sync - each rendered a dry run of their own when
+    bare, restating a section their noun's status says or should say."""
+    own = sorted(str(p.relative_to(REPO_ROOT)) for p in CLI.glob('*/*.json')
+                 if any(a.get('name') == '--apply' for a in json.loads(p.read_text()).get('args', [])))
+    run('verbs: no declaration takes --apply, the noun\'s status being the dry run', not own,
+        None if not own else 'these take --apply and render a dry run of their own: ' + ', '.join(own),
+        check='verbs.status_is_the_dry_run')
 
 
 def check_forge_aim(run) -> None:
@@ -3741,6 +3754,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_record_is_the_launchers': ['src/main/cli'],
     'check_provider_registry': ['rsc/provider', 'src'],
     'check_forge_aim': ['src/main/cli/forge', 'src/test'],
+    'check_status_is_the_dry_run': ['src/main/cli'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
     'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],
     'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],
@@ -4008,6 +4022,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_record_is_the_launchers, tier='code')
         run_section(check_provider_registry, tier='code')
         run_section(check_forge_aim, tier='code')
+        run_section(check_status_is_the_dry_run, tier='code')
         run_section(check_reference, tier='schema')
         run_section(check_mcp_factoring, tier='schema')
         run_section(check_mcp_reproducible, tier='schema')

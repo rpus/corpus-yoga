@@ -145,7 +145,7 @@ They are stated, followed, and reviewed by people.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
   INVOCATION FORMS, each becoming its own `form` in `corpus-yoga <command> -h` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
-  parens group a required choice (`(--dry-run|--apply)`); brackets mark the optional. The
+  parens group a required choice (`(--provider|--all)`); brackets mark the optional. The
   usage sketch is GENERATED from the declaration, so there is no second source to reconcile.
   The completion offers `--flags` at VERB scope — exactly the verb's own rows, never the
   across-verbs union, which would TAB-complete flags the dispatched verb rejects;

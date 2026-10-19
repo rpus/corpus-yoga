@@ -4,7 +4,7 @@
 # Usage:
 #   corpus-yoga site          # status: each artifact's presence and currency, and who produces it
 #   corpus-yoga site sync     # assemble the tree from rsc/site/ - every page copied beside index.html
-#   corpus-yoga site publish [--apply]  # make rpus.co serve the tree: copy into ext/mnt/site, commit, push;
+#   corpus-yoga site publish            # make rpus.co serve the tree: copy into ext/mnt/site, commit, push;
 #                                       # the dry run states what changes in the corpus page, table by table
 #   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
@@ -42,7 +42,7 @@ corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from 
 
   corpus-yoga site          status: each artifact's presence and currency, and who produces it
   corpus-yoga site sync     assemble the tree (every page copied beside index.html)
-  corpus-yoga site publish  copy the tree into ext/mnt/site, commit and push there (dry unless --apply;
+  corpus-yoga site publish  copy the tree into ext/mnt/site, commit and push there (what it would land is the bare status's;
                             the dry run states what changes in the corpus page, table by table)
   corpus-yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
 EOF
@@ -88,7 +88,8 @@ status() {
       printf 'index\t%s\n' "${declared:-title absent}"
     fi
     if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
-      printf 'deploy\t%s\n' "the mount ext/mnt/site is present; cp -R data/output/site/ ext/mnt/site/, then commit and push there"
+      printf 'deploy\t%s\n' "the mount ext/mnt/site is present, rpus.co's clone"
+      landing
     elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
       # a machine that once deployed and moved its clone — the reader most surprised by
       # "no mount", and the one who least needs the convention; say what status says
@@ -103,9 +104,35 @@ render() {
   exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
 }
 
+# what publish would land, as rows for the status (#881): each new or changed file of the
+# publish tree against rpus.co's clone (deletions are not mirrored - the site repo
+# curates its own removals), and for the corpus page what changes in the page's own terms
+# (#652, src/main/model/compare_pages.py), since a line diff of two renders misstates it.
+landing() {
+  local mount="$REPO_DIR/ext/mnt/site" f rel
+  [[ -d "$mount/.git" && -d "$OUT" ]] || return 0
+  while IFS= read -r f; do
+    rel="${f#"$OUT"/}"
+    if [[ ! -f "$mount/$rel" ]]; then
+      printf 'land\t%s\t%s\n' "$rel" "new on rpus.co"
+    elif ! cmp -s "$f" "$mount/$rel"; then
+      if [[ "$rel" == index.html ]]; then
+        # one row per line of the comparison: each a fact of the page, which the status
+        # nests beneath the file, never one sentence
+        "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f" | while IFS= read -r line; do
+          [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
+        done
+      else
+        printf 'land\t%s\t%s\n' "$rel" "changed"
+      fi
+    fi
+  done < <(find "$OUT" -type f | sort)
+  [[ -n "$(git -C "$mount" status --porcelain)" ]] && printf 'land\t%s\t%s\n' "(the clone's own uncommitted changes)" "committed with the copy"
+  return 0
+}
+
+# The act (#881): what it would land is the bare status's; this copies, commits and pushes.
 publish() {
-  local apply=""
-  [[ "${1-}" == "--apply" ]] && apply=1
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
     tail_of "site publish: NOT DONE - ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
@@ -115,35 +142,15 @@ publish() {
     tail_of "site publish: NOT DONE - no publish tree at data/output/site/" "corpus-yoga site sync" "assembles it"
     return 1
   fi
-  # what differs: new or changed files the copy would land (deletions are not
-  # mirrored - the site repo curates its own removals). For the corpus page, what
-  # changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables
-  # compared by identity, since a line diff of two renders misstates the change (the
-  # chat column is an ordinal).
-  local delta=0 f rel
-  while IFS= read -r f; do
-    rel="${f#"$OUT"/}"
-    if [[ ! -f "$mount/$rel" ]]; then
-      echo "  would land: $rel (new on rpus.co)"
-      delta=1
-    elif ! cmp -s "$f" "$mount/$rel"; then
-      echo "  would land: $rel"
-      delta=1
-      if [[ "$rel" == index.html ]]; then
-        "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f" | sed 's/^/    /'
-      fi
-    fi
-  done < <(find "$OUT" -type f | sort)
-  if [[ "$delta" == 0 && -z "$(git -C "$mount" status --porcelain)" ]]; then
+  local rows
+  rows="$(landing)"
+  if [[ -z "$rows" ]]; then
     tail_of "site publish: DONE - no effect; rpus.co's clone already holds the publish tree as assembled"
     return 0
   fi
-  if [[ -z "$apply" ]]; then
-    [[ -n "$(git -C "$mount" status --porcelain)" ]] && echo "  (the clone also holds uncommitted changes of its own — --apply commits them with the copy)"
-    tail_of "site publish: DONE - would copy, commit and push the files above" "corpus-yoga site publish --apply" "publishes them"
-    return 0
-  fi
-  assert_may_send "git -C ext/mnt/site push (site publish --apply)" || return 1
+  echo "did land:"
+  printf '%s\n' "$rows" | while IFS=$'\t' read -r _ rel _; do [[ -n "$rel" ]] && echo "  $rel"; done
+  assert_may_send "git -C ext/mnt/site push (site publish)" || return 1
   enact cp -R "$OUT/" "$mount/" || return 1
   enact git -C "$mount" add -A || return 1
   if [[ -n "$(git -C "$mount" status --porcelain)" ]]; then

@@ -3,7 +3,7 @@
 #
 # Usage:
 #   corpus-yoga forge                 # declared vs live
-#   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
+#   corpus-yoga forge sync            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the bare status's
 #   corpus-yoga forge raise pr <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (#884)
 #   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (#887)
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
@@ -333,25 +333,16 @@ clean() {
   tail_of "forge clean: DONE - did remove ${counts:-nothing}"
 }
 
+# The act (#881): what it would set is the bare status's, drift by drift; this sets each.
 sync() {
-  local apply=""
-  [[ "${1-}" == "--apply" ]] && apply=1
-  [[ "${1-}" == "--apply" ]] && ! assert_may_send "gh api -X PATCH (forge sync --apply)" && exit 1
+  assert_may_send "gh api -X PATCH (forge sync)" || exit 1
   local rows drift=0
   rows="$(reconcile)"
-  echo "before:"
-  printf '%s\n' "$rows" | while IFS=$'\t' read -r st key detail _; do
-    [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
-  done
   while IFS=$'\t' read -r st key detail remedy; do
     [[ "$st" == DRIFT ]] || continue
     drift=1
-    if [[ -n "$apply" ]]; then
-      echo "  → $remedy"
-      (cd "$REPO_DIR" && eval "$remedy" >/dev/null) || { echo "corpus-yoga forge sync: $key failed - settings unchanged for it" >&2; exit 1; }
-    else
-      echo "  would run: $remedy"
-    fi
+    echo "  did set: $key"
+    (cd "$REPO_DIR" && eval "$remedy" >/dev/null) || { echo "corpus-yoga forge sync: $key failed - settings unchanged for it" >&2; exit 1; }
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
@@ -361,7 +352,6 @@ sync() {
     tail_of "forge sync: DONE - no drift; the forge agrees with src/main/cli/forge/forge.csv"
     return 0
   fi
-  [[ -n "$apply" ]] || { tail_of "forge sync: DONE - would set each drifted setting above" "corpus-yoga forge sync --apply" "sets them"; return 0; }
   echo "after:"
   reconcile | while IFS=$'\t' read -r st key detail _; do
     [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
