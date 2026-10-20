@@ -30,6 +30,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 - the tiers, one home (#702)
+import facts  # noqa: E402 - the one face a sentence is said through (#909)
 
 MEMORIES_DEPOSIT = 'data/output/memories'
 SUMMARIES_DEPOSIT = 'data/output/markdown/claude/chat/summaries'
@@ -160,6 +161,7 @@ def words(a: dict, b, unit) -> str:
     parts = []
     for name, pairs in a.items():
         missing = len(pairs - (b or {}).get(name, frozenset()))
-        parts.append(f'{name} {len(pairs)}' + (f' ({missing} not in the other)' if missing else '') if pairs
-                     else f'{name} none beyond the deposits')
+        parts.append((facts.sentence('{name} {n} ({missing} not in the other)', name=name, n=len(pairs), missing=missing) if missing
+                      else facts.sentence('{name} {n}', name=name, n=len(pairs))) if pairs
+                     else facts.sentence('{name} none beyond the deposits', name=name))
     return ', '.join(parts)

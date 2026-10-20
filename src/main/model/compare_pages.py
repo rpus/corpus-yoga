@@ -23,6 +23,8 @@ SELF = 'src/main/model/compare_pages.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
+sys.path.insert(0, str(_root[0] / 'src' / 'main'))
+import facts  # noqa: E402 - the one face a sentence is said through (#909)
 
 BLOCK = re.compile(r'<script id="(data-[a-z-]+)" type="application/json">\s*(.*?)\s*</script>', re.S)
 TITLE = re.compile(r'<title>(.*?)</title>', re.S)
@@ -79,28 +81,28 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
     removed = [k for k in a if k not in b]
     changed = [k for k in b if k in a and changed_columns(a[k], b[k], name)]
     if not (added or removed or changed):
-        return f'{name}: identical ({len(b)} rows)'
+        return f'{name}: ' + facts.sentence('identical ({n} rows)', n=len(b))
     parts = []
     if added:
-        parts.append(f'{len(added)} added: ' + ', '.join(label(name, k, b[k]) for k in added[:SHOWN])
-                     + (', ...' if len(added) > SHOWN else ''))
+        parts.append(facts.sentence('{n} added - {labels}', n=len(added), labels=', '.join(label(name, k, b[k]) for k in added[:SHOWN])
+                                    + (', ...' if len(added) > SHOWN else '')))
     if removed:
-        parts.append(f'{len(removed)} removed: ' + ', '.join(label(name, k, a[k]) for k in removed[:SHOWN])
-                     + (', ...' if len(removed) > SHOWN else ''))
+        parts.append(facts.sentence('{n} removed - {labels}', n=len(removed), labels=', '.join(label(name, k, a[k]) for k in removed[:SHOWN])
+                                    + (', ...' if len(removed) > SHOWN else '')))
     if changed:
         shown = []
         for k in changed[:SHOWN]:
             cols = changed_columns(a[k], b[k], name)
-            shown.append(label(name, k, b[k]) + ' (' + ', '.join(f'{c} {a[k][c]} to {b[k][c]}' for c in cols) + ')')
-        parts.append(f'{len(changed)} changed: ' + ', '.join(shown) + (', ...' if len(changed) > SHOWN else ''))
+            shown.append(label(name, k, b[k]) + ' (' + ', '.join(facts.sentence('{column} {old} to {new}', column=c, old=a[k][c], new=b[k][c]) for c in cols) + ')')
+        parts.append(facts.sentence('{n} changed - {labels}', n=len(changed), labels=', '.join(shown) + (', ...' if len(changed) > SHOWN else '')))
     return f'{name}: ' + '; '.join(parts)
 
 
 def size(table: dict) -> str:
     """A table's extent in its own terms: rows, or for the words table words per side."""
     if 'rows' in table:
-        return f'{len(table["rows"])} rows'
-    return ', '.join(f'{side} {len(t.get("rows", []))} words' for side, t in table.items())
+        return facts.sentence('{n} rows', n=len(table['rows']))
+    return ', '.join(facts.sentence('{side} {n} words', side=side, n=len(t.get('rows', []))) for side, t in table.items())
 
 
 def compare_words(old: dict, new: dict) -> str:
@@ -113,9 +115,9 @@ def compare_words(old: dict, new: dict) -> str:
         removed = [w for w in a if w not in b]
         moved = [w for w in b if w in a and a[w] != b[w]]
         if added or removed or moved:
-            parts.append(f'{side} {len(added)} entered, {len(removed)} left, {len(moved)} counts moved'
-                         + (' (entered: ' + ', '.join(added[:SHOWN]) + (', ...' if len(added) > SHOWN else '') + ')' if added else ''))
-    return 'data-literal-words: ' + ('; '.join(parts) if parts else 'identical')
+            parts.append(facts.sentence('{side} {added} entered, {removed} left, {moved} counts moved', side=side, added=len(added), removed=len(removed), moved=len(moved))
+                         + (' (' + facts.sentence('entered {words}', words=', '.join(added[:SHOWN]) + (', ...' if len(added) > SHOWN else '')) + ')' if added else ''))
+    return 'data-literal-words: ' + ('; '.join(parts) if parts else facts.sentence('identical'))
 
 
 def uuid_by_chat(page: dict) -> dict:
@@ -132,28 +134,27 @@ def compare(old_path: Path, new_path: Path) -> list[str]:
     new_title, new = tables(new_path)
     lines = []
     if old_title != new_title:
-        lines.append(f'title: "{old_title}" to "{new_title}"')
+        lines.append('title: ' + facts.sentence('"{old}" to "{new}"', old=old_title, new=new_title))
     else:
-        lines.append(f'title: unchanged - "{new_title}"')
+        lines.append('title: ' + facts.sentence('unchanged - "{title}"', title=new_title))
     uuid_old, uuid_new = uuid_by_chat(old), uuid_by_chat(new)
     for name in sorted(set(old) | set(new)):
         if name not in new:
-            lines.append(f'{name}: removed from the page'); continue
+            lines.append(f'{name}: ' + facts.sentence('removed from the page')); continue
         if name not in old:
-            lines.append(f'{name}: new on the page ({size(new[name])})'); continue
+            lines.append(f'{name}: ' + facts.sentence('new on the page ({size})', size=size(new[name]))); continue
         if name == 'data-literal-words':
             lines.append(compare_words(old[name], new[name]))
         elif name in IDENTITY:
             lines.append(compare_table(name, old[name], new[name], uuid_old, uuid_new))
         else:
-            lines.append(f'{name}: {"identical" if old[name] == new[name] else "differs"} (no identity column declared)')
+            lines.append(f'{name}: ' + facts.sentence('{standing} (no identity column declared)', standing=facts.sentence('identical') if old[name] == new[name] else facts.sentence('differs')))
     return lines
 
 
 def main() -> int:
     if len(sys.argv) != 3:
-        print(f'usage: {SELF} <old index.html> <new index.html> - what changes between two renders '
-              'of the corpus page, in the page\'s own terms', file=sys.stderr)
+        print(f'usage: {SELF} <old index.html> <new index.html> - ' + facts.sentence("what changes between two renders of the corpus page, in the page's own terms"), file=sys.stderr)
         return 2
     for line in compare(Path(sys.argv[1]), Path(sys.argv[2])):
         print(line)

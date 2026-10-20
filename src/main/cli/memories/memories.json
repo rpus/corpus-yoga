@@ -1,5 +1,16 @@
 {
   "summary": "Deposit every distinct chat-memory state; render the timeline",
+  "wording": [
+    "duplicate of {name} - dropped",
+    "{a} and {b} differ - both left in place",
+    "{file} ({vintage}) renamed to {dest}",
+    "deposit exists with different content - investigate",
+    "deposited (new)",
+    "unchanged - no new deposit",
+    "{n} deposit(s)",
+    "no archived memory states under {cache}; nothing to accumulate",
+    "{n} CONFLICT(S), each left in place"
+  ],
   "target": "src/main/pipeline/chat-export/memories.py",
   "calculus": "accumulate normalise project L1 L4",
   "args": [

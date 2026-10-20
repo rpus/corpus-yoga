@@ -40,8 +40,8 @@ class Tree:
 class Orphan:
     """An entry under tmp/cache that no current step writes or reads, with the act that removes it."""
     size: str
-    why: str = 'no current step writes or reads it'
-    remedy: facts.Command = facts.Command('corpus-yoga cache clean', 'would remove it')
+    why: str = facts.sentence('no current step writes or reads it')
+    remedy: facts.Command = facts.Command('corpus-yoga cache clean', facts.sentence('would remove it'))
 
 
 @dataclass
@@ -51,8 +51,8 @@ class Status:
     grafts next:, names an orphaned subtree a room carries."""
     tmp_cache: Tree = facts.named('tmp/cache')
     orphans: dict[str, Orphan] | None = None
+    cache: str = ''               # the tree's count, a fact of the room; a status ends on next: (issues/740)
     next: dict[str, dict[str, dict[str, int]]] | str | None = None
-    cache: str = ''               # the verdict
 
 
 def status_facts() -> Status:
@@ -61,8 +61,9 @@ def status_facts() -> Status:
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
     found = {p.relative_to(REPO).as_posix(): Orphan(human(size_of(p))) for p in orphans(cache)}
     return Status(Tree(subs or 'none'), found,
-                  {'corpus-yoga cache clean': {'would remove': {rel: 1 for rel in found}}} if found else 'none - nothing to do',
-                  f'{len(subs)} subtree(s) present' + (f', {len(found)} orphan(s)' if found else ''))
+                  facts.sentence('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found
+                  else facts.sentence('{n} subtree(s) present', n=len(subs)),
+                  {'corpus-yoga cache clean': {'would remove': {rel: 1 for rel in found}}} if found else facts.sentence('none - nothing to do'))
 
 
 def status() -> int:
@@ -81,8 +82,7 @@ def main() -> int:
     if target is None:
         # Derived from VERBS, the dispatch itself — never a second hand-written copy.
         # The flags belong to the verbs, so they are asked of the verbs, not restated here.
-        print(f"error: unknown verb {verb!r} — takes: {' | '.join(VERBS)} "
-              f"(bare: status; `corpus-yoga cache <verb> -h` for its flags)", file=sys.stderr)
+        print('error: ' + facts.sentence('{verb} is no verb it takes - {verbs} (bare is the status; corpus-yoga cache <verb> -h says its flags)', verb=repr(verb), verbs=' | '.join(VERBS)), file=sys.stderr)
         return 1
     # execv replaces the process — the verb's own exit status is the exit status
     os.execv(sys.executable, [sys.executable, str(HERE / target), *sys.argv[2:]])

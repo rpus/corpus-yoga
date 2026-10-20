@@ -37,8 +37,8 @@ import facts  # noqa: E402
 import tier  # noqa: E402
 
 SCRIPTS = REPO / 'rsc' / 'migration'
-SYNC = facts.Command('corpus-yoga migration sync', 'would take them')
-HALTED = facts.Act('resolve by hand what it names')
+SYNC = facts.Command('corpus-yoga migration sync', facts.sentence('would take them'))
+HALTED = facts.Act(facts.sentence('resolve by hand what it names'))
 
 
 @dataclass
@@ -80,10 +80,10 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
             out[name] = Script(halted='; '.join(lines), remedy=HALTED)
         elif lines:
             pending += 1
-            out[name] = Script(steps=f'{len(lines)} pending - the script run bare says them', remedy=SYNC)
+            out[name] = Script(steps=facts.sentence('{n} pending - the script run bare says them', n=len(lines)), remedy=SYNC)
         else:
-            out[name] = 'none pending'
-    return Status(out, f'{len(out)} script(s) - {pending} with steps pending, {halted} halted')
+            out[name] = facts.sentence('none pending')
+    return Status(out, facts.sentence('{n} script(s) - {pending} with steps pending, {halted} halted', n=len(out), pending=pending, halted=halted))
 
 
 class Log:
@@ -110,7 +110,7 @@ def sync() -> int:
     taken = 0
     failed: list[str] = []
     for name, pending in owed.items():
-        log.say(f'  {name}: {len(pending)} step(s)')
+        log.say(f'  {name}: ' + facts.sentence('{n} step(s)', n=len(pending)))
         code, lines = run(REPO / name, apply=True)
         for line in lines:
             log.say(f'    {line}')
@@ -119,10 +119,10 @@ def sync() -> int:
         else:
             failed.append(name)
     for name, words in halted.items():
-        log.say(f'  {name} halted - {words}')
+        log.say(f'  {name}: ' + facts.sentence('halted - {words}', words=words))
     undone = failed + list(halted)
-    verdict = (f'migration sync: NOT DONE - took {taken} of {steps} step(s); NOT taken ' + ', '.join(undone) if undone
-               else f'migration sync: DONE - took {taken} step(s) of {len(owed)} script(s)')
+    verdict = ('migration sync: NOT DONE - ' + facts.sentence('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
+               else 'migration sync: DONE - ' + facts.sentence('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
     for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (#896)
         log.say(line)
     return 1 if undone else 0
