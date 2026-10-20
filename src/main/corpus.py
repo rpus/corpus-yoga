@@ -1080,9 +1080,9 @@ def stage_facts() -> StageStatus:
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
                 else facts.sentence('none - corpus-yoga pipeline rehearse makes one') if record is None else record),
         rehearsal=(Orphan(human(size_of(BEFORE_815)),
-                          facts.sentence('a directory of stamped rehearsals, the layout before the record was one file - {migration} removes it'
+                          facts.sentence('a directory of stamped rehearsals, the layout before the record was one file (#815) - {migration} removes it'
                                          if BEFORE_815.is_dir() else
-                                         'the record before its name carried its extension, which a record at its name supersedes - {migration} removes it',
+                                         'the record before its name carried its extension, which a record at its name supersedes (#815) - {migration} removes it',
                                          migration=MIGRATION_815),
                           facts.Command('corpus-yoga migration sync', facts.sentence('would take the move')))
                    if BEFORE_815.exists() else None)))
