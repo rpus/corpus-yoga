@@ -79,6 +79,7 @@ SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 # only the stable directory — a stamp is machine-varying and may not enter it (L2).
 sys.path.insert(0, str(SRC / 'main'))  # tier: the act's stamp, one reading (issues/912)
 import tier  # noqa: E402
+import facts  # noqa: E402 - the one printer: the report's stages as facts (issues/755)
 _REPORT_STAMP = tier.stamp_of('test run')
 REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
 _twin = 2
@@ -4053,8 +4054,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         sys.stdout = machine_buffer
         if tier != current_tier[0]:
             current_tier[0] = tier
-            print(f'\n════ {tier} tier {"═" * (68 - len(tier))}')
-        print(f'\n── {name} {"─" * (74 - len(name))}')
+            print(f'\n# ════ {tier} tier {"═" * (66 - len(tier))}')   # a comment: the tier is a fold, not a section
+        print(f'\n{name}: |2')   # a section is a key with a literal block scalar, its lines two beneath (issues/755)
         t0 = time.monotonic()
         sh = subject_hash(SUBJECTS[name]) if name in SUBJECTS else None
         entry = cache.get(name)
@@ -4338,7 +4339,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         for (section, ctype), members in order.items():
             if section != seen_section:
                 seen_section = section
-                out.write(f'\n── {section} {"─" * max(0, 74 - len(section))}\n')
+                out.write(f'\n{section}: |2\n')
             failed = [i for i in members if not results[i][1]]
             mark = '✓' if not failed else '✗'
             n = len(members)
@@ -4389,7 +4390,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
-            out.write(f'  full per-check report → {REPORT_REL}\n')
+            out.write(f'full per-check report: {REPORT_REL}\n')
 
         # One row per STAGE — the same shape `corpus-yoga pipeline run` prints, so a reader of
         # either report answers the same question the same way: which stages ran, what
@@ -4415,33 +4416,23 @@ def _run_once(allow_replay: bool) -> RunOnce:
             anchor_source, anchor_prefix = out.getvalue(), ''
         banner_line: dict[str, int] = {}
         for line_number, text in enumerate(anchor_source.splitlines(), 1):
-            if text.startswith('── '):
-                banner_line[text.split()[1]] = line_number
+            opened = re.match(r'^(\w+): \|2$', text)
+            if opened:
+                banner_line[opened.group(1)] = line_number
         anchors = {stage: f'{anchor_prefix}{banner_line[stage]}' for stage in stage_rows}
 
-        # Width from the DATA, never a guess: check_versioned_schema_diagnostics is 34
-        # characters, and a column sized by eye pushes every field after it rightwards on
-        # exactly the rows a reader is scanning for.
-        stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
-        anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
         # tier per stage, from the registrations (issues/538): every member invocation of a
         # stage shares one declared tier except check_score, whose rows summarise
         # tiers - a mixed stage prints the sorted union, still read off the data.
         stage_tier = {stage: '+'.join(sorted({tiers[i] for i in members}))
                       for stage, members in stage_rows.items()}
-        tier_width = max([len('tier')] + [len(t) for t in stage_tier.values()])
-        out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
-                  f'{"tier":<{tier_width}}   {"line":>{anchor_width}}\n')
-        for stage, members in stage_rows.items():
-            failing  = [i for i in members if not results[i][1]]
-            out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
-                      f'{stage_tier[stage]:<{tier_width}}   {anchors[stage]:>{anchor_width}}\n')
-        if surface == 'terminal':
-            out.write(f'  (line = {REPORT_REL}:N, where that stage begins in the full '
-                      'report; the terminal carries no per-check body of its own)\n')
-        else:
-            out.write('  (line = where that stage begins in this report; every check is '
-                      'listed there, in place)\n')
+        # the stages as facts (issues/755): each with what it passed and failed, its tier and where
+        # it begins - a line of this report, or of the full report the terminal points into
+        stages = {stage: {'pass': len(members) - sum(1 for i in members if not results[i][1]),
+                          'fail': sum(1 for i in members if not results[i][1]),
+                          'tier': stage_tier[stage], 'line': anchors[stage]}
+                  for stage, members in stage_rows.items()}
+        out.write('\n' + '\n'.join(facts.lines({'stages': stages})) + '\n')
 
         # The per-tier fold - a SUMMARY, not a check (pull/539 review, 2026-08-25):
         # untiered prose, counted nowhere, derived here from the same results the
@@ -4457,8 +4448,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if fail_idx:
             counts = {sec: sum(1 for i in fail_idx if sections[i] == sec) for sec in fail_sections}
-            out.write('\ndev gate: FAIL — these gate: the hook vetoes the commit, and any run '
-                      'exits non-zero:\n')
+            out.write('\ndev gate: FAIL - these gate; the hook vetoes the commit, and any run '
+                      'exits non-zero\n')
             for sec in fail_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
             gate_fails = [(results[i][0], results[i][2]) for i in fail_idx]
@@ -4468,9 +4459,9 @@ def _run_once(allow_replay: bool) -> RunOnce:
                 _write_fixes(out, gate_lines, '✗')
             lines += gate_lines
         else:
-            out.write(f'\ndev gate: PASS — code+schema {det} match the committed expectation; '
-                      'nothing here vetoes a commit. What this gate cannot arbitrate — '
-                      'that the verbs run — is the usr gate\'s: corpus-yoga pipeline run\n')
+            out.write(f'\ndev gate: PASS - code+schema {det} match the committed expectation; '
+                      'nothing here vetoes a commit. What this gate cannot arbitrate - '
+                      'that the verbs run - is the usr gate\'s, corpus-yoga pipeline run\n')
         # The verdict is the terminal word — no trailing offer after it. The
         # remediation each finding needs is already printed beside it (the
         # gate's "To fix"). We do NOT append a

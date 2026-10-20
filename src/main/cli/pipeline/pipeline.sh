@@ -190,24 +190,26 @@ prep_call() {
 
 prep_pipeline() {
   local name="$1"; shift
-  echo "── prep: ${name} ──────────────────────────────────────────────────────────"
+  section_open "prep: $name"
   local rc=0 op impl pair
   # The failure has to be caught on prep_call, not on `read`: a herestring always supplies
   # a newline, so `read` succeeds on empty input and would hand `step` two empty arguments.
-  pair="$(prep_call "$name")" || { phrase "no prep step for {name}" name="$name"; return 0; }
+  pair="$(prep_call "$name")" || { atom "$(phrase "no prep step for {name}" name="$name")"; return 0; }
   read -r op impl <<< "$pair"
-  step "$op" "$impl" "$@" || rc=$?
+  ( step "$op" "$impl" "$@" ) 2>&1 | indented
+  rc=${PIPESTATUS[0]}
   echo ""
-  return $rc
+  return "$rc"
 }
 
 run_pipeline() {
   local name="$1"; shift
-  echo "── ${name} ──────────────────────────────────────────────────────────────────"
+  section_open "$name"
   local rc=0
-  "$REPO_ROOT/src/main/pipeline/$name/run.sh" --input "$@" || rc=$?
+  "$REPO_ROOT/src/main/pipeline/$name/run.sh" --input "$@" 2>&1 | indented
+  rc=${PIPESTATUS[0]}
   echo ""
-  return $rc
+  return "$rc"
 }
 
 # A pipeline that exits non-zero has gated on SOMETHING; if it never said so in the
@@ -223,7 +225,7 @@ run_pipeline_safe() {
     if ! section_has_fail "$name"; then
       local last
       last="$(section_last_words "$name")"
-      echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="$name" last="${last:-(no output)}")"
+      atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="$name" last="${last:-(no output)}")"
     fi
   fi
 }
@@ -233,14 +235,27 @@ run_pipeline_safe() {
 # and `── prep: <pipeline> ─…` names `prep: <pipeline>` - a prep is its own section
 # and its own row (issues/547: every non-zero exit states an atom, prep included).
 # shellcheck disable=SC2016  # awk field references, not shell expansions
-SECTION_NAME_FN='function section_name() { return ($2 == "prep:") ? $2 " " $3 : $2 }'
+# A section of the log is a key with a literal block scalar, `<name>: |2` at the narration depth,
+# its lines indented beneath (issues/755): the log is one YAML document, and a section loads
+# as its text. SECTION_PAD is the depth's indent; the awk walks below read a section's name
+# from its key line and close it at the next key at the depth.
+SECTION_PAD="$(printf '%*s' $(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} * 2 )) '')"
+# shellcheck disable=SC2016  # awk's own $0, not the shell's
+SECTION_NAME_FN='function at_depth() { return substr($0, 1, length(pad)) == pad && substr($0, length(pad) + 1, 1) != " " && substr($0, length(pad) + 1, 1) != "" }
+function opens_section() { return at_depth() && $0 ~ /: \|2$/ }
+function section_name(   n) { n = substr($0, length(pad) + 1, length($0) - length(pad) - 4); if (substr(n, 1, 1) == "\"") n = substr(n, 2, length(n) - 2); return n }'
+# |2 fixes the body's indentation at two beneath the key, whatever its first line's indent
+section_open() { echo "$(opening "$1") |2"; }
+indented() { awk -v pad="$SECTION_PAD  " '{ print pad $0; fflush() }'; }
+atom() { echo "$SECTION_PAD  $1"; }
 
 # The last non-empty line of one section of the log, whitespace-stripped — the
 # step's own last words, flushed through the tee by the time its runner returns
 # (the same guarantee section_has_fail already relies on).
 section_last_words() {
-  awk -v want="$1" "$SECTION_NAME_FN"'
-    /^── / { in_section = (section_name() == want); next }
+  awk -v want="$1" -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
+    opens_section() { in_section = (section_name() == want); next }
+    at_depth() { in_section = 0; next }
     in_section && NF { last = $0 }
     END { if (last != "") { sub(/^[[:space:]]*/, "", last); print last } }
   ' "$LOG_FILE" 2>/dev/null
@@ -251,10 +266,11 @@ section_last_words() {
 # relayed here as the atom the table counts, in the gate's own words. Its LAST line
 # is the staging remedy for a committer, which is no finding for this reader.
 section_dev_gate_reds() {
-  awk -v want="$1" "$SECTION_NAME_FN"'
-    /^── / { in_section = (section_name() == want); next }
-    in_section && /^dev gate: FAIL/ { p = 1; next }
-    p && /^  [a-z_]+ \([0-9]+\)$/ { sub(/^  /, ""); out = out (out == "" ? "" : ", ") $0; next }
+  awk -v want="$1" -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
+    opens_section() { in_section = (section_name() == want); next }
+    at_depth() { in_section = 0; next }
+    in_section && /^[[:space:]]*dev gate: FAIL/ { p = 1; next }
+    p && /^[[:space:]]+[a-z_]+ \([0-9]+\)$/ { sub(/^[[:space:]]+/, ""); out = out (out == "" ? "" : ", ") $0; next }
     p { p = 0 }
     END { print out }
   ' "$LOG_FILE" 2>/dev/null
@@ -263,8 +279,9 @@ section_dev_gate_reds() {
 # Does this section already carry a FAIL: atom? Read from its banner to the end of what
 # has been logged so far — the section is complete by the time its runner has returned.
 section_has_fail() {
-  awk -v want="$1" "$SECTION_NAME_FN"'
-    /^── / { in_section = (section_name() == want); next }
+  awk -v want="$1" -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
+    opens_section() { in_section = (section_name() == want); next }
+    at_depth() { in_section = 0; next }
     in_section && /^[[:space:]]*FAIL:/ { found = 1 }
     END { exit found ? 0 : 1 }
   ' "$LOG_FILE" 2>/dev/null
@@ -278,18 +295,19 @@ section_has_fail() {
 # never disagree about what a section contains. The run has ONE failure notion
 # (issues/547): every non-zero exit states an atom, so this list is the verdict.
 sections_with_fail_atoms() {
-  awk "$SECTION_NAME_FN"'
+  awk -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
     function flush() { if (section != "" && n_fail > 0) print section }
-    /^── / { flush(); n_fail = 0; section = section_name(); if (section == "done") section = ""; next }
+    opens_section() { flush(); n_fail = 0; section = section_name(); next }
+    at_depth() { flush(); section = ""; next }
     /^[[:space:]]*FAIL:/ { n_fail++ }
     END { flush() }
   ' "$LOG_FILE" 2>/dev/null || true
 }
 
 section_error_lines() {
-  local header="── $1 "
-  awk -v h="$header" '
-    index($0, "── ") == 1 { insec = (index($0, h) == 1) }
+  awk -v want="$1" -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
+    opens_section() { insec = (section_name() == want); next }
+    at_depth() { insec = 0; next }
     insec && /^[[:space:]]*(error:|FAIL:)/ { sub(/^[[:space:]]*/, ""); print }
   ' "$LOG_FILE"
 }
@@ -309,7 +327,7 @@ section_error_lines() {
 # Sections are the `── name ───` banners the runners print; the corpus tail's atoms fall
 # after the last banner and are counted under `corpus`.
 atom_table() {
-  awk "$SECTION_NAME_FN"'
+  awk -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
     function flush() {
       if (section == "") return
       # line = where the banner for this stage sits in this log: the anchor that turns
@@ -320,12 +338,12 @@ atom_table() {
       rows[++n_rows] = sprintf("%s\t%d\t%d", section, n_fail, banner_line)
       if (length(section) > width) width = length(section)
     }
-    /^── / {
+    opens_section() {
       flush(); n_fail = 0
       section = section_name(); banner_line = NR
-      if (section == "done") { section = ""; next }
       next
     }
+    at_depth() { flush(); section = ""; next }
     /^[[:space:]]*FAIL:/ { n_fail++; next }
     END {
       flush()
@@ -344,9 +362,9 @@ prep_pipeline_safe() {
     if ! section_has_fail "prep: $name"; then
       local last
       last="$(section_last_words "prep: $name")"
-      echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="prep: $name" last="${last:-(no output)}")"
+      atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="prep: $name" last="${last:-(no output)}")"
       case "$name" in
-        chat-export) echo "    $(phrase "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-export/require_export.sh --help)")" ;;
+        chat-export) atom "    $(phrase "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-export/require_export.sh --help)")" ;;
       esac
     fi
   fi
@@ -379,7 +397,6 @@ run_corpus_tail() {
   # ran last — the table reads sections, and a reduce over everything is a section.
   # Not under --plan: the plan lists STEPS, and a banner is a log boundary, not a step —
   # the line above it ("then once, over the whole corpus") already says the same thing.
-  [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
   STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
@@ -455,9 +472,12 @@ main() {
   echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · $signature · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
 
 
-  require_cmd jq "$(phrase "brew install jq installs it")"
-  require_venv
-  install_deps
+  # the tooling is a section like the stages (issues/755): its lines beneath its key
+  section_open tooling
+  ( require_cmd jq "$(phrase "brew install jq installs it")"; require_venv; install_deps ) 2>&1 | indented
+  local tooling_rc=${PIPESTATUS[0]}
+  (( tooling_rc == 0 )) || exit "$tooling_rc"
+  echo ""
 
   # One item: every pipeline's run.sh takes --item for one datum and --input for its whole
   # root, so a fourth pipeline needs no edit here. The corpus tail is not run: it reduces
@@ -472,19 +492,22 @@ main() {
   # then the product judgments over the corpus. Its section is counted by the
   # stage table like any other; a red commit gate is a failing stage, and the
   # run continues so the product half of the report still speaks.
-  echo "── tests ─────────────────────────────────────────────────────────────────"
+  section_open tests
+  local tests_rc=0
   if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
-    echo "tests: $(phrase "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)")"
-  elif ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
-    if ! section_has_fail "tests"; then
-      local tests_reds tests_last
-      tests_reds="$(section_dev_gate_reds "tests")"
-      if [[ -n "$tests_reds" ]]; then
-        echo "FAIL: tests: $(phrase "dev gate red - {reds} (the dev gate's own log names the checks)" reds="$tests_reds")"
-      else
-        tests_last="$(section_last_words "tests")"
-        echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=tests last="${tests_last:-(no output)}")"
-      fi
+    atom "$(phrase "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)")"
+  else
+    ( step tests "$REPO_ROOT/src/test/dev/run.sh" ) 2>&1 | indented
+    tests_rc=${PIPESTATUS[0]}
+  fi
+  if (( tests_rc != 0 )) && ! section_has_fail "tests"; then
+    local tests_reds tests_last
+    tests_reds="$(section_dev_gate_reds "tests")"
+    if [[ -n "$tests_reds" ]]; then
+      atom "FAIL: tests: $(phrase "dev gate red - {reds} (the dev gate's own log names the checks)" reds="$tests_reds")"
+    else
+      tests_last="$(section_last_words "tests")"
+      atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=tests last="${tests_last:-(no output)}")"
     fi
   fi
   echo ""
@@ -506,15 +529,16 @@ main() {
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
   # --only run re-indexing the unchanged rest is silence, not distortion
-  if ! run_corpus_tail 2>&1; then
-    if ! section_has_fail corpus; then
-      local corpus_last
-      corpus_last="$(section_last_words corpus)"
-      echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=corpus last="${corpus_last:-(no output)}")"
-    fi
+  section_open corpus
+  ( run_corpus_tail ) 2>&1 | indented
+  local corpus_rc=${PIPESTATUS[0]}
+  if (( corpus_rc != 0 )) && ! section_has_fail corpus; then
+    local corpus_last
+    corpus_last="$(section_last_words corpus)"
+    atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=corpus last="${corpus_last:-(no output)}")"
   fi
 
-  echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
+  pair 'done' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   # The tail is a TABLE and nothing else: one row per section and its atom count.
   # The body already states every finding where it happened, with
   # the context of its section around it — reprinting those lines here would duplicate the
@@ -536,17 +560,13 @@ main() {
     pair "usr gate" "PASS - $(phrase "all pipelines completed")"
   else
     pair "usr gate" "FAIL - $(phrase "failing stage(s) {names}" names="${verdict_failures[*]}")"
-    opening failing
+    # each failure said once, with its count and the datums beneath (issues/724): tail.py
     local errs error_line
     for f in "${verdict_failures[@]}"; do
-      opening "$f" 1
       errs="$(section_error_lines "$f")"
-      if [[ -n "$errs" ]]; then
-        printf '%s\n' "$errs" | while IFS= read -r error_line; do narrate item "$error_line" 2; done
-      else
-        narrate item "$(phrase "the failing step prints its error and the path of its own log above")" 2
-      fi
-    done
+      [[ -n "$errs" ]] || errs="$(phrase "the failing step prints its error and the path of its own log above")"
+      printf '%s\n' "$errs" | while IFS= read -r error_line; do printf '%s\t%s\n' "$f" "$error_line"; done
+    done | "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/pipeline/tail.py"
   fi
   # The usr-actor's next acts, and nothing else: the run's outputs, and reading them
   # served. The data-tier coupling this line once narrated (pipelines move what the
