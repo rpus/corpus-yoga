@@ -271,258 +271,258 @@ check_expectation: |
 
 stages:
   check_required_files:
-    pass: 10
-    fail: 0
+    passes: 10
+    failures: 0
     tier: code
     line: "4"
   check_pipeline_declarations:
-    pass: 20
-    fail: 0
+    passes: 20
+    failures: 0
     tier: code
     line: "7"
   check_step_imports:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "15"
   check_self_paths:
-    pass: 118
-    fail: 0
+    passes: 118
+    failures: 0
     tier: code
     line: "18"
   check_committed_tree:
-    pass: 3
-    fail: 0
+    passes: 3
+    failures: 0
     tier: code
     line: "21"
   check_templates:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "26"
   check_xref:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "29"
   check_cli_surface:
-    pass: 600
-    fail: 0
+    passes: 600
+    failures: 0
     tier: code
     line: "33"
   check_cli_verb_help:
-    pass: 24
-    fail: 0
+    passes: 24
+    failures: 0
     tier: code
     line: "66"
   check_cli_exclusive_classes:
-    pass: 10
-    fail: 0
+    passes: 10
+    failures: 0
     tier: code
     line: "69"
   check_effects:
-    pass: 3
-    fail: 0
+    passes: 3
+    failures: 0
     tier: code
     line: "72"
   check_cache_io:
-    pass: 18
-    fail: 0
+    passes: 18
+    failures: 0
     tier: code
     line: "77"
   check_accumulate_contract:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "83"
   check_capture_monotone:
-    pass: 4
-    fail: 0
+    passes: 4
+    failures: 0
     tier: code
     line: "86"
   check_grammar_laws:
-    pass: 12
-    fail: 0
+    passes: 12
+    failures: 0
     tier: code
     line: "89"
   check_schema_layout:
-    pass: 25
-    fail: 0
+    passes: 25
+    failures: 0
     tier: schema
     line: "103"
   check_schema_validity:
-    pass: 15
-    fail: 0
+    passes: 15
+    failures: 0
     tier: schema
     line: "107"
   check_schema_meta_validity:
-    pass: 15
-    fail: 0
+    passes: 15
+    failures: 0
     tier: schema
     line: "110"
   check_schema_single_version:
-    pass: 15
-    fail: 0
+    passes: 15
+    failures: 0
     tier: schema
     line: "113"
   check_schema_changelogs:
-    pass: 30
-    fail: 0
+    passes: 30
+    failures: 0
     tier: schema
     line: "116"
   check_tier_contract:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "120"
   check_validate_verdict:
-    pass: 4
-    fail: 0
+    passes: 4
+    failures: 0
     tier: code
     line: "123"
   check_verdict_record:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "126"
   check_rehearsal_record:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "129"
   check_unit_companion:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "133"
   check_unit_state:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "136"
   check_store:
-    pass: 3
-    fail: 0
+    passes: 3
+    failures: 0
     tier: code
     line: "139"
   check_facts:
-    pass: 5
-    fail: 0
+    passes: 5
+    failures: 0
     tier: code
     line: "144"
   check_export_atoms:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "150"
   check_status_facts:
-    pass: 188
-    fail: 0
+    passes: 188
+    failures: 0
     tier: code
     line: "153"
   check_walkthrough:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "167"
   check_completions:
-    pass: 10
-    fail: 0
+    passes: 10
+    failures: 0
     tier: code
     line: "170"
   check_drafters:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "177"
   check_versioned_schema_diagnostics:
-    pass: 374
-    fail: 0
+    passes: 374
+    failures: 0
     tier: schema
     line: "181"
   check_schema_join:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: schema
     line: "208"
   check_model_join_versions:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: schema
     line: "212"
   check_model_table:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: schema
     line: "215"
   check_model_occurrences:
-    pass: 3
-    fail: 0
+    passes: 3
+    failures: 0
     tier: schema
     line: "218"
   check_model_obligations:
-    pass: 162
-    fail: 0
+    passes: 162
+    failures: 0
     tier: schema
     line: "223"
   check_model_identity:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: schema
     line: "227"
   check_grammar:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: schema
     line: "230"
   check_record_is_the_launchers:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "233"
   check_record_names_read_once:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "236"
   check_provider_registry:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "239"
   check_forge_aim:
-    pass: 6
-    fail: 0
+    passes: 6
+    failures: 0
     tier: code
     line: "243"
   check_status_is_the_dry_run:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: code
     line: "248"
   check_reply:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "251"
   check_reference:
-    pass: 21
-    fail: 0
+    passes: 21
+    failures: 0
     tier: schema
     line: "254"
   check_mcp_factoring:
-    pass: 9
-    fail: 0
+    passes: 9
+    failures: 0
     tier: schema
     line: "260"
   check_mcp_reproducible:
-    pass: 1
-    fail: 0
+    passes: 1
+    failures: 0
     tier: schema
     line: "266"
   check_expectation:
-    pass: 2
-    fail: 0
+    passes: 2
+    failures: 0
     tier: code
     line: "269"
 

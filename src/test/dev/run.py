@@ -4428,8 +4428,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
                       for stage, members in stage_rows.items()}
         # the stages as facts (issues/755): each with what it passed and failed, its tier and where
         # it begins - a line of this report, or of the full report the terminal points into
-        stages = {stage: {'pass': len(members) - sum(1 for i in members if not results[i][1]),
-                          'fail': sum(1 for i in members if not results[i][1]),
+        stages = {stage: {'passes': len(members) - sum(1 for i in members if not results[i][1]),
+                          'failures': sum(1 for i in members if not results[i][1]),
                           'tier': stage_tier[stage], 'line': anchors[stage]}
                   for stage, members in stage_rows.items()}
         out.write('\n' + '\n'.join(facts.lines({'stages': stages})) + '\n')
