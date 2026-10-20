@@ -263,13 +263,13 @@ base_branch() {
 # The standing report (issues/759): each probe's rows under its section's name, typed and said as
 # one shape by status.py - with --stage, the stage's units after it. Returns 1 on
 # refuse-class drift, the merge's gate.
-# The rows' reads narrate as items under `reads:`, one offset beneath where the report
-# prints, so that a record holding both reads and report loads as one mapping (issues/755).
+# The rows' reads narrate as items at the depth: the bare status keys them under `reads:`,
+# one deeper, since its output is a mapping; the merge's chain takes them as events of the
+# step that read them (issues/943).
 status_rows() {
   local rows raw_stale
-  opening reads >&2
-  rows="$(CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) branches)" || return 1
-  raw_stale="$(CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) stale_tracking)" || return 1
+  rows="$(branches)" || return 1
+  raw_stale="$(stale_tracking)" || return 1
   reconcile | awk '{print "settings\t" $0}'
   awk '{print "branches\t" $0}' <<< "$rows"
   awk '{print "refs\t" $0}' <<< "$raw_stale"
@@ -277,7 +277,8 @@ status_rows() {
 }
 
 status() {
-  status_rows | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" "$@"
+  opening reads >&2
+  CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) status_rows | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" "$@"
 }
 
 # count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it.
@@ -664,9 +665,8 @@ merge_chain() {
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates
   local gate_wt
   gate_wt="$(gate_worktree "$oid" "$head")"     || { echo "forge merge: NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
-  # The run streams to the terminal as it happens and writes its own log; this
-  # log keeps its verdict lines only (from the usr gate line to the end), so the
-  # run is recorded once (issues/547 review, 2026-08-25). No terminal: nothing to stream.
+  # The run streams to the terminal as it happens, and this record keeps it whole; the
+  # verdict file is read for the failing stages. No terminal: nothing to stream.
   local gate_rc=0 live=/dev/null verdict stages
   { : > /dev/tty; } 2>/dev/null && live=/dev/tty
   verdict="$(mktemp)"
@@ -674,10 +674,9 @@ merge_chain() {
   # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
   # the run's status is read from the pipeline, never let veto the line.
   set +e
-  # the run's tail is kept from the run's own stages: at the run's depth - the tests section
-  # carries the dev gate's stages: inside its text, deeper (issues/941)
-  local run_pad; run_pad="$(printf '%*s' $(( (record_depth + 3) * 2 )) '')"
-  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk -v pad="$run_pad" 'index($0, pad "stages:") == 1 { p = 1 } p' | tee "$verdict"
+  # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
+  # the one full account of what the gate ran, and the terminal is no record
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
   set -e
   stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"

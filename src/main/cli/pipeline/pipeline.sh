@@ -354,7 +354,7 @@ atom_table() {
     }
   ' "$LOG_FILE" 2>/dev/null | "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
 rows = [line.split("\t") for line in sys.stdin.read().splitlines() if line]
-print("\n".join(facts.lines({"stages": {name: {"FAIL": int(fails), "line": int(at)} for name, fails, at in rows}}, facts.depth())))' "$REPO_ROOT/src/main" || true
+print("\n".join(facts.lines({"stages": {name: {"failures": int(fails), "line": int(at)} for name, fails, at in rows}}, facts.depth())))' "$REPO_ROOT/src/main" || true
 }
 
 # A prep that exits non-zero states its atom like any stage (issues/547), in its own
@@ -472,7 +472,7 @@ main() {
   ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
-  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · $signature · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
+  pair begun "$* - $(date -u '+%Y-%m-%dT%H:%M:%SZ') · $signature · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
 
 
   # the tooling is a section like the stages (issues/755): its lines beneath its key
