@@ -1,6 +1,6 @@
 <!-- How this file reaches you: `corpus-yoga forge raise issue --title <should>
      --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]` raises the
-     issue (#887). The body FILE you draft holds the sections below from
+     issue (issues/887). The body FILE you draft holds the sections below from
      "## currently" on, without "### as at": the forge stamps the Signature from the
      triad the commit hook uses, derives the as-at anchor from the forge's main, and
      wires each relation given as an argument through the blocked_by API, posting a
@@ -15,7 +15,7 @@
      The grammar: an issue is a SHOULD. The title states it in one sentence,
      in should-form — the word appears — the property that should hold, never
      the instrument that should exist. An indicative title reads as a claim
-     about the world and asserts nothing the body can close on: #429–#432
+     about the world and asserts nothing the body can close on: issues/429–issues/432
      ("the retirement completes"), each retitled by hand, are the worked
      example.
      The body separates what IS from what SHOULD BE, and the separation is
@@ -25,7 +25,7 @@
      sentence under "but, in future" is normative. A wish written as a fact,
      or a fact written as a wish, is manifestly ambiguous — it asserts
      nothing — and review should reject it like any other defect. The worked
-     example: #259.
+     example: issues/259.
 
      Relations are the raise's arguments, wired as data: --blocked-by, --blocks
      (the parent of a part), --supersedes. In prose, "guards #N" refers to the

@@ -1,25 +1,25 @@
 # mcpMessage changelog
 
-This family is the HOUSE FACTORING of the Model Context Protocol schema (#562,
-#598): the composition upstream's generator flattens, stated once in draft-04,
+This family is the HOUSE FACTORING of the Model Context Protocol schema (issues/562,
+issues/598): the composition upstream's generator flattens, stated once in draft-04,
 generated from upstream's `schema.ts` alone. It is a committed derivation, never
 hand-edited: `corpus-yoga mcp sync` reads the newest lineage's `schema.ts` under
 `rsc/reference/mcp` (whose `provenance.csv` pins the lineage, commit and SHA256)
 through the parser generated from the house TypeScript grammar into the flat
 shape of every declaration, one stated rule per TypeScript form
 (`src/main/mcp/mcp_generation.py`), composes it over the extends clauses and tags
-it by the categories `src/main/mcp/mcp_extraction.py` reads (#581, #595; the two
+it by the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two
 tables faced under `tmp/cache/mcp/`), and applies the hand-written tables beside
 this file: `description.csv`, house text for the definitions schema.ts leaves
-without a JSDoc; `unreachable.csv`, the definitions no message carries (#588);
+without a JSDoc; `unreachable.csv`, the definitions no message carries (issues/588);
 `layer.csv`, the layers the protocol reads by, one row each with its reading -
 jsonrpc, session, resources, tools, prompts, content, agentic, tasks - the closed
 vocabulary; `category_layer.csv`, the house's reading of the `@category` tags into
 those layers; `placement.csv`, the definitions neither the tag nor the composition
-places, each with its reason (#595); and `addition.csv`, where the house reads
+places, each with its reason (issues/595); and `addition.csv`, where the house reads
 differently from upstream at a JSON Pointer - the null upstream's generator drops
 from `JSONValue`, the protocol version pinned on the `_meta` field that names it
-(#598). Every extends row is verified against the generated shapes before use, the
+(issues/598). Every extends row is verified against the generated shapes before use, the
 derivation refuses an unreachable table that disagrees with the wire, a
 definition no rule places, and an addition row that fits neither reading, and
 every description ends with its layer. One instance is one JSON-RPC message; the
@@ -30,7 +30,7 @@ and every upstream definition equal to its house counterpart resolved and
 normalized, the declared additions set back (`mcp.factoring_agrees`). No data is
 validated against it; every house diagnostic holds over it,
 `structure.all_definitions_reachable` reading `unreachable.csv`. Its two faces -
-the consumer, flat and open, and the producer, flat and closed (#605) - are
+the consumer, flat and open, and the producer, flat and closed (issues/605) - are
 readings the sync writes under `tmp/cache/mcp/`, never versions of this family.
 
 ---
@@ -39,7 +39,7 @@ readings the sync writes under `tmp/cache/mcp/`, never versions of this family.
 
 Generated 2026-09-09 (reading-room) from `rsc/reference/mcp/2026-07-28/schema.ts`
 alone, at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged - upstream's
-`schema.json` beside it now the witness and no longer a source (#598). Every
+`schema.json` beside it now the witness and no longer a source (issues/598). Every
 declaration is read through the house TypeScript grammar into the flat shape
 upstream's generator would give it (`src/main/mcp/mcp_generation.py`, one rule per
 TypeScript form), and composed as before; the alias rows retire, since every type
@@ -88,7 +88,7 @@ v4
 #### Refactored
 
 - The family description (v5, in place, regenerated identically by `corpus-yoga mcp sync`)
-  names `addition.csv` at the family's address since 2026-09-16 (#632),
+  names `addition.csv` at the family's address since 2026-09-16 (issues/632),
   `rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside
   `src/main/mcp`, its generator. No validation effect.
 - Every definition's properties stand in schema.ts's declaration order, and every
@@ -109,7 +109,7 @@ v4
 
 Derived 2026-09-09 (reading-room) from the same snapshot as v3 - lineage 2026-07-28
 at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
-that every definition now carries its layer (#595). The derivation extracts the
+that every definition now carries its layer (issues/595). The derivation extracts the
 `@category` tag schema.ts carries on 135 of its 155 declarations
 (`tmp/cache/mcp/category.csv`, the third extracted table), reads it into the house
 layers (`layer.csv`, one row per layer with its reading) by `category_layer.csv`
@@ -152,7 +152,7 @@ None.
 
 Derived 2026-09-09 (reading-room) from the same snapshot as v2 - lineage 2026-07-28
 at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
-the rule for the root's wrappers (#588): a party's result union gets a `Response`
+the rule for the root's wrappers (issues/588): a party's result union gets a `Response`
 wrapper only when the other party declares requests, since a party's results
 answer the other party's requests. schema.ts declares no `ServerRequest`, so no
 message carries a `ClientResult`: in this lineage the exchanges a server
@@ -194,7 +194,7 @@ None.
 
 Derived 2026-09-08 (home-room) from the same snapshot as v1 - lineage 2026-07-28
 at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
-where the derivation's inputs come from (#581): the composition and alias tables
+where the derivation's inputs come from (issues/581): the composition and alias tables
 are extracted from the committed `schema.ts` by stated rules and faced under
 `tmp/cache/mcp/`, and the two hand-written tables left this directory. The rules
 reproduce every hand row - 90 extends rows over 80 definitions, 10 alias rows -

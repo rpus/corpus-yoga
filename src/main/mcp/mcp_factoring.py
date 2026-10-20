@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp_factoring.py - the house factoring of the MCP schema (#562, #598): generated from
+mcp_factoring.py - the house factoring of the MCP schema (issues/562, issues/598): generated from
 upstream's schema.ts alone, in draft-04, and written to rsc/schema/mcp/mcpMessage;
 upstream's schema.json stands as the witness the result must flatten to, never as a
 source.
@@ -23,7 +23,7 @@ shapes over the bases schema.ts declares, and adds what the house adds:
   open `params` the way `extends` does - the one place the factoring and schema.ts
   diverge, by necessity.
 - category (definition, category): the @category tag schema.ts carries on a
-  declaration, faced beside the composition (#595).
+  declaration, faced beside the composition (issues/595).
 - description.csv (name, description): house text for the definitions schema.ts
   leaves without a JSDoc - hand-written, committed beside the version file.
 - unreachable.csv (name, reason): the definitions no message carries, hand-written
@@ -89,9 +89,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
-from schema_walk import schema_nodes, rebuilt  # noqa: E402  (positions derived from the meta-schema, #571)
+from schema_walk import schema_nodes, rebuilt  # noqa: E402  (positions derived from the meta-schema, issues/571)
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 from latest import latest_file  # noqa: E402
 import mcp_extraction as extraction  # noqa: E402  (sibling module)
 import mcp_generation as generation  # noqa: E402  (sibling module)
@@ -198,7 +198,7 @@ def snapshot() -> tuple[Path, dict]:
 def provenance() -> dict:
     """The snapshot's pinned URL, upstream commit and SHA256, and the schema.ts
     beside it - the rows of the reference project's provenance.csv for the
-    lineage held (#572)."""
+    lineage held (issues/572)."""
     path = latest_file(SNAPSHOT_DIR)
     assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no lineage'
     lineage = path.parent.name
@@ -390,14 +390,14 @@ def partition(doc: dict) -> dict[str, int]:
 
 
 def composition() -> dict[str, list[str]]:
-    """{definition: [base, ...]} as schema.ts declares it (extracted, #581)."""
+    """{definition: [base, ...]} as schema.ts declares it (extracted, issues/581)."""
     return extraction.composition(declarations()[0])
 
 
 def written_tables(declared: dict, tagged: dict) -> list[Path]:
     """Write the two extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
     sibling table) - the readable face of the derivation's inputs; a stale alias.csv
-    from before #598 is removed."""
+    from before issues/598 is removed."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     with CATEGORIES.open('w', newline='') as fh:
         w = csv.writer(fh, quoting=csv.QUOTE_ALL)

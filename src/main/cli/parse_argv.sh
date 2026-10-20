@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# parse_argv.sh — the bash face of parse_argv.py (#474): sourced by a bash target,
+# parse_argv.sh — the bash face of parse_argv.py (issues/474): sourced by a bash target,
 # called at each verb's dispatch as `parse_argv <command> <verb> "$@"`. Answers
 # -h/--help from the verb's declaration and refuses argv the declaration does not
 # express; on validated argv it returns and the caller proceeds with "$@" unchanged.
@@ -15,7 +15,7 @@ PARSE_ARGV_REPO="${_self_dir%/"${SELF%/*}"}"
 
 parse_argv() {
   local out rc=0 python
-  # The face renders under the venv python, the one interpreter (#478):
+  # The face renders under the venv python, the one interpreter (issues/478):
   # argparse's help format varies by python version, and the gate's expectation
   # (cli.verb_help_answered) renders in-process under the venv - any other
   # interpreter fails the byte comparison. Absent the venv, refuse as

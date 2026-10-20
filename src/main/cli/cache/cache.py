@@ -12,7 +12,7 @@ src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whos
 are the two halves of the reproduction ritual: `corpus-yoga cache clean &&
 corpus-yoga cache sync` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
 idempotent regenerator (L1); `clean` is the only destructive verb, and takes no flag
-(#865): what it would remove is what bare cache names under orphans: and next:.
+(issues/865): what it would remove is what bare cache names under orphans: and next:.
 STDLIB-ONLY, like everything it routes to.
 """
 import os
@@ -23,10 +23,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 sys.path.insert(0, str(HERE))
-from cache_io import human, orphans, size_of  # noqa: E402 - the registry, and what it does not own (#865)
+from cache_io import human, orphans, size_of  # noqa: E402 - the registry, and what it does not own (issues/865)
 VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
 USAGE = (__doc__ or '').strip()
 
@@ -47,7 +47,7 @@ class Orphan:
 @dataclass
 class Status:
     """Bare corpus-yoga cache: the subtrees present, each orphan by its path, and under
-    next: the cleaner over what it would remove, by path (#865), so that bare status, which
+    next: the cleaner over what it would remove, by path (issues/865), so that bare status, which
     grafts next:, names an orphaned subtree a room carries."""
     tmp_cache: Tree = facts.named('tmp/cache')
     orphans: dict[str, Orphan] | None = None

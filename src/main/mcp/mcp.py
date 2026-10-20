@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 """
 mcp.py - the house factoring of the MCP schema, rsc/schema/mcp/mcpMessage,
-generated from upstream's schema.ts alone (#598): read through the parser generated
-from the house TypeScript grammar (#597) by mcp_generation.py into the flat shape of
+generated from upstream's schema.ts alone (issues/598): read through the parser generated
+from the house TypeScript grammar (issues/597) by mcp_generation.py into the flat shape of
 every declaration, composed over the extends clauses and tagged by the categories
-mcp_extraction.py reads (#581, #595); upstream's schema.json beside it is the witness
+mcp_extraction.py reads (issues/581, issues/595); upstream's schema.json beside it is the witness
 every definition must flatten to, never a source.
 
 `mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes
 nothing (the bare noun IS the status). Only `sync` writes: the two extracted
 tables and the two faces under tmp/cache/mcp/ (the readable faces of the
 derivation's inputs and of its output - the consumer and producer schemas of
-mcp_face.py, #605) and the
-family's version file - and it MINTS (#583): when the derivation differs from the
+mcp_face.py, issues/605) and the
+family's version file - and it MINTS (issues/583): when the derivation differs from the
 latest version file in any way, it prints the diff, writes the next version and
 removes the current one, by plain file operations (git sees a rename by
 similarity, as it would after git mv). A version of this family means one thing:
@@ -44,7 +44,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 from declared_parser import command_parser  # noqa: E402
 
 import mcp_factoring as factoring  # noqa: E402  (sibling module)
@@ -159,7 +159,7 @@ def status() -> int:
     cache = factoring.CACHE_DIR.relative_to(REPO)
     tagged = factoring.categories()
     gen = factoring.generated()
-    # the facts (#753, #759): what the grammar generated from schema.ts and the tables
+    # the facts (issues/753, issues/759): what the grammar generated from schema.ts and the tables
     # faced from it, each ruling the factoring records, then the family's file against its
     # derivation, the verdict last
     out = Status(
@@ -234,7 +234,7 @@ def sync() -> int:
             for path in face.written(json.loads(have)):
                 print(f'  ✓ {path.relative_to(REPO)}')
         return 0                      # current means no write and nothing said (L1)
-    # The mint (#583): the diff, then the next version in place of this one. Two
+    # The mint (issues/583): the diff, then the next version in place of this one. Two
     # file operations, no git - the commit is the user's act, and git reads the
     # rename by similarity as it would after git mv.
     minted = _successor(target)
@@ -251,7 +251,7 @@ def sync() -> int:
 
 
 def main():
-    parser = command_parser('mcp')  # generated from the declaration (#476)
+    parser = command_parser('mcp')  # generated from the declaration (issues/476)
     args = parser.parse_args()
     if args.verb == 'sync':
         code = sync()

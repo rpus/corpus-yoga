@@ -1,8 +1,8 @@
 """
-live.py - the live stores this room mounts, read against the two tiers (#842, #851): every
+live.py - the live stores this room mounts, read against the two tiers (issues/842, issues/851): every
 session and second-selection unit of each mounted store - ext/mnt/<provider>/code/machine-transport/<machine>,
 a link to where the provider's harness writes, at the address its units have under the
-other two roots (#853) - related to the fuller of the staged copy and the held copy
+other two roots (issues/853) - related to the fuller of the staged copy and the held copy
 of it by the measure the pipeline declares for its kind, the one promotion relates by, so
 that no two readings can disagree. A live thing the store holds level reads as level
 however empty the stage is: the stage is a scratch tier between the live stores and the
@@ -39,7 +39,7 @@ def _tree(path: Path) -> dict[str, bytes]:
 def _live_extras(name: str, mount: Path) -> list[tuple[str, Path]]:
     """What the provider's second selection finds in the live store: (kind, path). The
     declaration's glob is over <machine>/<project>/..., and the mount is this machine's
-    directory at that address under ext/mnt (#853), so the glob applies over the mount's
+    directory at that address under ext/mnt (issues/853), so the glob applies over the mount's
     parent as it does over the other two roots."""
     out = []
     for store in corpus.stores():
@@ -97,7 +97,7 @@ class AbsentMount:
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
     """The files a session's measure reads, by name: the session's own file, or under its
     directory the files the declaration's glob names below the unit - the same relative
-    path under the live store and under each tier (#856)."""
+    path under the live store and under each tier (issues/856)."""
     if path.is_file():
         return {path.name: path.read_bytes()}
     return {f.name: f.read_bytes() for f in sorted(path.glob(pattern)) if f.is_file()}
@@ -112,7 +112,7 @@ def live_addresses() -> tuple[frozenset[Path], frozenset[Path]]:
     live second-selection unit's, what a capture of this room would renew - and among them
     the newest: a live directory that is a link, since a link is made from the newer to the
     older (the maintainer, reading-room 2026-10-02), so that of an identical pair the store
-    keeps the copy under the newer name (#744)."""
+    keeps the copy under the newer name (issues/744)."""
     room = registry.machine()
     live: set[Path] = set()
     newest: set[Path] = set()
@@ -158,7 +158,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
     copy, so a second-selection unit is read against the staged copy where there is one,
     else the held, under its own project's name or under the name of any project whose
     live directory is the same one, since a link joins the names a repository rename
-    leaves (#744) - and the mounts that are absent, by path."""
+    leaves (issues/744) - and the mounts that are absent, by path."""
     room = registry.machine()
     rows: list[Ahead] = []
     absent: list[str] = []

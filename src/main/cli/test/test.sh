@@ -10,7 +10,7 @@
 # The slot after `test` holds WHICH check, not a verb: `run` is the whole suite, `xref`
 # is one of them. That is why `corpus-yoga xref check` retired — `check` meant "reports, writes
 # nothing" elsewhere and "rebuild the table and write it" here, one word for opposite
-# effects on the tree (#49); what is duplicated is the store's reading since #744.
+# effects on the tree (issues/49); what is duplicated is the store's reading since issues/744.
 
 set -euo pipefail
 
@@ -21,7 +21,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 
 # BOTH hooks this repo owns, because installing one without the other has no reason:
 # they are the same machinery (src/test/), on the same event, and `corpus-yoga status`
@@ -61,7 +61,7 @@ case "${1-}" in
   '')           exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/test/status.py" ;;
   run)          shift; parse_argv test run "$@"; exec "$REPO_DIR/src/test/dev/run.sh" "$@" ;;
   xref)         shift; parse_argv test xref "$@"
-                # the test tier's python imports nothing of main's, so the act's tail is said here (#876)
+                # the test tier's python imports nothing of main's, so the act's tail is said here (issues/876)
                 if "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@"; then
                   effect "test xref: DONE - $(sentence "rsc/test/xref.csv rewritten; its summary line stands above")"
                 else

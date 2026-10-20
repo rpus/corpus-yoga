@@ -37,7 +37,7 @@ them.
 
 Validated over the staged session's conversion on home-room, 2026-10-15: v22 refuses it
 at record 835 and stops; v23 refuses none. v23 adds alternatives and definitions and
-narrows nothing, so every datum v22 admits, v23 admits (#892).
+narrows nothing, so every datum v22 admits, v23 admits (issues/892).
 
 ### Replaces
 
@@ -92,7 +92,7 @@ a plain interrupt of 2026-10-07 (2.1.291) under an armed watch with no ledger re
 saved and no such notification, so what makes the harness write the key is not known.
 
 Validated over the staged session's conversion on home-room, 2026-10-13: v21 refuses
-the 1 record and no other; v22 refuses none (#860).
+the 1 record and no other; v22 refuses none (issues/860).
 
 ### Replaces
 
@@ -116,7 +116,7 @@ data/input on reading-room carry no `runId` and validate at v20, as do the two o
 claude sessions the rehearsal judged, 5c631cf4 and be12fa7c.
 
 Validated over the staged session's conversion on reading-room, 2026-10-09: v20 refuses
-the 3 records and no other; v21 refuses none (#847).
+the 3 records and no other; v21 refuses none (issues/847).
 
 ### Replaces
 
@@ -146,7 +146,7 @@ both admitted as strings; `promptSource`'s description now records the value. Th
 versions seen on the user turns carrying `producer` are 2.1.289 and 2.1.291.
 
 Validated by hand over the staged session's conversion on reading-room, 2026-10-08:
-v19 refuses the 26 records and no other; v20 refuses none (#827).
+v19 refuses the 26 records and no other; v20 refuses none (issues/827).
 
 ### Replaces
 
@@ -178,7 +178,7 @@ removed - and whose `modelUsage` holds two members keyed by model id,
 (`inputTokens`, `outputTokens`, `thinkingTokens`, `cacheReadInputTokens`,
 `cacheCreationInputTokens`, `webSearchRequests`) and a `costUSD`. The rehearsal of
 15:46:46Z read the log `fails claude/session v18` at the first of the two, and nothing
-reached shared storage (#733).
+reached shared storage (issues/733).
 
 `claude-haiku-4-5-20251001` was no member of `ModelId`, and authors no turn of the
 session: the harness calls it beside the model that drafts. `ModelId`'s description
@@ -219,13 +219,13 @@ v18
 
 A record kind no version knew. Reading-room session `be12fa7c-…`, written by Claude
 Code 2.1.283 and captured on 2026-09-28 by `corpus-yoga agent capture --all` into the
-stage of PR #689's branch, carries three `cost-state` records that v17 refuses - the
+stage of pull/689's branch, carries three `cost-state` records that v17 refuses - the
 session's running cost and effort totals, `totalCostUSD` and the durations and line
 counts all 0, `totalDuration` climbing across the three, `modelUsage` an empty object,
 `hasUnknownModelCost` false - the first written after a record of 12:57:55Z that day;
 the held copy of the same session, captured before, has none, and no other captured
 session of either machine has one. `corpus-yoga pipeline rehearse code-transport` read
-the log `fails claude/session v17`, and nothing reached shared storage (#713).
+the log `fails claude/session v17`, and nothing reached shared storage (issues/713).
 
 The same log carries a second form, found when the mint was validated by hand: from
 record 17931, of 2026-09-26T18:59:33Z, every completed assistant record - 909 of them,
@@ -442,8 +442,8 @@ None.
 
 - The four content-block descriptions that cite the MCP counterpart (TextContent,
   ToolUseContent, ToolResultContent, ImageContent) name it as
-  `rsc/reference/mcp#/$defs/…` (#572); they had named a snapshot file path that
-  #558 deleted. No validation effect.
+  `rsc/reference/mcp#/$defs/…` (issues/572); they had named a snapshot file path that
+  pull/558 deleted. No validation effect.
 - `MessageContent` spells its union as `type: ["string", "array"]` with
   `minItems` and `items` beside - keywords draft-04 applies to the array member
   alone - instead of a `oneOf` of two inline types (2026-09-08, reading-room,
@@ -722,12 +722,12 @@ v5
 
 ## v5
 
-Now validates `3b98fa60-…` (2026-07-05, the session that raised this repo's PRs #1–#3 from
+Now validates `3b98fa60-…` (2026-07-05, the session that raised this repo's pull/1–pull/3 from
 the second machine) — the first session in which Claude Code created pull requests, and so
 the first to carry the record type this version admits. Aptly, the very session that
 exposed the gap is the evidence for closing it; more aptly still, the prediction that the
 PR proposing this version would write `pr-link` records into the session raising it CAME
-TRUE and was verified: moments after `gh pr create` raised PR #4, the raising session
+TRUE and was verified: moments after `gh pr create` raised pull/4, the raising session
 (`a6f25723-…`) gained `{"type": "pr-link", "prNumber": 4, …}` and on revalidation reads
 "modelled by v5; not by v1, v2, v3, v4" — the second datum of the record type, produced by
 the act of proposing it, validating only against the version it carries in its own diff.

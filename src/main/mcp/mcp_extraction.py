@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-mcp_extraction.py - what the house factoring takes from upstream's schema.ts (#581,
-#597): the composition (which interface extends which), the alias sites (where
-schema.ts uses an exported type alias), the category tags (#595) and the exported
+mcp_extraction.py - what the house factoring takes from upstream's schema.ts (issues/581,
+issues/597): the composition (which interface extends which), the alias sites (where
+schema.ts uses an exported type alias), the category tags (issues/595) and the exported
 constants. Read at every sync from the committed rsc/reference/mcp/<lineage>/schema.ts
 through the parser generated from the house TypeScript grammar
 (rsc/rpus/grammar/TypeScript, generated under src/gen/grammar/TypeScript by

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-rehearsal.py - the stage's rehearsal record, tmp/stage/rehearsal.json (#815): one file, what the
+rehearsal.py - the stage's rehearsal record, tmp/stage/rehearsal.json (issues/815): one file, what the
 last rehearsal saw and judged, whole.
 
     rehearsal.py begin <stamp>          # before the run: the extent, every staged unit's digests, under the scratch tiers
@@ -167,7 +167,7 @@ def end(stamp: str, exit_code: int) -> int:
         return 1
     write(record)
     judged = sum(1 for unit in record['units'].values() if unit['verdicts'])
-    # what an act reports (#801, #896): its effect, DONE where the run completed, its record
+    # what an act reports (issues/801, issues/896): its effect, DONE where the run completed, its record
     # written either way; the launcher replies with next:, what the room can do now that
     # the stage is judged
     saw = f'rehearsal {stamp} saw {len(record["units"])} unit(s), judged {judged} - the record is {_rel(RECORD)}'

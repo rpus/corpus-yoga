@@ -3,7 +3,7 @@
 #
 # The pipeline sources data/input/<provider>/code/machine-transport — the repo-owned,
 # medium-carried stores (<machine>/<project>/<session>) — for every provider that has a
-# mechanism directory beside this script and a row in rsc/provider/providers.csv (#635),
+# mechanism directory beside this script and a row in rsc/provider/providers.csv (issues/635),
 # and NEVER touches a harness-owned live store, which its provider expires at will.
 # `corpus-yoga agent capture --all` is the capture step that populates the stores; run it
 # early and often. A provider's mechanism is three files under <provider>/:
@@ -60,7 +60,7 @@ parse_args() {
 }
 
 # The providers this pipeline serves: a mechanism directory here AND a row of the registry.
-# The registry is the venv python's to read (#478); the pipeline runs after the mint.
+# The registry is the venv python's to read (issues/478); the pipeline runs after the mint.
 providers() {
   local declared p
   declared="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(provider.provider_names()))' "$REPO_DIR/src/main")"
@@ -71,7 +71,7 @@ providers() {
 }
 
 # The provider a store path belongs to: the segment before /code/machine-transport,
-# under whichever root the store is read from - data/input, or the overlay (#687).
+# under whichever root the store is read from - data/input, or the overlay (issues/687).
 provider_of() {
   local head="${1%%/code/machine-transport*}"
   echo "${head##*/}"
@@ -79,7 +79,7 @@ provider_of() {
 
 # The digest of what a memory datum was converted from - the directory's files by
 # relative path and bytes - written beside the conversion as source.sha256, so that a
-# verdict on the converted datum can be tied to the source it was taken over (#687:
+# verdict on the converted datum can be tied to the source it was taken over (issues/687:
 # promotion reads it against the staged unit). A session's converter records its own
 # source, the one file it read.
 record_source() {
@@ -136,7 +136,7 @@ project_housekeeping() {
 
 run_one() {
   # Conversion only: validation is enumerated store-wide and dispatched
-  # per datum-version pair (#395), then rolled up per datum.
+  # per datum-version pair (issues/395), then rolled up per datum.
   local source="$1" machine="$2" project_name="$3" provider="$4"
   local session; session="$(basename "${source%.jsonl}")"
   local out_dir="$CACHE_DIR/$provider/$machine/$project_name/$session"
@@ -153,7 +153,7 @@ run_memory() {
   step_if "$guard" 'when the project has a memory/ dir' record_source record_source "${project_dir%/}/memory" "$out_dir"
 }
 
-# ── Dispatch workers (#395): one task each, machine/project derived from the
+# ── Dispatch workers (issues/395): one task each, machine/project derived from the
 # task itself — a worker learns nothing from scope, so any worker can take any
 # task. Output buffers per task; dispatch_emit restores enumeration order. ──
 
@@ -183,7 +183,7 @@ convert_one_memory() {
 
 # One datum-version pair. The task line is validate_versions.py --pair's argv,
 # tab-separated, as validate.sh --enumerate printed it. Quiet: a current log
-# is a task already done (#369); the roll-up states every verdict.
+# is a task already done (pull/369); the roll-up states every verdict.
 validate_one_pair() {
   local input schema log_dir label
   IFS="$(printf '\t')" read -r input schema log_dir label <<TASK
@@ -194,7 +194,7 @@ TASK
 }
 
 # One family roll-up: the dir face of validate.sh over pair logs that are all
-# current, so it relays verdicts (#363) and renders the matrix. The task is
+# current, so it relays verdicts (pull/363) and renders the matrix. The task is
 # "session<TAB><provider><TAB><dir>" or "memory<TAB><provider><TAB><dir>".
 rollup_one() {
   local kind provider dir
@@ -209,7 +209,7 @@ TASK
 
 corpus() {
   step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
-  # the Signatures on main against the store's sessions (#631): the store of record is the
+  # the Signatures on main against the store's sessions (issues/631): the store of record is the
   # checkout's, and a rehearsal's tiers are the stage's, so a rehearsal does not run it
   local outside=1
   [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]] && outside=0
@@ -218,7 +218,7 @@ corpus() {
 }
 
 # The whole run over the given store project dirs, in four dispatched phases
-# (#395): housekeeping (serial: it prunes the cache the phases fill), then
+# (issues/395): housekeeping (serial: it prunes the cache the phases fill), then
 # conversions, then every datum-version pair, then the per-datum roll-ups.
 # Enumeration is capacity-blind; enumeration order is listing order, and
 # dispatch_emit restores it, so CORPUS_YOGA_JOBS=1 and =N emit identical bytes.
@@ -296,7 +296,7 @@ print_plan() {
   project_housekeeping '<project-dir>' '<machine>' '<project>' '<provider>'
   for mechanism in "$SCRIPT_DIR"/*/list_sessions.sh; do
     provider="$(basename "$(dirname "$mechanism")")"
-    echo "then per $provider session, dispatched to the next free worker (#395):"
+    echo "then per $provider session, dispatched to the next free worker (issues/395):"
     run_one '<session>' '<machine>' '<project>' "$provider"
     [[ -f "$SCRIPT_DIR/$provider/memory_to_json.py" ]] || continue
     echo "then per $provider project with a memory/ dir, dispatched likewise:"

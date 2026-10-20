@@ -9,7 +9,7 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 2026-09-09: the `UserUUID` cross-reference in v3's description fields was
 amended in place: ../../model.json with the fragment `#/default/UserUUID` became
 `../../../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
-model moved to `rsc/model/` and its table lost the `default` wrapper (#591). A
+model moved to `rsc/model/` and its table lost the `default` wrapper (issues/591). A
 description change is not a validation change: no new version.
 
 2026-07-13: the `UserUUID` cross-reference in v1's description fields was
@@ -50,12 +50,12 @@ v2
   cross-reference, and every corpus value matches (verified 2026-08-25 against
   data-0fc4c1e0-…-2026-08-24-12-30-34). States the constraint the values obey,
   restoring model_join row 145's identity claim truthfully after conversations
-  narrowed its side to `UuidV4` (#527).
+  narrowed its side to `UuidV4` (issues/527).
 
 #### Refactored
 
 - The description that points at the cross-family model (v3, in place) is the
-  relative path from the family's address since 2026-09-16 (#632),
+  relative path from the family's address since 2026-09-16 (issues/632),
   `rsc/schema/pipeline/chat-export/claude/memories/`: `../../../../../model/model.json#/UserUUID`.
   No validation effect.
 
@@ -63,7 +63,7 @@ v2
 
 The restructure that reached projects in 2026-07 (its v2: each project in its
 own file, the array wrapper gone) arrived for memories with the manifest-era
-export of 2026-08-24 (#522): the export ships one object per account as a
+export of 2026-08-24 (issues/522): the export ships one object per account as a
 per-account file under a memories directory, where the pre-manifest export
 wrapped the same object in a single-element array at the batch root. The
 deposit hoists the file to memories.json beside the other components (the

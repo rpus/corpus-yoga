@@ -1,10 +1,10 @@
 # shellcheck shell=bash
-# tier.sh — the tiers as a declared contract (#702), the shell twin of src/main/tier.py.
+# tier.sh — the tiers as a declared contract (issues/702), the shell twin of src/main/tier.py.
 # Every script computes its code root itself; the one fact it lacks is which layout its
 # tiers are read from, and that is one name: CORPUS_YOGA_REHEARSAL, a rehearsal's stamp,
 # (CORPUS_YOGA_ACT, CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG are the launcher's: the act it
 # dispatched, that act's stamp and the record it tees the act into - read here alone, by
-# stamp_of and record_of, and only by the act they name - src/main/tier.py, #708, #912)
+# stamp_of and record_of, and only by the act they name - src/main/tier.py, issues/708, issues/912)
 # names the stage's scratch root, tmp/stage/scratch, unset the checkout's. DATA_ROOT is
 # that root, DATA_DIR and TMP_DIR its data and tmp; TMP_STAGE is the checkout's stage, a
 # constant, and TMP_STAGE_SCRATCH the scratch whatever tiers are in force. tier_path turns
@@ -21,7 +21,7 @@ TMP_DIR="$DATA_ROOT/tmp"
 
 # stamp_of <command> <verb>: the act's stamp - the launcher's where it dispatched this act,
 # a fresh one otherwise. record_of <command> <verb>: the act's record, the launcher's tee,
-# where the launcher dispatched this act, nothing otherwise; no verb writes into it (#912).
+# where the launcher dispatched this act, nothing otherwise; no verb writes into it (issues/912).
 stamp_of() {
   if [[ "${CORPUS_YOGA_ACT:-}" == "$1 $2" && -n "${CORPUS_YOGA_STAMP:-}" ]]; then echo "$CORPUS_YOGA_STAMP"
   else date -u '+%Y-%m-%dT%H%M%SZ'; fi

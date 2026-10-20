@@ -7,7 +7,7 @@ stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch
 is what the last rehearsal's run derived, replaced whole by the next; rehearsal.json is
-the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815).
+the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815).
 The per-unit relations stay with each capturing noun's bare status and with bare
 corpus-yoga pipeline; this face counts them against the record. The janitor clears its
 tier as corpus-yoga cache clean clears its own: every staged unit identical to the held
@@ -17,7 +17,7 @@ the record, an orphan of an earlier layout. The scratch and the record are the
 rehearsal's to replace, never the janitor's; a unit that is unlicensed or would lose is
 evidence of another kind and is never the janitor's.
 
-The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (#837):
+The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (issues/837):
 this noun names its entries - each orphan, duplicate and incomplete unit, keyed by its
 address with its kind, its words and its size beneath - and the loop says and takes them.
 An entry is removed as it stands at the act, not as it stood at the naming: a directory
@@ -34,9 +34,9 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
-import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
+import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
 import corpus  # noqa: E402
-import facts  # noqa: E402 - the one face a sentence is said through (#909)
+import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
 KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units'}   # each kind of entry, and its plural
 
@@ -68,7 +68,7 @@ def entries() -> list[cleaner.Entry]:
                 out.append(cleaner.Entry('duplicate', unit.address.as_posix(), {'duplicate': facts.sentence('identical to the held unit'), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
             elif unit.missing:
-                # its record says what it lacks, so what it is is decidable on sight (#721)
+                # its record says what it lacks, so what it is is decidable on sight (issues/721)
                 out.append(cleaner.Entry('incomplete unit', unit.address.as_posix(),
                                          {'incomplete unit': facts.sentence('missing {missing}', missing=', '.join(unit.missing)), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The validation-output judgments, spoken by the data gate (#535, #557): every
+"""The validation-output judgments, spoken by the data gate (issues/535, issues/557): every
 datum validates at each of its families' latest versions, its matrix.md agrees with
 those logs, and every input entry has validation output. The latest version is the
 schema; older versions are the CHANGELOG's history and are judged by nothing. One home - the dev gate held a
@@ -17,14 +17,14 @@ from pathlib import Path
 SELF = 'src/main/validation_audit.py'
 REPO = next(p for p in Path(__file__).resolve().parents if (p / SELF).is_file())
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
 from validation_matrix import rows_from_records  # noqa: E402
 import cache_io  # noqa: E402
 import frontier  # noqa: E402
-import corpus  # noqa: E402 — the one selection of units (#687)
+import corpus  # noqa: E402 — the one selection of units (issues/687)
 
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
 
@@ -58,7 +58,7 @@ def datum_dirs(cache_root: Path, depth: int) -> list[Path]:
 
 def input_subjects(store: corpus.Store) -> list:
     """Each input entry of a store as its cache subject - the units src/main/corpus.py
-    selects for it under data/input (#687): a bare name at depth 1, where a datum is a
+    selects for it under data/input (issues/687): a bare name at depth 1, where a datum is a
     directory, else the tuple of path parts the subject is cut to."""
     root = tier.DATA / 'input'
     units = corpus.select(root, store)
@@ -77,8 +77,8 @@ class Source:
 
 def sources(name: str, facts: dict) -> list[Source]:
     """Each store a pipeline reads: one, or one per provider where the declared input
-    carries <provider> (#635) - the cache then holds a directory per provider under the
-    pipeline's root. The stores are src/main/corpus.py's rows over the same declaration (#687)."""
+    carries <provider> (issues/635) - the cache then holds a directory per provider under the
+    pipeline's root. The stores are src/main/corpus.py's rows over the same declaration (issues/687)."""
     cache_root = tier.path(cache_io.path_for(name))
     return [Source(name if s.provider is None else f'{name}/{s.provider}', s, cache_root / (s.provider or ''))
             for s in corpus.stores({name: facts})]
@@ -91,7 +91,7 @@ def audit(name: str, facts: dict) -> int:
 
 def audit_source(pipeline: str, source: Source) -> int:
     """One pipeline's judgments over one store; returns the number of FAIL atoms stated. The
-    latest version is the schema (#557): every datum validates at each family's latest, its
+    latest version is the schema (issues/557): every datum validates at each family's latest, its
     matrix agrees with that log, and every input entry has validation output."""
     name, cache_root, depth = source.label, source.cache_root, source.store.depth
     schema_parent = SCHEMA_ROOT / 'pipeline' / pipeline
@@ -106,7 +106,7 @@ def audit_source(pipeline: str, source: Source) -> int:
         subject = ' / '.join(datum_dir.relative_to(cache_root).parts)
         expected = rows_from_records(datum_dir, schema_parent)
         if not expected:
-            continue   # logs without records (#701): no judgment here - the input reads unprocessed below
+            continue   # logs without records (issues/701): no judgment here - the input reads unprocessed below
         processed.add(subject)
         matrices[1] += 1
         for (family, item, version), (symbol, _bytes) in expected.items():

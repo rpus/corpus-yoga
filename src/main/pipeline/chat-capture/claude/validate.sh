@@ -20,7 +20,7 @@ source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/pipeline/chat-capture/claude/apiConversation"
 CACHE_DIR="$TMP_DIR/cache/chat-capture/claude"
 # shellcheck source=src/main/steps.sh
-source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (#395)
+source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (issues/395)
 
 validate_conversation() {
   local uuid_dir="${1%/}"
@@ -53,7 +53,7 @@ validate_corpus() {
     [[ -d "$d" ]] || continue
     dirs+=("${d%/}")
   done
-  # The captures validate via next-free dispatch (#395), each one's output
+  # The captures validate via next-free dispatch (issues/395), each one's output
   # buffered; this loop reads the buffers in listing order and applies the same
   # fold the serial loop applied — the dispatch is invisible in the artifact.
   [[ ${#dirs[@]} -gt 0 ]] && dispatch validate_conversation "${dirs[@]}"

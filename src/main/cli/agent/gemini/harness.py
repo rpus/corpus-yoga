@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-harness.py - the Antigravity adapter (#633), from the store as observed on
+harness.py - the Antigravity adapter (issues/633), from the store as observed on
 home-room 2026-09-14 (Antigravity 2.13.0): a session is brain/<uuid>/ with its
 transcript at .system_generated/logs/transcript.jsonl (one JSON object per
 step) and transcript_full.jsonl beside it, a steps/ directory where present,
@@ -8,17 +8,17 @@ the step database conversations/<uuid>.db (sqlite, payloads protobuf), and its
 row in conversation_summaries.db at the store's root (title, step count,
 workspace uris, project id, status). The store keeps a session as
 <machine>/<project>/<uuid>/ holding the live store's files at their own names
-and relative paths, selected and never renamed (#856): the two transcripts at
+and relative paths, selected and never renamed (issues/856): the two transcripts at
 .system_generated/logs/, placed append-only (a copy supersedes an existing
 one iff the existing bytes are a prefix of it); conversations/<uuid>.db, the
 step database as a consistent snapshot taken through sqlite's backup API and
 replaced whenever the transcript advanced; and the one rendered file,
 summary.json, the summaries row, at the session's top, replaced when it
 changed. A further selection of the session's tree is a glob the declaration
-adds, never adapter code; a unit held in the shape before #856 is
+adds, never adapter code; a unit held in the shape before issues/856 is
 rsc/migration/856.sh's to move. The
 model a step ran on sits inside the step database's protobuf payloads and is
-not decoded here - #634 describes that record; model_rows says so.
+not decoded here - issues/634 describes that record; model_rows says so.
 """
 import json
 import sqlite3
@@ -41,7 +41,7 @@ TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')
 SUMMARY_COLUMNS = ('conversation_id', 'title', 'preview', 'step_count', 'last_modified_time',
                    'workspace_uris', 'status', 'source', 'project_id', 'agent_name',
                    'last_user_input_time')
-MODEL_UNDECODED = '(undecoded: the step database is protobuf - #634)'
+MODEL_UNDECODED = '(undecoded: the step database is protobuf - issues/634)'
 
 
 def _summaries(mount: Path) -> dict[str, dict]:
@@ -74,7 +74,7 @@ def _brain(mount: Path, session_id: str) -> Path:
 
 def _logs(session_dir: Path) -> Path:
     """Where a session keeps its transcripts, under its live brain and under its held
-    directory alike (#856)."""
+    directory alike (issues/856)."""
     return session_dir / '.system_generated' / 'logs'
 
 
@@ -118,7 +118,7 @@ def held_sessions(machine_dir: Path) -> list[Session]:
 
 def written(session: Session) -> Iterator[str]:
     """Every string a tool call of the session carried as its arguments - the commands
-    it ran, the files it wrote - in the record's order (#631); from the full transcript
+    it ran, the files it wrote - in the record's order (issues/631); from the full transcript
     where the session has one, since the other truncates long fields."""
     logs = [_logs(session.path) / t for t in reversed(TRANSCRIPTS)]
     log = next((p for p in logs if p.is_file()), None)
@@ -151,9 +151,9 @@ def _snapshot(db: Path) -> bytes:
 
 def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, held: Path, log: Log) -> bool:
     """Mirror one session into <outbox>/<project>/<uuid>/ - each selected file at its live
-    name and relative path (#856) - said into the log under its outcome by its address with
-    each file's relation beneath (#857). Where the stage holds no copy, the held one under
-    held is the baseline (#850): transcripts the store holds identical or ahead are not
+    name and relative path (issues/856) - said into the log under its outcome by its address with
+    each file's relation beneath (issues/857). Where the stage holds no copy, the held one under
+    held is the baseline (issues/850): transcripts the store holds identical or ahead are not
     staged and nothing else of the unit is written, one that diverges from the held copy
     is a CONFLICT, as the promote would say, and one that extends it is written to the
     stage. Returns whether the session conflicted."""

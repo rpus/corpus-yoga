@@ -6,7 +6,7 @@
 # effects.send_switch_read_once. Two DECLARED readings, one per language, is not the
 # accidental pair that check exists to prevent: bash cannot import a python module, and
 # before this file existed no shell command could honour the switch at all (the corpus-yoga forge
-# census, PR #113).
+# census, pull/113).
 #
 # The two ways of honouring refusal, mirroring send.py:
 #   may_send          the send only enriches a report — the caller degrades to UNVERIFIED,

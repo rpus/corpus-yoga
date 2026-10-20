@@ -4,7 +4,7 @@
 # Bare `corpus-yoga` suggests what to run next and runs none of it; `corpus-yoga -h` is
 # the table; `corpus-yoga <command> --help` asks the target itself.
 #
-# Every python here runs in the venv (#478): the launcher refuses without it,
+# Every python here runs in the venv (issues/478): the launcher refuses without it,
 # naming the mint — src/main/cli/status/status.sh sync --apply,
 # the one place the name python3 survives. cli.py stays stdlib-only, so the
 # surface never depends on what pip installed; the venv supplies the
@@ -20,7 +20,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # --no-send, wherever it stands among the words, refuses every send the command and its
-# children would make (#703): the one reading of the switch is src/main/send.py, and the
+# children would make (issues/703): the one reading of the switch is src/main/send.py, and the
 # environment carries it to every process the command runs; the word is taken out here,
 # so no command parses it
 words=()
@@ -32,7 +32,7 @@ set -- ${words[@]+"${words[@]}"}
 if [[ -f "$CORPUS_YOGA_VENV/bin/python" ]]; then
   set -- "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
 elif [[ "${1-}" == walkthrough ]] && command -v python3 >/dev/null; then
-  # the walk needs nothing the venv holds (#766): before the mint it walks the machine report
+  # the walk needs nothing the venv holds (issues/766): before the mint it walks the machine report
   shift
   set -- python3 "$SCRIPT_DIR/src/main/cli/walkthrough/walkthrough.py" "$@"
 else
@@ -43,5 +43,5 @@ fi
 # Nothing sits between the reader and the command it is reading: stdout is the command's
 # own, whether a terminal or a program is reading it, and the entrypoint outlives nothing.
 # A coda belongs to a verb that MOVED the checkout — forge merge ends with git status for
-# that reason — not to every command, most of which change nothing to report on (#324).
+# that reason — not to every command, most of which change nothing to report on (issues/324).
 exec "$@"

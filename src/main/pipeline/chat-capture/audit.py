@@ -8,7 +8,7 @@ captures need attention. Two independent questions, two modes:
 
 Filesystem audit (always) — "are the captures I have any good?"
   claude — nothing to check offline: the API capture is the record (DOM retired,
-  #418/#431), and validate.sh already gates each capture against the schema.
+  issues/418/#431), and validate.sh already gates each capture against the schema.
   gemini — no API capture exists, so heuristics: a DOM capture with exactly
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
@@ -44,10 +44,10 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (#421)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (issues/380)
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (issues/421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
 from safari import SendRefused   # --live sends; the refusal has to be catchable here
 
@@ -99,7 +99,7 @@ class Audit:
 
 
 def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tuple[Gemini, list[str]]:
-    """The offline findings on gemini's DOM captures (#753, #759), and the suspects' names."""
+    """The offline findings on gemini's DOM captures (issues/753, issues/759), and the suspects' names."""
     # gemini has no API capture, so the DOM capture IS the record — but its projection
     # is numbered like every other conversation, so the WARN can still name it the way
     # the corpus does rather than by uuid alone.
@@ -279,7 +279,7 @@ def live_gemini(captures_dir: Path) -> tuple[Live | str, list[str]]:
 
 
 def main():
-    # The one thing an unmigrated machine needs this face to say (#421): the
+    # The one thing an unmigrated machine needs this face to say (issues/421): the
     # library's stated move — bare `corpus-yoga browser` is where a tester looks first.
     from library import migration_note
     migration_note()

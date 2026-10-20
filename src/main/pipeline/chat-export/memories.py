@@ -41,7 +41,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from vintage import export_time
-from accumulate import accumulate  # the one deposit rule (issue #22)
+from accumulate import accumulate  # the one deposit rule (issues/22)
 
 SELF = 'src/main/pipeline/chat-export/memories.py'
 _file = Path(__file__).resolve()
@@ -50,9 +50,9 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 # renamed on import: this file's own deposit() puts memory STATES into the
-# library; the shared one puts rendered FILES into a directory (#426)
+# library; the shared one puts rendered FILES into a directory (pull/426)
 from markdown_projection import deposit as deposit_files  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
 
@@ -205,7 +205,7 @@ def sync(chat_export_cache: Path, memories_output: Path, markdown: Path) -> int:
 
 
 def main():
-    args = command_parser('memories').parse_args()  # whole surface declared (#476, #477)
+    args = command_parser('memories').parse_args()  # whole surface declared (issues/476, issues/477)
     if args.verb == 'sync':
         return sync(Path(args.chat_export_cache), Path(args.memories_output), Path(args.markdown))
     # bare → status (read-only)

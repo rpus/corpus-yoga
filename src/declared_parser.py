@@ -1,13 +1,13 @@
 """declared_parser.py — argparse parsers GENERATED from src/main/cli/ declarations.
 
 A declaration already states a command's structure — verbs, arguments, arity,
-wording, outward sends — so its parser is derived, never hand-built (#474, #476):
+wording, outward sends — so its parser is derived, never hand-built (issues/474, issues/476):
 argparse owns the parsing and the -h, the declaration owns everything it can say,
 and a target contributes only its semantic residue (default, type, dest, nargs)
 as per-argument overrides. verb_parser() is one verb's standalone parser (the
 bash targets' parse_argv face); command_parser() is a python target's whole
 surface — command-level arguments, one subparser per verb, the root's flags
-re-accepted after each verb (issue #33) so the position the declaration renders
+re-accepted after each verb (issues/33) so the position the declaration renders
 parses too.
 
 prog is `corpus-yoga <command> [<verb>]`, never the implementing file: the reader is
@@ -16,7 +16,7 @@ a positional, a plain flag); '1' — required; '1/<class>' — the class's membe
 form one required mutually exclusive group. A flag with a declared type takes a
 value (the type is its metavar); one without is a bare switch. Declared sends
 render as each verb's epilog — an outward call is part of what the invocation
-DOES (#29).
+DOES (issues/29).
 
 Stdlib only, and imported by stdlib-only faces (parse_argv.py) that run before
 any venv exists.
@@ -65,7 +65,7 @@ def _path_arg_types() -> set:
 
 
 def _tier_path(declared: str) -> str:
-    """A declared repo-relative path under the tiers in force (src/main/tier.py, #702): a
+    """A declared repo-relative path under the tiers in force (src/main/tier.py, issues/702): a
     default naming data/ or tmp/ resolves to the stage's scratch when a rehearsal is named,
     the checkout's otherwise - never against the working directory, and never the
     checkout's from inside a rehearsal."""
@@ -77,8 +77,8 @@ def _tier_path(declared: str) -> str:
 def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
     """Each declared row becomes one add_argument call; overrides supply the
     residue and may not invent an argument the declaration lacks. A declared
-    default is data (#477): a path-typed argument's default is repo-relative and
-    resolves through the tier contract here (#702), any other passes verbatim — and the
+    default is data (issues/477): a path-typed argument's default is repo-relative and
+    resolves through the tier contract here (issues/702), any other passes verbatim — and the
     help shows the value as declared, so no help prose restates it."""
     groups: dict[str, object] = {}
     for r in rows:
@@ -159,7 +159,7 @@ def command_parser(command: str, overrides: dict | None = None,
                                     epilog=_epilog(command, verb),
                                     formatter_class=argparse.RawDescriptionHelpFormatter)
             _add_arguments(sub, verb_rows, over.get(verb, {}))
-            # Re-accept the root's flags after the verb (#33). SUPPRESS defaults:
+            # Re-accept the root's flags after the verb (issues/33). SUPPRESS defaults:
             # a subparser writes its defaults into the shared namespace AFTER the
             # root has parsed, so a real default here would overwrite a value
             # given before the verb.

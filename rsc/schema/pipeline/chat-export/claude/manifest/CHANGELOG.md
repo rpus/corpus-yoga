@@ -8,7 +8,7 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ## v1
 
-Initial schema, minted from the flow change of 2026-08-24 (#522): requesting a
+Initial schema, minted from the flow change of 2026-08-24 (issues/522): requesting a
 bulk export still emails a link, but the link now downloads this manifest -
 version "1.0", four data_files, each a one-use export_url - where the
 pre-manifest flow delivered one archive. Minted from the two manifests

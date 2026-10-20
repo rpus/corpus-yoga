@@ -18,12 +18,12 @@ source-native conversation id.
 
 #### Refactored
 
-- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-chat-categories.json` since 2026-09-15 (#655), when the family moved from the dashboard root of rsc/schema to the indexing root, beside the curation the same command writes and the file gained its state prefix. No validation effect.
+- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-chat-categories.json` since 2026-09-15 (issues/655), when the family moved from the dashboard root of rsc/schema to the indexing root, beside the curation the same command writes and the file gained its state prefix. No validation effect.
 
 - `ChatCategories` description (v1, in place) — the dashboard artifact path gained the
   `data/` root (now `data/output/dashboard/chat-categories.json`) for the four-root
-  migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect.
+  migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect.
   The narrative above keeps the pre-migration layout of 2026-07-10, the day it describes.
 - `ChatCategories` description (v1, in place) - the palette's home is named
-  `rsc/site/index.template.html`, the template's name since #650 (2026-09-15); the
+  `rsc/site/index.template.html`, the template's name since issues/650 (2026-09-15); the
   file is the same. No validation effect.

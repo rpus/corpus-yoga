@@ -12,7 +12,7 @@ The sibling of machine.py: a machine is an identity and so is a provider;
 rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,
 like machine.py and cli.py: importable on a fresh clone before the venv exists. The
 shell readers (the commit hook, the mount script, the machine report) take lines()
-through src/run_python_script.sh, the venv's python (#478), so the csv grammar is
+through src/run_python_script.sh, the venv's python (issues/478), so the csv grammar is
 read in one place.
 """
 import csv
@@ -83,7 +83,7 @@ def machine() -> str:
         name = ''
     if not name:
         # a worktree holds no binding of its own: it is on the machine of the checkout it
-        # was added from, whose .git is git's common dir (#887)
+        # was added from, whose .git is git's common dir (issues/887)
         try:
             common = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--git-common-dir'],
                                     capture_output=True, text=True, check=True).stdout.strip()
@@ -94,7 +94,7 @@ def machine() -> str:
 
 
 def signature() -> str:
-    """The Signature triad (#704): `<machine>/<provider>/<session>` where the first row
+    """The Signature triad (issues/704): `<machine>/<provider>/<session>` where the first row
     whose declared session variable this environment carries is the drafter, the session
     its first eight characters; `<machine>` alone otherwise. Attests only what the
     environment positively provides: absence of a session is not evidence of a human. The
@@ -121,19 +121,19 @@ def read_signature(line: str) -> tuple[str, str | None, str | None] | None:
     return (m.group(1), m.group(2), m.group(3)) if m else None
 
 
-MOUNT_ROOT = REPO / 'ext' / 'mnt'                 # the live tier's root: the third root over the one address grammar (#853)
+MOUNT_ROOT = REPO / 'ext' / 'mnt'                 # the live tier's root: the third root over the one address grammar (issues/853)
 TRANSPORT = Path('code') / 'machine-transport'    # the channel and the capture a provider's live sessions have under every tier root
 
 
 def address(row: dict[str, str]) -> Path | None:
     """The address this machine's live store has under every tier root - ext/mnt,
-    tmp/stage/input and data/input alike (#853): <provider>/code/machine-transport/<machine>,
+    tmp/stage/input and data/input alike (issues/853): <provider>/code/machine-transport/<machine>,
     the machine this room's binding; None where the row observes no live store."""
     return Path(row['provider']) / TRANSPORT / machine() if row['live_store'] else None
 
 
 def mount(row: dict[str, str]) -> Path | None:
-    """The by-reference mount of the live store: its address under ext/mnt (#636, #853),
+    """The by-reference mount of the live store: its address under ext/mnt (issues/636, issues/853),
     or None where the row observes no live store."""
     found = address(row)
     return MOUNT_ROOT / found if found is not None else None

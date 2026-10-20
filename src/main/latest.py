@@ -5,7 +5,7 @@ tier's (the gate imports what it checks): a house schema family holds v*.json fi
 highest number; an upstream reference project (rsc/reference/<project>/) holds
 one lineage directory named as upstream names it (a date, a draft) whose
 schema.json is the reference, and the latest is the last by name. The latest is
-the schema and the rest history (#557), so either directory normally holds one.
+the schema and the rest history (issues/557), so either directory normally holds one.
 """
 
 import re

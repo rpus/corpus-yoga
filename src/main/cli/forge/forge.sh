@@ -4,9 +4,9 @@
 # Usage:
 #   corpus-yoga forge                 # declared vs live
 #   corpus-yoga forge sync            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the bare status's
-#   corpus-yoga forge raise pr <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (#884)
-#   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (#887)
-#   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
+#   corpus-yoga forge raise pr <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (issues/884)
+#   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (issues/887)
+#   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
 #   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
@@ -27,9 +27,9 @@ source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/provider.sh
-source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
+source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header's triad (issues/704)
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 
 # rows: STATUS \t key \t detail \t remedy - parsed by status() and `corpus-yoga status`
 reconcile() {
@@ -43,7 +43,7 @@ reconcile() {
   fi
   printf '%s' "$live" | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/reconcile.py" "$DECLARED" 2>/dev/null \
     || echo -e "UNVERIFIED\tdeclared\t$(sentence "unreadable, malformed, or no venv")\t"
-  # This checkout's origin against the repository the forge answers for it (#579). After a
+  # This checkout's origin against the repository the forge answers for it (issues/579). After a
   # rename the forge redirects, so its full_name is the current name while origin may still
   # spell the old one: every push is redirected and works, and a reader opened from the old
   # name misses this checkout's PRs. MOVED, not DRIFT: a redirected origin refuses nothing.
@@ -67,7 +67,7 @@ reconcile() {
 superseding_force_push() {  # <pr-number> <tip>
   local n="$1" tip="$2" events event before
   # shellcheck disable=SC2016
-  # the document is a file so the echo names it rather than reciting it (#301):
+  # the document is a file so the echo names it rather than reciting it (issues/301):
   # src/main/cli/forge/superseded-heads.graphql
   events="$(cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" \
     -F query=@src/main/cli/forge/superseded-heads.graphql \
@@ -86,7 +86,7 @@ superseding_force_push() {  # <pr-number> <tip>
 # rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and clean(). A KEPT row
 # whose keeping rests on evidence - commits the base or the merge does not hold - carries
 # the reader's act in words as its remedy, never a command, so that bare status says it
-# and status sync never runs it (#866).
+# and status sync never runs it (issues/866).
 branches() {
   if ! command -v gh &>/dev/null; then
     echo -e "UNVERIFIED\tlive\t$(sentence "gh not installed")"
@@ -132,7 +132,7 @@ branches() {
     fi
     n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); oid=$(jq -r .headRefOid <<< "$pr_json")
     # The verdict on a merged PR's branch is a function of the branch and the merge, never
-    # of which objects this checkout happens to hold (#864): a head pushed from another
+    # of which objects this checkout happens to hold (issues/864): a head pushed from another
     # room and deleted at the merge is fetched from the PR's own ref before containment
     # is judged, and where it cannot be held the row is UNVERIFIED, never KEPT.
     if [[ "$st" == MERGED ]] && ! git -C "$REPO_DIR" cat-file -e "$oid^{commit}" 2>/dev/null; then
@@ -260,7 +260,7 @@ base_branch() {
   (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
 }
 
-# The standing report (#759): each probe's rows under its section's name, typed and said as
+# The standing report (issues/759): each probe's rows under its section's name, typed and said as
 # one shape by status.py - with --stage, the stage's units after it. Returns 1 on
 # refuse-class drift, the merge's gate.
 status() {
@@ -280,10 +280,10 @@ count() { if (( $1 == 1 )); then echo "$1 $2"; else echo "$1 $3"; fi; }
 
 
 clean() {
-  # The forge's cleaner (#871): what it removes is what the status names - each DELETABLE
+  # The forge's cleaner (issues/871): what it removes is what the status names - each DELETABLE
   # or SERVER_DELETABLE branch, each STALE tracking ref - and its lines are the one shape
   # every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or
-  # did NOT remove beneath each, the effect last (#801, #896). No flag: the status is
+  # did NOT remove beneath each, the effect last (issues/801, issues/896). No flag: the status is
   # the dry run.
   local rows stale st key detail kind why item removed_branches=0 removed_refs=0
   local -a items=() left=()
@@ -333,7 +333,7 @@ clean() {
   effect "forge clean: DONE - did remove ${counts:-nothing}"
 }
 
-# The act (#881): what it would set is the bare status's, drift by drift; this sets each.
+# The act (issues/881): what it would set is the bare status's, drift by drift; this sets each.
 sync() {
   assert_may_send "gh api -X PATCH (forge sync)" || exit 1
   local rows drift=0
@@ -359,10 +359,10 @@ sync() {
   effect "forge sync: DONE - $(sentence "did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv")"
 }
 
-# The merge is the reviewer's one act (#483): every refusal (OPEN, an aims-to-
-# complete body, the title copy #479, the blockers #482, refuse-class drift),
+# The merge is the reviewer's one act (issues/483): every refusal (OPEN, an aims-to-
+# complete body, the title copy issues/479, the blockers issues/482, refuse-class drift),
 # the relocation only if the base moved (the lifetime's one rebase, replaying only
-# the commits the base does not already hold, tree for tree - #585; rsc/test/
+# the commits the base does not already hold, tree for tree - issues/585; rsc/test/
 # conflicts are CONTRIBUTING's syntactic class, taken wholesale and re-derived;
 # any other conflict aborts to review), the held checkout resynced, the body's
 # aims-to-closes as the LAST edit before the squash - and a failed squash
@@ -372,7 +372,7 @@ sync() {
 # log; PIPESTATUS carries the verdict past the tee, so the pipe launders nothing.
 merge() {
   local pr="$1" rc=0
-  # the record is the launcher's tee of the whole verb (#708), header included
+  # the record is the launcher's tee of the whole verb (issues/708), header included
   merge_chain "$pr" || rc=$?
   local record; record="$(record_of forge merge)"
   if [[ -n "$record" ]]; then echo "Log: ${record#"$REPO_DIR/"}"; fi
@@ -387,7 +387,7 @@ pr_of_commit() {  # <sha>
   (cd "$REPO_DIR" && quote gh api "repos/{owner}/{repo}/commits/$1/pulls" --jq '.[0].number // empty') || true
 }
 
-# The heads a merged PR held before each relocation (#585): the force-push
+# The heads a merged PR held before each relocation (issues/585): the force-push
 # timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
 # branch built on the parent before the forge relocated it carries one of these.
 # Empty when the send is refused or the forge unreachable.
@@ -414,7 +414,7 @@ patch_ids() {  # <range>
   done | awk 'NF' | sort -u
 }
 
-# Whether git vouches for skipping everything up to a former head (#585): the PR's
+# Whether git vouches for skipping everything up to a former head (issues/585): the PR's
 # final head has the tree of a base commit (its squash is that head), and every
 # commit the skip drops has a patch twin among the final head's commits since the
 # merge-base - a relocation the forge made, not a rewrite that dropped content the
@@ -430,7 +430,7 @@ skip_vouched() {  # <merge-base> <former> <final> <base-trees>
   done
 }
 
-# The point a branch relocates from (#585): the newest of its commits since the
+# The point a branch relocates from (issues/585): the newest of its commits since the
 # merge-base that the base already holds - else the merge-base itself, the plain
 # rebase. Held is read two ways. Tree for tree: a parent merged with the base unmoved
 # keeps its head's TREE in its squash though not its patches (a one-commit parent
@@ -467,7 +467,7 @@ relocation_point() {  # <base-ref> <head-ref>
   echo "$onto $(git -C "$REPO_DIR" rev-list --count "$merge_base..$onto") $(git -C "$REPO_DIR" rev-list --count "$onto..$head_ref") ${named:--}"
 }
 
-# The relocation of a moved base (#507, #585): in a detached worktree of its own
+# The relocation of a moved base (issues/507, issues/585): in a detached worktree of its own
 # under tmp/forge/merge/, never in the invoking checkout - so a halt or an
 # interruption leaves the checkout as found. Replays only the branch's own commits
 # (relocation_point), takes an rsc/test/ conflict wholesale (the syntactic class,
@@ -486,7 +486,7 @@ relocated() {  # <base> <head> <old-sha>
   mkdir -p "$TMP_DIR/forge/merge"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "refs/remotes/origin/$head" >&2 \
     || { echo "relocation halted - could not open a worktree at origin/$head" >&2; return 1; }
-  # A paused rebase is an EXPECTED state, not a failure (#485): the attempt
+  # A paused rebase is an EXPECTED state, not a failure (issues/485): the attempt
   # face relays no verdict, git's advice channels are off, and the narration
   # below names the state in the mechanism's own voice.
   read -r onto held own merged_pr < <(relocation_point "refs/remotes/origin/$base" "refs/remotes/origin/$head") || true
@@ -525,7 +525,7 @@ relocated() {  # <base> <head> <old-sha>
       GIT_EDITOR=true attempt git -C "$wt" -c advice.mergeConflict=false rebase --continue >&2 || true
     done
   fi
-  # The worktree is a fresh tree: the machine-local parsers (src/gen, #597) are
+  # The worktree is a fresh tree: the machine-local parsers (src/gen, issues/597) are
   # generated there before the gate needs them, and the settle runs FROM there -
   # src/test/dev/run.sh gates the tree the current directory belongs to.
   (cd "$wt" && quiet "$wt/corpus-yoga" grammar sync) >&2 \
@@ -554,14 +554,14 @@ merge_chain() {
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE - #$pr is $state; only an open PR merges"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE - the body read failed"; return 1; }
-  # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, #884): one
+  # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one
   # line per issue, as corpus-yoga forge raise writes them; a line that says the phrase
   # otherwise refuses here, before any enacting step, since the flip could not read it either.
   local aimed
-  aimed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" aimed <<< "$body")"     || { echo "forge merge: NOT DONE - the body's aim lines are not in the aim's grammar; the line above names it, and corpus-yoga forge raise writes them (#884)"; return 1; }
+  aimed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" aimed <<< "$body")"     || { echo "forge merge: NOT DONE - the body's aim lines are not in the aim's grammar; the line above names it, and corpus-yoga forge raise writes them (issues/884)"; return 1; }
   [[ -n "$aimed" ]]     || { echo "forge merge: NOT DONE - the body carries no aim line to flip"; return 1; }
   # The title is a verbatim COPY of the title of an issue the body aims to
-  # complete (#479): the should's one home is the issue, main's subject becomes
+  # complete (issues/479): the should's one home is the issue, main's subject becomes
   # the disposed should, and a non-copy refuses HERE, before any enacting step.
   local title issue_number issue_title copied=0
   title="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json title --jq .title)"     || { echo "forge merge: NOT DONE - the title read failed"; return 1; }
@@ -570,8 +570,8 @@ merge_chain() {
     issue_title="$(cd "$REPO_DIR" && quote gh issue view "$issue_number" --json title --jq .title)" || continue
     [[ "$title" == "$issue_title" ]] && copied=1
   done <<< "$aimed"
-  [[ "$copied" == 1 ]]     || { echo "forge merge: NOT DONE - the title copies no issue the body aims to complete (#479); retitle the PR as the verbatim copy of the central issue's title"; return 1; }
-  # Every aimed issue's OPEN blockers must be aimed too (#482): closing a
+  [[ "$copied" == 1 ]]     || { echo "forge merge: NOT DONE - the title copies no issue the body aims to complete (issues/479); retitle the PR as the verbatim copy of the central issue's title"; return 1; }
+  # Every aimed issue's OPEN blockers must be aimed too (issues/482): closing a
   # blocked issue with its stated precondition unmet is what blocked_by
   # exists to prevent, and the refusal lands here, before any enacting step.
   local blocker_rows blocker_number blocker_state
@@ -581,7 +581,7 @@ merge_chain() {
     while IFS=$'\t' read -r blocker_number blocker_state; do
       [[ -n "$blocker_number" ]] || continue
       [[ "$blocker_state" == "closed" ]] && continue
-      grep -qx "$blocker_number" <<< "$aimed"       || { echo "forge merge: NOT DONE - #$issue_number is blocked by open #$blocker_number, which this body does not aim to complete (#482)"; return 1; }
+      grep -qx "$blocker_number" <<< "$aimed"       || { echo "forge merge: NOT DONE - #$issue_number is blocked by open #$blocker_number, which this body does not aim to complete (issues/482)"; return 1; }
     done <<< "$blocker_rows"
   done <<< "$aimed"
   status     || { echo "forge merge: NOT DONE - refuse-class drift; the standing report above names it"; return 1; }
@@ -591,10 +591,10 @@ merge_chain() {
     [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]]       || { echo "forge merge: NOT DONE - this checkout holds $head with a dirty tree; commit or stash first, never reset"; return 1; }
     git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge merge: NOT DONE - local $head holds commits origin/$head does not; push them first"; return 1; }
   fi
-  # The squash pin is the merge's OWN sha (#488): the head fetched here, or the
+  # The squash pin is the merge's OWN sha (issues/488): the head fetched here, or the
   # head the relocation pushes below - never a PR-API re-read, which is
   # eventually consistent and served the pre-push sha in the same breath as the
-  # push (the two failed merges of PR #486, 2026-08-14, this room's logs).
+  # push (the two failed merges of pull/486, 2026-08-14, this room's logs).
   oid="$(git -C "$REPO_DIR" rev-parse "refs/remotes/origin/$head")"
   if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
     echo "base unmoved - origin/$head already stands on origin/$base; nothing to relocate"
@@ -612,7 +612,7 @@ merge_chain() {
       echo "resynced this checkout: $head is the relocated copy of what was reviewed"
     fi
   fi
-  # The data gate (#541, #549): corpus-yoga pipeline run at the head being merged.
+  # The data gate (issues/541, issues/549): corpus-yoga pipeline run at the head being merged.
   # The merge stands there itself - detached at the exact sha - and puts the
   # checkout back where it was if the gate is red.
   local was
@@ -624,12 +624,12 @@ merge_chain() {
   fi
   # The run streams to the terminal as it happens and writes its own log; this
   # log keeps its verdict lines only (from the usr gate line to the end), so the
-  # run is recorded once (#547 review, 2026-08-25). No terminal: nothing to stream.
+  # run is recorded once (issues/547 review, 2026-08-25). No terminal: nothing to stream.
   local gate_rc=0 live=/dev/null verdict stages
   { : > /dev/tty; } 2>/dev/null && live=/dev/tty
   verdict="$(mktemp)"
   echo "enact: $REPO_DIR/src/main/cli/pipeline/pipeline.sh run" >&2
-  # Under errexit a red pipeline would end the merge here, verdict unwritten (#601):
+  # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
   # the run's status is read from the pipeline, never let veto the line.
   set +e
   "$REPO_DIR/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk '/^usr gate:/ { p = 1 } p' | tee "$verdict"
@@ -639,7 +639,7 @@ merge_chain() {
   rm -f "$verdict"
   # The gate regenerates rsc/test/ where the branch's committed artifacts are stale;
   # those files are derived, so the halt discards them and puts the checkout back
-  # (#507): the finding is stated below, the checkout stands as found.
+  # (issues/507): the finding is stated below, the checkout stands as found.
   put_back() {
     enact git -C "$REPO_DIR" checkout -- rsc/test/ >/dev/null 2>&1 || true
     restore
@@ -661,8 +661,8 @@ merge_chain() {
   printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - the flip failed; the body still aims, nothing merged$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
   # The squash is pinned to the head every check above saw; between the flip
   # and here the closes phrasing exists for an instant, and a refused squash
-  # restores the body as found (#483).
-  # The forge's reading of the aim against GitHub's (#884): what the squash will close is
+  # restores the body as found (issues/483).
+  # The forge's reading of the aim against GitHub's (issues/884): what the squash will close is
   # the PR's closing references, bound by GitHub from the flipped body; where they are not
   # the aimed set, the body is restored and nothing merges - the two readings cannot differ
   # on main. The references settle a moment after the edit, so the read is tried a few times.
@@ -674,7 +674,7 @@ merge_chain() {
   done
   if [[ "$closing" != "$(sort -n <<< "$aimed")" ]]; then
     printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -) && echo "the body is restored as found - it aims again, nothing closed"
-    echo "forge merge: NOT DONE - the forge would close [$(tr '\n' ' ' <<< "$closing")] where the body aims at [$(tr '\n' ' ' <<< "$aimed")]; nothing merged (#884)"
+    echo "forge merge: NOT DONE - the forge would close [$(tr '\n' ' ' <<< "$closing")] where the body aims at [$(tr '\n' ' ' <<< "$aimed")]; nothing merged (issues/884)"
     return 1
   fi
   if ! (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid"); then
@@ -691,7 +691,7 @@ merge_chain() {
     echo "forge merge: NOT DONE - merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
     return 1
   fi
-  # The steps after the fast-forward run the tree the checkout converged on (#910): a
+  # The steps after the fast-forward run the tree the checkout converged on (issues/910): a
   # fresh bash of the new main's forge.sh, sourced as a library, runs conclude below.
   # This process read its forge.sh and report.sh before the squash, and the printer it
   # would call is read from disk at the call, so a merge that changes an interface
@@ -701,7 +701,7 @@ merge_chain() {
 
 # conclude <pr> <squash> <aimed issues, one per line>: conclude the merge - the steps after
 # the fast-forward: the cleaner, git's quiet status, each aimed issue's state, the effect -
-# run by the forge.sh of the tree merged onto (#910). The name is the one contract between
+# run by the forge.sh of the tree merged onto (issues/910). The name is the one contract between
 # the tree that merged and the tree merged onto, and does not change.
 conclude() {
   local pr="$1" landed="$2" aimed="$3"
@@ -709,7 +709,7 @@ conclude() {
     echo "forge merge: NOT DONE - $(sentence "merged as {landed} and this checkout converged on it, but the sweep after it did not complete; the last NOT-done line above names where" landed="${landed:0:8}")"
     return 1
   fi
-  # Each aimed issue's state after the squash, read from the forge (#735, #884): the
+  # Each aimed issue's state after the squash, read from the forge (issues/735, issues/884): the
   # verdict counts what the forge closed, never what the body promised.
   local closed=0 total=0 state issue_number
   echo "aimed:"
@@ -725,7 +725,7 @@ conclude() {
 
 # The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 # The run log (room, head, every gh command, the verdict) is the launcher's tee, as
-# for every verb declaring sends or w (cli.py _log_enacting, #453).
+# for every verb declaring sends or w (cli.py _log_enacting, issues/453).
 capture() {
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/capture.py" "$(date -u '+%Y-%m-%dT%H%M%SZ')" "$@"
 }

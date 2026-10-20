@@ -2,7 +2,7 @@
 """
 status.py - bare `corpus-yoga pipeline`: each pipeline by its declaration and the steps its
 plan names, read as rows on stdin from pipeline.sh (`pipeline <name> <prep step or ->`,
-tab-separated), then the stage's every unit by its facts, as one shape (#759, #800).
+tab-separated), then the stage's every unit by its facts, as one shape (issues/759, issues/800).
 Reads; writes nothing.
 """
 import json

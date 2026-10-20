@@ -1,23 +1,23 @@
 """
-facts.py - a verb's facts as nested indented lines, YAML, from one printer (#740).
+facts.py - a verb's facts as nested indented lines, YAML, from one printer (issues/740).
 
 A status holds its facts as data - mappings of counts, lists of units, a verdict - and
 prints them here: one fact per line, a fact that qualifies another indented beneath it,
 a heading over the items it covers. The lines are YAML, so the same artifact is read by a
 human by its shape and loaded by a machine as data; no width is enforced, since a line
 that is one fact is as long as its fact. Said to a terminal, a value too long for the
-terminal's width continues on lines indented beneath it (#790), which YAML and the reader
+terminal's width continues on lines indented beneath it (issues/790), which YAML and the reader
 here both read as the one value; said anywhere else a fact stays one line. The emitter covers what a status holds -
 mappings, lists, strings, numbers, booleans and None - and quotes a string wherever YAML
 would otherwise read it as something else.
 
-A status's facts are a named shape (#759): a dataclass whose fields are the facts it
+A status's facts are a named shape (issues/759): a dataclass whose fields are the facts it
 holds, so that a reader takes them as fields and the type check holds the keys. A field
 prints under its name's words, or under the key `named` gives it; a field that is None is
 not printed; a shape whose keys are its data says so in a `facts` method. A collection is
 a mapping keyed by its members' names, each member's facts beneath its name, so that a
 dash means only a bare value with nothing to key it by, and the nesting alone says what
-belongs to what (#765). Two facts every status shares are types of their own: a remedy,
+belongs to what (issues/765). Two facts every status shares are types of their own: a remedy,
 the command a reader types (Command) or the reader's own act in words (Act), and a finding
 (Finding), the FAIL the usr gate's table counts. A Command prints as a pair, the line its
 key and what it does its value: what is typed is always a whole scalar. A noun written in shell hands its rows to
@@ -242,7 +242,7 @@ def load(text: str):
     """What `lines` printed, read back as the mappings, lists and scalars it was printed
     from: the printer's inverse, and no more of YAML than the printer writes. It needs
     nothing outside the standard library, so a reader of a status runs where the printer
-    does (#766); the dev gate holds the two as inverses against a YAML reader."""
+    does (issues/766); the dev gate holds the two as inverses against a YAML reader."""
     rows = [(len(line) - len(line.lstrip(' ')), line.strip()) for line in text.splitlines() if line.strip()]
     if not rows:
         return {}
@@ -317,10 +317,10 @@ def say(shape: DataclassInstance) -> None:
     print('\n'.join(lines(plain(shape), width=terminal_width())))
 
 
-ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every next: (#801)
+ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every next: (issues/801)
 import tier  # noqa: E402 - the launcher's names, one home
 
-ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (#896)
+ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (issues/896)
 EFFECT = 'CORPUS_YOGA_EFFECT'    # and the file the act hands its effect up through
 
 
@@ -338,7 +338,7 @@ def handed_up(effect: str, following) -> bool:
 
 
 def report_lines(outcomes, effect: str, following=None) -> list[str]:
-    """What an act reports (#801, #896), as lines: its facts by outcome, where it has not
+    """What an act reports (issues/801, issues/896), as lines: its facts by outcome, where it has not
     already printed them act by act; then its effect line, `<noun> <verb>: DONE - …` or
     `NOT DONE - …`. next: is the launcher's reply, never the verb's: where the launcher
     dispatched this act the effect is handed up and the launcher says next: then the
@@ -360,7 +360,7 @@ _DECLARED_SENTENCES: dict[str, str] | None = None
 
 def declared_sentences() -> dict[str, str]:
     """Every sentence a status can say, by the noun whose declaration holds it: the
-    `wording` arrays of src/main/cli/<noun>/<noun>.json (#909)."""
+    `wording` arrays of src/main/cli/<noun>/<noun>.json (issues/909)."""
     global _DECLARED_SENTENCES
     if _DECLARED_SENTENCES is None:
         _DECLARED_SENTENCES = {}
@@ -373,7 +373,7 @@ def declared_sentences() -> dict[str, str]:
 
 def sentence(template: str, **places) -> str:
     """A sentence a status says, quoted as its noun's declaration holds it, with its places
-    filled (#909). A sentence no declaration holds is unrepresentable: it raises here, in
+    filled (issues/909). A sentence no declaration holds is unrepresentable: it raises here, in
     every room, rather than printing in the one room whose state selects it."""
     if template not in declared_sentences():
         raise KeyError(f'no declaration holds the sentence {template!r}')
@@ -381,7 +381,7 @@ def sentence(template: str, **places) -> str:
 
 
 def report(outcomes, effect: str, following=None) -> None:
-    """Print what an act reports (#801, #896): report_lines, each a line."""
+    """Print what an act reports (issues/801, issues/896): report_lines, each a line."""
     said = report_lines(outcomes, effect, following)
     if said:
         print('\n'.join(said), flush=True)

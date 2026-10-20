@@ -171,17 +171,17 @@ per-corpus code.
   `check_model_obligations` gates BOTH directions of the grounding relation,
   so model.json documents exactly what model_join asserts, minus rejections —
   no unmet obligation, no orphan documentation). Promoted from candidate to
-  doctrine by the third instance (issue #19) — exactly the condition the
+  doctrine by the third instance (issues/19) — exactly the condition the
   candidate entry had set for itself. Two properties of the loop have since
-  met the same two-implementations bar (model.json, PR #36; indexing's
-  zero-locator headwords, PR #37): the loop runs BOTH directions — every
+  met the same two-implementations bar (model.json, pull/36; indexing's
+  zero-locator headwords, pull/37): the loop runs BOTH directions — every
   proposal disposed, and every disposal grounded, no orphan record — and its
   pressure follows the INPUT tier, not the instance: committed inputs gate
   (model.json), machine-local inputs advise (indexing) — L2's determinism
   split, read as enforcement policy.
 
 - **validate** — datum × latest version → one verdict per datum, the machine-local
-  matrix. One property (#557): every datum validates at its family's latest
+  matrix. One property (issues/557): every datum validates at its family's latest
   version - the latest version is the schema, the rest is the CHANGELOG's history,
   judged by nothing (an older version passing is a coincidence of two shapes, never
   a fact about the datum). A failure is data outgrowing its schema — the WORKFLOW's
@@ -240,7 +240,7 @@ Each law names its current enforcement (or the incident that taught it).
 - **L1 — Idempotence.** `gated` — Every operation, re-run, is a no-op: validation
   memoisation ("the log IS the memoisation"), deposit dedup, dressing refresh,
   the normalise CLI's fixpoint, the gate's settle discipline: results
-  re-earned by fresh runs until disk and memory agree (#249). An operation that
+  re-earned by fresh runs until disk and memory agree (issues/249). An operation that
   isn't idempotent is either wrong or not yet finished being designed.
   Corollary: there are no migrations, only normalisations — a one-shot
   state-A-to-state-B script is dead the moment it runs, while a normaliser
@@ -253,7 +253,7 @@ Each law names its current enforcement (or the incident that taught it).
   Enforced structurally for the report (`run.py` writes the committed log
   itself, code+schema only) and by `check_committed_tree` for every tracked
   file: the corpus roots are ignored and track nothing, and no tracked text names
-  a home path (#50's incident: three schemas carried one). Corollary: the deterministic tiers read identically
+  a home path (issues/50's incident: three schemas carried one). Corollary: the deterministic tiers read identically
   on every machine — observed as both machines at 953/12/941 with differing data tiers.
 - **L3 — Supersession is a partial order; deletion is licensed, never assumed.** `doctrine` —
   ⊑ is transitive across batches; a deletion is justified by a SUPERSEDED verdict
@@ -268,17 +268,17 @@ Each law names its current enforcement (or the incident that taught it).
 - **L6 — Conflicts are loud.** `gated` — No operation silently overwrites divergent
   content: CONFLICT + nonzero exit, content left in place, human judgement
   summoned. (Deposit stamps, library merges, memory-folder merges.)
-- **L7 — Ownership.** `unenforced (#52)` — Each pipeline stage owns exactly one output subtree, which
+- **L7 — Ownership.** `unenforced (issues/52)` — Each pipeline stage owns exactly one output subtree, which
   it may wipe wholesale; nothing else touches it. Blanket wipes above the owned
   leaf are forbidden (the destroyed inferred-tables incident).
 - **L8 — Absence is a signal; failure surfaces.** `doctrine` — Missing optional input =
   informative skip + exit 0; a crashed step must propagate (the corpus-mode
-  silent-success regression, found and fixed in PR #1). Never fabricate a value
+  silent-success regression, found and fixed in pull/1). Never fabricate a value
   where the honest state is "unknown" (gemini's missing ordinals; `corpus-yoga status`'
   "cannot verify").
 
 - **L9 — Currency.** `gated` — A consumed derivation is kept current, by the mechanism its
-  cell of the freshness matrix (committed × mechanical, issue #19) dictates:
+  cell of the freshness matrix (committed × mechanical, issues/19) dictates:
   committed and mechanical → the gate regenerates and byte-compares;
   machine-local, mechanical, machine-consumed → a `run` step (NECESSITY: `run`
   is the only mechanism that can reach it); machine-local, mechanical,
@@ -287,25 +287,25 @@ Each law names its current enforcement (or the incident that taught it).
   the lag, the safe remedy beside it; curated → the disposal loop (see
   `curate`). Staleness is never silent: an artifact no mechanism can refresh
   automatically is an artifact whose status says so. The corpus page, once the
-  outlier that forced this law, is re-judged with its input set split (#494):
+  outlier that forced this law, is re-judged with its input set split (issues/494):
   CLOSURE holds for the free inputs the run produces, so the run renders it;
   the paid captures enter it as a declared vintage, never as a currency claim.
 - **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
   what its source returned, under a stamp, into the room's stage, `tmp/stage/input/`,
   at the address its unit will have under `data/input/`, and reads no other capture
-  (#687) - of the store it reads the held unit at that one address, the baseline a
+  (issues/687) - of the store it reads the held unit at that one address, the baseline a
   stage that holds no copy lacks, so that a capture writes only what the live store
-  holds beyond the fuller of the staged and the held copy (#850). Whether a staged
+  holds beyond the fuller of the staged and the held copy (issues/850). Whether a staged
   unit is the held one, extends it, falls short of it or
   diverges from it is decided at the one reduce that reaches shared storage,
   each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
   `src/main/append_only.py` over a measure per kind), and beyond it where the
   pipelines reduce — in `tmp/cache/` and `data/output/` (bulk exports and
   `corpus-yoga store`; sessions and `render_corpus.py`; `corpus-yoga forge
-  capture` since the maintainer's ruling of 2026-08-23, #497). The two captures that
+  capture` since the maintainer's ruling of 2026-08-23, issues/497). The two captures that
   read the store they wrote, each to guard its own write - `corpus-yoga agent capture`
   by a session's byte prefix, `corpus-yoga browser capture` by a scrape's turn extent -
-  no longer write the store, and their measures are promotion's; #512 closes on that.
+  no longer write the store, and their measures are promotion's; issues/512 closes on that.
 
 ---
 

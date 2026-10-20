@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp_face.py - the two faces of the mcp factoring (#605), derived from the factored
+mcp_face.py - the two faces of the mcp factoring (issues/605), derived from the factored
 schema by stated rules, on the pattern of the maintainer's Expander (AsConsumer,
 AsProducer): a party validates what it receives against the CONSUMER face and what
 it sends against the PRODUCER face.
@@ -82,7 +82,7 @@ def face(doc: dict, which: str) -> dict:
     return {
         '$schema': doc['$schema'],
         'title': f'{title}{which.capitalize()}',
-        'description': (f'The {which} face of {title} (#605): every definition flat - its allOf resolved into one '
+        'description': (f'The {which} face of {title} (issues/605): every definition flat - its allOf resolved into one '
                         f'object - and {"open, unknown members tolerated" if which == "consumer" else "closed, additionalProperties false on every object with members and no index signature"}; '
                         f'its law: {LAW[which]}. Derived from the committed version file by corpus-yoga mcp sync, never hand-edited; '
                         f'a party validates what it {"receives" if which == "consumer" else "sends"} against it.'),

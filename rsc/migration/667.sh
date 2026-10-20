@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rsc/migration/667.sh - a pipeline is named <channel>-<act>, singular, and reads the
-# directories of data/input that end in its act (#667): the two chat capture directories
+# directories of data/input that end in its act (issues/667): the two chat capture directories
 # and the three pipelines' cache roots take their names.
 set -euo pipefail
 SELF='rsc/migration/667.sh'

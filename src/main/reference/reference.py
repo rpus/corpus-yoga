@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-reference.py - the upstream reference artefacts under rsc/reference (#572, #587):
+reference.py - the upstream reference artefacts under rsc/reference (issues/572, issues/587):
 one project per upstream, one directory per lineage upstream publishes, every
 file byte-for-byte at the pin its provenance.csv row names.
 
@@ -41,7 +41,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 from latest import lineages  # noqa: E402
 
@@ -164,7 +164,7 @@ class Status:
 
 
 def status() -> int:
-    """Each project's held lineages against upstream, as facts (#753); 1 while any file is
+    """Each project's held lineages against upstream, as facts (issues/753); 1 while any file is
     missing or drifted."""
     stale = 0
     out: dict[str, Project] = {}

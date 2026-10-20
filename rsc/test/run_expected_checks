@@ -9,6 +9,7 @@
 # renamed, or skipped. A name that runs and is absent here is a new check, to be added
 # this file does not move when the corpus or the schema set grows — it moves only when
 accumulate.trajectory_contract
+anchor.names_its_sequence
 cache_io.paths_resolve
 cache_io.pipeline_tags_match
 cache_io.read_implies_writer

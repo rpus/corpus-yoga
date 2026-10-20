@@ -1,5 +1,5 @@
 """
-cleaner.py - the one loop every clean verb runs (#837): corpus-yoga stage clean and
+cleaner.py - the one loop every clean verb runs (issues/837): corpus-yoga stage clean and
 corpus-yoga store clean hand it the entries they alone know, and it says and takes them
 one way.
 
@@ -7,13 +7,13 @@ An entry is what a noun's clean acts on: its kind (a word the noun's plural tabl
 its key (the address or path it is said under), its facts (said beneath the key), and the
 act that removes it, returning None when it is gone and otherwise why it is not; `under`
 is the selection the entry is counted under by a next: block, where one applies. A
-cleaner takes no flag (#844): what it would remove is what the noun's status names, so
+cleaner takes no flag (issues/844): what it would remove is what the noun's status names, so
 there is no dry run, and the act is one act.
 
 The lines keep their tenses - `will remove:` over the entries, each keyed with its facts
 beneath, `{}` where there is none; `did remove: it` or `did NOT remove: <why>` beneath each after
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
-was carried out. Then the effect line (#801, #896) - DONE only when every entry went, NOT
+was carried out. Then the effect line (issues/801, issues/896) - DONE only when every entry went, NOT
 DONE naming each that was NOT removed - handed to the launcher, which replies with next:,
 the acts the room can take after this one, corpus-yoga status last.
 """

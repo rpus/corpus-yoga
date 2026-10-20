@@ -14,7 +14,7 @@ a PR is the anchored observation, not the data it observes.
 ## When to create a new version
 
 Mint `vN+1.json` - rename `vN.json` in place (`git mv`) and edit it; the latest
-version is the schema and the rest history (#557), so no other version file
+version is the schema and the rest history (issues/557), so no other version file
 exists in the family - when the schema change is:
 
 - **Relaxed** — the provider's data grew and the version admits the growth: a new field,
@@ -24,11 +24,11 @@ exists in the family - when the schema change is:
   version refuses the old, smaller datums is the same fact read backwards, and is filed
   beneath the relaxation as its BACKWARD CLAUSE - which datums it refuses and their
   disposal (re-capture, re-model, or rule them out explicitly: a decision made at the
-  mint, #557, never a fact left for an older version's log to carry). Growth is never
+  mint, issues/557, never a fact left for an older version's log to carry). Growth is never
   filed as a restriction.
 - **Restricted** — a narrowing: the provider dropped or narrowed a shape (rare, and news),
   or the repo tightened its own model of what was always true (a pattern, an enum). Marked
-  *material* when a held datum fails it, *non-material* when every held datum passes (#400).
+  *material* when a held datum fails it, *non-material* when every held datum passes (issues/400).
 
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
@@ -156,7 +156,7 @@ definition, on a declared name the root reaches, and on a declared name that is
 no definition. `rsc/schema/pipeline/chat-export/claude/conversations/unreachable.csv` declares
 the three API tool inputs no export has carried;
 `rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
-carries (#588).
+carries (issues/588).
 
 ### 3. Validate and register
 
@@ -168,7 +168,7 @@ src/main/pipeline/chat-export/run.sh    --input data/input/claude/chat/bulk-expo
 src/main/pipeline/code-transport/run.sh --input data/input/claude/code/machine-transport
 ```
 
-A datum the latest version refuses is, from #687, a datum the room has staged and
+A datum the latest version refuses is, from issues/687, a datum the room has staged and
 cannot promote: the capturing noun's bare status names it, and the mint is tested over the
 room's stage before the merge that licenses its promotion - `corpus-yoga pipeline rehearse`
 runs the checkout's own code over the stage's scratch tiers under tmp/stage/scratch
@@ -176,7 +176,7 @@ runs the checkout's own code over the stage's scratch tiers under tmp/stage/scra
 (src/main/rehearsal.py), so the run above is that one over the staged units.
 
 Validation runs each datum against its family's LATEST version only - the latest
-version is the schema, the rest is this file's history (#557) - and renders the datum's
+version is the schema, the rest is this file's history (issues/557) - and renders the datum's
 machine-local validation matrix: a `matrix.md` in the datum's directory under `tmp/cache/`,
 one verdict per family, beside its `validation/` log, written by `validate_versions.py` via
 the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never
@@ -191,7 +191,7 @@ src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeli
 
 Whether every datum validates at its families' latest versions, each matrix agrees with
 those logs, and every input entry has validation output is the data gate's judgment, not
-the commit gate's (#535, #557): `corpus-yoga pipeline audit`
+the commit gate's (issues/535, issues/557): `corpus-yoga pipeline audit`
 (`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -
 a violated property is a FAIL atom in the run log, and the version it names is owed here.
 
@@ -278,14 +278,14 @@ Open `rsc/model/model_join.csv` and:
 
 `rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory
 per upstream project and one directory per lineage upstream publishes, named as
-upstream names it (#587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
+upstream names it (issues/587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
 the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
-`corpus-yoga mcp sync`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (#597, #598) -
+`corpus-yoga mcp sync`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
 and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
 into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
 `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
 every house schema declares, and the declaration `src/schema_walk.py` derives every
-keyword's position from (#571) - the diagnostics and the factoring read the grammar
+keyword's position from (issues/571) - the diagnostics and the factoring read the grammar
 there, never restate it, and `structure.keywords_declared` refuses a key the dialect
 does not declare. Each lineage directory carries its own `CHANGELOG.md`: one
 section per pin, the first stating the change from the lineage before. Beside the
@@ -311,13 +311,13 @@ declared and every declared lineage held (`reference.lineage_declared`), and eve
 pin has its changelog section (`reference.lineage_changelog`). Every house schema
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
-`rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (#562, #598), a
+`rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a
 committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
 generates its latest version from upstream's `schema.ts` alone - every declaration
 read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
 shape upstream's generator would give it, one stated rule per TypeScript form
 (`src/main/mcp/mcp_generation.py`), composed over the extends clauses and tagged by
-the categories `src/main/mcp/mcp_extraction.py` reads (#581, #595; the two tables
+the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two tables
 faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
 beside the version file: `rsc/schema/mcp/mcpMessage/description.csv` (house
 text for the definitions schema.ts leaves without a JSDoc),
@@ -325,7 +325,7 @@ text for the definitions schema.ts leaves without a JSDoc),
 carries, which `structure.all_definitions_reachable` reads and the derivation
 refuses to disagree with), `rsc/schema/mcp/mcpMessage/layer.csv` (the layers
 the protocol reads by, one row each with its reading - jsonrpc, session, resources,
-tools, prompts, content, agentic, tasks - the closed vocabulary; #595),
+tools, prompts, content, agentic, tasks - the closed vocabulary; issues/595),
 `rsc/schema/mcp/mcpMessage/category_layer.csv` (the house's reading of the
 `@category` tags into those layers), `rsc/schema/mcp/mcpMessage/placement.csv`
 (the definitions neither the tag nor the composition places, each with its reason)
@@ -336,7 +336,7 @@ from the constant schema.ts exports). Every definition's description ends with i
 layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
 definition the rule cannot place, or an addition row that fits neither reading,
 refuses the derivation. The sync also writes the factoring's two faces under
-`tmp/cache/mcp/` (`src/main/mcp/mcp_face.py`, #605): the consumer face, every
+`tmp/cache/mcp/` (`src/main/mcp/mcp_face.py`, issues/605): the consumer face, every
 definition flat and open, which a party validates what it receives against, and
 the producer face, flat and closed, which it validates what it sends against -
 each holding its law by construction, and each held derivable and valid draft-04
@@ -347,7 +347,7 @@ counterpart resolved and normalized, the declared additions set back
 (`mcp.factoring_agrees`), and every held lineage's `schema.ts` parsed
 (`mcp.lineages_parse`). Its history lives in
 `rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
-(#583): whenever the derivation differs from the latest version file - upstream
+(issues/583): whenever the derivation differs from the latest version file - upstream
 moved, or the house rules did - `corpus-yoga mcp sync` prints the diff and writes the
 next version in place of the current one, by plain file operations; a version of
 this family means that the derivation's output changed, and its changelog section
@@ -356,7 +356,7 @@ is written by hand from that diff, owed at the commit gate by
 diagnostic holds over it: its root, `MCPMessage`, gathers the typed message shapes
 upstream exports but never references, every type alias is a reference wherever
 schema.ts uses it, and a result union no message carries - a party's
-results where upstream declares no requests for the other party (#588) - stands
+results where upstream declares no requests for the other party (issues/588) - stands
 unreachable, declared in `unreachable.csv`.
 
 ### 6. Dispose the model.json obligations
@@ -364,7 +364,7 @@ unreachable, declared in `unreachable.csv`.
 `rsc/model/model.json` is the hand-curated cross-family type reference - a table of
 shared types (name, description, occurrences by family), validated by the dev gate
 against the row shape beside it, `rsc/model/model.schema.json` (`model.table_valid`,
-#591) - under the `curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO
+issues/591) - under the `curate` disposal discipline (issues/19; rsc/CALCULUS.md) as TWO
 loops with different pressure, both computed by `src/main/model/model_curation.py`
 from committed files only:
 

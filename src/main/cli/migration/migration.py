@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 migration.py (corpus-yoga migration) - the moves a rename owes this machine's local roots
-(#820): rsc/migration holds them, one guarded script per causing issue over the steps of
+(issues/820): rsc/migration holds them, one guarded script per causing issue over the steps of
 rsc/migration/step.sh, and this noun says them and takes them.
 
     corpus-yoga migration                 # status: each script - how many steps it would take, none, or that it halted and on what
@@ -18,7 +18,7 @@ names each script with steps and how many, runs each, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken.
 Its record, tmp/logs/migration/sync/<stamp>.log, is the launcher's tee of the whole verb,
-header included (#708); the declaration's x rows are what make the verb enacting.
+header included (issues/708); the declaration's x rows are what make the verb enacting.
 """
 import subprocess
 import sys
@@ -88,7 +88,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
 
 class Log:
     """What the sync says, line by line. The record of the act is the launcher's tee of the
-    whole verb (#708), tmp/logs/migration/sync/<stamp>.log, header included; nothing is
+    whole verb (issues/708), tmp/logs/migration/sync/<stamp>.log, header included; nothing is
     written here."""
 
     def __init__(self, apply: bool) -> None:
@@ -99,8 +99,8 @@ class Log:
 
 
 def sync() -> int:
-    """One list of the scripts with steps, each run after it is named (#881: what it would
-    take is the bare status's). Then what an act reports (#801): next:, and the verdict as
+    """One list of the scripts with steps, each run after it is named (issues/881: what it would
+    take is the bare status's). Then what an act reports (issues/801): next:, and the verdict as
     the last line."""
     log = Log(True)
     seen = survey()
@@ -123,7 +123,7 @@ def sync() -> int:
     undone = failed + list(halted)
     verdict = ('migration sync: NOT DONE - ' + facts.sentence('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
                else 'migration sync: DONE - ' + facts.sentence('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
-    for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (#896)
+    for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (issues/896)
         log.say(line)
     return 1 if undone else 0
 

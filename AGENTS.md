@@ -173,28 +173,28 @@ eighth principle or a smell.
   body,comments` before building it.
 - An issue is raised by `corpus-yoga forge raise issue --title <should>
   --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]`
-  (#887): the title is held to be a should, the Signature and the as-at
+  (issues/887): the title is held to be a should, the Signature and the as-at
   anchor are stamped by the forge, and blocked_by - the one issue relation;
   sub-issue/parent was retired 2026-08-07, and the verb never calls the
   sub_issues API - is wired from the arguments as the issue is raised and
   read back, never narrated in prose. `--supersedes N` is the one act:
   the old issue closed, its relations transferred, its ledger note posted.
 - A PR is raised by `corpus-yoga forge raise pr <issue>... --head <branch>
-  --body <file>` (#884): its title and its aim lines - one per issue,
+  --body <file>` (issues/884): its title and its aim lines - one per issue,
   "aims to complete #N" until the merge - are generated from the issues,
   never written by hand, and the Signature is stamped by the forge; the
   body file carries the what, how and to sections. The PR aims at every OPEN blocker of what it aims at
-  (#482; the raise and the merge refuse otherwise). The merge, on the reviewer's word only, is
-  `corpus-yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
-  title (#479), relocates a moved base - the lifetime's one rebase, in a
-  detached worktree of its own (#507) - and
+  (issues/482; the raise and the merge refuse otherwise). The merge, on the reviewer's word only, is
+  `corpus-yoga forge merge <pr>` - the one act (issues/483): it refuses a non-copy
+  title (issues/479), relocates a moved base - the lifetime's one rebase, in a
+  detached worktree of its own (issues/507) - and
   resyncs a clean checkout that holds the branch, announced; flips the
   body's phrasing to `closes` as the LAST edit before the squash (a
   refused squash restores the body as found, so a flipped-but-unmerged PR
-  cannot exist - #483); reads the forge's closing references back and
-  refuses where they are not the aimed set (#884); squashes pinned to the
+  cannot exist - issues/483); reads the forge's closing references back and
+  refuses where they are not the aimed set (issues/884); squashes pinned to the
   head every check saw; reads each aimed issue's state after the squash
-  (#735); and converges the checkout. Commits are never rewritten (no squash, no
+  (issues/735); and converges the checkout. Commits are never rewritten (no squash, no
   reword - the branch merges as reviewed) and never carry the parser's
   words. Its declaration (src/main/cli/forge/merge.json) is the authority
   for its steps. Never rebase eagerly: no open branch can know which merge
@@ -207,8 +207,8 @@ eighth principle or a smell.
   pre-merge rewrite destroys the review record and its corpus join keys.
 - A PR's title is a verbatim copy of the title of an issue its body aims to
   complete - the central one when it aims at several, the first named to
-  `corpus-yoga forge raise`, which copies it (#479, superseding
-  #300's title practice). The should keeps its one home in issue-space, the
+  `corpus-yoga forge raise`, which copies it (issues/479, superseding
+  issues/300's title practice). The should keeps its one home in issue-space, the
   subject is copied rather than authored, and main's log reads as the
   disposed shoulds - ready-made release notes. Vetting is contingent all the
   way down, so no event licenses an indicative subject; `corpus-yoga forge merge`
@@ -216,7 +216,7 @@ eighth principle or a smell.
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, the forge's relocation replays the branch's OWN commits onto
   the new main - `git rebase --onto origin/main <parent's old tip>`, the tip
-  found tree for tree (#585). Nothing is squashed - the
+  found tree for tree (issues/585). Nothing is squashed - the
   single-commit shape some successors end with is an artifact of their
   content, never a requirement.
 - A multi-commit branch is treated identically to a single-commit one at
@@ -339,6 +339,10 @@ eighth principle or a smell.
   "this machine" dereferences differently per room.
 - Every time-word derives from a dereference performed this turn or is not
   written.
+- An anchor to the forge is written as its path segment, issues/N or
+  pull/N, never as a hash: a hash is YAML's comment, a URL's fragment and a
+  shell's, and names no sequence. The one exception is the closing reference
+  the forge writes for GitHub's parser (`anchor.names_its_sequence` holds it).
 - Verify world state before asserting: re-check cheap external facts (git,
   files, push state) rather than restating transcript memory; an anchored
   claim needs no re-check - the anchor is the scoping.

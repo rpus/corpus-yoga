@@ -1,7 +1,7 @@
 <!-- How this file reaches you: `corpus-yoga forge raise pr <issue>... --head <branch>
-     --body <file>` raises the PR (#884) - the title and the why section's aim lines
+     --body <file>` raises the PR (issues/884) - the title and the why section's aim lines
      are generated from the issues, the Signature is stamped from the triad the commit
-     hook uses (#887), and the body FILE you draft holds the rest: what, how and to,
+     hook uses (issues/887), and the body FILE you draft holds the rest: what, how and to,
      copied from this prototype. A body that carries a Signature line, an aim line, a
      why section or `closes` is refused by the raise.
 
@@ -14,9 +14,9 @@
      licensed position in a body, exactly as prepare_commit_msg.sh's stamp
      already rules for commits; strip it before raising.
 
-     The grammar (#124): why / what / how / to. The durable record has two git
-     channels (#300): the squash SUBJECT is the PR title — a verbatim COPY of
-     the title of an issue this PR aims to complete (#479; the central one
+     The grammar (issues/124): why / what / how / to. The durable record has two git
+     channels (issues/300): the squash SUBJECT is the PR title — a verbatim COPY of
+     the title of an issue this PR aims to complete (issues/479; the central one
      when it aims at several). The should's one home is the issue, so the
      subject is copied, never authored: vetting is contingent, the subject
      never asserts achievement, and main's log reads as the disposed shoulds
@@ -41,9 +41,9 @@
      between, and the squash publishes every commit message. The BODY is the
      one channel the merge edits: a raised body's why section phrases
      completion prospectively ("aims to complete #N", covering every OPEN
-     blocker of what it aims at — the merge refuses otherwise, #482), and the
+     blocker of what it aims at — the merge refuses otherwise, issues/482), and the
      merge, on the reviewer's word, flips that phrasing to closes as the last
-     edit before the squash — a refused squash restores it (#483) — and
+     edit before the squash — a refused squash restores it (issues/483) — and
      rewrites nothing else. If review narrowed the scope,
      withholding closes is not tidying prose, it is preventing a wrong
      close. -->
@@ -52,7 +52,7 @@ Signature: <machine>/<provider>/<session>
 
 ## why
 
-- aims to complete #N - <the issue's title; written by `corpus-yoga forge raise`, one line per issue, never by hand (#884); the merge flips it to "closes" in place>
+- aims to complete #N - <the issue's title; written by `corpus-yoga forge raise`, one line per issue, never by hand (issues/884); the merge flips it to "closes" in place>
 
 ## what
 
@@ -84,17 +84,17 @@ Signature: <machine>/<provider>/<session>
      gate (corpus-yoga pipeline run), both, or a named other (the editor; a live run).
      A change one gate cannot arbitrate carries a declared arbiter instead of a
      per-PR apology — the dev gate is green on both sides of a dead step import,
-     and only the usr gate's red names it (#335 is the worked example).
+     and only the usr gate's red names it (issues/335 is the worked example).
 
      The declaration is CHECKABLE AGAINST THE DIFF: the changed paths derive a
      default arbiter (docs and .github — the reader; src/test/dev and schemas —
      the dev gate; pipeline and model code — the usr gate), so a reviewer holds
      the declared arbiter to the derived one. A declaration that DEVIATES from
-     its path-default is not an error but the signal — #335's paths derived
+     its path-default is not an error but the signal — issues/335's paths derived
      dev-gate while the true arbiter was the usr gate — the deviation record
      review leans into, diagnostic_skip's grammar. -->
 
-<!-- The test line is WHAT THE REVIEWER TYPES (#695): a numbered list of commands, from
+<!-- The test line is WHAT THE REVIEWER TYPES (issues/695): a numbered list of commands, from
      the branch checkout, in the order they are typed, each followed by the line it
      prints. The first is the fetch that brings the checkout level with the branch.
      Then the commands that exercise THIS change, and no others - the machine report

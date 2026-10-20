@@ -11,7 +11,7 @@ and have their own versioning. See [`rsc/schema/pipeline/chat-capture/claude/api
 
 ---
 
-2026-09-09: `ToolUseBlockBase.input`'s description was amended in place (#603): the
+2026-09-09: `ToolUseBlockBase.input`'s description was amended in place (issues/603): the
 sentence naming three tools "documented in the API but not observed in this
 export" - an indexical, dereferencing differently in every room and at every
 date - now states the property of the version file that `unreachable.csv` holds:
@@ -22,7 +22,7 @@ no new version.
 ## v21
 
 The export stops timestamping text. The export of 2026-09-28, captured on
-reading-room by `corpus-yoga export capture` into the stage of PR #689's branch,
+reading-room by `corpus-yoga export capture` into the stage of pull/689's branch,
 carries 24 text blocks whose `start_timestamp` and `stop_timestamp` are null - all in
 one conversation, `d11565d6-…`, in its 12 human and 12 assistant messages of
 2026-09-27 - where v20 requires a `Timestamp` on a text block and admits null on tool
@@ -32,7 +32,7 @@ same day, carries a timestamp on every one of those 24 blocks, matching each mes
 `created_at` to the second. claude.ai's export has stopped writing text-block
 timestamps since 2026-08-28 while its API still returns them: a loss in the export,
 admitted here as it comes, the API capture recorded as the timestamps' durable source
-(#718). The same conversation carries seven `injected_prompt_block`s whose `injection_source` no version knew: `memory_block_head`, `agent_listing`, `deferred_tools_delta`. The export of 2026-09-21 has neither form and validates as before.
+(issues/718). The same conversation carries seven `injected_prompt_block`s whose `injection_source` no version knew: `memory_block_head`, `agent_listing`, `deferred_tools_delta`. The export of 2026-09-21 has neither form and validates as before.
 
 ### Replaces
 
@@ -175,7 +175,7 @@ v16
 - `ToolUseBlockBase.hidden_in_chat` — one NEW REQUIRED field. Observed null only.
 - `ToolResultBlockBase.hidden_in_chat` — the same field on the result envelope.
 
-Refuses thereby: every export before 2026-07-22, which lacks the field; each rests at its era's version as history (#557).
+Refuses thereby: every export before 2026-07-22, which lacks the field; each rests at its era's version as history (issues/557).
 
 ## v16
 
@@ -197,7 +197,7 @@ v15
 
 - `ThinkingBlock.thinking_hidden` — one NEW REQUIRED field. Observed false only.
 
-Refuses thereby: every export before 2026-07-11, which lacks the field; each rests at its era's version as history (#557).
+Refuses thereby: every export before 2026-07-11, which lacks the field; each rests at its era's version as history (issues/557).
 
 ## v15
 

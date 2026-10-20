@@ -29,9 +29,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 LIBRARY = tier.DATA / 'output' / 'artifacts' / 'claude' / 'chat' / 'downloaded'
-# The pre-#421 address. data/output/ is durable and shared, so the store moves
+# The pre-issues/421 address. data/output/ is durable and shared, so the store moves
 # ONCE by hand; the machinery meets an unmigrated machine with a stated note,
 # never a silently empty library.
 LIBRARY_OLD = tier.DATA / 'output' / 'artifacts' / 'downloaded'
@@ -39,14 +39,14 @@ _noted = False
 
 
 def migration_note() -> None:
-    """Skip-not-fail for the unmigrated machine (#421): if the library is
+    """Skip-not-fail for the unmigrated machine (issues/421): if the library is
     absent at its address but present at the old one, say so once, with the
     single move as the remedy — then proceed treating the library as absent."""
     global _noted
     if _noted or LIBRARY.is_dir() or not LIBRARY_OLD.is_dir():
         return
     _noted = True
-    print('NOTE: the artifact library moved (#421): '
+    print('NOTE: the artifact library moved (issues/421): '
           'data/output/artifacts/downloaded -> data/output/artifacts/claude/chat/downloaded\n'
           '    -> run once: mkdir -p data/output/artifacts/claude/chat && '
           'mv data/output/artifacts/downloaded data/output/artifacts/claude/chat/downloaded',

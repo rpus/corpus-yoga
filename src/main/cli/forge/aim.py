@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """aim.py - the one grammar of a PR's aim: the relation between a PR and the issues it
-aims to complete, as the body carries it (#884).
+aims to complete, as the body carries it (issues/884).
 
 An aim is one line, `- aims to complete #N - <title>`, one issue per line, and nothing
 else in a body may say the phrase outside backticks: corpus-yoga forge raise writes the

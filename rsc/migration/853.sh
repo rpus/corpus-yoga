@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rsc/migration/853.sh - a live store mounts at ext/mnt/<provider>/code/machine-transport/<machine>,
-# the address its units have under tmp/stage/input and data/input (#853); the link each
+# the address its units have under tmp/stage/input and data/input (issues/853); the link each
 # provider had at ext/mnt/agent/<provider> moves there, and ext/mnt/agent retires.
 # corpus-yoga agent mount --apply creates the current links.
 set -euo pipefail

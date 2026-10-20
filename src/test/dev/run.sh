@@ -17,11 +17,11 @@
 # (run.log, xref.csv) are yours to stage; stale, it refuses and says so.
 #
 # Sections replay from tmp/cache/test/ when their declared SUBJECT (the files they
-# read) is stat-unchanged (#68). run.py checks (tree -> results; a check writes no
+# read) is stat-unchanged (issues/68). run.py checks (tree -> results; a check writes no
 # artifacts), then renders every surface — the committed log, the terminal report,
 # the machine-local copy, and the xref table — as a pure function of the results.
 # The gate writes only when the results have changed, and only after a fresh
-# run agrees with what it wrote (#249): one run on a clean tree,
+# run agrees with what it wrote (issues/249): one run on a clean tree,
 # zero writes; a changed tree writes the new values and confirms with a genuinely
 # fresh run (the section cache bypassed internally, regardless of --fresh) — at
 # most three runs total, short-circuiting the moment a run agrees with what was
@@ -68,7 +68,7 @@ if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
   if [[ -x "$TOPLEVEL/src/test/dev/run.sh" ]] && ! [[ "$TOPLEVEL/src/test/dev/run.sh" -ef "${BASH_SOURCE[0]}" ]]; then
     exec "$TOPLEVEL/src/test/dev/run.sh" "$@"
   fi
-  # REFUSE, never fall through (PR #25 review): running the home gate against
+  # REFUSE, never fall through (pull/25 review): running the home gate against
   # the home tree inside the other tree's git context is exactly the chimera
   # this guard abolishes — a fallthrough would restore it silently, with the
   # same unsatisfiable ERROR that cost a day. A loud refusal is recoverable.
@@ -104,7 +104,7 @@ fi
 # compares against the index.
 ARTIFACTS=(rsc/test/run.log rsc/test/xref.csv)
 
-# --settle: the merge's settle face (#485) - regenerate the artifacts and
+# --settle: the merge's settle face (issues/485) - regenerate the artifacts and
 # SUCCEED; staging is the invoker's next act. The staleness veto below exists
 # for a human about to commit; the merge performs the veto's remedy itself, so
 # handing it the refusal would be the machinery borrowing a human-facing ERROR.
@@ -128,7 +128,7 @@ main() {
 
   mkdir -p "$REPO_DIR/tmp/cache"
 
-  # One invocation. run.py settles internally (#249): every output is built in
+  # One invocation. run.py settles internally (issues/249): every output is built in
   # memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are
   # written only when their bytes differ from disk, and a write stands only once
   # a genuinely fresh recomputation agrees with it — at most three runs inside
@@ -153,7 +153,7 @@ main() {
     rc=1
   fi
 
-  # what an act reports (#876, #896): the dev gate's own verdict stands above, read by the
+  # what an act reports (issues/876, issues/896): the dev gate's own verdict stands above, read by the
   # hook and the pipeline's run; the act's effect line ends the run, or is handed to the
   # launcher where the reader typed it
   # shellcheck source=src/main/report.sh

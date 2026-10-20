@@ -61,7 +61,7 @@
     },
     "tools": {
       "jq": "every pipeline's json work runs through it",
-      "python3": "the one python3 that survives (#478) - it mints the venv, and everything else runs the venv's python",
+      "python3": "the one python3 that survives (issues/478) - it mints the venv, and everything else runs the venv's python",
       "pyright": "corpus-yoga test run type-checks src/ against pyrightconfig.json with it",
       "shellcheck": "corpus-yoga test run lints every src/**/*.sh with it",
       "docker": "corpus-yoga test run reproduces the mcp snapshot through upstream's generator (mcp.reproducible); corpus-yoga mcp reproduce runs it alone",

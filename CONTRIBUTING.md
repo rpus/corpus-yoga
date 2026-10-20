@@ -1,22 +1,22 @@
 # Contributing
 
 Raise a PR with `./corpus-yoga forge raise pr <issue>... --head <branch> --body <file>`
-(#884): the title is the first issue's title, verbatim, and the why section is one aim
+(issues/884): the title is the first issue's title, verbatim, and the why section is one aim
 line per issue, `- aims to complete #N - <title>`, both generated, so that no aim is
 written by hand and the merge reads exactly what the forge wrote. Raise an issue with
 `./corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]...
-[--blocks N]... [--supersedes N]` (#887): the title is held to be a should, each
+[--blocks N]... [--supersedes N]` (issues/887): the title is held to be a should, each
 relation is wired through the blocked_by API as the issue is raised and read back, and a
 superseded issue is closed with its relations transferred and its ledger note posted,
 in the one act. Both faces stamp the Signature from the triad the commit hook uses and
 derive what they can - the PR's base, the issue's as-at anchor from the forge's main -
 so the body file carries the drafter's sections alone, as the two templates teach them,
 and nothing the forge writes. An open blocker not aimed at refuses a PR's raise as it
-would the merge (#482). The body as sent is kept under `tmp/forge/raise/`.
+would the merge (issues/482). The body as sent is kept under `tmp/forge/raise/`.
 
-Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
+Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (issues/483). It is a straight
 line of echoed commands — refuse, relocate if the base moved (in a detached worktree
-under `tmp/forge/merge/`, never in this checkout - #507), stand at the head and run
+under `tmp/forge/merge/`, never in this checkout - issues/507), stand at the head and run
 the data gate, flip the body, squash pinned to the head every check saw, converge this
 checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
@@ -24,7 +24,7 @@ declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga fo
 `corpus-yoga forge sync`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
 (which opens on the commit gate): the merge checks out the head being merged, runs the
 gate there, and halts on red with the regenerated `rsc/test/` discarded, the checkout put
-back where it was, and one last word naming the halt (#541, #549, #601). Run
+back where it was, and one last word naming the halt (issues/541, issues/549, issues/601). Run
 the merge from any clean checkout of this repo - the corpus is what the gate needs, and
 it lives here. It squash-merges with **no message flags**, because
 `squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
@@ -35,20 +35,20 @@ captured session corpus. A hand-written `--body` discards them all.
 can see what the forge does to a merge without having to merge one to find out; and
 `./corpus-yoga forge sync` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 printing a `gh` command for someone to copy; what it would set is the bare `./corpus-yoga forge`'s
-to say, since the status is the dry run (#881). It writes outside the repo, to a server other people see.
+to say, since the status is the dry run (issues/881). It writes outside the repo, to a server other people see.
 
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
 commits — the squash keeps every one of their messages and signatures. The flip is a
-STEP of the merge, not a command (#483): `corpus-yoga forge merge <pr>` refuses first (a
-non-OPEN PR, a body with nothing to flip, a title that copies no aimed issue — #479 —
-an unaimed open blocker — #482 — an aim line outside the aim's grammar — #884 — or refuse-class drift), relocates a moved base -
+STEP of the merge, not a command (issues/483): `corpus-yoga forge merge <pr>` refuses first (a
+non-OPEN PR, a body with nothing to flip, a title that copies no aimed issue — issues/479 —
+an unaimed open blocker — issues/482 — an aim line outside the aim's grammar — issues/884 — or refuse-class drift), relocates a moved base -
 replaying only the commits the base does not already hold, tree for tree, so a
-stacked branch sheds its merged parent (#585) - and resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
+stacked branch sheds its merged parent (issues/585) - and resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
 edit before the squash — a refused squash restores the body as found
 (.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
 references back from the forge and refuses, restoring the body, where they are not the
-aimed set (#884), so what the flip rewrote and what the squash closes are one set; after
+aimed set (issues/884), so what the flip rewrote and what the squash closes are one set; after
 the squash it reads each aimed issue's state and counts what the forge closed: the squash publishes the
 title — a verbatim copy of the title of an issue the body aims to complete — as
 main's subject line, and the commits as reviewed, every message and Signature
@@ -58,10 +58,10 @@ An issue states what *should* be true; a PR that closes it reads as the claim th
 now is. Where that claim is a standing property the code must keep — not a one-off
 change — make it a named check in `src/test/dev/run.py`, labelled for the property
 and the issue, so the PR asserts a compliance the dev gate can see and a later regression
-trips a check that names what it broke. #22 is the worked example: the issue states the
+trips a check that names what it broke. issues/22 is the worked example: the issue states the
 `accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and
 `check_accumulate_contract` (labelled `accumulate: the CALCULUS trajectory contract
-(#22)`) holds the code to it — its own commit verified it by breaking the rule and
+(issues/22)`) holds the code to it — its own commit verified it by breaking the rule and
 watching the check fail. A guarantee whose only witness is a pull-request description is
 not guarded.
 

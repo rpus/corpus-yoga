@@ -12,7 +12,7 @@ As a git hook, install the wrapper:
 Exits 0 if all checks pass, 1 if any fail.
 
 Checks are grouped into two tiers, run in order - a commit's content, and nothing
-else (#535: the corpus is the data gate's, corpus-yoga pipeline run):
+else (issues/535: the corpus is the data gate's, corpus-yoga pipeline run):
     code    — repo code and documentation (required files, xref); deterministic on any clone
     schema  — committed schema artifacts (diagnostics, changelogs, joins, mcp currency);
               deterministic on any clone (mcp currency needs network)
@@ -71,13 +71,13 @@ RSC_MODEL                = RSC / 'model'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
 SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 
-# The per-check report is an ARTIFACT beside the act's record (#708), IMMUTABLE (#370):
+# The per-check report is an ARTIFACT beside the act's record (issues/708), IMMUTABLE (issues/370):
 # one stamped, colon-free file per run under the verb directory, <stamp>.report, never
 # rewritten; a same-second twin gains a numeric suffix instead of overwriting. The record
 # itself, <stamp>.log, is the launcher's tee of the whole verb, and the stamp is the
 # launcher's where it ran the verb, so the pair share it. The committed surface names
 # only the stable directory — a stamp is machine-varying and may not enter it (L2).
-sys.path.insert(0, str(SRC / 'main'))  # tier: the act's stamp, one reading (#912)
+sys.path.insert(0, str(SRC / 'main'))  # tier: the act's stamp, one reading (issues/912)
 import tier  # noqa: E402
 _REPORT_STAMP = tier.stamp_of('test run')
 REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
@@ -88,7 +88,7 @@ while REPORT.exists():
 REPORT_REL = str(REPORT.relative_to(REPO_ROOT))
 CLI                      = SRC / 'main' / 'cli'
 # What a sentence does instead of the marks the printer cannot leave plain: the one remedy
-# both the declarations' prose check (#797) and the wording check (#909) print, so that an
+# both the declarations' prose check (pull/797) and the wording check (issues/909) print, so that an
 # edit made to pass them keeps the sentence's anchor.
 PLAIN_SENTENCE_REMEDY = ('a pair is a fact of its own beneath, or the sentence says it without the colon; an em dash is written '
                          "' - '; a hash is YAML's comment, a URL's fragment and a shell's, so an anchor is written as the forge's "
@@ -101,7 +101,7 @@ from markdown_projection import turn_seq  # noqa: E402
 from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
 sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared machinery)
-# A CLI-native command lives in its own directory (#307), so its module sits beside
+# A CLI-native command lives in its own directory (issues/307), so its module sits beside
 # the declarations that name it: import it from there, not from the cluster root.
 sys.path.insert(0, str(CLI / 'cache'))
 sys.path.insert(0, str(CLI / 'completions'))
@@ -113,20 +113,20 @@ sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
 import mcp_factoring  # noqa: E402
 import mcp_extraction  # noqa: E402  (the schema.ts reader, through the generated parser)
-import mcp_face  # noqa: E402  (the consumer and producer faces, #605)
+import mcp_face  # noqa: E402  (the consumer and producer faces, issues/605)
 import provider  # noqa: E402  (src/main - the provider registry, check_schema_layout)
 from member import is_member, members  # noqa: E402  (src/main - the one reading of membership by placement)
 sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
 import grammar as grammar_module  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
-import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
+import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (issues/373)
 
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-export'))  # the shared deposit rule (check_accumulate_contract)
-import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
+import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issues/22)
 
 sys.path.insert(0, str(SRC / 'main' / 'cli' / 'indexing'))  # index curation machinery
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # model.json disposal queue
-import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
+import model_curation  # noqa: E402 — the model.json disposal queue (issues/19)
 
 import xref  # the cross-reference table (check_xref) — a same-directory sibling, already
              # on sys.path[0] when this script runs, so no path insert is needed
@@ -175,7 +175,7 @@ def _load_pipeline(directory: Path) -> Pipeline:
     )
 
 
-# Membership is placement (#327): a pipeline is a subdirectory of src/main/pipeline/, and
+# Membership is placement (issues/327): a pipeline is a subdirectory of src/main/pipeline/, and
 # its facts are its own pipeline.json — the same listing `corpus-yoga pipeline` serves, so the
 # gate's list and the CLI's cannot drift apart. A member without a declaration stays OUT
 # of the dict but IN _PIPELINE_UNDECLARED, so check_pipeline_declarations can name it
@@ -297,10 +297,10 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 # ── Checks ────────────────────────────────────────────────────────────────────
 
 def _machine_anchor() -> str:
-    """The provenance line every machine-facing log opens with (#365): the Signature
+    """The provenance line every machine-facing log opens with (issues/365): the Signature
     triad the commit hook stamps - the machine this checkout is bound to (or 'unbound':
     a worktree carries no binding), the provider and session that ran it where the
-    environment declares one (#704) - the commit the tree stood at, and clean/dirty
+    environment declares one (issues/704) - the commit the tree stood at, and clean/dirty
     with the count."""
     from provider import signature
     def _git(*args):
@@ -334,7 +334,7 @@ def check_required_files(run):
 
 
 def check_pipeline_declarations(run) -> None:
-    """Membership is placement and facts are declared (#327): every subdirectory of
+    """Membership is placement and facts are declared (issues/327): every subdirectory of
     src/main/pipeline/ carries a pipeline.json valid against pipeline.schema.json and
     implements run.sh — so a member missing either is a named failure here, and a stray
     run.sh elsewhere confers nothing."""
@@ -360,7 +360,7 @@ def check_pipeline_declarations(run) -> None:
             None if not undeclared else
             f'diagnostic_skip names {", ".join(undeclared)}, no entry of schemas - a skip licenses one declared family',
             check='structure.pipeline_skip_names_family')
-        # The name states the input (#667): the pipeline <channel>-<act> reads
+        # The name states the input (issues/667): the pipeline <channel>-<act> reads
         # data/input/<provider>/<channel>/<qualifier>-<act>, of a declared provider.
         declared = json.loads(decl.read_text()).get('input', '')
         channel, _, act = name.partition('-')
@@ -376,7 +376,7 @@ def check_pipeline_declarations(run) -> None:
             f'a pipeline is named <channel>-<act>, singular, for the directories it reads',
             check='structure.pipeline_name_states_input')
         # A provider the declaration names is a row of the registry with a mechanism
-        # directory of its name beside the declaration, and the reverse (#635).
+        # directory of its name beside the declaration, and the reverse (issues/635).
         placed = {d.name for d in members(PIPELINE_ROOT / name)} & set(provider.provider_names())
         for p in sorted(set(served) | (placed if served else set())):
             ok = p in served and p in placed
@@ -408,12 +408,12 @@ def check_pipeline_declarations(run) -> None:
 
 def check_step_imports(run) -> None:
     """A step module that cannot import fails here, not at the first pipeline run
-    (#333): the run.sh steps exec these under python, so an unresolvable sys.path
+    (issues/333): the run.sh steps exec these under python, so an unresolvable sys.path
     insert or import inside them is a commit-time defect the tiers' cache reads
     cannot see. Each import runs in a FRESH interpreter, because this process's
     own sys.path (pipeline/chat-export is already on it for the accumulate
     check) resolves the very imports a dangling insert would strand — an
-    in-process import of the #333 defect passed. Both modules are
+    in-process import of the issues/333 defect passed. Both modules are
     __main__-guarded, so importing executes only their top level."""
     for name in ('project_markdown', 'compare_sources'):
         proc = subprocess.run(
@@ -429,10 +429,10 @@ def check_step_imports(run) -> None:
 
 
 def check_self_paths(run) -> None:
-    """Every SELF declaration names its own file's address (#357): the root
+    """Every SELF declaration names its own file's address (issues/357): the root
     derivation searches for the declared path and fails loudly at import when it
     is stale — this check fails it at commit instead, for every declaring file,
-    executed or not — python, shell (#358) and applescript (#403) alike."""
+    executed or not — python, shell (issues/358) and applescript (issues/403) alike."""
     pat = re.compile(r"^SELF\s*=\s*'([^']+)'", re.M)
     pat_applescript = re.compile(r'^set SELF to "([^"]+)"', re.M)
     for f in sorted(list(SRC.rglob('*.py')) + list(SRC.rglob('*.sh'))
@@ -450,7 +450,7 @@ def check_self_paths(run) -> None:
 
 
 def check_committed_tree(run) -> None:
-    """L2 held over every tracked file, not only the report run.py writes itself (#50
+    """L2 held over every tracked file, not only the report run.py writes itself (issues/50
     recorded the gap: three committed schemas carried a username and a home path that
     1580 checks never read). Git carries machinery only, as two facts. The corpus's
     roots (data, tmp, ext) and the machine binding are ignored and track nothing, so a
@@ -458,7 +458,7 @@ def check_committed_tree(run) -> None:
     names a macOS home path or its project-slug form, the two shapes that embed a
     username; /home/claude/ is the provider's container, a datum's path and no machine
     fact, so the shape is /Users/ alone. The declared machine names in
-    rsc/machine/machines.csv are vocabulary, not machine facts (#50's one exemption).
+    rsc/machine/machines.csv are vocabulary, not machine facts (issues/50's one exemption).
     Committed files only: code tier."""
     roots = ['data', 'tmp', 'ext', 'machine-name.txt']
     tracked = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached', '--'] + roots,
@@ -488,10 +488,30 @@ def check_committed_tree(run) -> None:
         not hits, f'machine facts in committed text: {", ".join(hits[:8])}'
         + (f' (+{len(hits) - 8})' if len(hits) > 8 else '') if hits else None,
         law='L2', check='structure.no_machine_facts_committed')
+    # An anchor to the forge names its sequence, issues/N or pull/N (issues/922): a hash is
+    # YAML's comment, a URL's fragment and a shell's, and #N says nothing of which sequence
+    # holds N. A CSS colour stands after a colon or a border style; a fixture of GitHub's
+    # own grammar, which the forge writes for its parser, says so on its line.
+    hash_anchor = re.compile(r"(?<![\w/&{#$:])(?<!solid )(?<!dashed )(?<!dotted )#\d{1,4}\b")
+    hashed = []
+    for rel in files:
+        if not rel or rel.endswith(('.html', '.css')):
+            continue
+        try:
+            text = (REPO_ROOT / rel).read_text()
+        except (UnicodeDecodeError, OSError):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            if "GitHub's grammar, hashed" not in line and hash_anchor.search(line):
+                hashed.append(f'{rel}:{number}')
+    run(f'tree: no tracked file anchors the forge by a hash ({len(files) - 1} files)',
+        not hashed, f'hashed anchors, each written as issues/N or pull/N: {", ".join(hashed[:8])}'
+        + (f' (+{len(hashed) - 8})' if len(hashed) > 8 else '') if hashed else None,
+        check='anchor.names_its_sequence')
 
 
 def check_templates(run) -> None:
-    """Both templates teach the Signature line (#268), so a body raised through either
+    """Both templates teach the Signature line (issues/268), so a body raised through either
     route — the web form or the copy-from-prototype --body-file — opens with the same
     triad the commit hook stamps. A bare-line match, not a substring one: the teaching
     prose itself mentions the phrase mid-sentence, backticked, which must not pass for
@@ -519,7 +539,7 @@ def _schema_families() -> dict:
 def check_schema_layout(run) -> None:
     """A family's address under rsc/schema is its writer's under src/main, then the
     provider's name where the family's instances are one provider's, then the family
-    (#632): strip the family, strip a segment that is a row of rsc/provider/providers.csv,
+    (issues/632): strip the family, strip a segment that is a row of rsc/provider/providers.csv,
     and what remains is a directory under src/main or nothing. Every pipeline's declared
     schema sits under rsc/schema/pipeline/<pipeline>, at exactly one address."""
     providers = set(provider.provider_names())
@@ -560,8 +580,8 @@ def check_schema_validity(run) -> None:
 
 def check_schema_single_version(run) -> None:
     """Every schema family holds exactly one version file - the latest is the schema
-    and the rest history (#557, #565): a mint renames the file in place, and a second
-    v*.json beside it is the copy-beside mint #558 retired, reappearing."""
+    and the rest history (issues/557, issues/565): a mint renames the file in place, and a second
+    v*.json beside it is the copy-beside mint pull/558 retired, reappearing."""
     for schema_name, schema_dir in sorted(_schema_families().items()):
         versions = _sorted_versions(schema_dir)
         extra = [p.name for p in versions[:-1]]
@@ -636,7 +656,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     """A cache_io written_by/read_by entry resolves iff it is an `external:*` reader
     (exempt), a CANONICAL `corpus-yoga` invocation — `corpus-yoga <command> [<verb>]`, both
     resolved against the declaration tree — or a path (its first token) that
-    exists in the repo. Two rules from the PR #109 review: the verb is checked
+    exists in the repo. Two rules from the pull/109 review: the verb is checked
     (a cell naming `indexing candidates` read as clean after the verb became
     `list-candidates`), and `./corpus-yoga` is REJECTED, not tolerated — the cell is a
     name (one referent, one name, G14); the runnable `./` form is presentation,
@@ -658,7 +678,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
 
 
 def check_cli_verb_help(run) -> None:
-    """Every bash target's verb answers -h from its declaration (#474): the target is
+    """Every bash target's verb answers -h from its declaration (issues/474): the target is
     invoked live and must print exactly the generated parser's own help
     (declared_parser.verb_parser — the same derivation the target's parse_argv face
     speaks) and exit 0. Before parse_argv.sh, a verb-level -h landed in the verb's own
@@ -689,7 +709,7 @@ def check_cli_verb_help(run) -> None:
 
 def check_cli_exclusive_classes(run) -> None:
     """Every declared 1/-class parses as promised, IN PROCESS on the generated
-    parser (#477): each member alone (with the verb's other required arguments
+    parser (issues/477): each member alone (with the verb's other required arguments
     supplied) is accepted, and two members together are refused. The live bug
     this ships against: a stray EMPTY required group minted per extra class
     member (setdefault evaluating its group eagerly) refused every VALID
@@ -714,7 +734,7 @@ def check_cli_exclusive_classes(run) -> None:
             required = [t for r in rows if r['cardinality'] == '1' for t in minimal(r)]
             def parses(argv):
                 # A probe's expected refusal is this check's evidence, never the
-                # gate's output (#484): argparse writes the refusal to stderr
+                # gate's output (issues/484): argparse writes the refusal to stderr
                 # before the SystemExit caught here, so the probe runs under a
                 # swallowed stderr and leaves no trace in the log.
                 import contextlib
@@ -790,7 +810,7 @@ def check_cli_surface(run) -> None:
             missing = [f for f in flags if f not in text]
             run(f'cli: {c["command"]}: advertised flags exist', not missing,
                 (where + ', '.join(missing)) if missing else None, law='G5', check='cli.advertised_flags_exist')
-        # Docstring honesty (issue #33): a module docstring's Usage block is a
+        # Docstring honesty (issues/33): a module docstring's Usage block is a
         # declared surface too, and nothing read it against the parser —
         # memories' documented three flags no parser defined, and both checks
         # here were satisfied (the declaration honestly advertised none; the lie lived
@@ -859,7 +879,7 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
             if unadvertised else None, law='G5', check='cli.target_flags_advertised')
-        # Positionally usable where advertised (issue #33): the declaration renders a
+        # Positionally usable where advertised (issues/33): the declaration renders a
         # command-level flag beside the verbs and completion offers it after
         # them, but summaries' four lived only on the command parser — argparse
         # hands a subparser everything after the verb token, so the advertised
@@ -897,7 +917,7 @@ def check_cli_surface(run) -> None:
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
 
-    # A command determines its target's name (#40): the target column is verification
+    # A command determines its target's name (issues/40): the target column is verification
     # rather than curation. Every row complies, so the record that declared the ones that
     # did not is gone — the last two left it when `corpus-yoga commands` and `corpus-yoga completions`
     # were extracted to files of their own, and a disposal record with nothing to dispose
@@ -944,7 +964,7 @@ def check_cli_surface(run) -> None:
             f.replace(str(REPO_ROOT) + '/', '') for f in findings[:4])
     run('shell: shellcheck reports nothing', sc_ok, sc_detail,
         check='shell.shellcheck_clean')
-    # A command's log path derives from the command (#54): having typed `corpus-yoga <noun>
+    # A command's log path derives from the command (issues/54): having typed `corpus-yoga <noun>
     # <verb>`, a reader can guess where the log went without reading the script that
     # wrote it. Held over the SOURCE — every tmp/logs/ path any file names must open
     # with a command word — because the directories themselves exist only on a machine
@@ -975,7 +995,7 @@ def check_cli_surface(run) -> None:
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
 
-    # What the repo PRESCRIBES, in both the senses #46 and #76 ask for: the form of an
+    # What the repo PRESCRIBES, in both the senses issues/46 and issues/76 ask for: the form of an
     # invocation (a corpus-yoga command, never a script path) and its validity (flags the
     # command actually advertises). One scan serves both — they are two halves of one
     # sentence about prescribed invocations, and splitting them would mean writing the
@@ -1060,7 +1080,7 @@ def check_cli_surface(run) -> None:
     # defect in the prescription, so both are handled rather than reported:
     #   `browser capture'`   the closing quote of the python literal
     #   `$remedy`, `{c}`     the invocation is computed, and cannot be read here
-    # And a STANDARD tool is not what #46 objects to — its complaint is a repo script
+    # And a STANDARD tool is not what issues/46 objects to — its complaint is a repo script
     # prescribed by path, which a reader cannot type and cannot find.
     STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'brew', 'echo', 'mkdir', 'open', 'pip', 'unset'}
     def clean(tok):
@@ -1174,7 +1194,7 @@ def check_cli_surface(run) -> None:
                 return True
         return False
 
-    # ONE fact, one face per language (the PR #113 census, carried to #29): bash cannot
+    # ONE fact, one face per language (the pull/113 census, carried to issues/29): bash cannot
     # import a python module, so before send.sh existed no shell command could honour the
     # switch at all. Two DECLARED readers, each named here, is not the accidental pair
     # this check exists to prevent — that pair is any reader beyond these two.
@@ -1192,7 +1212,7 @@ def check_cli_surface(run) -> None:
         f'src/main/send.sh, so refusal cannot come to mean two things by accident',
         check='effects.send_switch_read_once')
 
-    # One contract, two faces (#277): enact.sh and enact.py speak the same relay
+    # One contract, two faces (issues/277): enact.sh and enact.py speak the same relay
     # words, and no third file speaks them. The pair's one ruled asymmetry is
     # behavior, not words — sh's query returns the status, py's raises — stated in
     # the faces' own headers; the WORDS are held here.
@@ -1214,13 +1234,13 @@ def check_cli_surface(run) -> None:
         '; '.join(unspoken + [f'{speaker} defines a face' for speaker in third_speakers]) or None,
         check='effects.enact_faces_agree')
 
-    # The forward half of declared sends (#29): a target that holds a send face performs
+    # The forward half of declared sends (issues/29): a target that holds a send face performs
     # sends, and its command must SAY so in the declaration tree. TWO tolerances, both
     # deliberate and both to be retired by the arc's primitives-behind-faces slice:
     # helpers reached through imports are untraced (under-catch, safe), and the hold is
     # COMMAND-level — any one file under src/main/cli/<command>/ carrying `sends` satisfies
     # it, so a single VERB can lose its declaration unnoticed while its siblings keep
-    # the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
+    # the command green (the pull/114 review's finding: src/main/cli/forge/sync.json's
     # PATCH-write line, deleted alone, does not trip this). Per-verb needs the check to know which
     # verb sends, which is exactly what declared doors will make knowable.
     undeclared_senders = []
@@ -1278,7 +1298,7 @@ def check_cli_surface(run) -> None:
                 for d in diags[:4])
     run('python: pyright reports nothing', py_ok, py_detail, check='python.pyright_clean')
 
-    # Every printed plan line names where its step is implemented (#45). The plan is the
+    # Every printed plan line names where its step is implemented (issues/45). The plan is the
     # one place the whole program is listed, and a bare label does not resolve there:
     # `validate` names a file in more than one pipeline. The line carries the path, so a reader needs
     # no rule about which namespace a label is in.
@@ -1320,7 +1340,7 @@ def check_cli_surface(run) -> None:
             f'nothing distinguishes it from a label you cannot type',
             law='G16', check='output.plan_lines_name_their_target')
 
-    # A file lives at the level of its subject (#41). Which tier imports a module is a
+    # A file lives at the level of its subject (issues/41). Which tier imports a module is a
     # fact about the import graph, not a curated list — so this needs no vocabulary: a
     # module both tiers import belongs at src/, one only its own tier imports belongs in
     # that tier. src/ was holding validation_matrix by instinct and declared_parser one
@@ -1363,7 +1383,7 @@ def check_cli_surface(run) -> None:
              f'modules both tiers import'),
             check='structure.file_at_level_of_subject')
 
-    # The declaration tree IS the API (#58): every command is a file or a directory
+    # The declaration tree IS the API (issues/58): every command is a file or a directory
     # under src/main/cli/, every directory holds its own <command>.json plus one file per
     # subcommand, and nothing else lives there. Uniqueness and ordering need no check —
     # a directory cannot hold two entries of one name, and a listing has no out-of-order
@@ -1415,7 +1435,7 @@ def check_cli_surface(run) -> None:
     registry = Registry().with_resource(
         'argument.schema.json',
         Resource.from_contents(schemas['argument'], default_specification=DRAFT4))
-    # the top's own declaration (#807): what the tool is, and the commands bare `corpus-yoga` suggests
+    # the top's own declaration (issues/807): what the tool is, and the commands bare `corpus-yoga` suggests
     top_declaration = cli_root / 'corpus-yoga.json'
     if 'root' in schemas and top_declaration.is_file():
         top_errors = sorted(jsonschema.Draft4Validator(schemas['root'], registry=registry).iter_errors(json.loads(top_declaration.read_text())), key=lambda e: list(e.path))
@@ -1442,7 +1462,7 @@ def check_cli_surface(run) -> None:
                 f'{errors[0].message} at {"/".join(str(x) for x in errors[0].path) or "(root)"}',
                 law='G3', check='structure.cli_declaration_validates')
 
-    # Every typeable form is listed (#85). The bare noun is an alternative like any
+    # Every typeable form is listed (issues/85). The bare noun is an alternative like any
     # other, so the forms number one per subcommand PLUS one; what -h shows of them is
     # held above (cli.help_is_the_declaration).
     for c in cmds:
@@ -1455,7 +1475,7 @@ def check_cli_surface(run) -> None:
             f'conditional in the grammar, so it cannot be conditional in the derivation',
             law='G3', check='cli.every_form_listed')
 
-    # Every help face is the declaration, said by the printer (#794): `corpus-yoga <command> -h`
+    # Every help face is the declaration, said by the printer (issues/794): `corpus-yoga <command> -h`
     # loads as what the walk shows at /<command>/help under the command's name, with each
     # form beside its summary; `corpus-yoga -h` loads as every command under `corpus-yoga:`,
     # each with its summary - the bare word's shape, whole.
@@ -1489,7 +1509,7 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: -h is its declaration, said by the printer', why is None, why, law='G8', check='cli.help_is_the_declaration')
 
     # A declaration's prose holds no colon followed by a space, no em dash and no hash after
-    # a space - YAML's comment (#795): each summary, help, argument, send and explanation is
+    # a space - YAML's comment (issues/795): each summary, help, argument, send and explanation is
     # one plain sentence, so help, tab, the walk and the bare word say it unquoted.
     def prose(d: dict):
         yield 'summary', d.get('summary', '')
@@ -1570,7 +1590,7 @@ def check_cli_surface(run) -> None:
         cmd, sub = s['command'], s['subcommand']
         # the plan line is the step label then its non-path args (steps.sh): the label
         # must BE the command, and the verb must be among the args after it
-        # `corpus-yoga ` prefixes a step that IS a command (#45), which is how the plan says the
+        # `corpus-yoga ` prefixes a step that IS a command (issues/45), which is how the plan says the
         # line is typeable — so the invocation it must name is the command form
         ok = bool(re.search(rf'^\s*(corpus-yoga )?{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
@@ -1588,7 +1608,7 @@ def check_grammar_laws(run, cited: dict) -> None:
     Backward: a law declaring itself `gated` must really be cited by a check that ran.
     This is the direction that rots silently — the prose list this replaced said nine
     things were held, and the law it did NOT mention (bare is status) was the one whose
-    violation became four incidents (#29). A law with no check is now a failing check,
+    violation became four incidents (issues/29). A law with no check is now a failing check,
     not a discovery made during an outage.
 
     A law must declare a state at all: `gated`, `by construction` (the shape admits no
@@ -1614,7 +1634,7 @@ def check_grammar_laws(run, cited: dict) -> None:
     if not laws:
         return
 
-    # TWO vocabularies, one citation field (#50): a check enforces either a surface law
+    # TWO vocabularies, one citation field (issues/50): a check enforces either a surface law
     # from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if
     # either document states it.
     corpus = cli.calculus_laws()
@@ -1630,7 +1650,7 @@ def check_grammar_laws(run, cited: dict) -> None:
         None if corpus else 'no `- **L<n> — …**` law bullets found', check='calculus.laws_parse')
     stateless_l = sorted(l for l, law in corpus.items() if law['state'] not in cli.LAW_STATES)
     run('calculus: every law declares a state', not stateless_l,
-        f'no `gated` / `by construction` / `unenforced (#N)` / `doctrine`: '
+        f'no `gated` / `by construction` / `unenforced (issues/N)` / `doctrine`: '
         f'{", ".join(stateless_l)}' if stateless_l else None, check='calculus.state_declared')
     uncited_l = sorted(l for l, law in corpus.items()
                        if law['state'] == 'gated' and l not in cited)
@@ -1640,7 +1660,7 @@ def check_grammar_laws(run, cited: dict) -> None:
     issueless_l = sorted(l for l, law in corpus.items()
                          if law['state'] == 'unenforced' and not law['issues'])
     run('calculus: every unenforced law names the issue that will hold it', not issueless_l,
-        f'declares `unenforced` with no #issue: {", ".join(issueless_l)}'
+        f'declares `unenforced` with no issues/N: {", ".join(issueless_l)}'
         if issueless_l else None, check='calculus.unenforced_names_issue')
 
     stateless = sorted(g for g, law in laws.items() if law['state'] not in cli.LAW_STATES)
@@ -1664,7 +1684,7 @@ def check_grammar_laws(run, cited: dict) -> None:
     issueless = {g for g in unenforced if not laws[g]['issues']}
     run(f'grammar: every unenforced law names its issue ({len(unenforced) - len(issueless)}/{len(unenforced)})',
         not issueless,
-        f'declares `unenforced` with no #issue: {ids(issueless)}' if issueless else None, check='grammar.unenforced_names_issue')
+        f'declares `unenforced` with no issues/N: {ids(issueless)}' if issueless else None, check='grammar.unenforced_names_issue')
 
     # a cited law is held, whatever it claims: the claim is what is wrong
     miscited = {g for g, law in laws.items()
@@ -1695,7 +1715,7 @@ def check_grammar_laws(run, cited: dict) -> None:
 
 
 def check_tier_contract(run) -> None:
-    """Every data or tmp path under src/main derives from the tier contract (#702):
+    """Every data or tmp path under src/main derives from the tier contract (issues/702):
     src/main/tier.py and its shell twin are the one home, and no other script builds a
     path through the literal segment 'data' or 'tmp' from a root of its own - REPO,
     parents[3], $REPO_DIR - by hand - a rehearsal is
@@ -1721,7 +1741,7 @@ def check_tier_contract(run) -> None:
 
 def check_validate_verdict(run) -> None:
     """A verdict on a record whose discriminator no alternative admits names the union and
-    the declared set (#894), never an alternative chosen by the count of its faults. The
+    the declared set (issues/894), never an alternative chosen by the count of its faults. The
     fixture is the live case of home-room's rehearsal 2026-10-15T110202Z: a record of a
     type the union did not declare, judged a malformed frame-link."""
     import importlib
@@ -1759,14 +1779,14 @@ def check_validate_verdict(run) -> None:
     selected = malformed[2] == 'Schema path: #/definitions/B' and "'z' is a required property" in malformed[0]
     run('validate: a record whose type one alternative declares is judged within that alternative', selected,
         None if selected else f'the verdict read {malformed}', check='validate.undeclared_type_names_the_union')
-    # the reviewer's case (home-room, 2026-10-16, on PR #900): a record of a declared type
+    # the reviewer's case (home-room, 2026-10-16, on pull/900): a record of a declared type
     # carrying a nested block of an undeclared type is judged at the nested union, never at
     # the record's by the accident that every discriminator is spelled type
     inner = (nested[0] == "Validation error: content/type: 'z' is not a type the union declares - declared: ['x', 'y']"
              and nested[1] == "Path: [0, 'content', 0, 'type']" and nested[2] == 'Schema path: #/definitions/ContentBlock')
     run('validate: a declared record carrying an undeclared nested type is judged at the nested union', inner,
         None if inner else f'the verdict read {nested}', check='validate.undeclared_type_names_the_union')
-    # the reviewer's fourth case (home-room, 2026-10-16, on PR #900): a union whose
+    # the reviewer's fourth case (home-room, 2026-10-16, on pull/900): a union whose
     # alternatives carry no discriminator - null or an object - given a value neither admits
     # is judged by the union naming its alternatives, never by the alternative with the
     # fewest faults, which no record and no schema selects
@@ -1777,7 +1797,7 @@ def check_validate_verdict(run) -> None:
 
 
 def check_verdict_record(run) -> None:
-    """A verdict is read from its record, never from the log's text (#701): a red log whose
+    """A verdict is read from its record, never from the log's text (issues/701): a red log whose
     inspection dumps a datum that carries the validator's own word must read red. The
     fixture is synthetic - a datum directory with one family, its latest version, a log
     that says 'Validation error' and then 'Valid!' inside the dumped instance, and beside
@@ -1814,7 +1834,7 @@ def check_verdict_record(run) -> None:
 
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
-    judged (#815, #830). Over a scratch fixture - two units the run began over, one validated
+    judged (issues/815, issues/830). Over a scratch fixture - two units the run began over, one validated
     green and one refused with its log, a third staged after it began - the record reduced
     from the extent and the scratch's verdicts validates against
     src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the
@@ -1916,7 +1936,7 @@ def check_rehearsal_record(run) -> None:
 
 def check_unit_companion(run) -> None:
     """The staged bulk export <X> is one unit, named by <X>, by the chat-export declaration
-    itself (#687): its member is data-<X>/, which promotion copies, and its record is
+    itself (issues/687): its member is data-<X>/, which promotion copies, and its record is
     manifest-<X>.json, which stays in the stage. Either alone is the same unit, unpaired,
     naming what is absent. The fixture is synthetic - one export whole, one with its
     manifest alone, one with its payload alone."""
@@ -1945,7 +1965,7 @@ def check_unit_companion(run) -> None:
 
 def check_unit_state(run) -> None:
     """A staged unit is in one of seven states, and the stage's counts are of those states
-    (#687, #867): promotable, held already, invalid - a family gave its verdict against it -
+    (issues/687, issues/867): promotable, held already, invalid - a family gave its verdict against it -
     would lose - its relation would cost the held copy something, which the promote, asked,
     refuses - unlicensed - valid at a version origin/main does not hold - incomplete, and
     unjudged, the state before any verdict, whose remedy is a rehearsal. No status line
@@ -1978,7 +1998,7 @@ def check_unit_state(run) -> None:
 
 def check_store(run) -> None:
     """A unit knows what it is called, and a unit another of its kind holds whole is found
-    (#736, #738): over a scratch root, a session whose log is a prefix of the same
+    (issues/736, issues/738): over a scratch root, a session whose log is a prefix of the same
     session's under another project is contained, a memory equal to another's is
     identical, and what differs is neither."""
     import tempfile
@@ -2008,7 +2028,7 @@ def check_store(run) -> None:
     expected = [('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained'), ('two/memory', 'one/memory', 'identical')]
     run('store: a unit another of its kind holds whole is found', got == expected,
         None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
-    # a file inside a held unit that its measure does not read is surplus (#833): iCloud's
+    # a file inside a held unit that its measure does not read is surplus (issues/833): iCloud's
     # conflict copy beside a capture; a memory's every file is the mirror's, so none is
     extra = getattr(corpus, 'surplus', None)
     if extra is None:
@@ -2032,12 +2052,12 @@ def check_store(run) -> None:
 
 
 def check_status_facts(run) -> None:
-    """Every noun's bare status is its facts as YAML (#753): run as the reader runs it, in
+    """Every noun's bare status is its facts as YAML (issues/753): run as the reader runs it, in
     this checkout with sends refused, what it prints loads as one mapping - the lines are
     the data - and the usage line the CLI appends is one of its pairs. A key that stands
     twice in one mapping is refused, where YAML's own reader keeps the last in silence
-    (#759), and a list holds only scalars: a dash means a bare value, and a collection of
-    named things is a mapping keyed by their names (#765). And a remedy the reader types names a command (#759): every Command a status
+    (issues/759), and a list holds only scalars: a dash means a bare value, and a collection of
+    named things is a mapping keyed by their names (issues/765). And a remedy the reader types names a command (issues/759): every Command a status
     constructs from a literal is a corpus-yoga command the CLI declares, with a verb it
     has, or a standard tool - read from the constructor's call sites, so a remedy a rare
     state alone would say is held before that state."""
@@ -2126,7 +2146,7 @@ def check_status_facts(run) -> None:
             run(f'remedy: {path.relative_to(REPO_ROOT)}:{node.lineno} names a command a reader types', why is None, why,
                 check='status.remedy_names_a_command')
 
-    # The status report's rows carry their commands as columns (#763): the same
+    # The status report's rows carry their commands as columns (issues/763): the same
     # judgement over each `todo` and `bad` call's command arguments, where they are literal.
     import shlex
     report = CLI / 'status' / 'status.sh'
@@ -2177,19 +2197,19 @@ def check_status_facts(run) -> None:
             loaded = yaml.load(proc.stdout, Loader=Strict)
             why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
             if why is None and getattr(status_facts, 'load', None) is not None:
-                # the printer's own reader reads what the YAML reader reads (#766)
+                # the printer's own reader reads what the YAML reader reads (issues/766)
                 try:
                     if status_facts.load(proc.stdout) != loaded:
                         why = 'the printer\'s reader and the YAML reader read it differently'
                 except ValueError as error:
                     why = f'the printer\'s reader refuses it: {error}'
             if why is None:
-                # no key names nothing (#771, #779): `stands` is a head that says nothing of what follows
+                # no key names nothing (issues/771, issues/779): `stands` is a head that says nothing of what follows
                 nothing = named_nothing(loaded)
                 if nothing is not None:
                     why = f'the key at {nothing} names nothing - a probe\'s answer stands under what it is about'
             if why is None:
-                # a dash means a bare value (#765): a collection of named things is a mapping keyed by their names
+                # a dash means a bare value (issues/765): a collection of named things is a mapping keyed by their names
                 nested = listed_structure(loaded)
                 if nested is not None:
                     why = f'the list at {nested} holds a mapping or a list - a collection is keyed by its members\' names'
@@ -2200,7 +2220,7 @@ def check_status_facts(run) -> None:
             why = f'{getattr(error, "problem", error)}{where}: {line.strip()[:100]}'
         run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
             check='status.lines_load_as_yaml')
-        # no value holds a pair (#792): the first colon-space on a line ends its key
+        # no value holds a pair (issues/792): the first colon-space on a line ends its key
         try:
             paired = pair_in_a_value(yaml.load(proc.stdout, Loader=Strict))
         except yaml.YAMLError:
@@ -2209,7 +2229,7 @@ def check_status_facts(run) -> None:
             None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]} - a pair is a fact of its own beneath, or the sentence says it without the colon',
             check='status.room_round_trip_holds_no_pair')
 
-    # The machine report says what a noun's status says, taken from that status (#777):
+    # The machine report says what a noun's status says, taken from that status (issues/777):
     # each section it grafts is, in the full report, the noun's own facts at that spot.
     said_text: dict[tuple[str, ...], str] = {}      # each command's output, read once a section
     def said_by(*words: str) -> dict:
@@ -2224,7 +2244,7 @@ def check_status_facts(run) -> None:
             node = node.get(key) if isinstance(node, dict) else None
         return node
     whole = said_by('status', '--show-all')
-    # a grafted section is headed by its command (#812): `corpus-yoga <noun>`, and beneath it what
+    # a grafted section is headed by its command (issues/812): `corpus-yoga <noun>`, and beneath it what
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'next'),
@@ -2248,7 +2268,7 @@ def check_status_facts(run) -> None:
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
         None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.room_round_trip_holds_no_pair')
-    # The sentences a status can say are its noun's declared wording (#909, #914), each its
+    # The sentences a status can say are its noun's declared wording (issues/909, issues/914), each its
     # own identity: the one property - no value holds a colon followed by a space - judged
     # over every sentence, in every room alike, with no room's state; each sentence declared
     # once across the nouns; and every declared sentence said by its noun, quoted - in the
@@ -2285,14 +2305,14 @@ def check_status_facts(run) -> None:
         None if paired is None else f'the {paired[0][1:]} measure says {paired[1]}', check='status.room_round_trip_holds_no_pair')
 
     # Every environment variable the repository reads carries the command's name as its
-    # prefix (#703): no code reads an old name, and a python read of the environment names
+    # prefix (issues/703): no code reads an old name, and a python read of the environment names
     # either CORPUS_YOGA_<name> or a variable that is another's - the OS's, the provider's.
     old_names = ('YOGA_NO_SEND', 'YOGA_JOBS', 'YOGA_GATE_TIMINGS')
     foreign = {'HOME', 'PATH', 'TMPDIR', 'TERM', 'SHELL', 'USER', 'PWD', 'COLUMNS', 'LINES', 'ZDOTDIR', 'USER_ZDOTDIR',
                'GIT_INDEX_FILE', 'PYTHONUNBUFFERED', 'PYTHON_COLORS', 'NO_COLOR', 'ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL'}
     read_badly: list[str] = []
     # two files name the old names in order to find them: this check, and the status report's
-    # row that tells a machine it still exports one (#703)
+    # row that tells a machine it still exports one (issues/703)
     detectors = {SRC / 'test' / 'dev' / 'run.py', CLI / 'status' / 'status.sh'}
     for path in [REPO_ROOT / 'corpus-yoga', *sorted(SRC.rglob('*.py')), *sorted(SRC.rglob('*.sh'))]:
         if not path.is_file() or 'gen/' in path.as_posix() or path in detectors:
@@ -2310,7 +2330,7 @@ def check_status_facts(run) -> None:
                     read_badly.append(f'{rel} reads {found}')
     run('environment: every variable the repository reads carries the prefix CORPUS_YOGA_', not read_badly,
         None if not read_badly else '; '.join(sorted(set(read_badly))[:6]), check='environment.names_carry_the_prefix')
-    # --no-send before the command word refuses every send (#703), so a reader need not
+    # --no-send before the command word refuses every send (issues/703), so a reader need not
     # know the variable: the forge's status, which sends, says so.
     sendless = {k: v for k, v in os.environ.items() if k not in ('YOGA_NO_SEND', 'CORPUS_YOGA_NO_SEND')}
     for words in (['--no-send', 'forge'], ['forge', '--no-send']):
@@ -2319,12 +2339,12 @@ def check_status_facts(run) -> None:
             None if 'refuses the send' in without_sends.stdout else f'it says {(without_sends.stdout + without_sends.stderr).strip()[:160]!r}', check='cli.no_send_flag')
     offered = cli_offer.completion_script(cli.commands())
     declared_flags = ' '.join(a['name'] for a in json.loads((CLI / 'corpus-yoga.json').read_text()).get('args', []))
-    run(f'cli: tab offers the launcher\'s flags, {declared_flags}, at every position (#510)',
+    run(f'cli: tab offers the launcher\'s flags, {declared_flags}, at every position (issues/510)',
         f'launcher=({declared_flags})' in offered and 'compadd -- "${launcher[@]}"' in offered and '--no-send' in declared_flags and '-h' in declared_flags.split(),
         None if f'launcher=({declared_flags})' in offered else f'what zsh evaluates names {offered.count("launcher")} launcher line(s), the flags declared being {declared_flags!r}', check='cli.no_send_flag')
 
     # The pipeline noun says each pipeline by its declaration and each staged unit by its
-    # facts (#800): under `pipelines:` the pipelines alone, each with its declared input and
+    # facts (issues/800): under `pipelines:` the pipelines alone, each with its declared input and
     # the steps its plan names; under `staged:` a mapping of units, each a mapping of facts;
     # the counts left to `corpus-yoga stage`; the commands under `remedy:`.
     pipeline_said = said_by('pipeline')
@@ -2369,13 +2389,13 @@ def check_status_facts(run) -> None:
     run('status: corpus-yoga pipeline says each pipeline by its declaration and each staged unit by its facts', why is None, why,
         check='status.pipeline_says_declarations_and_units')
     for noun in ('agent', 'browser', 'export'):
-        own = said_by(noun)                       # a noun that refuses to report at all (an unbound room, #758) says neither key
+        own = said_by(noun)                       # a noun that refuses to report at all (an unbound room, issues/758) says neither key
         why = (f'it ends with a stage: sentence, {str(own["stage"])[:80]!r}' if 'stage' in own
                else 'its staged: is not a mapping of units' if 'staged' in own and not isinstance(own['staged'], dict) else None)
         run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
             check='status.pipeline_says_declarations_and_units')
 
-    # The default report of a room with nothing to remedy is still one mapping (#807): the
+    # The default report of a room with nothing to remedy is still one mapping (issues/807): the
     # worktree the gate runs in always has remedies, so the empty case is made here.
     import tempfile
     with tempfile.NamedTemporaryFile('w', suffix='.rows', delete=False) as empty:
@@ -2393,14 +2413,14 @@ def check_status_facts(run) -> None:
         None if isinstance(loaded_empty, dict) and loaded_empty and 'remedy' in loaded_empty else f'it says {said_empty.strip()[:120]!r}',
         check='status.lines_load_as_yaml')
 
-    # The machine report gives no verdict on itself (#786): it ends at its last section,
+    # The machine report gives no verdict on itself (issues/786): it ends at its last section,
     # and what needs doing is read from its remedies.
     verdict = whole.get('status')
     run('report: it gives no verdict on itself', bool(whole) and verdict is None,
         None if whole and verdict is None else f'the report ends `status: {str(verdict)[:120]}`' if whole else 'corpus-yoga status --show-all loads as nothing',
         check='report.gives_no_verdict_on_itself')
 
-    # The bare word suggests what to run next, and runs none of it (#786): asked in this
+    # The bare word suggests what to run next, and runs none of it (issues/786): asked in this
     # process with nothing allowed to run, it says commands a reader can type, each with
     # the summary its own declaration gives.
     import contextlib
@@ -2433,7 +2453,7 @@ def check_status_facts(run) -> None:
            or (None if 'corpus-yoga status' in suggested else 'the room\'s status is not among what it suggests'))
     run('bare: corpus-yoga says what this is, suggests what to run next, and runs none of it', why is None, why, check='cli.bare_suggests_and_runs_nothing')
 
-    # The machine report's rows are keyed by what each is about (#771): in the full
+    # The machine report's rows are keyed by what each is about (issues/771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
     said_by('status', '--show-all')
     report_text = said_text[('status', '--show-all')]
@@ -2455,7 +2475,7 @@ def check_status_facts(run) -> None:
 
 
 def check_export_atoms(run) -> None:
-    """An earlier export is held whole within a later one by its atoms (#743): over a
+    """An earlier export is held whole within a later one by its atoms (issues/743): over a
     scratch root, an export whose conversations, memories and users are all among a later
     export's is contained, and one holding a message the later lacks is not; a memory state
     the deposits hold counts for nothing the export must still hold."""
@@ -2492,7 +2512,7 @@ def check_export_atoms(run) -> None:
 
 
 def check_facts(run) -> None:
-    """A status's facts print as YAML a reader loads back (#740): a mapping's keys in order,
+    """A status's facts print as YAML a reader loads back (issues/740): a mapping's keys in order,
     a list's items with a dash, a nested fact indented beneath its heading, and a string
     quoted exactly where YAML would read it as a number, a boolean, null, a time or a
     mapping - so that the lines are the data."""
@@ -2512,7 +2532,7 @@ def check_facts(run) -> None:
                 '  - ""', '  - null', '  - 2', 'empty: {}', 'none: []']
     run('facts: a status prints its facts as YAML a reader loads back', got == expected,
         None if got == expected else f'the lines read {got}', check='facts.lines_are_yaml')
-    # The printer's own reader is its inverse (#766): what it prints it reads back, and
+    # The printer's own reader is its inverse (issues/766): what it prints it reads back, and
     # a YAML reader reads the same - so a reader of a status needs nothing but the printer.
     load = getattr(facts, 'load', None)
     if load is None:
@@ -2541,7 +2561,7 @@ def check_facts(run) -> None:
         twice = None
     run('facts: the reader refuses a key that stands twice', twice is None, twice, check='facts.reads_back_what_it_prints')
     # A value too long for the terminal continues on indented lines and loads as the same
-    # value (#790): at a given width no line passes it, each fact unbroken is one line, and
+    # value (issues/790): at a given width no line passes it, each fact unbroken is one line, and
     # what was broken loads as what was printed - under a YAML reader and under the
     # printer's own - at every depth, plain or quoted, in a mapping or a list, and with no
     # line opening on a dash the value held.
@@ -2581,7 +2601,7 @@ def check_facts(run) -> None:
                else None)
     run('facts: a value too long for the width continues on indented lines and loads as the same value', why is None, why,
         check='facts.wraps_and_reads_back')
-    # The width is the terminal's, read when the lines are printed (#790): said to a
+    # The width is the terminal's, read when the lines are printed (issues/790): said to a
     # terminal 40 columns wide a long value is broken to fit it; said to a pipe it is one line.
     import fcntl
     import pty
@@ -2619,12 +2639,12 @@ def check_facts(run) -> None:
 
 def check_walkthrough(run) -> None:
     """The walkthrough walks the room's state and its help, and runs a command it reaches
-    (#766, #770): driven by lines on stdin as a reader's keys drive it, it starts on the
+    (issues/766, issues/770): driven by lines on stdin as a reader's keys drive it, it starts on the
     top, which holds the commands, the machine report first, whose help stands beside its
     status and says what its declaration says; n reaches the pipeline noun, m descends, a
     status is read where the walk lands on it, v shows a value, b returns, and x on a key
     that is a command runs it and re-reads. Each step is a document the printer's reader
-    loads, and says the size and shape of what it stands on (#787), each under the key
+    loads, and says the size and shape of what it stands on (issues/787), each under the key
     that would bring it - members for m, value for v, next for n - and a status that
     cannot be read as a FAIL, never as content; the mark before a step is the key that
     made it."""
@@ -2688,7 +2708,7 @@ def check_walkthrough(run) -> None:
                                                for i, key in enumerate(keys[:-1]) if key == 'n' and 'next' in step(i))
          and any(key == 'n' and 'next' in step(i) for i, key in enumerate(keys[:-1]))),
     ]
-    # A status that cannot be read is a failure, said as one (#787): asked before the venv
+    # A status that cannot be read is a failure, said as one (issues/787): asked before the venv
     # exists, where no noun but the machine report can be, the step carries FAIL and neither
     # members nor value, and the walk's exit is 1.
     unminted = subprocess.run([sys.executable, str(target), '/stage/status'], input='q\n', capture_output=True, text=True,
@@ -2702,7 +2722,7 @@ def check_walkthrough(run) -> None:
         ('a status that cannot be read is a FAIL, not content, and the exit is 1', failing.get('key') == 'status' and 'FAIL' in failing
          and 'members' not in failing and 'value' not in failing and unminted.returncode == 1),
     ]
-    # Every spot is addressed by its JSON pointer (#775): the walk starts where one names,
+    # Every spot is addressed by its JSON pointer (issues/775): the walk starts where one names,
     # a slash within a key is ~1, the nearest spot stands in for one that is not there, and
     # the walk leaves with the command that continues it.
     exits: dict[str, int] = {}
@@ -2748,12 +2768,12 @@ def check_walkthrough(run) -> None:
 
 
 def check_completions(run) -> None:
-    """What tab offers is read from the declarations when tab is pressed (#784): in a
+    """What tab offers is read from the declarations when tab is pressed (issues/784): in a
     copy of the declared surface, a zsh that has pressed tab once is offered, at its next
     tab, a verb declared in between; where a declaration no longer parses, tab says
     why it offers nothing; and what tab does is itself read at each tab, since zsh keeps
-    the file it loads until the terminal closes (#620's mechanism). And the status says whether zsh is set up for this
-    copy (#521, #784), over a planted home: no lines, this copy's lines, another copy's,
+    the file it loads until the terminal closes (issues/620's mechanism). And the status says whether zsh is set up for this
+    copy (issues/521, issues/784), over a planted home: no lines, this copy's lines, another copy's,
     a copy that is gone, lines `install` would not write, and lines zsh does not load."""
     import shutil
     import subprocess
@@ -2869,7 +2889,7 @@ _corpus-yoga
 
 def check_drafters(run) -> None:
     """A Signature is read by the grammar that writes it, and a message's first Signature
-    is its drafter (#631): the join of main's messages to the store's sessions rests on
+    is its drafter (issues/631): the join of main's messages to the store's sessions rests on
     both, and neither needs a store to be shown."""
     sys.path.insert(0, str(SRC / 'main'))
     sys.path.insert(0, str(SRC / 'main' / 'cli' / 'agent'))
@@ -2895,10 +2915,10 @@ def check_drafters(run) -> None:
     assert spec and spec.loader
     drafters = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(drafters)
-    body = ('* one message (#1): its text\n\nSignature: home-room/claude/41ff13e9\n'
+    body = ('* one message (pull/1): its text\n\nSignature: home-room/claude/41ff13e9\n'
             'Signature: reading-room/claude/be12fa7c\nSignature: reading-room\n\n'
             '* a second, by the room\'s own shell\n\nSignature: reading-room\n\nthe forge\'s own closing words\n')
-    expected = [('* one message (#1): its text', [('home-room', 'claude', '41ff13e9'),
+    expected = [('* one message (pull/1): its text', [('home-room', 'claude', '41ff13e9'),
                                                   ('reading-room', 'claude', 'be12fa7c'),
                                                   ('reading-room', None, None)]),
                 ("* a second, by the room's own shell", [('reading-room', None, None)])]
@@ -2915,7 +2935,7 @@ def check_versioned_schema_diagnostics(run):
     schema_dirs = _schema_families()
     # One jobs list across every family, one _call_many: a per-family dispatch
     # drains the pool at each family boundary, idling workers on every family's
-    # tail (#472). The report below walks the families in this same enumeration
+    # tail (issues/472). The report below walks the families in this same enumeration
     # order, so the committed log cannot differ from the per-family loop's (L2).
     # A family's job count is None when it has no versions (reported as its own
     # failure) - an empty count means every diagnostic was skipped: report nothing.
@@ -2924,7 +2944,7 @@ def check_versioned_schema_diagnostics(run):
     for schema_name in sorted(schema_dirs):
         schema_dir  = schema_dirs[schema_name]
         skip        = schema_skips.get(schema_dir, frozenset())
-        # the latest version is the schema, the rest history (#557): diagnostics
+        # the latest version is the schema, the rest history (issues/557): diagnostics
         # judge the version that judges data; validity and the changelog still
         # hold every version, so the history stays parseable and narrated
         versions    = _sorted_versions(schema_dir)[-1:] if schema_dir else []
@@ -3046,7 +3066,7 @@ def check_model_table(run) -> None:
     """rsc/model/model.json is the table of documented shared types - a name, its
     description, its occurrences by family - and rsc/model/model.schema.json is
     the row shape (draft-04) every reader of the table relies on: the table
-    validates against it, so a malformed entry fails by name (#591)."""
+    validates against it, so a malformed entry fails by name (issues/591)."""
     import jsonschema
     table, schema = RSC_MODEL / 'model.json', RSC_MODEL / 'model.schema.json'
     validator = jsonschema.Draft4Validator(json.loads(schema.read_text()))
@@ -3062,7 +3082,7 @@ def check_model_table(run) -> None:
 
 def check_model_occurrences(run):
     """model.json's occurrence paths obey the de-versioned family-dir grammar
-    model_join.csv earned (check_model_join_versions) and RESOLVE (issue #19):
+    model_join.csv earned (check_model_join_versions) and RESOLVE (issues/19):
     each occurrences key is '<pipeline>/<family>' — the pinned grammar was drift
     already in progress, v15 pins under a v17 corpus, and unlike model_join
     nothing validated them — and each instance pointer must resolve against the
@@ -3089,7 +3109,7 @@ def check_model_occurrences(run):
         '\n    '.join(pins[:5]) if pins else None, check='model.occurrence_family_grammar')
     run('model: occurrence pointers resolve against latest versions', not bad,
         '\n    '.join(bad[:5]) if bad else None, check='model.occurrence_pointers_resolve')
-    # Completeness (issue #19 follow-up, the foolproof-index fix, user + reading-room):
+    # Completeness (issues/19 follow-up, the foolproof-index fix, user + reading-room):
     # grounds() needs one family to match, so a type can be documented with a
     # dressing missing and still ground — model.json would then answer "where does
     # this type occur" incompletely, the non-foolproof grep the account-uuid thread
@@ -3103,8 +3123,8 @@ def check_model_occurrences(run):
 
 
 def check_model_obligations(run) -> None:
-    """The blocking half of model.json's curate discipline (issue #19; the PR
-    #36 review, reading-room, directed by the user), BOTH directions of the one
+    """The blocking half of model.json's curate discipline (issues/19; the PR
+    pull/36 review, reading-room, directed by the user), BOTH directions of the one
     grounding relation (model_curation.grounds — by containing-definition name,
     or by property trail for inline field types whose semantic name no schema
     definition can supply, e.g. UserUUID's account uuid):
@@ -3121,7 +3141,7 @@ def check_model_obligations(run) -> None:
     minus rejections. GATES (schema tier): an edge is a human-asserted
     identity, and an undocumented asserted identity — or a documented type no
     edge asserts — is a defect, not a queue. The raw name scan is `corpus-yoga
-    model`'s FAIL pointed at model_join (#530), since a name_collision is a
+    model`'s FAIL pointed at model_join (issues/530), since a name_collision is a
     false friend no scan can tell from a shared type."""
     queue = model_curation.edge_queue()
     for names, rows in sorted(model_curation.shared_types().items(),
@@ -3141,7 +3161,7 @@ def check_model_obligations(run) -> None:
 
 def check_model_identity(run) -> None:
     """Identity-class model_join edges hold at their families' latest versions
-    (#469, armed by #528's re-judgments): a one-sided mint that breaks an
+    (issues/469, armed by pull/528's re-judgments): a one-sided mint that breaks an
     identical/snake_cased edge reds the dev gate until the edge is re-judged
     or the identity restored. Hermetic — schemas only, no corpus."""
     violations = model_curation.identity_violations()
@@ -3153,7 +3173,7 @@ def check_model_identity(run) -> None:
 
 
 def check_mcp_factoring(run) -> None:
-    """The house MCP factoring (#562, #598) is a committed derivation: the latest
+    """The house MCP factoring (issues/562, issues/598) is a committed derivation: the latest
     rsc/schema/mcp/mcpMessage version must be byte-identical to what
     corpus-yoga mcp sync generates from the committed schema.ts and the family's
     tables (mcp.factoring_current), and every definition of upstream's schema.json -
@@ -3205,7 +3225,7 @@ def check_mcp_factoring(run) -> None:
 
 def check_mcp_reproducible(run) -> None:
     """The mcp snapshot's schema.json is what upstream's own generator makes of the
-    committed schema.ts (#576): src/main/mcp/reproduce.sh fetches upstream at the
+    committed schema.ts (issues/576): src/main/mcp/reproduce.sh fetches upstream at the
     pinned commit, runs its generator unchanged in a node container and diffs the
     result against the committed file. Two sends (a git fetch, a docker run), so
     CORPUS_YOGA_NO_SEND=1 skips it - and so does a machine whose docker daemon is not
@@ -3232,7 +3252,7 @@ def check_mcp_reproducible(run) -> None:
 def check_grammar(run) -> None:
     """Every parser under src/gen/grammar/<project>/ (machine-local, gitignored) is
     present and, where the tool is present, what antlr4 generates from
-    rsc/rpus/grammar/<project>/ now (#597). Absence fails by name - the mcp checks
+    rsc/rpus/grammar/<project>/ now (issues/597). Absence fails by name - the mcp checks
     need the parser, and corpus-yoga status sync generates it. The
     currency half needs the tool (antlr4 from antlr4-tools in the venv, java), whose
     first use fetches the tool jar, a send: CORPUS_YOGA_NO_SEND=1 skips that half and so does
@@ -3256,7 +3276,7 @@ def check_grammar(run) -> None:
 
 
 def check_status_is_the_dry_run(run) -> None:
-    """A verb that takes --apply has no dry rendering of its own (#881): its noun's status says
+    """A verb that takes --apply has no dry rendering of its own (issues/881): its noun's status says
     what it would do, and the verb acts, so no declaration under src/main/cli carries the
     flag. The seven that did - agent mount, agent demerge, agent install, forge sync,
     migration sync, site publish, status sync - each rendered a dry run of their own when
@@ -3269,7 +3289,7 @@ def check_status_is_the_dry_run(run) -> None:
 
 
 def check_reply(run) -> None:
-    """next: is the launcher's reply, never the verb's (#896): where the launcher named the
+    """next: is the launcher's reply, never the verb's (issues/896): where the launcher named the
     act it dispatched and the file to hand the effect through, the printer's report says
     no next: and writes the effect there; where no launcher asked, or the effect is an inner
     verb's, the effect line is the last line and still no next: is said. The live bug is
@@ -3312,10 +3332,10 @@ def check_reply(run) -> None:
 
 
 def check_forge_aim(run) -> None:
-    """A PR's aim is one line per issue in the aim's one grammar (#884): the merge reads
+    """A PR's aim is one line per issue in the aim's one grammar (issues/884): the merge reads
     the aimed set from it and refuses any other spelling, so that the set the flip
-    rewrites and the set the forge closes are one. The fixture is the live bug: #879's
-    body aimed at two issues in one line, the merge read one, and #801 stayed open."""
+    rewrites and the set the forge closes are one. The fixture is the live bug: pull/879's
+    body aimed at two issues in one line, the merge read one, and issues/801 stayed open."""
     sys.path.insert(0, str(SRC / 'main' / 'cli' / 'forge'))
     import importlib
     try:
@@ -3324,25 +3344,24 @@ def check_forge_aim(run) -> None:
         run('forge: a PR\'s aim is one line per issue in one grammar', False,
             'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue')
         return
-    one_line_two_issues = ('## why\n\n- aims to complete #876 - every effecting verb not on the flow reports through '
-                           'the act\'s one shape - and, with #877 merged, #801, whose every effecting verb then reports\n')
+    one_line_two_issues = '## why\n\n- aims to complete #876 - every effecting verb not on the flow reports through the act\'s one shape - and, with #877 merged, #801, whose every effecting verb then reports\n'  # GitHub's grammar, hashed
     refused = False
     try:
         aim.aimed(one_line_two_issues)
     except ValueError:
         refused = True
     run('forge: a line that aims at two issues is refused', refused,
-        None if refused else '#879\'s aim line was read as one aim and #801 stayed open', check='forge.aim_one_line_per_issue')
+        None if refused else 'pull/879\'s aim line was read as one aim and issues/801 stayed open', check='forge.aim_one_line_per_issue')
     body = '\n'.join(['Signature: a/b/0123abcd', '', '## why', '', aim.line(876, 'the first should'), aim.line(801, 'the second should'),
-                      '', '## what', '', 'a mention wears backticks: `aims to complete #1` is said about, not aimed'])
+                      '', '## what', '', 'a mention wears backticks: `aims to complete #1` is said about, not aimed'])  # GitHub's grammar, hashed
     read = aim.aimed(body)
     run('forge: the aim lines raise writes are the aims merge reads', read == [876, 801],
         None if read == [876, 801] else f'read {read}', check='forge.aim_one_line_per_issue')
     armed = aim.flipped(body)
-    flipped_ok = '- closes #876 - the first should' in armed and '- closes #801 - the second should' in armed and aim.PHRASE not in armed.replace('`aims to complete #1`', '')
+    flipped_ok = '- closes #876 - the first should' in armed and '- closes #801 - the second should' in armed and aim.PHRASE not in armed.replace('`aims to complete #1`', '')  # GitHub's grammar, hashed
     run('forge: the flip rewrites each aim line to closes and nothing else', flipped_ok,
         None if flipped_ok else f'the armed body reads {armed[:200]}', check='forge.aim_one_line_per_issue')
-    # An issue is raised from its should and its relations (#887): a title that is not a
+    # An issue is raised from its should and its relations (issues/887): a title that is not a
     # should, and a relation narrated in prose, are refused before any send.
     try:
         should = importlib.import_module('should')
@@ -3357,14 +3376,14 @@ def check_forge_aim(run) -> None:
             return True
         return False
     title_held = (refuses(lambda: should.check_title('the forge noun becomes dev'))
-                  and refuses(lambda: should.check_title('the merge should close #801'))
+                  and refuses(lambda: should.check_title('the merge should close #801'))  # GitHub's grammar, hashed
                   and not refuses(lambda: should.check_title('an issue should be raised by the forge')))
     run('forge: an issue\'s title is a should and its relations are wired, never narrated', title_held,
         None if title_held else 'a title without the word, or with an issue number, passed as a should', check='forge.issue_is_a_should_with_wired_relations')
-    clean = '## currently\n\n### as is\n\n- a fact.\n\n## but, in future\n\n- a should; `part of #1` said about.\n'
+    clean = '## currently\n\n### as is\n\n- a fact.\n\n## but, in future\n\n- a should; `part of #1` said about.\n'  # GitHub's grammar, hashed
     body_held = (not refuses(lambda: should.check_body(clean))
-                 and refuses(lambda: should.check_body(clean.replace('a fact.', 'a fact, blocked by #3.')))
-                 and refuses(lambda: should.check_body(clean.replace('a should;', 'a should, part of #740;')))
+                 and refuses(lambda: should.check_body(clean.replace('a fact.', 'a fact, blocked by #3.')))  # GitHub's grammar, hashed
+                 and refuses(lambda: should.check_body(clean.replace('a should;', 'a should, part of #740;')))  # GitHub's grammar, hashed
                  and refuses(lambda: should.check_body(clean.replace('## currently', '## currently\n\n### as at\n\nmain @ abc')))
                  and refuses(lambda: should.check_body('## but, in future\n\n- a should.\n\n## currently\n\n### as is\n')))
     run('forge: an issue\'s body is the template\'s sections, and narrates no relation', body_held,
@@ -3374,7 +3393,7 @@ def check_forge_aim(run) -> None:
 def check_record_names_read_once(run) -> None:
     """The launcher's stamp and record names, CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG, are read
     by the tier contract alone - tier.py's stamp_of and record_of, tier.sh's twins - and only
-    for the act the launcher dispatched (#912), so that a verb run inside another act cannot
+    for the act the launcher dispatched (issues/912), so that a verb run inside another act cannot
     take the outer act's record or stamp as its own, and no verb writes into a record by
     path. The case: the data gate's corpus tail appended into the merge's record."""
     faces = {REPO_ROOT / 'src' / 'main' / 'tier.py', REPO_ROOT / 'src' / 'main' / 'tier.sh'}
@@ -3391,7 +3410,7 @@ def check_record_names_read_once(run) -> None:
 
 def check_record_is_the_launchers(run) -> None:
     """The record of an effective verb is the launcher's tee of the whole verb, and no verb
-    writes a log of its own (#708): no declaration under src/main/cli carries a `log` key -
+    writes a log of its own (issues/708): no declaration under src/main/cli carries a `log` key -
     `"log": "self"` was the exception that let eight verbs write their own, each in a header
     shape of its own, with the verb's tail outside the record."""
     own = sorted(str(p.relative_to(REPO_ROOT)) for p in CLI.glob('*/*.json') if 'log' in json.loads(p.read_text()))
@@ -3401,7 +3420,7 @@ def check_record_is_the_launchers(run) -> None:
 
 
 def check_provider_registry(run) -> None:
-    """The provider registry (rsc/provider/providers.csv, #628) parses, and every
+    """The provider registry (rsc/provider/providers.csv, issues/628) parses, and every
     provider src/ names - by a directory under the two browser trees or the agent command, or by a
     data/input/<provider>/chat/ or /code/ path in a script or declaration, the two
     modalities a provider has (data/input/github/ is the forge's, not a provider's) - is a row of it: the
@@ -3432,7 +3451,7 @@ def check_provider_registry(run) -> None:
 
 
 def check_reference(run) -> None:
-    """Every upstream reference artefact under rsc/reference (#572, #587) is what its
+    """Every upstream reference artefact under rsc/reference (issues/572, issues/587) is what its
     project's provenance.csv pins, hermetically: the committed bytes hash to the
     pinned SHA256; every lineage directory is declared and every declared lineage
     held; and every lineage's CHANGELOG.md carries a section per pin its rows name.
@@ -3481,7 +3500,7 @@ def check_schema_meta_validity(run) -> None:
     """Every house schema - each family's latest version -
     validates against the committed draft-04 meta-schema
     (rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them
-    declares, held as repo data (#572): a property of the committed artifacts."""
+    declares, held as repo data (issues/572): a property of the committed artifacts."""
     import jsonschema
     meta_path = REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json'
     if not meta_path.is_file():
@@ -3503,10 +3522,10 @@ def check_schema_meta_validity(run) -> None:
 
 
 def check_effects(run):
-    """The rwx triad's first gate (#155, of the #29 ledger): every declared w prefix is
+    """The rwx triad's first gate (issues/155, of the issues/29 ledger): every declared w prefix is
     claimed by at most one COMMAND — exactly or by containment. Any verb carrying a
     step tag may nest inside `pipeline run`'s w (the pipeline writes through its
-    steps; #157 will bind the tag to the pipeline it names); verbs of one command
+    steps; issues/157 will bind the tag to the pipeline it names); verbs of one command
     share its workshop; every other containment is two hands on one file."""
     cli_root = CLI  # noqa: kept as a local name for the checks below
     claims = []
@@ -3517,7 +3536,7 @@ def check_effects(run):
         for w in d.get('w', []):
             claims.append((owner, w.rstrip('/'), bool(d.get('step')),
                            (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name))
-        # a consumed prefix is a dequeue from another command's w (#687): no claim on
+        # a consumed prefix is a dequeue from another command's w (issues/687): no claim on
         # the file, but the consumer reads what it removes - held here
         for c in d.get('consumes', []):
             if not any(c.rstrip('/') == r.rstrip('/') or c.startswith(r.rstrip('/') + '/') for r in d.get('r', [])):
@@ -3544,7 +3563,7 @@ def check_effects(run):
         not unread, '; '.join(unread[:5]) if unread else None, law='L6',
         check='effects.consumer_reads')
 
-    # -- extent coverage (#430): the suspicion list as a check ---------------
+    # -- extent coverage (issues/430): the suspicion list as a check ---------------
     # A path-shaped literal in a command's machinery that no declared r/w row
     # covers is either an undeclared effect or a stale spelling - both are
     # registry defects. The list is mechanical; the row judgment stays human:
@@ -3660,7 +3679,7 @@ def _read_committed_xref(path: Path) -> list[list]:
 
 def check_xref(run):
     """The table is computed here, in-process; only render writes rsc/test/xref.csv
-    (#249's check/render/gate separation — a check computes, it never writes). `check`
+    (issues/249's check/render/gate separation — a check computes, it never writes). `check`
     stays xref.py's own writing verb for a standalone `corpus-yoga test xref`."""
     rows   = xref.build_table()
     counts = xref.count(rows)
@@ -3727,7 +3746,7 @@ def check_capture_monotone(run) -> None:
             run('capture: a refused walk reports no markdown', moved == [],
                 None if moved == [] else f'returned {moved} — the caller would file it as a '
                 f'successful capture', law='L4', check='capture.monotone_record')
-            evidence = next(logs.glob('*.gemini.abc123.short.md'), None)   # <stamp>.<provider>.<id>.short.md beside the record (#708)
+            evidence = next(logs.glob('*.gemini.abc123.short.md'), None)   # <stamp>.<provider>.<id>.short.md beside the record (issues/708)
             run('capture: the refused walk is kept as evidence', evidence is not None,
                 None if evidence is not None else 'the short capture was discarded, so the '
                 'reason for the refusal cannot be inspected', law='L4', check='capture.monotone_record')
@@ -3748,13 +3767,13 @@ def check_capture_monotone(run) -> None:
 
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
-    the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+    the contract issues/22 unified it to and rsc/CALCULUS.md states: deposit iff
     the content differs from the NEAREST EARLIER deposit, so the store records a
     trajectory, not a set. The design turns on cases a byte-set would get wrong —
     above all that a genuine A→B→A return deposits while a re-stamp of an unchanged
     reading does not (the 196-twin bug). CALCULUS.md holds the sentence; this holds
     it to account. Deterministic, tempdir-only, committed code — code tier: the
-    guarantee is guarded in the repo, not only in a PR's prose (issue #22)."""
+    guarantee is guarded in the repo, not only in a PR's prose (issues/22)."""
     import tempfile
     import shutil
     d = Path(tempfile.mkdtemp())
@@ -3784,13 +3803,13 @@ def check_accumulate_contract(run) -> None:
         cases.append(('non-deposit sibling excluded',
                       acc('2026-01-06T000000Z', 'A') == 'unchanged'))
         failed = [name for name, ok in cases if not ok]
-        run('accumulate: the CALCULUS trajectory contract (#22)',
+        run('accumulate: the CALCULUS trajectory contract (issues/22)',
             not failed, 'cases failed: ' + '; '.join(failed) if failed else None, law='L1 L6', check='accumulate.trajectory_contract')
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
 
-# ── Incremental sections (#68) ────────────────────────────────────────────────
+# ── Incremental sections (issues/68) ────────────────────────────────────────────────
 # A section re-runs only when its SUBJECT — the files it reads — has changed.
 # Subjects are declared conservatively as repo-relative globs; 'TREE' means every
 # tracked-or-untracked-unignored file. The two regenerated artifacts are excluded
@@ -3896,12 +3915,12 @@ def subject_hash(spec) -> str:
             if rel.startswith(('tmp/', 'data/')):
                 # tmp/ and data/ subjects are large and machine-local; their key
                 # stays stat (size + mtime) as the DECLARED lawful difference
-                # (#368): the tier is machine-local and never enters a committed
+                # (issues/368): the tier is machine-local and never enters a committed
                 # artifact, so a clock-faked miss costs a re-read, not a lie.
                 st = f.stat()
                 h.update(f'{rel}\0{st.st_size}\0{st.st_mtime_ns}\n'.encode())
             else:
-                # Code and schema subjects key on CONTENT (#368): identical bytes
+                # Code and schema subjects key on CONTENT (issues/368): identical bytes
                 # replay from any tree — a fresh worktree's birth-mtimes cannot
                 # force a full run.
                 h.update(f'{rel}\0'.encode())
@@ -3920,7 +3939,7 @@ def subject_hash(spec) -> str:
 @dataclass
 class RunOnce:
     """One genuine pass over the check tier, plus its rendering — everything
-    main()'s settle loop (#249) needs to compare against disk and, at the end,
+    main()'s settle loop (issues/249) needs to compare against disk and, at the end,
     to write and print. Building this needs no knowledge of what is on disk;
     that comparison, and the decision whether to write, belong to main() alone."""
     committed_text:      str
@@ -3933,7 +3952,7 @@ class RunOnce:
 
 def _run_once(allow_replay: bool) -> RunOnce:
     """Check (tree -> results, section-cache replay iff allow_replay), then render
-    every surface from those results (#249's separation: a check computes, only
+    every surface from those results (issues/249's separation: a check computes, only
     render builds bytes). Writes NOTHING — not the committed artifacts, not even
     the machine-local log — because whether this run's bytes are new is a fact
     only main()'s settle loop can see, by comparing them against disk."""
@@ -3972,7 +3991,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         check_types.append(check)
         for cited in (law.split() if law else []):
             cited_laws.setdefault(cited, []).append(label)
-        # One failure sigil (#530).
+        # One failure sigil (issues/530).
         mark = '✓' if passed else '✗'
         # per-INVOCATION, and only to the machine log: the committed body is grouped by
         # type (_by_type), so printing each instance there would defeat the point
@@ -4157,7 +4176,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     failures = [(n, d) for n, p, d in results if not p]
 
-    # The one real judgment the old check_score held (#539 review, 2026-08-25:
+    # The one real judgment the old check_score held (pull/539 review, 2026-08-25:
     # "the code treats check_score as a check"): the run's check types match the
     # committed registry. A genuine, deterministic, code-tier check - counted,
     # gated, last in the table. The per-tier SUMMARY is not a check and lives in
@@ -4312,13 +4331,13 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     def _render(surface: str, full_report: str | None = None):
         """Render one report variant; returns (text, runnable fix lines) — results ->
-        artifact bytes, a pure function of (results, surface) (#249). Three surfaces:
+        artifact bytes, a pure function of (results, surface) (issues/249). Three surfaces:
         'committed' is rsc/test/run.log (code+schema only, byte-identical on any
         clone); 'full' is the stamped .report under tmp/logs/test/run/ (adds the run's anchor and body);
         'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
         at the full report for detail — pass its already-rendered text as
         full_report, since the terminal has no body of its own to anchor its stage
-        table into (#254). The tail is binary (#530, retiring the 2026-07-12
+        table into (issues/254). The tail is binary (issues/530, retiring the 2026-07-12
         advisory split): the FINAL word states what the hook does — FAIL with
         the failing sections and their remedies, or an explicit PASS."""
         committed_only = surface == 'committed'
@@ -4328,7 +4347,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         fail_sections = list(dict.fromkeys(sections[i] for i in fail_idx))
         out = io.StringIO()
 
-        # The machine-facing log opens by anchoring its evidence (#365): room,
+        # The machine-facing log opens by anchoring its evidence (issues/365): room,
         # commit and dirty-state, like the usr gate's run log — both gates
         # uptier together. The committed surface stays machine-invariant by law
         # (L2) and never carries it; the anchor rides INSIDE the render so the
@@ -4359,7 +4378,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             stage_rows.setdefault(sections[i], []).append(i)
 
         # The anchor is computed against the bytes of the surface it names, never
-        # against a surface's own text when that text has no banners to find (#254):
+        # against a surface's own text when that text has no banners to find (issues/254):
         # 'committed' and 'full' both just wrote the per-check body above, so they
         # anchor into themselves; 'terminal' wrote none, so it anchors into the full
         # report instead, naming the file it points into. Every stage in stage_rows
@@ -4383,7 +4402,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # exactly the rows a reader is scanning for.
         stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
         anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
-        # tier per stage, from the registrations (#538): every member invocation of a
+        # tier per stage, from the registrations (issues/538): every member invocation of a
         # stage shares one declared tier except check_score, whose rows summarise
         # tiers - a mixed stage prints the sorted union, still read off the data.
         stage_tier = {stage: '+'.join(sorted({tiers[i] for i in members}))
@@ -4402,7 +4421,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             out.write('  (line = where that stage begins in this report; every check is '
                       'listed there, in place)\n')
 
-        # The per-tier fold - a SUMMARY, not a check (#539 review, 2026-08-25):
+        # The per-tier fold - a SUMMARY, not a check (pull/539 review, 2026-08-25):
         # untiered prose, counted nowhere, derived here from the same results the
         # table counts, so the two cannot disagree.
         def _n_types(t):
@@ -4412,7 +4431,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             got_, tot_ = tier_counts.get(t, [0, 0])
             out.write(f'checks[{t}]: {_n_types(t)} types, {got_}/{tot_} invocations passing\n')
 
-        # Final: the gate's one verdict (#530 - no advisory tier stands between).
+        # Final: the gate's one verdict (issues/530 - no advisory tier stands between).
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if fail_idx:
             counts = {sec: sum(1 for i in fail_idx if sections[i] == sec) for sec in fail_sections}
@@ -4444,14 +4463,14 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     # Render every surface from this run's results. Nothing is written here —
     # not the committed artifacts, not the machine-local log — that decision
-    # belongs to main()'s settle loop (#249), which alone knows what is on disk.
+    # belongs to main()'s settle loop (issues/249), which alone knows what is on disk.
     committed_text, _         = _render('committed')
     full_text, full_fix_lines = _render('full')
     terminal_text, _          = _render('terminal', full_text)
     xref_csv_text             = xref.render_csv(xref_rows)
 
-    # Every failure vetoes (#530): the gate holds a commit's content and nothing
-    # else (#535), so its verdict is the same in every room.
+    # Every failure vetoes (issues/530): the gate holds a commit's content and nothing
+    # else (issues/535), so its verdict is the same in every room.
     return RunOnce(
         committed_text=committed_text,
         xref_csv_text=xref_csv_text,
@@ -4465,7 +4484,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
 def _on_disk(path: Path, newline: str | None) -> str | None:
     """The committed artifact's current bytes, or None if it does not exist yet —
     a missing file can never equal an in-memory result, so it always takes the
-    settle loop's write-and-confirm branch (#249)."""
+    settle loop's write-and-confirm branch (issues/249)."""
     try:
         return path.read_text(newline=newline)
     except OSError:
@@ -4483,7 +4502,7 @@ def main():
     committed_path = RSC / 'test' / 'run.log'
     xref_path      = RSC / 'test' / 'xref.csv'
 
-    # THE SETTLE LOOP (#249), one discipline: check and render build every
+    # THE SETTLE LOOP (issues/249), one discipline: check and render build every
     # output in memory; a committed artifact is written only when
     # its bytes differ from what is already on disk, and a write is trusted
     # only once a GENUINELY FRESH recomputation (no section-cache replay, ever,

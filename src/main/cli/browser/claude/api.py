@@ -2,7 +2,7 @@
 """
 api.py - the claude mechanism of the browser capture: a conversation's JSON fetched
 from the claude.ai API through Safari, and the conversation's record completed with
-the files the JSON names (#422), deposited into the artifact library. Called by
+the files the JSON names (issues/422), deposited into the artifact library. Called by
 capture.py for a claude capture; gemini has no API and no counterpart here.
 """
 import json
@@ -16,12 +16,12 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_DIR = _root[0]
 sys.path.insert(0, str(REPO_DIR / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 from safari import safari_fetch_api_json, safari_fetch_asset, process_chain  # noqa: E402
 
 
 def rel(path):
-    """The repo-relative spelling of a path where one exists (#412): logs speak
+    """The repo-relative spelling of a path where one exists (issues/412): logs speak
     the repo's addresses, never a resolved machine path."""
     try:
         return str(Path(path).resolve().relative_to(REPO_DIR))
@@ -30,7 +30,7 @@ def rel(path):
 
 
 # The run's own tally, written by capture_all and read by the footer — including
-# the interrupted footer, which must say how far the run got (#415).
+# the interrupted footer, which must say how far the run got (issues/415).
 
 def fetch_api(conv_id, out_dir):
     """Fetch the apiConversation JSON; returns the saved filename, or None on failure."""
@@ -59,7 +59,7 @@ def fetch_api(conv_id, out_dir):
 
 
 def asset_handles(conv_json):
-    """The fetchable file handles one API capture names (#422): each files[]
+    """The fetchable file handles one API capture names (issues/422): each files[]
     entry's best asset URL — the document original where one exists, else the
     image preview — with its file_name. Attachments carry their text inline
     (extracted_content) and name no asset URL; they are not handles."""
@@ -79,12 +79,12 @@ _LIBRARY = None   # (dir_for, dressing) once per run — set on the first claude
 
 
 def _library():
-    """The artifact library face, once per run (#421/#422): dir_for and the
+    """The artifact library face, once per run (issues/421/#422): dir_for and the
     corpus dressing map, imported lazily so gemini sweeps never touch it."""
     global _LIBRARY
     if _LIBRARY is None:
         sys.path.insert(0, str(REPO_DIR / 'src' / 'main' / 'pipeline' / 'chat-export'))
-        from library import dir_for, migration_note  # noqa: E402 — one authority (#421)
+        from library import dir_for, migration_note  # noqa: E402 — one authority (issues/421)
         from markdown_projection import corpus_index  # noqa: E402
         migration_note()
         dressing = {}
@@ -97,7 +97,7 @@ def _library():
 
 
 def complete_files(conv_id, api_dir):
-    """A capture COMPLETES the conversation's record (#422): the JSON names the
+    """A capture COMPLETES the conversation's record (issues/422): the JSON names the
     conversation's files (uploads — documents, images), so the same visit
     fetches whatever the artifact library lacks and deposits it uuid-keyed.
     The library gap is the work-list — a complete library costs nothing — and

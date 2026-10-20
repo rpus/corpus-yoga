@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 agent.py — CAPTURE agents into the store; RECEIVE them from peer machines;
-MOUNT the live stores - for every declared provider with a harness adapter (#633).
+MOUNT the live stores - for every declared provider with a harness adapter (issues/633).
 
 The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 the underlying operation is TRANSPORT — identity-preserving cp, componentwise,
@@ -22,11 +22,11 @@ direction on an unchanged pair is silence (L1).
 Providers and harnesses: a provider's harness (Claude Code for claude,
 Antigravity for gemini) keeps a live session store of its own shape, mounted at
 ext/mnt/<provider>/code/machine-transport/<machine> per the registry
-(rsc/provider/providers.csv, #636, #853), the address its units have under
+(rsc/provider/providers.csv, issues/636, issues/853), the address its units have under
 tmp/stage/input and data/input -
 HARNESS-OWNED state the provider expires at will. Each shape is one adapter,
 src/main/cli/agent/<provider>/harness.py, keeping the contract transport.py
-states (#633); this driver knows no shape. Transported agents live in the
+states (issues/633); this driver knows no shape. Transported agents live in the
 STORE, data/input/<provider>/code/machine-transport - a directory inside
 data/input, the iCloud tree each room links as data/ by hand, which capture
 creates on its first run - keyed <machine>/<project>/..., the project
@@ -94,7 +94,7 @@ the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
 component moves ONCE either way (mirrored out; merged in under a single
 marker block, so `install --all --from <machine>` is still one demerge). What is never
 accepted is an INFERENCE: no recency guessing, no automatic choice. What install
-would write is the agent noun's status, per peer store held (#881), totality or
+would write is the agent noun's status, per peer store held (issues/881), totality or
 not.
 
 The endpoint asymmetry is the model, not an accident: capture takes NO
@@ -135,8 +135,8 @@ REPO = _root[0]
 
 sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 import corpus  # noqa: E402 - the stage report, and the type of a staged unit
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
 from machine import bound_machine  # noqa: E402
@@ -176,8 +176,8 @@ def own_outbox(provider: str) -> Path | None:
         return None
     # the outbox is the stage twin of the store, tmp/stage/input/...: a capture writes it,
     # and reads of the store only the held unit at the address it would write, the baseline
-    # where the stage holds no copy (L10, #850); corpus-yoga agent promote relates each
-    # staged session to the held one and writes what extends it (#687)
+    # where the stage holds no copy (L10, issues/850); corpus-yoga agent promote relates each
+    # staged session to the held one and writes what extends it (issues/687)
     out = tier.TMP_STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
@@ -245,7 +245,7 @@ def list_agents() -> Census:
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
                 rows += [(s, machine.name) for s in adapter.held_sessions(machine)]
-    # the facts (#753): each session under where it is and its provider - its title, size
+    # the facts (issues/753): each session under where it is and its provider - its title, size
     # and last write - the local store first, then each machine's held copies
     where_order = ['local'] + sorted({w for _s, w in rows if w != 'local'})
     sessions: Sessions = {}
@@ -261,20 +261,20 @@ def list_agents() -> Census:
 @dataclass
 class Peer:
     """A peer machine's store held here, and what corpus-yoga agent install would write from it
-    into this machine's live store (#881): the install's facts by outcome, read dry."""
+    into this machine's live store (issues/881): the install's facts by outcome, read dry."""
     would_write: dict | str
     remedy: facts.Command
 
 
 @dataclass
 class Merge:
-    """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (#881)."""
+    """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (issues/881)."""
     latest: str
     remedy: facts.Command = facts.Command('corpus-yoga agent demerge', facts.sentence('would undo it'))
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
-    """What the two writes into the live store would do, read dry (#881): per peer machine
+    """What the two writes into the live store would do, read dry (issues/881): per peer machine
     held under claude's store, the install of all its sessions; per project, the latest
     merge record. The verbs act; the status says what they would do."""
     row = registry.provider('claude')
@@ -300,12 +300,12 @@ class Status:
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
-    install: dict[str, Peer] | str = 'none'               # per peer store held, what install would write (#881)
-    merges: dict[str, Merge] | str = 'none'               # per project, what demerge would undo (#881)
+    install: dict[str, Peer] | str = 'none'               # per peer store held, what install would write (issues/881)
+    merges: dict[str, Merge] | str = 'none'               # per project, what demerge would undo (issues/881)
 
     def facts(self) -> dict:
         brief = self.drafters
-        if brief is None:                 # no machine binding: the drafters cannot be read against one (#758)
+        if brief is None:                 # no machine binding: the drafters cannot be read against one (issues/758)
             unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt':
                                                        facts.sentence('binds it, to a name rsc/machine/machines.csv declares')}}
             return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'install': self.install, 'merges': self.merges}
@@ -335,7 +335,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
     session of that provider; --provider <name> --id <uuid-prefix> is one of
     them. A session is named within its provider, as the browser capture names
     a conversation within its provider - a uuid's shape does not say whose it is.
-    The log is facts nested by outcome under each provider's address (#857), then
+    The log is facts nested by outcome under each provider's address (issues/857), then
     next:, then the one verdict."""
     names = [row['provider'] for row, _, _ in served()]
     if provider is not None and provider not in names:
@@ -367,7 +367,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         log = adapter.capture(mount_path, outbox, transport.store(name) / bound_machine(), uuid8)
         logs.append(log)
         out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
-    # what an act reports (#801, #896): its facts by outcome and its effect; the launcher
+    # what an act reports (issues/801, issues/896): its facts by outcome and its effect; the launcher
     # replies with next:, what the room can do after the capture
     facts.report(out, transport.verdict('agent capture', logs))
     return sum(log.conflicts for log in logs)
@@ -385,9 +385,9 @@ def _claude() -> tuple[Path, ModuleType]:
 
 def mount() -> int:
     """The live agent stores mounted at the address their units have under every tier
-    root, ext/mnt/<provider>/code/machine-transport/<machine> (#636, #853): one symlink
+    root, ext/mnt/<provider>/code/machine-transport/<machine> (issues/636, issues/853): one symlink
     per declared provider whose live store this machine holds, the target from the
-    registry row. The links it would create are corpus-yoga agent's status (#881); this
+    registry row. The links it would create are corpus-yoga agent's status (issues/881); this
     creates them. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
@@ -417,14 +417,14 @@ def mount() -> int:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(live)
         print(f'{shown}: ' + facts.sentence('the link to {live} is created', live=row['live_store']))
-    # what an act reports (#801, #896): the effect line, handed up to the launcher's reply
+    # what an act reports (issues/801, issues/896): the effect line, handed up to the launcher's reply
     did = facts.sentence('did create {created}, present {present}', created=created, present=present)
     facts.report(None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; ' + facts.sentence('a link at another target is not touched') if verdict else ''))
     return verdict
 
 
 def main() -> int:
-    # Whole surface declared (#476, #477); the keyword collision on --from
+    # Whole surface declared (issues/476, issues/477); the keyword collision on --from
     # (dest) is the tree's one surviving override. The --id|--all
     # exclusivity is the declared 1/-class, enforced at parse — bare noun stays
     # the census: subparsers are not required.
@@ -433,12 +433,12 @@ def main() -> int:
     }).parse_args()
 
     if args.verb is None:
-        # bare noun → one shape (#759): the census (local + store sessions), the sessions
-        # main names as drafters against it (#631), the stage's units of the agent's captures
+        # bare noun → one shape (issues/759): the census (local + store sessions), the sessions
+        # main names as drafters against it (issues/631), the stage's units of the agent's captures
         census = list_agents()
         import drafters
         import machine
-        brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (#758)
+        brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (issues/758)
         report = corpus.report_facts('agent')
         peers, merges = peers_and_merges()
         facts.say(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
@@ -463,7 +463,7 @@ def main() -> int:
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj) else 0)
-        # what an act reports (#876, #896): the effect, handed up to the launcher's reply; what it would undo is the status's (#881)
+        # what an act reports (issues/876, issues/896): the effect, handed up to the launcher's reply; what it would undo is the status's (issues/881)
         facts.report(None, f'agent demerge: {"NOT DONE" if rc else "DONE"} - ' + facts.sentence('did undo the latest merge of each project above')
                      + ('; ' + facts.sentence('a conflict left one in place') if rc else ''))
         return rc
@@ -477,8 +477,8 @@ def main() -> int:
     else:
         session = claude.pick_session(bundle, args.id)
         log = claude.install_move(session.parent, projects, session, True, machine)
-    # the log is facts nested by outcome under the bundle's address (#857), then the one
-    # effect; what an install would write is corpus-yoga agent's status (#881)
+    # the log is facts nested by outcome under the bundle's address (issues/857), then the one
+    # effect; what an install would write is corpus-yoga agent's status (issues/881)
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
     facts.report(out, transport.verdict('agent install', [log]))

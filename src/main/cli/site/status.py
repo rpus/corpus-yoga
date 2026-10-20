@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
 status.py - bare `corpus-yoga site`: the publish tree against its sources, the corpus page and
-the deploy mount, read as rows on stdin from site.sh, which holds what a page is (#759):
+the deploy mount, read as rows on stdin from site.sh, which holds what a page is (issues/759):
 `pages <standing>`, `page <file> <standing>`, `index <title>` or `index ABSENT`,
 `deploy <words>`, `land <file> <what changes>` for each file corpus-yoga site publish would
-land on rpus.co (#881) - the corpus page one row per line of its comparison, `<part>: <words>`,
+land on rpus.co (issues/881) - the corpus page one row per line of its comparison, `<part>: <words>`,
 said as facts beneath the file - tab-separated. Reads; writes nothing.
 """
 import sys
@@ -28,7 +28,7 @@ class CorpusPage:
 
 @dataclass
 class Publish:
-    """What corpus-yoga site publish would land on rpus.co: each file with what changes in it, and the act (#881)."""
+    """What corpus-yoga site publish would land on rpus.co: each file with what changes in it, and the act (issues/881)."""
     would_land: dict[str, str | dict[str, str]]
     remedy: facts.Command = facts.Command('corpus-yoga site publish', facts.sentence('would copy, commit and push them'))
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""reply.py - the launcher's reply to the reader (#896): next:, the room's to-do read after
+"""reply.py - the launcher's reply to the reader (issues/896): next:, the room's to-do read after
 the act, with the act's own following entries and corpus-yoga status last, then the act's
 effect line, the last line of every response an enacting verb gives.
 

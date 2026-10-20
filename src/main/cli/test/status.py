@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 status.py - bare `corpus-yoga test`: the checks and their committed expectation, and the two
-hooks `corpus-yoga test install-hook` installs, each as it stands (#759, #778). Reads; writes
+hooks `corpus-yoga test install-hook` installs, each as it stands (issues/759, issues/778). Reads; writes
 nothing.
 """
 import sys
@@ -31,7 +31,7 @@ class Checks:
 @dataclass
 class Hook:
     """One of the two hooks `corpus-yoga test install-hook` installs: whether it stands as
-    installed, and the remedy where it does not. The home of the hooks' state (#778): the
+    installed, and the remedy where it does not. The home of the hooks' state (issues/778): the
     machine report and the forge say what this says."""
     installed: str
     remedy: facts.Command | None = None

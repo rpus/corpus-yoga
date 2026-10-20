@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 """
 transport.py - the transport contract every provider's harness adapter keeps,
-and the append-only placement the adapters share (#633).
+and the append-only placement the adapters share (issues/633).
 
 A harness is the program a provider ships to let its model act as a coding
 agent - Claude Code for claude, Antigravity for gemini - and each keeps a live
 session store of its own shape, mounted at ext/mnt/<provider>/code/machine-transport/<machine>
-(#636, #853), the address its units have under tmp/stage/input and data/input, so that
+(issues/636, issues/853), the address its units have under tmp/stage/input and data/input, so that
 ext/mnt, tmp/stage/input and data/input are three roots over one address grammar.
 The adapter for a provider lives at src/main/cli/agent/<provider>/harness.py,
 by function with provider subdirectories as the browser capture is laid out
-(#626), and exposes four functions the driver (agent.py) calls without knowing
+(issues/626), and exposes four functions the driver (agent.py) calls without knowing
 the store's shape:
 
     live_sessions(mount)              every session the live store holds
@@ -19,7 +19,7 @@ the store's shape:
                                       mirror one session (uuid8) or every session
                                       (uuid8 None) into the outbox, the stage, against
                                       the staged copy where there is one, else the held
-                                      one under held (#850); the conflict count
+                                      one under held (issues/850); the conflict count
     model_rows(mount)                 (project, session, model, records) per session
 
 The registry (rsc/provider/providers.csv) declares a provider; the adapter's
@@ -41,14 +41,14 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (#702)
-import provider as registry  # noqa: E402 - the live tier's root and the transport address (#853)
-import cleaner  # noqa: E402 - the count a verdict says a kind by (#857)
-import facts  # noqa: E402 - the one face a sentence is said through (#909)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import provider as registry  # noqa: E402 - the live tier's root and the transport address (issues/853)
+import cleaner  # noqa: E402 - the count a verdict says a kind by (issues/857)
+import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
-# The three roots a unit's one address is read under, as the narration names them (#854):
+# The three roots a unit's one address is read under, as the narration names them (issues/854):
 # the live tier, the stage, the store.
 LIVE = registry.MOUNT_ROOT.relative_to(REPO).as_posix()
 STAGE = tier.TMP_STAGE_INPUT.relative_to(REPO).as_posix()
@@ -131,7 +131,7 @@ def agreement(a: bytes, b: bytes | None) -> int:
 
 
 def fact(relation: Relation, data: bytes, existing: bytes | None, src: str, dest: str) -> dict[str, str]:
-    """One lattice state as one fact (#854, #857): the relation as a whole-scalar key,
+    """One lattice state as one fact (issues/854, issues/857): the relation as a whole-scalar key,
     both sides named by root - ext/mnt, tmp/stage/input or data/input - and its measure
     as the value. The unit's address is the fact's header, so the key carries roots alone."""
     had, now = growth(data, existing)
@@ -151,7 +151,7 @@ def outcome(relation: Relation) -> str:
 
 @dataclass
 class Log:
-    """One transport's facts, nested by outcome (#857), as the cleaners' and the
+    """One transport's facts, nested by outcome (issues/857), as the cleaners' and the
     promote's logs are: under each outcome - what the act did, or would do, to the root it
     writes - every unit it touched by its address, and beneath the unit the relation that
     decided it. A unit appears once, under the one thing that happened to it; the verdict

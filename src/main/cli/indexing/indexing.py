@@ -56,9 +56,9 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
 from markdown_projection import REPO
 from declared_parser import command_parser
 
@@ -201,7 +201,7 @@ def runs_of(concept: str) -> list[str]:
 def phrasings_of(concept: str) -> list[str]:
     """Every phrasing the anchoring tries: each run of runs_of with each of its
     words in either number. Deterministic, so the queue derives the same on
-    every machine that holds the corpus (#644)."""
+    every machine that holds the corpus (issues/644)."""
     out: list[str] = []
     for run in runs_of(concept):
         variants: list[list[str]] = [[]]
@@ -236,7 +236,7 @@ def anchored_split(concepts: list[str], markdown_root: Path) -> tuple[list[tuple
     """(anchored, unanchorable): each anchored concept with the aliases that anchor it,
     the concept itself omitted where it anchors as spelled; each unanchorable
     concept with the runs tried (each in either number). The queue is the
-    anchored half; the unanchorable half is named, never queued (#644)."""
+    anchored half; the unanchorable half is named, never queued (issues/644)."""
     bodies = turn_bodies(markdown_root) if markdown_root.is_dir() else []
     anchored, unanchorable = [], []
     for c in concepts:
@@ -401,7 +401,7 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
     if not aliases and term.lower() not in existing and MARKDOWN_DIR.is_dir():
         # a concept accepted as the queue listed it takes the aliases the queue showed
         # for it - the phrasings that anchor it in a turn - so one word never makes an
-        # orphan; aliases typed by hand override (#644)
+        # orphan; aliases typed by hand override (issues/644)
         aliases = [a for a in anchors_of(term, turn_bodies(MARKDOWN_DIR)) if a.lower() != term.lower()]
     if term.lower() in existing:
         head = existing[term.lower()]
@@ -438,10 +438,10 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) 
 
 def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str) -> str:
     """Enact the DERIVED queue — tmp/cache/indexing/candidate-semantic-concepts.txt, the artifact the
-    reviewer read — never a live recomputation (#355). A missing or drifted queue is
+    reviewer read — never a live recomputation (issues/355). A missing or drifted queue is
     a refusal, so what is disposed is provably what was reviewed; the judgment stays
     human, its unit the list the human read. Wholesale accept folds each candidate's
-    anchoring aliases in (#644; accepted-semantic-concepts.txt stays hand-editable); wholesale
+    anchoring aliases in (issues/644; accepted-semantic-concepts.txt stays hand-editable); wholesale
     reject stamps the one reason on every line."""
     if not CANDIDATES_TXT.exists():
         return facts.sentence('refused - no derived queue; run corpus-yoga indexing list-candidates, read it, then --all')
@@ -490,7 +490,7 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
 def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
     """Accepted headwords with ZERO corpus locators — the disposal record's
     orphan documentation, the reverse direction of the curate discipline (the
-    model.json precedent, PR #36: a curation record must be grounded both ways).
+    model.json precedent, pull/36: a curation record must be grounded both ways).
     build() has always computed this — the located/total ratio in the sync
     line — but as an aggregate; a dead index entry (its concept left the
     corpus, or its aliases never matched) was a count, not a name. Same scan
@@ -505,7 +505,7 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
 
 
 def anchor_report(concepts_file: Path, markdown_root: Path) -> None:
-    """What the paid call bought, judged before promotion (#644): of the captured
+    """What the paid call bought, judged before promotion (issues/644): of the captured
     concepts not already disposed, which the corpus can index, by which
     phrasings, and which it cannot - the spend on those is visible here and
     nowhere else, since they never reach the queue."""
@@ -558,14 +558,14 @@ class Indexing:
 
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Indexing:
     """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`) as facts
-    (#753, #759)."""
+    (issues/753, issues/759)."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
     out = Indexing(Disposal(n_accepted, a_rel.as_posix()), Disposal(n_rejected, r_rel.as_posix()))
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
-        # a notice, never a failure (#675): the reader's curation, not a verb's, clears it
+        # a notice, never a failure (issues/675): the reader's curation, not a verb's, clears it
         out.orphans = (Orphans(orphans, facts.Act(facts.sentence('fix the aliases, or remove the line and reject the concept with a reason')))
                        if orphans else facts.sentence('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
@@ -575,10 +575,10 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
     # A nonzero queue is the reader's act awaiting, stated with its remedy as a notice
-    # the gate does not count (#675): no verb failed to produce it, and only the
+    # the gate does not count (issues/675): no verb failed to produce it, and only the
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
-    # phrase it again (#644).
+    # phrase it again (issues/644).
     out.candidates = (Candidates(undisposed=pending, remedy=facts.Act(facts.sentence(
         """each is the reader's act - corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>"; corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each, and --all disposes it as read""")))
                       if pending else facts.sentence('none - fully disposed'))
@@ -630,7 +630,7 @@ def captures() -> Captures:
                              capture_output=True, text=True).stdout.strip()
     n, m = int(counted or 0), rows['inferred-chat-categories.json'] or 0
     if n > 0:
-        # a lag is a notice, never a failure (#675): no verb failed, and only the reader's paid act clears it
+        # a lag is a notice, never a failure (issues/675): no verb failed, and only the reader's paid act clears it
         out.corpus = Currency(n, m)
         if m < n:
             out.corpus.lag = facts.sentence('the paid layer lags the corpus')
@@ -647,7 +647,7 @@ def main():
         script = Path(__file__).resolve().parent / 'capture.sh'
         os.execv('/bin/bash', ['bash', str(script), *sys.argv[2:]])
 
-    ap = command_parser('indexing')  # whole surface declared (#476, #477)
+    ap = command_parser('indexing')  # whole surface declared (issues/476, issues/477)
     args = ap.parse_args()
 
     accepted_path, rejected_path = ACCEPTED_FILE, REJECTED_FILE
@@ -679,7 +679,7 @@ def main():
         return
     if args.verb == 'sync':
         root = MARKDOWN_DIR
-        # A machine with no corpus skips, stated (#406): every data-reading
+        # A machine with no corpus skips, stated (issues/406): every data-reading
         # sibling in the corpus tail names its absence; this step must not be
         # the one that presumes its input into existence and tracebacks.
         if not root.is_dir():
@@ -693,7 +693,7 @@ def main():
         return
 
     # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
-    # paid captures' standing (deposits + the paid layer's currency, #409)
+    # paid captures' standing (deposits + the paid layer's currency, issues/409)
     facts.say(Status(status(accepted_path, rejected_path, MARKDOWN_DIR), captures()))
 
 

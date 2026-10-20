@@ -2,7 +2,7 @@
 """
 status.py - `corpus-yoga forge`'s standing report: the declared settings against the live
 forge, the branches the forge knows, the tracking refs it has dropped, this checkout's gate
-and upstream, read as rows on stdin from forge.sh, which holds each probe (#759):
+and upstream, read as rows on stdin from forge.sh, which holds each probe (issues/759):
 `<section> <STATUS> <key> <detail> [<remedy>]`, tab-separated, the sections settings,
 branches, refs, checkout. With --stage, the stage's units of the forge's captures follow -
 the bare noun; without, the report alone - the merge's gate. Exit 1 on refuse-class drift.
@@ -28,9 +28,9 @@ TYPED = ('corpus-yoga ', 'git ', 'gh ', 'brew ')     # how a remedy the reader t
 
 @dataclass
 class Row:
-    """One probe's answer, under what it is about (#779): the answer alone where the probe is
+    """One probe's answer, under what it is about (issues/779): the answer alone where the probe is
     satisfied, the answer under the state's word where it is not - one fact a line, never
-    a sentence joining the two (#871) - and where a remedy stands, its `remedy` beside it (#777)."""
+    a sentence joining the two (issues/871) - and where a remedy stands, its `remedy` beside it (issues/777)."""
     answer: str
     state: str
     remedy: facts.Command | facts.Act | None = None
@@ -63,8 +63,8 @@ class Status:
     refs: Section | None = facts.named('remote-tracking refs', default=None)
     checkout: Section | None = facts.named('this checkout', default=None)
     staged: dict[str, corpus.Staged] | None = None
-    forge: str = ''               # the merge's gate, a fact of the room; a status ends on next: (#740)
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (#871)
+    forge: str = ''               # the merge's gate, a fact of the room; a status ends on next: (issues/740)
+    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (issues/871)
 
 
 def _test_status():
@@ -88,16 +88,16 @@ def main() -> int:
         does = cells[5] if len(cells) > 5 else ''
         remedy = None if not said else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said)
         if section == 'settings' and state == 'drift':
-            remedy = facts.Command('corpus-yoga forge sync', facts.sentence('would set it as declared'))   # the act; the status is its dry run (#881)
+            remedy = facts.Command('corpus-yoga forge sync', facts.sentence('would set it as declared'))   # the act; the status is its dry run (issues/881)
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
-    # the commit hook's state is the test noun's to say (#777, #778): the gate row is its saying
+    # the commit hook's state is the test noun's to say (issues/777, issues/778): the gate row is its saying
     hook = _test_status().commit_hook()
     by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.remedy),
                               **by_section.get('checkout', {})}
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
-    # what to run next (#871): the cleaner over each branch and each tracking ref it would
+    # what to run next (issues/871): the cleaner over each branch and each tracking ref it would
     # remove, by name, as the store's and the cache's statuses name theirs - the dry run is
     # the status, and bare corpus-yoga status grafts this block
     following: dict[str, dict[str, dict[str, int]]] = {}

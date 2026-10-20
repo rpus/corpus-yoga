@@ -7,7 +7,7 @@ tmp/cache/ is the workshop - rebuildable derivations, every live subtree OWNED b
 pipeline (its validation/derivation tree) or an out-of-band command (its output). A path
 under tmp/cache/ that is neither an owned subtree, nor inside one, nor an ancestor of one
 (a parent kept only to reach owned children) is RESIDUE: a former output whose producer
-moved or was renamed - the completion home before #785, tmp/cache/completions, is the
+moved or was renamed - the completion home before pull/785, tmp/cache/completions, is the
 latest case. Being derived, an orphan is safe to remove (nothing regenerates it here); and
 even a mistaken removal of a LIVE subtree costs only a pipeline re-run, never data - that
 is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
@@ -15,9 +15,9 @@ is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuild
 The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync and
 `corpus-yoga test run`'s check_cache_io - one registry, three consumers.
 
-The verb takes no flag (#865), as the stage's and the store's cleaners do (#844): what it
+The verb takes no flag (issues/865), as the stage's and the store's cleaners do (issues/844): what it
 would remove is what the status names, and its faces are src/main/cleaner.py's - will
-remove: before each act, did or did NOT after, next: and the verdict last (#801).
+remove: before each act, did or did NOT after, next: and the verdict last (issues/801).
 
 Usage:
     corpus-yoga cache clean
@@ -32,9 +32,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
-import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
+import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
 import facts  # noqa: E402
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 from declared_parser import verb_parser  # noqa: E402
 sys.path.insert(0, str(_file.parent))

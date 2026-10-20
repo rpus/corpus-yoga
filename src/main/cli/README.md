@@ -7,7 +7,7 @@ converting a file into a directory first. So `ls src/main/cli/` is the command l
 `ls src/main/cli/browser/` is its verb list, and what a verb accepts is
 `cat src/main/cli/browser/capture.json` — no parser, no column headers, no join.
 
-And the repo's whole outward surface — every declared send (#29), one line per call — is a
+And the repo's whole outward surface — every declared send (issues/29), one line per call — is a
 query over the same tree (`forge forge` is the command file: command-level sends, reached
 by every verb):
 
@@ -55,11 +55,11 @@ for a python target (or the parser `cli.py` builds for a command it handles itse
 `parse_argv` for a bash target — sourced from `src/main/cli/parse_argv.sh` at each verb's
 dispatch, it hands the argv to `src/main/cli/parse_argv.py`, which answers `-h` from the
 declaration and refuses argv the declaration does not express, so an enacting verb can
-never receive a flag-shaped token as its argument (#474; `cli.verb_help_answered` holds it).
+never receive a flag-shaped token as its argument (issues/474; `cli.verb_help_answered` holds it).
 A python target's parser is likewise GENERATED — `src/declared_parser.py` builds it whole from
 the declaration (structure, wording, prog `corpus-yoga agent capture` rather than `agent.py capture`,
 sends as each verb's epilog), the target passing only its semantic residue (default, type, dest,
-nargs) as per-argument overrides (#476) — so every target's `-h` reads the same declared words
+nargs) as per-argument overrides (issues/476) — so every target's `-h` reads the same declared words
 whether reached via `corpus-yoga` or run directly, and structure can never be stated twice.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
@@ -117,25 +117,25 @@ They are stated, followed, and reviewed by people.
 
 ### The table
 
-- **G1 — A verb means one thing everywhere it appears.** `doctrine (#49)` `from L1` — `capture` acquires
+- **G1 — A verb means one thing everywhere it appears.** `doctrine (issues/49)` `from L1` — `capture` acquires
   (`browser capture`, `indexing capture`, `agent capture` all *bring data in*, from
   Safari, the paid model, and the harness's session store); `sync` makes its target agree
   with its authority, idempotently — one meaning by definition, not by catalogue (user
   ruling, 2026-07-27: the instances are open-ended, so enumerating shapes would be a
   second surface to drift); what and where a sync writes — a re-derivation, a monotone
-  deposit, a surface outside the repo — are declared effects (#29), not senses of the
+  deposit, a surface outside the repo — are declared effects (issues/29), not senses of the
   verb; `list-<noun>` enumerates and reports that collection; `clean` destroys; `run`
   only processes what `data/input/` already holds; `present` renders, free;
   `install` places a peer store's sessions into this machine's live session store — named from the repo's vantage (capture acquires IN from the foreign mount; install emits OUT to it, the same meaning `completions install` already carries), machine-local by nature; `demerge` undoes the move.
-- **G2 — Bare is status: free, local, and read-only.** `unenforced (#47, #52)` — never paid,
+- **G2 — Bare is status: free, local, and read-only.** `unenforced (issues/47, issues/52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
   `model`, `store`, `xref`); the command's *whole act* where it has no verb and that
   act is one free idempotent step (`check`, `status` — `run` left this set when it
-  became `pipeline run`, and #40 takes `check` to `test run`, leaving `status` alone
+  became `pipeline run`, and issues/40 takes `check` to `test run`, leaving `status` alone
   or nothing); and a *usage refusal* where the verb is required
   and bare is meaningless (`browser`, `cache`, `agent`).
-- **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the
+- **G19 — An effecting verb is bracketed by status.** `doctrine (issues/56)` — it reports the
   state it is about to change, then effects, then reports the state it left. The bracket is
   what makes an effect auditable without a log, and what stops a verb reporting success it
   has not earned: `corpus-yoga indexing capture` prints an exact coverage join before spending and
@@ -161,11 +161,11 @@ They are stated, followed, and reviewed by people.
 - **G6 — A row cites only defined vocabulary.** `gated` — every term in the `calculus`
   cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than
   restated here.
-- **G7 — A command's target exists.** `gated` — and #40 strengthens this: the target's
+- **G7 — A command's target exists.** `gated` — and issues/40 strengthens this: the target's
   stem must equal the command word, so the column becomes verification rather than
   curation.
 - **G8 — Help is the declaration, said by the printer.** `gated` — `corpus-yoga <command> -h` loads
-  as the declaration, each form beside its summary; its length is the declaration's (#794).
+  as the declaration, each form beside its summary; its length is the declaration's (issues/794).
 - **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
   what zsh evaluates when tab is pressed.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
@@ -194,19 +194,19 @@ They are stated, followed, and reviewed by people.
 ### The tree
 
 The laws above govern the rows. These govern what the rows point into, and are stated
-here so that a check can cite them as they land (see #39).
+here so that a check can cite them as they land (see issues/39).
 
 - **G11 — A command determines its target's name, and a file is named for the operation it
-  performs.** `unenforced (#40)` — never for its caller, its occasion, or its reader.
+  performs.** `unenforced (issues/40)` — never for its caller, its occasion, or its reader.
   `corpus-yoga <noun> <verb>` ⇒ `<noun-dir>/<verb>.<ext>`.
-- **G12 — A file lives at the level of its subject.** `unenforced (#41)` — a module used
+- **G12 — A file lives at the level of its subject.** `unenforced (issues/41)` — a module used
   from more than one tier lives above them; one used within a tier lives in it.
-- **G13 — Help is the table, rendered once.** `unenforced (#42)` — no target renders help
+- **G13 — Help is the table, rendered once.** `unenforced (issues/42)` — no target renders help
   of its own, in any language.
 - **G14 — A name is derived from what it denotes, and one referent has one name.**
-  `unenforced (#43)` — a path constant is named for the tail of the path it holds.
+  `unenforced (issues/43)` — a path constant is named for the tail of the path it holds.
 - **G15 — A comment states a constraint that an otherwise-correct edit would violate.**
-  `doctrine (#44)` — and never asserts a date or a count. History goes to the changelog.
+  `doctrine (issues/44)` — and never asserts a date or a count. History goes to the changelog.
 - **G16 — A printed line names both sides concretely.** `gated` `from L2` — a plan line
   names its operation, whether it is typeable, and the file it lives in; no line stands in
   for something it does not name. A step that is also a command prints AS that command, so
@@ -216,9 +216,9 @@ here so that a check can cite them as they land (see #39).
 - **G17 — The only invocation any output or document prescribes is a `corpus-yoga` command.**
   `gated` — never `run_python_script.sh`, never a script path. Held over every `→ run:`
   line, the repo's own marker for "type this": the head must be a command or a standard
-  tool, and any flags it names must be ones that command advertises (#76). A remedy
+  tool, and any flags it names must be ones that command advertises (issues/76). A remedy
   computed at run time cannot be read from source and is skipped rather than guessed at.
-- **G18 — Every command is a noun.** `doctrine (#47)` — `run` became `pipeline run`; `check` and `xref` remain, and #40 takes them to `test`. — no command word is a verb, and
+- **G18 — Every command is a noun.** `doctrine (issues/47)` — `run` became `pipeline run`; `check` and `xref` remain, and issues/40 takes them to `test`. — no command word is a verb, and
   no flag names what the command grammar already addresses as a noun.
 
 The table is curated, not discovered: a script's absence here is a decision, not

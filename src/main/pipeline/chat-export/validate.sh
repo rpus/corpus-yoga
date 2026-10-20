@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Validate a single chat export: every component and piece against its whole
-# schema family, through the one single-pair face (#396).
+# schema family, through the one single-pair face (issues/396).
 #
 # This file only ENUMERATES: datum-version pairs dispatched to
-# validate_versions.py --pair (#395), then one family roll-up per datum (the
+# validate_versions.py --pair (issues/395), then one family roll-up per datum (the
 # directory face: verdict lines from the current pair logs, and the export's
 # matrix.md). Component and piece differ only in where the schema family and
 # the log directory derive from.
@@ -23,10 +23,10 @@ SCHEMA_DIR="$REPO_DIR/rsc/schema/pipeline/chat-export/claude"
 CACHE_DIR="$TMP_DIR/cache/chat-export"
 
 # shellcheck source=src/main/steps.sh
-source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_emit — next-free dispatch (#395)
+source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_emit — next-free dispatch (issues/395)
 
 # One datum-version pair: the task line is validate_versions.py --pair's argv,
-# tab-separated. Quiet — a current log is a task already done (#369).
+# tab-separated. Quiet — a current log is a task already done (pull/369).
 validate_one_pair() {
   local input schema log_dir label
   IFS="$(printf '\t')" read -r input schema log_dir label <<TASK
@@ -37,7 +37,7 @@ TASK
 }
 
 # One family roll-up: the directory face over pair logs that are all current,
-# so it relays verdicts (#363) and renders the export's matrix. SERIAL: every
+# so it relays verdicts (pull/363) and renders the export's matrix. SERIAL: every
 # roll-up of one export rewrites the same matrix.md, so they must not race.
 rollup_one() {
   local input family log_dir label
@@ -54,8 +54,8 @@ validate_export() {
   validation_dir="$CACHE_DIR/$(basename "$chat_export")/validation"
   mkdir -p "$validation_dir"
 
-  # Enumerate, capacity-blind (#395): components at the export root, pieces one
-  # directory down, each against its family's LATEST version (#557). A datum whose
+  # Enumerate, capacity-blind (issues/395): components at the export root, pieces one
+  # directory down, each against its family's LATEST version (issues/557). A datum whose
   # name matches no schema family is not this pipeline's subject.
   local pairs=() rollups=() f name d dname item schema log_dir label
   for f in "$chat_export"/*.json; do

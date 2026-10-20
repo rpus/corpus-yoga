@@ -5,7 +5,7 @@ uncaptured, so the authority speaks in its own words. The narrative (the echo, t
 goes to stderr, so a caller capturing the command's stdout gets exactly that and nothing
 else.
 
-The seam for the enactment-guard tier (#256): the one place a future policy would gate,
+The seam for the enactment-guard tier (issues/256): the one place a future policy would gate,
 warn, or attribute an act, because every act already passes through here. Not implemented.
 
 Success is silent: an act's own output is its evidence, and what a verb says when it
@@ -13,7 +13,7 @@ finishes is the verb's own business. query(), quote() and quiet() are the read f
 for how many times each renders the answer: query twice (the narrative relay plus the
 return), quote once (the return only), quiet zero (the answer is discarded). Failure
 is never quiet in any face. On failure query and quote raise; the shell face returns
-the status — the pair's one ruled asymmetry (#277); the relay words themselves are
+the status — the pair's one ruled asymmetry (issues/277); the relay words themselves are
 held identical by the gate.
 
 CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr; silencing it

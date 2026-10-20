@@ -8,7 +8,7 @@ set SELF to "src/main/cli/browser/capture_all.applescript"
 set scriptPath to POSIX path of (path to me)
 set scriptDir to do shell script "dirname " & quoted form of scriptPath
 set singleScript to POSIX file (scriptDir & "/capture_one.applescript")
--- The declared-address root (#352's discipline, #403): suffix-strip, refused
+-- The declared-address root (issues/352's discipline, issues/403): suffix-strip, refused
 -- loudly when this file is not at SELF — before anything is written anywhere.
 set repoDir to do shell script "p=" & quoted form of scriptPath & "; s=" & quoted form of SELF & "; r=\"${p%/$s}\"; [ \"$r/$s\" = \"$p\" ] || { echo \"$p: not at its declared address $s\" >&2; exit 1; }; printf %s \"$r\""
 set logDir to repoDir & "/tmp/logs/browser/capture/all-conversations"
