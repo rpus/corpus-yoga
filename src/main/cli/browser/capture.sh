@@ -50,7 +50,7 @@ main() {
   # transient dialog (if at all), and any 'see the progress' advice is useless unless its
   # path has been said out loud somewhere durable-feeling.
   echo "progress: ${log#"$REPO_DIR/"}"
-  # No tee (issues/413/#415): the python owns both channels — the full narrative goes
+  # No tee (issues/413, issues/415): the python owns both channels — the full narrative goes
   # to the progress artifact (line-buffered, anchored before any work), the terminal
   # gets the anchor, one line per conversation, and the verdict. A pipe here once
   # held the whole story in a buffer a ctrl-C erased while the terminal had

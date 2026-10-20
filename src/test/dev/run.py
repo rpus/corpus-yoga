@@ -492,7 +492,7 @@ def check_committed_tree(run) -> None:
     # YAML's comment, a URL's fragment and a shell's, and #N says nothing of which sequence
     # holds N. A CSS colour stands after a colon or a border style; a fixture of GitHub's
     # own grammar, which the forge writes for its parser, says so on its line.
-    hash_anchor = re.compile(r"(?<![\w/&{#$:])(?<!solid )(?<!dashed )(?<!dotted )#\d{1,4}\b")
+    hash_anchor = re.compile(r"(?<![\w&{#$:])(?<!solid )(?<!dashed )(?<!dotted )#\d{1,4}\b")
     hashed = []
     for rel in files:
         if not rel or rel.endswith(('.html', '.css')):
@@ -3388,6 +3388,28 @@ def check_forge_aim(run) -> None:
                  and refuses(lambda: should.check_body('## but, in future\n\n- a should.\n\n## currently\n\n### as is\n')))
     run('forge: an issue\'s body is the template\'s sections, and narrates no relation', body_held,
         None if body_held else 'a narrated relation, a hand-written as-at, or sections out of order passed', check='forge.issue_is_a_should_with_wired_relations')
+
+    # The squash step over a stub forge (issues/931): a merge call whose reply is lost over a
+    # PR the forge has merged concludes, one over a PR the forge holds open refuses. The
+    # fixture is the live bug: pull/930's squash went through, gh's reply was reset, and the
+    # merge restored the body and called the squash refused.
+    forge_sh = SRC / 'main' / 'cli' / 'forge' / 'forge.sh'
+    has_step = re.search(r'^squashed\(\)', forge_sh.read_text(), re.M) is not None
+    exits: dict[str, int] = {}
+    if has_step:
+        import tempfile
+        for state in ('MERGED', 'OPEN'):
+            with tempfile.TemporaryDirectory() as stub:
+                gh = Path(stub) / 'gh'
+                gh.write_text('#!/bin/bash\ncase "$1 $2" in "pr merge") exit 1 ;; "pr view") echo ' + state + ' ;; *) exit 1 ;; esac\n')
+                gh.chmod(0o755)
+                done = subprocess.run(['bash', '-c', 'source "$1"; squashed 1 deadbeef 1 0', '_', str(forge_sh)], capture_output=True, text=True,
+                                      env={**os.environ, 'PATH': f'{stub}:{os.environ["PATH"]}'}, cwd=REPO_ROOT)
+                exits[state] = done.returncode
+    run('forge: a squash whose reply is lost is read back from the forge - merged concludes, open refuses',
+        has_step and exits.get('MERGED') == 0 and exits.get('OPEN') == 1,
+        'forge.sh has no squashed step: the merge reads gh pr merge\'s exit alone' if not has_step
+        else f'over a merged PR the step exited {exits["MERGED"]}, over an open one {exits["OPEN"]}', check='forge.squash_read_back')
 
 
 def check_record_names_read_once(run) -> None:

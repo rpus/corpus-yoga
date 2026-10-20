@@ -677,7 +677,7 @@ merge_chain() {
     echo "forge merge: NOT DONE - the forge would close [$(tr '\n' ' ' <<< "$closing")] where the body aims at [$(tr '\n' ' ' <<< "$aimed")]; nothing merged (issues/884)"
     return 1
   fi
-  if ! (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid"); then
+  if ! squashed "$pr" "$oid"; then
     if printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -); then
       echo "the body is restored as found - it aims again, nothing closed"
     else
@@ -697,6 +697,25 @@ merge_chain() {
   # would call is read from disk at the call, so a merge that changes an interface
   # these steps use would break them here; the new tree runs them as one whole instead.
   bash -c 'source "$1"; conclude "$2" "$3" "$4"' _ "$REPO_DIR/src/main/cli/forge/forge.sh" "$pr" "$landed" "$aimed"
+}
+
+# squashed <pr> <head> [<tries> <pause>]: the squash step (issues/931) - gh pr merge, pinned to
+# the head every check saw; where its reply is not done, the forge is read back, since a
+# reply lost on the wire (pull/930, reading-room, 2026-10-20) follows a squash the forge has
+# done. 0 where the forge holds the PR merged, 1 where it still holds it open.
+squashed() {
+  local pr="$1" oid="$2" tries="${3:-3}" pause="${4:-2}" state
+  (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") && return 0
+  local _try
+  for (( _try = 0; _try < tries; _try++ )); do
+    state="$(cd "$REPO_DIR" && query gh pr view "$pr" --json state --jq .state)" || state=""
+    if [[ "$state" == MERGED ]]; then
+      echo "the squash's reply was lost, and the forge holds pull/$pr merged - concluded as merged"
+      return 0
+    fi
+    sleep "$pause"
+  done
+  return 1
 }
 
 # conclude <pr> <squash> <aimed issues, one per line>: conclude the merge - the steps after
