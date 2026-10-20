@@ -235,16 +235,17 @@ run_pipeline_safe() {
 # and `── prep: <pipeline> ─…` names `prep: <pipeline>` - a prep is its own section
 # and its own row (issues/547: every non-zero exit states an atom, prep included).
 # shellcheck disable=SC2016  # awk field references, not shell expansions
-# A section of the log is a key with a literal block scalar, `<name>: |` at the narration depth,
+# A section of the log is a key with a literal block scalar, `<name>: |2` at the narration depth,
 # its lines indented beneath (issues/755): the log is one YAML document, and a section loads
 # as its text. SECTION_PAD is the depth's indent; the awk walks below read a section's name
 # from its key line and close it at the next key at the depth.
 SECTION_PAD="$(printf '%*s' $(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} * 2 )) '')"
 # shellcheck disable=SC2016  # awk's own $0, not the shell's
 SECTION_NAME_FN='function at_depth() { return substr($0, 1, length(pad)) == pad && substr($0, length(pad) + 1, 1) != " " && substr($0, length(pad) + 1, 1) != "" }
-function opens_section() { return at_depth() && $0 ~ /: \|$/ }
-function section_name(   n) { n = substr($0, length(pad) + 1, length($0) - length(pad) - 3); if (substr(n, 1, 1) == "\"") n = substr(n, 2, length(n) - 2); return n }'
-section_open() { echo "$(opening "$1") |"; }
+function opens_section() { return at_depth() && $0 ~ /: \|2$/ }
+function section_name(   n) { n = substr($0, length(pad) + 1, length($0) - length(pad) - 4); if (substr(n, 1, 1) == "\"") n = substr(n, 2, length(n) - 2); return n }'
+# |2 fixes the body's indentation at two beneath the key, whatever its first line's indent
+section_open() { echo "$(opening "$1") |2"; }
 indented() { awk -v pad="$SECTION_PAD  " '{ print pad $0; fflush() }'; }
 atom() { echo "$SECTION_PAD  $1"; }
 
