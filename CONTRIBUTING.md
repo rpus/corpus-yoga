@@ -22,11 +22,12 @@ checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
 declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and
 `corpus-yoga forge sync`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
-(which opens on the commit gate): the merge checks out the head being merged, runs the
-gate there, and halts on red with the regenerated `rsc/test/` discarded, the checkout put
-back where it was, and one last word naming the halt (issues/541, issues/549, issues/601). Run
-the merge from any clean checkout of this repo - the corpus is what the gate needs, and
-it lives here. It squash-merges with **no message flags**, because
+(which opens on the commit gate): the merge runs it at the head being merged in a detached
+worktree of its own under `tmp/forge/merge`, the head's code over this checkout's corpus
+reached by link, and halts on red with the worktree disposed of and one last word naming
+the halt (issues/541, issues/549, issues/601, issues/937); this checkout stands where it stood until
+the fast-forward. Run the merge from any clean checkout of this repo - the corpus is what the
+gate needs, and it lives here. It squash-merges with **no message flags**, because
 `squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
 branch's commits and keeps each one's `Signature:` line, the join key into the
 captured session corpus. A hand-written `--body` discards them all.
