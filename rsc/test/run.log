@@ -1,10 +1,10 @@
 run.py: code+schema 1743/1743
 
 
-check_required_files: |2
+check_required_files: |
   ✓ files.required_exists  (10/10)
 
-check_pipeline_declarations: |2
+check_pipeline_declarations: |
   ✓ structure.pipeline_declaration_validates  (3/3)
   ✓ structure.pipeline_skip_names_family  (3/3)
   ✓ structure.pipeline_name_states_input  (3/3)
@@ -12,25 +12,25 @@ check_pipeline_declarations: |2
   ✓ structure.pipeline_mechanism_whole  (4/4)
   ✓ structure.pipeline_implements_run  (3/3)
 
-check_step_imports: |2
+check_step_imports: |
   ✓ imports.step_module_imports  (2/2)
 
-check_self_paths: |2
+check_self_paths: |
   ✓ structure.self_path_matches_address  (118/118)
 
-check_committed_tree: |2
+check_committed_tree: |
   ✓ structure.corpus_roots_ignored
   ✓ structure.no_machine_facts_committed
   ✓ anchor.names_its_sequence
 
-check_templates: |2
+check_templates: |
   ✓ templates.teach_signature  (2/2)
 
-check_xref: |2
+check_xref: |
   ✓ xref.no_bad_pointers
   ✓ xref.score_matches_expectation
 
-check_cli_surface: |2
+check_cli_surface: |
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
@@ -63,30 +63,30 @@ check_cli_surface: |2
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
 
-check_cli_verb_help: |2
+check_cli_verb_help: |
   ✓ cli.verb_help_answered  (24/24)
 
-check_cli_exclusive_classes: |2
+check_cli_exclusive_classes: |
   ✓ cli.exclusive_class_parses  (10/10)
 
-check_effects: |2
+check_effects: |
   ✓ effects.writers_disjoint
   ✓ effects.consumer_reads
   ✓ effects.extent_covered
 
-check_cache_io: |2
+check_cache_io: |
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
   ✓ cache_io.read_implies_writer  (8/8)
   ✓ cache_io.paths_resolve  (8/8)
 
-check_accumulate_contract: |2
+check_accumulate_contract: |
   ✓ accumulate.trajectory_contract
 
-check_capture_monotone: |2
+check_capture_monotone: |
   ✓ capture.monotone_record  (4/4)
 
-check_grammar_laws: |2
+check_grammar_laws: |
   ✓ grammar.laws_parse
   ✓ grammar.citation_is_stated
   ✓ calculus.laws_parse
@@ -100,57 +100,57 @@ check_grammar_laws: |2
   ✓ grammar.parent_law_defined
   ✓ grammar.enforcement_map
 
-check_schema_layout: |2
+check_schema_layout: |
   ✓ schema.family_mirrors_writer  (15/15)
   ✓ schema.pipeline_schema_placed  (10/10)
 
-check_schema_validity: |2
+check_schema_validity: |
   ✓ schema.valid_json_with_schema  (15/15)
 
-check_schema_meta_validity: |2
+check_schema_meta_validity: |
   ✓ schema.valid_against_meta_schema  (15/15)
 
-check_schema_single_version: |2
+check_schema_single_version: |
   ✓ schema.single_version  (15/15)
 
-check_schema_changelogs: |2
+check_schema_changelogs: |
   ✓ schema.changelog_narrative  (15/15)
   ✓ schema.changelog_no_todo  (15/15)
 
-check_tier_contract: |2
+check_tier_contract: |
   ✓ tier.paths_from_contract
 
-check_validate_verdict: |2
+check_validate_verdict: |
   ✓ validate.undeclared_type_names_the_union  (4/4)
 
-check_verdict_record: |2
+check_verdict_record: |
   ✓ validation.verdict_is_record  (2/2)
 
-check_rehearsal_record: |2
+check_rehearsal_record: |
   ✓ rehearsal.record_is_whole
   ✓ rehearsal.states_are_decidable
 
-check_unit_companion: |2
+check_unit_companion: |
   ✓ stage.export_is_one_unit
 
-check_unit_state: |2
+check_unit_state: |
   ✓ stage.states_are_told_apart  (2/2)
 
-check_store: |2
+check_store: |
   ✓ store.unit_names_its_kind
   ✓ store.held_twice_is_found
   ✓ store.surplus_is_found
 
-check_facts: |2
+check_facts: |
   ✓ facts.lines_are_yaml
   ✓ facts.reads_back_what_it_prints  (2/2)
   ✓ facts.wraps_and_reads_back
   ✓ facts.wraps_only_for_a_terminal
 
-check_export_atoms: |2
+check_export_atoms: |
   ✓ store.export_is_held_within_a_later_one
 
-check_status_facts: |2
+check_status_facts: |
   ✓ status.remedy_names_a_command  (46/46)
   ✓ status.lines_load_as_yaml  (23/23)
   ✓ status.room_round_trip_holds_no_pair  (24/24)
@@ -164,21 +164,21 @@ check_status_facts: |2
   ✓ cli.bare_suggests_and_runs_nothing
   ✓ report.rows_are_keyed_by_subject
 
-check_walkthrough: |2
+check_walkthrough: |
   ✓ walkthrough.walks_and_runs
 
-check_completions: |2
+check_completions: |
   ✓ completions.offers_the_commands_as_they_are
   ✓ completions.says_why_it_offers_nothing
   ✓ completions.follows_its_own_change
   ✓ completions.sync_runs_the_install
   ✓ completions.status_says_one_thing  (6/6)
 
-check_drafters: |2
+check_drafters: |
   ✓ drafters.signature_is_read_as_written
   ✓ drafters.first_signature_is_the_drafter
 
-check_versioned_schema_diagnostics: |2
+check_versioned_schema_diagnostics: |
   ✓ composition.base_not_used_directly  (15/15)
   ✓ composition.base_schemas_closed  (14/14)
   ✓ composition.discriminator_values_disjoint  (15/15)
@@ -205,68 +205,68 @@ check_versioned_schema_diagnostics: |2
   ✓ structure.pattern_constraints_enforced  (15/15)
   ✓ structure.required_subset_of_properties  (15/15)
 
-check_schema_join: |2
+check_schema_join: |
   ✓ model.join_kind_declared
   ✓ model.join_pointers_valid
 
-check_model_join_versions: |2
+check_model_join_versions: |
   ✓ model.join_family_grammar
 
-check_model_table: |2
+check_model_table: |
   ✓ model.table_valid
 
-check_model_occurrences: |2
+check_model_occurrences: |
   ✓ model.occurrence_family_grammar
   ✓ model.occurrence_pointers_resolve
   ✓ model.occurrences_cover_edges
 
-check_model_obligations: |2
+check_model_obligations: |
   ✓ model.shared_type_disposed  (83/83)
   ✓ model.documented_type_grounded  (79/79)
 
-check_model_identity: |2
+check_model_identity: |
   ✓ model.identity_holds
 
-check_grammar: |2
+check_grammar: |
   ✓ grammar.parser_current  (2/2)
 
-check_record_is_the_launchers: |2
+check_record_is_the_launchers: |
   ✓ logs.no_verb_logs_for_itself
 
-check_record_names_read_once: |2
+check_record_names_read_once: |
   ✓ record.names_read_once
 
-check_provider_registry: |2
+check_provider_registry: |
   ✓ provider.registry_parses
   ✓ provider.names_declared
 
-check_forge_aim: |2
+check_forge_aim: |
   ✓ forge.aim_one_line_per_issue  (3/3)
   ✓ forge.issue_is_a_should_with_wired_relations  (2/2)
   ✓ forge.squash_read_back
 
-check_status_is_the_dry_run: |2
+check_status_is_the_dry_run: |
   ✓ verbs.status_is_the_dry_run
 
-check_reply: |2
+check_reply: |
   ✓ reply.next_is_the_launchers  (2/2)
 
-check_reference: |2
+check_reference: |
   ✓ reference.provenance_declared  (2/2)
   ✓ reference.lineage_declared  (2/2)
   ✓ reference.verbatim  (11/11)
   ✓ reference.lineage_changelog  (6/6)
 
-check_mcp_factoring: |2
+check_mcp_factoring: |
   ✓ mcp.factoring_current
   ✓ mcp.factoring_agrees
   ✓ mcp.faces_derivable  (2/2)
   ✓ mcp.lineages_parse  (5/5)
 
-check_mcp_reproducible: |2
+check_mcp_reproducible: |
   ✓ mcp.reproducible
 
-check_expectation: |2
+check_expectation: |
   ✓ checks  (2/2)
 
 stages:
