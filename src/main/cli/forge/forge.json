@@ -100,10 +100,6 @@
     "the relocation halted; its last line above names where",
     "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not",
     "resynced this checkout - {head} is the relocated copy of what was reviewed",
-    "could not check out {head}",
-    "the checkout did NOT come back to {was} - put it back by hand with git checkout {was}",
-    "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings); checkout restored to {was}",
-    "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push; checkout restored to {was}",
     "green at {head}",
     "the flip failed; the body still aims, nothing merged",
     "the flip failed; the body still aims, nothing merged (the relocation stands)",
@@ -113,7 +109,11 @@
     "the squash refused; nothing merged",
     "merged, but the merge commit read failed; converge by hand with git fetch origin && git merge --ff-only",
     "merged as {landed}, but this checkout did not converge; the last NOT-done line above names where",
-    "the squash's reply was lost, and the forge holds pull/{pr} merged - concluded as merged"
+    "the squash's reply was lost, and the forge holds pull/{pr} merged - concluded as merged",
+    "could not open a worktree at {head} for the data gate",
+    "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)",
+    "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push",
+    "the parsers could not be generated in the worktree - the gate below will say what it lacks"
   ],
   "target": "src/main/cli/forge/forge.sh",
   "calculus": "validate",

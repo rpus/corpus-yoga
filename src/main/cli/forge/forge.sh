@@ -550,6 +550,32 @@ relocated() {  # <base> <head> <old-sha>
   echo "$oid"
 }
 
+# gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/forge/merge for
+# the data gate (issues/937), this checkout's corpus reached by link - data, ext and the
+# machine binding whole, tmp's subtrees each but forge, which holds the worktrees - and the
+# machine-local parsers generated there (issues/597). Prints its path; every halt returns 1.
+gate_worktree() {
+  local oid="$1" head="$2" wt root
+  wt="$TMP_DIR/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-gate-$head"
+  mkdir -p "$TMP_DIR/forge/merge"
+  enact git -C "$REPO_DIR" worktree add --detach "$wt" "$oid" >&2 || return 1
+  for root in data ext machine-name.txt; do
+    [[ -e "$REPO_DIR/$root" ]] && ln -s "$REPO_DIR/$root" "$wt/$root"
+  done
+  mkdir -p "$wt/tmp"
+  for root in "$REPO_DIR"/tmp/*/; do
+    [[ -d "$root" && "$(basename "$root")" != forge ]] && ln -s "${root%/}" "$wt/tmp/$(basename "$root")"
+  done
+  (cd "$wt" && quiet "$wt/corpus-yoga" grammar sync) >&2 \
+    || phrase "the parsers could not be generated in the worktree - the gate below will say what it lacks" >&2
+  echo "$wt"
+}
+
+dispose_worktree() {  # <path>
+  git -C "$REPO_DIR" worktree remove --force "$1" >/dev/null 2>&1 || true
+  git -C "$REPO_DIR" worktree prune >/dev/null 2>&1 || true
+}
+
 merge_chain() {
   local pr="$1"
   local state base head body branch_here old_sha flipped n moved=0
@@ -616,50 +642,40 @@ merge_chain() {
       phrase "resynced this checkout - {head} is the relocated copy of what was reviewed" head="$head"
     fi
   fi
-  # The data gate (issues/541, issues/549): corpus-yoga pipeline run at the head being merged.
-  # The merge stands there itself - detached at the exact sha - and puts the
-  # checkout back where it was if the gate is red.
-  local was
-  was="$(git -C "$REPO_DIR" branch --show-current)"
-  [[ -n "$was" ]] || was="$(git -C "$REPO_DIR" rev-parse HEAD)"
-  restore() { enact git -C "$REPO_DIR" checkout "$was" >/dev/null 2>&1 || true; }
-  if [[ "$(git -C "$REPO_DIR" rev-parse HEAD)" != "$oid" ]]; then
-    enact git -C "$REPO_DIR" checkout --detach "$oid"       || { echo "forge merge: NOT DONE - $(phrase "could not check out {head}" head="${oid:0:8}")"; return 1; }
-  fi
+  # The data gate (issues/541, issues/549, issues/937): corpus-yoga pipeline run at the head being
+  # merged, in a detached worktree of its own under tmp/forge/merge - the head's code over
+  # this checkout's corpus, reached by link - so that this checkout stands where it stood
+  # until the fast-forward, and the faces this process calls are the tree's it read.
+  local gate_wt
+  gate_wt="$(gate_worktree "$oid" "$head")"     || { echo "forge merge: NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
   # The run streams to the terminal as it happens and writes its own log; this
   # log keeps its verdict lines only (from the usr gate line to the end), so the
   # run is recorded once (issues/547 review, 2026-08-25). No terminal: nothing to stream.
   local gate_rc=0 live=/dev/null verdict stages
   { : > /dev/tty; } 2>/dev/null && live=/dev/tty
   verdict="$(mktemp)"
-  echo "enact: $REPO_DIR/src/main/cli/pipeline/pipeline.sh run" >&2
+  echo "enact: $gate_wt/src/main/cli/pipeline/pipeline.sh run" >&2
   # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
   # the run's status is read from the pipeline, never let veto the line.
   set +e
-  "$REPO_DIR/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk '/^usr gate:/ { p = 1 } p' | tee "$verdict"
+  "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk '/^usr gate:/ { p = 1 } p' | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
   set -e
   stages="$(awk '/failing stage\(s\):/ { p = 1; next } p && /^  [^ ]/ { printf "%s ", $1 } p && !/^  / { exit }' "$verdict")"
   rm -f "$verdict"
-  # The gate regenerates rsc/test/ where the branch's committed artifacts are stale;
-  # those files are derived, so the halt discards them and puts the checkout back
-  # (issues/507): the finding is stated below, the checkout stands as found.
-  put_back() {
-    enact git -C "$REPO_DIR" checkout -- rsc/test/ >/dev/null 2>&1 || true
-    restore
-    [[ "$(git -C "$REPO_DIR" branch --show-current 2>/dev/null || git -C "$REPO_DIR" rev-parse HEAD)" == "$was" ]] \
-      || phrase "the checkout did NOT come back to {was} - put it back by hand with git checkout {was}" was="$was"
-  }
   if [[ "$gate_rc" -ne 0 ]]; then
-    put_back
-    echo "forge merge: NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings); checkout restored to {was}" head="${oid:0:8}" stages="${stages:-unstated}" was="$was")"
+    dispose_worktree "$gate_wt"
+    echo "forge merge: NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
     return 1
   fi
-  if [[ -n "$(git -C "$REPO_DIR" status --porcelain)" ]]; then
-    put_back
-    echo "forge merge: NOT DONE - $(phrase "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push; checkout restored to {was}" head="${oid:0:8}" was="$was")"
+  # The gate regenerates rsc/test/ where the branch's committed artifacts are stale; those
+  # files are derived, and the worktree that holds them is disposed of either way.
+  if [[ -n "$(git -C "$gate_wt" status --porcelain)" ]]; then
+    dispose_worktree "$gate_wt"
+    echo "forge merge: NOT DONE - $(phrase "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push" head="${oid:0:8}")"
     return 1
   fi
+  dispose_worktree "$gate_wt"
   echo "data gate: $(phrase "green at {head}" head="${oid:0:8}")"
   flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" flip <<< "$body")"
   printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - $(if [[ $moved == 1 ]]; then phrase "the flip failed; the body still aims, nothing merged (the relocation stands)"; else phrase "the flip failed; the body still aims, nothing merged"; fi)"; return 1; }
