@@ -806,8 +806,8 @@ src/main/cli/forge/capture.py,42,comment,src/main/cli/forge/capture.py,Y,src/run
 src/main/cli/forge/capture.py,50,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
 src/main/cli/forge/capture.py,62,path_str,src/main/cli/forge/review-counts.graphql,Y,REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 src/main/cli/forge/capture.py,103,comment,src/main/cli/forge/review-counts.graphql,Y,"(src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."
-src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
-src/main/cli/forge/forge.json,27,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge/forge.json,69,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
+src/main/cli/forge/forge.json,93,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   corpus-yoga forge sync            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the
 src/main/cli/forge/forge.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/forge/forge.sh,23,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -830,7 +830,7 @@ src/main/cli/forge/reconcile.py,5,comment,src/main/cli/forge/forge.csv,Y,"src/ma
 src/main/cli/forge/reconcile.py,15,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/forge/should.py,15,path_str,src/main/cli/forge/should.py,Y,SELF = 'src/main/cli/forge/should.py'
 src/main/cli/forge/status.py,15,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
-src/main/cli/forge/status.py,58,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
+src/main/cli/forge/status.py,55,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
 src/main/cli/grammar/grammar.json,3,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
 src/main/cli/grammar/grammar.json,7,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/grammar/grammar.json,8,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
@@ -920,8 +920,8 @@ src/main/cli/server/server.sh,22,comment,src/main/report.sh,Y,# shellcheck sourc
 src/main/cli/server/start.json,31,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
 src/main/cli/server/status.py,10,path_str,src/main/cli/server/status.py,Y,SELF = 'src/main/cli/server/status.py'
 src/main/cli/site/render.json,7,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
-src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
-src/main/cli/site/site.json,8,path_str,rsc/site,Y,"""rsc/site"","
+src/main/cli/site/site.json,33,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.json,38,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
 src/main/cli/site/site.sh,23,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -988,7 +988,7 @@ src/main/cli/test/status.py,26,path_str,rsc/test/run_expected_checks,Y,expectati
 src/main/cli/test/status.py,27,path_str,rsc/test/run.log,Y,report: str = 'rsc/test/run.log'
 src/main/cli/test/status.py,28,path_str,rsc/test/xref.csv,Y,xrefs: str = 'rsc/test/xref.csv'
 src/main/cli/test/status.py,25,path_str,src/test/dev/run.py,Y,sections: str = facts.named('src/test/dev/run.py')
-src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": ""src/main/cli/test/test.sh"","
+src/main/cli/test/test.json,24,path_str,src/main/cli/test/test.sh,Y,"""target"": ""src/main/cli/test/test.sh"","
 src/main/cli/test/test.sh,21,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/test/test.sh,23,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/test/test.sh,31,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"

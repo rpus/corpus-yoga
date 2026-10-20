@@ -70,15 +70,15 @@ def commit_hook() -> Hook:
     and git then skips it in silence."""
     hook = _hook_path('pre-commit')
     if hook is None:
-        return Hook('no - not a git clone, so no hook to install')
+        return Hook(facts.sentence('no - not a git clone, so no hook to install'))
     if hook.is_symlink():
-        return Hook(f'as a symlink to {os.readlink(hook)} - a rename dangles it and git then skips it in silence',
-                    facts.Command(INSTALL, 'reinstalls it'))
+        return Hook(facts.sentence('as a symlink to {target} - a rename dangles it and git then skips it in silence', target=os.readlink(hook)),
+                    facts.Command(INSTALL, facts.sentence('reinstalls it')))
     if hook.is_file() and hook.read_bytes() == (REPO / 'rsc' / 'test' / 'pre-commit-hook.sh').read_bytes():
-        return Hook('yes - a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run')
+        return Hook(facts.sentence('yes - a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run'))
     if hook.exists():
-        return Hook('no - another pre-commit hook stands in its place', facts.Command(INSTALL, 'replaces it'))
-    return Hook('no - nothing vets a commit', facts.Command(INSTALL, 'installs it'))
+        return Hook(facts.sentence('no - another pre-commit hook stands in its place'), facts.Command(INSTALL, facts.sentence('replaces it')))
+    return Hook(facts.sentence('no - nothing vets a commit'), facts.Command(INSTALL, facts.sentence('installs it')))
 
 
 def signature_hook() -> Hook:
@@ -86,22 +86,22 @@ def signature_hook() -> Hook:
     that holds the hooks."""
     hook = _hook_path('prepare-commit-msg')
     if hook is None:
-        return Hook('no - not a git clone, so no hook to install')
+        return Hook(facts.sentence('no - not a git clone, so no hook to install'))
     script = hook.parent.parent.parent / 'rsc' / 'test' / 'prepare-commit-msg-hook.sh'
     if hook.is_symlink():
         link = Path(os.readlink(hook))
         target = link if link.is_absolute() else hook.parent / link
         if target.parent.resolve() / target.name == script.parent.resolve() / script.name:
-            return Hook('yes - the symlink to rsc/test/prepare-commit-msg-hook.sh')
-        return Hook(f'no - its symlink points elsewhere ({link})', facts.Command(INSTALL, 'reinstalls it'))
+            return Hook(facts.sentence('yes - the symlink to rsc/test/prepare-commit-msg-hook.sh'))
+        return Hook(facts.sentence('no - its symlink points elsewhere ({link})', link=link), facts.Command(INSTALL, facts.sentence('reinstalls it')))
     if hook.exists():
-        return Hook('no - another prepare-commit-msg hook stands in its place', facts.Command(INSTALL, 'replaces it'))
-    return Hook('no - a commit goes unstamped by its Signature', facts.Command(INSTALL, 'installs it'))
+        return Hook(facts.sentence('no - another prepare-commit-msg hook stands in its place'), facts.Command(INSTALL, facts.sentence('replaces it')))
+    return Hook(facts.sentence('no - a commit goes unstamped by its Signature'), facts.Command(INSTALL, facts.sentence('installs it')))
 
 
 def main() -> int:
     run = (REPO / 'src' / 'test' / 'dev' / 'run.py').read_text()
-    facts.say(Status(Test(Checks(f"{len(re.findall(r'^def check_', run, re.M))} check sections"), commit_hook(), signature_hook())))
+    facts.say(Status(Test(Checks(facts.sentence('{n} check sections', n=len(re.findall(r'^def check_', run, re.M)))), commit_hook(), signature_hook())))
     return 0
 
 

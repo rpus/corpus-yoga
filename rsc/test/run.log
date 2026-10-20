@@ -1,4 +1,4 @@
-run.py: code+schema 1689/1689
+run.py: code+schema 1698/1698
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -154,8 +154,8 @@ run.py: code+schema 1689/1689
   ✓ status.lines_load_as_yaml  (23/23)
   ✓ status.room_round_trip_holds_no_pair  (24/24)
   ✓ report.says_what_the_nouns_say  (15/15)
-  ✓ status.value_holds_no_pair  (6/6)
-  ✓ wording.each_sentence_is_said  (12/12)
+  ✓ status.value_holds_no_pair  (9/9)
+  ✓ wording.each_sentence_is_said  (18/18)
   ✓ environment.names_carry_the_prefix
   ✓ cli.no_send_flag  (3/3)
   ✓ status.pipeline_says_declarations_and_units  (4/4)
@@ -297,7 +297,7 @@ check_unit_state                       2     0   code      135
 check_store                            3     0   code      138
 check_facts                            5     0   code      143
 check_export_atoms                     1     0   code      149
-check_status_facts                   137     0   code      152
+check_status_facts                   146     0   code      152
 check_walkthrough                      1     0   code      166
 check_completions                     10     0   code      169
 check_drafters                         2     0   code      176
@@ -321,8 +321,8 @@ check_mcp_reproducible                 1     0   schema    264
 check_expectation                      2     0   code      267
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 164 types, 1689/1689 invocations passing
-checks[code]: 112 types, 1012/1012 invocations passing
+checks[code+schema]: 164 types, 1698/1698 invocations passing
+checks[code]: 112 types, 1021/1021 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1689/1689 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1698/1698 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

@@ -14,8 +14,10 @@ from pathlib import Path
 
 SELF = 'src/main/cli/forge/reconcile.py'
 _file = Path(__file__).resolve()
-assert [p for p in _file.parents if p / SELF == _file], \
-    f'{_file} is not at its declared address {SELF}'
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+sys.path.insert(0, str(_root[0] / 'src' / 'main'))
+import facts  # noqa: E402 - the one face a sentence is said through (#909)
 
 
 def norm(value) -> str:
@@ -32,7 +34,7 @@ def main() -> None:
             print('OK', key, want, '', sep='\t')
         else:
             flag = '-F' if want in ('true', 'false') else '-f'
-            print('DRIFT', key, 'declared ' + want + ', live ' + got,
+            print('DRIFT', key, facts.sentence('declared {want}, live {got}', want=want, got=got),
                   'gh api -X PATCH repos/' + slug + ' ' + flag + ' ' + key + '=' + want,
                   sep='\t')
 
