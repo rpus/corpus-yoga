@@ -31,7 +31,10 @@
     "{n} differ",
     "the same",
     "no live store is mounted in this workspace",
-    "nothing beyond the tiers - {level} live unit(s) level with the copies"
+    "nothing beyond the tiers - {level} live unit(s) level with the copies",
+    "identical to {holder}",
+    "contained by {holder}",
+    "its measure does not read it, and no capture wrote it"
   ],
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",

@@ -36,6 +36,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
 import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
 import corpus  # noqa: E402
+import facts  # noqa: E402 - the one face a sentence is said through (#909)
 
 KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units'}   # each kind of entry, and its plural
 
@@ -59,17 +60,17 @@ def entries() -> list[cleaner.Entry]:
     out: list[cleaner.Entry] = []
     for e in corpus.orphans():
         name = e.relative_to(REPO).as_posix()
-        out.append(cleaner.Entry('orphan', name, {'orphan': 'neither the input, the scratch nor the record', 'size': corpus.human(corpus.size_of(e))},
+        out.append(cleaner.Entry('orphan', name, {'orphan': facts.sentence('neither the input, the scratch nor the record'), 'size': corpus.human(corpus.size_of(e))},
                                  lambda e=e: corpus.dispose(e)))
     if corpus.STAGE.is_dir():
         for unit in corpus.units(corpus.STAGE):
             if corpus.redundant(unit):
-                out.append(cleaner.Entry('duplicate', unit.address.as_posix(), {'duplicate': 'identical to the held unit', 'size': _size(unit)},
+                out.append(cleaner.Entry('duplicate', unit.address.as_posix(), {'duplicate': facts.sentence('identical to the held unit'), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
             elif unit.missing:
                 # its record says what it lacks, so what it is is decidable on sight (#721)
                 out.append(cleaner.Entry('incomplete unit', unit.address.as_posix(),
-                                         {'incomplete unit': f'missing {", ".join(unit.missing)}', 'size': _size(unit)},
+                                         {'incomplete unit': facts.sentence('missing {missing}', missing=', '.join(unit.missing)), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
     return out
 

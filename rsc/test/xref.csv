@@ -720,14 +720,14 @@ src/main/cli/README.md,99,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`
 src/main/cli/README.md,104,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
 src/main/cli/README.md,144,doc,src/main/cli/indexing/capture.sh,Y,`src/main/cli/indexing/capture.sh` — the same file that implements half of it.
 src/main/cli/README.md,162,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
-src/main/cli/agent/agent.json,17,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
+src/main/cli/agent/agent.json,52,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/cli/agent/agent.py,25,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, #636, #853), the address its units have under"
 src/main/cli/agent/agent.py,42,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
 src/main/cli/agent/agent.py,79,comment,src/main/cli/agent/drafters.py,Y,corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
 src/main/cli/agent/agent.py,130,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,393,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
-src/main/cli/agent/agent.py,394,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
+src/main/cli/agent/agent.py,391,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
+src/main/cli/agent/agent.py,392,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
 src/main/cli/agent/claude/harness.py,23,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/drafters.py,7,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
 src/main/cli/agent/drafters.py,29,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
@@ -737,7 +737,7 @@ src/main/cli/agent/list-drafters.json,8,path_str,rsc/provider/providers.csv,Y,""
 src/main/cli/agent/mount.json,5,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/agent/transport.py,25,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
 src/main/cli/agent/transport.py,38,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
-src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
+src/main/cli/browser/browser.json,33,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,30,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/browser/browser.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/browser/browser.sh,34,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
@@ -745,7 +745,7 @@ src/main/cli/browser/browser.sh,90,call,src/main/cli/browser/capture.py,Y,"scope
 src/main/cli/browser/browser.sh,94,call,src/main/cli/browser/capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" --scope >&2"
 src/main/cli/browser/browser.sh,129,call,src/main/cli/browser/capture.sh,Y,"""$SCRIPT_DIR/capture.sh"" --progress ""${logs[$i]}"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/cli/browser/capture.command,19,path_str,src/main/cli/browser/capture.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/capture.applescript"""
-src/main/cli/browser/capture.py,62,import,src/main/cli/browser/claude/api.py,Y,"from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's co"
+src/main/cli/browser/capture.py,63,import,src/main/cli/browser/claude/api.py,Y,"from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's co"
 src/main/cli/browser/capture.py,48,path_str,src/main/cli/browser/capture.py,Y,SELF = 'src/main/cli/browser/capture.py'
 src/main/cli/browser/capture.sh,14,comment,src/main/cli/browser/capture.sh,Y,#   src/main/cli/browser/capture.sh --provider claude
 src/main/cli/browser/capture.sh,15,comment,src/main/cli/browser/capture.sh,Y,#   src/main/cli/browser/capture.sh --provider claude --mechanism DOM
@@ -797,7 +797,7 @@ src/main/cli/export/capture.py,9,comment,src/main/pipeline/chat-export/pipeline.
 src/main/cli/export/capture.py,25,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
 src/main/cli/export/capture.py,25,comment,src/main/cli/export/capture.py,Y,src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
 src/main/cli/export/capture.py,36,path_str,src/main/cli/export/capture.py,Y,SELF = 'src/main/cli/export/capture.py'
-src/main/cli/export/export.json,8,path_str,src/main/cli/export/export.sh,Y,"""target"": ""src/main/cli/export/export.sh"","
+src/main/cli/export/export.json,25,path_str,src/main/cli/export/export.sh,Y,"""target"": ""src/main/cli/export/export.sh"","
 src/main/cli/export/export.sh,15,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/export/status.py,10,path_str,src/main/cli/export/status.py,Y,SELF = 'src/main/cli/export/status.py'
 src/main/cli/forge/aim.py,22,path_str,src/main/cli/forge/aim.py,Y,SELF = 'src/main/cli/forge/aim.py'
@@ -934,8 +934,8 @@ src/main/cli/site/status.py,14,path_str,src/main/cli/site/status.py,Y,SELF = 'sr
 src/main/cli/site/status.py,73,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,7,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/stage/stage.json,41,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
-src/main/cli/stage/stage.json,47,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
+src/main/cli/stage/stage.json,44,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
+src/main/cli/stage/stage.json,50,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.py,8,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,8,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,10,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815)."
@@ -971,10 +971,10 @@ src/main/cli/status/sync.json,25,path_str,rsc/provider,Y,"""rsc/provider"""
 src/main/cli/store/clean.json,9,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
 src/main/cli/store/clean.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
 src/main/cli/store/clean.json,11,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
-src/main/cli/store/store.json,36,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
-src/main/cli/store/store.json,44,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
-src/main/cli/store/store.json,45,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
-src/main/cli/store/store.json,46,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
+src/main/cli/store/store.json,39,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
+src/main/cli/store/store.json,47,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/store.json,48,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/store.json,49,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.py,8,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 src/main/cli/store/store.py,28,comment,src/main/live.py,Y,"(src/main/live.py), so that it alone"
 src/main/cli/store/store.py,43,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
