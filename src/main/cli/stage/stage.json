@@ -36,7 +36,10 @@
     "incomplete - {present}, missing {missing}",
     "unpaired - {present} with no {missing} beside it",
     "fetches its payload, where its URLs are unspent",
-    "would judge it"
+    "would judge it",
+    "neither the input, the scratch nor the record",
+    "identical to the held unit",
+    "missing {missing}"
   ],
   "target": "src/main/cli/stage/stage.py",
   "calculus": "supersession L3 L4 L6 L10",

@@ -44,6 +44,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
 import provider as registry  # noqa: E402 - the live tier's root and the transport address (#853)
 import cleaner  # noqa: E402 - the count a verdict says a kind by (#857)
+import facts  # noqa: E402 - the one face a sentence is said through (#909)
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
@@ -196,7 +197,7 @@ def verdict(act: str, logs: list[Log]) -> str:
         if kinds:
             clauses.append(f'{words} {kinds}' + (f' to {dest}' if which == 'wrote' else ''))
     done = 'NOT DONE' if any(log.conflicts for log in logs) else 'DONE'
-    return f'{act}: {done} - ' + ('; '.join(clauses) if clauses else 'nothing to transport')
+    return f'{act}: {done} - ' + ('; '.join(clauses) if clauses else facts.sentence('nothing to transport'))
 
 
 def place_tree(src_ws: Path, dest_ws: Path, apply: bool, src: str, dest: str) -> tuple[str, dict[str, object]] | None:

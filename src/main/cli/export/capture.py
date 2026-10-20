@@ -58,8 +58,7 @@ def derived_data_name(manifest_path: Path) -> str:
     """data-<X> from manifest-<X>.json: the prefix swapped, the star kept whole."""
     stem = manifest_path.stem
     if not stem.startswith('manifest-'):
-        sys.exit(f'export capture: NOT DONE - {manifest_path.name} does not start with '
-                 'manifest-')
+        sys.exit('export capture: NOT DONE - ' + facts.sentence('{name} does not start with manifest-', name=manifest_path.name))
     return f'data-{stem.removeprefix("manifest-")}'
 
 
@@ -109,7 +108,8 @@ def archive_member(category: str) -> str:
         for row in csv.DictReader(f):
             if row['category'] == category:
                 return row['arrival']
-    sys.exit(f'export capture: NOT DONE - {category}: no row in {MEMBERS_CSV.relative_to(REPO)} says what its archive unpacks to')
+    sys.exit('export capture: NOT DONE - ' + facts.sentence('{category} - no row in {members} says what its archive unpacks to',
+                                                           category=category, members=MEMBERS_CSV.relative_to(REPO)))
 
 
 def _inode(path: Path) -> int | None:
@@ -147,7 +147,7 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
     while time.time() < deadline:
         said = safari_eval_js('String(document.body.innerText).slice(0, 200)').replace('\n', ' | ')
         if 'has been used' in said or 'Expired link' in said:
-            return None, f'{filename}: nothing arrived; the page says: {said}'
+            return None, f'{filename}: ' + facts.sentence('nothing arrived; the page says {said}', said=said)
         for path, kind in candidates().items():
             now = _inode(path)
             if now is not None and now != before.get(path) and not any(b.name.endswith('.download') for b in DOWNLOADS.glob(f'{Path(filename).stem}*')):
@@ -157,18 +157,18 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
                     staged = target / filename
                     shutil.move(str(path), staged)
                     size = staged.stat().st_size
-                    return deposit(staged, target), f'{filename}: {size} bytes, unpacked here'
+                    return deposit(staged, target), f'{filename}: ' + facts.sentence('{size} bytes, unpacked here', size=size)
                 if member == Path(filename).stem:
                     # Safari unpacks a many-entry archive into a directory named by the archive's
                     # stem; the deposit holds the entries themselves at the root, as unpacking there does
                     names = [hoist(target, shutil.move(str(item), target / item.name) and item.name) for item in sorted(path.iterdir())]
                     path.rmdir()
-                    return names, f'{filename}: unpacked by Safari as {path.name}/'
+                    return names, f'{filename}: ' + facts.sentence('unpacked by Safari as {name}', name=f'{path.name}/')
                 shutil.move(str(path), target / member)   # under the member's own name, whatever Safari called the arrival
-                return [hoist(target, member)], f'{filename}: unpacked by Safari as {path.name}'
+                return [hoist(target, member)], f'{filename}: ' + facts.sentence('unpacked by Safari as {name}', name=path.name)
         time.sleep(1)
     said = safari_eval_js('String(document.body.innerText).slice(0, 200)').replace('\n', ' | ')
-    return None, f'{filename}: nothing arrived within {ARRIVAL_TIMEOUT}s; the page says: {said or "(nothing readable)"}'
+    return None, f'{filename}: ' + facts.sentence('nothing arrived within {seconds}s; the page says {said}', seconds=ARRIVAL_TIMEOUT, said=said or '(nothing readable)')
 
 
 def main(argv: list[str]) -> int:
@@ -180,43 +180,41 @@ def main(argv: list[str]) -> int:
         else:
             sys.exit(f'usage: {SELF} --manifest <file>')
     if manifest_arg is None:
-        print('export capture: NOT DONE - --manifest <file> is required, the manifest where the '
-              'download left it; corpus-yoga export lists what is held and staged')
+        print('export capture: NOT DONE - ' + facts.sentence('--manifest <file> is required, the manifest where the download left it; corpus-yoga export lists what is held and staged'))
         return 1
     manifest_path = manifest_arg
     if not manifest_path.is_file():
-        print(f'export capture: NOT DONE - {manifest_path} is not a file')
+        print('export capture: NOT DONE - ' + facts.sentence('{path} is not a file', path=manifest_path))
         return 1
     manifest = json.loads(manifest_path.read_text())
     files = manifest.get('data_files', [])
     name = derived_data_name(manifest_path)
     target = STAGE / name
     staged_manifest = target.with_name(manifest_path.name)
-    print(f'{manifest_path.name}: {len(files)} file(s), version {manifest.get("version")}')
+    print(f'{manifest_path.name}: ' + facts.sentence('{n} file(s), version {version}', n=len(files), version=manifest.get('version')))
     print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
     if (STORE / name).is_dir():
-        print(f'export capture: NOT DONE - {name}/ is held in shared storage; nothing fetched, no URL spent')
+        print('export capture: NOT DONE - ' + facts.sentence('{name}/ is held in shared storage; nothing fetched, no URL spent', name=name))
         return 1
     if target.exists():
-        print(f'export capture: NOT DONE - {target.name}/ already exists; nothing fetched, '
-              'no URL spent. If it holds an earlier or partial capture, the human moves it '
-              'aside; this verb never overwrites a deposit')
+        print('export capture: NOT DONE - ' + facts.sentence(
+            '{name}/ already exists; nothing fetched, no URL spent. If it holds an earlier or partial capture, the human moves it aside; this verb never overwrites a deposit',
+            name=target.name))
         return 1
     same = staged_manifest.exists() and staged_manifest.samefile(manifest_path)
     if staged_manifest.exists() and not same and staged_manifest.read_bytes() != manifest_path.read_bytes():
-        print(f'export capture: NOT DONE - a different {staged_manifest.name} is staged; nothing fetched, '
-              'no URL spent')
+        print('export capture: NOT DONE - ' + facts.sentence('a different {manifest} is staged; nothing fetched, no URL spent', manifest=staged_manifest.name))
         return 1
     if files:
         try:
             assert_may_send('export_url fetches through the Safari session (export capture) - each URL is one-use')
         except SendRefused as refused:
-            print(f'export capture: NOT DONE - {refused}; nothing staged, no URL spent')
+            print('export capture: NOT DONE - ' + facts.sentence('{refused}; nothing staged, no URL spent', refused=refused))
             return 1
         logged_out, prev_tab = front_session()
         if logged_out:
-            print(f'export capture: NOT DONE - Safari is logged out of claude.ai (landed on {logged_out}); '
-                  'log in and re-run; nothing staged, no URL spent')
+            print('export capture: NOT DONE - ' + facts.sentence('Safari is logged out of claude.ai (landed on {landed}); log in and re-run; nothing staged, no URL spent',
+                                                                 landed=logged_out))
             return 1
     else:
         prev_tab = None
@@ -225,7 +223,8 @@ def main(argv: list[str]) -> int:
         # the manifest is consumed: its links are spent here, and a spent manifest has no use
         # but as the unit's record - moved, as the browser capture moves what Safari downloaded
         shutil.move(str(manifest_path), staged_manifest)
-    print(f'  {staged_manifest.name}: staged beside {target.name}/' + ('' if same else f' (moved from {manifest_path})'))
+    print(f'  {staged_manifest.name}: ' + (facts.sentence('staged beside {target}/', target=target.name) if same
+                                         else facts.sentence('staged beside {target}/ (moved from {path})', target=target.name, path=manifest_path)))
     fetched = 0
     for entry in files:
         got, words = fetch(entry, target)
@@ -240,13 +239,13 @@ def main(argv: list[str]) -> int:
     # whole is read afterwards from the manifest beside it, by every face, not from here.
     where = target.relative_to(REPO) if target.is_relative_to(REPO) else target
     if fetched < len(files):
-        print(f'export capture: NOT DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
-              f'{staged_manifest.name} beside it')
+        print('export capture: NOT DONE - ' + facts.sentence('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
+                                                             fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
         return 1
     # what an act reports (#801, #896): the effect; the launcher's reply names the
     # rehearsal that judges what was staged, as the store's status names it
-    facts.report(None, f'export capture: DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
-                 f'{staged_manifest.name} beside it')
+    facts.report(None, 'export capture: DONE - ' + facts.sentence('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
+                                                                  fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
     return 0
 
 
