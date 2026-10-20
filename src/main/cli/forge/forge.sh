@@ -586,8 +586,11 @@ merge_chain() {
   local pr="$1"
   local state base head body branch_here old_sha flipped n moved=0
   local oid landed
+  # the record's depth is the one this verb was started at; each declared step opens a key
+  # there, its events stand one deeper, and a verb run as a step three deeper (issues/941)
+  local record_depth=${CORPUS_YOGA_NARRATION_DEPTH:-0}
   opening refuses
-  export CORPUS_YOGA_NARRATION_DEPTH=1
+  export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
   assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR merges" pr="$pr" state="$state")"; return 1; }
@@ -625,8 +628,8 @@ merge_chain() {
   local standing
   standing="$(status_rows)"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
   narrate opening "standing report"
-  CORPUS_YOGA_NARRATION_DEPTH=3 "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
-  opening relocates
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
   enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge merge: NOT DONE - $(phrase "the fetch failed")"; return 1; }
   branch_here="$(git -C "$REPO_DIR" branch --show-current)"
   if [[ "$branch_here" == "$head" ]]; then
@@ -658,7 +661,7 @@ merge_chain() {
   # merged, in a detached worktree of its own under tmp/forge/merge - the head's code over
   # this checkout's corpus, reached by link - so that this checkout stands where it stood
   # until the fast-forward, and the faces this process calls are the tree's it read.
-  opening gates
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates
   local gate_wt
   gate_wt="$(gate_worktree "$oid" "$head")"     || { echo "forge merge: NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
   # The run streams to the terminal as it happens and writes its own log; this
@@ -671,7 +674,10 @@ merge_chain() {
   # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
   # the run's status is read from the pipeline, never let veto the line.
   set +e
-  CORPUS_YOGA_NARRATION_DEPTH=3 "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk '/^ *stages:/ { p = 1 } p' | tee "$verdict"
+  # the run's tail is kept from the run's own stages: at the run's depth - the tests section
+  # carries the dev gate's stages: inside its text, deeper (issues/941)
+  local run_pad; run_pad="$(printf '%*s' $(( (record_depth + 3) * 2 )) '')"
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk -v pad="$run_pad" 'index($0, pad "stages:") == 1 { p = 1 } p' | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
   set -e
   stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"
@@ -690,7 +696,7 @@ merge_chain() {
   fi
   dispose_worktree "$gate_wt"
   say "data gate green at {head}" head="${oid:0:8}"
-  opening flips
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening flips
   flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" flip <<< "$body")"
   printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - $(if [[ $moved == 1 ]]; then phrase "the flip failed; the body still aims, nothing merged (the relocation stands)"; else phrase "the flip failed; the body still aims, nothing merged"; fi)"; return 1; }
   # The squash is pinned to the head every check above saw; between the flip
@@ -700,7 +706,7 @@ merge_chain() {
   # the PR's closing references, bound by GitHub from the flipped body; where they are not
   # the aimed set, the body is restored and nothing merges - the two readings cannot differ
   # on main. The references settle a moment after the edit, so the read is tried a few times.
-  opening verifies
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening verifies
   local closing
   for _ in 1 2 3 4 5; do
     closing="$(cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F "pr=$pr" -F "query=@$REPO_DIR/src/main/cli/forge/closing-issues.graphql" --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[].number' | sort -n)" || closing=""
@@ -712,7 +718,7 @@ merge_chain() {
     echo "forge merge: NOT DONE - $(phrase "the forge would close [{closing}] where the body aims at [{aimed}]; nothing merged (issues/884)" closing="$(tr '\n' ' ' <<< "$closing")" aimed="$(tr '\n' ' ' <<< "$aimed")")"
     return 1
   fi
-  opening squashes
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening squashes
   if ! squashed "$pr" "$oid"; then
     if printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -); then
       say "the body is restored as found - it aims again, nothing closed"
@@ -723,7 +729,7 @@ merge_chain() {
     return 1
   fi
   landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - $(phrase "merged, but the merge commit read failed; converge by hand with git fetch origin && git merge --ff-only")"; return 1; }
-  opening converges
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening converges
   if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"; then
     echo "forge merge: NOT DONE - $(phrase "merged as {landed}, but this checkout did not converge; the last NOT-done line above names where" landed="${landed:0:8}")"
     return 1
@@ -761,11 +767,13 @@ squashed() {
 # the tree that merged and the tree merged onto, and does not change.
 conclude() {
   local pr="$1" landed="$2" aimed="$3"
-  export CORPUS_YOGA_NARRATION_DEPTH=0
-  opening concludes
-  export CORPUS_YOGA_NARRATION_DEPTH=1
+  # the chain hands its events' depth down; the record's is one less (issues/941)
+  local record_depth=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-1} - 1 ))
+  (( record_depth >= 0 )) || record_depth=0
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening concludes
+  export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
   narrate opening "forge clean"
-  if ! CORPUS_YOGA_NARRATION_DEPTH=3 clean || ! quiet git -C "$REPO_DIR" status; then
+  if ! CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) clean || ! quiet git -C "$REPO_DIR" status; then
     echo "forge merge: NOT DONE - $(phrase "merged as {landed} and this checkout converged on it, but the sweep after it did not complete; the last NOT-done line above names where" landed="${landed:0:8}")"
     return 1
   fi
@@ -777,10 +785,10 @@ conclude() {
     [[ -n "$issue_number" ]] || continue
     total=$((total + 1))
     opening "issues/$issue_number" 2
-    state="$(cd "$REPO_DIR" && CORPUS_YOGA_NARRATION_DEPTH=4 query gh issue view "$issue_number" --json state --jq .state)" || state="unread"
+    state="$(cd "$REPO_DIR" && CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 4 )) query gh issue view "$issue_number" --json state --jq .state)" || state="unread"
     [[ "$state" == CLOSED ]] && closed=$((closed + 1))
   done <<< "$aimed"
-  export CORPUS_YOGA_NARRATION_DEPTH=0
+  export CORPUS_YOGA_NARRATION_DEPTH=$record_depth
   effect "forge merge: DONE - $(phrase "pull/{pr} squashed as {landed}; did close {closed} of {total} aimed issue(s); this checkout converged on it" pr="$pr" landed="${landed:0:8}" closed="$closed" total="$total")"
 }
 
