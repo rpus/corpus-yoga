@@ -76,13 +76,13 @@ class Ahead:
         """The live thing as the status states it: its state, both sides, and what stages it."""
         staged_by: facts.Command | facts.Act | None = None
         if self.capture:
-            staged_by = facts.Command(self.capture, 'would stage it')
+            staged_by = facts.Command(self.capture, facts.sentence('would stage it'))
         elif self.kind != 'session' and self.state in ('new', 'changed'):
-            staged_by = facts.Act('with a session of its project')
-        then = {'diverged': 'a capture of it would be refused at promotion; the reader reconciles the two',
-                'behind': f'the {self.tier} copy holds more than the live store does'}.get(self.state)
+            staged_by = facts.Act(facts.sentence('with a session of its project'))
+        then = {'diverged': facts.sentence('a capture of it would be refused at promotion; the reader reconciles the two'),
+                'behind': facts.sentence('the {tier} copy holds more than the live store does', tier=self.tier)}.get(self.state)
         return {'state': self.state, 'live': self.live, self.tier: self.copy or None,
-                'agree for': f'{self.agree} bytes' if self.state == 'diverged' else None,
+                'agree for': facts.sentence('{n} bytes', n=self.agree) if self.state == 'diverged' else None,
                 'then': then, 'link to': self.link or None, 'capture': staged_by}
 
 
@@ -90,8 +90,8 @@ class Ahead:
 class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
     state: str = 'absent'
-    why: str = 'no live store is read there'
-    remedy: facts.Command = facts.Command('corpus-yoga agent mount', 'would mount it')
+    why: str = facts.sentence('no live store is read there')
+    remedy: facts.Command = facts.Command('corpus-yoga agent mount', facts.sentence('would mount it'))
 
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
@@ -205,13 +205,13 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             found = next(((tier, root / n / path.name) for tier, root in roots.items() for n in under
                           if (root / n / path.name).is_dir()), None)
             if found is None:
-                rows.append(Ahead(name, kind, project, 'new', f'{len(live_tree)} file(s)', '', 'staged', link=link))
+                rows.append(Ahead(name, kind, project, 'new', facts.sentence('{n} file(s)', n=len(live_tree)), '', 'staged', link=link))
                 continue
             tier, copy_dir_of = found
             copy_tree = _tree(copy_dir_of)
             differ = sum(1 for k in set(live_tree) | set(copy_tree) if live_tree.get(k) != copy_tree.get(k))
-            rows.append(Ahead(name, kind, project, 'changed' if differ else 'level', f'{len(live_tree)} file(s)',
-                              f'{differ} differ' if differ else 'the same', tier, link=link))
+            rows.append(Ahead(name, kind, project, 'changed' if differ else 'level', facts.sentence('{n} file(s)', n=len(live_tree)),
+                              facts.sentence('{n} differ', n=differ) if differ else facts.sentence('the same'), tier, link=link))
     return rows, absent
 
 

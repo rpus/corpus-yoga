@@ -87,6 +87,12 @@ while REPORT.exists():
     _twin += 1
 REPORT_REL = str(REPORT.relative_to(REPO_ROOT))
 CLI                      = SRC / 'main' / 'cli'
+# What a sentence does instead of the marks the printer cannot leave plain: the one remedy
+# both the declarations' prose check (#797) and the wording check (#909) print, so that an
+# edit made to pass them keeps the sentence's anchor.
+PLAIN_SENTENCE_REMEDY = ('a pair is a fact of its own beneath, or the sentence says it without the colon; an em dash is written '
+                         "' - '; a hash after a space is YAML's comment, so an anchor keeps its number in parentheses, (#N), "
+                         'and is never dropped')
 
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 
@@ -1503,7 +1509,7 @@ def check_cli_surface(run) -> None:
         faults = [f'{where}: {text[:80]}' for where, text in prose(json.loads(declared.read_text()))
                   if text and (': ' in text or text.endswith(':') or ' #' in text or '\u2014' in text)]
         run(f'cli: {declared.relative_to(CLI)}: its prose holds no colon followed by a space, no em dash and no hash after a space', not faults,
-            None if not faults else '; '.join(faults)[:300], check='cli.prose_holds_no_pair')
+            None if not faults else '; '.join(faults)[:300] + ' - ' + PLAIN_SENTENCE_REMEDY, check='cli.prose_holds_no_pair')
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
     # its values reads as a restriction to that value while behaving as an addition. Held
@@ -2245,7 +2251,8 @@ def check_status_facts(run) -> None:
     # The sentences a status can say are its noun's declared wording (#909, #914), each its
     # own identity: the one property - no value holds a colon followed by a space - judged
     # over every sentence, in every room alike, with no room's state; each sentence declared
-    # once across the nouns; and every declared sentence said by its noun, quoted.
+    # once across the nouns; and every declared sentence said by its noun, quoted - in the
+    # noun's own sources, its target, or the modules under src/main every noun composes through.
     held_by: dict[str, str] = {}
     for declaration in sorted(CLI.glob('*/*.json')):
         noun = declaration.parent.name
@@ -2256,13 +2263,13 @@ def check_status_facts(run) -> None:
             continue
         faults = [said[:80] for said in worded if ': ' in said or said.endswith(':') or ' #' in said or '\u2014' in said]
         run(f'status: corpus-yoga {noun}: no declared sentence holds a colon followed by a space', not faults,
-            None if not faults else '; '.join(faults)[:300] + ' - a pair is a fact of its own beneath, or the sentence says it without the colon',
+            None if not faults else '; '.join(faults)[:300] + ' - ' + PLAIN_SENTENCE_REMEDY,
             check='status.value_holds_no_pair')
         twice = [said for said in worded if said in held_by]
         run(f'wording: corpus-yoga {noun}: each sentence is declared once', not twice,
             None if not twice else f'also declared by corpus-yoga {held_by[twice[0]]}: {twice[0][:80]}', check='wording.each_sentence_is_said')
         held_by.update({said: noun for said in worded})
-        sources = ''.join(f.read_text() for f in declaration.parent.glob('*') if f.suffix in ('.py', '.sh'))
+        sources = ''.join(f.read_text() for f in [*declaration.parent.glob('*'), *CLI.parent.glob('*.py')] if f.suffix in ('.py', '.sh'))
         target = REPO_ROOT / json.loads(declaration.read_text())['target']
         sources += target.read_text() if target.is_file() else ''
         unsaid = [said for said in worded if said not in sources]
