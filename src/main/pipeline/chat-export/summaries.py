@@ -166,10 +166,8 @@ def _twins(root: Path) -> tuple[int, facts.Finding | None]:
     if not twins:
         return 0, None
     return twins, facts.Finding(
-        f'{twins} twin deposit(s) in the summaries store - byte-identical to their nearest '
-        'earlier sibling, which the deposit rule never writes',
-        facts.Act('investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its '
-                  'one-shot repair retired, and nothing in the current machinery can mint a twin'))
+        facts.sentence('{n} twin deposit(s) in the summaries store - byte-identical to their nearest earlier sibling, which the deposit rule never writes', n=twins),
+        facts.Act(facts.sentence('investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its one-shot repair retired, and nothing in the current machinery can mint a twin')))
 
 
 @dataclass
@@ -228,9 +226,8 @@ def main():
         # (or a corpus-less clone) — depositing under fallback names would file
         # readings wrongly and then hold them immutable. Skip, loudly.
         conversations = Path(args.conversations_output)
-        facts.report(None, 'summaries sync: DONE - skipped; no projected conversations under '
-                     f'{conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations}; '
-                     'deposits key on the projection, which corpus-yoga pipeline run chat-capture makes')
+        facts.report(None, 'summaries sync: DONE - ' + facts.sentence('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run chat-capture makes',
+                                                                       path=conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations))
         return 0
     readings = readings_by_uuid(Path(args.chat_export_cache))
     captured = capture_summaries(Path(args.api_capture))
@@ -280,8 +277,7 @@ def main():
             elif result == 'conflict':
                 # the calculus accumulate contract (issue #22): a same-stamp
                 # content mismatch is a CONFLICT, exit 1 — not a stderr aside
-                print(f'  ✗ CONFLICT {stem}/{ts}.md: existing deposit differs from this '
-                      'derivation — left untouched (deposits are immutable); investigate')
+                print(f'  ✗ CONFLICT {stem}/{ts}.md: ' + facts.sentence('existing deposit differs from this derivation - left untouched (deposits are immutable); investigate'))
                 conflicts += 1
             else:
                 unchanged += 1
@@ -301,9 +297,10 @@ def main():
     # the standing twin detector runs on every sync too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
-    facts.report(None, f'summaries sync: {"NOT DONE" if conflicts else "DONE"} - {deposited} reading(s) deposited, {unchanged} already held, '
-                 f'{renamed} folder(s) renamed, under {root.relative_to(REPO) if root.is_relative_to(REPO) else root}'
-                 + (f'; {conflicts} CONFLICT(S)' if conflicts else ''))
+    facts.report(None, f'summaries sync: {"NOT DONE" if conflicts else "DONE"} - '
+                 + facts.sentence('{deposited} reading(s) deposited, {unchanged} already held, {renamed} folder(s) renamed, under {root}',
+                                  deposited=deposited, unchanged=unchanged, renamed=renamed, root=root.relative_to(REPO) if root.is_relative_to(REPO) else root)
+                 + ('; ' + facts.sentence('{n} CONFLICT(S)', n=conflicts) if conflicts else ''))
     return 1 if conflicts else 0
 
 

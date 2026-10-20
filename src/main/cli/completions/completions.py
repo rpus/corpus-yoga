@@ -144,18 +144,18 @@ def install_completion() -> int:
                 if re.match(r'\s*(compinit\b|fpath=)', l)), None)
     if idx is None:
         lines += ['', *block(), 'autoload -Uz compinit', 'compinit']
-        where = 'added at the end, with a compinit of their own (this ~/.zshrc had none)'
+        where = facts.sentence('added at the end, with a compinit of their own (this ~/.zshrc had none)')
     else:
         while idx > 0 and lines[idx - 1].lstrip().startswith('#'):
             idx -= 1                      # step above the block's comment header
         lines[idx:idx] = [*block(), '']
-        where = f'added at line {idx + 1}, above compinit'
+        where = facts.sentence('added at line {line}, above compinit', line=idx + 1)
     text = '\n'.join(lines) + '\n'
     if text == before and loads() is not False:
-        facts.report(None, f'completions install: DONE - {tilde(zshrc)} already sets tab-completion up; nothing written')
+        facts.report(None, 'completions install: DONE - ' + facts.sentence('{zshrc} already sets tab-completion up; nothing written', zshrc=tilde(zshrc)))
         return 0
     if text == before:
-        print(f'{tilde(zshrc)}: the four lines stand as they should, and zsh does not load them')
+        print(f'{tilde(zshrc)}: ' + facts.sentence('the four lines stand as they should, and zsh does not load them'))
     else:
         try:
             assert_may_send('write ~/.zshrc (completions install)')
@@ -163,7 +163,7 @@ def install_completion() -> int:
             facts.report(None, f'completions install: NOT DONE - {refused}')
             return 1
         zshrc.write_text(text)
-        print(f'{tilde(zshrc)}: four lines {where}')
+        print(f'{tilde(zshrc)}: ' + facts.sentence('four lines {where}', where=where))
         for line in block():
             print(f'    {line}')
     # compinit keeps the list of completion files it found in ~/.zcompdump and can judge
@@ -172,8 +172,9 @@ def install_completion() -> int:
     for d in dumps:
         d.unlink()
     if dumps:
-        print(f'  ~/.zcompdump*: {len(dumps)} removed - the next terminal rebuilds it')
-    facts.report(None, f'completions install: DONE - {tilde(zshrc)} holds the four lines', {'open a new terminal': 'tab completes corpus-yoga from then on'})
+        print('  ~/.zcompdump*: ' + facts.sentence('{n} removed - the next terminal rebuilds it', n=len(dumps)))
+    facts.report(None, 'completions install: DONE - ' + facts.sentence('{zshrc} holds the four lines', zshrc=tilde(zshrc)),
+                 {'open a new terminal': facts.sentence('tab completes corpus-yoga from then on')})
     return 0
 
 
@@ -188,11 +189,11 @@ def uninstall_completion() -> int:
     removing it could break what was built on top."""
     zshrc = Path.home() / '.zshrc'
     if not zshrc.exists():
-        facts.report(None, f'completions uninstall: DONE - {tilde(zshrc)} is no file; nothing to remove')
+        facts.report(None, 'completions uninstall: DONE - ' + facts.sentence('{zshrc} is no file; nothing to remove', zshrc=tilde(zshrc)))
         return 0
     kept, removed_line_count = without_completion_block(zshrc.read_text().splitlines())
     if not removed_line_count:
-        facts.report(None, f'completions uninstall: DONE - {tilde(zshrc)} holds no corpus-yoga lines; nothing to remove')
+        facts.report(None, 'completions uninstall: DONE - ' + facts.sentence('{zshrc} holds no corpus-yoga lines; nothing to remove', zshrc=tilde(zshrc)))
         return 0
     try:
         assert_may_send('write ~/.zshrc (completions uninstall)')
@@ -200,7 +201,8 @@ def uninstall_completion() -> int:
         facts.report(None, f'completions uninstall: NOT DONE - {refused}')
         return 1
     zshrc.write_text('\n'.join(kept) + '\n')
-    facts.report(None, f'completions uninstall: DONE - removed the corpus-yoga lines ({removed_line_count}) from {tilde(zshrc)}; nothing else touched', {'open a new terminal': 'the removal takes effect from then on'})
+    facts.report(None, 'completions uninstall: DONE - ' + facts.sentence('removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched', n=removed_line_count, zshrc=tilde(zshrc)),
+                 {'open a new terminal': facts.sentence('the removal takes effect from then on')})
     return 0
 
 
@@ -243,23 +245,23 @@ def standing() -> Completions:
     found = blocks_of(zshrc.read_text().splitlines() if zshrc.exists() else [])
     loaded = loads()
     if loaded is None:
-        return Completions('not applicable - this machine has no zsh')
+        return Completions(facts.sentence('not applicable - this machine has no zsh'))
     if not found:
-        return Completions('not set up in zsh',
-                           facts.Command(INSTALL, 'adds four lines to ~/.zshrc; open a new terminal afterwards'))
+        return Completions(facts.sentence('not set up in zsh'),
+                           facts.Command(INSTALL, facts.sentence('adds four lines to ~/.zshrc; open a new terminal afterwards')))
     if found == [block()[1:-1]]:
-        return Completions('set up') if loaded else Completions(
-            'written in ~/.zshrc, but zsh does not load it',
-            facts.Command(INSTALL, 'puts its lines where zsh reads them; open a new terminal afterwards'))
+        return Completions(facts.sentence('set up')) if loaded else Completions(
+            facts.sentence('written in ~/.zshrc, but zsh does not load it'),
+            facts.Command(INSTALL, facts.sentence('puts its lines where zsh reads them; open a new terminal afterwards')))
     aliased = [match.group(1) for lines in found for line in lines
                if (match := re.fullmatch(r"alias corpus-yoga='(.*)'", line))]
     other = next((Path(a).expanduser() for a in aliased if Path(a).expanduser() != LAUNCHER), None)
     if other is None:
-        return Completions('set up, but not as corpus-yoga completions install sets it up',
-                           facts.Command(INSTALL, 'rewrites its lines in ~/.zshrc; open a new terminal afterwards'))
-    return Completions(f'set up for a different copy of corpus-yoga, at {tilde(other.parent)}' if other.exists()
-                       else f'set up for a copy of corpus-yoga that is gone, at {tilde(other.parent)}',
-                       facts.Command(INSTALL, 'points ~/.zshrc at this copy; open a new terminal afterwards'))
+        return Completions(facts.sentence('set up, but not as corpus-yoga completions install sets it up'),
+                           facts.Command(INSTALL, facts.sentence('rewrites its lines in ~/.zshrc; open a new terminal afterwards')))
+    return Completions(facts.sentence('set up for a different copy of corpus-yoga, at {where}', where=tilde(other.parent)) if other.exists()
+                       else facts.sentence('set up for a copy of corpus-yoga that is gone, at {where}', where=tilde(other.parent)),
+                       facts.Command(INSTALL, facts.sentence('points ~/.zshrc at this copy; open a new terminal afterwards')))
 
 
 def completion_status() -> int:

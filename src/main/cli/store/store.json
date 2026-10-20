@@ -34,7 +34,10 @@
     "nothing beyond the tiers - {level} live unit(s) level with the copies",
     "identical to {holder}",
     "contained by {holder}",
-    "its measure does not read it, and no capture wrote it"
+    "its measure does not read it, and no capture wrote it",
+    "{name} {n} ({missing} not in the other)",
+    "{name} {n}",
+    "{name} none beyond the deposits"
   ],
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",

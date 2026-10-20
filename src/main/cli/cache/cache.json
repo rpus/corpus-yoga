@@ -1,5 +1,11 @@
 {
   "summary": "the rebuildable tmp/cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; sync rebuilds",
+  "wording": [
+    "no current step writes or reads it",
+    "{n} subtree(s) present",
+    "{n} subtree(s) present, {orphans} orphan(s)",
+    "{verb} is no verb it takes - {verbs} (bare is the status; corpus-yoga cache <verb> -h says its flags)"
+  ],
   "explanation": {
     "orphans": "each entry under tmp/cache that no current step writes or reads, by its path, with its size and corpus-yoga cache clean as its remedy - a former output whose producer moved or was renamed",
     "next": "what to run next - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where every entry is owned"

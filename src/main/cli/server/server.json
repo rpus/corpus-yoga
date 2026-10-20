@@ -1,5 +1,12 @@
 {
   "summary": "serve the markdown corpus locally (LaTeX + turn deep links)",
+  "wording": [
+    "running (pid {pid})",
+    "not running",
+    "{got}/{total} in ext/lib/serve_markdown",
+    "all of them",
+    "fetches them; the next corpus-yoga server start does too"
+  ],
   "target": "src/main/cli/server/server.sh",
   "calculus": "project",
   "args": [],

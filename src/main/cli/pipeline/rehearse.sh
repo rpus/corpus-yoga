@@ -33,6 +33,8 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/provider.sh
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
+# shellcheck source=src/main/report.sh
+source "$REPO_ROOT/src/main/report.sh"   # sentence - the one face a sentence is said through (#909)
 
 main() {
   local stamp
@@ -45,7 +47,7 @@ main() {
   rm -rf "$TMP_STAGE_SCRATCH"
   mkdir -p "$TMP_STAGE/input" "$TMP_STAGE_SCRATCH/data/output" "$TMP_STAGE_SCRATCH/tmp"
   ln -s ../../input "$TMP_STAGE_SCRATCH/data/input"   # tmp/stage/scratch/data/input -> tmp/stage/input
-  echo "rehearse: tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record"
+  echo "rehearse: $(sentence "tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record" stamp="$stamp")"
   echo
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || return 1
   local status=0

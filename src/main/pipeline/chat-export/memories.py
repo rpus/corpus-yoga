@@ -90,13 +90,13 @@ def normalise_stamps(lib_dir: Path) -> int:
         if dest.exists():
             if dest.read_text() == f.read_text():
                 f.unlink()
-                print(f'  {f.name}: duplicate of {dest.name} — dropped')
+                print(f'  {f.name}: ' + facts.sentence('duplicate of {name} - dropped', name=dest.name))
             else:
                 conflicts += 1
-                print(f'  ✗ CONFLICT: {f.name} and {dest.name} differ — both left in place')
+                print('  ✗ CONFLICT: ' + facts.sentence('{a} and {b} differ - both left in place', a=f.name, b=dest.name))
         else:
             f.rename(dest)
-            print(f'  {f.name} ({v["id"]}) -> {dest.name}')
+            print('  ' + facts.sentence('{file} ({vintage}) renamed to {dest}', file=f.name, vintage=v['id'], dest=dest.name))
     return conflicts
 
 
@@ -127,14 +127,14 @@ def deposit(states, lib_dir):
         result = accumulate(lib_dir, stamp, text, suffix='.json')
         if result == 'conflict':
             conflicts += 1
-            status = '✗ CONFLICT: deposit exists with different content — investigate'
+            status = '✗ CONFLICT: ' + facts.sentence('deposit exists with different content - investigate')
         elif result == 'deposited':
-            status = '✓ deposited (new)'
+            status = '✓ ' + facts.sentence('deposited (new)')
         else:
-            status = 'unchanged — no new deposit'
+            status = facts.sentence('unchanged - no new deposit')
         print(f'  {batch}: memory state {stamp} {status}')
     deposits = sorted(lib_dir.glob('*.json'))
-    print(f'data/output/memories: {len(deposits)} deposit(s)')
+    print('data/output/memories: ' + facts.sentence('{n} deposit(s)', n=len(deposits)))
     return deposits, conflicts
 
 
@@ -194,13 +194,13 @@ def sync(chat_export_cache: Path, memories_output: Path, markdown: Path) -> int:
     states = memory_states(chat_export_cache)
     if not states:
         cache = Path(chat_export_cache)
-        facts.report(None, 'memories sync: DONE - no archived memory states under '
-                     f'{cache.relative_to(REPO) if cache.is_relative_to(REPO) else cache}; nothing to accumulate')
+        facts.report(None, 'memories sync: DONE - ' + facts.sentence('no archived memory states under {cache}; nothing to accumulate',
+                                                                      cache=cache.relative_to(REPO) if cache.is_relative_to(REPO) else cache))
         return 0
     deposits, conflicts = deposit(states, memories_output)
     render(deposits, markdown)
-    facts.report(None, f'memories sync: {"NOT DONE" if conflicts else "DONE"} - {len(deposits)} deposit(s)'
-                 + (f'; {conflicts} CONFLICT(S), each left in place' if conflicts else ''))
+    facts.report(None, f'memories sync: {"NOT DONE" if conflicts else "DONE"} - ' + facts.sentence('{n} deposit(s)', n=len(deposits))
+                 + ('; ' + facts.sentence('{n} CONFLICT(S), each left in place', n=conflicts) if conflicts else ''))
     return 1 if conflicts else 0
 
 
