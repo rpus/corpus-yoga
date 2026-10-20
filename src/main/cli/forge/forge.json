@@ -100,7 +100,6 @@
     "the relocation halted; its last line above names where",
     "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not",
     "resynced this checkout - {head} is the relocated copy of what was reviewed",
-    "green at {head}",
     "the flip failed; the body still aims, nothing merged",
     "the flip failed; the body still aims, nothing merged (the relocation stands)",
     "the body is restored as found - it aims again, nothing closed",
@@ -113,7 +112,8 @@
     "could not open a worktree at {head} for the data gate",
     "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)",
     "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push",
-    "the parsers could not be generated in the worktree - the gate below will say what it lacks"
+    "the parsers could not be generated in the worktree - the gate below will say what it lacks",
+    "data gate green at {head}"
   ],
   "target": "src/main/cli/forge/forge.sh",
   "calculus": "validate",

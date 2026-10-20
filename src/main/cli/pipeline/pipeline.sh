@@ -329,14 +329,11 @@ atom_table() {
     /^[[:space:]]*FAIL:/ { n_fail++; next }
     END {
       flush()
-      if (width < length("stage")) width = length("stage")
-      printf "  %-*s %5s %6s\n", width, "stage", "FAIL", "line"
-      for (r = 1; r <= n_rows; r++) {
-        split(rows[r], f, "\t")
-        printf "  %-*s %5d %6d\n", width, f[1], f[2], f[3]
-      }
+      for (r = 1; r <= n_rows; r++) print rows[r]
     }
-  ' "$LOG_FILE" 2>/dev/null || true
+  ' "$LOG_FILE" 2>/dev/null | "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
+rows = [line.split("\t") for line in sys.stdin.read().splitlines() if line]
+print("\n".join(facts.lines({"stages": {name: {"FAIL": int(fails), "line": int(at)} for name, fails, at in rows}}, facts.depth())))' "$REPO_ROOT/src/main" || true
 }
 
 # A prep that exits non-zero states its atom like any stage (issues/547), in its own
@@ -526,8 +523,6 @@ main() {
   # columns. One failure notion (issues/547): every non-zero exit stated an atom above, so
   # a row's FAIL count is its verdict, and the run's verdict is the rows with atoms.
   atom_table
-  echo "  ($(phrase "each pipeline stage runs alone as corpus-yoga pipeline run <stage>; corpus is the reduce over all"))"
-  echo "  ($(phrase "line = where that stage begins in this log; each finding is stated there, in place"))"
   # The run's verdict is the sections holding FAIL atoms - the one failure notion
   # (issues/547; exit-status failures state an atom at their fold). FAIL is the one
   # finding tier (issues/530): a violated property states FAIL, a fact is untiered prose.
@@ -538,23 +533,27 @@ main() {
     verdict_failures+=("$atom_section")
   done <<< "$(sections_with_fail_atoms)"
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    echo "usr gate: PASS - $(phrase "all pipelines completed")"
+    pair "usr gate" "PASS - $(phrase "all pipelines completed")"
   else
-    echo "usr gate: FAIL - $(phrase "failing stage(s)"):"
-    local errs
+    pair "usr gate" "FAIL - $(phrase "failing stage(s) {names}" names="${verdict_failures[*]}")"
+    opening failing
+    local errs error_line
     for f in "${verdict_failures[@]}"; do
-      echo "  $f"
+      opening "$f" 1
       errs="$(section_error_lines "$f")"
-      [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
-      [[ -n "$errs" ]] || echo "    $(phrase "the failing step prints its error and the path of its own log above")"
+      if [[ -n "$errs" ]]; then
+        printf '%s\n' "$errs" | while IFS= read -r error_line; do narrate item "$error_line" 2; done
+      else
+        narrate item "$(phrase "the failing step prints its error and the path of its own log above")" 2
+      fi
     done
   fi
   # The usr-actor's next acts, and nothing else: the run's outputs, and reading them
   # served. The data-tier coupling this line once narrated (pipelines move what the
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (issues/342).
-  echo "outputs: data/output/markdown/index.md"
-  if [[ -n "$RECORD" ]]; then echo "Log: ${RECORD#"$REPO_ROOT/"}"; fi
+  pair outputs data/output/markdown/index.md
+  if [[ -n "$RECORD" ]]; then pair Log "${RECORD#"$REPO_ROOT/"}"; fi
   # what an act reports (issues/876, issues/896): the usr gate's own verdict stands above; the act's
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.
