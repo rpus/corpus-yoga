@@ -815,12 +815,12 @@ src/main/cli/forge/forge.sh,27,comment,src/main/cli/parse_argv.sh,Y,# shellcheck
 src/main/cli/forge/forge.sh,29,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/forge/forge.sh,31,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/forge/forge.sh,71,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge/forge.sh,278,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
-src/main/cli/forge/forge.sh,285,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
-src/main/cli/forge/forge.sh,391,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
-src/main/cli/forge/forge.sh,534,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,587,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,765,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,280,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
+src/main/cli/forge/forge.sh,287,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
+src/main/cli/forge/forge.sh,393,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
+src/main/cli/forge/forge.sh,536,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
+src/main/cli/forge/forge.sh,591,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
+src/main/cli/forge/forge.sh,783,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/raise.py,5,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,7,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,11,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
@@ -880,7 +880,7 @@ src/main/cli/model/sync.json,5,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/sync.json,6,path_str,rsc/model,Y,"""rsc/model"""
 src/main/cli/parse_argv.py,27,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/pipeline/audit.json,14,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/pipeline/pipeline.json,41,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
+src/main/cli/pipeline/pipeline.json,39,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
 src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,29,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/pipeline/pipeline.sh,31,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -889,8 +889,8 @@ src/main/cli/pipeline/pipeline.sh,35,comment,src/main/cli/parse_argv.sh,Y,# shel
 src/main/cli/pipeline/pipeline.sh,37,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/pipeline/pipeline.sh,39,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/pipeline/pipeline.sh,50,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, issues/669)"
-src/main/cli/pipeline/pipeline.sh,374,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,417,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,371,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
+src/main/cli/pipeline/pipeline.sh,414,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.json,8,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/pipeline/rehearse.sh,16,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch, so"
 src/main/cli/pipeline/rehearse.sh,21,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
@@ -1008,7 +1008,9 @@ src/main/corpus.py,445,path_str,rsc/schema/pipeline,Y,SCHEMA_ROOT = 'rsc/schema/
 src/main/corpus.py,958,path_str,rsc/migration/815.sh,Y,"MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes"
 src/main/corpus.py,210,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
 src/main/corpus.py,538,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
-src/main/facts.py,331,comment,src/main/reply.py,Y,"following entries are written there, in the printer's lines, for src/main/reply.py."
+src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
+src/main/enact.sh,33,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
+src/main/facts.py,348,comment,src/main/reply.py,Y,"following entries are written there, in the printer's lines, for src/main/reply.py."
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,119,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'

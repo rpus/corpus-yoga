@@ -311,10 +311,27 @@ def terminal_width() -> int | None:
     return shutil.get_terminal_size().columns if sys.stdout.isatty() else None
 
 
+DEPTH = 'CORPUS_YOGA_NARRATION_DEPTH'   # the depth an inner verb's lines stand at: a step of another verb's record (issues/805)
+
+
+def depth() -> int:
+    """The depth the calling verb's lines stand at: 0 for the verb the reader typed, deeper
+    for a verb run as a step of another's, which sets it for the step."""
+    return int(os.environ.get(DEPTH) or 0)
+
+
+def narration(event) -> list[str]:
+    """One event of a record as the lines of one list item at the depth (issues/805): a command
+    with its outcome beneath - `- <command>:` then `did: done` or `did NOT: exit N` - a read
+    with its answer on the item line, or a phrase alone. A record is a list of events under
+    the step it belongs to, so that it loads as data and reads by its shape."""
+    return lines([event], depth())
+
+
 def say(shape: DataclassInstance) -> None:
-    """Print a status: its named shape, as YAML. A status is said once, whole, so that its
-    keys are the fields of one type."""
-    print('\n'.join(lines(plain(shape), width=terminal_width())))
+    """Print a status: its named shape, as YAML, at the depth. A status is said once, whole, so
+    that its keys are the fields of one type."""
+    print('\n'.join(lines(plain(shape), depth(), width=terminal_width())))
 
 
 ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every next: (issues/801)
@@ -384,4 +401,5 @@ def report(outcomes, effect: str, following=None) -> None:
     """Print what an act reports (issues/801, issues/896): report_lines, each a line."""
     said = report_lines(outcomes, effect, following)
     if said:
-        print('\n'.join(said), flush=True)
+        pad = ' ' * (depth() * STEP)
+        print('\n'.join(pad + line for line in said), flush=True)

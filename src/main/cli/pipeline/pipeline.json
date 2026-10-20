@@ -22,16 +22,14 @@
     "one row per stage - its FAIL count (every non-zero exit states an atom) and where it begins in the log; failing stages with their error and FAIL lines quoted; the outputs line; log path",
     "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)",
     "dev gate red - {reds} (the dev gate's own log names the checks)",
-    "each pipeline stage runs alone as corpus-yoga pipeline run <stage>; corpus is the reduce over all",
-    "line = where that stage begins in this log; each finding is stated there, in place",
     "all pipelines completed",
-    "failing stage(s)",
     "the failing step prints its error and the path of its own log above",
     "usr gate PASS; all pipelines completed",
     "serves data/output/markdown at http://localhost:8182",
     "usr gate FAIL; the failing stage(s) are named above",
     "{verb} is no verb it takes - run, rehearse, sync, audit (bare is the status)",
-    "tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record"
+    "tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record",
+    "failing stage(s) {names}"
   ],
   "explanation": {
     "chat-capture": "validates each claude API capture and projects it to markdown; a gemini DOM capture's markdown is the terminal artifact and is not validated",

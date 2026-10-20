@@ -1218,7 +1218,7 @@ def check_cli_surface(run) -> None:
     # the faces' own headers; the WORDS are held here.
     enact_faces = {REPO_ROOT / 'src' / 'main' / 'enact.sh',
                    REPO_ROOT / 'src' / 'main' / 'enact.py'}
-    relay_words = ('enact: ', 'query: ', 'quote: ', 'quiet: ', 'NOT done (exit ')
+    relay_words = ('did', 'done', 'did NOT', 'exit ')      # the outcome pairs beneath an act's item (issues/805)
     face_texts = {face: face.read_text() for face in enact_faces}
     unspoken = sorted(f'{face.name} lacks {word!r}'
                       for face, face_text in face_texts.items()
