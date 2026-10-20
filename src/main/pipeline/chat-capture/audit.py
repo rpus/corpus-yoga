@@ -66,9 +66,9 @@ class Claude:
 class Gemini:
     """The offline findings on gemini's DOM captures: each a FAIL under the conversation it names."""
     checked: int = facts.named('DOM captures checked against their projections')
-    corroboration: str = facts.sentence('none - no API capture exists, so nothing corroborates the record itself')
+    corroboration: str = facts.phrase('none - no API capture exists, so nothing corroborates the record itself')
     placeholders: int | None = facts.named('with "[no capture" placeholder text', default=None)
-    findings: dict[str, facts.Finding] | str = facts.sentence('nothing flagged')
+    findings: dict[str, facts.Finding] | str = facts.phrase('nothing flagged')
 
 
 @dataclass
@@ -125,8 +125,8 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             placeholder_convs += 1
     for cid, name in suspects:
         findings[f'{name} ({cid[:8]})'] = facts.Finding(
-            facts.sentence('shows exactly {ceiling} human turns - the gemini page renders only the last {ceiling}, so earlier turns are likely missing from this DOM capture', ceiling=RENDER_CEILING),
-            facts.Command(f'corpus-yoga browser capture --provider gemini --id {cid}', facts.sentence('walks the page, a couple of minutes')))
+            facts.phrase('shows exactly {ceiling} human turns - the gemini page renders only the last {ceiling}, so earlier turns are likely missing from this DOM capture', ceiling=RENDER_CEILING),
+            facts.Command(f'corpus-yoga browser capture --provider gemini --id {cid}', facts.phrase('walks the page, a couple of minutes')))
     # The capture against the rendering derived FROM it. gemini has no API, so nothing
     # else corroborates either one -- and `corpus-yoga pipeline run` rewrites the projection from
     # the capture every time, so a divergence means the two have already parted company.
@@ -140,19 +140,19 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             cid = conv_id(text) or d.name
             if cid not in projected_text:
                 findings[f'{mds[0].stem} ({cid[:8]})'] = facts.Finding(
-                    facts.sentence('captured but not projected'), facts.Command('corpus-yoga pipeline run', facts.sentence('its gemini step produces it')))
+                    facts.phrase('captured but not projected'), facts.Command('corpus-yoga pipeline run', facts.phrase('its gemini step produces it')))
                 suspects.append((cid, mds[0].stem))
                 continue
             cap, proj = turn_seq(text), turn_seq(projected_text[cid])
             if len(cap) != len(proj):
                 findings[f'{projected[cid]} ({cid[:8]})'] = facts.Finding(
-                    facts.sentence('capture holds {captured} turns, its projection {projected} - the projection is derived from the capture, so they cannot legitimately differ',
+                    facts.phrase('capture holds {captured} turns, its projection {projected} - the projection is derived from the capture, so they cannot legitimately differ',
                                    captured=len(cap), projected=len(proj)))
                 suspects.append((cid, projected[cid]))
             elif any(a != b for a, b in zip(cap, proj)):
                 first = next(i for i, (a, b) in enumerate(zip(cap, proj)) if a != b)
                 findings[f'{projected[cid]} ({cid[:8]})'] = facts.Finding(
-                    facts.sentence('capture and projection differ from turn {first} of {n} - the projection is derived from the capture, so they cannot legitimately differ',
+                    facts.phrase('capture and projection differ from turn {first} of {n} - the projection is derived from the capture, so they cannot legitimately differ',
                                    first=first + 1, n=len(cap)))
                 suspects.append((cid, projected[cid]))
         unprojected = sorted(set(projected_text) -
@@ -161,11 +161,11 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
                               if d.is_dir() and list(d.glob('*.md'))})
         for cid in unprojected:
             findings[f'{projected[cid]} ({cid[:8]})'] = facts.Finding(
-                facts.sentence('projected but no capture remains - the rendering has outlived the record it was derived from'))
+                facts.phrase('projected but no capture remains - the rendering has outlived the record it was derived from'))
             suspects.append((cid, projected[cid]))
 
     checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
-    return (Gemini(checked, placeholders=placeholder_convs or None, findings=findings or facts.sentence('nothing flagged')),
+    return (Gemini(checked, placeholders=placeholder_convs or None, findings=findings or facts.phrase('nothing flagged')),
             [f'{n} ({c[:8]})' for c, n in suspects])
 
 
@@ -200,7 +200,7 @@ GEMINI_TAIL_JS = """(function(){
 def moved(provider: str, findings: list[tuple[str, str, str]]) -> dict[str, Moved] | str:
     """Each live finding under the conversation it names, with the command that acts on it -
     never a bare id in a list that has left its provider behind."""
-    return {cid: Moved(facts.sentence('{kind} - {detail}', kind=kind, detail=detail), facts.Command(f'corpus-yoga browser capture --provider {provider} --id {cid}', facts.sentence('recaptures it')))
+    return {cid: Moved(facts.phrase('{kind} - {detail}', kind=kind, detail=detail), facts.Command(f'corpus-yoga browser capture --provider {provider} --id {cid}', facts.phrase('recaptures it')))
             for kind, cid, detail in findings} or 'none'
 
 
@@ -217,7 +217,7 @@ def live_claude(captures_dir: Path) -> tuple[Live | str, list[str]]:
             break
         time.sleep(0.5)
     if not raw or raw.startswith('ERROR'):
-        return facts.sentence('listing fetch failed ({why})', why=raw or 'timeout'), []
+        return facts.phrase('listing fetch failed ({why})', why=raw or 'timeout'), []
     listing = dict(json.loads(raw))
 
     captured = {}
@@ -229,9 +229,9 @@ def live_claude(captures_dir: Path) -> tuple[Live | str, list[str]]:
     found = []
     for uuid, updated in sorted(listing.items()):
         if uuid not in captured:
-            found.append(('NEW', uuid, facts.sentence('never captured')))
+            found.append(('NEW', uuid, facts.phrase('never captured')))
         elif updated > captured[uuid]:
-            found.append(('PROGRESSED', uuid, facts.sentence('captured {captured} < updated {updated}', captured=captured[uuid], updated=updated)))
+            found.append(('PROGRESSED', uuid, facts.phrase('captured {captured} < updated {updated}', captured=captured[uuid], updated=updated)))
     unlisted = sorted(set(captured) - set(listing))
     return (Live(len(listing), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
                  len(unlisted), findings=moved('claude', found)),
@@ -271,7 +271,7 @@ def live_gemini(captures_dir: Path) -> tuple[Live | str, list[str]]:
         checked += 1
         page = _alnum(safari_eval_js(GEMINI_TAIL_JS))
         if not any(p in page for p in probes):
-            found.append(('PROGRESSED', cid, facts.sentence('"{name}" - rendered tail no longer matches the captured last turns', name=mds[0].stem)))
+            found.append(('PROGRESSED', cid, facts.phrase('"{name}" - rendered tail no longer matches the captured last turns', name=mds[0].stem)))
     unlisted = sorted(set(captured_dirs) - set(ids))
     return (Live(len(ids), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
                  len(unlisted), tail_checked=checked, findings=moved('gemini', found)),
@@ -320,7 +320,7 @@ def audit(root: Path, api: Path, provider: str | None = None, live: bool = False
     if want('claude'):
         # the absence is the report: with DOM retired there is no second render to
         # reconcile the record against, and schema validation already ran per capture
-        out.claude = Claude(facts.sentence('none - the API capture is the record (DOM retired)'), facts.sentence('--live compares it against the account'))
+        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'), facts.phrase('--live compares it against the account'))
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
@@ -329,7 +329,7 @@ def audit(root: Path, api: Path, provider: str | None = None, live: bool = False
         out.gemini, suspects = audit_gemini(gemini_dom, corpus_root / 'gemini' / 'chat' / 'conversations')
     elif want('gemini'):
         shown = gemini_dom.relative_to(REPO) if gemini_dom.is_relative_to(REPO) else gemini_dom
-        out.gemini = facts.sentence('skipped - {path} absent', path=shown)
+        out.gemini = facts.phrase('skipped - {path} absent', path=shown)
 
     actionable: list[str] = []
     if live:

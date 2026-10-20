@@ -1,6 +1,6 @@
 {
   "summary": "the parsers generated from the house grammars under rsc/rpus/grammar into src/gen/grammar, machine-local (bare says whether each is generated and current with its grammar)",
-  "wording": [
+  "phrase": [
     "antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt",
     "no - {generated} is absent; the mcp extraction and corpus-yoga test run's mcp checks need it",
     "generates it from {source}, antlr4 from the venv and java from the machine",

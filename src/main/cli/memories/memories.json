@@ -1,6 +1,6 @@
 {
   "summary": "Deposit every distinct chat-memory state; render the timeline",
-  "wording": [
+  "phrase": [
     "duplicate of {name} - dropped",
     "{a} and {b} differ - both left in place",
     "{file} ({vintage}) renamed to {dest}",

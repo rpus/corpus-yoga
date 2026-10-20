@@ -174,7 +174,7 @@ def status() -> int:
         table = rows(project)
         if not may_send():
             out[name] = Project(lineages_held=held, pinned_files=len(table),
-                                currency=facts.sentence('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe'))
+                                currency=facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe'))
             continue
         items, lines = _reading(project)
         listing = declaration(project).get('lineage_listing')
@@ -182,10 +182,10 @@ def status() -> int:
         item = Project(lineages_upstream=len(upstream), lineages_held=held,
                        files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
         if lines:
-            item.to_fetch, item.remedy = lines, facts.Command('corpus-yoga reference sync', facts.sentence('fetches them'))
+            item.to_fetch, item.remedy = lines, facts.Command('corpus-yoga reference sync', facts.phrase('fetches them'))
         out[name] = item
         stale += len(lines)
-    facts.say(Status(out, facts.sentence('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))
+    facts.say(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))
     return 1 if stale else 0
 
 
@@ -207,13 +207,13 @@ def sync() -> int:
             table[(item['lineage'], item['file'])] = {'lineage': item['lineage'], 'file': item['file'],
                                                       'url': item['url'], 'pin': pin, 'sha256': item['sha256']}
             minted.add((item['lineage'], pin))
-            print(f'  ✓ {path.relative_to(REPO)} (' + facts.sentence('{state}, {bytes} bytes, pin {pin}', state=item['state'], bytes=f'{len(item["bytes"]):,}', pin=pin) + ')')
+            print(f'  ✓ {path.relative_to(REPO)} (' + facts.phrase('{state}, {bytes} bytes, pin {pin}', state=item['state'], bytes=f'{len(item["bytes"]):,}', pin=pin) + ')')
         write_rows(project, list(table.values()))
         print(f'  ✓ {(project / "provenance.csv").relative_to(REPO)}')
         for lineage, pin in sorted(minted):
-            print('  ' + facts.sentence('write the section {pin} in {changelog} (the dev gate holds reference.lineage_changelog)',
+            print('  ' + facts.phrase('write the section {pin} in {changelog} (the dev gate holds reference.lineage_changelog)',
                                         pin=pin, changelog=(project / lineage / 'CHANGELOG.md').relative_to(REPO)))
-    facts.report(None, 'reference sync: DONE - ' + facts.sentence('each project holds what upstream publishes at its pin'))
+    facts.report(None, 'reference sync: DONE - ' + facts.phrase('each project holds what upstream publishes at its pin'))
     return 0
 
 

@@ -66,7 +66,7 @@ REPORT = 'status'                              # the machine report: the first n
 REPORT_SCRIPT = './src/main/cli/status/status.sh'
 FIRST = (REPORT, 'stage', 'store')                    # the room's state, in the order a reader meets it
 TOP = 'corpus-yoga'                                   # the key of the top, the one spot with no pointer token
-KEYS = facts.sentence('n next, m members, v value, b back, x run, q quit')
+KEYS = facts.phrase('n next, m members, v value, b back, x run, q quit')
 UNREAD = object()                                     # a noun whose status the walk has not yet read
 FAILED, REFUSED, GONE = 1, 2, 3                       # the walk's exits where it did not go as asked
 
@@ -101,14 +101,14 @@ class Unreadable:
 def status(noun: str):
     """A noun's facts: what its bare status prints, loaded - or why it cannot be read."""
     if not venv() and noun != REPORT:
-        return Unreadable(facts.sentence('the venv is not minted, so corpus-yoga {noun} cannot be asked - /{report}/status says how to mint it', noun=noun, report=REPORT))
+        return Unreadable(facts.phrase('the venv is not minted, so corpus-yoga {noun} cannot be asked - /{report}/status says how to mint it', noun=noun, report=REPORT))
     command = [str(REPO / 'corpus-yoga'), noun] if venv() else [REPORT_SCRIPT]
     asked = subprocess.run(command, capture_output=True, text=True, cwd=REPO)
     try:
         loaded = facts.load(asked.stdout)
     except ValueError as error:
-        return Unreadable(facts.sentence('what corpus-yoga {noun} printed does not load - {error}', noun=noun, error=error))
-    return loaded if loaded else Unreadable(facts.sentence('corpus-yoga {noun} said nothing (exit {exit})', noun=noun, exit=asked.returncode))
+        return Unreadable(facts.phrase('what corpus-yoga {noun} printed does not load - {error}', noun=noun, error=error))
+    return loaded if loaded else Unreadable(facts.phrase('corpus-yoga {noun} said nothing (exit {exit})', noun=noun, exit=asked.returncode))
 
 
 def pointer_of(tokens: list[str]) -> str:
@@ -175,8 +175,8 @@ class Left:
 
     def facts(self) -> dict:
         if not self.at:                               # the top: the walk started bare stands there
-            return {'walkthrough': facts.sentence('left at the top'), 'corpus-yoga walkthrough': facts.sentence('continues from there')}
-        return {'walkthrough': facts.sentence('left at {at}', at=self.at), f'corpus-yoga walkthrough {shlex.quote(self.at)}': facts.sentence('continues from there')}
+            return {'walkthrough': facts.phrase('left at the top'), 'corpus-yoga walkthrough': facts.phrase('continues from there')}
+        return {'walkthrough': facts.phrase('left at {at}', at=self.at), f'corpus-yoga walkthrough {shlex.quote(self.at)}': facts.phrase('continues from there')}
 
 
 @dataclass
@@ -230,8 +230,8 @@ class Walk:
             else:
                 break
         self.path = path
-        return None if len(path) == len(tokens) else facts.sentence('no spot stands at {pointer} - the longest part of it that stands is {stands}',
-                                                                   pointer=pointer, stands=self.address() or facts.sentence('the top'))
+        return None if len(path) == len(tokens) else facts.phrase('no spot stands at {pointer} - the longest part of it that stands is {stands}',
+                                                                   pointer=pointer, stands=self.address() or facts.phrase('the top'))
 
     def siblings(self) -> list[str]:
         if not self.path:
@@ -257,33 +257,33 @@ class Walk:
         """Take one key; the note where it moved nothing."""
         if key == 'n':
             if not self.path:
-                return facts.sentence('the top has no next - m goes into its members')
+                return facts.phrase('the top has no next - m goes into its members')
             around = self.siblings()
             place = around.index(self.path[-1])
             if place + 1 == len(around):
-                return facts.sentence('this is the last here - b goes back')
+                return facts.phrase('this is the last here - b goes back')
             self.history.append((list(self.path), self.shown))
             self.path[-1], self.shown = around[place + 1], False
         elif key == 'm':
             beneath = self.children()
             if not beneath:
-                return facts.sentence('no members here - v shows the value') if self.leaf() and not self.shown else facts.sentence('no members here - n goes on, b goes back')
+                return facts.phrase('no members here - v shows the value') if self.leaf() and not self.shown else facts.phrase('no members here - n goes on, b goes back')
             self.history.append((list(self.path), self.shown))
             self.path.append(beneath[0])
             self.shown = False
         elif key == 'v':
             if not self.leaf():
-                return facts.sentence('no value here - m goes into its members') if self.children() else facts.sentence('no value here - n goes on, b goes back')
+                return facts.phrase('no value here - m goes into its members') if self.children() else facts.phrase('no value here - n goes on, b goes back')
             if self.shown:
-                return facts.sentence('the value is shown - n goes on, b goes back')
+                return facts.phrase('the value is shown - n goes on, b goes back')
             self.history.append((list(self.path), self.shown))
             self.shown = True
         elif key == 'b':
             if not self.history:
-                return facts.sentence('the walk began here')
+                return facts.phrase('the walk began here')
             self.path, self.shown = self.history.pop()
         else:
-            return facts.sentence('{key} is no key - {keys}', key=repr(key), keys=KEYS)
+            return facts.phrase('{key} is no key - {keys}', key=repr(key), keys=KEYS)
         return None
 
     def step(self, note: str | None = None, keys: bool = False) -> Step:
@@ -294,25 +294,25 @@ class Walk:
         if isinstance(here, Unreadable):
             fail, self.failed = here.why, True
         elif isinstance(here, dict):
-            members = facts.sentence('{n} key' if len(here) == 1 else '{n} keys', n=len(here))
+            members = facts.phrase('{n} key' if len(here) == 1 else '{n} keys', n=len(here))
         elif isinstance(here, list):
-            members = facts.sentence('{n} value' if len(here) == 1 else '{n} values', n=len(here))
+            members = facts.phrase('{n} value' if len(here) == 1 else '{n} values', n=len(here))
         elif self.leaf():
             words = len(str(here).split())
-            value = here if self.shown else facts.sentence('{n} word' if words == 1 else '{n} words', n=words)
+            value = here if self.shown else facts.phrase('{n} word' if words == 1 else '{n} words', n=words)
         place = around.index(key) if self.path else 0
         command = command_of(key) if self.path else None
         return Step(self.address(), key, members=members, value=value, FAIL=fail,
                     following=around[place + 1] if place + 1 < len(around) else None,
-                    runs=facts.sentence('x - {command}', command=' '.join(key.split())) if command else None,
+                    runs=facts.phrase('x - {command}', command=' '.join(key.split())) if command else None,
                     note=note, keys=KEYS if keys else None)
 
     def run(self) -> Ran | str:
         """Run the command the walk stands on, in the foreground, then forget what was read."""
         command = command_of(self.path[-1]) if self.path else None
         if command is None:
-            return facts.sentence('no command stands here - x runs a key that is a corpus-yoga command') + (
-                '; ' + facts.sentence("this one holds a placeholder, and is the reader's to type") if self.path and '<' in self.path[-1] else '')
+            return facts.phrase('no command stands here - x runs a key that is a corpus-yoga command') + (
+                '; ' + facts.phrase("this one holds a placeholder, and is the reader's to type") if self.path and '<' in self.path[-1] else '')
         sys.stdout.flush()
         done = subprocess.run(command, cwd=REPO)
         self.tree = room()

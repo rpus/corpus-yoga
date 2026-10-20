@@ -77,18 +77,18 @@ def entries() -> list[cleaner.Entry]:
         if own is not None and own.exists():
             paths.append(own)
         out.append(cleaner.Entry('duplicate', unit.address.as_posix(),
-                                 {'duplicate': facts.sentence('identical to {holder}' if how == 'identical' else 'contained by {holder}', holder=holder.address.as_posix()), 'by': by,
+                                 {'duplicate': facts.phrase('identical to {holder}' if how == 'identical' else 'contained by {holder}', holder=holder.address.as_posix()), 'by': by,
                                   'size': corpus.human(sum(corpus.size_of(p) for p in paths)),
                                   'goes': [p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p) for p in paths]},
                                  lambda paths=paths: _dispose_all(paths), corpus.kind_of(unit)))
     for d in corpus.orphaned_shadows():
         shadow = d.relative_to(REPO).as_posix()
         out.append(cleaner.Entry('orphaned shadow', shadow,
-                                 {'orphaned shadow': facts.sentence('the store holds no unit it derives from'), 'size': corpus.human(corpus.size_of(d))},
+                                 {'orphaned shadow': facts.phrase('the store holds no unit it derives from'), 'size': corpus.human(corpus.size_of(d))},
                                  lambda d=d: _dispose_all([d]), '/'.join(shadow.split('/')[:3])))
     for unit, rel in corpus.surplus(corpus.STORE):
         out.append(cleaner.Entry('surplus file', rel.as_posix(),
-                                 {'surplus file': facts.sentence('its measure does not read it, and no capture wrote it'), 'beside': f'{unit.path.name}.json',
+                                 {'surplus file': facts.phrase('its measure does not read it, and no capture wrote it'), 'beside': f'{unit.path.name}.json',
                                   'size': corpus.human(corpus.size_of(corpus.STORE / rel))},
                                  lambda rel=rel: _dispose_all([corpus.STORE / rel]), corpus.kind_of(unit)))
     return out
@@ -105,13 +105,13 @@ def status_facts() -> corpus.StoreStatus:
     store, the live stores against both tiers, and what to run next."""
     out, held, twice = corpus.store_facts(*live.live_addresses())
     rows = corpus.survey()
-    out.staged = corpus.promotion_facts(rows) if rows else facts.sentence('none staged')
+    out.staged = corpus.promotion_facts(rows) if rows else facts.phrase('none staged')
     out.would_lose = corpus.relation_would_lose(rows) or None
     ahead, absent = live.ahead()
     items, found, level = live.ahead_facts(ahead, absent)
-    out.live = items if items else (facts.sentence('no live store is mounted in this workspace') if not ahead
-                                    else facts.sentence('nothing beyond the tiers - {level} live unit(s) level with the copies', level=level))
-    out.next = store_next(rows, ahead) or facts.sentence('none - nothing to do')
+    out.live = items if items else (facts.phrase('no live store is mounted in this workspace') if not ahead
+                                    else facts.phrase('nothing beyond the tiers - {level} live unit(s) level with the copies', level=level))
+    out.next = store_next(rows, ahead) or facts.phrase('none - nothing to do')
     return out
 
 

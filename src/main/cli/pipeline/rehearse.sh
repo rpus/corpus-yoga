@@ -47,7 +47,7 @@ main() {
   rm -rf "$TMP_STAGE_SCRATCH"
   mkdir -p "$TMP_STAGE/input" "$TMP_STAGE_SCRATCH/data/output" "$TMP_STAGE_SCRATCH/tmp"
   ln -s ../../input "$TMP_STAGE_SCRATCH/data/input"   # tmp/stage/scratch/data/input -> tmp/stage/input
-  echo "rehearse: $(sentence "tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record" stamp="$stamp")"
+  echo "rehearse: $(phrase "tmp/stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data and tmp under that directory, its input tmp/stage/input); then tmp/stage/rehearsal.json, the record" stamp="$stamp")"
   echo
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || return 1
   local status=0

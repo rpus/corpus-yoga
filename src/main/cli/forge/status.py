@@ -88,7 +88,7 @@ def main() -> int:
         does = cells[5] if len(cells) > 5 else ''
         remedy = None if not said else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said)
         if section == 'settings' and state == 'drift':
-            remedy = facts.Command('corpus-yoga forge sync', facts.sentence('would set it as declared'))   # the act; the status is its dry run (issues/881)
+            remedy = facts.Command('corpus-yoga forge sync', facts.phrase('would set it as declared'))   # the act; the status is its dry run (issues/881)
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
@@ -112,12 +112,12 @@ def main() -> int:
         Section(branches) if branches else None,
         Section(refs) if refs else None,
         Section(checkout) if checkout else None,
-        forge=facts.sentence('refuse-class drift - corpus-yoga forge merge refuses while it stands') if refused
-        else facts.sentence('ready - no refuse-class drift'))
+        forge=facts.phrase('refuse-class drift - corpus-yoga forge merge refuses while it stands') if refused
+        else facts.phrase('ready - no refuse-class drift'))
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')
         out.staged = report.staged
-    out.next = following or facts.sentence('none - nothing to do')
+    out.next = following or facts.phrase('none - nothing to do')
     facts.say(out)
     return 1 if refused else 0
 

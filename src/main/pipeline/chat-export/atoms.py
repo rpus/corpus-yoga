@@ -161,7 +161,7 @@ def words(a: dict, b, unit) -> str:
     parts = []
     for name, pairs in a.items():
         missing = len(pairs - (b or {}).get(name, frozenset()))
-        parts.append((facts.sentence('{name} {n} ({missing} not in the other)', name=name, n=len(pairs), missing=missing) if missing
-                      else facts.sentence('{name} {n}', name=name, n=len(pairs))) if pairs
-                     else facts.sentence('{name} none beyond the deposits', name=name))
+        parts.append((facts.phrase('{name} {n} ({missing} not in the other)', name=name, n=len(pairs), missing=missing) if missing
+                      else facts.phrase('{name} {n}', name=name, n=len(pairs))) if pairs
+                     else facts.phrase('{name} none beyond the deposits', name=name))
     return ', '.join(parts)

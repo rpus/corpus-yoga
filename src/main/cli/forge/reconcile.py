@@ -34,7 +34,7 @@ def main() -> None:
             print('OK', key, want, '', sep='\t')
         else:
             flag = '-F' if want in ('true', 'false') else '-f'
-            print('DRIFT', key, facts.sentence('declared {want}, live {got}', want=want, got=got),
+            print('DRIFT', key, facts.phrase('declared {want}, live {got}', want=want, got=got),
                   'gh api -X PATCH repos/' + slug + ' ' + flag + ' ' + key + '=' + want,
                   sep='\t')
 

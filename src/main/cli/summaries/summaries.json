@@ -1,6 +1,6 @@
 {
   "summary": "Deposit every distinct summary reading; render each conversation's index",
-  "wording": [
+  "phrase": [
     "{n} twin deposit(s) in the summaries store - byte-identical to their nearest earlier sibling, which the deposit rule never writes",
     "investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its one-shot repair retired, and nothing in the current machinery can mint a twin",
     "skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run chat-capture makes",

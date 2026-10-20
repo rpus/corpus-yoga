@@ -1,6 +1,6 @@
 {
   "summary": "code-agent sessions of every served provider - the census, the live mounts, and transport between machines",
-  "wording": [
+  "phrase": [
     "absent - no local {provider} rows",
     "would undo it",
     "none - the claude store is not mounted",

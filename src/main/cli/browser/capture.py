@@ -131,7 +131,7 @@ def footer(interrupted=False):
     dt = time.time() - RUN['t0'] if RUN['t0'] else 0
     verdict = 'INTERRUPTED (ctrl-C)' if interrupted else 'done'
     at = f' at {RUN["at"]}' if interrupted and RUN['at'] else ''
-    emit(f'--- {verdict}{at} - ' + facts.sentence('captured {done} of {total}, {failed} failed, in {seconds}s',
+    emit(f'--- {verdict}{at} - ' + facts.phrase('captured {done} of {total}, {failed} failed, in {seconds}s',
                                                  done=RUN['done'], total=RUN['total'], failed=len(RUN['failed']), seconds=f'{dt:.0f}') + ' ---')
     for cid, why in RUN['failed']:
         emit(f'    {cid}: {why}')
@@ -206,7 +206,7 @@ def write_ordering(cfg, ids, dom_root):
            if RUN['log'] else '# Captured by capture.py (no progress file named).\n')
     )
     out.write_text(header + '\n'.join(reversed(ids)) + '\n')
-    print('ordering: ' + facts.sentence('{n} conversation(s) written to {path}', n=len(ids), path=rel(out)))
+    print('ordering: ' + facts.phrase('{n} conversation(s) written to {path}', n=len(ids), path=rel(out)))
 
 
 def outcome(do_api, do_scrape, files, had_md):
@@ -216,11 +216,11 @@ def outcome(do_api, do_scrape, files, had_md):
     has_json = any(f.endswith('.json') for f in files)
     has_md = any(f.endswith('.md') for f in files)
     if do_api and not has_json:
-        return facts.sentence('apiConversation JSON fetch failed - the FAIL line above carries the remedy'), None
+        return facts.phrase('apiConversation JSON fetch failed - the FAIL line above carries the remedy'), None
     if do_scrape and not has_md:
-        why = facts.sentence('no markdown - the in-browser scrape log is in the progress file, tmp/logs/browser/capture/<stamp>.<provider>.progress')
+        why = facts.phrase('no markdown - the in-browser scrape log is in the progress file, tmp/logs/browser/capture/<stamp>.<provider>.progress')
         if had_md:
-            why += ' (' + facts.sentence('previous .md retained, now STALE') + ')'
+            why += ' (' + facts.phrase('previous .md retained, now STALE') + ')'
         return (None, why) if do_api else (why, None)
     return None, None
 
@@ -285,18 +285,18 @@ def scrape_one(out_dir, js_script, evidence_dir):
     done. Returns the collected md filenames, or None if the scrape produced no markdown."""
     start = time.time()
     safari_run_js_file(js_script)
-    print('  ' + facts.sentence('scrape injected, watching'))
+    print('  ' + facts.phrase('scrape injected, watching'))
     last_n, last_change = -1, time.time()
     while True:
         st = scrape_state()
         now = time.time()
         if st is None:
             if now - start > SCRAPE_START_TIMEOUT:
-                print('  ' + facts.sentence('scrape never started (page wedged?) - skipping'))
+                print('  ' + facts.phrase('scrape never started (page wedged?) - skipping'))
                 return None
         elif st.get('done'):
             if st.get('error'):
-                print('  ' + facts.sentence('scrape failed - {error}', error=st['error']))
+                print('  ' + facts.phrase('scrape failed - {error}', error=st['error']))
             break
         else:
             # progress is a heartbeat that ticks every scroll step: on virtualized pages the
@@ -305,7 +305,7 @@ def scrape_one(out_dir, js_script, evidence_dir):
             if n != last_n:
                 last_n, last_change = n, now
             elif now - last_change > SCRAPE_STALL_TIMEOUT:
-                print('  ' + facts.sentence('scrape stalled at {n} message(s) - skipping', n=st.get('captured', 0)))
+                print('  ' + facts.phrase('scrape stalled at {n} message(s) - skipping', n=st.get('captured', 0)))
                 return None
         time.sleep(0.5)
     time.sleep(SETTLE_PAUSE)   # let the .md/.log downloads land
@@ -314,20 +314,20 @@ def scrape_one(out_dir, js_script, evidence_dir):
 
 def ids_from_safari(provider, cfg):
     safari_focus()
-    print(facts.sentence('navigating to {url}', url=cfg['discover_url']))
+    print(facts.phrase('navigating to {url}', url=cfg['discover_url']))
     safari_navigate(cfg['discover_url'])
     time.sleep(PAGE_LOAD_WAIT)
     # The landing check, EARLY and confident (issues/423): the landed URL settles
     # login before any doomed scrolling — a redirect is evidence, not a detail.
     landed = safari_eval_js('String(location.href)') or '(URL unreadable)'
     if 'login' in landed:
-        emit('FAIL: ' + facts.sentence('Safari is logged out of {provider} (landed on {landed}) - log in and re-run corpus-yoga browser capture --provider {provider}',
+        emit('FAIL: ' + facts.phrase('Safari is logged out of {provider} (landed on {landed}) - log in and re-run corpus-yoga browser capture --provider {provider}',
                                        provider=provider, landed=landed))
         raise SystemExit(1)
     if not landed.startswith(cfg['discover_url']):
-        emit('note: ' + facts.sentence('navigation to {url} landed on {landed} - proceeding, but a moved listing page truncates discovery (issues/424)',
+        emit('note: ' + facts.phrase('navigation to {url} landed on {landed} - proceeding, but a moved listing page truncates discovery (issues/424)',
                                        url=cfg['discover_url'], landed=landed))
-    print(facts.sentence('loading all conversations'))
+    print(facts.phrase('loading all conversations'))
     sel = cfg['link_sel']
     prev = stable = 0
     for _ in range(MAX_SCROLLS):
@@ -363,17 +363,17 @@ def ids_from_safari(provider, cfg):
             break
         prev = count
     else:
-        print('  ' + facts.sentence('hit MAX_SCROLLS ({n}) - list may be longer than discovered', n=MAX_SCROLLS), file=sys.stderr)
-    print(facts.sentence('extracting conversation IDs'))
+        print('  ' + facts.phrase('hit MAX_SCROLLS ({n}) - list may be longer than discovered', n=MAX_SCROLLS), file=sys.stderr)
+    print(facts.phrase('extracting conversation IDs'))
     raw = safari_eval_js(discover_js(cfg))
     ids = [u for u in raw.splitlines() if u]
-    print(facts.sentence('found {n} conversations', n=len(ids)))
+    print(facts.phrase('found {n} conversations', n=len(ids)))
     if not ids:
         # Zero is a claim about the account, not a no-op (issues/411). Login was
         # settled at landing (issues/423), so the hedge here covers the genuinely
         # ambiguous residue: a page that looks right yet lists nothing.
         where = safari_eval_js('String(location.href)') or '(URL unreadable)'
-        emit('FAIL: ' + facts.sentence('found 0 conversations at {where} - cannot positively identify an empty {provider} listing. If the account has conversations, the listing page may have moved (issues/424)',
+        emit('FAIL: ' + facts.phrase('found 0 conversations at {where} - cannot positively identify an empty {provider} listing. If the account has conversations, the listing page may have moved (issues/424)',
                                        where=where, provider=provider))
         raise SystemExit(1)
     return ids
@@ -394,7 +394,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     label = 'capture'
     methods = '+'.join(m for m, on in (('API', do_api), ('DOM', do_scrape)) if on)
     if not ids:
-        emit(f'{label}: ' + facts.sentence('nothing to do'))
+        emit(f'{label}: ' + facts.phrase('nothing to do'))
         return []
     RUN['total'] += len(ids)
     # The bracket's extent (issues/418), from the discovery this run performed anyway —
@@ -402,13 +402,13 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     # every in-scope mechanism's dir exists for the id.
     roots = [r for r, on in ((api_root, do_api), (dom_root, do_scrape)) if on]
     new = [i for i in ids if not all((root / i).is_dir() for root in roots)]
-    emit('extent: ' + facts.sentence('{n} conversation(s) discovered - {new} never captured, {old} already captured (re-captured in place)',
+    emit('extent: ' + facts.phrase('{n} conversation(s) discovered - {new} never captured, {old} already captured (re-captured in place)',
                                      n=len(ids), new=len(new), old=len(ids) - len(new)))
     if dry_run:
-        emit('--dry-run: ' + facts.sentence('nothing captured, nothing written'))
+        emit('--dry-run: ' + facts.phrase('nothing captured, nothing written'))
         return []
     print(f'--- {label} started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
-    emit(facts.sentence('capturing {n} conversations ({methods})', n=len(ids), methods=methods))
+    emit(facts.phrase('capturing {n} conversations ({methods})', n=len(ids), methods=methods))
     safari_focus()
     failed = []
     for i, conv_id in enumerate(ids):
@@ -443,20 +443,20 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
             if navigate:
                 wait_for_url(conv_id)   # confirm the NEW conversation loaded, not a stale/transitioning page
                 if not wait_for_ready(cfg['ready_sel']):
-                    print('  ' + facts.sentence('not rendered after {seconds}s - waiting {more}s more', seconds=READY_TIMEOUT, more=READY_TIMEOUT * 4))
+                    print('  ' + facts.phrase('not rendered after {seconds}s - waiting {more}s more', seconds=READY_TIMEOUT, more=READY_TIMEOUT * 4))
                     if not wait_for_ready(cfg['ready_sel'], timeout=READY_TIMEOUT * 4):
                         # Name the page it is actually on. The scrape is about to fail and say
                         # "wrong page?" as one of three guesses; the URL settles which it is.
                         where = safari_eval_js('String(location.pathname)') or '(URL unreadable)'
-                        print('  ' + facts.sentence('still no {selector} after {seconds}s at {where} - scraping anyway',
+                        print('  ' + facts.phrase('still no {selector} after {seconds}s at {where} - scraping anyway',
                                                     selector=cfg['ready_sel'], seconds=READY_TIMEOUT * 5, where=where))
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
             files += scrape_one(dom_dir, js_script, evidence_dir) or []
         fatal, note = outcome(do_api, do_scrape, files, had_md)
         if note:
             print(f'  note: {note}', file=sys.stderr)
-        verdict = (facts.sentence('FAILED - {why}', why=fatal) if fatal
-                   else facts.sentence('done in {seconds}s - {files}', seconds=f'{time.time() - start:.0f}', files=', '.join(files) or '(no files)'))
+        verdict = (facts.phrase('FAILED - {why}', why=fatal) if fatal
+                   else facts.phrase('done in {seconds}s - {files}', seconds=f'{time.time() - start:.0f}', files=', '.join(files) or '(no files)'))
         emit(f'[{i+1}/{len(ids)}] {conv_id} - {verdict}')
         if fatal:
             failed.append((conv_id, fatal))
@@ -467,7 +467,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     if failed and len(ids) > 1:
         # the sweep's bulk remedy, beside the footer's per-item lines: fix the cause
         # the FAIL lines name, then re-sweep — named as the command a reader types
-        print('    corpus-yoga browser capture: ' + facts.sentence('re-sweeps after the cause the FAIL lines above name is fixed'), file=sys.stderr)
+        print('    corpus-yoga browser capture: ' + facts.phrase('re-sweeps after the cause the FAIL lines above name is fixed'), file=sys.stderr)
     return failed
 
 
@@ -529,7 +529,7 @@ def main():
     mechanisms = tuple(m for m in cfg['mechanisms']
                        if args.mechanism is None or m == args.mechanism)
     if not mechanisms:
-        print(facts.sentence('{provider} has no {mechanism} mechanism - it has {mechanisms}; nothing to capture',
+        print(facts.phrase('{provider} has no {mechanism} mechanism - it has {mechanisms}; nothing to capture',
                              provider=args.provider, mechanism=args.mechanism, mechanisms=', '.join(cfg['mechanisms'])), file=sys.stderr)
         raise SystemExit(1)
     RUN['t0'] = time.time()
@@ -537,7 +537,7 @@ def main():
     if 'DOM' in mechanisms:
         js_script = SCRIPT_DIR / args.provider / 'dom.js'
         if not js_script.exists():
-            print('error: ' + facts.sentence('{path} not found', path=js_script), file=sys.stderr)
+            print('error: ' + facts.phrase('{path} not found', path=js_script), file=sys.stderr)
             raise SystemExit(1)
 
     # one root per mechanism in scope; dirs appear only when captured into
