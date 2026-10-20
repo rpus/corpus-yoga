@@ -190,12 +190,12 @@ prep_call() {
 
 prep_pipeline() {
   local name="$1"; shift
-  section_open "prep: $name"
   local rc=0 op impl pair
   # The failure has to be caught on prep_call, not on `read`: a herestring always supplies
   # a newline, so `read` succeeds on empty input and would hand `step` two empty arguments.
-  pair="$(prep_call "$name")" || { atom "$(phrase "no prep step for {name}" name="$name")"; return 0; }
+  pair="$(prep_call "$name")" || { section_open "prep: $name" "$(phrase "no prep step for {name}" name="$name")"; return 0; }
   read -r op impl <<< "$pair"
+  section_open "prep: $name" "$op ${impl#"$REPO_ROOT/"}"
   ( step "$op" "$impl" "$@" ) 2>&1 | indented
   rc=${PIPESTATUS[0]}
   echo ""
@@ -204,7 +204,7 @@ prep_pipeline() {
 
 run_pipeline() {
   local name="$1"; shift
-  section_open "$name"
+  section_open "$name" "src/main/pipeline/$name/run.sh --input $(input_of "$name")"
   local rc=0
   "$REPO_ROOT/src/main/pipeline/$name/run.sh" --input "$@" 2>&1 | indented
   rc=${PIPESTATUS[0]}
@@ -235,17 +235,20 @@ run_pipeline_safe() {
 # and `── prep: <pipeline> ─…` names `prep: <pipeline>` - a prep is its own section
 # and its own row (issues/547: every non-zero exit states an atom, prep included).
 # shellcheck disable=SC2016  # awk field references, not shell expansions
-# A section of the log is a key with a literal block scalar, `<name>: |2` at the narration depth,
+# A section of the log is a key with a literal block scalar, `<name>: |` at the narration depth,
 # its lines indented beneath (issues/755): the log is one YAML document, and a section loads
-# as its text. SECTION_PAD is the depth's indent; the awk walks below read a section's name
+# as its text. Its first line says what the section runs, at the body's indent, so that the
+# body's indent is set by it and never by a step's own deeper first line. SECTION_PAD is the depth's indent; the awk walks below read a section's name
 # from its key line and close it at the next key at the depth.
 SECTION_PAD="$(printf '%*s' $(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} * 2 )) '')"
 # shellcheck disable=SC2016  # awk's own $0, not the shell's
 SECTION_NAME_FN='function at_depth() { return substr($0, 1, length(pad)) == pad && substr($0, length(pad) + 1, 1) != " " && substr($0, length(pad) + 1, 1) != "" }
-function opens_section() { return at_depth() && $0 ~ /: \|2$/ }
-function section_name(   n) { n = substr($0, length(pad) + 1, length($0) - length(pad) - 4); if (substr(n, 1, 1) == "\"") n = substr(n, 2, length(n) - 2); return n }'
-# |2 fixes the body's indentation at two beneath the key, whatever its first line's indent
-section_open() { echo "$(opening "$1") |2"; }
+function opens_section() { return at_depth() && $0 ~ /: \|$/ }
+function section_name(   n) { n = substr($0, length(pad) + 1, length($0) - length(pad) - 3); if (substr(n, 1, 1) == "\"") n = substr(n, 2, length(n) - 2); return n }'
+section_open() {  # <name> <what it runs>
+  echo "$(opening "$1") |"
+  atom "$2"
+}
 indented() { awk -v pad="$SECTION_PAD  " '{ print pad $0; fflush() }'; }
 atom() { echo "$SECTION_PAD  $1"; }
 
@@ -473,7 +476,7 @@ main() {
 
 
   # the tooling is a section like the stages (issues/755): its lines beneath its key
-  section_open tooling
+  section_open tooling "$(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh sync mints it); pip install src/requirements.txt" venv="$CORPUS_YOGA_VENV")"
   ( require_cmd jq "$(phrase "brew install jq installs it")"; require_venv; install_deps ) 2>&1 | indented
   local tooling_rc=${PIPESTATUS[0]}
   (( tooling_rc == 0 )) || exit "$tooling_rc"
@@ -492,7 +495,7 @@ main() {
   # then the product judgments over the corpus. Its section is counted by the
   # stage table like any other; a red commit gate is a failing stage, and the
   # run continues so the product half of the report still speaks.
-  section_open tests
+  section_open tests src/test/dev/run.sh
   local tests_rc=0
   if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
     atom "$(phrase "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)")"
@@ -529,7 +532,7 @@ main() {
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
   # --only run re-indexing the unchanged rest is silence, not distortion
-  section_open corpus
+  section_open corpus "$(phrase "then once, over the whole corpus")"
   ( run_corpus_tail ) 2>&1 | indented
   local corpus_rc=${PIPESTATUS[0]}
   if (( corpus_rc != 0 )) && ! section_has_fail corpus; then

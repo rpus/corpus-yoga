@@ -4055,7 +4055,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         if tier != current_tier[0]:
             current_tier[0] = tier
             print(f'\n# ════ {tier} tier {"═" * (66 - len(tier))}')   # a comment: the tier is a fold, not a section
-        print(f'\n{name}: |2')   # a section is a key with a literal block scalar, its lines two beneath (issues/755)
+        print(f'\n{name}: |')   # a section is a key with a literal block scalar, its lines beneath (issues/755)
         t0 = time.monotonic()
         sh = subject_hash(SUBJECTS[name]) if name in SUBJECTS else None
         entry = cache.get(name)
@@ -4339,7 +4339,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         for (section, ctype), members in order.items():
             if section != seen_section:
                 seen_section = section
-                out.write(f'\n{section}: |2\n')
+                out.write(f'\n{section}: |\n')
             failed = [i for i in members if not results[i][1]]
             mark = '✓' if not failed else '✗'
             n = len(members)
@@ -4416,7 +4416,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             anchor_source, anchor_prefix = out.getvalue(), ''
         banner_line: dict[str, int] = {}
         for line_number, text in enumerate(anchor_source.splitlines(), 1):
-            opened = re.match(r'^(\w+): \|2$', text)
+            opened = re.match(r'^(\w+): \|$', text)
             if opened:
                 banner_line[opened.group(1)] = line_number
         anchors = {stage: f'{anchor_prefix}{banner_line[stage]}' for stage in stage_rows}
