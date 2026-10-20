@@ -23,10 +23,7 @@ import facts  # noqa: E402
 
 REFUSING = {'settings': ('drift', 'unverified'), 'branches': ('unverified',), 'refs': ('unverified',),
             'checkout': ('wrong', 'unverified')}     # the states under which the merge refuses
-TYPED = ('corpus-yoga ', 'git ', 'gh ')              # how a remedy the reader types begins
-DOES = {('settings', 'drift'): 'sets it as declared',
-        ('settings', 'moved'): 'names the repository as the forge answers for it',
-        ('checkout', 'wrong'): 'puts it right'}      # what a row's remedy does, where the row gives the command alone
+TYPED = ('corpus-yoga ', 'git ', 'gh ', 'brew ')     # how a remedy the reader types begins; its does is the row's sixth cell
 
 
 @dataclass
@@ -66,8 +63,8 @@ class Status:
     refs: Section | None = facts.named('remote-tracking refs', default=None)
     checkout: Section | None = facts.named('this checkout', default=None)
     staged: dict[str, corpus.Staged] | None = None
+    forge: str = ''               # the merge's gate, a fact of the room; a status ends on next: (#740)
     next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (#871)
-    forge: str = ''               # the verdict
 
 
 def _test_status():
@@ -88,10 +85,10 @@ def main() -> int:
         if len(cells) < 4 or not cells[1]:
             continue
         section, state, said = cells[0], cells[1].lower(), cells[4] if len(cells) > 4 else ''
-        remedy = None if not said else facts.Command(said, DOES.get((section, state), 'then it is deletable')) \
-            if said.startswith(TYPED) else facts.Act(said)
+        does = cells[5] if len(cells) > 5 else ''
+        remedy = None if not said else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said)
         if section == 'settings' and state == 'drift':
-            remedy = facts.Command('corpus-yoga forge sync', 'would set it as declared')   # the act; the status is its dry run (#881)
+            remedy = facts.Command('corpus-yoga forge sync', facts.sentence('would set it as declared'))   # the act; the status is its dry run (#881)
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
@@ -115,11 +112,12 @@ def main() -> int:
         Section(branches) if branches else None,
         Section(refs) if refs else None,
         Section(checkout) if checkout else None,
-        forge='refuse-class drift - corpus-yoga forge merge refuses while it stands' if refused else 'ready - no refuse-class drift')
+        forge=facts.sentence('refuse-class drift - corpus-yoga forge merge refuses while it stands') if refused
+        else facts.sentence('ready - no refuse-class drift'))
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')
         out.staged = report.staged
-    out.next = following or 'none - nothing to do'
+    out.next = following or facts.sentence('none - nothing to do')
     facts.say(out)
     return 1 if refused else 0
 

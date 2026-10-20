@@ -1,5 +1,26 @@
 {
   "summary": "the checks over this repo, and the hook that runs them",
+  "wording": [
+    "{n} check sections",
+    "no - not a git clone, so no hook to install",
+    "as a symlink to {target} - a rename dangles it and git then skips it in silence",
+    "yes - a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run",
+    "no - another pre-commit hook stands in its place",
+    "no - nothing vets a commit",
+    "yes - the symlink to rsc/test/prepare-commit-msg-hook.sh",
+    "no - its symlink points elsewhere ({link})",
+    "no - another prepare-commit-msg hook stands in its place",
+    "no - a commit goes unstamped by its Signature",
+    "reinstalls it",
+    "replaces it",
+    "installs it",
+    "not a git checkout",
+    "the pre-commit hook at {path} is a copy of rsc/test/pre-commit-hook.sh",
+    "the prepare-commit-msg hook at {path} is a symlink to {target}",
+    "every commit now runs corpus-yoga test run and is stamped with its Signature; deliberate WIP is git commit --no-verify",
+    "rsc/test/xref.csv rewritten; its summary line stands above",
+    "the cross-reference table was not rewritten; the lines above name why"
+  ],
   "target": "src/main/cli/test/test.sh",
   "calculus": "validate L2",
   "args": []

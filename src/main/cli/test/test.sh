@@ -41,7 +41,7 @@ source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its
 install_hook() {
   local git_dir
   git_dir="$(git -C "$REPO_DIR" rev-parse --git-path hooks)" || {
-    echo "corpus-yoga test install-hook: not a git checkout" >&2; exit 1; }
+    echo "corpus-yoga test install-hook: $(sentence "not a git checkout")" >&2; exit 1; }
   mkdir -p "$git_dir"
 
   # UNLINK first: every clone installed before this carries a symlink here, and `cp`
@@ -50,11 +50,11 @@ install_hook() {
   rm -f "$git_dir/pre-commit"
   cp "$REPO_DIR/rsc/test/pre-commit-hook.sh" "$git_dir/pre-commit"
   chmod +x "$git_dir/pre-commit"
-  echo "hook: $git_dir/pre-commit ← rsc/test/pre-commit-hook.sh"
+  echo "hook: $(sentence "the pre-commit hook at {path} is a copy of rsc/test/pre-commit-hook.sh" path="$git_dir/pre-commit")"
 
   ln -sfn "../../rsc/test/prepare-commit-msg-hook.sh" "$git_dir/prepare-commit-msg"
-  echo "hook: $git_dir/prepare-commit-msg → $(readlink "$git_dir/prepare-commit-msg")"
-  effect "test install-hook: DONE - every commit now runs corpus-yoga test run and is stamped with its Signature; deliberate WIP is git commit --no-verify"
+  echo "hook: $(sentence "the prepare-commit-msg hook at {path} is a symlink to {target}" path="$git_dir/prepare-commit-msg" target="$(readlink "$git_dir/prepare-commit-msg")")"
+  effect "test install-hook: DONE - $(sentence "every commit now runs corpus-yoga test run and is stamped with its Signature; deliberate WIP is git commit --no-verify")"
 }
 
 case "${1-}" in
@@ -63,9 +63,9 @@ case "${1-}" in
   xref)         shift; parse_argv test xref "$@"
                 # the test tier's python imports nothing of main's, so the act's tail is said here (#876)
                 if "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@"; then
-                  effect "test xref: DONE - rsc/test/xref.csv rewritten; its summary line stands above"
+                  effect "test xref: DONE - $(sentence "rsc/test/xref.csv rewritten; its summary line stands above")"
                 else
-                  effect "test xref: NOT DONE - the cross-reference table was not rewritten; the lines above name why"; exit 1
+                  effect "test xref: NOT DONE - $(sentence "the cross-reference table was not rewritten; the lines above name why")"; exit 1
                 fi ;;
   install-hook) shift; parse_argv test install-hook "$@"; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;

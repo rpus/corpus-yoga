@@ -62,16 +62,16 @@ status() {
       # The pages are the rpus.co publish layer - deploy-side, optional; the
       # quickstart teaches only the render. Prescribing sync here made every
       # pipeline run nag a verb the front door never taught.
-      printf 'pages\t%s\n' "absent - the rpus.co publish layer, optional; corpus-yoga site sync assembles them"
+      printf 'pages\t%s\n' "$(sentence "absent - the rpus.co publish layer, optional; corpus-yoga site sync assembles them")"
     else
       local f
       # the run syncs before this probe (#494): a stale tree here is rsc/site/ edited
       # outside a run
       while IFS= read -r f; do
         if [[ ! -f "$OUT/$f" ]]; then
-          printf 'page\t%s\t%s\n' "$f" "absent from the tree"
+          printf 'page\t%s\t%s\n' "$f" "$(sentence "absent from the tree")"
         elif ! cmp -s "$SRC/$f" "$OUT/$f"; then
-          printf 'page\t%s\t%s\n' "$f" "differs from rsc/site/$f"
+          printf 'page\t%s\t%s\n' "$f" "$(sentence "differs from rsc/site/{file}" file="$f")"
         fi
       done < <(page_files "$SRC")
     fi
@@ -85,17 +85,17 @@ status() {
       printf 'index\tABSENT\n'
     else
       declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$render" | head -1)"
-      printf 'index\t%s\n' "${declared:-title absent}"
+      printf 'index\t%s\n' "${declared:-$(sentence "title absent")}"
     fi
     if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
-      printf 'deploy\t%s\n' "the mount ext/mnt/site is present, rpus.co's clone"
+      printf 'deploy\t%s\n' "$(sentence "the mount ext/mnt/site is present, rpus.co's clone")"
       landing
     elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
       # a machine that once deployed and moved its clone — the reader most surprised by
       # "no mount", and the one who least needs the convention; say what status says
-      printf 'deploy\t%s\n' "ext/mnt/site is a dangling link to $(readlink "$REPO_DIR/ext/mnt/site") - repoint it at the site repo's clone, or remove it"
+      printf 'deploy\t%s\n' "$(sentence "ext/mnt/site is a dangling link to {target} - repoint it at the site repo's clone, or remove it" target="$(readlink "$REPO_DIR/ext/mnt/site")")"
     else
-      printf 'deploy\t%s\n' "no ext/mnt/site mount on this machine - optional; corpus-yoga status shows the convention"
+      printf 'deploy\t%s\n' "$(sentence "no ext/mnt/site mount on this machine - optional; corpus-yoga status shows the convention")"
     fi
   } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/site/status.py"
 }
@@ -114,7 +114,7 @@ landing() {
   while IFS= read -r f; do
     rel="${f#"$OUT"/}"
     if [[ ! -f "$mount/$rel" ]]; then
-      printf 'land\t%s\t%s\n' "$rel" "new on rpus.co"
+      printf 'land\t%s\t%s\n' "$rel" "$(sentence "new on rpus.co")"
     elif ! cmp -s "$f" "$mount/$rel"; then
       if [[ "$rel" == index.html ]]; then
         # one row per line of the comparison: each a fact of the page, which the status
@@ -123,11 +123,11 @@ landing() {
           [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
         done
       else
-        printf 'land\t%s\t%s\n' "$rel" "changed"
+        printf 'land\t%s\t%s\n' "$rel" "$(sentence "changed")"
       fi
     fi
   done < <(find "$OUT" -type f | sort)
-  [[ -n "$(git -C "$mount" status --porcelain)" ]] && printf 'land\t%s\t%s\n' "(the clone's own uncommitted changes)" "committed with the copy"
+  [[ -n "$(git -C "$mount" status --porcelain)" ]] && printf 'land\t%s\t%s\n' "(the clone's own uncommitted changes)" "$(sentence "committed with the copy")"
   return 0
 }
 
@@ -135,17 +135,17 @@ landing() {
 publish() {
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
-    effect "site publish: NOT DONE - ext/mnt/site is not a git clone; corpus-yoga status reports the mount"
+    effect "site publish: NOT DONE - $(sentence "ext/mnt/site is not a git clone; corpus-yoga status reports the mount")"
     return 1
   fi
   if [[ ! -d "$OUT" ]]; then
-    effect "site publish: NOT DONE - no publish tree at data/output/site/" "corpus-yoga site sync" "assembles it"
+    effect "site publish: NOT DONE - $(sentence "no publish tree at data/output/site/")" "corpus-yoga site sync" "$(sentence "assembles it")"
     return 1
   fi
   local rows
   rows="$(landing)"
   if [[ -z "$rows" ]]; then
-    effect "site publish: DONE - no effect; rpus.co's clone already holds the publish tree as assembled"
+    effect "site publish: DONE - $(sentence "no effect; rpus.co's clone already holds the publish tree as assembled")"
     return 0
   fi
   echo "did land:"
@@ -156,10 +156,10 @@ publish() {
   if [[ -n "$(git -C "$mount" status --porcelain)" ]]; then
     enact git -C "$mount" commit -m "publish" || return 1
   else
-    echo "  nothing to commit — the clone already held the tree"
+    echo "  $(sentence "nothing to commit - the clone already held the tree")"
   fi
   enact git -C "$mount" push || return 1
-  effect "site publish: DONE - rpus.co serves the publish tree on Netlify's next build"
+  effect "site publish: DONE - $(sentence "rpus.co serves the publish tree on Netlify's next build")"
 }
 
 
@@ -174,7 +174,7 @@ sync() {
     [[ -d "$d" ]] || continue
     name="$(basename "$d")"
     rm -rf "${OUT:?}/$name"
-    echo "site: pruned $name/ - the publish tree holds pages at its root, not directories"
+    echo "site: $(sentence "pruned {name}/ - the publish tree holds pages at its root, not directories" name="$name")"
     eventful=1
   done
   for f in "$OUT"/*.html; do
@@ -183,7 +183,7 @@ sync() {
     [[ "$name" == index.html ]] && continue
     if [[ ! -f "$SRC/$name" ]]; then
       rm -f "$f"
-      echo "site: pruned $name - its source left rsc/site/"
+      echo "site: $(sentence "pruned {name} - its source left rsc/site/" name="$name")"
       eventful=1
     fi
   done
@@ -191,13 +191,13 @@ sync() {
     # current already? byte-identical → silence (L1)
     [[ -f "$OUT/$f" ]] && cmp -s "$SRC/$f" "$OUT/$f" && continue
     cp "$SRC/$f" "$OUT/$f"
-    echo "site → $f"
+    echo "site: $(sentence "placed {file}" file="$f")"
     eventful=1
   done < <(page_files "$SRC")
   if [[ $eventful -eq 1 ]]; then
-    effect "site sync: DONE - effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
+    effect "site sync: DONE - $(sentence "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)")"
   else
-    effect "site sync: DONE - no effect; data/output/site/ already serves rsc/site/ as authored"
+    effect "site sync: DONE - $(sentence "no effect; data/output/site/ already serves rsc/site/ as authored")"
   fi
 }
 
