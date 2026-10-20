@@ -361,25 +361,26 @@ def _leq_equal(a, b) -> bool:
 
 def _words_bytes(staged, held, unit: Unit) -> str:
     names = ', '.join(sorted(staged))
-    return f'{sum(len(v) for v in (held or {}).values())} -> {sum(len(v) for v in staged.values())} bytes of {names}'
+    return facts.sentence('{held} -> {staged} bytes of {names}', held=sum(len(v) for v in (held or {}).values()),
+                          staged=sum(len(v) for v in staged.values()), names=names)
 
 
 def _words_count(noun: str) -> Callable:
-    return lambda staged, held, unit: f'{len(held or ())} -> {len(staged)} {noun}'
+    return lambda staged, held, unit: facts.sentence('{held} -> {staged} {noun}', held=len(held or ()), staged=len(staged), noun=noun)
 
 
 def _words_extent(staged, held, unit: Unit) -> str:
-    say = lambda m: f'{m[0]} human turns of {m[1]}'
-    return f'{say(held) if held else "nothing"} -> {say(staged)}'
+    say = lambda m: facts.sentence('{turns} human turns of {of}', turns=m[0], of=m[1])
+    return facts.sentence('{held} -> {staged}', held=say(held) if held else facts.sentence('nothing'), staged=say(staged))
 
 
 def _words_mirror(staged, held, unit: Unit) -> str:
     removed = len(set(held or {}) - set(staged))
-    return f'{len(held or ())} -> {len(staged)} file(s) mirrored, {removed} removed'
+    return facts.sentence('{held} -> {staged} file(s) mirrored, {removed} removed', held=len(held or ()), staged=len(staged), removed=removed)
 
 
 def _words_whole(staged, held, unit: Unit) -> str:
-    return 'held whole or not at all'
+    return facts.sentence('held whole or not at all')
 
 
 def _export_atoms():
@@ -484,9 +485,6 @@ class Judgement(Enum):
     NONE = 'none'            # no family judges it: promoted on its relation alone
 
 
-REMEDY_REHEARSE = 'corpus-yoga pipeline rehearse judges it'
-
-
 REASON_WIDTH = 120   # a validator's first line may dump the instance; the record keeps the whole output
 
 
@@ -516,9 +514,6 @@ class Refusal:
         return f'{self.pipeline}/{self.family}/{self.version}.json'
 
 
-MINT = 'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'   # what follows a family's refusal
-
-
 def version_number(version: str) -> int:
     """The number of a version's name, vN; 0 where the name holds none."""
     return int(''.join(c for c in version if c.isdigit()) or 0)
@@ -545,47 +540,54 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
     reason - from which the words derive. The record, the unit's own digests and
     origin/main's schema digests are read where not given."""
     if unit.pipeline is None:
-        return Judgement.NONE, 'no pipeline selects it - promoted on its relation alone', None
+        return Judgement.NONE, facts.sentence('no pipeline selects it - promoted on its relation alone'), None
     judges = judges_of(unit)
     if not judges:
-        return Judgement.NONE, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone', None
+        return Judgement.NONE, facts.sentence("no family of {pipeline} validates {provider}'s - promoted on its relation alone",
+                                              pipeline=unit.pipeline, provider=unit.provider), None
     record = rehearsal.read() if record is None else record
     if record is None:
-        return Judgement.UNJUDGED, f'no rehearsal - {REMEDY_REHEARSE}', None
+        return Judgement.UNJUDGED, facts.sentence('no rehearsal - corpus-yoga pipeline rehearse judges it'), None
     if isinstance(record, str):
         return Judgement.UNJUDGED, record, None
     stamp = record['stamp']
     seen = record['units'].get(unit.address.as_posix())
     if seen is None:
-        return Judgement.UNSEEN, f'unseen by rehearsal {stamp} - {REMEDY_REHEARSE}', None
+        return Judgement.UNSEEN, facts.sentence('unseen by rehearsal {stamp} - corpus-yoga pipeline rehearse judges it', stamp=stamp), None
     own = own_digests(unit) if own is None else own
     if set(seen['digests']) != own:
-        return Judgement.CHANGED, f'changed since rehearsal {stamp} - {REMEDY_REHEARSE}', None
+        return Judgement.CHANGED, facts.sentence('changed since rehearsal {stamp} - corpus-yoga pipeline rehearse judges it', stamp=stamp), None
     if not seen['verdicts']:
-        return Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written - {REMEDY_REHEARSE}', None
+        return Judgement.UNJUDGED, facts.sentence('seen by rehearsal {stamp}, no verdict written - corpus-yoga pipeline rehearse judges it',
+                                                  stamp=stamp), None
     converted = seen.get('source') in own
     main_digest = _main_schema_digest if main_digest is None else main_digest
     words = []
     for family, one in sorted(seen['verdicts'].items()):
         version = one['version']
         if one['datum_sha256'] not in own and not converted:
-            return Judgement.CHANGED, f'the verdict at {family} is on other bytes than this staged unit - {REMEDY_REHEARSE}', None
+            return Judgement.CHANGED, facts.sentence('the verdict at {family} is on other bytes than this staged unit - corpus-yoga pipeline rehearse judges it',
+                                                     family=family), None
         digest, main_version = main_digest(unit.pipeline, family)
         if digest is None or one['schema_sha256'] != digest:
             if main_version == version:
-                return Judgement.UNJUDGED, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
-                               'corpus-yoga pipeline rehearse re-judges it'), None
+                return Judgement.UNJUDGED, facts.sentence(
+                    'the verdict at {family} {version} is against a schema origin/main does not hold - corpus-yoga pipeline rehearse re-judges it',
+                    family=family, version=version), None
             if digest is None or version_number(version) < version_number(main_version or ''):
-                return Judgement.SUPERSEDED, (f'judged at {family} {version}; origin/main holds {main_version} - '
-                                              'corpus-yoga pipeline rehearse re-judges it'), None
-            refusal = Refusal(unit.pipeline, family, version, f'a version of this checkout, which origin/main does not hold '
-                              f'({main_version} there) - the mint\'s merge licenses the promotion')
-            return Judgement.UNLICENSED, f'valid at {refusal.at} - {refusal.reason}', refusal
+                return Judgement.SUPERSEDED, facts.sentence(
+                    'judged at {family} {version}; origin/main holds {main_version} - corpus-yoga pipeline rehearse re-judges it',
+                    family=family, version=version, main_version=main_version), None
+            refusal = Refusal(unit.pipeline, family, version, facts.sentence(
+                "a version of this checkout, which origin/main does not hold ({main_version} there) - the mint's merge licenses the promotion",
+                main_version=main_version))
+            return Judgement.UNLICENSED, facts.sentence('valid at {at} - {reason}', at=refusal.at, reason=refusal.reason), refusal
         if one['verdict'] != 'valid':
             refusal = Refusal(unit.pipeline, family, version, reason(one['reason']))
-            return Judgement.INVALID, f'invalid at {refusal.at} - {refusal.reason} - {MINT}', refusal
+            return Judgement.INVALID, facts.sentence('invalid at {at} - {reason} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)',
+                                                     at=refusal.at, reason=refusal.reason), refusal
         words.append(f'{family} {version}')
-    return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {stamp})', None
+    return Judgement.VALID, facts.sentence('validates at {families} (origin/main; rehearsal {stamp})', families=', '.join(words), stamp=stamp), None
 
 
 # -- promote -------------------------------------------------------------------------------
@@ -605,8 +607,8 @@ def noun_of(unit: Unit) -> str | None:
 
 
 REMEDY = {
-    Relation.AHEAD:    'the held unit holds more - a recapture replaces the staged copy',
-    Relation.DIVERGED: 'each holds what the other lacks - the reader reconciles the two',
+    Relation.AHEAD:    facts.sentence('the held unit holds more - a recapture replaces the staged copy'),
+    Relation.DIVERGED: facts.sentence('each holds what the other lacks - the reader reconciles the two'),
 }
 
 
@@ -641,8 +643,8 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
         if unit.missing:
             whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
             rows.append(Judged(unit, Relation.ABSENT if not unit.members else rel,
-                               f'no {", ".join(unit.missing)} staged', Judgement.UNJUDGED,
-                               INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
+                               facts.sentence('no {missing} staged', missing=', '.join(unit.missing)), Judgement.UNJUDGED,
+                               facts.sentence(INCOMPLETE, n=len(unit.missing)) if whole else facts.sentence(UNPAIRED)))
             continue
         ok, words, refusal = verdict(unit)
         rows.append(Judged(unit, rel, detail, ok, words, refusal))
@@ -1050,8 +1052,8 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
             judged[JUDGED[row.judgement]] += 1
         else:
             not_judged[NOT_JUDGED[row.judgement]] += 1
-    return Rehearsal(record['stamp'], record['commit'], 'clean' if not record['dirty'] else f'dirty ({record["dirty"]})',
-                     record['signature'], record['exit'], f'{len(record["units"])} unit(s)', judged, not_judged)
+    return Rehearsal(record['stamp'], record['commit'], 'clean' if not record['dirty'] else facts.sentence('dirty ({n})', n=record['dirty']),
+                     record['signature'], record['exit'], facts.sentence('{n} unit(s)', n=len(record['units'])), judged, not_judged)
 
 
 def stage_facts() -> StageStatus:
@@ -1066,27 +1068,28 @@ def stage_facts() -> StageStatus:
     is the store's status's to say (#851)."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
-        return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
+        return StageStatus(facts.sentence('absent - nothing captured since the last clean, no rehearsal made'))
     rows = survey()
     record = rehearsal.read()
     out = StageStatus(StageTier(
         input=human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent',
         scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
-        orphans={e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), 'nothing reads it',
-                                                         facts.Command('corpus-yoga stage clean', 'would remove it'))
+        orphans={e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), facts.sentence('nothing reads it'),
+                                                         facts.Command('corpus-yoga stage clean', facts.sentence('would remove it')))
                  for e in orphans()},
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
-                else 'none - corpus-yoga pipeline rehearse makes one' if record is None else record),
+                else facts.sentence('none - corpus-yoga pipeline rehearse makes one') if record is None else record),
         rehearsal=(Orphan(human(size_of(BEFORE_815)),
-                          ('a directory of stamped rehearsals, the layout before #815' if BEFORE_815.is_dir()
-                           else 'the record before its name carried its extension, which a record at its name supersedes')
-                          + f' - {MIGRATION_815} removes it',
-                          facts.Command('corpus-yoga migration sync', 'would take the move'))
+                          facts.sentence('a directory of stamped rehearsals, the layout before the record was one file - {migration} removes it'
+                                         if BEFORE_815.is_dir() else
+                                         'the record before its name carried its extension, which a record at its name supersedes - {migration} removes it',
+                                         migration=MIGRATION_815),
+                          facts.Command('corpus-yoga migration sync', facts.sentence('would take the move')))
                    if BEFORE_815.exists() else None)))
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
         kinds.setdefault(kind_of(row.unit), []).append(row)
-    out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())} if rows else 'none staged'
+    out.units = {kind: Kind.of(of_kind) for kind, of_kind in sorted(kinds.items())} if rows else facts.sentence('none staged')
     out.invalid = invalid_by(rows) or None
     out.unlicensed = unlicensed_by(rows) or None
     return out
@@ -1367,7 +1370,7 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
     nothing. Returns (the facts, units held, duplicates)."""
     if not STORE.is_dir():
-        return StoreStatus('absent - this workspace holds no store'), 0, 0
+        return StoreStatus(facts.sentence('absent - this workspace holds no store')), 0, 0
     held = units(STORE)
     kinds: dict[str, int] = {}
     for unit in held:
@@ -1376,19 +1379,19 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
     for unit in held:
         if unit.pipeline is None and noun_of(unit) is None:
             stray[unit.address.as_posix()] = Stray(human(size_of(STORE / unit.address)),
-                                                   'no pipeline selects it and no capturing noun writes there')
+                                                   facts.sentence('no pipeline selects it and no capturing noun writes there'))
         elif not unit.members and unit.record:
             stray[unit.record[0].as_posix()] = Stray(human(size_of(STORE / unit.record[0])),
-                                                     'the record of a unit the store does not hold')
+                                                     facts.sentence('the record of a unit the store does not hold'))
     twice = held_twice(STORE, live, newest)
     extra = {rel.as_posix(): Surplus(human(size_of(STORE / rel)), f'{unit.path.name}.json',
-                                     facts.Command('corpus-yoga store clean', 'would remove it'))
+                                     facts.Command('corpus-yoga store clean', facts.sentence('would remove it')))
              for unit, rel in surplus(STORE)}
     return StoreStatus(
         Held(human(size_of(STORE)), sum(len(u.files) for u in held), len(held)),
         held=dict(sorted(kinds.items())), stray=stray, surplus=extra,
-        orphaned_shadows={d.relative_to(REPO).as_posix(): Orphan(human(size_of(d)), 'the store holds no unit it derives from',
-                                                                 facts.Command('corpus-yoga store clean', 'would remove it'))
+        orphaned_shadows={d.relative_to(REPO).as_posix(): Orphan(human(size_of(d)), facts.sentence('the store holds no unit it derives from'),
+                                                                 facts.Command('corpus-yoga store clean', facts.sentence('would remove it')))
                           for d in orphaned_shadows()},
         duplicates={d.unit.address.as_posix(): HeldTwice(d, human(size_of(STORE / d.unit.path)), human(size_of(STORE / d.holder.path)))
                     for d in twice},
@@ -1430,21 +1433,23 @@ def pairs_facts(noun: str) -> Pairs:
             out.held[unit.address.name] = Paired(
                 payload=f'{unit.members[0].name}/' if unit.members else None,
                 record=unit.record[0].name if unit.record else None,
-                note='nothing reads the record: a record is the stage\'s' if unit.record else None)
+                note=facts.sentence("nothing reads the record - a record is the stage's") if unit.record else None)
         for unit in select(STAGE, store):
             present = ' and '.join(p.name + ('/' if (STAGE / p).is_dir() else '') for p in unit.members + unit.record)
             if not unit.missing:
-                out.staged[unit.address.name] = Paired(standing=f'complete - {present}')
+                out.staged[unit.address.name] = Paired(standing=facts.sentence('complete - {present}', present=present))
                 continue
             if unit.members and unit.record:
-                out.staged[unit.address.name] = Paired(standing=f'incomplete - {present}, missing {", ".join(unit.missing)}',
-                                                       remedy=facts.Command('corpus-yoga stage clean', 'would remove it'))
+                out.staged[unit.address.name] = Paired(standing=facts.sentence('incomplete - {present}, missing {missing}', present=present,
+                                                                               missing=', '.join(unit.missing)),
+                                                       remedy=facts.Command('corpus-yoga stage clean', facts.sentence('would remove it')))
                 continue
-            item = Paired(standing=f'unpaired - {present} with no {", ".join(unit.missing)} beside it')
+            item = Paired(standing=facts.sentence('unpaired - {present} with no {missing} beside it', present=present,
+                                                  missing=', '.join(unit.missing)))
             if not unit.members and _declares(noun, 'capture', '--manifest'):
                 where = (STAGE / unit.record[0]).relative_to(REPO)
                 item.remedy = facts.Command(f'corpus-yoga {noun} capture --manifest {shlex.quote(str(where))}',
-                                            'fetches its payload, where its URLs are unspent')
+                                            facts.sentence('fetches its payload, where its URLs are unspent'))
             out.staged[unit.address.name] = item
     return out
 
@@ -1484,8 +1489,8 @@ def report_facts(noun: str | None) -> StageReport:
         invalid = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.INVALID else None
         unlicensed = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.UNLICENSED else None
         found = judged_as(row)
-        step = ({'corpus-yoga pipeline rehearse': 'would judge it'} if found == 'unjudged'
-                else {'corpus-yoga stage clean': 'would remove it'} if found == 'incomplete' else None)
+        step = ({'corpus-yoga pipeline rehearse': facts.sentence('would judge it')} if found == 'unjudged'
+                else {'corpus-yoga stage clean': facts.sentence('would remove it')} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(found, verdict, invalid, unlicensed,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)

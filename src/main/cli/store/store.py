@@ -105,13 +105,13 @@ def status_facts() -> corpus.StoreStatus:
     store, the live stores against both tiers, and what to run next."""
     out, held, twice = corpus.store_facts(*live.live_addresses())
     rows = corpus.survey()
-    out.staged = corpus.promotion_facts(rows) if rows else 'none staged'
+    out.staged = corpus.promotion_facts(rows) if rows else facts.sentence('none staged')
     out.would_lose = corpus.relation_would_lose(rows) or None
     ahead, absent = live.ahead()
     items, found, level = live.ahead_facts(ahead, absent)
-    out.live = items if items else ('no live store is mounted in this workspace' if not ahead
-                                    else f'nothing beyond the tiers - {level} live unit(s) level with the copies')
-    out.next = store_next(rows, ahead) or 'none - nothing to do'
+    out.live = items if items else (facts.sentence('no live store is mounted in this workspace') if not ahead
+                                    else facts.sentence('nothing beyond the tiers - {level} live unit(s) level with the copies', level=level))
+    out.next = store_next(rows, ahead) or facts.sentence('none - nothing to do')
     return out
 
 

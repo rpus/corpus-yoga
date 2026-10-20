@@ -2245,7 +2245,8 @@ def check_status_facts(run) -> None:
     # The sentences a status can say are its noun's declared wording (#909, #914), each its
     # own identity: the one property - no value holds a colon followed by a space - judged
     # over every sentence, in every room alike, with no room's state; each sentence declared
-    # once across the nouns; and every declared sentence said by its noun, quoted.
+    # once across the nouns; and every declared sentence said by its noun, quoted - in the
+    # noun's own sources, its target, or the modules under src/main every noun composes through.
     held_by: dict[str, str] = {}
     for declaration in sorted(CLI.glob('*/*.json')):
         noun = declaration.parent.name
@@ -2262,7 +2263,7 @@ def check_status_facts(run) -> None:
         run(f'wording: corpus-yoga {noun}: each sentence is declared once', not twice,
             None if not twice else f'also declared by corpus-yoga {held_by[twice[0]]}: {twice[0][:80]}', check='wording.each_sentence_is_said')
         held_by.update({said: noun for said in worded})
-        sources = ''.join(f.read_text() for f in declaration.parent.glob('*') if f.suffix in ('.py', '.sh'))
+        sources = ''.join(f.read_text() for f in [*declaration.parent.glob('*'), *CLI.parent.glob('*.py')] if f.suffix in ('.py', '.sh'))
         target = REPO_ROOT / json.loads(declaration.read_text())['target']
         sources += target.read_text() if target.is_file() else ''
         unsaid = [said for said in worded if said not in sources]
