@@ -156,8 +156,8 @@ def _capture(machine: str, provider: str, session: str) -> str:
     if machine == bound_machine():
         return capture
     if machine in rooms_of(provider):
-        return f'on {machine}, {capture}'
-    return f'{machine} is no room of the store - resume the session on a room, then {capture}'
+        return facts.sentence('on {machine}, {capture}', machine=machine, capture=capture)
+    return facts.sentence('{machine} is no room of the store - resume the session on a room, then {capture}', machine=machine, capture=capture)
 
 
 @dataclass
@@ -171,7 +171,7 @@ class Named:
 class Alone:
     """The messages signed by a machine alone: the room's own shell."""
     messages: int
-    read_by: str = 'corpus-yoga agent list-drafters, each message against its drafter\'s record'
+    read_by: str = facts.sentence("corpus-yoga agent list-drafters, each message against its drafter's record")
 
 
 @dataclass
@@ -198,7 +198,7 @@ def brief() -> Brief | None:
         absent = [k for k in named if not held(k[1], k[2])]
         remedies = {'/'.join(k): _capture(*k) for k in absent}
         out.providers[provider] = Named(len(named), len(named) - len(absent), {
-            session: facts.Command(remedy, 'captures it') if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
+            session: facts.Command(remedy, facts.sentence('captures it')) if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
             for session, remedy in remedies.items()} or None)
     return out
 

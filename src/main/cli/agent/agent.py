@@ -240,7 +240,8 @@ def list_agents() -> Census:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
             absent[mount_path.relative_to(REPO).as_posix()] = Mount(
-                f'absent - no local {provider} rows', facts.Command('corpus-yoga agent mount', 'would mount it'))
+                facts.sentence('absent - no local {provider} rows', provider=provider),
+                facts.Command('corpus-yoga agent mount', facts.sentence('would mount it')))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -270,7 +271,7 @@ class Peer:
 class Merge:
     """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (#881)."""
     latest: str
-    remedy: facts.Command = facts.Command('corpus-yoga agent demerge', 'would undo it')
+    remedy: facts.Command = facts.Command('corpus-yoga agent demerge', facts.sentence('would undo it'))
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
@@ -280,18 +281,18 @@ def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
     row = registry.provider('claude')
     projects, adapter = registry.mount(row), transport.adapter('claude')
     if projects is None or adapter is None or not projects.is_dir():
-        return 'none - the claude store is not mounted', 'none - the claude store is not mounted'
+        return facts.sentence('none - the claude store is not mounted'), facts.sentence('none - the claude store is not mounted')
     peers: dict[str, Peer] = {}
     store = transport.store('claude')
     for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
         if machine.name == registry.machine():
             continue
         log = adapter.install_all(machine, projects, False, machine.name)
-        peers[machine.name] = Peer(log.facts() or 'nothing - the store holds no session of it',
-                                   facts.Command(f'corpus-yoga agent install --from {machine.name} --all', 'would write them'))
+        peers[machine.name] = Peer(log.facts() or facts.sentence('nothing - the store holds no session of it'),
+                                   facts.Command(f'corpus-yoga agent install --from {machine.name} --all', facts.sentence('would write them')))
     merges = {proj.name: Merge(label) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
               if (label := adapter.latest_merge(proj)) is not None}
-    return peers or 'none - no peer machine held', merges or 'none - no merge record'
+    return peers or facts.sentence('none - no peer machine held'), merges or facts.sentence('none - no merge record')
 
 
 @dataclass
@@ -306,7 +307,8 @@ class Status:
     def facts(self) -> dict:
         brief = self.drafters
         if brief is None:                 # no machine binding: the drafters cannot be read against one (#758)
-            unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt': 'binds it, to a name rsc/machine/machines.csv declares'}}
+            unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt':
+                                                       facts.sentence('binds it, to a name rsc/machine/machines.csv declares')}}
             return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'install': self.install, 'merges': self.merges}
         return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged,
                 'install': self.install, 'merges': self.merges}
