@@ -58,6 +58,12 @@ def drafted(path: Path) -> str:
     return text.strip('\n')
 
 
+def kind(number: int) -> str:
+    """Which of the forge's two kinds holds the number, 'issues' or 'pull': one sequence,
+    two kinds, and a PR aims at, is blocked by, blocks or supersedes issues alone (issues/923)."""
+    return quote('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{number}', '--jq', 'if .pull_request then "pull" else "issues" end')
+
+
 def issue(number: int) -> tuple[str, str]:
     state, title = quote('gh', 'issue', 'view', str(number), '--json', 'state,title',
                          '--jq', '[.state, .title] | @tsv').split('\t', 1)
@@ -133,25 +139,27 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, dict, s
     numbers = [int(n) for n in args.issue]
     titles: dict[int, str] = {}
     for number in numbers:
+        if kind(number) == 'pull':
+            raise Refused(f'pull/{number} is a pull request; a PR aims to complete issues, and a closing reference to a PR closes nothing')
         state, title = issue(number)
         if state != 'OPEN':
-            raise Refused(f'#{number} is {state}; a PR aims only at an open issue')
+            raise Refused(f'issues/{number} is {state}; a PR aims only at an open issue')
         titles[number] = title
     for number in numbers:
         for blocker in open_blockers(number):
             if blocker not in numbers:
-                raise Refused(f'#{number} is blocked by open #{blocker}, which this PR does not aim to complete (issues/482)')
+                raise Refused(f'issues/{number} is blocked by open issues/{blocker}, which this PR does not aim to complete (issues/482)')
     base = default_branch()
     why = '## why\n\n' + '\n'.join(aim.line(number, titles[number]) for number in numbers)
     sent = record(stamp, f'{signature}\n\n{why}\n\n{text}\n')
     url = quote('gh', 'pr', 'create', '--base', base, '--head', args.head,
                 '--title', titles[numbers[0]], '--body-file', str(sent))
     pr = number_of(url)
-    outcomes = {'did raise': {f'#{pr}': url, 'head': args.head, 'base': base, 'title copies': f'#{numbers[0]}',
-                              'aims to complete': {f'#{n}': titles[n] for n in numbers},
+    outcomes = {'did raise': {f'pull/{pr}': url, 'head': args.head, 'base': base, 'title copies': f'issues/{numbers[0]}',
+                              'aims to complete': {f'issues/{n}': titles[n] for n in numbers},
                               'body': str(sent.relative_to(REPO))}}
     following = {f'corpus-yoga forge merge {pr}': 'merges it on the reviewer\'s word'}
-    return outcomes, following, f'forge raise: DONE - did raise PR #{pr} at {args.head} for ' + ', '.join(f'#{n}' for n in numbers)
+    return outcomes, following, f'forge raise: DONE - did raise pull/{pr} at {args.head} for ' + ', '.join(f'issues/{n}' for n in numbers)
 
 
 def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, dict, str]:
@@ -159,9 +167,11 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, dict
     blocks = [int(n) for n in args.blocks or []]
     supersedes = int(args.supersedes) if args.supersedes else None
     for number in blocked_by + blocks + ([supersedes] if supersedes else []):
+        if kind(number) == 'pull':
+            raise Refused(f'pull/{number} is a pull request; a relation is wired to an issue, and --supersedes closes one')
         state, _ = issue(number)
         if state != 'OPEN':
-            raise Refused(f'#{number} is {state}; a relation is wired to an open issue')
+            raise Refused(f'issues/{number} is {state}; a relation is wired to an open issue')
     branch = default_branch()
     sha, subject = quote('gh', 'api', f'repos/{{owner}}/{{repo}}/commits/{branch}',
                          '--jq', '[.sha, (.commit.message | split("\\n")[0])] | @tsv').split('\t', 1)
@@ -184,16 +194,16 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, dict
         quote('gh', 'issue', 'close', str(supersedes), '--reason', 'not planned', '--comment', note)
     read_blocked_by = edges(number, 'blocked_by')
     read_blocks = edges(number, 'blocking')
-    outcomes = {'did raise': {f'#{number}': url, 'title': args.title, 'as at': should.as_at(sha, subject, machine, date),
-                              'blocked by': [f'#{n}' for n in read_blocked_by] or 'none',
-                              'blocks': [f'#{n}' for n in read_blocks] or 'none',
-                              **({'did supersede': f'#{supersedes}'} if supersedes else {}),
+    outcomes = {'did raise': {f'issues/{number}': url, 'title': args.title, 'as at': should.as_at(sha, subject, machine, date),
+                              'blocked by': [f'issues/{n}' for n in read_blocked_by] or 'none',
+                              'blocks': [f'issues/{n}' for n in read_blocks] or 'none',
+                              **({'did supersede': f'issues/{supersedes}'} if supersedes else {}),
                               'body': str(sent.relative_to(REPO))}}
     wired = sorted(set(blocked_by) ^ set(read_blocked_by)) + sorted(set(blocks) ^ set(read_blocks))
     if wired:
-        return outcomes, {}, f'forge raise: NOT DONE - did raise issue #{number}, but the forge reads edges other than those wired: ' + ', '.join(f'#{n}' for n in wired)
-    return outcomes, {}, (f'forge raise: DONE - did raise issue #{number}; blocked by {len(read_blocked_by)}, blocking {len(read_blocks)}'
-                          + (f'; did supersede #{supersedes}' if supersedes else ''))
+        return outcomes, {}, f'forge raise: NOT DONE - did raise issues/{number}, but the forge reads edges other than those wired, ' + ', '.join(f'issues/{n}' for n in wired)
+    return outcomes, {}, (f'forge raise: DONE - did raise issues/{number}; blocked by {len(read_blocked_by)}, blocking {len(read_blocks)}'
+                          + (f'; did supersede issues/{supersedes}' if supersedes else ''))
 
 
 def main(argv: list[str]) -> int:
