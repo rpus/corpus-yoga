@@ -899,6 +899,8 @@ src/main/cli/pipeline/rehearse.sh,34,comment,src/main/provider.sh,Y,# shellcheck
 src/main/cli/pipeline/rehearse.sh,36,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/pipeline/status.py,14,path_str,src/main/cli/pipeline/status.py,Y,SELF = 'src/main/cli/pipeline/status.py'
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
+src/main/cli/pipeline/tail.py,8,comment,src/main/cli/pipeline/pipeline.sh,Y,"stdin: one row per atom, `<stage>\t<line>`, as src/main/cli/pipeline/pipeline.sh reads them"
+src/main/cli/pipeline/tail.py,15,path_str,src/main/cli/pipeline/tail.py,Y,SELF = 'src/main/cli/pipeline/tail.py'
 src/main/cli/readings.md,11,doc,rsc/schema/cli/indexing/semanticConcepts,Y,- `inferred-semantic-concepts.json` — `rsc/schema/cli/indexing/semanticConcepts/` (latest
 src/main/cli/readings.md,14,doc,rsc/schema/cli/indexing/chatCategories,Y,- `inferred-chat-categories.json` — `rsc/schema/cli/indexing/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.template.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
@@ -1590,6 +1592,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/pipeline/run.json,Y,
 ,,self_only,src/main/cli/pipeline/status.py,Y,
 ,,,src/main/cli/pipeline/sync.json,Y,
+,,self_only,src/main/cli/pipeline/tail.py,Y,
 ,,,src/main/cli/reference/reference.json,Y,
 ,,,src/main/cli/reference/sync.json,Y,
 ,,,src/main/cli/server/ensure-assets.json,Y,

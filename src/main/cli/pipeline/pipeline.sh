@@ -560,17 +560,13 @@ main() {
     pair "usr gate" "PASS - $(phrase "all pipelines completed")"
   else
     pair "usr gate" "FAIL - $(phrase "failing stage(s) {names}" names="${verdict_failures[*]}")"
-    opening failing
+    # each failure said once, with its count and the datums beneath (issues/724): tail.py
     local errs error_line
     for f in "${verdict_failures[@]}"; do
-      opening "$f" 1
       errs="$(section_error_lines "$f")"
-      if [[ -n "$errs" ]]; then
-        printf '%s\n' "$errs" | while IFS= read -r error_line; do narrate item "$error_line" 2; done
-      else
-        narrate item "$(phrase "the failing step prints its error and the path of its own log above")" 2
-      fi
-    done
+      [[ -n "$errs" ]] || errs="$(phrase "the failing step prints its error and the path of its own log above")"
+      printf '%s\n' "$errs" | while IFS= read -r error_line; do printf '%s\t%s\n' "$f" "$error_line"; done
+    done | "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/pipeline/tail.py"
   fi
   # The usr-actor's next acts, and nothing else: the run's outputs, and reading them
   # served. The data-tier coupling this line once narrated (pipelines move what the
