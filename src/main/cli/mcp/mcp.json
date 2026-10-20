@@ -1,6 +1,6 @@
 {
   "summary": "the house factoring of the MCP schema, generated from upstream's schema.ts alone, its schema.json the witness (bare says whether it is current and flattens to the witness)",
-  "wording": [
+  "phrase": [
     "{target} NOT derivable - {why}",
     "faced under {cache}",
     "NOT faced under {cache}",

@@ -156,7 +156,7 @@ run.py: code+schema 1742/1742
   ✓ status.room_round_trip_holds_no_pair  (24/24)
   ✓ report.says_what_the_nouns_say  (15/15)
   ✓ status.value_holds_no_pair  (23/23)
-  ✓ wording.each_sentence_is_said  (46/46)
+  ✓ phrase.each_is_said  (46/46)
   ✓ environment.names_carry_the_prefix
   ✓ cli.no_send_flag  (3/3)
   ✓ status.pipeline_says_declarations_and_units  (4/4)

@@ -1,6 +1,6 @@
 {
   "summary": "says whether pressing tab after corpus-yoga offers its commands and flags in zsh",
-  "wording": [
+  "phrase": [
     "added at the end, with a compinit of their own (this ~/.zshrc had none)",
     "added at line {line}, above compinit",
     "{zshrc} already sets tab-completion up; nothing written",

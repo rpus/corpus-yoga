@@ -5,7 +5,7 @@
     "invalid": "what a family found invalid, keyed by the version file that found it so as a path in the schema tree, rsc/schema/pipeline - <pipeline>/<family>/<version>.json - then by the validator's reason with how many units carry it. What follows is a version owed, or the datum ruled out at the mint (rsc/schema/WORKFLOW.md). Each invalid unit's whole validator output is in tmp/stage/rehearsal.json under units, its address, verdicts, the family, and corpus-yoga pipeline rehearse remakes it",
     "unlicensed": "each unit judged valid at a version of this checkout that origin/main does not hold - valid here, unlicensed there, the mint's merge licensing its promotion - by that version file's path in the schema tree, then by the reason, with how many units carry it; a relation that would cost the held copy something is the store's to say. A status asks for no act, so nothing here is refused (issues/867)"
   },
-  "wording": [
+  "phrase": [
     "no pipeline selects it - promoted on its relation alone",
     "no family of {pipeline} validates {provider}'s - promoted on its relation alone",
     "no rehearsal - corpus-yoga pipeline rehearse judges it",

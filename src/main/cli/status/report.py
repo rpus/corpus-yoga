@@ -73,7 +73,7 @@ def said_by(noun: str):
         try:
             at = facts.load(asked.stdout)
         except ValueError as error:
-            at = facts.sentence('corpus-yoga {noun} is unreadable - {error}', noun=noun, error=error)
+            at = facts.phrase('corpus-yoga {noun} is unreadable - {error}', noun=noun, error=error)
         _said[noun] = at
     return _said[noun]
 
@@ -86,13 +86,13 @@ def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
     the sentence that says the spot is empty."""
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
-        return facts.sentence('unread - the venv is not minted') if whole else None
+        return facts.phrase('unread - the venv is not minted') if whole else None
     at = said_by(noun)
     if isinstance(at, str):
         return at
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
         if not isinstance(at, dict) or token not in at:
-            return facts.sentence('corpus-yoga {noun} says nothing at {pointer}', noun=noun, pointer=pointer) if whole else None   # a spot the noun has no occasion for: nothing to remedy
+            return facts.phrase('corpus-yoga {noun} says nothing at {pointer}', noun=noun, pointer=pointer) if whole else None   # a spot the noun has no occasion for: nothing to remedy
         at = at[token]
     if whole:
         return at
@@ -153,7 +153,7 @@ def main() -> int:
             print(f'{command}\t{does}\t{where}')
         return 0
     if not sections and not whole:
-        facts.say(Report({'remedy': facts.sentence('none - corpus-yoga status --show-all says what stands')}))   # a status loads as one mapping: the empty case says its one fact
+        facts.say(Report({'remedy': facts.phrase('none - corpus-yoga status --show-all says what stands')}))   # a status loads as one mapping: the empty case says its one fact
         return 0
     facts.say(Report(sections))
     return 0

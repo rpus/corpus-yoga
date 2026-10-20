@@ -42,7 +42,7 @@ parse_args() {
       sync)       SYNC=1; shift ;;
       --show-all) SHOW_ALL=1; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "status: NOT DONE - $(sentence "{word} is no word it takes; the words are --show-all, or sync" word="$1")" >&2; exit 2 ;;
+      *) echo "status: NOT DONE - $(phrase "{word} is no word it takes; the words are --show-all, or sync" word="$1")" >&2; exit 2 ;;
     esac
   done
 }
@@ -125,12 +125,12 @@ check_tools() {
   if command -v jq &>/dev/null; then
     ok jq "$(jq --version 2>/dev/null)"
   else
-    bad "jq / installed" "$(sentence 'no - no pipeline runs without it')" "brew install jq" "$(sentence 'installs it')"
+    bad "jq / installed" "$(phrase 'no - no pipeline runs without it')" "brew install jq" "$(phrase 'installs it')"
   fi
   if command -v python3 &>/dev/null; then
-    ok python3 "$(sentence "{version} - it mints the venv; everything else runs the venv's python (issues/478)" version="$(python3 --version 2>&1)")"
+    ok python3 "$(phrase "{version} - it mints the venv; everything else runs the venv's python (issues/478)" version="$(python3 --version 2>&1)")"
   else
-    bad "python3 / installed" "$(sentence 'no - nothing runs without it, the CLI included')" "brew install python" "$(sentence 'installs it')"
+    bad "python3 / installed" "$(phrase 'no - nothing runs without it, the CLI included')" "brew install python" "$(phrase 'installs it')"
   fi
   # Informational, never a ✗: absent, the gate skips its type check and still gates
   # deterministically. pyright is Pylance's own engine and reads the same
@@ -150,7 +150,7 @@ check_tools() {
   if [[ -n "$pyright_bin" ]]; then
     ok pyright "$("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')"
   else
-    todo "pyright / installed" "$(sentence 'no - corpus-yoga test run skips its type check; it is in src/requirements.txt')" "$(sync_remedy)" "$(sentence 'installs the requirements')"
+    todo "pyright / installed" "$(phrase 'no - corpus-yoga test run skips its type check; it is in src/requirements.txt')" "$(sync_remedy)" "$(phrase 'installs the requirements')"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
@@ -158,7 +158,7 @@ check_tools() {
   if command -v shellcheck &>/dev/null; then
     ok shellcheck "$(shellcheck --version | awk '/^version:/ {print $2}')"
   else
-    todo "shellcheck / installed" "$(sentence 'no - corpus-yoga test run skips its shell lint')" "brew install shellcheck" "$(sentence 'installs it')"
+    todo "shellcheck / installed" "$(phrase 'no - corpus-yoga test run skips its shell lint')" "brew install shellcheck" "$(phrase 'installs it')"
   fi
   # Informational, never a ✗: the gate's mcp.reproducible check (corpus-yoga mcp reproduce)
   # runs upstream's generator in a node container, and skips when no docker daemon
@@ -170,32 +170,32 @@ check_tools() {
     if docker_server="$(docker info --format '{{.ServerVersion}}' 2>/dev/null)" && [[ -n "$docker_server" ]]; then
       ok "docker / daemon" "$docker_server"
     else
-      todo "docker / daemon" "$(sentence 'not running - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses')" "open -a Docker" "$(sentence 'starts Docker Desktop')"
+      todo "docker / daemon" "$(phrase 'not running - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses')" "open -a Docker" "$(phrase 'starts Docker Desktop')"
     fi
   else
-    todo "docker / installed" "$(sentence 'no - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses')" "brew install --cask docker" "$(sentence 'installs it')"
+    todo "docker / installed" "$(phrase 'no - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses')" "brew install --cask docker" "$(phrase 'installs it')"
   fi
   # The generated parsers are the grammar noun's to say (issues/777): its status is grafted
   # after the tools. Here, the tool that generates them: antlr4 (antlr4-tools, a python
   # package the venv carries) running the tool jar on the machine's java.
   if [[ -x "$CORPUS_YOGA_VENV/bin/antlr4" ]]; then
     if command -v java &>/dev/null; then
-      ok "antlr4 and java" "$(sentence "antlr4-tools, java {version}" version="$(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')")"
+      ok "antlr4 and java" "$(phrase "antlr4-tools, java {version}" version="$(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')")"
     else
-      todo "java / installed" "$(sentence 'no - antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current')" "brew install openjdk" "$(sentence 'installs it')"
+      todo "java / installed" "$(phrase 'no - antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current')" "brew install openjdk" "$(phrase 'installs it')"
     fi
   else
-    todo "antlr4 / installed" "$(sentence 'no - corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt')" "$(sync_remedy)" "$(sentence 'installs the requirements')"
+    todo "antlr4 / installed" "$(phrase 'no - corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt')" "$(sync_remedy)" "$(phrase 'installs the requirements')"
   fi
-  ok bash "$(sentence "{version} (3.2+ suffices)" version="$BASH_VERSION")"
+  ok bash "$(phrase "{version} (3.2+ suffices)" version="$BASH_VERSION")"
 }
 
 check_venv() {
   sec "venv"
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
-    ok "$CORPUS_YOGA_VENV / minted" "$(sentence "{version}; CORPUS_YOGA_VENV= names another" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
+    ok "$CORPUS_YOGA_VENV / minted" "$(phrase "{version}; CORPUS_YOGA_VENV= names another" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
   else
-    todo "$CORPUS_YOGA_VENV / minted" "$(sentence 'no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another')" "$(sync_remedy)" "$(sentence 'mints it and installs src/requirements.txt')"
+    todo "$CORPUS_YOGA_VENV / minted" "$(phrase 'no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another')" "$(sync_remedy)" "$(phrase 'mints it and installs src/requirements.txt')"
   fi
 }
 
@@ -212,7 +212,7 @@ check_dependencies() {
   local header="$1" manifest="$2" extract="$3" probe="$4" subject="$5" remediation="$6"
   sec "$header"
   if [[ ! -f "$manifest" ]]; then
-    info manifest "$(sentence "not found (unexpected) - nothing can say what this machine is missing")"
+    info manifest "$(phrase "not found (unexpected) - nothing can say what this machine is missing")"
     return
   fi
   local detail="" seen="|" missing="" total=0 got=0 line item tok
@@ -232,9 +232,9 @@ check_dependencies() {
     fi
   done < "$manifest"
   if [[ "$got" -eq "$total" ]]; then
-    ok "$subject" "$(sentence "{got}/{total} ({detail})" got="$got" total="$total" detail="$detail")"
+    ok "$subject" "$(phrase "{got}/{total} ({detail})" got="$got" total="$total" detail="$detail")"
   else
-    info "$subject" "$(sentence "{got}/{total} - {remediation}; missing {missing}" got="$got" total="$total" remediation="$remediation" missing="$missing")"
+    info "$subject" "$(phrase "{got}/{total} - {remediation}; missing {missing}" got="$got" total="$total" remediation="$remediation" missing="$missing")"
   fi
 }
 
@@ -266,7 +266,7 @@ check_optional_modes() {
     case "$js_from_ae" in
       1) ok "Safari's Allow JavaScript from Apple Events" "enabled" ;;
       0) info "Safari's Allow JavaScript from Apple Events" "disabled" ;;
-      *) ok "Safari's Allow JavaScript from Apple Events" "$(sentence "not verifiable read-only")" ;;
+      *) ok "Safari's Allow JavaScript from Apple Events" "$(phrase "not verifiable read-only")" ;;
     esac
   else
     info "browser capture" "unavailable"
@@ -274,7 +274,7 @@ check_optional_modes() {
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
     ok "indexing capture" "possible"
   else
-    info "indexing capture" "$(sentence "unavailable - ANTHROPIC_API_KEY is not set")"
+    info "indexing capture" "$(phrase "unavailable - ANTHROPIC_API_KEY is not set")"
   fi
 }
 
@@ -284,10 +284,10 @@ check_environment() {
   local old
   for old in YOGA_NO_SEND YOGA_JOBS YOGA_GATE_TIMINGS; do
     [[ -n "${!old-}" ]] || continue
-    todo "environment / $old" "$(sentence 'exported, and no code reads it - {name} is the name' name="CORPUS_YOGA_${old#YOGA_}")" "unset $old" "$(sentence 'drops it from this shell')"
+    todo "environment / $old" "$(phrase 'exported, and no code reads it - {name} is the name' name="CORPUS_YOGA_${old#YOGA_}")" "unset $old" "$(phrase 'drops it from this shell')"
   done
   if [[ -n "${VENV-}" && -z "${CORPUS_YOGA_VENV-}" ]]; then
-    info "environment / VENV" "$(sentence "exported, and corpus-yoga no longer reads it - CORPUS_YOGA_VENV names the venv; the default stands")"
+    info "environment / VENV" "$(phrase "exported, and corpus-yoga no longer reads it - CORPUS_YOGA_VENV names the venv; the default stands")"
   fi
 }
 
@@ -312,12 +312,12 @@ check_machine() {
   local legacy="$REPO_ROOT/rsc"; legacy+="/machines/self.txt"
   if [[ -f "$legacy" ]]; then
     local lrel="${legacy#"$REPO_ROOT/"}"
-    todo "legacy binding / at" "$(sentence '{legacy} - the binding moved to {binding} (2026-07-17)' legacy="$lrel" binding="$rel")" "mv $lrel $rel && rmdir $(dirname "$lrel")" "$(sentence 'migrates it')"
+    todo "legacy binding / at" "$(phrase '{legacy} - the binding moved to {binding} (2026-07-17)' legacy="$lrel" binding="$rel")" "mv $lrel $rel && rmdir $(dirname "$lrel")" "$(phrase 'migrates it')"
   fi
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo "binding" "absent" "echo <declared-machine-name> > $rel" "$(sentence 'binds it, to a name rsc/machine/machines.csv declares')"
+    todo "binding" "absent" "echo <declared-machine-name> > $rel" "$(phrase 'binds it, to a name rsc/machine/machines.csv declares')"
     declared="${declared% }"
     ok declared "${declared:-none}"
     return
@@ -328,7 +328,7 @@ check_machine() {
   else
     # the same declaredness gate machine.py gives every consumer: an undeclared
     # binding would mint a phantom machine in the shared transport store
-    info "binding" "$(sentence "{name}, undeclared in rsc/machine/machines.csv" name="$name")"
+    info "binding" "$(phrase "{name}, undeclared in rsc/machine/machines.csv" name="$name")"
   fi
 }
 
@@ -340,7 +340,7 @@ check_git_identity() {
   # two lines below, whose contents ARE the repo's declaration.
   sec "git"
   if ! command -v git &>/dev/null; then
-    todo "git / installed" "$(sentence 'no - nothing here works without it')" "brew install git" "$(sentence 'installs it')"
+    todo "git / installed" "$(phrase 'no - nothing here works without it')" "brew install git" "$(phrase 'installs it')"
     return
   fi
   ok "git / installed" "$(git --version | awk '{print $3}')"
@@ -357,7 +357,7 @@ check_git_identity() {
     elif [[ -n "$s1$s2" ]]; then scope=" (name: --$s1, email: --$s2)"; fi
     ok "identity / set" "$n <$e>$scope"
   else
-    todo "identity / set" "$(sentence 'no - the first commit refuses')" "git config --global user.name '<name>'" "$(sentence 'names the committer')" "git config --global user.email '<email>'" "$(sentence 'gives the address')"
+    todo "identity / set" "$(phrase 'no - the first commit refuses')" "git config --global user.name '<name>'" "$(phrase 'names the committer')" "git config --global user.email '<email>'" "$(phrase 'gives the address')"
   fi
 }
 
@@ -369,10 +369,10 @@ check_pipeline_inputs() {
     local pipeline provider kind count
     while IFS=$'\t' read -r pipeline provider kind count _ _; do     # the store's address and its noun are the explanation's
       [[ -n "$pipeline" ]] || continue
-      ok "$pipeline / $provider / $kind" "$(sentence "{count} held" count="$count")"
+      ok "$pipeline / $provider / $kind" "$(phrase "{count} held" count="$count")"
     done < <("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" held 2>/dev/null)
   else
-    info held "$(sentence "read by the venv's python - the rows follow the mint")"
+    info held "$(phrase "read by the venv's python - the rows follow the mint")"
   fi
 
   # Each provider's live store, the harness's own, and the mount the census and capture
@@ -389,7 +389,7 @@ check_pipeline_inputs() {
     # each the rule's one home, none restated here.
     p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); sys.path.insert(0, sys.argv[2]); import provider, transport; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") + "\x1f" + ("served" if transport.adapter(r["provider"]) else "") for r in provider.providers()))' "$REPO_ROOT/src/main" "$REPO_ROOT/src/main/cli/agent")" || return 1
   else
-    info providers "$(sentence "rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint")"
+    info providers "$(phrase "rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint")"
     p_rows=''
   fi
   while IFS=$'\x1f' read -r p_name p_live p_mount p_served; do
@@ -400,13 +400,13 @@ check_pipeline_inputs() {
     if [[ "$p_served" == served ]]; then
       ok "$p_name / $p_live" "present"
     else
-      info "$p_name / $p_live" "$(sentence "present, and no harness adapter serves {provider}" provider="$p_name")"
+      info "$p_name / $p_live" "$(phrase "present, and no harness adapter serves {provider}" provider="$p_name")"
     fi
     local target; target="$(readlink "$REPO_ROOT/$p_mount" 2>/dev/null || true)"
     if [[ ! -e "$REPO_ROOT/$p_mount" && -z "$target" ]]; then
-      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount" "$(sentence 'mounts it')"
+      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount" "$(phrase 'mounts it')"
     elif [[ -n "$target" && "${target/#\~/$HOME}" != "${p_live/#\~/$HOME}" && "$(cd "$REPO_ROOT/$p_mount" 2>/dev/null && pwd -P)" != "$(cd "${p_live/#\~/$HOME}" 2>/dev/null && pwd -P)" ]]; then
-      todo "$p_name / $p_mount" "$(sentence 'linked elsewhere - to {target}' target="$target")" "corpus-yoga agent mount" "$(sentence 'points it at {live}' live="$p_live")"
+      todo "$p_name / $p_mount" "$(phrase 'linked elsewhere - to {target}' target="$target")" "corpus-yoga agent mount" "$(phrase 'points it at {live}' live="$p_live")"
     else
       ok "$p_name / $p_mount" "linked"
     fi
@@ -422,7 +422,7 @@ check_pipeline_inputs() {
     if [[ -d "$REPO_ROOT/ext/mnt/site/." ]]; then
       ok "ext/mnt/site" "linked"
     else
-      todo "ext/mnt/site" "$(sentence 'dangling - to {target}' target="$(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null)")" "rm ext/mnt/site" "$(sentence 'removes it; ln -s <site-repo-clone> ext/mnt/site makes one that stands')"
+      todo "ext/mnt/site" "$(phrase 'dangling - to {target}' target="$(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null)")" "rm ext/mnt/site" "$(phrase 'removes it; ln -s <site-repo-clone> ext/mnt/site makes one that stands')"
     fi
   else
     ok "ext/mnt/site" "absent"
@@ -442,9 +442,9 @@ sync() {
   own="$(sync_remedy)"
   declared="$(jq -r '.x[]' "$REPO_ROOT/src/main/cli/status/sync.json")"
   _held
-  echo "corpus-yoga status sync - $(sentence "what this machine still needs"):"
+  echo "corpus-yoga status sync - $(phrase "what this machine still needs"):"
   if [[ -z "$_remedies" ]]; then
-    effect "status sync: DONE - $(sentence "nothing; every prerequisite is satisfied")"
+    effect "status sync: DONE - $(phrase "nothing; every prerequisite is satisfied")"
     return 0
   fi
   while IFS=$'\t' read -r command does where; do
@@ -456,7 +456,7 @@ sync() {
   done <<< "$_remedies"
   echo
   if [[ -z "$mine" ]]; then
-    effect "status sync: DONE - $(sentence "none of these is mine to run; each is the reader's")"
+    effect "status sync: DONE - $(phrase "none of these is mine to run; each is the reader's")"
     return 0
   fi
   while IFS= read -r a; do
@@ -468,7 +468,7 @@ sync() {
       [[ -x "$CORPUS_YOGA_VENV/bin/python" ]] || python3 -m venv "$CORPUS_YOGA_VENV"
       "$CORPUS_YOGA_VENV/bin/pip" install -q --upgrade pip
       "$CORPUS_YOGA_VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
-      echo "  venv: $(sentence "{version}, src/requirements.txt installed" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
+      echo "  venv: $(phrase "{version}, src/requirements.txt installed" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
     else
       # a declared invocation is `corpus-yoga <command> ...`, bare words: run this tree's
       # shellcheck disable=SC2086
@@ -476,12 +476,12 @@ sync() {
     fi
   done <<< "$mine"
   echo
-  echo "$(sentence "what remains - re-derived, not assumed"):"
+  echo "$(phrase "what remains - re-derived, not assumed"):"
   _held
-  if [[ -z "$_remedies" ]]; then echo "  $(sentence "nothing")"; else
+  if [[ -z "$_remedies" ]]; then echo "  $(phrase "nothing")"; else
     while IFS=$'\t' read -r command does where; do [[ -z "$command" ]] || echo "  - $where: $command - $does"; done <<< "$_remedies"
   fi
-  effect "status sync: DONE - $(sentence "ran the {n} named; what remains is above, each the reader's" n="$(grep -c . <<< "$mine")")"
+  effect "status sync: DONE - $(phrase "ran the {n} named; what remains is above, each the reader's" n="$(grep -c . <<< "$mine")")"
 }
 
 report() {
@@ -495,7 +495,7 @@ report() {
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "$(sentence "corpus-yoga status sync, or automatically on the next corpus-yoga pipeline run")"
+    "$(phrase "corpus-yoga status sync, or automatically on the next corpus-yoga pipeline run")"
   graft server "/server/render assets"
   check_optional_modes
   graft completions "/completions"

@@ -90,7 +90,7 @@ CLI                      = SRC / 'main' / 'cli'
 # What a sentence does instead of the marks the printer cannot leave plain: the one remedy
 # both the declarations' prose check (pull/797) and the wording check (issues/909) print, so that an
 # edit made to pass them keeps the sentence's anchor.
-PLAIN_SENTENCE_REMEDY = ('a pair is a fact of its own beneath, or the sentence says it without the colon; an em dash is written '
+PLAIN_PHRASE_REMEDY = ('a pair is a fact of its own beneath, or the phrase says it without the colon; an em dash is written '
                          "' - '; a hash is YAML's comment, a URL's fragment and a shell's, so an anchor is written as the forge's "
                          'path segment, issues/N or pull/N, and is never dropped')
 
@@ -1529,7 +1529,7 @@ def check_cli_surface(run) -> None:
         faults = [f'{where}: {text[:80]}' for where, text in prose(json.loads(declared.read_text()))
                   if text and (': ' in text or text.endswith(':') or ' #' in text or '\u2014' in text)]
         run(f'cli: {declared.relative_to(CLI)}: its prose holds no colon followed by a space, no em dash and no hash after a space', not faults,
-            None if not faults else '; '.join(faults)[:300] + ' - ' + PLAIN_SENTENCE_REMEDY, check='cli.prose_holds_no_pair')
+            None if not faults else '; '.join(faults)[:300] + ' - ' + PLAIN_PHRASE_REMEDY, check='cli.prose_holds_no_pair')
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
     # its values reads as a restriction to that value while behaving as an addition. Held
@@ -2226,7 +2226,7 @@ def check_status_facts(run) -> None:
         except yaml.YAMLError:
             paired = None                         # said above
         run(f'status: corpus-yoga {noun}: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
-            None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]} - a pair is a fact of its own beneath, or the sentence says it without the colon',
+            None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]} - a pair is a fact of its own beneath, or the phrase says it without the colon',
             check='status.room_round_trip_holds_no_pair')
 
     # The machine report says what a noun's status says, taken from that status (issues/777):
@@ -2268,10 +2268,10 @@ def check_status_facts(run) -> None:
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
         None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.room_round_trip_holds_no_pair')
-    # The sentences a status can say are its noun's declared wording (issues/909, issues/914), each its
+    # The phrases a status can say are its noun's declared phrase array (issues/909, issues/914, issues/935), each its
     # own identity: the one property - no value holds a colon followed by a space - judged
-    # over every sentence, in every room alike, with no room's state; each sentence declared
-    # once across the nouns; and every declared sentence said by its noun, quoted - in the
+    # over every phrase, in every room alike, with no room's state; each phrase declared
+    # once across the nouns; and every declared phrase said by its noun, quoted - in the
     # noun's own sources, its target, or any module under src/main, since a status composes
     # through the shared modules and through the pipelines' (the audit's, the measures', the page comparison's).
     held_by: dict[str, str] = {}
@@ -2279,23 +2279,23 @@ def check_status_facts(run) -> None:
         noun = declaration.parent.name
         if declaration.stem != noun:
             continue
-        worded = json.loads(declaration.read_text()).get('wording') or []
+        worded = json.loads(declaration.read_text()).get('phrase') or []
         if not worded:
             continue
         faults = [said[:80] for said in worded if ': ' in said or said.endswith(':') or ' #' in said or '\u2014' in said]
-        run(f'status: corpus-yoga {noun}: no declared sentence holds a colon followed by a space', not faults,
-            None if not faults else '; '.join(faults)[:300] + ' - ' + PLAIN_SENTENCE_REMEDY,
+        run(f'status: corpus-yoga {noun}: no declared phrase holds a colon followed by a space', not faults,
+            None if not faults else '; '.join(faults)[:300] + ' - ' + PLAIN_PHRASE_REMEDY,
             check='status.value_holds_no_pair')
         twice = [said for said in worded if said in held_by]
-        run(f'wording: corpus-yoga {noun}: each sentence is declared once', not twice,
-            None if not twice else f'also declared by corpus-yoga {held_by[twice[0]]}: {twice[0][:80]}', check='wording.each_sentence_is_said')
+        run(f'phrase: corpus-yoga {noun}: each phrase is declared once', not twice,
+            None if not twice else f'also declared by corpus-yoga {held_by[twice[0]]}: {twice[0][:80]}', check='phrase.each_is_said')
         held_by.update({said: noun for said in worded})
         sources = ''.join(f.read_text() for f in [*declaration.parent.glob('*'), *CLI.parent.rglob('*.py'), *CLI.parent.rglob('*.sh')] if f.suffix in ('.py', '.sh'))
         target = REPO_ROOT / json.loads(declaration.read_text())['target']
         sources += target.read_text() if target.is_file() else ''
         unsaid = [said for said in worded if said not in sources]
-        run(f'wording: corpus-yoga {noun}: every declared sentence is said by its noun, quoted', not unsaid,
-            None if not unsaid else f'declared and said by no row: {"; ".join(s[:60] for s in unsaid)}', check='wording.each_sentence_is_said')
+        run(f'phrase: corpus-yoga {noun}: every declared phrase is said by its noun, quoted', not unsaid,
+            None if not unsaid else f'declared and said by no row: {"; ".join(s[:60] for s in unsaid)}', check='phrase.each_is_said')
     # what a measure says of a unit is a value of the stage's and the store's statuses, read here
     # without a store: the worktree a commit is gated in holds none
     import corpus as corpus_relations

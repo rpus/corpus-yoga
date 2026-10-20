@@ -1,6 +1,6 @@
 {
   "summary": "per-schema definition catalogues, candidates for model.json",
-  "wording": [
+  "phrase": [
     "corpus-yoga test run holds each as check_model_obligations",
     "model_join row(s) {rows}",
     "document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt",

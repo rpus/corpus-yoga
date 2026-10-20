@@ -156,8 +156,8 @@ def _capture(machine: str, provider: str, session: str) -> str:
     if machine == bound_machine():
         return capture
     if machine in rooms_of(provider):
-        return facts.sentence('on {machine}, {capture}', machine=machine, capture=capture)
-    return facts.sentence('{machine} is no room of the store - resume the session on a room, then {capture}', machine=machine, capture=capture)
+        return facts.phrase('on {machine}, {capture}', machine=machine, capture=capture)
+    return facts.phrase('{machine} is no room of the store - resume the session on a room, then {capture}', machine=machine, capture=capture)
 
 
 @dataclass
@@ -171,7 +171,7 @@ class Named:
 class Alone:
     """The messages signed by a machine alone: the room's own shell."""
     messages: int
-    read_by: str = facts.sentence("corpus-yoga agent list-drafters, each message against its drafter's record")
+    read_by: str = facts.phrase("corpus-yoga agent list-drafters, each message against its drafter's record")
 
 
 @dataclass
@@ -198,7 +198,7 @@ def brief() -> Brief | None:
         absent = [k for k in named if not held(k[1], k[2])]
         remedies = {'/'.join(k): _capture(*k) for k in absent}
         out.providers[provider] = Named(len(named), len(named) - len(absent), {
-            session: facts.Command(remedy, facts.sentence('captures it')) if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
+            session: facts.Command(remedy, facts.phrase('captures it')) if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
             for session, remedy in remedies.items()} or None)
     return out
 
@@ -208,22 +208,22 @@ def report() -> int:
     said to have drafted read against that session's held record. One verdict, the last line."""
     sessions, alone, co, head = survey()
     total = sum(len(v) for v in sessions.values()) + len(alone)
-    print(f'drafters: {REF} @ {head} - ' + facts.sentence('{total} signed message(s); the first Signature of each names its drafter', total=total))
+    print(f'drafters: {REF} @ {head} - ' + facts.phrase('{total} signed message(s); the first Signature of each names its drafter', total=total))
     unheld: list[str] = []
     unwritten = 0
     declared = registry.provider_names()
     for provider in sorted({p for _m, p, _s in sessions}):
         named = sorted(k for k in sessions if k[1] == provider)
         copies = {k: held(k[1], k[2]) for k in named}
-        print(f'  {provider}: ' + facts.sentence('{named} session(s) named, {held} held', named=len(named), held=sum(1 for k in named if copies[k]))
-              + ('' if provider in declared else ' - ' + facts.sentence('{provider} is no row of rsc/provider/providers.csv', provider=provider)))
+        print(f'  {provider}: ' + facts.phrase('{named} session(s) named, {held} held', named=len(named), held=sum(1 for k in named if copies[k]))
+              + ('' if provider in declared else ' - ' + facts.phrase('{provider} is no row of rsc/provider/providers.csv', provider=provider)))
         adapter = transport.adapter(provider)
         for key in named:
             texts = sessions[key]
             name = '/'.join(key)
             if not copies[key] or adapter is None:
                 unheld.append(name)
-                print(f'    {name}: ' + facts.sentence('{n} message(s), held nowhere - the corpus is behind; {capture}', n=len(texts), capture=_capture(*key)))
+                print(f'    {name}: ' + facts.phrase('{n} message(s), held nowhere - the corpus is behind; {capture}', n=len(texts), capture=_capture(*key)))
                 continue
             fullest = copies[key][0]
             record = letters(' '.join(adapter.written(fullest)))
@@ -231,19 +231,19 @@ def report() -> int:
             judged = [(c, t) for c, t in texts if windows(t)]
             missing = [(c, t) for c, t in judged if not any(w in record for w in windows(t))]
             unwritten += len(missing)
-            line = f'    {name}: ' + facts.sentence('{n} message(s), {written} written by it', n=len(texts), written=len(judged) - len(missing))
+            line = f'    {name}: ' + facts.phrase('{n} message(s), {written} written by it', n=len(texts), written=len(judged) - len(missing))
             if short:
-                line += ', ' + facts.sentence('{short} too short to tell', short=len(short))
+                line += ', ' + facts.phrase('{short} too short to tell', short=len(short))
             if missing:
-                line += ', ' + facts.sentence('{missing} not in its held record ({size}M)', missing=len(missing), size=f'{fullest.size / 1e6:.1f}')
+                line += ', ' + facts.phrase('{missing} not in its held record ({size}M)', missing=len(missing), size=f'{fullest.size / 1e6:.1f}')
                 now = live(key[1], key[2])
                 if now is not None and now.size > fullest.size:
-                    line += ' - ' + facts.sentence("this room's live record holds {size}M, so the held one is behind; {capture}",
+                    line += ' - ' + facts.phrase("this room's live record holds {size}M, so the held one is behind; {capture}",
                                                    size=f'{now.size / 1e6:.1f}', capture=_capture(*key))
                 elif key[0] != bound_machine() and key[0] in rooms_of(key[1]):
-                    line += ' - ' + facts.sentence('the held record may be behind; {capture}', capture=_capture(*key))
+                    line += ' - ' + facts.phrase('the held record may be behind; {capture}', capture=_capture(*key))
                 else:
-                    line += ' - ' + facts.sentence('the record does not carry them')
+                    line += ' - ' + facts.phrase('the record does not carry them')
             print(line)
             for commit, text in missing:
                 print(f'      {REF.split("/")[-1]} {commit}: {" ".join(text.split())[:96]}')
@@ -251,15 +251,15 @@ def report() -> int:
     for machine, _commit, _text in alone:
         rooms[machine] = rooms.get(machine, 0) + 1
     if alone:
-        print('  a machine alone: ' + facts.sentence("{n} message(s) ({rooms}) - the room's own shell; nothing is claimed of the drafter",
+        print('  a machine alone: ' + facts.phrase("{n} message(s) ({rooms}) - the room's own shell; nothing is claimed of the drafter",
                                                    n=len(alone), rooms=', '.join(f'{m} {n}' for m, n in sorted(rooms.items()))))
     if co:
-        print('  co-drafted: ' + facts.sentence('{n} later Signature(s), each a session or a room that amended or replayed a message another drafted', n=co))
+        print('  co-drafted: ' + facts.phrase('{n} later Signature(s), each a session or a room that amended or replayed a message another drafted', n=co))
     named_count = len(sessions)
-    verdict = facts.sentence('{held} of {named} session(s) main names as drafters are held', held=named_count - len(unheld), named=named_count)
+    verdict = facts.phrase('{held} of {named} session(s) main names as drafters are held', held=named_count - len(unheld), named=named_count)
     if unheld:
-        verdict += ' - ' + facts.sentence('the corpus is behind by {unheld}', unheld=', '.join(unheld))
-    verdict += '; ' + (facts.sentence("{n} message(s) are not in their drafter's held record", n=unwritten) if unwritten
-                       else facts.sentence("every message judged is in its drafter's record"))
+        verdict += ' - ' + facts.phrase('the corpus is behind by {unheld}', unheld=', '.join(unheld))
+    verdict += '; ' + (facts.phrase("{n} message(s) are not in their drafter's held record", n=unwritten) if unwritten
+                       else facts.phrase("every message judged is in its drafter's record"))
     print(f'drafters: {verdict}')
     return 0

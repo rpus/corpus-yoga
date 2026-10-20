@@ -1,6 +1,6 @@
 {
   "summary": "capture browser-reachable chats via Safari (claude API, gemini DOM)",
-  "wording": [
+  "phrase": [
     "captured {done} of {total}, {failed} failed, in {seconds}s",
     "apiConversation JSON fetch failed - the FAIL line above carries the remedy",
     "no markdown - the in-browser scrape log is in the progress file, tmp/logs/browser/capture/<stamp>.<provider>.progress",

@@ -85,7 +85,7 @@ parse_args() {
     case "$1" in
       --plan) plan="1";                                               shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      -*) echo "error: $(sentence "{word} is no argument it takes - corpus-yoga pipeline run [<pipeline>] [--plan]; --help says more" word="$1")" >&2; exit 1 ;;
+      -*) echo "error: $(phrase "{word} is no argument it takes - corpus-yoga pipeline run [<pipeline>] [--plan]; --help says more" word="$1")" >&2; exit 1 ;;
       # A POSITIONAL names the pipeline. One way to say one thing:
       # the noun-verb-object the surface already reads as, validated against the pipelines
       # that exist rather than against a list someone maintains.
@@ -95,7 +95,7 @@ parse_args() {
         # whole input root, which is the only other thing a run can be about.
         if [[ -n "$only" ]]; then
           if [[ -n "$item" ]]; then
-            echo "error: $(sentence "one item at a time (already have {item}, then {next})" item="$item" next="$1")" >&2; exit 1
+            echo "error: $(phrase "one item at a time (already have {item}, then {next})" item="$item" next="$1")" >&2; exit 1
           fi
           item="$1"; shift; continue
         fi
@@ -104,7 +104,7 @@ parse_args() {
         local known="" candidate
         for candidate in $(pipelines); do [[ "$candidate" == "$1" ]] && known=1; done
         if [[ -z "$known" ]]; then
-          echo "error: $(sentence "no pipeline {name} - this repo has {names}" name="$1" names="$(pipelines | tr '\n' ' ')")" >&2; exit 1
+          echo "error: $(phrase "no pipeline {name} - this repo has {names}" name="$1" names="$(pipelines | tr '\n' ' ')")" >&2; exit 1
         fi
         only="$1"; shift ;;
     esac
@@ -115,7 +115,7 @@ parse_args() {
 # the vN.log files beside it, so the summary agrees with the logs it summarises.
 sync_matrices() {
   parse_args "$@"
-  [[ -z "$item" ]] || { echo "corpus-yoga pipeline sync: $(sentence "takes a pipeline, not an item ({item})" item="$item")" >&2; exit 1; }
+  [[ -z "$item" ]] || { echo "corpus-yoga pipeline sync: $(phrase "takes a pipeline, not an item ({item})" item="$item")" >&2; exit 1; }
   local p rc=0
   for p in $(pipelines); do
     should_run "$p" || continue
@@ -123,9 +123,9 @@ sync_matrices() {
       --pipeline "$p" --write || rc=1
   done
   if (( rc == 0 )); then
-    effect "pipeline sync: DONE - $(sentence "each datum's matrix.md re-rendered from its validation logs")"
+    effect "pipeline sync: DONE - $(phrase "each datum's matrix.md re-rendered from its validation logs")"
   else
-    effect "pipeline sync: NOT DONE - $(sentence "a pipeline's matrices were not rendered; the line above names it")" "corpus-yoga pipeline run" "$(sentence "validates the data the matrices read")"
+    effect "pipeline sync: NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")" "corpus-yoga pipeline run" "$(phrase "validates the data the matrices read")"
   fi
   return $rc
 }
@@ -136,7 +136,7 @@ should_run() { [[ -z "$only" || "$only" == "$1" ]]; }
 require_cmd() {
   local cmd="$1" hint="$2"
   if ! command -v "$cmd" &>/dev/null; then
-    echo "error: $(sentence "{command} not found - {hint}" command="$cmd" hint="$hint")" >&2
+    echo "error: $(phrase "{command} not found - {hint}" command="$cmd" hint="$hint")" >&2
     exit 1
   fi
 }
@@ -145,7 +145,7 @@ require_venv() {
   # One creator (issues/478): status sync mints the venv; this run
   # requires it and names the mint rather than minting a second way.
   if [[ ! -f "$CORPUS_YOGA_VENV/bin/activate" ]]; then
-    echo "error: $(sentence "venv not found at {venv} - ./src/main/cli/status/status.sh sync mints it" venv="$CORPUS_YOGA_VENV")" >&2
+    echo "error: $(phrase "venv not found at {venv} - ./src/main/cli/status/status.sh sync mints it" venv="$CORPUS_YOGA_VENV")" >&2
     exit 1
   fi
 }
@@ -157,10 +157,10 @@ install_deps() {
   # it with a note and the run proceeds on the venv as-is — a fresh venv then fails at
   # its first import, visibly, with this line just above it in the log (issues/29).
   if ! may_send; then
-    sentence "CORPUS_YOGA_NO_SEND=1 refuses the send pip install - the venv serves as-is"
+    phrase "CORPUS_YOGA_NO_SEND=1 refuses the send pip install - the venv serves as-is"
     return 0
   fi
-  sentence "checking for pip upgrade"
+  phrase "checking for pip upgrade"
   pip install --upgrade pip
   pip install -q -r "$REPO_ROOT/src/requirements.txt"
 }
@@ -194,7 +194,7 @@ prep_pipeline() {
   local rc=0 op impl pair
   # The failure has to be caught on prep_call, not on `read`: a herestring always supplies
   # a newline, so `read` succeeds on empty input and would hand `step` two empty arguments.
-  pair="$(prep_call "$name")" || { sentence "no prep step for {name}" name="$name"; return 0; }
+  pair="$(prep_call "$name")" || { phrase "no prep step for {name}" name="$name"; return 0; }
   read -r op impl <<< "$pair"
   step "$op" "$impl" "$@" || rc=$?
   echo ""
@@ -223,7 +223,7 @@ run_pipeline_safe() {
     if ! section_has_fail "$name"; then
       local last
       last="$(section_last_words "$name")"
-      echo "FAIL: $(sentence "{section} exited non-zero without stating a finding - its last words are {last}" section="$name" last="${last:-(no output)}")"
+      echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="$name" last="${last:-(no output)}")"
     fi
   fi
 }
@@ -347,9 +347,9 @@ prep_pipeline_safe() {
     if ! section_has_fail "prep: $name"; then
       local last
       last="$(section_last_words "prep: $name")"
-      echo "FAIL: $(sentence "{section} exited non-zero without stating a finding - its last words are {last}" section="prep: $name" last="${last:-(no output)}")"
+      echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="prep: $name" last="${last:-(no output)}")"
       case "$name" in
-        chat-export) echo "    $(sentence "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-export/require_export.sh --help)")" ;;
+        chat-export) echo "    $(phrase "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-export/require_export.sh --help)")" ;;
       esac
     fi
   fi
@@ -422,8 +422,8 @@ print_plan() {
   # capture-sweep line resolves against the flags given instead of staying
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
-  echo "corpus-yoga pipeline run${only:+ $only} - $(sentence "the ordered plan (conditional steps annotated; nothing executed)"):"
-  echo "  tooling: $(sentence "require jq; require the venv at {venv} (./src/main/cli/status/status.sh sync mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
+  echo "corpus-yoga pipeline run${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
+  echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh sync mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
   ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
   if should_run chat-capture; then
     "$REPO_ROOT/src/main/pipeline/chat-capture/run.sh" --plan | sed 's/^/  /'
@@ -436,10 +436,10 @@ print_plan() {
   if should_run code-transport; then
     "$REPO_ROOT/src/main/pipeline/code-transport/run.sh" --plan | sed 's/^/  /'
   fi
-  echo "  $(sentence "then once, over the whole corpus"):"
+  echo "  $(phrase "then once, over the whole corpus"):"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: $(sentence "one row per stage - its FAIL count (every non-zero exit states an atom) and where it begins in the log; failing stages with their error and FAIL lines quoted; the outputs line; log path")"
+  echo "  tail: $(phrase "one row per stage - its FAIL count (every non-zero exit states an atom) and where it begins in the log; failing stages with their error and FAIL lines quoted; the outputs line; log path")"
 }
 
 main() {
@@ -458,7 +458,7 @@ main() {
   echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · $signature · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
 
 
-  require_cmd jq "$(sentence "brew install jq installs it")"
+  require_cmd jq "$(phrase "brew install jq installs it")"
   require_venv
   install_deps
 
@@ -477,16 +477,16 @@ main() {
   # run continues so the product half of the report still speaks.
   echo "── tests ─────────────────────────────────────────────────────────────────"
   if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
-    echo "tests: $(sentence "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)")"
+    echo "tests: $(phrase "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)")"
   elif ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
     if ! section_has_fail "tests"; then
       local tests_reds tests_last
       tests_reds="$(section_dev_gate_reds "tests")"
       if [[ -n "$tests_reds" ]]; then
-        echo "FAIL: tests: $(sentence "dev gate red - {reds} (the dev gate's own log names the checks)" reds="$tests_reds")"
+        echo "FAIL: tests: $(phrase "dev gate red - {reds} (the dev gate's own log names the checks)" reds="$tests_reds")"
       else
         tests_last="$(section_last_words "tests")"
-        echo "FAIL: $(sentence "{section} exited non-zero without stating a finding - its last words are {last}" section=tests last="${tests_last:-(no output)}")"
+        echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=tests last="${tests_last:-(no output)}")"
       fi
     fi
   fi
@@ -513,7 +513,7 @@ main() {
     if ! section_has_fail corpus; then
       local corpus_last
       corpus_last="$(section_last_words corpus)"
-      echo "FAIL: $(sentence "{section} exited non-zero without stating a finding - its last words are {last}" section=corpus last="${corpus_last:-(no output)}")"
+      echo "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=corpus last="${corpus_last:-(no output)}")"
     fi
   fi
 
@@ -526,8 +526,8 @@ main() {
   # columns. One failure notion (issues/547): every non-zero exit stated an atom above, so
   # a row's FAIL count is its verdict, and the run's verdict is the rows with atoms.
   atom_table
-  echo "  ($(sentence "each pipeline stage runs alone as corpus-yoga pipeline run <stage>; corpus is the reduce over all"))"
-  echo "  ($(sentence "line = where that stage begins in this log; each finding is stated there, in place"))"
+  echo "  ($(phrase "each pipeline stage runs alone as corpus-yoga pipeline run <stage>; corpus is the reduce over all"))"
+  echo "  ($(phrase "line = where that stage begins in this log; each finding is stated there, in place"))"
   # The run's verdict is the sections holding FAIL atoms - the one failure notion
   # (issues/547; exit-status failures state an atom at their fold). FAIL is the one
   # finding tier (issues/530): a violated property states FAIL, a fact is untiered prose.
@@ -538,15 +538,15 @@ main() {
     verdict_failures+=("$atom_section")
   done <<< "$(sections_with_fail_atoms)"
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    echo "usr gate: PASS - $(sentence "all pipelines completed")"
+    echo "usr gate: PASS - $(phrase "all pipelines completed")"
   else
-    echo "usr gate: FAIL - $(sentence "failing stage(s)"):"
+    echo "usr gate: FAIL - $(phrase "failing stage(s)"):"
     local errs
     for f in "${verdict_failures[@]}"; do
       echo "  $f"
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
-      [[ -n "$errs" ]] || echo "    $(sentence "the failing step prints its error and the path of its own log above")"
+      [[ -n "$errs" ]] || echo "    $(phrase "the failing step prints its error and the path of its own log above")"
     done
   fi
   # The usr-actor's next acts, and nothing else: the run's outputs, and reading them
@@ -559,9 +559,9 @@ main() {
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    effect "pipeline run: DONE - $(sentence "usr gate PASS; all pipelines completed")" "corpus-yoga server start --daemon" "$(sentence "serves data/output/markdown at http://localhost:8182")"
+    effect "pipeline run: DONE - $(phrase "usr gate PASS; all pipelines completed")" "corpus-yoga server start --daemon" "$(phrase "serves data/output/markdown at http://localhost:8182")"
   else
-    effect "pipeline run: NOT DONE - $(sentence "usr gate FAIL; the failing stage(s) are named above")"
+    effect "pipeline run: NOT DONE - $(phrase "usr gate FAIL; the failing stage(s) are named above")"
   fi
   return $(( ${#verdict_failures[@]} > 0 ))
 }
@@ -581,7 +581,7 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: $(sentence "{verb} is no verb it takes - run, rehearse, sync, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, rehearse, sync, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
 esac
 
 # --plan runs before the log exists: it writes nothing, not even a log file.

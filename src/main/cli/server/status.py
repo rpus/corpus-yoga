@@ -50,10 +50,10 @@ def main() -> int:
         for version in re.findall(r'/npm/([^/@]+@[^/]+)', line) if name not in missing else []:
             if version not in versions:
                 versions.append(version)
-    facts.say(Status(Server(facts.sentence('running (pid {pid})', pid=found[0]) if found else facts.sentence('not running'), Assets(
-        facts.sentence('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
-        (facts.sentence('all of them') if len(missing) == len(wanted) else missing) or None,
-        facts.Command('corpus-yoga server ensure-assets', facts.sentence('fetches them; the next corpus-yoga server start does too')) if missing else None))))
+    facts.say(Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), Assets(
+        facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
+        (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
+        facts.Command('corpus-yoga server ensure-assets', facts.phrase('fetches them; the next corpus-yoga server start does too')) if missing else None))))
     return 0
 
 

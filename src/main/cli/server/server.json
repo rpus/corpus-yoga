@@ -1,6 +1,6 @@
 {
   "summary": "serve the markdown corpus locally (LaTeX + turn deep links)",
-  "wording": [
+  "phrase": [
     "running (pid {pid})",
     "not running",
     "{got}/{total} in ext/lib/serve_markdown",

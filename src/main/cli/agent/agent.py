@@ -171,7 +171,7 @@ def own_outbox(provider: str) -> Path | None:
     skip and what to do rather than stopping between providers."""
     medium = tier.DATA / 'input'
     if not medium.is_dir():
-        print(f'{provider}: ' + facts.sentence('{medium} is missing - link data/ to the shared iCloud tree (corpus-yoga status shows the convention), then run this again; skipped',
+        print(f'{provider}: ' + facts.phrase('{medium} is missing - link data/ to the shared iCloud tree (corpus-yoga status shows the convention), then run this again; skipped',
                                                medium=medium.relative_to(REPO)), file=sys.stderr)
         return None
     # the outbox is the stage twin of the store, tmp/stage/input/...: a capture writes it,
@@ -195,7 +195,7 @@ def peer_bundle(name: str) -> Path:
     machine = store / name
     if not machine.is_dir():
         machines = sorted(d.name for d in store.iterdir() if d.is_dir()) if store.is_dir() else []
-        sys.exit('error: ' + facts.sentence('no {store}/{name}/ - machines present {machines}; a directory source is path-shaped, ./{name}',
+        sys.exit('error: ' + facts.phrase('no {store}/{name}/ - machines present {machines}; a directory source is path-shaped, ./{name}',
                                             store=store.relative_to(REPO), name=name, machines=', '.join(machines) or '(none)'))
     return machine
 
@@ -239,8 +239,8 @@ def list_agents() -> Census:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
             absent[mount_path.relative_to(REPO).as_posix()] = Mount(
-                facts.sentence('absent - no local {provider} rows', provider=provider),
-                facts.Command('corpus-yoga agent mount', facts.sentence('would mount it')))
+                facts.phrase('absent - no local {provider} rows', provider=provider),
+                facts.Command('corpus-yoga agent mount', facts.phrase('would mount it')))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -270,7 +270,7 @@ class Peer:
 class Merge:
     """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (issues/881)."""
     latest: str
-    remedy: facts.Command = facts.Command('corpus-yoga agent demerge', facts.sentence('would undo it'))
+    remedy: facts.Command = facts.Command('corpus-yoga agent demerge', facts.phrase('would undo it'))
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
@@ -280,18 +280,18 @@ def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
     row = registry.provider('claude')
     projects, adapter = registry.mount(row), transport.adapter('claude')
     if projects is None or adapter is None or not projects.is_dir():
-        return facts.sentence('none - the claude store is not mounted'), facts.sentence('none - the claude store is not mounted')
+        return facts.phrase('none - the claude store is not mounted'), facts.phrase('none - the claude store is not mounted')
     peers: dict[str, Peer] = {}
     store = transport.store('claude')
     for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
         if machine.name == registry.machine():
             continue
         log = adapter.install_all(machine, projects, False, machine.name)
-        peers[machine.name] = Peer(log.facts() or facts.sentence('nothing - the store holds no session of it'),
-                                   facts.Command(f'corpus-yoga agent install --from {machine.name} --all', facts.sentence('would write them')))
+        peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'),
+                                   facts.Command(f'corpus-yoga agent install --from {machine.name} --all', facts.phrase('would write them')))
     merges = {proj.name: Merge(label) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
               if (label := adapter.latest_merge(proj)) is not None}
-    return peers or facts.sentence('none - no peer machine held'), merges or facts.sentence('none - no merge record')
+    return peers or facts.phrase('none - no peer machine held'), merges or facts.phrase('none - no merge record')
 
 
 @dataclass
@@ -307,7 +307,7 @@ class Status:
         brief = self.drafters
         if brief is None:                 # no machine binding: the drafters cannot be read against one (issues/758)
             unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt':
-                                                       facts.sentence('binds it, to a name rsc/machine/machines.csv declares')}}
+                                                       facts.phrase('binds it, to a name rsc/machine/machines.csv declares')}}
             return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'install': self.install, 'merges': self.merges}
         return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged,
                 'install': self.install, 'merges': self.merges}
@@ -339,23 +339,23 @@ def capture(uuid8: str | None, provider: str | None) -> int:
     next:, then the one verdict."""
     names = [row['provider'] for row, _, _ in served()]
     if provider is not None and provider not in names:
-        sys.exit('error: ' + facts.sentence('{provider} is not a provider the agent verb serves - served {names}', provider=repr(provider), names=', '.join(names)))
+        sys.exit('error: ' + facts.phrase('{provider} is not a provider the agent verb serves - served {names}', provider=repr(provider), names=', '.join(names)))
     if uuid8 is not None and provider is None:
-        sys.exit('error: ' + facts.sentence('--id names a session within a provider - say which with --provider'))
+        sys.exit('error: ' + facts.phrase('--id names a session within a provider - say which with --provider'))
     targets = [(row, mount_path, adapter) for row, mount_path, adapter in served()
                if mount_path.is_dir() and (provider is None or row['provider'] == provider)]
     if not targets:
-        sys.exit('error: ' + facts.sentence('no live store mounted - corpus-yoga agent mount creates the symlinks'))
+        sys.exit('error: ' + facts.phrase('no live store mounted - corpus-yoga agent mount creates the symlinks'))
     if uuid8 is not None:
         row, mount_path, adapter = targets[0]
         matches = [s for s in adapter.live_sessions(mount_path) if s.id.startswith(uuid8)]
         if not matches:
-            sys.exit('error: ' + facts.sentence('no {provider} session matching {uuid8} in {mount}', provider=provider, uuid8=repr(uuid8), mount=mount_path.relative_to(REPO)))
+            sys.exit('error: ' + facts.phrase('no {provider} session matching {uuid8} in {mount}', provider=provider, uuid8=repr(uuid8), mount=mount_path.relative_to(REPO)))
         if len(matches) > 1:
             # one session can sit under two projects (the fork a repository rename leaves),
             # so more of the uuid resolves nothing: name each record with its project, and
             # the act that takes them all - --id names one session
-            sys.exit('error: ' + facts.sentence("{uuid8} names {n} records - {records} - --id names one session; to capture every record, take the provider's totality, --provider {provider}",
+            sys.exit('error: ' + facts.phrase("{uuid8} names {n} records - {records} - --id names one session; to capture every record, take the provider's totality, --provider {provider}",
                                                 uuid8=repr(uuid8), n=len(matches), records=', '.join(f'{s.project}/{s.id}' for s in matches), provider=row['provider']))
     out: dict[str, object] = {}
     logs: list[transport.Log] = []
@@ -379,7 +379,7 @@ def _claude() -> tuple[Path, ModuleType]:
     mount_path, adapter = registry.mount(row), transport.adapter('claude')
     assert mount_path is not None and adapter is not None
     if not mount_path.is_dir():
-        sys.exit('error: ' + facts.sentence('{mount} missing - corpus-yoga agent mount creates the symlink', mount=mount_path.relative_to(REPO)))
+        sys.exit('error: ' + facts.phrase('{mount} missing - corpus-yoga agent mount creates the symlink', mount=mount_path.relative_to(REPO)))
     return mount_path, adapter
 
 
@@ -391,7 +391,7 @@ def mount() -> int:
     creates them. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
-        facts.report(None, 'agent mount: NOT DONE - ' + facts.sentence('machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one'))
+        facts.report(None, 'agent mount: NOT DONE - ' + facts.phrase('machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one'))
         return 1
     verdict = 0
     present = created = 0
@@ -399,27 +399,27 @@ def mount() -> int:
         live = registry.live_store(row)
         target = registry.mount(row)
         if live is None or target is None:
-            print(f'{row["provider"]}: ' + facts.sentence('observes no live store - nothing to mount'))
+            print(f'{row["provider"]}: ' + facts.phrase('observes no live store - nothing to mount'))
             continue
         shown = target.relative_to(REPO)
         if not live.is_dir():
-            print(f'{shown}: ' + facts.sentence('{live} absent on this machine - nothing to mount', live=row['live_store']))
+            print(f'{shown}: ' + facts.phrase('{live} absent on this machine - nothing to mount', live=row['live_store']))
             continue
         if target.is_symlink() and target.resolve() == live.resolve():
-            print(f'{shown}: ' + facts.sentence('the link to {live} is present', live=row['live_store']))
+            print(f'{shown}: ' + facts.phrase('the link to {live} is present', live=row['live_store']))
             present += 1
             continue
         if target.exists() or target.is_symlink():
-            print(f'{shown}: ' + facts.sentence('exists and is not the link to {live} - not touched; remove it by hand', live=row['live_store']))
+            print(f'{shown}: ' + facts.phrase('exists and is not the link to {live} - not touched; remove it by hand', live=row['live_store']))
             verdict = 1
             continue
         created += 1
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(live)
-        print(f'{shown}: ' + facts.sentence('the link to {live} is created', live=row['live_store']))
+        print(f'{shown}: ' + facts.phrase('the link to {live} is created', live=row['live_store']))
     # what an act reports (issues/801, issues/896): the effect line, handed up to the launcher's reply
-    did = facts.sentence('did create {created}, present {present}', created=created, present=present)
-    facts.report(None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; ' + facts.sentence('a link at another target is not touched') if verdict else ''))
+    did = facts.phrase('did create {created}, present {present}', created=created, present=present)
+    facts.report(None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; ' + facts.phrase('a link at another target is not touched') if verdict else ''))
     return verdict
 
 
@@ -464,8 +464,8 @@ def main() -> int:
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj) else 0)
         # what an act reports (issues/876, issues/896): the effect, handed up to the launcher's reply; what it would undo is the status's (issues/881)
-        facts.report(None, f'agent demerge: {"NOT DONE" if rc else "DONE"} - ' + facts.sentence('did undo the latest merge of each project above')
-                     + ('; ' + facts.sentence('a conflict left one in place') if rc else ''))
+        facts.report(None, f'agent demerge: {"NOT DONE" if rc else "DONE"} - ' + facts.phrase('did undo the latest merge of each project above')
+                     + ('; ' + facts.phrase('a conflict left one in place') if rc else ''))
         return rc
 
     bundle = peer_bundle(args.source)

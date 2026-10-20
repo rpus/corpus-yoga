@@ -1,6 +1,6 @@
 {
   "summary": "the checks over this repo, and the hook that runs them",
-  "wording": [
+  "phrase": [
     "{n} check sections",
     "no - not a git clone, so no hook to install",
     "as a symlink to {target} - a rename dangles it and git then skips it in silence",

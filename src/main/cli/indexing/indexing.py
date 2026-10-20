@@ -356,16 +356,16 @@ def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
     CANDIDATES_TXT.parent.mkdir(parents=True, exist_ok=True)
     CANDIDATES_TXT.write_text(report)
     pending = [l for l in report.splitlines() if l.strip()]
-    print(facts.sentence('{n} candidate concept(s) written to {path}', n=len(pending), path=CANDIDATES_TXT.relative_to(REPO))
-          + (' - ' + facts.sentence('each anchors in the corpus by the aliases shown; dispose each with corpus-yoga indexing accept "<concept>" [alias ...] or reject "<concept>", or --all as read')
+    print(facts.phrase('{n} candidate concept(s) written to {path}', n=len(pending), path=CANDIDATES_TXT.relative_to(REPO))
+          + (' - ' + facts.phrase('each anchors in the corpus by the aliases shown; dispose each with corpus-yoga indexing accept "<concept>" [alias ...] or reject "<concept>", or --all as read')
              if pending else ''))
     for c in pending:
         print(f'  {c}')
     _, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     if unanchorable:
-        print(facts.sentence('{n} unanchorable concept(s) - no phrasing occurs in any conversation turn, so the corpus cannot index them; named, not queued', n=len(unanchorable)))
+        print(facts.phrase('{n} unanchorable concept(s) - no phrasing occurs in any conversation turn, so the corpus cannot index them; named, not queued', n=len(unanchorable)))
         for c, tried in unanchorable:
-            print(f'  {c}  (' + facts.sentence('tried, in either number, {tried}', tried=', '.join(tried)) + ')')
+            print(f'  {c}  (' + facts.phrase('tried, in either number, {tried}', tried=', '.join(tried)) + ')')
     if top is None:
         return
 
@@ -382,9 +382,9 @@ def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
                 counts[lw] += 1
                 word_convs.setdefault(lw, set()).add(stem)
     ranked = sorted(counts, key=lambda w: (-len(word_convs[w]), -counts[w]))
-    print('\n## ' + facts.sentence('Frequent uncovered corpus words (top {top} of {n}; advisory - machine-local, terminal only)', top=top, n=len(ranked)))
+    print('\n## ' + facts.phrase('Frequent uncovered corpus words (top {top} of {n}; advisory - machine-local, terminal only)', top=top, n=len(ranked)))
     for w in ranked[:top]:
-        print(f'- {w} - ' + facts.sentence('{n} conversation(s), {count} times', n=len(word_convs[w]), count=counts[w]))
+        print(f'- {w} - ' + facts.phrase('{n} conversation(s), {count} times', n=len(word_convs[w]), count=counts[w]))
 
 
 def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
@@ -408,32 +408,32 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
         known = {t.lower() for t in entries[head]}
         new = [a for a in aliases if a.lower() not in known]
         if not new:
-            return f'{term!r}: ' + (facts.sentence('already accepted (as {head}) - no-op', head=repr(head)) if head != term else facts.sentence('already accepted - no-op'))
+            return f'{term!r}: ' + (facts.phrase('already accepted (as {head}) - no-op', head=repr(head)) if head != term else facts.phrase('already accepted - no-op'))
         merged = entries[head][1:] + new
         for i, raw in enumerate(lines):
             if raw.split('#', 1)[0].partition('=')[0].strip().lower() == head.lower():
                 lines[i] = f'{head} = {", ".join(merged)}'
                 break
         accepted_path.write_text('\n'.join(lines) + '\n')
-        return f'{head!r}: ' + facts.sentence('merged alias(es) {aliases}', aliases=', '.join(new))
+        return f'{head!r}: ' + facts.phrase('merged alias(es) {aliases}', aliases=', '.join(new))
     line = term + (f' = {", ".join(aliases)}' if aliases else '')
     accepted_path.write_text('\n'.join(lines + [line]) + '\n')
-    return f'{term!r}: ' + (facts.sentence('accepted with alias(es) {aliases}', aliases=', '.join(aliases)) if aliases else facts.sentence('accepted'))
+    return f'{term!r}: ' + (facts.phrase('accepted with alias(es) {aliases}', aliases=', '.join(aliases)) if aliases else facts.phrase('accepted'))
 
 
 def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) -> str:
     """Record a rejection in the durable disposal record — unless the concept is
     already covered (accepted) or already rejected; disposals never duplicate."""
     if concept.lower() in parse_rejected(rejected_path):
-        return f'{concept!r}: ' + facts.sentence('already rejected - no-op')
+        return f'{concept!r}: ' + facts.phrase('already rejected - no-op')
     entries = parse_accepted(accepted_path)
     if term_regex([t for ts in entries.values() for t in ts]).search(concept):
-        return f'{concept!r}: ' + facts.sentence('already covered by an accepted headword - no rejection needed')
+        return f'{concept!r}: ' + facts.phrase('already covered by an accepted headword - no rejection needed')
     rejected_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh machine
     lines = rejected_path.read_text().splitlines() if rejected_path.exists() else []
     lines.append(f'{concept}' + (f'  # {reason}' if reason else ''))
     rejected_path.write_text('\n'.join(lines) + '\n')
-    return f'{concept!r}: ' + (facts.sentence('rejected ({reason})', reason=reason) if reason else facts.sentence('rejected'))
+    return f'{concept!r}: ' + (facts.phrase('rejected ({reason})', reason=reason) if reason else facts.phrase('rejected'))
 
 
 def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str) -> str:
@@ -444,14 +444,14 @@ def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str
     anchoring aliases in (issues/644; accepted-semantic-concepts.txt stays hand-editable); wholesale
     reject stamps the one reason on every line."""
     if not CANDIDATES_TXT.exists():
-        return facts.sentence('refused - no derived queue; run corpus-yoga indexing list-candidates, read it, then --all')
+        return facts.phrase('refused - no derived queue; run corpus-yoga indexing list-candidates, read it, then --all')
     as_read = CANDIDATES_TXT.read_text()
     live = candidates_report(accepted_path, rejected_path, MARKDOWN_DIR)
     if as_read != live:
-        return facts.sentence('refused - the queue moved since you listed it; re-run corpus-yoga indexing list-candidates, re-read, then --all')
+        return facts.phrase('refused - the queue moved since you listed it; re-run corpus-yoga indexing list-candidates, re-read, then --all')
     queue = [line.strip() for line in as_read.splitlines() if line.strip()]
     if not queue:
-        return facts.sentence('no candidates - the derived queue is empty')
+        return facts.phrase('no candidates - the derived queue is empty')
     for line in queue:
         # the queue line is accepted-semantic-concepts.txt's own format: the concept, then the aliases
         # that anchor it - accepting folds them in, so a wholesale accept makes no orphan
@@ -465,7 +465,7 @@ def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str
     # the queue is disposed; re-derive so the filed artifact stays the truth
     CANDIDATES_TXT.write_text(candidates_report(accepted_path, rejected_path, MARKDOWN_DIR))
     word = 'accepted' if verb == 'accept' else 'rejected'
-    return facts.sentence('{n} concept(s) {word}, the queue as read', n=len(queue), word=word)
+    return facts.phrase('{n} concept(s) {word}, the queue as read', n=len(queue), word=word)
 
 
 def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
@@ -479,12 +479,12 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
     """The loop's feedback: how many captured concepts remain undisposed, and how
     many the corpus cannot index and so are never queued."""
     if not inferred_concepts():
-        print('candidates: ' + facts.sentence('unknown - no concept capture on this machine (corpus-yoga indexing capture)'))
+        print('candidates: ' + facts.phrase('unknown - no concept capture on this machine (corpus-yoga indexing capture)'))
         return
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), MARKDOWN_DIR)
-    print('candidates: ' + facts.sentence('{n} concept(s) undisposed', n=len(anchored))
-          + ' - ' + (facts.sentence('the first is {concept} (corpus-yoga indexing accept "<term>" or reject "<concept>")', concept=repr(anchored[0][0])) if anchored else facts.sentence('fully disposed'))
-          + ('; ' + facts.sentence('{n} unanchorable, named by list-candidates, not queued', n=len(unanchorable)) if unanchorable else ''))
+    print('candidates: ' + facts.phrase('{n} concept(s) undisposed', n=len(anchored))
+          + ' - ' + (facts.phrase('the first is {concept} (corpus-yoga indexing accept "<term>" or reject "<concept>")', concept=repr(anchored[0][0])) if anchored else facts.phrase('fully disposed'))
+          + ('; ' + facts.phrase('{n} unanchorable, named by list-candidates, not queued', n=len(unanchorable)) if unanchorable else ''))
 
 
 def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
@@ -514,11 +514,11 @@ def anchor_report(concepts_file: Path, markdown_root: Path) -> None:
     covered, rejected = _coverage(ACCEPTED_FILE, REJECTED_FILE)
     new = [c for c in concepts if not covered.search(c) and c.lower() not in rejected]
     anchored, unanchorable = anchored_split(new, markdown_root)
-    print('  anchors: ' + facts.sentence('{captured} concept(s) captured, {disposed} already disposed; of the {new} new, {anchored} anchor in a conversation turn and will be queued',
+    print('  anchors: ' + facts.phrase('{captured} concept(s) captured, {disposed} already disposed; of the {new} new, {anchored} anchor in a conversation turn and will be queued',
                                            captured=len(concepts), disposed=len(concepts) - len(new), new=len(new), anchored=len(anchored))
-          + (', ' + facts.sentence('{n} do not and will not be', n=len(unanchorable)) if unanchorable else ''))
+          + (', ' + facts.phrase('{n} do not and will not be', n=len(unanchorable)) if unanchorable else ''))
     for c, tried in unanchorable:
-        print(f'    {c}  (' + facts.sentence('tried, in either number, {tried}', tried=', '.join(tried)) + ')')
+        print(f'    {c}  (' + facts.phrase('tried, in either number, {tried}', tried=', '.join(tried)) + ')')
 
 
 @dataclass
@@ -566,11 +566,11 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
         # a notice, never a failure (issues/675): the reader's curation, not a verb's, clears it
-        out.orphans = (Orphans(orphans, facts.Act(facts.sentence('fix the aliases, or remove the line and reject the concept with a reason')))
-                       if orphans else facts.sentence('none - every accepted headword has a corpus locator'))
+        out.orphans = (Orphans(orphans, facts.Act(facts.phrase('fix the aliases, or remove the line and reject the concept with a reason')))
+                       if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
-        out.candidates = Candidates(queue=facts.sentence('unknown - no concept capture on this machine'),
-                                    remedy=facts.Command('corpus-yoga indexing capture', facts.sentence('PAID, the model reads the corpus for its concepts')))
+        out.candidates = Candidates(queue=facts.phrase('unknown - no concept capture on this machine'),
+                                    remedy=facts.Command('corpus-yoga indexing capture', facts.phrase('PAID, the model reads the corpus for its concepts')))
         return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
@@ -579,9 +579,9 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (issues/644).
-    out.candidates = (Candidates(undisposed=pending, remedy=facts.Act(facts.sentence(
+    out.candidates = (Candidates(undisposed=pending, remedy=facts.Act(facts.phrase(
         """each is the reader's act - corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>"; corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each, and --all disposes it as read""")))
-                      if pending else facts.sentence('none - fully disposed'))
+                      if pending else facts.phrase('none - fully disposed'))
     if unanchorable:
         out.unanchorable = Unanchorable([c for c, _ in unanchorable])
     return out
@@ -621,7 +621,7 @@ def captures() -> Captures:
     for name in ('inferred-semantic-concepts.json', 'inferred-chat-categories.json'):
         path = held_dir / name
         rows[name] = len(json.loads(path.read_text()).get('rows', [])) if path.is_file() else None
-    out = Captures({name: facts.sentence('not captured yet') if n is None else facts.sentence('{n} rows', n=n) for name, n in rows.items()})
+    out = Captures({name: facts.phrase('not captured yet') if n is None else facts.phrase('{n} rows', n=n) for name, n in rows.items()})
     corpus = tier.DATA / 'output' / 'markdown'
     if not corpus.is_dir():
         return out                # L8: no corpus yet - nothing to be current against
@@ -633,8 +633,8 @@ def captures() -> Captures:
         # a lag is a notice, never a failure (issues/675): no verb failed, and only the reader's paid act clears it
         out.corpus = Currency(n, m)
         if m < n:
-            out.corpus.lag = facts.sentence('the paid layer lags the corpus')
-            out.corpus.remedy = facts.Command('corpus-yoga indexing capture', facts.sentence('PAID, the model re-reads the corpus'))
+            out.corpus.lag = facts.phrase('the paid layer lags the corpus')
+            out.corpus.remedy = facts.Command('corpus-yoga indexing capture', facts.phrase('PAID, the model re-reads the corpus'))
     return out
 
 
@@ -659,23 +659,23 @@ def main():
         # exactly one of --all and a term: the flag disposes the queue as read, the
         # positional disposes one concept — both or neither is no instruction.
         if args.all == bool(args.term):
-            ap.error(facts.sentence('accept takes a <term> or --all, not both and not neither'))
+            ap.error(facts.phrase('accept takes a <term> or --all, not both and not neither'))
         if args.all:
             print(dispose_all(accepted_path, rejected_path, 'accept', ''))
         else:
             print(accept(accepted_path, args.term, args.aliases))
         pending_report(accepted_path, rejected_path)
-        facts.report(None, 'indexing accept: DONE - ' + (facts.sentence('the queue disposed as read') if args.all else facts.sentence('{term} accepted', term=args.term)))
+        facts.report(None, 'indexing accept: DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{term} accepted', term=args.term)))
         return
     if args.verb == 'reject':
         if args.all == bool(args.concept):
-            ap.error(facts.sentence('reject takes a <concept> or --all, not both and not neither'))
+            ap.error(facts.phrase('reject takes a <concept> or --all, not both and not neither'))
         if args.all:
             print(dispose_all(accepted_path, rejected_path, 'reject', args.reason))
         else:
             print(reject(accepted_path, rejected_path, args.concept, args.reason))
         pending_report(accepted_path, rejected_path)
-        facts.report(None, 'indexing reject: DONE - ' + (facts.sentence('the queue disposed as read') if args.all else facts.sentence('{concept} rejected', concept=args.concept)))
+        facts.report(None, 'indexing reject: DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{concept} rejected', concept=args.concept)))
         return
     if args.verb == 'sync':
         root = MARKDOWN_DIR
@@ -683,12 +683,12 @@ def main():
         # sibling in the corpus tail names its absence; this step must not be
         # the one that presumes its input into existence and tracebacks.
         if not root.is_dir():
-            facts.report(None, 'indexing sync: DONE - ' + facts.sentence('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
+            facts.report(None, 'indexing sync: DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
             return
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)
-        facts.report(None, 'indexing sync: DONE - ' + facts.sentence('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
+        facts.report(None, 'indexing sync: DONE - ' + facts.phrase('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
                                                                       summary=text.rstrip().rsplit(chr(10), 1)[-1]))
         return
 

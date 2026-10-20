@@ -60,17 +60,17 @@ def entries() -> list[cleaner.Entry]:
     out: list[cleaner.Entry] = []
     for e in corpus.orphans():
         name = e.relative_to(REPO).as_posix()
-        out.append(cleaner.Entry('orphan', name, {'orphan': facts.sentence('neither the input, the scratch nor the record'), 'size': corpus.human(corpus.size_of(e))},
+        out.append(cleaner.Entry('orphan', name, {'orphan': facts.phrase('neither the input, the scratch nor the record'), 'size': corpus.human(corpus.size_of(e))},
                                  lambda e=e: corpus.dispose(e)))
     if corpus.STAGE.is_dir():
         for unit in corpus.units(corpus.STAGE):
             if corpus.redundant(unit):
-                out.append(cleaner.Entry('duplicate', unit.address.as_posix(), {'duplicate': facts.sentence('identical to the held unit'), 'size': _size(unit)},
+                out.append(cleaner.Entry('duplicate', unit.address.as_posix(), {'duplicate': facts.phrase('identical to the held unit'), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
             elif unit.missing:
                 # its record says what it lacks, so what it is is decidable on sight (issues/721)
                 out.append(cleaner.Entry('incomplete unit', unit.address.as_posix(),
-                                         {'incomplete unit': facts.sentence('missing {missing}', missing=', '.join(unit.missing)), 'size': _size(unit)},
+                                         {'incomplete unit': facts.phrase('missing {missing}', missing=', '.join(unit.missing)), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
     return out
 

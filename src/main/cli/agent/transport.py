@@ -197,7 +197,7 @@ def verdict(act: str, logs: list[Log]) -> str:
         if kinds:
             clauses.append(f'{words} {kinds}' + (f' to {dest}' if which == 'wrote' else ''))
     done = 'NOT DONE' if any(log.conflicts for log in logs) else 'DONE'
-    return f'{act}: {done} - ' + ('; '.join(clauses) if clauses else facts.sentence('nothing to transport'))
+    return f'{act}: {done} - ' + ('; '.join(clauses) if clauses else facts.phrase('nothing to transport'))
 
 
 def place_tree(src_ws: Path, dest_ws: Path, apply: bool, src: str, dest: str) -> tuple[str, dict[str, object]] | None:

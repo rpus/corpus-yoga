@@ -1,6 +1,6 @@
 {
   "summary": "walk the room's state as one tree, each command's status and help beneath its name - n next, m members, v value, b back, x runs the command the walk stands on, q quits; keys from the terminal, or as lines on stdin; each spot addressed by its JSON pointer",
-  "wording": [
+  "phrase": [
     "n next, m members, v value, b back, x run, q quit",
     "the venv is not minted, so corpus-yoga {noun} cannot be asked - /{report}/status says how to mint it",
     "what corpus-yoga {noun} printed does not load - {error}",

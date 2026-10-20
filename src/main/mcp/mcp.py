@@ -146,14 +146,14 @@ def status() -> int:
     try:
         shapes, declared = factoring.inputs()
     except AssertionError as e:                 # the parser absent, or schema.ts refused
-        print('mcp: ' + facts.sentence('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
+        print('mcp: ' + facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
         return 1
     try:
         wanted = factoring.rendered(factoring.factored(shapes, factoring.descriptions(), declared, factoring.provenance(), factoring.unreachable(),
                                                        factoring.categories(), factoring.layer_rule(), factoring.placements(factoring.provenance()['lineage']),
                                                        factoring.additions(), factoring.generated().constants))
     except AssertionError as e:
-        print('mcp: ' + facts.sentence('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
+        print('mcp: ' + facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
         return 1
     ts = factoring.schema_ts().relative_to(REPO)
     cache = factoring.CACHE_DIR.relative_to(REPO)
@@ -167,20 +167,20 @@ def status() -> int:
         SchemaTs(Generated(len(gen.interfaces), len(gen.aliases), len(gen.constants)),
                  sum(len(b) for b in declared.values()), len(declared),
                  sum(1 for t in tagged.values() if t), len(tagged),
-                 tables=facts.sentence('faced under {cache}', cache=cache) if _tables_current(declared) else facts.sentence('NOT faced under {cache}', cache=cache),
-                 remedy=None if _tables_current(declared) else facts.Command('corpus-yoga mcp sync', facts.sentence('writes them'))),
+                 tables=facts.phrase('faced under {cache}', cache=cache) if _tables_current(declared) else facts.phrase('NOT faced under {cache}', cache=cache),
+                 remedy=None if _tables_current(declared) else facts.Command('corpus-yoga mcp sync', facts.phrase('writes them'))),
         additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
-            facts.sentence('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
+            facts.phrase('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
             why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
-        overrides={name: Ruling(facts.sentence('extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow', base=base, ts=ts))
+        overrides={name: Ruling(facts.phrase('extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow', base=base, ts=ts))
                    for name, base in factoring.overrides(shapes, declared)},
-        uncarried={union: Ruling(facts.sentence('no message carries it, since {ts} declares no {request} - stands unreachable', ts=ts, request=request),
+        uncarried={union: Ruling(facts.phrase('no message carries it, since {ts} declares no {request} - stands unreachable', ts=ts, request=request),
                                  declared_in=factoring.UNREACHABLE.relative_to(REPO).as_posix())
                    for union, request in factoring.uncarried_results(shapes)},
         family_path=rel.as_posix())
     if not target.exists():
         out.family = 'absent'
-        out.mcp = facts.sentence('{family} absent - corpus-yoga mcp sync derives it', family=rel)
+        out.mcp = facts.phrase('{family} absent - corpus-yoga mcp sync derives it', family=rel)
         facts.say(out)
         return 1
     have = target.read_text()
@@ -189,18 +189,18 @@ def status() -> int:
     family = Family('current' if current else 'STALE',
                     [snapshot_path.relative_to(REPO).as_posix(), ts.as_posix()],
                     len(json.loads(have).get('definitions', {})),
-                    facts.sentence('agrees') if not bad else facts.sentence('{n} disagreement(s)', n=len(bad)),
+                    facts.phrase('agrees') if not bad else facts.phrase('{n} disagreement(s)', n=len(bad)),
                     disagreements=bad[:5] or None,
-                    faces=(facts.sentence('consumer and producer faced under {cache}', cache=cache) if face.current(json.loads(have))
-                           else facts.sentence('consumer and producer NOT faced under {cache} - corpus-yoga mcp sync writes them', cache=cache)),
+                    faces=(facts.phrase('consumer and producer faced under {cache}', cache=cache) if face.current(json.loads(have))
+                           else facts.phrase('consumer and producer NOT faced under {cache} - corpus-yoga mcp sync writes them', cache=cache)),
                     layers=dict(factoring.partition(json.loads(wanted))))
     if not current:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
-        family.differs_by = facts.sentence('{n} line(s)', n=changed)
-        family.remedy = facts.Command('corpus-yoga mcp sync', facts.sentence('prints the diff and mints {minted} in place of {family}', minted=_successor(target).name, family=rel.name))
+        family.differs_by = facts.phrase('{n} line(s)', n=changed)
+        family.remedy = facts.Command('corpus-yoga mcp sync', facts.phrase('prints the diff and mints {minted} in place of {family}', minted=_successor(target).name, family=rel.name))
     out.family = family
-    out.mcp = facts.sentence('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
+    out.mcp = facts.phrase('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
     facts.say(out)
     return 0 if current and not bad else 1
 
@@ -211,7 +211,7 @@ def sync() -> int:
     try:
         shapes, declared = factoring.inputs()
     except AssertionError as e:                 # the parser absent, or schema.ts refused
-        print('mcp: ' + facts.sentence('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
+        print('mcp: ' + facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
         return 1
     if not _tables_current(declared):
         for path in factoring.written_tables(declared, factoring.categories()):
@@ -221,12 +221,12 @@ def sync() -> int:
                                                        factoring.categories(), factoring.layer_rule(), factoring.placements(factoring.provenance()['lineage']),
                                                        factoring.additions(), factoring.generated().constants))
     except AssertionError as e:
-        print('mcp: ' + facts.sentence('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
+        print('mcp: ' + facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
         return 1
     if not target.exists():
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(wanted)
-        print('  ✓ ' + facts.sentence('{family} ({n} definitions)', family=target.relative_to(REPO), n=len(json.loads(wanted)['definitions'])))
+        print('  ✓ ' + facts.phrase('{family} ({n} definitions)', family=target.relative_to(REPO), n=len(json.loads(wanted)['definitions'])))
         return 0
     have = target.read_text()
     if have == wanted:
@@ -244,7 +244,7 @@ def sync() -> int:
     target.unlink()
     for path in face.written(json.loads(wanted)):
         print(f'  ✓ {path.relative_to(REPO)}')
-    print('  ✓ ' + facts.sentence('{minted} minted in place of {family} ({n} definitions) - write its {section} section in {changelog} (the commit gate holds schema.changelog_narrative)',
+    print('  ✓ ' + facts.phrase('{minted} minted in place of {family} ({n} definitions) - write its {section} section in {changelog} (the commit gate holds schema.changelog_narrative)',
                                   minted=minted_rel, family=rel, n=len(json.loads(wanted)['definitions']), section=minted.stem,
                                   changelog=f'{factoring.FAMILY_DIR.relative_to(REPO)}/CHANGELOG.md'))
     return 0
@@ -255,8 +255,8 @@ def main():
     args = parser.parse_args()
     if args.verb == 'sync':
         code = sync()
-        facts.report(None, 'mcp sync: ' + ('DONE - ' + facts.sentence('the derivations are current') if code == 0
-                                           else 'NOT DONE - ' + facts.sentence('a derivation failed; the line above names it')))
+        facts.report(None, 'mcp sync: ' + ('DONE - ' + facts.phrase('the derivations are current') if code == 0
+                                           else 'NOT DONE - ' + facts.phrase('a derivation failed; the line above names it')))
         sys.exit(code)
     if args.verb == 'reproduce':
         script = str(REPO / 'src/main/mcp/reproduce.sh')

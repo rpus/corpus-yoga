@@ -1,6 +1,6 @@
 {
   "summary": "the pipelines, and the run over data/input/ that never acquires",
-  "wording": [
+  "phrase": [
     "{word} is no argument it takes - corpus-yoga pipeline run [<pipeline>] [--plan]; --help says more",
     "one item at a time (already have {item}, then {next})",
     "no pipeline {name} - this repo has {names}",

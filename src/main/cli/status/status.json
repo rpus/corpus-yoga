@@ -1,6 +1,6 @@
 {
   "summary": "whether everything is well - what this machine lacks, and what any noun says needs doing; sync does what is the repo's to do",
-  "wording": [
+  "phrase": [
     "{word} is no word it takes; the words are --show-all, or sync",
     "no - no pipeline runs without it",
     "{version} - it mints the venv; everything else runs the venv's python (issues/478)",

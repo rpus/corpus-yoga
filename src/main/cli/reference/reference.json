@@ -1,6 +1,6 @@
 {
   "summary": "the upstream reference artefacts under rsc/reference, every lineage upstream publishes (bare says what upstream lists, what is held, what drifted)",
-  "wording": [
+  "phrase": [
     "UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe",
     "fetches them",
     "{n} project(s), {stale} file(s) to fetch",

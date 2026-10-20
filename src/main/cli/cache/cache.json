@@ -1,6 +1,6 @@
 {
   "summary": "the rebuildable tmp/cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; sync rebuilds",
-  "wording": [
+  "phrase": [
     "no current step writes or reads it",
     "{n} subtree(s) present",
     "{n} subtree(s) present, {orphans} orphan(s)",
