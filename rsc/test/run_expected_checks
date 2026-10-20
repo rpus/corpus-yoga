@@ -74,6 +74,7 @@ facts.wraps_only_for_a_terminal
 files.required_exists
 forge.aim_one_line_per_issue
 forge.issue_is_a_should_with_wired_relations
+forge.squash_read_back
 grammar.citation_is_stated
 grammar.enforcement_map
 grammar.gated_is_cited

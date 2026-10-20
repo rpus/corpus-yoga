@@ -8,7 +8,7 @@ captures need attention. Two independent questions, two modes:
 
 Filesystem audit (always) — "are the captures I have any good?"
   claude — nothing to check offline: the API capture is the record (DOM retired,
-  issues/418/#431), and validate.sh already gates each capture against the schema.
+  issues/418, issues/431), and validate.sh already gates each capture against the schema.
   gemini — no API capture exists, so heuristics: a DOM capture with exactly
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.

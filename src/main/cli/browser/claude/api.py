@@ -79,7 +79,7 @@ _LIBRARY = None   # (dir_for, dressing) once per run — set on the first claude
 
 
 def _library():
-    """The artifact library face, once per run (issues/421/#422): dir_for and the
+    """The artifact library face, once per run (issues/421, issues/422): dir_for and the
     corpus dressing map, imported lazily so gemini sweeps never touch it."""
     global _LIBRARY
     if _LIBRARY is None:
