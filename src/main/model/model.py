@@ -121,41 +121,37 @@ def curation_report() -> tuple[Table, Join]:
     gaps = coverage_gaps()
     table = Table(
         len(documented()), len(rejected()), len(queue), len(orphans), len(gaps),
-        gates='corpus-yoga test run holds each as check_model_obligations' if queue or orphans or gaps else None,
+        gates=facts.sentence('corpus-yoga test run holds each as check_model_obligations') if queue or orphans or gaps else None,
         undisposed={'/'.join(sorted(names)): Undisposed(
-            f'model_join row(s) {", ".join(map(str, rows))}',
-            facts.Act('document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt'))
+            facts.sentence('model_join row(s) {rows}', rows=', '.join(map(str, rows))),
+            facts.Act(facts.sentence('document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt')))
             for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0]))} or 'none',
-        ungrounded={name: Undisposed('documented with no grounding model_join edge',
-                                     facts.Act('curate the asserting edge, or retire the entry')) for name in orphans} or 'none',
-        incomplete={name: Undisposed(f'occurrences omit data famil(y/ies) its edge asserts: {", ".join(fams)}',
-                                     facts.Act('add the occurrence(s)')) for name, fams in sorted(gaps.items())} or 'none')
+        ungrounded={name: Undisposed(facts.sentence('documented with no grounding model_join edge'),
+                                     facts.Act(facts.sentence('curate the asserting edge, or retire the entry'))) for name in orphans} or 'none',
+        incomplete={name: Undisposed(facts.sentence('occurrences omit data famil(y/ies) its edge asserts - {families}', families=', '.join(fams)),
+                                     facts.Act(facts.sentence('add the occurrence(s)'))) for name, fams in sorted(gaps.items())} or 'none')
     shared = unrecorded_collisions()
     collisions = None
     if shared:
         collisions = facts.Finding(
-            f'{len(shared)} definition name(s) appear in two or more schema families with no row '
-            'recording whether the definitions are one shared type or mere namesakes',
-            facts.Act('record a verdict by adding one model_join.csv row per name, its relationship column '
-                      'choosing a kind from rsc/model/model_join_kinds.csv (identical / subset / name_collision / ...); '
-                      'machine-checked proposals sit ready to paste in tmp/cache/model/shared_name_candidates.csv'))
+            facts.sentence('{n} definition name(s) appear in two or more schema families with no row recording whether the definitions are one shared type or mere namesakes', n=len(shared)),
+            facts.Act(facts.sentence('record a verdict by adding one model_join.csv row per name, its relationship column choosing a kind from rsc/model/model_join_kinds.csv (identical / subset / name_collision / ...); machine-checked proposals sit ready to paste in tmp/cache/model/shared_name_candidates.csv')))
     rows: dict[str, facts.Finding] = {}
     for line, kind, cells in identity_violations():
         rows[f'row {line} ({kind})'] = facts.Finding(
-            f'no longer holds at latest - {cells}',
-            facts.Act('a one-sided mint falsified the edge: re-judge its relationship kind '
-                      '(rsc/model/model_join_kinds.csv) or restore the identity in the schemas'))
+            facts.sentence('no longer holds at latest - {cells}', cells=cells),
+            facts.Act(facts.sentence('a one-sided mint falsified the edge - re-judge its relationship kind (rsc/model/model_join_kinds.csv) or restore the identity in the schemas')))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
                     tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             rows[f'row {line} ({kind})'] = facts.Finding(
-                f'falsified by the corpus - {cell} carries a value in {datum}',
-                facts.Act('the always-null note is stale: re-judge the edge (rsc/model/model_join_kinds.csv names the kinds)'))
-        emptiness = 'checked against the corpus'
+                facts.sentence('falsified by the corpus - {cell} carries a value in {datum}', cell=cell, datum=datum),
+                facts.Act(facts.sentence('the always-null note is stale - re-judge the edge (rsc/model/model_join_kinds.csv names the kinds)')))
+        emptiness = facts.sentence('checked against the corpus')
     else:
-        emptiness = 'unchecked - no API-capture or chat-export corpus in this room'
-    return table, Join(collisions, None if shared else 'every cross-family shared name disposed', rows, emptiness)
+        emptiness = facts.sentence('unchecked - no API-capture or chat-export corpus in this room')
+    return table, Join(collisions, None if shared else facts.sentence('every cross-family shared name disposed'), rows, emptiness)
 
 
 def sync() -> None:
@@ -180,7 +176,7 @@ def sync() -> None:
     render_collision_worksheet()
     # the findings are status's (bare corpus-yoga model): a sync writes, and what an act
     # reports (#876, #896) is its effect line
-    facts.report(None, f'model sync: DONE - {written} catalogue(s) written, {removed} removed')
+    facts.report(None, 'model sync: DONE - ' + facts.sentence('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
 
 
 def render_collision_worksheet() -> None:
@@ -235,10 +231,10 @@ def status() -> None:
     table, join = curation_report()
     facts.say(Status(
         Catalogue(f'{len(present)}/{total}',
-                  underived=f'{len(underived)} file(s) no schema version derives' if underived else None,
+                  underived=facts.sentence('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
                   remedy=(facts.Command('corpus-yoga model sync', ' and '.join(
-                      w for w, on in (('mints them', missing), ('removes the underived', underived)) if on))
+                      facts.sentence(w) for w, on in (('mints them', missing), ('removes the underived', underived)) if on))
                       if missing or underived else None)),
         table, join))
 
@@ -250,23 +246,19 @@ def list_candidates() -> None:
     render_collision_worksheet()
     rows = shared_name_candidates()
     for row in rows:
-        verdict = (f"accept adopts '{row['relationship']}'" if row['relationship']
-                   else 'no machine proposal - judge the kind by hand')
+        verdict = (facts.sentence('accept adopts {relationship}', relationship=repr(row['relationship'])) if row['relationship']
+                   else facts.sentence('no machine proposal - judge the kind by hand'))
         print(f"  {row['name']} ({row['families']}) - {verdict}")
-    print(f'{len(rows)} undisposed shared name(s) - dispose each: '
-          'corpus-yoga model accept <name> | corpus-yoga model reject <name> --reason <why> '
-          '(--all disposes the queue as read)')
+    print(facts.sentence('{n} undisposed shared name(s) - dispose each with corpus-yoga model accept <name> or corpus-yoga model reject <name> --reason <why> (--all disposes the queue as read)', n=len(rows)))
     for line, kind, cells in identity_violations():
-        print(f'  falsified identity edge: row {line} ({kind}) - {cells} - re-judge '
-              'the kind in rsc/model/model_join.csv or restore the identity')
+        print('  falsified identity edge: ' + facts.sentence('row {line} ({kind}) - {cells} - re-judge the kind in rsc/model/model_join.csv or restore the identity', line=line, kind=kind, cells=cells))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
                     tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
-            print(f'  falsified emptiness edge: row {line} ({kind}) - {cell} carries '
-                  f'a value in {datum} - re-judge the kind in rsc/model/model_join.csv')
+            print('  falsified emptiness edge: ' + facts.sentence('row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/model/model_join.csv', line=line, kind=kind, cell=cell, datum=datum))
     else:
-        print('  emptiness edges: unchecked - no API-capture or chat-export corpus in this room')
+        print('  emptiness edges: ' + facts.sentence('unchecked - no API-capture or chat-export corpus in this room'))
 
 
 def _disposal_rows(parser, args):
@@ -274,14 +266,13 @@ def _disposal_rows(parser, args):
     absent or moved since rendering - re-render with corpus-yoga model sync."""
     rows = worksheet_rows()
     if rows is None:
-        parser.error('the worksheet is absent or stale against the schemas - '
-                     'run corpus-yoga model sync, read it, then dispose')
+        parser.error(facts.sentence('the worksheet is absent or stale against the schemas - run corpus-yoga model sync, read it, then dispose'))
         raise SystemExit(2)   # parser.error exits; stated for the type checker
     if args.all:
         return rows
     match = [r for r in rows if r['name'] == args.name]
     if not match:
-        parser.error(f'{args.name} is not in the queue - corpus-yoga model list-candidates names it')
+        parser.error(facts.sentence('{name} is not in the queue - corpus-yoga model list-candidates names it', name=args.name))
     return match
 
 
@@ -296,7 +287,7 @@ def main():
         # exactly one of --all and a name: the flag disposes the queue as read,
         # the positional disposes one shared name (the indexing precedent)
         if args.all == bool(args.name):
-            parser.error(f'{args.verb} takes a <name> or --all, not both and not neither')
+            parser.error(facts.sentence('{verb} takes a <name> or --all, not both and not neither', verb=args.verb))
         from datetime import date
         today = date.today().isoformat()
         disposed = 0
@@ -307,7 +298,7 @@ def main():
                 print(reject_shared_name(row, args.reason, today))
             disposed += 1
         render_collision_worksheet()
-        facts.report(None, f'model {args.verb}: DONE - {disposed} shared name(s) {args.verb}ed')
+        facts.report(None, f'model {args.verb}: DONE - ' + facts.sentence('{n} shared name(s) {verb}ed', n=disposed, verb=args.verb))
     else:
         # bare → status (read-only); only the verbs above write
         status()

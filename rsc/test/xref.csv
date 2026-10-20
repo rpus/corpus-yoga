@@ -831,9 +831,9 @@ src/main/cli/forge/reconcile.py,15,path_str,src/main/cli/forge/reconcile.py,Y,SE
 src/main/cli/forge/should.py,15,path_str,src/main/cli/forge/should.py,Y,SELF = 'src/main/cli/forge/should.py'
 src/main/cli/forge/status.py,15,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
 src/main/cli/forge/status.py,55,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
-src/main/cli/grammar/grammar.json,3,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
-src/main/cli/grammar/grammar.json,7,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/grammar/grammar.json,8,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
+src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
+src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
+src/main/cli/grammar/grammar.json,23,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
 src/main/cli/grammar/sync.json,5,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/grammar/sync.json,6,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
 src/main/cli/grammar/sync.json,9,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
@@ -847,16 +847,16 @@ src/main/cli/indexing/capture.sh,32,comment,src/main/report.sh,Y,# shellcheck so
 src/main/cli/indexing/capture.sh,34,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/indexing/capture.sh,109,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
 src/main/cli/indexing/capture.sh,274,call,src/main/cli/indexing,Y,"""$REPO_DIR/src/run_python_script.sh"" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import i"
-src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
+src/main/cli/indexing/indexing.json,48,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,52,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,338,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-src/main/cli/indexing/indexing.py,623,comment,src/main/model/corpus_shape.sh,Y,"shape's one home, src/main/model/corpus_shape.sh."
+src/main/cli/indexing/indexing.py,616,comment,src/main/model/corpus_shape.sh,Y,"shape's one home, src/main/model/corpus_shape.sh."
 src/main/cli/logs/logs.json,18,path_str,src/main/cli/logs/logs.py,Y,"""target"": ""src/main/cli/logs/logs.py"","
 src/main/cli/logs/logs.py,9,comment,src/main/cli/cli.py,Y,The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
 src/main/cli/logs/logs.py,18,comment,src/main/cleaner.py,Y,runs (src/main/cleaner.py). A current command's logs are never the cleaner's: a log is the
 src/main/cli/logs/logs.py,26,path_str,src/main/cli/logs/logs.py,Y,SELF = 'src/main/cli/logs/logs.py'
-src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
+src/main/cli/mcp/mcp.json,24,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"""
 src/main/cli/mcp/sync.json,9,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"","
 src/main/cli/memories/memories.json,3,path_str,src/main/pipeline/chat-export/memories.py,Y,"""target"": ""src/main/pipeline/chat-export/memories.py"","
@@ -871,9 +871,9 @@ src/main/cli/model/accept.json,19,path_str,rsc/model,Y,"""rsc/model"","
 src/main/cli/model/accept.json,23,path_str,rsc/model/model_join.csv,Y,"""rsc/model/model_join.csv"","
 src/main/cli/model/list-candidates.json,5,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/list-candidates.json,6,path_str,rsc/model,Y,"""rsc/model"","
-src/main/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
-src/main/cli/model/model.json,8,path_str,rsc/schema,Y,"""rsc/schema"","
-src/main/cli/model/model.json,9,path_str,rsc/model,Y,"""rsc/model"","
+src/main/cli/model/model.json,34,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
+src/main/cli/model/model.json,39,path_str,rsc/schema,Y,"""rsc/schema"","
+src/main/cli/model/model.json,40,path_str,rsc/model,Y,"""rsc/model"","
 src/main/cli/model/reject.json,25,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/reject.json,26,path_str,rsc/model,Y,"""rsc/model"","
 src/main/cli/model/reject.json,30,path_str,rsc/model/model_join.csv,Y,"""rsc/model/model_join.csv"","
@@ -902,8 +902,8 @@ src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/readings.md,11,doc,rsc/schema/cli/indexing/semanticConcepts,Y,- `inferred-semantic-concepts.json` — `rsc/schema/cli/indexing/semanticConcepts/` (latest
 src/main/cli/readings.md,14,doc,rsc/schema/cli/indexing/chatCategories,Y,- `inferred-chat-categories.json` — `rsc/schema/cli/indexing/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.template.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
-src/main/cli/reference/reference.json,3,path_str,src/main/reference/reference.py,Y,"""target"": ""src/main/reference/reference.py"","
-src/main/cli/reference/reference.json,7,path_str,rsc/reference,Y,"""rsc/reference"""
+src/main/cli/reference/reference.json,11,path_str,src/main/reference/reference.py,Y,"""target"": ""src/main/reference/reference.py"","
+src/main/cli/reference/reference.json,15,path_str,rsc/reference,Y,"""rsc/reference"""
 src/main/cli/reference/sync.json,5,path_str,rsc/reference,Y,"""rsc/reference"""
 src/main/cli/reference/sync.json,8,path_str,rsc/reference,Y,"""rsc/reference"""
 src/main/cli/root.schema.json,30,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json"""
@@ -1011,7 +1011,7 @@ src/main/corpus.py,538,comment,src/main/rehearsal.py,Y,"from the rehearsal recor
 src/main/facts.py,331,comment,src/main/reply.py,Y,"following entries are written there, in the printer's lines, for src/main/reply.py."
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
-src/main/grammar/grammar.py,120,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
+src/main/grammar/grammar.py,119,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,18,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
@@ -1060,8 +1060,8 @@ src/main/model/model.py,5,comment,rsc/model/model.json,Y,"versioned schema, keye
 src/main/model/model.py,6,comment,rsc/model/model.json,Y,families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
 src/main/model/model.py,30,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
 src/main/model/model.py,100,comment,rsc/model/model_join.csv,Y,"The standing of rsc/model/model_join.csv: the shared names' disposal, each row that no"
-src/main/model/model.py,220,path_str,rsc/model/model.json,Y,table: Table = facts.named('rsc/model/model.json')
-src/main/model/model.py,221,path_str,rsc/model/model_join.csv,Y,join: Join = facts.named('rsc/model/model_join.csv')
+src/main/model/model.py,216,path_str,rsc/model/model.json,Y,table: Table = facts.named('rsc/model/model.json')
+src/main/model/model.py,217,path_str,rsc/model/model_join.csv,Y,join: Join = facts.named('rsc/model/model_join.csv')
 src/main/model/model_curation.py,4,comment,rsc/model/model.json,Y,"rsc/model/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/model/model_rejected.txt,Y,rsc/model/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
 src/main/model/model_curation.py,33,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'

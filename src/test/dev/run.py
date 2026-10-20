@@ -91,8 +91,8 @@ CLI                      = SRC / 'main' / 'cli'
 # both the declarations' prose check (#797) and the wording check (#909) print, so that an
 # edit made to pass them keeps the sentence's anchor.
 PLAIN_SENTENCE_REMEDY = ('a pair is a fact of its own beneath, or the sentence says it without the colon; an em dash is written '
-                         "' - '; a hash after a space is YAML's comment, so an anchor keeps its number in parentheses, (#N), "
-                         'and is never dropped')
+                         "' - '; a hash is YAML's comment, a URL's fragment and a shell's, so an anchor is written as the forge's "
+                         'path segment, issues/N or pull/N, and is never dropped')
 
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 

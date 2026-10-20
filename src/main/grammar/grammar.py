@@ -50,7 +50,6 @@ from send import may_send, assert_may_send, SendRefused  # noqa: E402
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
 GENERATED = REPO / 'src' / 'gen' / 'grammar'
 TOOL_VERSION = '4.13.2'      # the runtime src/requirements.txt pins is this version's
-REMEDY = 'antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt'
 
 
 def projects() -> list[Path]:
@@ -75,7 +74,7 @@ def generated(project: Path) -> dict[str, str]:
     """{file name: text} of the Python-target files the tool generates from the
     project's grammars now."""
     command = tool()
-    assert command, REMEDY
+    assert command, facts.sentence('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt')
     with tempfile.TemporaryDirectory() as scratch:
         argv = [command, '-v', TOOL_VERSION, '-Dlanguage=Python3', '-no-listener', '-o', scratch, '-Xexact-output-dir']
         if (project / 'imports').is_dir():
@@ -121,34 +120,34 @@ def status() -> int:
         if not have:
             stale += 1
             projects_[project.name] = Project(
-                f'no - {rel} is absent; the mcp extraction and corpus-yoga test run\'s mcp checks need it',
-                remedy=facts.Command('corpus-yoga grammar sync', f'generates it from {source}, antlr4 from the venv and java from the machine'))
+                facts.sentence("no - {generated} is absent; the mcp extraction and corpus-yoga test run's mcp checks need it", generated=rel),
+                remedy=facts.Command('corpus-yoga grammar sync', facts.sentence('generates it from {source}, antlr4 from the venv and java from the machine', source=source)))
             continue
         item = Project(rel.as_posix(), files=len(have))
         if not tool() or not may_send():
-            item.currency = 'UNVERIFIED - ' + ('CORPUS_YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv')
+            item.currency = facts.sentence('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the tool') if tool() else facts.sentence('UNVERIFIED - antlr4 not in the venv')
         else:
             want = generated(project)
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
             if differing:
                 stale += 1
-                item.currency, item.differing = f'STALE against {source}', differing
-                item.remedy = facts.Command('corpus-yoga grammar sync', 'regenerates')
+                item.currency, item.differing = facts.sentence('STALE against {source}', source=source), differing
+                item.remedy = facts.Command('corpus-yoga grammar sync', facts.sentence('regenerates'))
             else:
-                item.currency = f'current with {source} (antlr4 {TOOL_VERSION})'
+                item.currency = facts.sentence('current with {source} (antlr4 {version})', source=source, version=TOOL_VERSION)
         projects_[project.name] = item
     for orphan in orphans():
         address = orphan.relative_to(REPO).as_posix()
-        projects_[address] = Project('no - it holds no grammar, a .g4 at its top level: a leftover no sync generates from',
-                                     remedy=facts.Command(f'rm -r {address}', 'removes it'))
-    facts.say(Status(projects_, f'{len(projects())} project(s), {stale} absent or stale'))
+        projects_[address] = Project(facts.sentence('no - it holds no grammar, a .g4 at its top level - a leftover no sync generates from'),
+                                     remedy=facts.Command(f'rm -r {address}', facts.sentence('removes it')))
+    facts.say(Status(projects_, facts.sentence('{n} project(s), {stale} absent or stale', n=len(projects()), stale=stale)))
     return 1 if stale else 0
 
 
 def sync() -> int:
     assert_may_send('running antlr4-tools, which fetches the tool jar on first use')
     if not tool():
-        facts.report(None, f'grammar sync: NOT DONE - {REMEDY}')
+        facts.report(None, 'grammar sync: NOT DONE - ' + facts.sentence('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt'))
         return 1
     written = removed = 0
     for project in projects():
@@ -166,8 +165,8 @@ def sync() -> int:
             if name not in want:
                 (out / name).unlink()
                 removed += 1
-                print(f'  ✓ {(out / name).relative_to(REPO)} removed - the grammar no longer generates it')
-    facts.report(None, f'grammar sync: DONE - {written} file(s) written, {removed} removed')
+                print(f'  ✓ {(out / name).relative_to(REPO)} ' + facts.sentence('removed - the grammar no longer generates it'))
+    facts.report(None, 'grammar sync: DONE - ' + facts.sentence('{written} file(s) written, {removed} removed', written=written, removed=removed))
     return 0
 
 
