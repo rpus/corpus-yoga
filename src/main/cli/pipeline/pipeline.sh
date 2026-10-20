@@ -31,13 +31,13 @@ source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
+source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of CORPUS_YOGA_NO_SEND (issues/29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 # shellcheck source=src/main/provider.sh
-source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
+source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (issues/704)
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 
 # The pipelines: the subdirectories of src/main/pipeline/. Membership is placement —
@@ -47,7 +47,7 @@ pipelines() {
   local d
   for d in "$REPO_ROOT"/src/main/pipeline/*/; do
     [[ -d "$d" ]] || continue
-    # a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)
+    # a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, issues/669)
     [[ -n "$(find "$d" -type f -not -path '*/__pycache__/*' -print -quit)" ]] || continue
     basename "$d"
   done
@@ -68,7 +68,7 @@ input_of() {
 # is the same work as `corpus-yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  # the rows (#759, #800): each pipeline with its prep step where it has one, which status.py
+  # the rows (issues/759, issues/800): each pipeline with its prep step where it has one, which status.py
   # says by its declaration and its plan, with the stage's units as one shape
   local name prep
   for name in $(pipelines); do
@@ -142,7 +142,7 @@ require_cmd() {
 }
 
 require_venv() {
-  # One creator (#478): status sync mints the venv; this run
+  # One creator (issues/478): status sync mints the venv; this run
   # requires it and names the mint rather than minting a second way.
   if [[ ! -f "$CORPUS_YOGA_VENV/bin/activate" ]]; then
     echo "error: $(sentence "venv not found at {venv} - ./src/main/cli/status/status.sh sync mints it" venv="$CORPUS_YOGA_VENV")" >&2
@@ -155,7 +155,7 @@ install_deps() {
   source "$CORPUS_YOGA_VENV/bin/activate"
   # pip reaches PyPI on every run (the upgrade check alone is a send), so refusal skips
   # it with a note and the run proceeds on the venv as-is — a fresh venv then fails at
-  # its first import, visibly, with this line just above it in the log (#29).
+  # its first import, visibly, with this line just above it in the log (issues/29).
   if ! may_send; then
     sentence "CORPUS_YOGA_NO_SEND=1 refuses the send pip install - the venv serves as-is"
     return 0
@@ -169,7 +169,7 @@ install_deps() {
 # shared filename: chat-export requires an input; chat-capture' is a CAPTURE, the
 # `corpus-yoga browser` target, which a pipeline run must never perform, and the live
 # mount code-transport once linked here is the agent command's (corpus-yoga agent mount,
-# #636) - a pipeline reads the store, never the mount. Globbing one name listed a prep
+# issues/636) - a pipeline reads the store, never the mount. Globbing one name listed a prep
 # phase for chat-capture that `run` has never executed, which is a status line
 # stating something untrue about what the command does.
 prep_step() {
@@ -216,7 +216,7 @@ run_pipeline() {
 # finding: a crash's last logged line names it (a python traceback ends on the
 # exception). The runner quotes those last words into the FAIL: atom, verbatim, so
 # the table counts it and the tail quotes it as usual — observation, not invention;
-# exit-status failures become FAIL:ures like any other (#337).
+# exit-status failures become FAIL:ures like any other (issues/337).
 run_pipeline_safe() {
   local name="$1"; shift
   if ! run_pipeline "$name" "$@"; then
@@ -231,7 +231,7 @@ run_pipeline_safe() {
 # The one reader of a banner's section name, shared by every awk walk below so
 # they cannot disagree about what a section is called: `── <name> ─…` names <name>,
 # and `── prep: <pipeline> ─…` names `prep: <pipeline>` - a prep is its own section
-# and its own row (#547: every non-zero exit states an atom, prep included).
+# and its own row (issues/547: every non-zero exit states an atom, prep included).
 # shellcheck disable=SC2016  # awk field references, not shell expansions
 SECTION_NAME_FN='function section_name() { return ($2 == "prep:") ? $2 " " $3 : $2 }'
 
@@ -246,7 +246,7 @@ section_last_words() {
   ' "$LOG_FILE" 2>/dev/null
 }
 
-# The dev gate's own finding, when it is red inside the tests section (#600): the
+# The dev gate's own finding, when it is red inside the tests section (issues/600): the
 # sections it names under its "dev gate: FAIL" verdict line, one line each, indented -
 # relayed here as the atom the table counts, in the gate's own words. Its LAST line
 # is the staging remedy for a committer, which is no finding for this reader.
@@ -276,7 +276,7 @@ section_has_fail() {
 # by tail time those lines are long flushed through the tee.
 # The sections whose ATOMS fail them - same walk as atom_table, so the two can
 # never disagree about what a section contains. The run has ONE failure notion
-# (#547): every non-zero exit states an atom, so this list is the verdict.
+# (issues/547): every non-zero exit states an atom, so this list is the verdict.
 sections_with_fail_atoms() {
   awk "$SECTION_NAME_FN"'
     function flush() { if (section != "" && n_fail > 0) print section }
@@ -300,7 +300,7 @@ section_error_lines() {
 # type after `corpus-yoga pipeline run` to do that stage alone, and the banner is merely how the
 # log marks where it began. Two facts about one
 # pipeline, on one line. A stage that exits non-zero without stating an atom is given
-# one by its runner (its last words, #337), so the FAIL count IS the verdict (#547).
+# one by its runner (its last words, issues/337), so the FAIL count IS the verdict (issues/547).
 #
 # Nothing is hoisted. An atom's context IS the section it sits in, and reprinting it
 # elsewhere loses that context while duplicating the text: a reader who wants the detail
@@ -339,7 +339,7 @@ atom_table() {
   ' "$LOG_FILE" 2>/dev/null || true
 }
 
-# A prep that exits non-zero states its atom like any stage (#547), in its own
+# A prep that exits non-zero states its atom like any stage (issues/547), in its own
 # section `prep: <name>`, carrying the remedy the verdict once looked up by name.
 prep_pipeline_safe() {
   local name="$1"; shift
@@ -355,8 +355,8 @@ prep_pipeline_safe() {
   fi
 }
 
-# The record of the run is the launcher's tee (#708), where the launcher dispatched this
-# run; the stage anchors above read it back, and nothing here writes into it (#912). A run
+# The record of the run is the launcher's tee (issues/708), where the launcher dispatched this
+# run; the stage anchors above read it back, and nothing here writes into it (issues/912). A run
 # no launcher dispatched - the merge's gating step, a direct call - keeps a disposable copy
 # of its own output for those anchors, named below and removed after, never a log.
 RECORD="$(record_of pipeline run)"
@@ -372,7 +372,7 @@ LOG_FILE="$RECORD"
 # gate holds it to command AND verb (a declared step=corpus).
 #
 # Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
-# NECESSITY tests, with the input set split (#494): CLOSURE holds for the free
+# NECESSITY tests, with the input set split (issues/494): CLOSURE holds for the free
 # inputs this run itself produces, so every free derivation is refreshed here -
 # indexing sync, site render, model sync - and a paid input (the captures) enters
 # the page as a declared vintage, never as a currency claim. Paid acts stay
@@ -386,30 +386,30 @@ run_corpus_tail() {
   STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
-  # Free derivations refreshed before anything probes them (#494): the corpus
+  # Free derivations refreshed before anything probes them (issues/494): the corpus
   # page and the model catalogues; both content-keyed, so an unchanged corpus
   # writes nothing.
   step site "$REPO_ROOT/src/main/cli/site/site.sh" sync
   step site "$REPO_ROOT/src/main/cli/site/site.sh" render
   step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" sync
-  # The data gate's own validation judgments (#535): the checks the dev gate
+  # The data gate's own validation judgments (issues/535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
-  # a run of one pipeline audits that pipeline: the audit takes the name (#545), and a
+  # a run of one pipeline audits that pipeline: the audit takes the name (pull/545), and a
   # whole-cache audit after one pipeline's run would judge the others' unrefreshed records
   step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
   # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
-  # guards): each noun's read-only status IS its L9 currency mechanism (#409) —
+  # guards): each noun's read-only status IS its L9 currency mechanism (issues/409) —
   # indexing's carries the paid captures' lag, site's the corpus page's, model's
-  # the schema frontier's (#373: each family's newest datum against its latest
+  # the schema frontier's (issues/373: each family's newest datum against its latest
   # version, read from the validate steps' own logs) — probed here so the atoms
   # reach the tail via hoisting. step_ok: informs, never gates.
   step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/indexing/indexing.py"
   step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
   step_ok model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py"
   # what the store no longer needs - its duplicates, surplus and orphaned shadows - is its
-  # status's reading, carried by corpus-yoga status (#844); the run reads it no more.
+  # status's reading, carried by corpus-yoga status (issues/844); the run reads it no more.
   # run in a pipeline (main's tee), where errexit is silent: the gating steps' failures
-  # are this function's return, and the run states the atom (#749)
+  # are this function's return, and the run states the atom (issues/749)
   steps_verdict
 }
 
@@ -444,10 +444,10 @@ print_plan() {
 
 main() {
   parse_args "$@"
-  # The header anchors the log's evidence (#365): the Signature triad the commit hook
+  # The header anchors the log's evidence (issues/365): the Signature triad the commit hook
   # stamps - the machine this checkout is bound to (or 'unbound' - a worktree carries no
   # binding), the provider and session that ran it where the environment declares one
-  # (#704) - the commit the tree stood at, and clean/dirty with the count. Every claim
+  # (issues/704) - the commit the tree stood at, and clean/dirty with the count. Every claim
   # below dereferences against this line instead of against archaeology.
   local signature ref dirty
   signature="$(provider_signature "$REPO_ROOT")"
@@ -470,7 +470,7 @@ main() {
     return $?
   fi
 
-  # The commit gate first (#540): the data gate is the superset, so one run in
+  # The commit gate first (issues/540): the data gate is the superset, so one run in
   # the data room speaks the whole verdict - the hermetic checks over src/rsc,
   # then the product judgments over the corpus. Its section is counted by the
   # stage table like any other; a red commit gate is a failing stage, and the
@@ -523,14 +523,14 @@ main() {
   # the context of its section around it — reprinting those lines here would duplicate the
   # text and lose the context, which is what hoisting them did. A reader who wants detail
   # greps the sigil or diffs two logs; a reader who wants the shape of the run reads three
-  # columns. One failure notion (#547): every non-zero exit stated an atom above, so
+  # columns. One failure notion (issues/547): every non-zero exit stated an atom above, so
   # a row's FAIL count is its verdict, and the run's verdict is the rows with atoms.
   atom_table
   echo "  ($(sentence "each pipeline stage runs alone as corpus-yoga pipeline run <stage>; corpus is the reduce over all"))"
   echo "  ($(sentence "line = where that stage begins in this log; each finding is stated there, in place"))"
   # The run's verdict is the sections holding FAIL atoms - the one failure notion
-  # (#547; exit-status failures state an atom at their fold). FAIL is the one
-  # finding tier (#530): a violated property states FAIL, a fact is untiered prose.
+  # (issues/547; exit-status failures state an atom at their fold). FAIL is the one
+  # finding tier (issues/530): a violated property states FAIL, a fact is untiered prose.
   local -a verdict_failures=()
   local atom_section
   while IFS= read -r atom_section; do
@@ -552,10 +552,10 @@ main() {
   # The usr-actor's next acts, and nothing else: the run's outputs, and reading them
   # served. The data-tier coupling this line once narrated (pipelines move what the
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
-  # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
+  # artifact-staleness check, at the next commit, in the dev-actor's hands (issues/342).
   echo "outputs: data/output/markdown/index.md"
   if [[ -n "$RECORD" ]]; then echo "Log: ${RECORD#"$REPO_ROOT/"}"; fi
-  # what an act reports (#876, #896): the usr gate's own verdict stands above; the act's
+  # what an act reports (issues/876, issues/896): the usr gate's own verdict stands above; the act's
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then

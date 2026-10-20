@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (#738).
+store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (issues/738).
 
     corpus-yoga store                   # status: the units held, the duplicates, the surplus, the stage against the store
     corpus-yoga store clean             # remove what the status names: each duplicate with what only it feeds, each orphaned shadow, each surplus file
@@ -14,28 +14,28 @@ declaration selects, at an address. Three readings, and nothing written:
               same at two addresses, or contained, whole within the other's by the measure
               its pipeline declares - with the unit that holds it;
   surplus     every file inside a held unit that its measure does not read, which no
-              capture wrote - a room's own sync puts one there (#833);
-  staged      the stage against the store (#842): each staged unit as it stands to the held
+              capture wrote - a room's own sync puts one there (issues/833);
+  staged      the stage against the store (issues/842): each staged unit as it stands to the held
               one of its address - promotable, held already, would lose by its relation,
               unlicensed at a version origin/main does not hold - by selection;
   live        the live stores this room mounts against the fuller of the staged and the
-              held copy of each live thing (#851): each session and memory a harness holds
+              held copy of each live thing (issues/851): each session and memory a harness holds
               beyond both, with the capture that stages it; a mount that is absent, with
               what mounts it.
 
-The store's status reads everything upstream of it (#851): the stage against the store,
+The store's status reads everything upstream of it (issues/851): the stage against the store,
 and the live stores against the fuller of the staged and the held copy
 (src/main/live.py), so that it alone
 names every act the room can take under next: - the captures, the rehearsal, the
 promotes, the stage's cleaner and its own, in the workflow's order. The stage's status is
 a report of its tier and names none.
 
-The janitor, store clean, acts on the second reading (#744): each duplicate, of either
+The janitor, store clean, acts on the second reading (issues/744): each duplicate, of either
 species, goes with what only it feeds - its members, its record and its shadow under the
 cache - and the holder stays; an orphaned shadow, the cache's derivation of a unit the
 store no longer holds, goes too. Its lines keep their tenses - will remove before each
 act, did or did NOT after - then next:, what the room can do after the act, corpus-yoga
-status last (#801), and the verdict is the last line, DONE only when every entry went.
+status last (issues/801), and the verdict is the last line, DONE only when every entry went.
 """
 import sys
 from pathlib import Path
@@ -48,10 +48,10 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
-import cleaner  # noqa: E402 - the one loop every clean verb runs (#837)
+import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
 import corpus  # noqa: E402
 import facts  # noqa: E402
-import live  # noqa: E402 - the live stores: their addresses, which the duplicates reading keeps the newest of (#744), and their reading against both tiers (#851)
+import live  # noqa: E402 - the live stores: their addresses, which the duplicates reading keeps the newest of (issues/744), and their reading against both tiers (issues/851)
 
 
 KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows', 'surplus file': 'surplus files'}   # each kind of entry, and its plural
@@ -95,7 +95,7 @@ def entries() -> list[cleaner.Entry]:
 
 
 def store_next(rows: list[corpus.Judged], ahead: list[live.Ahead]) -> dict[str, dict[str, dict[str, int]]]:
-    """What to run next, by command, in the workflow's order (#851): the room's one reading,
+    """What to run next, by command, in the workflow's order (issues/851): the room's one reading,
     corpus.room_next, over the rows and the live reading this status has already read."""
     return corpus.room_next(rows, ahead)
 

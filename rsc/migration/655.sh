@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rsc/migration/655.sh - the indexing command's files read state then kind under
-# data/output/indexing (#655, #656), and the dashboard root retires with them.
+# data/output/indexing (issues/655, pull/656), and the dashboard root retires with them.
 set -euo pipefail
 SELF='rsc/migration/655.sh'
 # shellcheck source=rsc/migration/step.sh

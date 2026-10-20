@@ -11,7 +11,7 @@
 # family every provider shares); both validate here. A cache memory dir holds memory.json
 # (the provider's projectMemory family).
 #
-# --enumerate prints the datum-version tasks instead of running them (#395):
+# --enumerate prints the datum-version tasks instead of running them (issues/395):
 # one line per pair, tab-separated <input> <schema-file> <log-dir> <label> —
 # the arguments of validate_versions.py --pair. This face owns the datum-to-
 # schema-family mapping; the dispatcher that consumes the lines owns capacity.
@@ -23,8 +23,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/steps.sh
-source "$REPO_DIR/src/main/steps.sh"   # latest_version_file (#557)
-SCHEMA_ROOT="$REPO_DIR/rsc/schema/pipeline/code-transport"   # the pipeline's families: <provider>/<family> for the captured record and the memory, sessionConversation at the root (#632)
+source "$REPO_DIR/src/main/steps.sh"   # latest_version_file (issues/557)
+SCHEMA_ROOT="$REPO_DIR/rsc/schema/pipeline/code-transport"   # the pipeline's families: <provider>/<family> for the captured record and the memory, sessionConversation at the root (issues/632)
 
 parse_args() {
   session_dir=""
@@ -52,7 +52,7 @@ parse_args() {
   fi
 }
 
-# One line per datum (#395, #557): the arguments of validate_versions.py --pair
+# One line per datum (issues/395, issues/557): the arguments of validate_versions.py --pair
 # against the family's latest version, tab-separated.
 enumerate_family() {
   local input="$1" family="$2" log_dir="$3" label="$4" schema

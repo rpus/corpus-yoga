@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""parse_argv.py — a verb's argv, answered by the declaration's own parser (#474).
+"""parse_argv.py — a verb's argv, answered by the declaration's own parser (issues/474).
 
 The python face of parse_argv.sh: a bash target has no parser to answer
 `corpus-yoga <command> <verb> -h`, so `-h` used to land in the verb's own argv — an
@@ -19,7 +19,7 @@ code:
     anything else      this face itself failed (a wiring bug, never the user)
 
 STDLIB-ONLY, like cli.py: the venv supplies the interpreter, never imports
-(#478).
+(issues/478).
 """
 import sys
 from pathlib import Path

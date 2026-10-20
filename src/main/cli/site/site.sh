@@ -9,9 +9,9 @@
 #   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
 # The tree has two verbs with disjoint files: sync owns every page, a file
-# rsc/site/<name>.html copied to data/output/site/<name>.html as authored (#650);
+# rsc/site/<name>.html copied to data/output/site/<name>.html as authored (issues/650);
 # render owns index.html at the root, the corpus page present_corpus.py writes
-# at its URL position (#409 - formerly corpus-yoga dashboard sync) from
+# at its URL position (issues/409 - formerly corpus-yoga dashboard sync) from
 # rsc/site/index.template.html, the one file under rsc/site/ that is not a page.
 # sync never touches index.html; README.md documents the family.
 
@@ -29,7 +29,7 @@ source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 SRC="$REPO_DIR/rsc/site"
 OUT="$DATA_DIR/output/site"
 MODEL_DIR="$REPO_DIR/src/main/model"
@@ -55,7 +55,7 @@ page_files() {  # <root>
 }
 
 status() {
-  # the rows (#759): the publish tree against its sources, the corpus page, the deploy
+  # the rows (issues/759): the publish tree against its sources, the corpus page, the deploy
   # mount - which status.py types and says as one shape
   {
     if [[ ! -d "$OUT" ]]; then
@@ -65,7 +65,7 @@ status() {
       printf 'pages\t%s\n' "$(sentence "absent - the rpus.co publish layer, optional; corpus-yoga site sync assembles them")"
     else
       local f
-      # the run syncs before this probe (#494): a stale tree here is rsc/site/ edited
+      # the run syncs before this probe (issues/494): a stale tree here is rsc/site/ edited
       # outside a run
       while IFS= read -r f; do
         if [[ ! -f "$OUT/$f" ]]; then
@@ -79,7 +79,7 @@ status() {
     # stated ALWAYS — an absent tree must not silence the one site verb the
     # front door teaches. The page declares the inputs it was rendered from (its
     # title: the corpus it folds), so a lag in the paid layer reads as what it is,
-    # stated - indexing's status carries the paid prescription. No clock keys (#409, #494).
+    # stated - indexing's status carries the paid prescription. No clock keys (issues/409, issues/494).
     local render="$OUT/index.html" declared
     if [[ ! -f "$render" ]]; then
       printf 'index\tABSENT\n'
@@ -104,10 +104,10 @@ render() {
   exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
 }
 
-# what publish would land, as rows for the status (#881): each new or changed file of the
+# what publish would land, as rows for the status (issues/881): each new or changed file of the
 # publish tree against rpus.co's clone (deletions are not mirrored - the site repo
 # curates its own removals), and for the corpus page what changes in the page's own terms
-# (#652, src/main/model/compare_pages.py), since a line diff of two renders misstates it.
+# (issues/652, src/main/model/compare_pages.py), since a line diff of two renders misstates it.
 landing() {
   local mount="$REPO_DIR/ext/mnt/site" f rel
   [[ -d "$mount/.git" && -d "$OUT" ]] || return 0
@@ -131,7 +131,7 @@ landing() {
   return 0
 }
 
-# The act (#881): what it would land is the bare status's; this copies, commits and pushes.
+# The act (issues/881): what it would land is the bare status's; this copies, commits and pushes.
 publish() {
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
@@ -168,7 +168,7 @@ sync() {
   local d f name eventful=0
   # reconcile: what left rsc/site/ leaves the publish tree with it (L7: this tree is
   # sync's own) - a page whose source is gone, and any directory, since the pages sit
-  # at the root since #650 (the page directories of 2026-08 to 2026-09-15 among them).
+  # at the root since issues/650 (the page directories of 2026-08 to 2026-09-15 among them).
   # index.html is spared: it is render's.
   for d in "$OUT"/*/; do
     [[ -d "$d" ]] || continue

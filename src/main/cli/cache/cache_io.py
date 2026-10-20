@@ -103,7 +103,7 @@ def producers() -> list[str]:
 
 
 def orphans(root: Path) -> list[Path]:
-    """The tmp/cache/ entries the machinery neither writes nor reads (#865): an entry is
+    """The tmp/cache/ entries the machinery neither writes nor reads (issues/865): an entry is
     kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never
     descended into), or an ancestor of one (descended to reach the owned child); every
     other entry is an orphan, returned without descending. Paths compare repo-relative,

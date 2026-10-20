@@ -36,12 +36,12 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "The schema families this pipeline's data validates against, each by its address under rsc/schema/pipeline/<pipeline>/ - <provider>/<family> where the family's instances are one provider's, <family> otherwise (#632) - so that two providers' families of one name are two entries. Order is load-bearing: the FIRST entry is the schema whose CHANGELOG.md anchors the pipeline's format history."
+      "description": "The schema families this pipeline's data validates against, each by its address under rsc/schema/pipeline/<pipeline>/ - <provider>/<family> where the family's instances are one provider's, <family> otherwise (issues/632) - so that two providers' families of one name are two entries. Order is load-bearing: the FIRST entry is the schema whose CHANGELOG.md anchors the pipeline's format history."
     },
     "input": {
       "type": "string",
       "minLength": 1,
-      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it. A literal <provider> segment stands for each provider the `provider` member names, one store each (#635). A literal <qualifier> segment stands for each provider's declared qualifier."
+      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it. A literal <provider> segment stands for each provider the `provider` member names, one store each (issues/635). A literal <qualifier> segment stands for each provider's declared qualifier."
     },
     "input_glob": {
       "type": "string",
@@ -89,7 +89,7 @@
               "whole",
               "atoms"
             ],
-            "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/corpus.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
+            "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/corpus.py's MEASURE (issues/687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
           },
           "extra_measure": {
             "type": "string",
@@ -98,7 +98,7 @@
           "unit": {
             "type": "string",
             "minLength": 1,
-            "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (#736)."
+            "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (issues/736)."
           },
           "extra_unit": {
             "type": "string",
@@ -130,7 +130,7 @@
         "whole",
         "atoms"
       ],
-      "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/corpus.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
+      "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/corpus.py's MEASURE (issues/687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
     },
     "extra_measure": {
       "type": "string",
@@ -139,7 +139,7 @@
     "unit": {
       "type": "string",
       "minLength": 1,
-      "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (#736): a capture, an export, a session."
+      "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (issues/736): a capture, an export, a session."
     },
     "extra_unit": {
       "type": "string",

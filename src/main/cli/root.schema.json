@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "CliRoot",
-  "description": "The top's declaration, src/main/cli/corpus-yoga.json: what the tool is, and the commands bare `corpus-yoga` suggests, in order - the way in for a reader new to a checkout (#807). The commands themselves are declared beside it, one directory each.",
+  "description": "The top's declaration, src/main/cli/corpus-yoga.json: what the tool is, and the commands bare `corpus-yoga` suggests, in order - the way in for a reader new to a checkout (issues/807). The commands themselves are declared beside it, one directory each.",
   "type": "object",
   "required": [
     "summary",

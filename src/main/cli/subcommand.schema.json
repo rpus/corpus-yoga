@@ -28,7 +28,7 @@
           }
         ]
       },
-      "description": "What the verb's things or steps are, by topic (#795) - what reads the same in every room. The help says what the verb is for; this says the rest, each topic one sentence or the topics beneath it. `corpus-yoga <command> -h` and the walk show them beneath the verb's summary."
+      "description": "What the verb's things or steps are, by topic (issues/795) - what reads the same in every room. The help says what the verb is for; this says the rest, each topic one sentence or the topics beneath it. `corpus-yoga <command> -h` and the walk show them beneath the verb's summary."
     },
     "help": {
       "type": "string",
@@ -41,7 +41,7 @@
     },
     "log": {
       "enum": ["self"],
-      "description": "This verb writes its own run log under tmp/logs/<command>/<verb>/, so the dispatcher's derived logging (#453: a verb with declared w or sends leaves an anchored log) stands down for it."
+      "description": "This verb writes its own run log under tmp/logs/<command>/<verb>/, so the dispatcher's derived logging (issues/453: a verb with declared w or sends leaves an anchored log) stands down for it."
     },
     "args": {
       "type": "array",
@@ -57,7 +57,7 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "Reads (#29): repo-relative path prefixes this declaration reads - the r of the rwx triad. A row names the narrowest prefixes that cover what the code opens - two narrow rows before one wide one - since a prefix nothing under it is read by says nothing, and covers a stale literal as readily as a live one (effects.extent_covered reads rows against literals). The entry is a claim the gate may hold."
+      "description": "Reads (issues/29): repo-relative path prefixes this declaration reads - the r of the rwx triad. A row names the narrowest prefixes that cover what the code opens - two narrow rows before one wide one - since a prefix nothing under it is read by says nothing, and covers a stale literal as readily as a live one (effects.extent_covered reads rows against literals). The entry is a claim the gate may hold."
     },
     "w": {
       "type": "array",
@@ -66,14 +66,14 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "Writes (#29): repo-relative path prefixes this declaration writes - the w of the triad. effects.writers_disjoint holds that no prefix is claimed by two commands, exactly or by containment."
+      "description": "Writes (issues/29): repo-relative path prefixes this declaration writes - the w of the triad. effects.writers_disjoint holds that no prefix is claimed by two commands, exactly or by containment."
     },
     "consumes": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Consumes (#687): repo-relative path prefixes this declaration removes after reading - a dequeue, the fourth row of the triad. A consumed prefix is another command's to write: the room's stage, tmp/stage/input, which the captures fill and the promote verbs take from, the orphan cache subtrees the cleaner removes. effects.writers_disjoint holds w prefixes disjoint across commands; a consumes prefix overlaps a producer's w by nature and is held instead to be read by the same declaration."
+      "description": "Consumes (issues/687): repo-relative path prefixes this declaration removes after reading - a dequeue, the fourth row of the triad. A consumed prefix is another command's to write: the room's stage, tmp/stage/input, which the captures fill and the promote verbs take from, the orphan cache subtrees the cleaner removes. effects.writers_disjoint holds w prefixes disjoint across commands; a consumes prefix overlaps a producer's w by nature and is held instead to be read by the same declaration."
     },
     "x": {
       "type": "array",
@@ -82,7 +82,7 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "Invokes (#29): canonical invocation forms this declaration executes - tools and parametrised commands, the x of the triad. Wire-class x's remain in sends until the census folds them in."
+      "description": "Invokes (issues/29): canonical invocation forms this declaration executes - tools and parametrised commands, the x of the triad. Wire-class x's remain in sends until the census folds them in."
     },
     "sends": {
       "type": "object",
@@ -95,7 +95,7 @@
           "minLength": 1
         }
       },
-      "description": "Outward calls this declaration makes (#29), keyed by the call - so a repeat is unrepresentable and the call is a value a check can compare against what the implementation invokes. Each value lists that call's occasions, one entry each. A send has no scratch form: redirecting where the result lands does not stop the call going out, so CORPUS_YOGA_NO_SEND=1 refuses it - reads degrade to UNVERIFIED, writes refuse loudly (src/main/send.py, src/main/send.sh)."
+      "description": "Outward calls this declaration makes (issues/29), keyed by the call - so a repeat is unrepresentable and the call is a value a check can compare against what the implementation invokes. Each value lists that call's occasions, one entry each. A send has no scratch form: redirecting where the result lands does not stop the call going out, so CORPUS_YOGA_NO_SEND=1 refuses it - reads degrade to UNVERIFIED, writes refuse loudly (src/main/send.py, src/main/send.sh)."
     }
   }
 }

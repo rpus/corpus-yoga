@@ -23,7 +23,7 @@ in all 123, where the 121 captures held under data/input, of 2026-09-27 and befo
 carry no such key. It is admitted as an optional boolean beside `is_archived` and
 `workspace_upgraded`, so that every capture held before 2026-10-07 validates at v13
 unchanged; all 121 held and all 123 staged captures do, validated by hand over the
-room's data on reading-room, 2026-10-08 (#826). Nothing reached shared storage: the
+room's data on reading-room, 2026-10-08 (issues/826). Nothing reached shared storage: the
 stage held the refused captures.
 
 ### Replaces
@@ -43,13 +43,13 @@ None.
 
 claude.ai's API returns two flags on every conversation that no version knew.
 Reading-room's browser capture of 2026-09-27 fetched all 121 conversations of the
-account, staged under tmp/stage/input on PR #689's branch, and `corpus-yoga pipeline
+account, staged under tmp/stage/input on pull/689's branch, and `corpus-yoga pipeline
 rehearse` refused every one at v11: each carries `is_archived` and `workspace_upgraded`
 at the top of the conversation object, false in all 121, where the held captures of
 2026-09-17 carry neither. Both are admitted as optional booleans, so that every capture
 held before 2026-09-27 validates at v12 unchanged; all 121 held and all 121 staged
-captures do, on reading-room, 2026-09-27 (#698). Nothing reached shared storage this
-time: the stage held the refused captures, where PR #678's sixteen of 2026-09-17 had
+captures do, on reading-room, 2026-09-27 (issues/698). Nothing reached shared storage this
+time: the stage held the refused captures, where pull/678's sixteen of 2026-09-17 had
 landed in data/input.
 
 ### Replaces
@@ -144,7 +144,7 @@ v9
 #### Refactored
 
 - The family description (v10, in place) names the bulk-export family at its address since
-  2026-09-16 (#632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout
+  2026-09-16 (issues/632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout
   by writer then provider that also moved this family to
   `rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
 - Schema typing rationalised, 2026-09-08 (reading-room), judged against the

@@ -39,7 +39,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402
 from send import SendRefused, assert_may_send  # noqa: E402
 from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,  # noqa: E402
@@ -51,7 +51,7 @@ ARRIVAL_TIMEOUT = 300   # seconds a download may take to arrive and unpack; conv
 FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under: fronted once, its login checked
 
 STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
-STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (#687)
+STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (issues/687)
 
 
 def derived_data_name(manifest_path: Path) -> str:
@@ -242,7 +242,7 @@ def main(argv: list[str]) -> int:
         print('export capture: NOT DONE - ' + facts.sentence('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
                                                              fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
         return 1
-    # what an act reports (#801, #896): the effect; the launcher's reply names the
+    # what an act reports (issues/801, issues/896): the effect; the launcher's reply names the
     # rehearsal that judges what was staged, as the store's status names it
     facts.report(None, 'export capture: DONE - ' + facts.sentence('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
                                                                   fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))

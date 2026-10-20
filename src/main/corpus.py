@@ -1,15 +1,15 @@
 """
 corpus.py - the corpus's units: what a unit is, where a staged one stands to the held one
 of its address, whether the pipelines have found it valid, and its promotion into shared
-storage (#687). The home rsc/CALCULUS.md's roadmap names for the Mergeable protocol; this is
+storage (issues/687). The home rsc/CALCULUS.md's roadmap names for the Mergeable protocol; this is
 its first face, promotion, and the four older comparisons it names stand as they are.
 
-THE STAGE - the room's stage is one root, tmp/stage (src/main/tier.py, #702): tmp/stage/
+THE STAGE - the room's stage is one root, tmp/stage (src/main/tier.py, issues/702): tmp/stage/
 input is what the captures write, at the address each unit will have under data/input;
 tmp/stage/scratch is what the last rehearsal's run derived - a data tier whose input links
 to tmp/stage/input and whose output is its preview, a tmp tier with the validation -
 replaced whole by the next run; and tmp/stage/rehearsal.json is the rehearsal record, one
-file, what the last rehearsal saw and judged (src/main/rehearsal.py, #815). A capture writes the
+file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). A capture writes the
 stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
 CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the scratch tiers, so
@@ -46,7 +46,7 @@ else:
 
 VERDICT - the pipelines are the one validator, and a rehearsal is where they judge the
 stage: each datum's verdict is what the validation step wrote under the scratch's cache
-at the unit's cache address (src/main/validation_verdict.py, #701), at the family's latest
+at the unit's cache address (src/main/validation_verdict.py, issues/701), at the family's latest
 version, and the rehearsal record holds it with the digests of every unit the run began
 over. Every verb reads the record, so the last rehearsal is the judgement of every unit.
 Against it a unit is unseen (absent from the record), changed since (its digests are not
@@ -96,12 +96,12 @@ from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
-import facts  # noqa: E402 - the one printer of a status's facts (#740)
-import rehearsal  # noqa: E402 - the rehearsal record, one home (#815)
-import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/740)
+import rehearsal  # noqa: E402 - the rehearsal record, one home (issues/815)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
-MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (#721)
+MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)
 STORE = tier.DATA / 'input'
 PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
@@ -164,7 +164,7 @@ class Glob:
 
 @dataclass(frozen=True)
 class Store:
-    """One store a pipeline reads, as its declaration states it (#751): every reader of a
+    """One store a pipeline reads, as its declaration states it (issues/751): every reader of a
     row reads these fields, held to them by the dev gate's type check."""
     pipeline: str
     provider: str | None
@@ -206,7 +206,7 @@ def _star(pattern: str, name: str) -> str | None:
 
 
 def _deposit_missing(manifest: Path, payload: Path) -> list[str]:
-    """A bulk export's completeness, on sight (#721): the manifest lists the archives its
+    """A bulk export's completeness, on sight (issues/721): the manifest lists the archives its
     capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit
     holds, and the payload holds those members or it does not. The members owed and absent,
     by name; empty for a complete export."""
@@ -384,7 +384,7 @@ def _words_whole(staged, held, unit: Unit) -> str:
 
 
 def _export_atoms():
-    """The bulk export's measure, src/main/pipeline/chat-export/atoms.py, loaded where it lives (#743)."""
+    """The bulk export's measure, src/main/pipeline/chat-export/atoms.py, loaded where it lives (issues/743)."""
     import importlib.util
     spec = importlib.util.spec_from_file_location('chat_export_atoms', PIPELINE_ROOT / 'chat-export' / 'atoms.py')
     assert spec and spec.loader
@@ -477,11 +477,11 @@ def own_digests(unit: Unit) -> set[str]:
 class Judgement(Enum):
     VALID = 'valid'          # every family judged it, green, at origin/main's versions
     INVALID = 'invalid'      # a family gave its verdict against it
-    UNLICENSED = 'unlicensed'   # judged valid at a version origin/main does not hold: valid here, unlicensed there, the mint's merge licensing the promotion (#867)
+    UNLICENSED = 'unlicensed'   # judged valid at a version origin/main does not hold: valid here, unlicensed there, the mint's merge licensing the promotion (issues/867)
     UNSEEN = 'unseen'        # staged since the rehearsal began: absent from its record
     CHANGED = 'changed'      # seen by the rehearsal with other digests than it has now
     UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its next step
-    SUPERSEDED = 'superseded'   # judged at a version origin/main has since replaced: a rehearsal re-judges it (#830)
+    SUPERSEDED = 'superseded'   # judged at a version origin/main has since replaced: a rehearsal re-judges it (issues/830)
     NONE = 'none'            # no family judges it: promoted on its relation alone
 
 
@@ -658,13 +658,13 @@ INCOMPLETE = '{n} member(s) the record lists are not in the payload; corpus-yoga
 
 def incomplete() -> list[Unit]:
     """The staged units whose record or payload is absent, or whose payload lacks what the
-    record lists - never a rehearsal's input, always the janitor's (#721)."""
+    record lists - never a rehearsal's input, always the janitor's (issues/721)."""
     return [u for u in units(STAGE) if u.missing] if STAGE.is_dir() else []
 
 
 def refuse_rehearsal() -> int:
     """The stage's word before a rehearsal: 1, with the units named and the janitor as the
-    remedy, while any staged unit is incomplete; 0 where every unit is whole (#721)."""
+    remedy, while any staged unit is incomplete; 0 where every unit is whole (issues/721)."""
     bad = incomplete()
     if not bad:
         return 0
@@ -683,7 +683,7 @@ NOT_JUDGED = {Judgement.CHANGED: 'changed since', Judgement.UNSEEN: 'unseen',   
 
 
 def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
-    """The one of STATES a staged unit is in (#867): invalid where a family gave its verdict
+    """The one of STATES a staged unit is in (issues/867): invalid where a family gave its verdict
     against it; would lose where its relation would cost the held copy something, which the
     promote, asked, refuses; unlicensed where it is valid at a version origin/main does not
     hold; unjudged before any verdict. A status asks for no act, so no state is refused."""
@@ -762,7 +762,7 @@ def datum_files(unit: Unit) -> set[str] | None:
 def redundant(unit: Unit) -> bool:
     """Whether the held unit holds every file of the staged one byte-identical - a unit
     already promoted, which only the stage's janitor removes. The held copy is read by the
-    staged member's files alone (#832): a file beside them is the store's, not the
+    staged member's files alone (issues/832): a file beside them is the store's, not the
     stage's; under a mirror measure the two must match whole."""
     if not unit.members or unit.missing:
         return False
@@ -782,7 +782,7 @@ def _copy(unit: Unit) -> int:
     the store holds is left alone, a differing or missing file is written, and under a
     mirror measure a held file the member no longer has is removed - the member replaced
     whole, every state following every other. Under any other measure a held file outside
-    the member is left: it is the store's to name and its janitor's to remove (#832). The
+    the member is left: it is the store's to name and its janitor's to remove (issues/832). The
     stage is not written. Returns the files written or removed."""
     changed = 0
     for rel in unit.members:
@@ -805,7 +805,7 @@ def _copy(unit: Unit) -> int:
 
 
 def surplus(root: Path) -> list[tuple[Unit, Path]]:
-    """Every file inside a held unit that its measure does not read (#833): the unit, and
+    """Every file inside a held unit that its measure does not read (issues/833): the unit, and
     the file's path relative to root. A room's own sync can put one there - iCloud's
     conflict copy beside a capture is the first case - and no capture wrote it."""
     out: list[tuple[Unit, Path]] = []
@@ -841,7 +841,7 @@ def dispose(path: Path) -> str | None:
 
 def shadow(unit: Unit) -> Path | None:
     """The unit's derivation under the checkout's cache, at the address the pipeline writes
-    it - what only the unit feeds, and goes with it (#744)."""
+    it - what only the unit feeds, and goes with it (issues/744)."""
     if unit.pipeline is None:
         return None
     rel = Path(cache_io.path_for(unit.pipeline)).relative_to('tmp/cache')
@@ -850,7 +850,7 @@ def shadow(unit: Unit) -> Path | None:
 
 def orphaned_shadows() -> list[Path]:
     """Every directory under the cache at a held kind's depth that is no held unit's shadow:
-    the derivation of a unit the store no longer holds, which would pass for one (#744)."""
+    the derivation of a unit the store no longer holds, which would pass for one (issues/744)."""
     held = [u for u in units(STORE) if u.pipeline is not None]
     shadows = {shadow(u) for u in held}
     depths: dict[tuple, int] = {}
@@ -900,7 +900,7 @@ def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
 def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
     """The heading a unit that is not promoted stands under: its state, then why. No
     heading prescribes a removal - an incomplete unit is the janitor's, named in its
-    words (#721), and one that would lose the reader's to reconcile."""
+    words (issues/721), and one that would lose the reader's to reconcile."""
     if rel in REFUSING and not unit.missing:
         return f'REFUSED - {rel.name.lower()}: {REMEDY[rel]}'
     return f'{state(unit, rel, ok).upper()} - {words}'
@@ -910,8 +910,8 @@ def promote(noun: str, selected: list[Unit]) -> int:
     """Promote the units, their verdicts read from the rehearsal record: each promotable
     one copied over the held one by address, the rest named; the stage is never written.
     The lines are grouped by what they share, next: names what the room can do after the
-    act (#801), and the verdict is the last line - a unit that would lose counted as refused, since the act
-    was asked and declined it (#867). Exit 1 while anything asked for was left undone."""
+    act (issues/801), and the verdict is the last line - a unit that would lose counted as refused, since the act
+    was asked and declined it (issues/867). Exit 1 while anything asked for was left undone."""
     rows = survey(selected)
     if not rows:
         print(f'{noun} promote: DONE - nothing staged')
@@ -954,13 +954,13 @@ def human(n: float) -> str:
     return f'{n:.1f}T'
 
 
-BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before #815 left: stamped rehearsals, or the record before its extension
+BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before issues/815 left: stamped rehearsals, or the record before its extension
 MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes
 
 
 def orphans() -> list[Path]:
     """What sits under tmp/stage and is neither the input, the scratch, the record nor the
-    directory the layout before #815 left, which is the migration's."""
+    directory the layout before issues/815 left, which is the migration's."""
     stage = tier.TMP_STAGE
     kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name, BEFORE_815.name)
     return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
@@ -993,15 +993,15 @@ class StageTier:
     scratch: str                  # the last run's derived tiers' size, or that they are absent
     orphans: dict[str, Orphan]    # by path
     record: Rehearsal | str = facts.named('rehearsal.json')   # the record, or why there is none
-    rehearsal: Orphan | None = None                           # what the layout before #815 left, while it stands
+    rehearsal: Orphan | None = None                           # what the layout before issues/815 left, while it stands
 
 
 @dataclass
 class Kind:
     """One kind of staged unit - one selection of a pipeline's declaration, keyed by its
-    path under the input root (#736): how many are staged, and how many the rehearsal
+    path under the input root (issues/736): how many are staged, and how many the rehearsal
     found valid, invalid, unlicensed, or has not judged, how many are incomplete, and how
-    many no family judges - the stage's own facts, nothing of the store (#842)."""
+    many no family judges - the stage's own facts, nothing of the store (issues/842)."""
     staged: int
     valid: int | None
     invalid: int | None
@@ -1032,13 +1032,13 @@ def judged_as(row: Judged) -> str:
 @dataclass
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state as a report, ending on what is invalid and
-    why and what is unlicensed and why, as facts. It names no act (#851): the stage is a
+    why and what is unlicensed and why, as facts. It names no act (issues/851): the stage is a
     scratch tier between the live stores and the store, and the store's status, which
     reads both, says what to run next."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
-    unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (#867)
+    unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (issues/867)
 
 
 def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
@@ -1057,7 +1057,7 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
 
 
 def stage_facts() -> StageStatus:
-    """Bare corpus-yoga stage as facts (#741, #759, #822): the input's size, the scratch's,
+    """Bare corpus-yoga stage as facts (issues/741, issues/759, issues/822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
     invalid by the version file that found it so - its path, relative to rsc/schema/pipeline,
@@ -1065,7 +1065,7 @@ def stage_facts() -> StageStatus:
     then what is valid at a version origin/main does not hold, unlicensed there. What
     follows an invalid verdict and where its whole
     output is are constant, and the declaration's explanation says them; what to run next
-    is the store's status's to say (#851)."""
+    is the store's status's to say (issues/851)."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus(facts.sentence('absent - nothing captured since the last clean, no rehearsal made'))
@@ -1097,9 +1097,9 @@ def stage_facts() -> StageStatus:
 
 @dataclass
 class Promotion:
-    """One kind of staged unit as it stands to the store (#842): how many are staged, and
+    """One kind of staged unit as it stands to the store (issues/842): how many are staged, and
     how many are promotable, held already, would lose by their relation, unlicensed at a
-    version origin/main does not hold, or pending the stage's judgement (#867)."""
+    version origin/main does not hold, or pending the stage's judgement (issues/867)."""
     staged: int
     promotable: int | None
     held_already: int | None
@@ -1125,7 +1125,7 @@ def promotion_facts(rows: list[Judged]) -> dict[str, Promotion]:
 
 def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     """Each relation under which the held copy would lose something, by selection, by the
-    relation's words, with how many units carry it - what the promote, asked, refuses (#867)."""
+    relation's words, with how many units carry it - what the promote, asked, refuses (issues/867)."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
         if row.state == 'would lose':
@@ -1138,7 +1138,7 @@ def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
 
 
 def room_next(rows: list[Judged] | None = None, ahead: list | None = None) -> dict[str, dict[str, dict[str, int]]]:
-    """The room's to-do, the one reading (#851, #875): what the store's status names under
+    """The room's to-do, the one reading (issues/851, issues/875): what the store's status names under
     next: - the captures for what the live stores hold beyond both tiers, the rehearsal for
     what is staged and not judged, the promotes, the stage's cleaner, the store's cleaner -
     read now. Bare corpus-yoga store says it, and every act ends on it re-read after its
@@ -1162,7 +1162,7 @@ def room_next(rows: list[Judged] | None = None, ahead: list | None = None) -> di
 
 def promotion_next(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]) -> None:
     """Into a next: block, what the store's status says to run on the stage, in the
-    workflow's order (#851): the rehearsal for what is not judged, each capturing noun's
+    workflow's order (issues/851): the rehearsal for what is not judged, each capturing noun's
     promote for its promotable units, and the stage's cleaner for what the store already
     holds, for each incomplete unit, and for each orphan under tmp/stage, by its path."""
     for row in rows:
@@ -1180,7 +1180,7 @@ def promotion_next(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]
         step(out, 'corpus-yoga stage clean', e.relative_to(REPO).as_posix())
 
 
-VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture'}   # what a next: command would do, by its verb word (#846)
+VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture'}   # what a next: command would do, by its verb word (issues/846)
 
 
 def verb_of(command: str) -> str:
@@ -1227,7 +1227,7 @@ def kind_of(unit: Unit) -> str:
 
 
 def stage_status() -> int:
-    """Bare corpus-yoga stage: the tier's state, read-only, as facts (#741). Every effective
+    """Bare corpus-yoga stage: the tier's state, read-only, as facts (issues/741). Every effective
     stage verb ends by relaying it."""
     facts.say(stage_facts())
     return 0
@@ -1250,7 +1250,7 @@ def invalid_by(rows: list[Judged]) -> dict[str, object]:
 def unlicensed_by(rows: list[Judged]) -> dict[str, object]:
     """Each version of this checkout that origin/main does not hold, under which a unit was
     judged valid, once, by its version file's path, then the reason, with how many units
-    carry it (#867)."""
+    carry it (issues/867)."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
         if row.judgement is not Judgement.UNLICENSED or row.refusal is None:
@@ -1274,7 +1274,7 @@ class Duplicate:
 
 def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> list[Duplicate]:
     """Every duplicate under root - a unit whose content another unit of its kind holds, the
-    same at two addresses or whole within the other's by the kind's measure (#738, #743).
+    same at two addresses or whole within the other's by the kind's measure (issues/738, issues/743).
     Two units are compared where they share a kind and - unless the kind's measure relates
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
     declares; a measure whose order relates everything - mirror's - holds only what is
@@ -1351,21 +1351,21 @@ class HeldTwice:
 @dataclass
 class StoreStatus:
     """Bare corpus-yoga store: shared storage in the stage's terms, and the one status that
-    names what to run next (#851)."""
+    names what to run next (issues/851)."""
     data_input: Held | str = facts.named('data/input')
     held: dict[str, int] | None = None        # the units by what each count is of
     stray: dict[str, Stray] | None = None     # by path: what no pipeline selects and no capturing noun writes
-    surplus: dict[str, Surplus] | None = None   # by path: a file inside a held unit that its measure does not read (#833)
-    orphaned_shadows: dict[str, Orphan] | None = None   # by path: a cache derivation of a unit the store no longer holds (#844)
+    surplus: dict[str, Surplus] | None = None   # by path: a file inside a held unit that its measure does not read (issues/833)
+    orphaned_shadows: dict[str, Orphan] | None = None   # by path: a cache derivation of a unit the store no longer holds (issues/844)
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
-    staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (#842)
-    would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (#867)
-    live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, #851)
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (#836)
+    staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (issues/842)
+    would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (issues/867)
+    live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, issues/851)
+    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (issues/836)
 
 
 def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, int]:
-    """Bare corpus-yoga store, its first two readings as facts (#738, #741, #759): the units
+    """Bare corpus-yoga store, its first two readings as facts (issues/738, issues/741, issues/759): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
     nothing. Returns (the facts, units held, duplicates)."""
@@ -1421,7 +1421,7 @@ class Pairs:
 
 
 def pairs_facts(noun: str) -> Pairs:
-    """The noun's units named by a star, as facts (#753, #759): the held ones, a member each
+    """The noun's units named by a star, as facts (issues/753, issues/759): the held ones, a member each
     and a record where shared storage holds one from before the stage; the staged ones, each
     paired or unpaired, naming what is absent. Writes nothing."""
     roots = roots_of(noun)
@@ -1457,7 +1457,7 @@ def pairs_facts(noun: str) -> Pairs:
 @dataclass(frozen=True)
 class Staged:
     """A staged unit as a status says it: what the rehearsal found of it, the verdict's
-    words, and the rehearsal that saw it - the stage's facts, nothing of the store (#842)."""
+    words, and the rehearsal that saw it - the stage's facts, nothing of the store (issues/842)."""
     judged: str
     verdict: str | None = None
     invalid: dict[str, str] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the reason
@@ -1475,10 +1475,10 @@ class StageReport:
 
 def report_facts(noun: str | None) -> StageReport:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
-    `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759, #800): each unit by
+    `corpus-yoga pipeline` shows it (every unit), as facts (issues/753, issues/759, issues/800): each unit by
     its address with its facts beneath, and the step that acts on it next where one does -
     the rehearsal for an unjudged unit, the janitor for an incomplete one. Its relation to
-    the held unit is the store's to say and the promote's to act on (#842). The counts are
+    the held unit is the store's to say and the promote's to act on (issues/842). The counts are
     `corpus-yoga stage`'s to say. Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     record = rehearsal.read()
@@ -1500,7 +1500,7 @@ def report_facts(noun: str | None) -> StageReport:
 def held_rows() -> list[tuple[str, str, str, int, str, str]]:
     """What each pipeline holds, a row per store and kind it declares: pipeline, provider,
     kind, the units held, the store's address, and the capturing noun that writes there.
-    The store's own reading, for a reader in another language (#771)."""
+    The store's own reading, for a reader in another language (issues/771)."""
     found = units(STORE) if STORE.is_dir() else []
     out = []
     for store in stores():

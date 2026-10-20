@@ -1,4 +1,4 @@
-# model.json disposal record (issue #19), indexing's rejected.txt vocabulary.
+# model.json disposal record (issues/19), indexing's rejected.txt vocabulary.
 # One shared-type name per line, optional trailing "# reason"; full-line
 # comments ignored. Rejecting ANY name of a shared type's set disposes that
 # type (a snake_cased pair is one type under two dressings). The obligations

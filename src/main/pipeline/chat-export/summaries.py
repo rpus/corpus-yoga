@@ -51,7 +51,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 from markdown_projection import REPO, find_api_json
 
 from declared_parser import command_parser  # noqa: E402
@@ -215,7 +215,7 @@ def status(root: Path) -> int:
 
 
 def main():
-    args = command_parser('summaries').parse_args()  # whole surface declared (#476, #477)
+    args = command_parser('summaries').parse_args()  # whole surface declared (issues/476, issues/477)
 
     root = Path(args.summaries_output)
     if args.verb != 'sync':
@@ -269,13 +269,13 @@ def main():
         # store remembers what the batch sequence forgets at disposal — while a
         # genuine A→B→A return still deposits, because A's nearest-earlier is then
         # B, not A. Without it a re-stamped reading deposits again, byte-identical
-        # under a new key, and the twins accrete once per disposal (issue #22).
+        # under a new key, and the twins accrete once per disposal (issues/22).
         for ts, s in readings.get(u, []):
             result = accumulate(folder, ts, s, suffix=SUFFIX, exclude=NON_DEPOSITS)
             if result == 'deposited':
                 deposited += 1          # verbatim — the deposit IS the reading
             elif result == 'conflict':
-                # the calculus accumulate contract (issue #22): a same-stamp
+                # the calculus accumulate contract (issues/22): a same-stamp
                 # content mismatch is a CONFLICT, exit 1 — not a stderr aside
                 print(f'  ✗ CONFLICT {stem}/{ts}.md: ' + facts.sentence('existing deposit differs from this derivation - left untouched (deposits are immutable); investigate'))
                 conflicts += 1
@@ -306,6 +306,6 @@ def main():
 
 if __name__ == '__main__':
     # sys.exit, not a bare call: main()'s return IS the exit code, so a
-    # CONFLICT can actually fail the run step (issue #22 — the bare call made
+    # CONFLICT can actually fail the run step (issues/22 — the bare call made
     # `corpus-yoga summaries sync` a step that could never exit non-zero, against L8)
     sys.exit(main())

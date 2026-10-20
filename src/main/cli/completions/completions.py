@@ -5,7 +5,7 @@ in ~/.zshrc that make it. What tab offers is src/main/cli/completions/offer.py's
 src/main/cli/completions/offer.zsh each time tab is pressed; src/main/cli/completions/_corpus-yoga
 is the file zsh loads, and only sources that.
 
-Its own file because a command determines its target's name (#40): `corpus-yoga completions` is
+Its own file because a command determines its target's name (issues/40): `corpus-yoga completions` is
 answered here, not by a branch inside the dispatcher. cli.py holds the declaration readers
 and the renderers every command shares; what only this command needs lives here.
 
@@ -26,8 +26,8 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))   # src/main/, for send
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
-from send import SendRefused, assert_may_send  # noqa: E402 — ~/.zshrc is outside the tree: a send (#29)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+from send import SendRefused, assert_may_send  # noqa: E402 — ~/.zshrc is outside the tree: a send (issues/29)
 from cli import REPO  # noqa: E402
 
 # The directory ~/.zshrc puts on zsh's fpath: it holds _corpus-yoga, the one file zsh loads.
@@ -220,7 +220,7 @@ class Status:
 def loads() -> bool | None:
     """Whether an interactive zsh has a completion for corpus-yoga, asked of zsh: a line
     in ~/.zshrc below compinit stands there and does nothing, so the file's text is not
-    the fact. The zsh asked starts without the caller's FPATH (#861): zsh ties fpath to
+    the fact. The zsh asked starts without the caller's FPATH (issues/861): zsh ties fpath to
     it, so an exported FPATH holding a completion would answer for the home's shell
     configuration, which is the one thing asked about - a new terminal's zsh inherits no
     such export. None where there is no zsh."""
@@ -235,7 +235,7 @@ def loads() -> bool | None:
 
 
 # ./corpus-yoga in the remedy: the bare word is the alias the block binds to one copy,
-# and where a remedy is owed it is unbound or bound to another copy (#514).
+# and where a remedy is owed it is unbound or bound to another copy (issues/514).
 INSTALL = './corpus-yoga completions install'
 
 
@@ -272,7 +272,7 @@ def completion_status() -> int:
 def completion(rest: list[str]) -> int:
     """`corpus-yoga completions` — bare shows status, each subcommand acts.
 
-    The parser is generated from the declaration (#476): the pattern every
+    The parser is generated from the declaration (issues/476): the pattern every
     other command's target already follows. That cli.py handles this command itself
     instead of exec'ing a target is no reason to hand-roll the dispatch and a second
     copy of the help — that copy is how the text came to disagree with the table. A parser cannot advertise a subcommand it does not

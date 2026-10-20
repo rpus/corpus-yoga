@@ -5,7 +5,7 @@ stdin is the live repository json (gh api repos/{owner}/{repo}); argv[1] is
 src/main/cli/forge/forge.csv. One row per declared setting, OK or DRIFT, each
 DRIFT carrying its own gh remedy. forge.sh relays the rows verbatim; the
 judgment lives in the csv, never in a wrapper — and this face runs in the
-venv like every .py (#478), never under a PATH python.
+venv like every .py (issues/478), never under a PATH python.
 """
 import csv
 import json
@@ -17,7 +17,7 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 sys.path.insert(0, str(_root[0] / 'src' / 'main'))
-import facts  # noqa: E402 - the one face a sentence is said through (#909)
+import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
 
 def norm(value) -> str:

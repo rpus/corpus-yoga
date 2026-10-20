@@ -55,7 +55,7 @@
       "reads each named issue's state and title; a closed issue refuses the raise, and a PR's title is its first issue's"
     ],
     "gh api": [
-      "reads each aimed issue's open blockers (#482); an open blocker not aimed at refuses the raise, as it would the merge",
+      "reads each aimed issue's open blockers (issues/482); an open blocker not aimed at refuses the raise, as it would the merge",
       "reads the forge's main, its sha and subject, for an issue's as-at anchor",
       "WRITES each blocked_by edge an issue is raised with, and the edges a superseded issue held, then reads the raised issue's edges back (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],

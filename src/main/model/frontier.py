@@ -4,7 +4,7 @@ frontier.py - the corpus's shape as the data gate reads it: the pipelines and
 their declared facts (pipelines()), each pipeline's subject dirs under its
 tmp/cache workshop (subject_dirs), and a family's versions in numeric order
 (sorted_versions). Read-only. The frontier verdict itself - every datum
-validates at its family's latest version - is the audit's (#557,
+validates at its family's latest version - is the audit's (issues/557,
 src/main/validation_audit.py), stated per datum from the latest version's log.
 
 Recency is pipeline-specific because the corpora differ: chat-export orders
@@ -15,7 +15,7 @@ capture's updated_at; code-transport the max record timestamp in the session
 pipelines are fine.
 
 Consumers: model.py (bare `corpus-yoga model` states each family's verdict, so the
-usr gate's corpus tail says it - #373) and src/test/dev/run.py (the data-tier
+usr gate's corpus tail says it - issues/373) and src/test/dev/run.py (the data-tier
 frontier and coverage checks read subjects and recency from here).
 """
 import json
@@ -54,7 +54,7 @@ def subject_dirs(cache_root, depth):
 
 
 def pipelines():
-    """(name, facts) for every declared pipeline - membership is placement (#327)."""
+    """(name, facts) for every declared pipeline - membership is placement (issues/327)."""
     for d in sorted(PIPELINE_ROOT.iterdir()):
         f = d / 'pipeline.json'
         if f.is_file():

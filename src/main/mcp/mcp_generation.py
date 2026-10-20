@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp_generation.py - the mcp schema generated from schema.ts alone (#598): every
+mcp_generation.py - the mcp schema generated from schema.ts alone (issues/598): every
 exported interface, alias and constant read through the house TypeScript grammar
 (mcp_extraction) and written as a draft-04 shape in the house dialect, the shape
 upstream's generator would flatten it to - so the factoring composes these over the

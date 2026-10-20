@@ -40,7 +40,7 @@
       "fetches conversations over the session's own authenticated API (refused loudly under CORPUS_YOGA_NO_SEND)"
     ],
     "fetch (in-page, session-authenticated)": [
-      "for claude, GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks - the capture completes the record (#422)"
+      "for claude, GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks - the capture completes the record (issues/422)"
     ]
   },
   "w": [

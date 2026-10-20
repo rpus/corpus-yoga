@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 status.py - bare `corpus-yoga export`: the exports held and staged, each paired or unpaired,
-then the stage's units of the export's captures, as one shape (#759). Reads; writes nothing.
+then the stage's units of the export's captures, as one shape (issues/759). Reads; writes nothing.
 """
 import sys
 from dataclasses import dataclass

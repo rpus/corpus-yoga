@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Validate one JSON file against versioned schemas, one log and one verdict record per
-datum-version pair. The record (src/main/validation_verdict.py, #701) is what every reader reads - the
+datum-version pair. The record (src/main/validation_verdict.py, issues/701) is what every reader reads - the
 skip path here, the matrix, the audit, the stage's survey; the log is the inspection's
 grist and no reader parses it.
 
@@ -9,7 +9,7 @@ Two faces:
   <input_file> <schema_dir> <log_dir> <label>          every version in the
       directory, then the family roll-up: status summary and matrix.md.
   --pair <input_file> <schema_file> <log_dir> <label>  exactly one pair — the
-      dispatchable atom (#395): quiet, writes (or skips) that pair's log only.
+      dispatchable atom (issues/395): quiet, writes (or skips) that pair's log only.
 """
 
 import glob
@@ -34,7 +34,7 @@ import validation_verdict as verdict  # noqa: E402
 
 
 def _digest(path):
-    """sha256 of the file's bytes — the content key (#367): identical bytes are
+    """sha256 of the file's bytes — the content key (issues/367): identical bytes are
     current from any tree; clocks are labels, never ordering."""
     h = hashlib.sha256()
     with open(path, 'rb') as fh:
@@ -46,7 +46,7 @@ def _digest(path):
 def _record_current(log_out, input_digest, schema_digest):
     """True iff the verdict record beside the log judges exactly this datum × schema BY
     CONTENT: its two digests. No clock is consulted, so a fresh worktree's birth-mtimes
-    cannot fake staleness (#367). A log with no record - one written before #701 - is
+    cannot fake staleness (issues/367). A log with no record - one written before issues/701 - is
     not current and revalidates once, the stated migration cost. The record IS the
     memoisation."""
     log_dir, version = os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0]
@@ -67,7 +67,7 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
     result = validate(input_file, schema_path)
     body = list(result)
     if result[0] != 'Valid!':
-        # The failure inspection is part of the log, one author (#396); an
+        # The failure inspection is part of the log, one author (issues/396); an
         # inspection crash must not cost the verdict already in hand.
         try:
             body += inspect_failure(input_file, schema_path, result)
@@ -81,7 +81,7 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
         f.write(f'{schema_path}: {schema_bytes} bytes · sha256 {schema_digest}\n')
         for line in body:
             f.write(line + '\n')
-    # the verdict as data, beside the log, the one thing a reader reads (#701)
+    # the verdict as data, beside the log, the one thing a reader reads (issues/701)
     verdict.write(os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0],
                   os.path.realpath(input_file), input_digest, input_bytes, input_lines,   # the file, not a link to it
                   schema_path, schema_digest, result[0] == 'Valid!', result[0], at)
@@ -90,7 +90,7 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
 
 
 def validate_pair(input_file, schema_path, log_dir, label):
-    """The single-pair face (#395): one datum, one schema version, one log —
+    """The single-pair face (issues/395): one datum, one schema version, one log —
     the dispatchable atom. Quiet: a current log is a task already done, and
     every verdict is stated by the family roll-up (directory face) afterwards.
     label is carried for the contract's symmetry; the log needs no label."""
@@ -106,7 +106,7 @@ def validate_pair(input_file, schema_path, log_dir, label):
 
 def validate_versions(input_file, schema_dir, log_dir, label):
     """The directory face: the datum against its family's LATEST version - the
-    latest version is the schema, the rest is history (#557) - one log, one verdict.
+    latest version is the schema, the rest is history (issues/557) - one log, one verdict.
     Older vN.log files a previous run left beside it are history too: nothing
     here reads or writes them."""
     os.makedirs(log_dir, exist_ok=True)

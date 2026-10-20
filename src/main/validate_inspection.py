@@ -3,7 +3,7 @@
 Render the failure inspection a validation log carries after a failed verdict:
 the offending sub-instance, the instance and schema paths, the schema fragment
 at the error site, its other occurrences in the instance, and the command that
-re-fetches those occurrences. One author for the log's content (#396) — the
+re-fetches those occurrences. One author for the log's content (issues/396) — the
 sections a shell on_failure used to assemble from jq and three scripts.
 """
 
@@ -51,7 +51,7 @@ def inspect_failure(input_file, schema_file, result):
     out += json.dumps(_walk(instance, instance_path), indent=2, ensure_ascii=False).splitlines()
 
     instance_ptr = '/' + '/'.join(str(x) for x in instance_path)
-    if schema_ptr is None:   # a verdict from before #848 names no schema node: derive one from the instance path
+    if schema_ptr is None:   # a verdict from before issues/848 names no schema node: derive one from the instance path
         schema_ptr = follow_path(instance_path, schema, schema)
     out += ['--- instance path ---', f'{_rel(input_file)}#{instance_ptr}']
     out += ['--- schema path ---', f'{_rel(schema_file)}{schema_ptr}']

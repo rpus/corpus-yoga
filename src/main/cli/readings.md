@@ -19,7 +19,7 @@ The format authorities are the schemas, not this file:
 The disposal loop:
 
     corpus-yoga indexing capture → concepts   (model reads the conversation titles, paid; the capture
-                                               names which concepts the corpus can index, #644)
+                                               names which concepts the corpus can index, issues/644)
     corpus-yoga indexing list-candidates       (candidates = inferred − accepted − rejected − unanchorable,
                                                each with the aliases that anchor it in a turn)
     accept <term> [alias ...] / reject <concept>   (your judgement, one per concept; --all as read)

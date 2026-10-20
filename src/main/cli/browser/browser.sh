@@ -2,7 +2,7 @@
 # Capture conversations from browser-reachable providers into the room's input,
 # tmp/stage/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
 # promote what was captured into data/input/ - the same extent words for both, a bare
-# call of either refused (#641). Scope is two independent restrictions, intersected;
+# call of either refused (issues/641). Scope is two independent restrictions, intersected;
 # neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
 #
 # Usage:
@@ -13,7 +13,7 @@
 #   corpus-yoga browser capture --provider claude --id <id>  # one conversation
 #   corpus-yoga browser promote --all | --provider <p> [--id <id>]   # what capture staged, into data/input
 #
-#   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
+#   A claude capture COMPLETES each conversation's record (issues/422): the JSON, and the file
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
 #   when absent; what no handle names stays on check_harvested's report — by-hand, stated.
 #   --id requires --provider (an id's shape cannot say whose it is); restrictions
@@ -32,7 +32,7 @@ source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 
 main() {
   case "${1-}" in
@@ -66,7 +66,7 @@ main() {
       *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
     esac
   done
-  # The extent is named, never inferred (#641): --all, or one provider, or one of its
+  # The extent is named, never inferred (issues/641): --all, or one provider, or one of its
   # conversations - the same three words corpus-yoga browser promote takes.
   if [[ -z "$provider" && -z "$all" ]]; then
     echo "error: corpus-yoga browser capture names its extent: --all, --provider claude|gemini, or --provider claude|gemini --id <id>" >&2
@@ -95,7 +95,7 @@ main() {
     exit 1
   fi
 
-  # No audit preamble (#418): the capture-health audit is bare `corpus-yoga browser`'s
+  # No audit preamble (issues/418): the capture-health audit is bare `corpus-yoga browser`'s
   # own output, on demand — re-running it before every capture duplicated what
   # the bare noun already answers, and its bulk (consistency QA of
   # already-captured data) is not about what this run will do. The capture's
@@ -104,8 +104,8 @@ main() {
   # that first call run alone (G19: discovery + extent, nothing captured),
   # forwarded below like any other restriction.
   #
-  # The record is the launcher's tee of the whole verb (#708). Each provider's capture
-  # narrative - one line per step, #413 - is an artifact beside it, named by the same
+  # The record is the launcher's tee of the whole verb (issues/708). Each provider's capture
+  # narrative - one line per step, issues/413 - is an artifact beside it, named by the same
   # stamp: tmp/logs/browser/capture/<stamp>.<provider>.progress, handed down as
   # --progress for the capture to write; the terminal and the record keep the anchors.
   local stamp providers=() provider_mechs=() logs=() p mechs
@@ -130,7 +130,7 @@ main() {
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
-  # what an act reports (#876, #896): the effect, the last line where no launcher asked for
+  # what an act reports (issues/876, issues/896): the effect, the last line where no launcher asked for
   # it, carried in the record; the launcher replies with next:, the rehearsal that judges
   # what was staged
   if [[ -n "$dry_run" ]]; then

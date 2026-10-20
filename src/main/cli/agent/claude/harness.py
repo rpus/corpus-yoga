@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-harness.py - the Claude Code adapter (#633): the live store is the projects
+harness.py - the Claude Code adapter (issues/633): the live store is the projects
 root, <project>/<session>.jsonl beside <project>/<session-uuid>/ (the eponymous
 workspace: subagent transcripts and persisted tool results the log references)
 and <project>/memory/; the store keeps the same shape under
@@ -67,7 +67,7 @@ def held_sessions(machine_dir: Path) -> list[Session]:
 
 def written(session: Session) -> Iterator[str]:
     """Every string a tool call of the session carried as its input - the commands it
-    ran, the files it wrote - in the record's order (#631): the session's own log, then
+    ran, the files it wrote - in the record's order (issues/631): the session's own log, then
     its subagents', whose logs lie in its companion directory and whose acts are its."""
     companion = session.path.with_suffix('')
     for log in [session.path] + (sorted(companion.rglob('*.jsonl')) if companion.is_dir() else []):
@@ -161,7 +161,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
     reconciliation stays a human act, recorded in-folder). MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
     facts rewritten to their new names. Each leaf is said into the log under
-    its outcome by its address, label/memory/<leaf> (#857). Returns the conflict count."""
+    its outcome by its address, label/memory/<leaf> (issues/857). Returns the conflict count."""
     conflicts = 0
     if not src_dir.is_dir():
         return 0
@@ -282,7 +282,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
 
 def latest_merge(proj_dir: Path) -> str | None:
     """The label of the latest merge record in the project's memory, which demerge would
-    undo (#881); None where no record stands."""
+    undo (issues/881); None where no record stands."""
     idx = proj_dir / 'memory' / 'MEMORY.md'
     if not idx.exists():
         return None
@@ -381,7 +381,7 @@ def mirror_memory(src_dir: Path, dest_dir: Path, held_dirs: list[Path] = []) -> 
     projection of the agent's current aggregate (new files added, changed ones
     updated in place, absentees removed). Every merge subtlety stays in
     install, where two agents meet. Where the outbox holds no copy, the held
-    ones are the baseline (#850): a memory the store holds identical under any
+    ones are the baseline (issues/850): a memory the store holds identical under any
     of held_dirs - the project's own name, or a name whose live memory is the
     same directory - is not mirrored again. Returns (outcome, facts), or None
     where the source has no memory."""
@@ -421,7 +421,7 @@ def mirror_memory(src_dir: Path, dest_dir: Path, held_dirs: list[Path] = []) -> 
 
 def memory_names(src_root: Path, proj: Path) -> list[str]:
     """The project names whose live memory is the one directory proj's is - its own first,
-    then those a link joins to it, the names a repository rename leaves (#744)."""
+    then those a link joins to it, the names a repository rename leaves (issues/744)."""
     own = (proj / 'memory').resolve()
     return [proj.name] + sorted(p.name for p in _projects(src_root)
                                 if p != proj and (p / 'memory').is_dir() and (p / 'memory').resolve() == own)
@@ -429,8 +429,8 @@ def memory_names(src_root: Path, proj: Path) -> list[str]:
 
 def _capture_session(src_proj: Path, dest_proj: Path, held_proj: Path, session: Path, log: Log) -> bool:
     """Mirror one session (log + workspace) into its project dir in the stage, said into
-    the log under its outcome by its address, <project>/<session> (#857). Where the stage
-    holds no copy, the held one under held_proj is the baseline (#850): a log the store
+    the log under its outcome by its address, <project>/<session> (issues/857). Where the stage
+    holds no copy, the held one under held_proj is the baseline (issues/850): a log the store
     holds identical or ahead is not staged and its workspace is not read, one that
     diverges from the held copy is a CONFLICT, as the promote would say, and one that
     extends it is written to the stage. Returns whether the session conflicted."""
@@ -518,7 +518,7 @@ def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log
     """git pull --all from one peer: every session in every project the machine
     transported (and each project's memory, merged once per project - one
     marker block, one demerge, per project). The same lattice safety as
-    capture --all; what it would write is corpus-yoga agent's status (#881). This
+    capture --all; what it would write is corpus-yoga agent's status (issues/881). This
     is the ONE deliberate writer of the harness-owned projects root - never
     run by any pipeline, only by a user's explicit command."""
     log = Log(LIVE, 'did' if apply else 'would')

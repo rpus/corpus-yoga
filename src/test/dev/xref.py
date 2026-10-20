@@ -612,7 +612,7 @@ def render_csv(rows: list[list]) -> str:
     """Pure: rows -> the committed table's bytes. No file IO — the caller decides
     whether and where to write. `check()` below writes directly for a standalone
     `corpus-yoga test xref`; the gate's check_xref hands the same rows to render, which
-    owns the write to rsc/test/xref.csv there (#249's check/render/gate
+    owns the write to rsc/test/xref.csv there (issues/249's check/render/gate
     separation — a check computes, only render writes)."""
     buf = io.StringIO()
     writer = csv.writer(buf)
@@ -641,7 +641,7 @@ def status() -> None:
 
 
 def main() -> None:
-    # Generated from the declaration (#476), which is the authority on what this
+    # Generated from the declaration (issues/476), which is the authority on what this
     # face does: rebuild, write, report - the retired `check` verb (the slot after
     # `test` holds WHICH check, not a verb - test.sh's header) no longer lingers
     # here as undeclared argv.

@@ -52,7 +52,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 
 PROJECT="$REPO_DIR/rsc/reference/mcp"
 

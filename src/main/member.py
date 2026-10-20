@@ -2,7 +2,7 @@
 """
 member.py - the one reading of membership by placement: the members of a directory are
 its subdirectories that hold a file outside __pycache__. A directory git emptied in a
-rename keeps its gitignored bytecode in a checkout that held it, and is no member (#669).
+rename keeps its gitignored bytecode in a checkout that held it, and is no member (issues/669).
 """
 
 from pathlib import Path

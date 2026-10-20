@@ -9,7 +9,7 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 ## v2
 
 Minted 2026-09-17 on home-room so that a gemini code session projects into this family
-beside claude's (#635). Validates the projections of the two captured Antigravity
+beside claude's (issues/635). Validates the projections of the two captured Antigravity
 sessions, home-room's 5bb62af7 (2 turns) and reading-room's a821b300 (227 turns), and every claude
 session as before.
 
@@ -74,5 +74,5 @@ Evidence notes:
 
 - `SessionConversation` and `.uuid` descriptions (v1, in place) — the render path re-rooted
   `output/markdown/claude/code/conversations/` → `data/output/…`, and the cache reference
-  `cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was
+  `cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was
   excluded from sweeping. No validation effect.

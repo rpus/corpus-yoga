@@ -20,9 +20,9 @@ source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
-# The record of the act is the launcher's tee (#708), tmp/logs/server/start/<stamp>.log. The
-# daemon outlives the act and writes beside it: one immutable artifact per start (#370),
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
+# The record of the act is the launcher's tee (issues/708), tmp/logs/server/start/<stamp>.log. The
+# daemon outlives the act and writes beside it: one immutable artifact per start (issues/370),
 # stamped, colon-free, named <stamp>.daemon by the launcher's stamp, never as the record.
 LOG_FILE="$TMP_DIR/logs/server/start/$(stamp_of server start).daemon"
 PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdown.py")

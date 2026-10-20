@@ -10,7 +10,7 @@ Both formats carry the full edit/regeneration tree; project() reduces each to th
 export). Identical output across two independent formats validates the projection and the model_join
 correspondence end-to-end.
 
-A TRANSCRIPT difference has three readings, told apart by the turn sequences (#535, the
+A TRANSCRIPT difference has three readings, told apart by the turn sequences (issues/535, the
 append-only invariant the dev gate's cross_sources check held): the export is a PREFIX of
 the capture (the conversation progressed after the snapshot - lawful, "appended-to"); the
 capture is a prefix of the EXPORT (a stale capture - FAIL, with the recapture prescribed);
@@ -40,7 +40,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 from markdown_projection import REPO, project, find_api_json, render, turn_seq
 
 

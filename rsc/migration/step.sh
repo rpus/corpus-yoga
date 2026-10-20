@@ -41,7 +41,7 @@ remove() {
 
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,
 # removed with what it holds; only under tmp/cache, where every file is a derivation some
-# verb rewrites, or what the rehearsal layout before #815 left under tmp/stage - a stamped
+# verb rewrites, or what the rehearsal layout before issues/815 left under tmp/stage - a stamped
 # rehearsal under tmp/stage/rehearsal/, or the record under that name before its extension
 # - which corpus-yoga pipeline rehearse remakes under tmp/stage/scratch and tmp/stage/rehearsal.json.
 discard() {

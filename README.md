@@ -47,7 +47,7 @@ reads. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
 `capture` - is the one writer of `data/input/`, and it promotes a unit only where it
 relates to the held one without loss - new, identical, extends, never ahead or diverged -
 and every family its pipeline declares finds it valid at origin/main's version; the rest
-it names (#687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
+it names (issues/687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
 stage clean` removes the units the store holds byte-equal.
 So: `browser capture --provider claude`, `pipeline rehearse`, `browser promote
 --provider claude`, `pipeline run chat-capture`; `corpus-yoga stage` reports the tier, and
@@ -55,7 +55,7 @@ each noun's bare status the units; `corpus-yoga store` reads shared storage in t
 terms - what is held, what is duplicated, and what the stage holds against it; the
 store's status reads everything upstream of it - the stage, and this room's live stores
 against the fuller of the staged and the held copy - and alone names what to run next,
-while the stage's status is a report and names no act (#851). The stage's cleaner looks
+while the stage's status is a report and names no act (issues/851). The stage's cleaner looks
 forward, at what the store already holds, and the store's inward.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
@@ -73,7 +73,7 @@ and `corpus-yoga test run` holds both facts over every tracked file (L2). The hi
 kept as it stands: its early commits carry the maintainer's own conversation
 artifacts (removed from the tree on 2026-05-16) and one dashboard of the
 maintainer's conversation titles, and nothing of any third party - audited on
-reading-room, 2026-08-22, at 17e173c (#498).
+reading-room, 2026-08-22, at 17e173c (issues/498).
 
 ## Where facts live
 
@@ -109,7 +109,7 @@ reports it), rendered free by `corpus-yoga site render`. Disposal is computed, n
 
 `jq` and Python 3; `./src/main/cli/status/status.sh sync` creates the
 shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -
-the one place the name `python3` survives (#478): `corpus-yoga` itself and every `.py` run in the venv. Browser capture needs macOS + Safari. The repo ships no
+the one place the name `python3` survives (issues/478): `corpus-yoga` itself and every `.py` run in the venv. Browser capture needs macOS + Safari. The repo ships no
 data — `data/input/ tmp/cache/ data/output/ tmp/logs/` are git-ignored. Install the hook (required;
 `corpus-yoga status` reports whether it is):
 `./corpus-yoga test install-hook`. And the

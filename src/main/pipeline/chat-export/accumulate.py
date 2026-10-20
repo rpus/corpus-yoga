@@ -9,7 +9,7 @@ accumulate.py — the CALCULUS `accumulate` operation, once.
 Two stores accumulate: the chat-memory library (memories.py) and the
 per-conversation summary store (summaries.py). Before this module they
 each carried their own copy of the rule; the drift between them cost 196 redundant
-summary deposits (issue #22). One implementation removes the class of bug —
+summary deposits (issues/22). One implementation removes the class of bug —
 including the writer/detector split, since the summary twin-detector evaluates the
 SAME nearest_earlier_deposit the writer does, so it can never under-report what the
 writer would refuse.

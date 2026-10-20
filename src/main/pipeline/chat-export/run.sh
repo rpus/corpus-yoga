@@ -82,7 +82,7 @@ run_one() {
     "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
   step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/project_markdown.py" --bulk-export "$batch"
-  # compare_sources: the append-only invariant across export surfaces (#535, the
+  # compare_sources: the append-only invariant across export surfaces (issues/535, the
   # dev gate's former cross_sources check, spoken here once): a conversation in
   # both a bulk export and the live captures projects to identical turns, or the
   # export is a prefix of the capture (it progressed after the snapshot). The
@@ -122,7 +122,7 @@ run_tail() {
   # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
   # conversations to recapture in place. Divergence is a fact, not an error. Whether an
   # earlier batch is held whole within a later one is the store's reading, by the
-  # export's atoms (#743), and its disposal the store's janitor in the corpus tail (#744).
+  # export's atoms (issues/743), and its disposal the store's janitor in the corpus tail (issues/744).
   step_ok compare_captures "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_captures.py" --api-capture "$API_CAPTURE"
 }

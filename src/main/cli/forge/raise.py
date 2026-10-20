@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""raise.py (corpus-yoga forge raise) - a PR or an issue, raised by the forge (#884, #887).
+"""raise.py (corpus-yoga forge raise) - a PR or an issue, raised by the forge (issues/884, issues/887).
 
-pr: the title is the first issue's title, verbatim (#479); the why section is one aim line
+pr: the title is the first issue's title, verbatim (issues/479); the why section is one aim line
 per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is
-aimed at too (#482), judged here as the merge judges it. issue: the title is the should,
+aimed at too (issues/482), judged here as the merge judges it. issue: the title is the should,
 held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 forge's main; each relation is wired through the blocked_by API as the issue is raised and
 read back; a superseded issue is closed, its relations transferred and its ledger note
@@ -140,7 +140,7 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, dict, s
     for number in numbers:
         for blocker in open_blockers(number):
             if blocker not in numbers:
-                raise Refused(f'#{number} is blocked by open #{blocker}, which this PR does not aim to complete (#482)')
+                raise Refused(f'#{number} is blocked by open #{blocker}, which this PR does not aim to complete (issues/482)')
     base = default_branch()
     why = '## why\n\n' + '\n'.join(aim.line(number, titles[number]) for number in numbers)
     sent = record(stamp, f'{signature}\n\n{why}\n\n{text}\n')

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The sessions of one gemini project directory in the store, one source path per line:
 # Antigravity's session is a directory, <project>/<session>/, holding its transcripts at
-# .system_generated/logs/, their live path (#856) - and a directory holding none is no
+# .system_generated/logs/, their live path (issues/856) - and a directory holding none is no
 # session yet: the store is carried by iCloud, which
 # materialises a directory before its files, so one room can meet the other's fresh
 # capture empty. Such a directory is stated on stderr and not listed, as claude's

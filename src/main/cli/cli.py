@@ -8,7 +8,7 @@ names each command and its target; src/main/cli/ describes the arguments.
 `corpus-yoga -h` lists the commands; `corpus-yoga <command> -h` renders that command's help from
 the tables; a subcommand one level down (`corpus-yoga <command> <subcommand> --help`) is
 answered by the target's own parser — argparse for a python target (or the parser
-cli.py builds for a command it handles itself), parse_argv for a bash target (#474),
+cli.py builds for a command it handles itself), parse_argv for a bash target (issues/474),
 both wording their answer from the declaration. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
@@ -30,7 +30,7 @@ Usage:
 This module is deliberately STDLIB-ONLY: the surface must never depend on
 what pip installed, so reading the table, printing the calculus and deriving
 completion stay independent of src/requirements.txt. The launcher runs it in
-the venv — the venv supplies the interpreter, never imports (#478).
+the venv — the venv supplies the interpreter, never imports (issues/478).
 """
 import json
 import pathlib
@@ -48,10 +48,10 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 from member import members  # noqa: E402
-from provider import signature  # noqa: E402 - the Signature triad, one home (#704)
+from provider import signature  # noqa: E402 - the Signature triad, one home (issues/704)
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
@@ -68,7 +68,7 @@ def _declared_commands() -> list[str]:
     has no other order to be in; uniqueness needs no check because a directory cannot hold
     two entries of one name (G4, by construction). This level also holds the schemas, the
     two documents, and the machinery sources; a directory holding nothing but bytecode
-    is no command (member.py, #669) — the gate polices any other stray."""
+    is no command (member.py, issues/669) — the gate polices any other stray."""
     return [p.name for p in members(CLI)]
 
 
@@ -134,10 +134,10 @@ def command_rows(command: str) -> list[dict]:
 
 
 def sends_of(command: str, subcommand: str = '') -> dict[str, list[str]]:
-    """The declared outward calls of one declaration file (#29): the command's own for
+    """The declared outward calls of one declaration file (issues/29): the command's own for
     subcommand '', a verb's for its name. Read from the tree directly — sends are not
     argument rows, and flattening them into row shape would be a second vocabulary.
-    Keyed by the call, each value listing that call's occasions (#316)."""
+    Keyed by the call, each value listing that call's occasions (issues/316)."""
     f = _declaration(command) if not subcommand else CLI / command / f'{subcommand}.json'
     if not f.exists():
         return {}
@@ -225,7 +225,7 @@ def grammar_laws() -> dict[str, dict]:
         parent = re.search(r'`from (L\d+)`', rest)
         laws[gid] = {'title': title,
                      'state': marker.group(1) if marker else None,
-                     'issues': re.findall(r'#(\d+)', marker.group(2)) if marker else [],
+                     'issues': re.findall(r'issues/(\d+)', marker.group(2)) if marker else [],
                      'from': parent.group(1) if parent else None}
     return laws
 
@@ -233,7 +233,7 @@ def grammar_laws() -> dict[str, dict]:
 def calculus_laws() -> dict[str, dict]:
     """The corpus laws, parsed from rsc/CALCULUS.md — id -> {title, state, issues}. The
     SAME shape and the same marker as grammar_laws(), because it is the same mechanism one
-    level up: #48 built it for the surface laws, and the laws that govern the data had the
+    level up: issues/48 built it for the surface laws, and the laws that govern the data had the
     identical gap with higher stakes.
 
     The Laws section already promised this in prose — "Each law names its current
@@ -247,7 +247,7 @@ def calculus_laws() -> dict[str, dict]:
         marker = re.search(r'`(' + '|'.join(LAW_STATES) + r')([^`]*)`', rest)
         laws[lid] = {'title': title,
                      'state': marker.group(1) if marker else None,
-                     'issues': re.findall(r'#(\d+)', marker.group(2)) if marker else []}
+                     'issues': re.findall(r'issues/(\d+)', marker.group(2)) if marker else []}
     return laws
 
 
@@ -434,7 +434,7 @@ PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
 
 def enacting(row: dict, rest: list[str]) -> dict | None:
     """The verb's declaration where the invocation is an act - a verb with declared w,
-    consumes, x or sends (#708): it writes, dequeues, runs something or reaches outside
+    consumes, x or sends (issues/708): it writes, dequeues, runs something or reaches outside
     the tree - not a help face; None for a read face, which leaves no log and gets no
     reply."""
     verb = rest[0] if rest else ''
@@ -442,13 +442,13 @@ def enacting(row: dict, rest: list[str]) -> dict | None:
     if not verb or verb.startswith('-') or not declaration.exists():
         return None
     if any(t in ('-h', '--help') for t in rest):
-        return None  # a help invocation is a read-only face, log-free by construction (#474)
+        return None  # a help invocation is a read-only face, log-free by construction (issues/474)
     d = json.loads(declaration.read_text())
     return d if (d.get('w') or d.get('consumes') or d.get('x') or d.get('sends')) else None
 
 
 def _log_enacting(row: dict, verb: str, d: dict, stamp: str, rest: list[str]) -> None:
-    """#453, #708: the run-log obligation derives from the declaration - an enacting verb
+    """issues/453, issues/708: the run-log obligation derives from the declaration - an enacting verb
     leaves an anchored log under tmp/logs/<command>/<verb>/<stamp>.log, the record of the
     whole verb: this header, the target's every line, the verb's own tail and, where the
     reader typed the verb, the launcher's reply. No verb writes a log of its own: the
@@ -475,7 +475,7 @@ def _log_enacting(row: dict, verb: str, d: dict, stamp: str, rest: list[str]) ->
     os.environ[tier.LOG] = str(log)
     head = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--short', 'HEAD'],
                           capture_output=True, text=True).stdout.strip()
-    # the header names who ran the verb by the Signature triad the commit hook stamps (#704)
+    # the header names who ran the verb by the Signature triad the commit hook stamps (issues/704)
     print(f"{row['command']} {verb} — {stamp} · {signature()} · {head or '(no git)'}",
           flush=True)
     print(' '.join(['corpus-yoga', row['command'], *rest]), flush=True)
@@ -493,11 +493,11 @@ def dispatch(row: dict, rest: list[str]) -> int:
     face is exec'd, so signals, exit codes and interactivity are the target's own. An
     act the reader typed - an enacting verb, dispatched by no outer launcher - runs as
     the launcher's child, its output through a tee into its run log (_log_enacting), and
-    the launcher replies after it (#896): next:, the room's to-do read once after the
+    the launcher replies after it (issues/896): next:, the room's to-do read once after the
     act, then the act's effect line, handed up by the verb through the file
     facts.EFFECT names. Only the launcher says next:, so a verb run as a step of another verb says
     none; an inner launcher - one the outer act runs - finds facts.ACT set, tees its verb's
-    record (#708) and execs, its verb's effect line the step's last line. Signals from the terminal
+    record (issues/708) and execs, its verb's effect line the step's last line. Signals from the terminal
     reach the child through the process group; the launcher's exit code is the child's."""
     target = REPO / row['target']
     if target.suffix == '.md':
@@ -518,7 +518,7 @@ def dispatch(row: dict, rest: list[str]) -> int:
     effect_dir = tier.TMP / 'logs' / row['command'] / verb
     effect_dir.mkdir(parents=True, exist_ok=True)
     effect = effect_dir / f'{stamp}.effect'
-    os.environ[facts.ACT] = f"{row['command']} {verb}"    # the act, and the file it hands its effect through (#896)
+    os.environ[facts.ACT] = f"{row['command']} {verb}"    # the act, and the file it hands its effect through (issues/896)
     os.environ[facts.EFFECT] = str(effect)
     try:
         code = subprocess.call(command_line(target, rest))

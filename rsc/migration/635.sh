@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# rsc/migration/635.sh - the code-transport cache holds a directory per provider (#635):
+# rsc/migration/635.sh - the code-transport cache holds a directory per provider (issues/635):
 # tmp/cache/code-transport/<provider>/<machine>/... A room's cache from before held
 # claude's machines directly under the root; each moves under claude, its logs with it,
 # so nothing revalidates. A directory named for a provider's mechanism is already one.

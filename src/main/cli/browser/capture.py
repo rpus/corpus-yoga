@@ -6,7 +6,7 @@ Scope is two independent restrictions, and the run is their intersection:
   --provider  <p>   claude | gemini      (default: every provider)
   --mechanism API|DOM                    (default: every mechanism the provider has)
 Neither adds. A provider has the mechanisms PROVIDERS declares — claude API (DOM
-retired, #418), gemini DOM — and a restriction can only take mechanisms away. Asking for one a
+retired, issues/418), gemini DOM — and a restriction can only take mechanisms away. Asking for one a
 provider lacks selects nothing, which is reported rather than substituted for.
 
 Each mechanism deposits under its own root — the capture axis of the corpus type
@@ -52,8 +52,8 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_DIR = _root[0]
 SCRIPT_DIR     = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO_DIR / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one face a sentence is said through (#909)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 from safari import (  # noqa: E402
     osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_open_work_tab, safari_close_work_tab, collect_md_and_log,
@@ -63,11 +63,11 @@ from safari import (  # noqa: E402
 from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's completion)
 import provider as registry  # noqa: E402  (rsc/provider/providers.csv - the one source of provider names)
 
-# ── channels (#413): the progress artifact carries the narrative, the terminal - and
-# the launcher's record, its tee (#708) - the anchor, one line per conversation, and the
+# ── channels (issues/413): the progress artifact carries the narrative, the terminal - and
+# the launcher's record, its tee (issues/708) - the anchor, one line per conversation, and the
 # verdict. TERM is the real terminal; when --progress is given, sys.stdout becomes the
 # progress file (line-buffered — nothing sits
-# in a buffer a ctrl-C could erase, #415) and sys.stderr writes to both.
+# in a buffer a ctrl-C could erase, issues/415) and sys.stderr writes to both.
 TERM = sys.stdout
 
 
@@ -98,7 +98,7 @@ class _BothStreams:
 
 
 def rel(path):
-    """The repo-relative spelling of a path where one exists (#412): logs speak
+    """The repo-relative spelling of a path where one exists (issues/412): logs speak
     the repo's addresses, never a resolved machine path."""
     try:
         return str(Path(path).resolve().relative_to(REPO_DIR))
@@ -107,13 +107,13 @@ def rel(path):
 
 
 # The run's own tally, written by capture_all and read by the footer — including
-# the interrupted footer, which must say how far the run got (#415).
+# the interrupted footer, which must say how far the run got (issues/415).
 RUN = {'t0': None, 'total': 0, 'done': 0, 'failed': [], 'at': '', 'log': None}
 
 
 def anchor(provider, mechanisms, conv_id):
-    """The progress file's first words (#412): stamp, the Signature triad the commit hook
-    stamps (#704), commit, invocation — written before any work, so a wordless artifact is
+    """The progress file's first words (issues/412): stamp, the Signature triad the commit hook
+    stamps (issues/704), commit, invocation — written before any work, so a wordless artifact is
     impossible."""
     head = subprocess.run(['git', '-C', str(REPO_DIR), 'rev-parse', '--short', 'HEAD'],
                           capture_output=True, text=True).stdout.strip() or '(no commit)'
@@ -151,7 +151,7 @@ MAX_SCROLLS    = 80   # safety cap on scroll iterations
 # are the values on disk.
 PROVIDERS = {
     'claude': {
-        # DOM retired 2026-08-08 (#418): the walk's audit read showed DOM never
+        # DOM retired 2026-08-08 (issues/418): the walk's audit read showed DOM never
         # better than API — every finding was DOM missing turns while the API
         # record held the content. The API capture is the record; the scrape
         # machinery stays for gemini.
@@ -159,7 +159,7 @@ PROVIDERS = {
         'chat_url':     'https://claude.ai/chat/{id}',
         # /chats is the 'view all' landing — the FULL listing. /recents still
         # exists but renders ~30 sidebar entries; sweeping it captured a third
-        # of a 111-conversation room and called it the account (#424,
+        # of a 111-conversation room and called it the account (issues/424,
         # 2026-08-08 — the second time the site moved under the machinery).
         'discover_url': 'https://claude.ai/chats',
         'link_sel':     'a[href*="/chat/"]',
@@ -317,7 +317,7 @@ def ids_from_safari(provider, cfg):
     print(facts.sentence('navigating to {url}', url=cfg['discover_url']))
     safari_navigate(cfg['discover_url'])
     time.sleep(PAGE_LOAD_WAIT)
-    # The landing check, EARLY and confident (#423): the landed URL settles
+    # The landing check, EARLY and confident (issues/423): the landed URL settles
     # login before any doomed scrolling — a redirect is evidence, not a detail.
     landed = safari_eval_js('String(location.href)') or '(URL unreadable)'
     if 'login' in landed:
@@ -325,7 +325,7 @@ def ids_from_safari(provider, cfg):
                                        provider=provider, landed=landed))
         raise SystemExit(1)
     if not landed.startswith(cfg['discover_url']):
-        emit('note: ' + facts.sentence('navigation to {url} landed on {landed} - proceeding, but a moved listing page truncates discovery (#424)',
+        emit('note: ' + facts.sentence('navigation to {url} landed on {landed} - proceeding, but a moved listing page truncates discovery (issues/424)',
                                        url=cfg['discover_url'], landed=landed))
     print(facts.sentence('loading all conversations'))
     sel = cfg['link_sel']
@@ -334,7 +334,7 @@ def ids_from_safari(provider, cfg):
         # Scroll the scrollable holding the MOST listing links — the main list.
         # Walking up from the FIRST link scrolled whatever pane happened to
         # contain it: on claude's landing that was the recents SIDEBAR, and the
-        # sweep exhausted ~30 sidebar entries as if they were the account (#424).
+        # sweep exhausted ~30 sidebar entries as if they were the account (issues/424).
         safari_eval_js(
             "(function(){"
             "var links=document.querySelectorAll('" + sel + "');"
@@ -369,11 +369,11 @@ def ids_from_safari(provider, cfg):
     ids = [u for u in raw.splitlines() if u]
     print(facts.sentence('found {n} conversations', n=len(ids)))
     if not ids:
-        # Zero is a claim about the account, not a no-op (#411). Login was
-        # settled at landing (#423), so the hedge here covers the genuinely
+        # Zero is a claim about the account, not a no-op (issues/411). Login was
+        # settled at landing (issues/423), so the hedge here covers the genuinely
         # ambiguous residue: a page that looks right yet lists nothing.
         where = safari_eval_js('String(location.href)') or '(URL unreadable)'
-        emit('FAIL: ' + facts.sentence('found 0 conversations at {where} - cannot positively identify an empty {provider} listing. If the account has conversations, the listing page may have moved (#424)',
+        emit('FAIL: ' + facts.sentence('found 0 conversations at {where} - cannot positively identify an empty {provider} listing. If the account has conversations, the listing page may have moved (issues/424)',
                                        where=where, provider=provider))
         raise SystemExit(1)
     return ids
@@ -384,7 +384,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     do_api = 'API' in mechanisms
     do_scrape = 'DOM' in mechanisms
     js_script = SCRIPT_DIR / provider / 'dom.js'
-    # a refused walk's evidence is kept beside the record, in the verb's log directory (#708)
+    # a refused walk's evidence is kept beside the record, in the verb's log directory (issues/708)
     evidence_dir = tier.TMP / 'logs' / 'browser' / 'capture'
     # The operation is CAPTURE either way — discovery is ids_from_safari, the
     # listing sweep that found the ids; navigate is a mode, not a name. The old
@@ -397,7 +397,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
         emit(f'{label}: ' + facts.sentence('nothing to do'))
         return []
     RUN['total'] += len(ids)
-    # The bracket's extent (#418), from the discovery this run performed anyway —
+    # The bracket's extent (issues/418), from the discovery this run performed anyway —
     # the numbers this capture will change, at zero extra sends. 'Captured' means
     # every in-scope mechanism's dir exists for the id.
     roots = [r for r, on in ((api_root, do_api), (dom_root, do_scrape)) if on]
@@ -493,11 +493,11 @@ def main():
     ap.add_argument('--progress', default=None,
                     help='the run log capture.sh names: stdout becomes this file '
                          '(line-buffered), the terminal keeps the anchor, one line per '
-                         'conversation, and the verdict (#413)')
+                         'conversation, and the verdict (issues/413)')
     args = ap.parse_args()
 
-    # The channel split (#413), before any work: the log is opened and anchored
-    # first (#412 — a wordless log is impossible), the terminal kept for the
+    # The channel split (issues/413), before any work: the log is opened and anchored
+    # first (issues/412 — a wordless log is impossible), the terminal kept for the
     # human-altitude lines via TERM/emit, stderr on both.
     global TERM
     if args.progress:
@@ -542,7 +542,7 @@ def main():
 
     # one root per mechanism in scope; dirs appear only when captured into
     # a capture writes to the room's stage, tmp/stage/input/..., the address its unit will have
-    # under data/input; corpus-yoga browser promote is what reaches shared storage (#687)
+    # under data/input; corpus-yoga browser promote is what reaches shared storage (issues/687)
     api_root = Path(args.api_capture or tier.TMP_STAGE_INPUT / args.provider / 'chat' / 'API-capture').resolve()
     dom_root = Path(args.dom_capture or tier.TMP_STAGE_INPUT / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:
@@ -594,7 +594,7 @@ if __name__ == '__main__':
         print(e, file=sys.stderr)
         raise SystemExit(3)
     except KeyboardInterrupt:
-        # A ctrl-C is a verdict the log records, never an eraser (#415): the
+        # A ctrl-C is a verdict the log records, never an eraser (issues/415): the
         # anchor is already down, everything shown is already flushed
         # (line-buffered), and the footer says how far the run got.
         footer(interrupted=True)

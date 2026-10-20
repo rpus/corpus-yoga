@@ -49,7 +49,7 @@ Refuses thereby: renders predating the field - regenerated at mint, so every cur
 
 - `MarkdownConversation` and `MarkdownConversation.summary` descriptions (v3, in place) —
   the summary deposit path re-rooted `output/markdown/…` → `data/output/markdown/…` for the
-  four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation
+  four-root migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation
   effect. The v3 narrative above and every earlier version keep the path as it stood when
   they were written: their vintage is the record.
 

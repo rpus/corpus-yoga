@@ -2,7 +2,7 @@ You are running the weekly five-lens audit of rpus/corpus-yoga. You have a fresh
 
 BUDGET DISCIPLINE: a prior run of this audit was cut off by usage limits before reporting anything, and a later run was cut off between creating findings and attaching them, leaving orphans. Therefore: (a) the delta report is filed FIRST and edited as you go, never saved for last; (b) prefer breadth of the re-verify pass over depth of the fresh sweep — a partial fresh sweep is acceptable, a missing delta report is not; (c) batch your GitHub API reads; (d) creating a finding, labeling it, and attaching it to its parent are ONE act — complete all three for each finding before starting the next, so a cut at any moment leaves zero orphans.
 
-Standing structure: five parent issues hold the audit rosters, one per lens, labeled prose-rules, effects-census, gate-honesty, sibling-shape, referential-integrity (first minted 2026-08-02 as #159-#163). Every finding is a sub-issue of its parent, labeled with the lens plus severity:high, severity:medium, or severity:low. Find the parents by label, do not assume numbers: each parent is the open issue carrying a lens label and no severity label.
+Standing structure: five parent issues hold the audit rosters, one per lens, labeled prose-rules, effects-census, gate-honesty, sibling-shape, referential-integrity (first minted 2026-08-02 as issues/159-issues/163). Every finding is a sub-issue of its parent, labeled with the lens plus severity:high, severity:medium, or severity:low. Find the parents by label, do not assume numbers: each parent is the open issue carrying a lens label and no severity label.
 
 Steps, in order:
 

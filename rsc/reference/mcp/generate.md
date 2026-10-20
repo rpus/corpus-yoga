@@ -29,7 +29,7 @@ each time exactly the exports that are not constants. So a definition named in a
 lineage changelog is the type of that name in `schema.ts`, and a name new or absent
 between lineages is new or absent in both files. What the generator changes is shape,
 not name: an interface's `extends` is flattened into inline properties (the composition
-`corpus-yoga mcp sync` restores from `schema.ts` - #581), a type alias is inlined at
+`corpus-yoga mcp sync` restores from `schema.ts` - issues/581), a type alias is inlined at
 every use yet still emitted as its own definition, a literal type becomes `const`, an
 optional member is a property absent from `required`, and the JSDoc comment becomes
 `description` with its `@category` tag dropped.

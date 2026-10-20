@@ -43,19 +43,19 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE = REPO / 'rsc' / 'site' / 'index.template.html'
-# The library's address and migration note come from library.py, the one authority (#421)
-CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-export'   # source-scoped helpers stay there (#407)
+# The library's address and migration note come from library.py, the one authority (issues/421)
+CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-export'   # source-scoped helpers stay there (issues/407)
 MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (#702)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
 import facts  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
 from word_freq_literal import words_from, filtered, tables  # noqa: E402 — one tokenizer for both presenters
-from library import LIBRARY as DOWNLOADED_DIR  # noqa: E402 — the artifact library, one authority (#421)
+from library import LIBRARY as DOWNLOADED_DIR  # noqa: E402 — the artifact library, one authority (issues/421)
 
 ANCHOR = re.compile(r'^## (?:Human|Claude|Gemini) [^\n]*<a id="([0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})"></a>', re.M)
 
@@ -117,7 +117,7 @@ def main() -> int:
     out_dir, page_out = Path(args.out), Path(args.page_out)
     entries = corpus_index(md_root)
     if not entries:
-        # a room with no corpus skips, stated (#406, #494): the run's step must not fail
+        # a room with no corpus skips, stated (issues/406, issues/494): the run's step must not fail
         rel = md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root
         facts.report(None, f'site render: DONE - skipped; no projected corpus under {rel}, which corpus-yoga pipeline run projects')
         return 0
@@ -208,7 +208,7 @@ def main() -> int:
     title = (f'Conversation corpus — {len(entries)} conversations '
              f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}), {date_range}')
     html.write_text(re.sub(r'<title>.*?</title>', f'<title>{title}</title>', html.read_text()))
-    # The page declares the inputs it was rendered from (#494): the corpus it folds
+    # The page declares the inputs it was rendered from (issues/494): the corpus it folds
     # (the title) and the paid layer's coverage - so a render over lagging captures
     # reads as exactly what it is, anchored, never laundered.
     covered = 0
@@ -225,7 +225,7 @@ def main() -> int:
     page_out.mkdir(parents=True, exist_ok=True)
     page = page_out / 'index.html'
     if page.exists() and page.read_bytes() == html.read_bytes():
-        # content-keyed (#494): current inputs mean no write, and a quiet run stays quiet
+        # content-keyed (issues/494): current inputs mean no write, and a quiet run stays quiet
         html.unlink()
         facts.report(None, 'site render: DONE - index.html current; nothing written')
         return 0

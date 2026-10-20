@@ -3,7 +3,7 @@
 markdown_projection.py — Shared primitives for projecting a Conversation to the lean
 markdownConversation shape and rendering it to markdown. Common code at the root of src/main/
 (like schema_*.py, validate*.py); the per-pipeline CLIs import it via the sys.path idiom,
-with the root derived from their own SELF declaration (#357):
+with the root derived from their own SELF declaration (issues/357):
 
     sys.path.insert(0, str(REPO / 'src' / 'main'))   # puts src/main/ on the path
     from markdown_projection import project, render, ...
@@ -159,7 +159,7 @@ def corpus_index(md_dir):
     # (index.md, the book index), so the presence of <provider>/<channel>/conversations
     # dirs is what marks a root; a bare dir of conversation files is the single-source
     # case, the one case whose stem is the bare '<NN>-<slug>' - under a root the stem is
-    # always '<provider>/<channel>/<NN>-<slug>', one channel or many (#692). Order: claude first (canonical), then alphabetical; channels alphabetical
+    # always '<provider>/<channel>/<NN>-<slug>', one channel or many (issues/692). Order: claude first (canonical), then alphabetical; channels alphabetical
     # within a provider (chat before code) — the same corpus sequence the fused
     # layout produced (claude, claude×code, gemini), so ordinals are stable across
     # the unfusing.
@@ -331,7 +331,7 @@ def reconcile_dir(out_dir, files: dict, identity=None) -> tuple:
     to diff against: you cannot check parity against a directory you deleted
     first.
 
-    A renumber is a rename, not a prune (#419): with `identity` (a callable
+    A renumber is a rename, not a prune (issues/419): with `identity` (a callable
     text -> id, e.g. conv_id), a departing file whose identity survives under
     an arriving name counts as RENAMED — routine, by design, ordinals being
     presentation — while a departing identity absent from the arrivals is a
@@ -366,7 +366,7 @@ def reconcile_dir(out_dir, files: dict, identity=None) -> tuple:
 
 def deposit(out_dir, files, label, *, identity=None, because='its source departed',
             note='', file=None):
-    """Reconcile `files` into out_dir and narrate the ONE deposit shape (#426):
+    """Reconcile `files` into out_dir and narrate the ONE deposit shape (pull/426):
     '<label> to <dir><note> — W written, U unchanged[, R renamed by the new
     ordering], P pruned', each true prune named with the caller's because. The
     renamed segment appears only under an identity — an identity-less deposit

@@ -10,7 +10,7 @@
 #   2. Settings → Privacy → Export Data → Export (All)
 #   3. Download the manifest the emailed confirmation links
 #   4. corpus-yoga export capture --manifest <the manifest, where the download left it>
-#      then corpus-yoga pipeline rehearse, then corpus-yoga export promote (#687, #716)
+#      then corpus-yoga pipeline rehearse, then corpus-yoga export promote (issues/687, issues/716)
 #
 # Usage:
 #   src/main/pipeline/chat-export/require_export.sh

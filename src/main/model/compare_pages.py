@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 compare_pages.py - what changes between two renders of the corpus page, in the
-page's own terms (#652): the title, and for each inlined data table the rows
+page's own terms (issues/652): the title, and for each inlined data table the rows
 added, removed and changed, compared by the table's identity column rather
 than its position. The page keys its rows by ordinal (the `chat` column is a
 position, and one inserted conversation renumbers every row after it), so a
@@ -24,7 +24,7 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 sys.path.insert(0, str(_root[0] / 'src' / 'main'))
-import facts  # noqa: E402 - the one face a sentence is said through (#909)
+import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
 BLOCK = re.compile(r'<script id="(data-[a-z-]+)" type="application/json">\s*(.*?)\s*</script>', re.S)
 TITLE = re.compile(r'<title>(.*?)</title>', re.S)

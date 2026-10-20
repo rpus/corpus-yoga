@@ -3,7 +3,7 @@
 The weekly five-lens audit of rpus/corpus-yoga - a scheduled Claude Code
 routine that clones the repo read-only, re-verifies the five audit rosters
 (prose-rules, effects-census, gate-honesty, sibling-shape, referential-integrity,
-parents first minted 2026-08-02 as #159-#163), sweeps for new findings, and files
+parents first minted 2026-08-02 as issues/159-issues/163), sweeps for new findings, and files
 everything as sub-issues plus a delta-report issue, using room name weekend-audit.
 
 `prompt.md` in this directory is the committed source of its instructions.
@@ -45,7 +45,7 @@ diffing against `prompt.md` at the named sha.
 
 Amending the audit means a PR to `prompt.md`; after merge, the coordinator
 updates the trigger's message to the provenance line plus the merged file's
-bytes via the trigger API. Issue #265 states this contract.
+bytes via the trigger API. issues/265 states this contract.
 
 ## History
 
@@ -55,5 +55,5 @@ bytes via the trigger API. Issue #265 states this contract.
 | 2026-08-02 10:58 UTC | maiden firing, cut short by usage limits - the budget-discipline section in the prompt is its lesson |
 | 2026-08-02 | prompt amended via API: delta-stub-first and budget discipline |
 | 2026-08-03 | prompt amended via API: one-act create-label-attach filing |
-| 2026-08-03 | prompt amended via API: issue grammar adoption (issue #264) |
-| PR #295 | prompt committed to the tree |
+| 2026-08-03 | prompt amended via API: issue grammar adoption (issues/264) |
+| pull/295 | prompt committed to the tree |

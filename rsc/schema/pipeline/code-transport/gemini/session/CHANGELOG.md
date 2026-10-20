@@ -6,7 +6,7 @@ data/input/gemini/code/machine-transport/<machine>/<project>/<session>/: the
 plain transcript.jsonl and the untruncated transcript_full.jsonl, one family for
 both. Each definition's description ends with its layer, drawn from `layer.csv`
 beside the version file - the record's own layers, named as a first reading and
-free to evolve with evidence, beside the MCP factoring's (#634).
+free to evolve with evidence, beside the MCP factoring's (issues/634).
 
 ---
 
@@ -27,4 +27,4 @@ harness resumed the session, so the array order is the record's order. All four
 files validate at v1.
 
 The step database beside the transcripts is protobuf and is not described; the
-model a step ran on sits inside it, undecoded (#633).
+model a step ran on sits inside it, undecoded (issues/633).

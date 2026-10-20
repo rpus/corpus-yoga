@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""should.py - the one grammar of an issue as the forge raises it (#887): a title that is a
+"""should.py - the one grammar of an issue as the forge raises it (issues/887): a title that is a
 should, a body in .github/ISSUE_TEMPLATE.md's sections, and relations that are wired, never
 narrated.
 
@@ -21,7 +21,7 @@ import aim  # noqa: E402 - bare(), the one stripping of mentions
 SECTIONS = ('## currently', '### as is', '## but, in future')
 WRITTEN = ('Signature:', '### as at')
 _SHOULD = re.compile(r'\bshould\b')
-_NARRATED = re.compile(r'\b(blocked by|blocks|part of|supersedes|closes) #\d+|\bsub-?issues?\b', re.I)
+_NARRATED = re.compile(r'\b(blocked by|blocks|part of|supersedes|closes) (?:#|issues/|pull/)\d+|\bsub-?issues?\b', re.I)
 
 
 def check_title(title: str) -> None:

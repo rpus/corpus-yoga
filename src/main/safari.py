@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 
-import tier  # noqa: E402 - the act's stamp, one reading (#912)
+import tier  # noqa: E402 - the act's stamp, one reading (issues/912)
 from pathlib import Path
 
 SELF = 'src/main/safari.py'
@@ -44,7 +44,7 @@ FETCH_API_JSON_JS = """
 """
 
 
-# Every Apple Event is bounded (#414): osascript against a wedged, beach-balling
+# Every Apple Event is bounded (issues/414): osascript against a wedged, beach-balling
 # page blocks INDEFINITELY otherwise — below every python-level watchdog, which
 # is how one tiny hung conversation held a whole sweep hostage. Generous, because
 # a legitimate 'do JavaScript' on a heavy DOM can be slow; on expiry the call
@@ -79,7 +79,7 @@ def safari_assert_js_allowed():
     a hard setup failure disguised as an empty result."""
     # A preflight is still a SEND — an Apple Event driving the browser — and this was
     # the one direct osascript call in the module without the assert its siblings
-    # carry (the 2026-07-28 python census, PR #114).
+    # carry (the 2026-07-28 python census, pull/114).
     assert_may_send('Safari do-JavaScript preflight')
     r = subprocess.run(
         ['osascript', '-e', 'tell application "Safari" to do JavaScript "1+1" in front document'],
@@ -166,7 +166,7 @@ def safari_fetch_api_json(uuid, timeout=DOWNLOAD_TIMEOUT):
 
 
 def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
-    """Fetch a session-authenticated asset URL (#422 — the file handles the API
+    """Fetch a session-authenticated asset URL (issues/422 — the file handles the API
     capture names, e.g. /api/<org>/files/<uuid>/document_pdf) in the front
     claude.ai page and download it as `filename`; returns the Downloads path,
     or None when the fetch produced nothing within the timeout."""
@@ -250,7 +250,7 @@ def collect_md_and_log(after_time, dest_dir, evidence_dir):
     """Move freshly-downloaded .md files into dest_dir (the capture's data directory under
     data/input/ - it holds data only) and print the .log, the in-browser capture log -
     including errors like 'No copy buttons found!' - into the capture's progress artifact,
-    which stdout is under --progress (#413, #708): a failed scrape leaves its error in the
+    which stdout is under --progress (issues/413, issues/708): a failed scrape leaves its error in the
     progress file beside the record, never in a second file of its own, and the download
     is removed once said. A walk refused for being shorter than the record is kept as
     evidence in evidence_dir, the verb's log directory, as <stamp>.<provider>.<id>.short.md
@@ -300,7 +300,7 @@ def collect_md_and_log(after_time, dest_dir, evidence_dir):
         after = max((turn_extent(m.read_text()) for m in fresh_md), default=(0, 0))
         if before > (0, 0) and (after[0] < before[0] or after[1] < before[1]):
             # kept, not discarded: the short capture is the evidence for why this failed - an
-            # artifact beside the record, named by the act's stamp (#708)
+            # artifact beside the record, named by the act's stamp (issues/708)
             stamp = tier.stamp_of('browser capture')
             evidence = evidence_dir / f'{stamp}.{dest_dir.parent.parent.parent.name}.{dest_dir.name}.short.md'
             evidence_dir.mkdir(parents=True, exist_ok=True)

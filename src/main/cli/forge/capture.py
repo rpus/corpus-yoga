@@ -53,12 +53,12 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402
 from enact import quote  # noqa: E402
 from send import SendRefused, assert_may_send  # noqa: E402
 
-STORE = tier.TMP_STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (#687)
+STORE = tier.TMP_STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (issues/687)
 REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 
 LISTS = [
@@ -152,7 +152,7 @@ def main(argv: list[str]) -> int:
     for name in ROSTER:
         (target / name).write_bytes(render(got[name]))
         print(f'  {name}: {count(name, got[name])}')
-    # what an act reports (#876, #896): the effect; the launcher's reply names the promote,
+    # what an act reports (issues/876, issues/896): the effect; the launcher's reply names the promote,
     # since no pipeline reads the ledger and no rehearsal is owed
     facts.report(None, f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
     return 0

@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# report.sh - what an act reports after its lines (#801, #896), for the bash verbs:
+# report.sh - what an act reports after its lines (issues/801, issues/896), for the bash verbs:
 # effect <line> [<command> <does>]... hands the act's effect line, and each command the act
 # names beside the room's to-do, to the launcher, which replies with next: and the effect
 # (src/main/reply.py); where no launcher asked - an inner invocation, a step of another
@@ -7,7 +7,7 @@
 # no bash verb prints a tail of its own. Sourced after the script's root is known as
 # REPO_DIR or REPO_ROOT.
 # sentence <sentence> [<place>=<value>]...: a sentence a status says, quoted as its noun's
-# declaration holds it, its places filled - facts.sentence's shell twin (#909).
+# declaration holds it, its places filled - facts.sentence's shell twin (issues/909).
 sentence() {
   "${REPO_DIR:-$REPO_ROOT}/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
 places = dict(part.split("=", 1) for part in sys.argv[3:])

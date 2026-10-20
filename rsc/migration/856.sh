@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rsc/migration/856.sh - a held gemini unit holds the live store's files at their own
-# names and relative paths (#856): the transcripts at .system_generated/logs/ under the
+# names and relative paths (issues/856): the transcripts at .system_generated/logs/ under the
 # session, the step database at conversations/<uuid>.db; summary.json stays at the top.
 # Every unit under data/input and under this room's stage moves.
 set -euo pipefail

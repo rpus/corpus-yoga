@@ -2,7 +2,7 @@
 """
 schema_walk.py - the one JSON Schema walk both tiers share (the diagnostics, the
 protocol factoring), DERIVED from the committed draft-04 meta-schema
-(rsc/reference/JSONSchema/draft-04/schema.json) rather than restated (#571).
+(rsc/reference/JSONSchema/draft-04/schema.json) rather than restated (issues/571).
 
 Every keyword's position is what the meta-schema's own `properties` entry says it
 is: `{"$ref": "#"}` is a schema (`not`); an object whose `additionalProperties` is a

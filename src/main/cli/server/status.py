@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 status.py - bare `corpus-yoga server`: whether the markdown daemon runs, and the render assets
-present against their manifest (#759). Reads; writes nothing.
+present against their manifest (issues/759). Reads; writes nothing.
 """
 import sys
 from dataclasses import dataclass

@@ -3,7 +3,7 @@
 The hand-written inputs for <https://rpus.co>. The tree that serves is
 `data/output/site/`, the one publish tree, where `data/output/site/<path>` is
 `rpus.co/<path>`; nothing there is written by hand. Two verbs produce it, and
-each file here says by its name which verb reads it (#650):
+each file here says by its name which verb reads it (issues/650):
 
 - **`<name>.html`** - a PAGE, complete as written. `corpus-yoga site sync`
   copies it to `data/output/site/<name>.html`, byte for byte, and prunes a page
@@ -38,7 +38,7 @@ root is the publish directory. Deploying is one verb:
 
 Netlify builds on push. The dry run states what changes in the corpus page in the
 page's own terms, each data table compared by its identity column
-(`src/main/model/compare_pages.py`, #652), since a line diff of two renders
+(`src/main/model/compare_pages.py`, issues/652), since a line diff of two renders
 misstates the change. The copy lands new and changed files and mirrors no
 deletion: a page or directory that left the publish tree is removed from the
 site repo by hand. `ext/mnt/site` is the machine's hand-made symlink to the

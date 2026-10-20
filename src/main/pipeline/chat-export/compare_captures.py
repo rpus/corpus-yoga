@@ -8,7 +8,7 @@ corpus, the data frontier, by message uuids: capture-ahead is the normal post-sn
 direction; capture-stale names conversations to recapture in place; an anomaly, unique
 messages on both sides, wants investigation; an export-only conversation with no message
 content is complete as the export holds it and names nothing to capture. Each mismatch is
-its own FAIL atom, counted by the run's stage table (#446) and never a gate.
+its own FAIL atom, counted by the run's stage table (issues/446) and never a gate.
 
 Usage:
   src/run_python_script.sh src/main/pipeline/chat-export/compare_captures.py --api-capture <root>
@@ -25,8 +25,8 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(_file.parent))
-import tier  # noqa: E402 - the tiers, one home (#702)
-import atoms  # noqa: E402 - the export's conversations and their atoms, one home (#743)
+import tier  # noqa: E402 - the tiers, one home (issues/702)
+import atoms  # noqa: E402 - the export's conversations and their atoms, one home (issues/743)
 from vintage import export_time  # noqa: E402 - the one export-ordering authority
 
 BULK = 'data/input/claude/chat/bulk-export'

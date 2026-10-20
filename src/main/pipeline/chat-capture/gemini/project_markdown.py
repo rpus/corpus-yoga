@@ -35,7 +35,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 from markdown_projection import REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
@@ -113,7 +113,7 @@ def main():
                   f'recapture before trusting either.')
 
     # deposit, not wipe: unchanged scrapes keep their mtime (no needless iCloud
-    # re-upload of the whole tree each run). Identity is conv_id (#419): a
+    # re-upload of the whole tree each run). Identity is conv_id (issues/419): a
     # renumbered ordering renames every output, and 27 renames once printed as
     # '27 pruned' — indistinguishable from a purge in the one line that mattered.
     deposit(out, files, f'gemini: {len(files)} scrape(s)', identity=conv_id, note=' (anchored)',

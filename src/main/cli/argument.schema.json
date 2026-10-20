@@ -22,11 +22,11 @@
     "help": {
       "type": "string",
       "minLength": 1,
-      "description": "The wording argparse shows for this argument; the declaration owns structure and words alike (#477)."
+      "description": "The wording argparse shows for this argument; the declaration owns structure and words alike (issues/477)."
     },
     "default": {
       "type": "string",
-      "description": "What an omitted argument means, as data (#477): a path-typed argument's default is repo-relative and resolves against the root at parser build; any other passes verbatim. Shown in the generated help as declared, so no help prose restates it."
+      "description": "What an omitted argument means, as data (issues/477): a path-typed argument's default is repo-relative and resolves against the root at parser build; any other passes verbatim. Shown in the generated help as declared, so no help prose restates it."
     }
   }
 }

@@ -28,9 +28,9 @@ source "$REPO_DIR/src/main/tier.sh"
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
 MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
 # shellcheck source=src/main/send.sh
-source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (#29)
+source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (issues/29)
 # shellcheck source=src/main/report.sh
-source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
@@ -45,7 +45,7 @@ FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 # chat and a code session alike: the first segment of the stem on a corpus root
 # (<provider>/<channel>/<file>), falling back to the id shape for a single
 # conversations dir. The concept capture tags its rows from these, so every marker is
-# a value the provider column admits (#682).
+# a value the provider column admits (issues/682).
 # A batch source (conversations.json or atomised json/) still works via
 # timeline.py, re-deriving the claude numbering with ordered() (no markers: a
 # batch is claude by construction, and the prompt says so).
@@ -211,7 +211,7 @@ print(len(corpus & captured), len(corpus - captured), len(captured - corpus), le
 
 # The LEADING extent, and the intent: what is, and what this capture will do to it.
 # Formatted from coverage_of, never re-derived — two joins that could disagree about the
-# same corpus is the defect #55 fixed one layer up.
+# same corpus is the defect pull/55 fixed one layer up.
 coverage_report() {
   local conv="$1" out captured never gone total
   out="$(coverage_of "$conv" "$DATA_DIR/output/indexing/inferred-chat-categories.json")" || return 0
@@ -268,7 +268,7 @@ capture_dashboard() {
     capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json"
     validate_capture "$stage/inferred-semantic-concepts.json" semanticConcepts
     echo "  ✓ inferred-semantic-concepts.json ($(jq '.rows | length' "$stage/inferred-semantic-concepts.json") concepts)"
-    # What the call bought, judged now (#644): the index's own scan says which concepts
+    # What the call bought, judged now (issues/644): the index's own scan says which concepts
     # anchor in a conversation turn and by which phrasings; the rest are named here, the
     # one place their spend is visible, and never reach the queue.
     "$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import indexing; indexing.anchor_report(Path(sys.argv[2]), Path(sys.argv[3]))' "$SCRIPT_DIR" "$stage/inferred-semantic-concepts.json" "$conv"
@@ -352,11 +352,11 @@ capture() {
   # machine that cannot spend, or it cannot answer "what would this cost me?" there
   # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
   # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
-  # working under CORPUS_YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
+  # working under CORPUS_YOGA_NO_SEND: it is the preamble a refused machine still deserves (issues/29).
   [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (corpus-yoga indexing capture)" || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money: a paid call is not reproducible for free, so its
-  # record is the evidence. The record is the launcher's tee of the whole verb (#708),
+  # record is the evidence. The record is the launcher's tee of the whole verb (issues/708),
   # tmp/logs/indexing/capture/<stamp>.log, header included - nothing is written here.
   local conv
   conv="${conversations:-$(corpus_conversations || true)}"

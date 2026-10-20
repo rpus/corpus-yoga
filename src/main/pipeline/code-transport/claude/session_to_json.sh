@@ -28,7 +28,7 @@ main() {
   local jsonl="$1" json_out="$2"
 
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/jsonl_to_json.py" "$jsonl" "$json_out"
-  # the source this datum was converted from, digested beside it (#687: a verdict on
+  # the source this datum was converted from, digested beside it (issues/687: a verdict on
   # session.json is tied to the log it was taken over)
   shasum -a 256 "$jsonl" | cut -d' ' -f1 > "$(dirname "$json_out")/source.sha256"
 

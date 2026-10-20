@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
 walkthrough.py - `corpus-yoga walkthrough`: the room's state as one tree, walked by the
-reader (#766). The walk starts on the top, which holds the commands, the machine report
+reader (issues/766). The walk starts on the top, which holds the commands, the machine report
 first. Under each stand its status, where it has one - what its bare status prints,
-loaded when the walk lands on it: the lines are the data (#753), so the walk has no
+loaded when the walk lands on it: the lines are the data (issues/753), so the walk has no
 second interface to any noun - and its help: its declaration, as `corpus-yoga <command> -h`
-says it (#770, #794). So help is read as the state is, with the same keys, and what does not vary with the room
+says it (issues/770, issues/794). So help is read as the state is, with the same keys, and what does not vary with the room
 is read beside what does. Five keys work it, the bottom row of the keyboard, and a sixth
 leaves:
 
@@ -16,7 +16,7 @@ leaves:
   m  members  into the node the walk stands on: its first key, or its first value
   q  quit
 
-A key is the head of what it holds, and a step says the head alone (#787): the key, and
+A key is the head of what it holds, and a step says the head alone (issues/787): the key, and
 the size and shape of what stands beneath it, each under the name of the key that would
 bring it - `members:` so many keys or so many values, for m; `value:` so many words, for
 v, and after v the value itself; `next:` the sibling n goes to - never the thing itself,
@@ -24,12 +24,12 @@ so the reader chooses knowing what follows and no step scrolls. A line that is a
 a key with nothing to bring. A status that cannot be read is no content: the step says
 `FAIL:` and why. Every spot has an address, its JSON pointer (RFC 6901) from the top of the tree - a `/`
 before each key, `~1` for a slash within one and `~0` for a tilde, a bare value by its
-place in its list (#775). A step says the spot's pointer; `corpus-yoga walkthrough
+place in its list (issues/775). A step says the spot's pointer; `corpus-yoga walkthrough
 <pointer>` starts there, reading what the pointer passes through - typed bare, a pointer
 with a space in a key arrives as several words, and they are read as one; and on leaving
 the walk says the command that continues from where it left, quoted for the shell.
 
-The exit says whether the walk went as asked (#782), so a caller can chain on it:
+The exit says whether the walk went as asked (issues/782), so a caller can chain on it:
   0  it stood where it was asked, and what it ran succeeded
   1  a command run with x failed, or a status the walk landed on could not be read
   2  the argument is no pointer: refused, and no walk

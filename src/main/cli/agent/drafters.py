@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 drafters.py (corpus-yoga agent list-drafters) - the Signatures on main, joined to the
-sessions the store holds (#631).
+sessions the store holds (issues/631).
 
 A message on main ends in its Signatures, one line per hook run over it
 (rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who
@@ -35,7 +35,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
 import provider as registry  # noqa: E402
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 import transport  # noqa: E402
 from machine import bound_machine  # noqa: E402
 

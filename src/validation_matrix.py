@@ -3,7 +3,7 @@
 validation_matrix.py — render a datum's machine-local validation matrix from its verdicts.
 
 Each datum directory under tmp/cache/ whose validation/ holds vN.verdict.json records
-(src/main/validation_verdict.py, #701) gets a single sibling matrix.md summarising them (schema × version →
+(src/main/validation_verdict.py, issues/701) gets a single sibling matrix.md summarising them (schema × version →
 ✓/✗, bytes). The matrix is derived state: git-ignored, co-located with its datum, and
 written by validation itself (validate_versions.py) whenever the records change — so it can
 never be stale. No reader here opens a vN.log: the log is the inspection's grist, and a
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
-import validation_verdict as verdict  # noqa: E402 — the record (#701)
+import validation_verdict as verdict  # noqa: E402 — the record (issues/701)
 
 PREAMBLE = """# validation matrix
 
@@ -34,7 +34,7 @@ HEADER = ['| Schema | Item | Version | Result | Bytes |',
 
 def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path | None:
     """The one address of a family under a pipeline's schema root, rsc/schema/pipeline/<pipeline>
-    (#632): directly, or at the provider's segment where the family's instances are one
+    (issues/632): directly, or at the provider's segment where the family's instances are one
     provider's. A pipeline's declaration (src/main/pipeline/<pipeline>/pipeline.json,
     `schemas`) names its families by address, and the one whose last segment is schema is
     the family; a family the declaration does not name is found by walking. None where
@@ -43,7 +43,7 @@ def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path |
     declared = json.loads(declaration.read_text())['schemas'] if declaration.is_file() else []
     named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
     if len(named) > 1 and datum_dir is not None:
-        # two providers' families of one name (#635): the datum sits under its provider's
+        # two providers' families of one name (issues/635): the datum sits under its provider's
         # directory of the cache, tmp/cache/<pipeline>/<provider>/..., and the family under
         # the same segment of the schema root - that one segment, never any component, or a
         # machine or project named for a provider would match both
@@ -87,7 +87,7 @@ def _row(log_dir: Path, latest: str) -> tuple[str, int] | None:
 def rows_from_records(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, str, str], tuple[str, int]]:
     """(schema, item, latest version) → (✓/✗/?, bytes) from the LATEST version's verdict
     record under one datum's validation/ directory - the latest version is the schema, the
-    rest is history (#557), so an older record left beside it is not a row. `item` is the
+    rest is history (issues/557), so an older record left beside it is not a row. `item` is the
     inner subject for nested layouts (chat-export projects), '' otherwise. This is the
     source of truth the datum's matrix.md renders."""
     rows: dict[tuple[str, str, str], tuple[str, int]] = {}

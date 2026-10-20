@@ -2,7 +2,7 @@
 """
 model.py — per-schema definition catalogues, candidates for rsc/model/model.json.
 Output: tmp/cache/model/catalogue/<family's address under rsc/schema>/v{N}.json for each
-versioned schema, keyed as rsc/model/model.json keys a family (#672), so two providers'
+versioned schema, keyed as rsc/model/model.json keys a family (issues/672), so two providers'
 families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
 
 `model` is a NOUN: the catalogues. A bare invocation shows their current state and
@@ -33,9 +33,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (#876)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
@@ -58,7 +58,7 @@ CATALOGUE_DIR = OUT_DIR / 'catalogue'
 def _catalogues() -> list[tuple[str, Path, Path]]:
     """(family name, schema-version file, its catalogue) for every versioned schema — the
     inventory that `sync` writes and `status` reports, so the two can never disagree.
-    The catalogue sits at the family's address under rsc/schema (#672)."""
+    The catalogue sits at the family's address under rsc/schema (issues/672)."""
     out = []
     for schema_dir in sorted({v.parent for v in SCHEMA_DIR.rglob('v*.json')}):
         for version in _sorted_versions(schema_dir):
@@ -111,7 +111,7 @@ class Join:
 
 
 def curation_report() -> tuple[Table, Join]:
-    """Both disposal loops, in numbers (issue #19; model_curation.py): the step
+    """Both disposal loops, in numbers (issues/19; model_curation.py): the step
     that used to read 'update model.json if needed' now reports whether it IS
     needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
     shrug — no gate pressure); loop 2 blocks (shared-type edges obligate
@@ -162,7 +162,7 @@ def sync() -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         text = generate(name, schema)
         if target.exists() and target.read_text() == text:
-            continue   # content-keyed (#494): current means no write
+            continue   # content-keyed (issues/494): current means no write
         target.write_text(text)
         written += 1
         print(f'  ✓ {target.relative_to(REPO_ROOT)}')
@@ -175,7 +175,7 @@ def sync() -> None:
             directory.rmdir()
     render_collision_worksheet()
     # the findings are status's (bare corpus-yoga model): a sync writes, and what an act
-    # reports (#876, #896) is its effect line
+    # reports (issues/876, issues/896) is its effect line
     facts.report(None, 'model sync: DONE - ' + facts.sentence('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
 
 
@@ -195,7 +195,7 @@ def render_collision_worksheet() -> None:
     writer.writeheader()
     writer.writerows(rows)
     if path.exists() and path.read_bytes() == buf.getvalue().encode():
-        return   # content-keyed (#494): current means no write and nothing said
+        return   # content-keyed (issues/494): current means no write and nothing said
     path.write_bytes(buf.getvalue().encode())   # bytes: csv's CRLF must survive the compare
     proposed = sum(1 for r in rows if r['relationship'])
     print(f'  ✓ tmp/cache/model/shared_name_candidates.csv ({len(rows)} undisposed, '
@@ -240,7 +240,7 @@ def status() -> None:
 
 
 def list_candidates() -> None:
-    """The disposal queue with its three feeders (#470), each row naming its
+    """The disposal queue with its three feeders (issues/470), each row naming its
     disposal: undisposed shared names (the worksheet, re-rendered fresh),
     falsified identity edges, and corpus-falsified emptiness edges."""
     render_collision_worksheet()
@@ -277,7 +277,7 @@ def _disposal_rows(parser, args):
 
 
 def main():
-    parser = command_parser('model')  # generated from the declaration (#476)
+    parser = command_parser('model')  # generated from the declaration (issues/476)
     args = parser.parse_args()
     if args.verb == 'sync':
         sync()

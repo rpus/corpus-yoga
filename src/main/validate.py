@@ -6,7 +6,7 @@ Usage:
 
 Fragment identifiers are JSON Pointers (RFC 6901); % encoding is supported.
 
-A refusal is reported as the fault a reader acts on (#848): its first line names the
+A refusal is reported as the fault a reader acts on (issues/848): its first line names the
 property at fault by its path within the instance and the validator's words for it,
 the second the instance path, the third the schema node whose keyword found it.
 """
@@ -43,7 +43,7 @@ def _refused(error):
     to: an enum or const fault on a property at the alternative's own level, or a
     oneOf/anyOf at that level every alternative of which is so refused. A union deeper
     in the instance - a turn's content block - is not the alternative's discriminator:
-    its refusal is that union's to judge, reached by the descent (#894)."""
+    its refusal is that union's to judge, reached by the descent (issues/894)."""
     if error.context:
         return not error.relative_path and all(any(_refused(sub) for sub in subs) for subs in _alternatives(error).values())
     return error.validator in ('enum', 'const') and len(error.relative_path) == 1
@@ -67,7 +67,7 @@ def _alternatives(error):
 
 def _undeclared(error, alternatives):
     """Where the instance's discriminator refuses every alternative of a oneOf/anyOf, the
-    verdict is the union's (#894): the discriminator's property, the value the instance
+    verdict is the union's (issues/894): the discriminator's property, the value the instance
     carries, and the values the alternatives declare - never an alternative chosen by the
     count of its faults, which would name a type the record was not of."""
     refusals = [[leaf for sub in subs if _refused(sub) for leaf in _discriminators(sub)] for subs in alternatives.values()]
@@ -100,7 +100,7 @@ def _name(alternative):
 
 def _unmatched(error):
     """The union's verdict where no single alternative is selected and no discriminator
-    declares a set (#894): the instance matches none of the alternatives, named - the
+    declares a set (issues/894): the instance matches none of the alternatives, named - the
     library's own sentence, which is all a reader can honestly be told, never an
     alternative chosen by the count of its faults."""
     names = ', '.join(_name(alternative) for alternative in error.validator_value)
@@ -112,7 +112,7 @@ def legible(error):
     """The fault a reader acts on, found through each oneOf/anyOf: within the one
     alternative the instance's discriminator selects - no alternative is refused by it -
     the deepest fault; the union itself where the discriminator refuses every alternative
-    (#894, the declared set named) or selects no single one (the alternatives named); the
+    (issues/894, the declared set named) or selects no single one (the alternatives named); the
     top error otherwise. No fault count chooses: at a discriminated union the verdict is a
     function of the discriminator's value and the schema, and at an undiscriminated one
     it is the union's."""

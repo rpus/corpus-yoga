@@ -3,7 +3,7 @@
 transcript_to_json.py - one captured Antigravity session directory to session.json, the
 gemini session family's datum (rsc/schema/pipeline/code-transport/gemini/session): the
 steps of transcript_full.jsonl where the capture holds it, else of transcript.jsonl - at
-.system_generated/logs/ under the session, their live path (#856) - one line each, as one
+.system_generated/logs/ under the session, their live path (issues/856) - one line each, as one
 array. The summary row at the session's top (summary.json) is copied to <output>.summary,
 the projection's source for the title.
 
@@ -45,7 +45,7 @@ def main() -> int:
             print('warning: dropped truncated final line', file=sys.stderr)   # a session captured mid-append
             lines = lines[:-1]
     write_if_changed(out, lambda dst: dst.write('[\n' + ',\n'.join(lines) + '\n]\n'))
-    # the source this datum was converted from, digested beside it (#687)
+    # the source this datum was converted from, digested beside it (issues/687)
     import hashlib
     Path(out).with_name('source.sha256').write_text(hashlib.sha256(source.read_bytes()).hexdigest() + '\n')
     summary = session_dir / 'summary.json'

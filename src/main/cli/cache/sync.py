@@ -46,12 +46,12 @@ REPO = REPO_ROOT
 
 
 def main() -> int:
-    args = verb_parser('cache', 'sync').parse_args()  # generated from the declaration (#476)
+    args = verb_parser('cache', 'sync').parse_args()  # generated from the declaration (issues/476)
 
     # The registry stores canonical NAMES ('corpus-yoga model sync' — one referent, one
     # name, G14), and every printed line speaks the name too: './corpus-yoga' is no more
     # runnable for a reader than bare 'corpus-yoga' — one presumes cwd, the other PATH
-    # (user ruling, PR #109). The './' spelling exists at exactly ONE point, the
+    # (user ruling, pull/109). The './' spelling exists at exactly ONE point, the
     # exec boundary below, where it is valid because the same call pins cwd=REPO.
     def executable(c: str) -> str:
         return f'./{c}' if c.startswith('corpus-yoga ') else c

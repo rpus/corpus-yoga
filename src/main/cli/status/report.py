@@ -2,12 +2,12 @@
 """
 report.py - `corpus-yoga status`' report: the rows status.sh collects as its
 checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,
-tab-separated, in the file named - typed and said as one shape (#759). A row is keyed by
-what it is about (#771); its commands are columns of their own, `<command> <what it does>`
-in pairs, and stand under `remedy` beside it (#763, #777). A row `<section> graft <noun>
+tab-separated, in the file named - typed and said as one shape (issues/759). A row is keyed by
+what it is about (issues/771); its commands are columns of their own, `<command> <what it does>`
+in pairs, and stand under `remedy` beside it (issues/763, issues/777). A row `<section> graft <noun>
 <pointer>` is what that noun's own status says at that spot, loaded as the data it is
-(#777): whole in the full report, and otherwise what holds a remedy - or, with `standing`
-as a fifth column (#824), the spot's facts as they stand, since what the stage says to run
+(issues/777): whole in the full report, and otherwise what holds a remedy - or, with `standing`
+as a fifth column (issues/824), the spot's facts as they stand, since what the stage says to run
 next is no remedy and is still what the room needs doing. Runs under the venv's
 python, or under python3 before the venv is minted, where no noun can be asked.
 
@@ -33,7 +33,7 @@ import facts  # noqa: E402
 
 @dataclass
 class Report:
-    """The report: each section its subjects, each subject what stands of it (#763, #771). A
+    """The report: each section its subjects, each subject what stands of it (issues/763, issues/771). A
     subject `a / b` stands beneath `a`, so its last part names the property the value is of,
     or is the thing itself by its address; the commands that act on a row stand under
     `remedy` beside its last part, each with what it does. No key names a kind."""
@@ -59,7 +59,7 @@ _said: dict[str, object] = {}     # each noun's status, read once a report, howe
 
 def read_at_once(nouns: list[str]) -> None:
     """Read every grafted noun's status together, so the report takes the time of the
-    slowest and not their sum (#811): each is a process of its own, and none reads another."""
+    slowest and not their sum (issues/811): each is a process of its own, and none reads another."""
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=max(1, len(nouns))) as pool:
         for noun in nouns:
@@ -81,8 +81,8 @@ def said_by(noun: str):
 def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
     short report has nothing of it to show: what holds a remedy - a command the reader
-    types, or the reader's own act in words, which is shown and never run (#866) - or, for
-    a spot grafted as standing (#824), its facts as they stand - a mapping or a list, never
+    types, or the reader's own act in words, which is shown and never run (issues/866) - or, for
+    a spot grafted as standing (issues/824), its facts as they stand - a mapping or a list, never
     the sentence that says the spot is empty."""
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
@@ -123,7 +123,7 @@ def main() -> int:
         read_at_once(sorted({row[2] for row in rows if row[1] == 'graft'}))
     for name, kind, subject, stands, *rest in rows:
         if kind == 'graft':
-            # the section is the command (#812); beneath it, what stands at the pointer, under
+            # the section is the command (issues/812); beneath it, what stands at the pointer, under
             # the pointer's last key - or merged whole where the pointer names the noun itself
             said = grafted(subject, stands, whole, rest[:1] == ['standing'])
             if said is None:

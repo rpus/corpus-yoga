@@ -16,7 +16,7 @@
 #            declares no variable is never attested, since nothing was observed.
 #            It is the JOIN KEY into the captured session corpus
 #            (data/input/<provider>/code/machine-transport/), a join corpus-yoga agent
-#            list-drafters holds (#631); the MODEL that did the work
+#            list-drafters holds (issues/631); the MODEL that did the work
 #            is DERIVABLE from it (corpus-yoga agent list-models), accurately and plurally — so it
 #            is never asserted here. This retired `Co-Authored-By: <model>`.
 #
@@ -51,13 +51,13 @@ case "$source_type" in merge|squash) exit 0 ;; esac
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || exit 0
 repo="$(cd "$script_dir/../.." 2>/dev/null && pwd)" || exit 0
 
-# The triad is derived in one place, src/main/provider.py's signature() (#704): the
+# The triad is derived in one place, src/main/provider.py's signature() (issues/704): the
 # machine from machine-name.txt, the provider from the first row of the registry
 # (rsc/provider/providers.csv) whose declared session variable this environment carries,
 # the session as that variable's first eight characters - and the machine alone where no
 # row's variable is set. Every verb's log opens with the same triad (src/main/provider.sh),
 # so a log and a commit carry one key. The derivation runs the venv's python through
-# src/run_python_script.sh (#478). Where that cannot run - no venv on this machine - the
+# src/run_python_script.sh (issues/478). Where that cannot run - no venv on this machine - the
 # machine alone is claimed, nothing is stripped, and the commit proceeds: best-effort, as
 # the header rules; the pre-commit gate runs the same venv and has already refused a
 # commit it cannot serve.

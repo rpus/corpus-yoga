@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # rehearse.sh (corpus-yoga pipeline rehearse) — the pipelines over the stage, the checkout's
 # own code run over the stage's scratch tiers, and the record of what it saw and judged
-# (#687, #702, #815).
+# (issues/687, issues/702, issues/815).
 #
 # Usage:
 #   corpus-yoga pipeline rehearse   # every pipeline over everything staged
@@ -21,7 +21,7 @@
 # record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every
 # staged unit is taken; after it, the verdicts the run wrote are reduced with them into the
 # record, written whole, with the stamp, the commit, the Signature and the run's exit. The
-# record, tmp/logs/pipeline/rehearse/<stamp>.log, the launcher's tee, shares the stamp (#708).
+# record, tmp/logs/pipeline/rehearse/<stamp>.log, the launcher's tee, shares the stamp (issues/708).
 
 set -euo pipefail
 
@@ -32,16 +32,16 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/provider.sh
-source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
+source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (issues/704)
 # shellcheck source=src/main/report.sh
-source "$REPO_ROOT/src/main/report.sh"   # sentence - the one face a sentence is said through (#909)
+source "$REPO_ROOT/src/main/report.sh"   # sentence - the one face a sentence is said through (issues/909)
 
 main() {
   local stamp
-  # the stage's word first (#721): a rehearsal judges a stage the stage reads as whole, and
+  # the stage's word first (issues/721): a rehearsal judges a stage the stage reads as whole, and
   # no pipeline is shown an incomplete unit - the janitor is the remedy
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
-  # the rehearsal's stamp is the launcher's where it ran the verb (#708), so the record,
+  # the rehearsal's stamp is the launcher's where it ran the verb (issues/708), so the record,
   # tmp/logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
   stamp="$(stamp_of pipeline rehearse)"
   rm -rf "$TMP_STAGE_SCRATCH"

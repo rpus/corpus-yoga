@@ -34,7 +34,7 @@ STEPS_REPO="${_self_dir%/"${SELF%/*}"}"
 # program, without the machine paths that would break plan determinism. Called with the
 # arguments ONLY — never the command: a command that is not path-shaped survives the
 # filter and lands in the plan as an argument of itself (`ensure_session_dir mkdir -p`,
-# `prune_departed_gen prune_departed_projects`) (#45).
+# `prune_departed_gen prune_departed_projects`) (issues/45).
 plan_args() {
   local arg out=''
   for arg in "$@"; do [[ "$arg" == */* ]] || out+=" $arg"; done
@@ -42,7 +42,7 @@ plan_args() {
 }
 
 # The repo-relative file a step is implemented in — the third thing every plan line must
-# name (#45). Every path here is repo-relative, so the plan stays deterministic: only
+# name (issues/45). Every path here is repo-relative, so the plan stays deterministic: only
 # ABSOLUTE paths were ever the risk, and dropping the argument threw away the location
 # instead of stripping the machine part of it.
 #
@@ -83,7 +83,7 @@ plan_line() {
 }
 
 # the step as the plan names it: the name, as the corpus-yoga command where it is one,
-# with its non-path arguments (#45)
+# with its non-path arguments (issues/45)
 step_label() {
   local name="$1"; shift
   local label="$name"
@@ -95,7 +95,7 @@ step_label() {
 
 # A gating step's non-zero exit stops a runner under errexit, and is recorded here for
 # the runner errexit cannot stop - a function run in a pipeline, as the corpus tail is -
-# so that steps_verdict returns it (#749).
+# so that steps_verdict returns it (issues/749).
 STEPS_FAILED=''
 step_gated() {
   local name="$1"; shift
@@ -120,7 +120,7 @@ step_if() {
 
 # The last line of a runner body that errexit does not stop: states which gating steps
 # exited non-zero, and returns non-zero iff one did - a step that dies there is read as
-# the runner's failure, never as passed (#749).
+# the runner's failure, never as passed (issues/749).
 steps_verdict() {
   [[ "${plan:-0}" == "1" ]] && return 0
   [[ -n "$STEPS_FAILED" ]] || return 0
@@ -142,7 +142,7 @@ step_if_ok() {
 }
 
 # latest_version_file <family-dir> — the family's latest vN.json by numeric order:
-# the latest version is the schema, the rest is history (#557), so validation
+# the latest version is the schema, the rest is history (issues/557), so validation
 # enumerates this one file, never v*.json.
 latest_version_file() {
   local f best="" best_n=-1 n
@@ -154,7 +154,7 @@ latest_version_file() {
   [[ -n "$best" ]] && printf '%s\n' "$best"
 }
 
-# ── Next-free dispatch (#395) ─────────────────────────────────────────────────
+# ── Next-free dispatch (issues/395) ─────────────────────────────────────────────────
 # Independent tasks are enumerated capacity-blind and handed serially to the
 # next free worker; each task's whole output is buffered and emitted in
 # ENUMERATION ORDER — the dev gate's _call_many discipline for the usr gate:
@@ -209,7 +209,7 @@ dispatch_emit() {
 dispatch_done() { rm -rf "$DISPATCH_DIR"; unset DISPATCH_DIR DISPATCH_N; }
 
 # A declared input path resolved for one provider: <provider> its name, <qualifier> the
-# qualifier its row of pipeline.json's provider member declares (#687). The one place a
+# qualifier its row of pipeline.json's provider member declares (issues/687). The one place a
 # runner turns the declaration's template into a store it can read.
 resolve_input() {
   local qualifier out

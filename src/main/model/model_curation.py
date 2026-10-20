@@ -1,11 +1,11 @@
 """
-model_curation.py — the model.json disposal loops' shared computation (issue #19).
+model_curation.py — the model.json disposal loops' shared computation (issues/19).
 
 rsc/model/model.json is the hand-curated cross-family type reference, and its
 WORKFLOW step read "update if needed" — unfalsifiable: nothing reported that it
 WAS needed, which is how the reference held one entry while model_join.csv grew
 to 144 correspondence rows. The discipline is TWO loops with different pressure
-(the PR #36 review, reading-room, directed by the user), both computed here from
+(the pull/36 review, reading-room, directed by the user), both computed here from
 committed files only, so every number is identical on any clone:
 
   1. leisurely, advisory → model_join. The naive name scan (definition names in
@@ -37,7 +37,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 import sys as _sys
 _sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (#702)
+import tier  # noqa: E402 — the tiers, one home (issues/702)
 from latest import latest_file  # noqa: E402
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
 MODEL_DIR = REPO / 'rsc' / 'model'
@@ -48,7 +48,7 @@ REJECTED = MODEL_DIR / 'model_rejected.txt'
 JOIN_PATH_COLUMNS = ('conversations_path', 'claude_session_path', 'gemini_session_path', 'apiConversation_path', 'mcp_path')
 # The obligating predicates: kinds that assert ONE type shared across families
 # (usually across pipelines, but the account-uuid edge is intra-chat-export —
-# family is the grain, the PR #36 review's surviving nit). subset is
+# family is the grain, the pull/36 review's surviving nit). subset is
 # deliberately absent (related, not one type — a judgment call per edge);
 # name_collision emphatically so (its notes record false friends).
 OBLIGATING_KINDS = ('identical', 'snake_cased')
@@ -56,7 +56,7 @@ OBLIGATING_KINDS = ('identical', 'snake_cased')
 
 def latest_versions() -> dict:
     """{'<address under rsc/schema>': its latest vN.json} over every versioned family,
-    found by walking for a directory that holds a v*.json, at any depth (#632)."""
+    found by walking for a directory that holds a v*.json, at any depth (issues/632)."""
     out = {}
     for fam in sorted({v.parent for v in SCHEMA_DIR.rglob('v*.json')}):
         versions = sorted(fam.glob('v*.json'),
@@ -127,7 +127,7 @@ def _deref(node, doc):
     """Local $ref indirections resolved against the node's own document, and the
     vacuous `additionalProperties: {}` (draft-04's no-constraint, spelled out)
     dropped - so a mint that merely NAMES a shared shape ({"$ref": ...}) falsifies
-    no identity edge, and only a changed constraint can (#527's spurious class)."""
+    no identity edge, and only a changed constraint can (issues/527's spurious class)."""
     if isinstance(node, dict):
         if isinstance(node.get('$ref'), str) and node['$ref'].startswith('#/'):
             target = doc
@@ -267,7 +267,7 @@ def _append_join_row(row: dict, relationship: str, note: str) -> None:
 def accept_shared_name(row: dict, date: str) -> str:
     """Adopt the machine proposal: the pre-filled row lands in model_join.csv
     with its proposed kind. A row without a proposal (divergent shapes) is
-    refused - that judgment is the curator's (or paid capture's, #471)."""
+    refused - that judgment is the curator's (or paid capture's, issues/471)."""
     if not row['relationship']:
         return (f"refused: {row['name']} carries no machine proposal - the shapes "
                 'diverge; judge the relationship kind by hand (rsc/model/model_join_kinds.csv)')
@@ -489,7 +489,7 @@ def edge_queue() -> dict:
 
 def orphan_entries() -> list:
     """doc→edge: documented types no obligating edge grounds — orphan
-    documentation, the reverse direction (the PR #36 review's gap: UserUUID
+    documentation, the reverse direction (the pull/36 review's gap: UserUUID
     passed the one-directional gate on no recorded basis). With edge_queue
     empty and this empty, model.json documents exactly what model_join
     asserts, minus rejections."""

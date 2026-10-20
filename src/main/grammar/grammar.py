@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-grammar.py - the parsers generated from the house grammars (#597): for every
+grammar.py - the parsers generated from the house grammars (issues/597): for every
 project under rsc/rpus/grammar/<project>/ (its top-level .g4 files, with
 <project>/imports/ as the library where present), the Python-target lexer and
 parser ANTLR generates (no listener, no visitor: the readers walk the tree
@@ -44,7 +44,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import facts  # noqa: E402 - the one printer of a status's facts (#753)
+import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
@@ -54,13 +54,13 @@ TOOL_VERSION = '4.13.2'      # the runtime src/requirements.txt pins is this ver
 
 def projects() -> list[Path]:
     """A project is a directory under rsc/rpus/grammar holding a top-level .g4 - the one
-    rule; the machine report reads it here (#638)."""
+    rule; the machine report reads it here (issues/638)."""
     return sorted(p for p in GRAMMARS.iterdir() if p.is_dir() and list(p.glob('*.g4')))
 
 
 def orphans() -> list[Path]:
     """A directory under rsc/rpus/grammar holding no grammar: a leftover no sync can
-    generate from, named for the reader with its rm, never removed here (#638)."""
+    generate from, named for the reader with its rm, never removed here (issues/638)."""
     return sorted(p for p in GRAMMARS.iterdir() if p.is_dir() and not list(p.glob('*.g4')))
 
 
@@ -109,7 +109,7 @@ class Status:
 
 
 def status() -> int:
-    """Each project's generated parsers against its grammar, as facts (#753); 1 while any
+    """Each project's generated parsers against its grammar, as facts (issues/753); 1 while any
     is absent or stale."""
     stale = 0
     projects_: dict[str, Project] = {}

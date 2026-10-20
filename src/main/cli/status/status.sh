@@ -5,7 +5,7 @@
 # installs. Safe as the first command on a fresh clone, which is the whole point of it.
 #
 # `sync` is the effecting verb, and prints the remedies the report holds rather than the
-# report. What it would run is the report's (#881); it writes outside the repo, and it runs only what is
+# report. What it would run is the report's (issues/881); it writes outside the repo, and it runs only what is
 # the repo's to run: the mint of its venv, and each remedy its declaration names - the
 # parsers, the live stores' mounts, the hooks. A brew install is not ours to perform; the
 # machine binding is a decision, not a derivation.
@@ -28,11 +28,11 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 source "$REPO_ROOT/src/main/tier.sh"
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of CORPUS_YOGA_NO_SEND (#29)
+source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of CORPUS_YOGA_NO_SEND (issues/29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
-source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (#876)
+source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 
 SHOW_ALL=0
 SYNC=0
@@ -51,7 +51,7 @@ parse_args() {
 # section header prints lazily — only when its first shown line (– or ✗) appears — so an
 # all-satisfied section vanishes entirely: the default is the short "what still needs
 # attention" list.
-# The report's rows (#753, #763, #771): section \t kind \t subject \t what stands
+# The report's rows (issues/753, issues/763, issues/771): section \t kind \t subject \t what stands
 # [\t command \t what it does]..., collected as the checks run and said once, as one
 # shape, by report.py. A row is keyed by what it is about - a tool, a hook, a pipeline and
 # its provider - never by its kind, and a subject may nest: `a / b` stands beneath `a`, so
@@ -64,11 +64,11 @@ parse_args() {
 #   info  <subject> <what stands>                            # how things stand: it takes no command
 #   todo  <subject> <what stands> [<command> <what it does>]...
 #   bad   <subject> <what stands> <command> <what it does> [...]   # required, and absent
-#   graft <section> <noun> <pointer> [standing]              # what a noun's own status says there (#777)
+#   graft <section> <noun> <pointer> [standing]              # what a noun's own status says there (issues/777)
 # What a noun's status says is taken from that status, never probed a second way: a graft
 # row names the noun and the spot of its facts, and report.py loads them - whole in the
 # full report, and otherwise what holds a remedy, or the spot as it stands where the row
-# says standing (#824): the stage's next steps remedy nothing and are still to be done.
+# says standing (issues/824): the stage's next steps remedy nothing and are still to be done.
 _hdr=""
 _rows=()
 sec()    { _hdr="$1"; }
@@ -80,7 +80,7 @@ _row() {
 ok()     { if (( SHOW_ALL )); then _row ok "$1" "$2"; fi; }
 info()   { [[ $# -eq 2 ]] || { echo "status: info takes a subject and what stands - a row with a command is a todo or a bad" >&2; exit 2; }; _row note "$1" "$2"; }
 # todo is a row the reader acts on, and only it and `bad` carry commands; a command is the
-# report's data, so `sync` reads what to run from the report itself (#777), not from a tag.
+# report's data, so `sync` reads what to run from the report itself (issues/777), not from a tag.
 todo()   { _row todo "$@"; }
 bad()    { _row missing "$@"; }
 graft()  { _rows+=("corpus-yoga $1"$'\t'"graft"$'\t'"$1"$'\t'"$2"$'\t'"${3-}"); }   # <noun> <pointer> [standing]: the section is the command, its content what stands at the pointer
@@ -175,7 +175,7 @@ check_tools() {
   else
     todo "docker / installed" "$(sentence 'no - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses')" "brew install --cask docker" "$(sentence 'installs it')"
   fi
-  # The generated parsers are the grammar noun's to say (#777): its status is grafted
+  # The generated parsers are the grammar noun's to say (issues/777): its status is grafted
   # after the tools. Here, the tool that generates them: antlr4 (antlr4-tools, a python
   # package the venv carries) running the tool jar on the machine's java.
   if [[ -x "$CORPUS_YOGA_VENV/bin/antlr4" ]]; then
@@ -279,7 +279,7 @@ check_optional_modes() {
 }
 
 check_environment() {
-  # The variables this repository reads carry its name (#703); one exported under an old
+  # The variables this repository reads carry its name (issues/703); one exported under an old
   # name is machine-local state no code reads any more, and is said so once here.
   local old
   for old in YOGA_NO_SEND YOGA_JOBS YOGA_GATE_TIMINGS; do
@@ -363,7 +363,7 @@ check_git_identity() {
 
 check_pipeline_inputs() {
   # What each pipeline holds, by pipeline, provider and kind, as the store's own reading
-  # counts it (src/main/corpus.py held): one count of one store (#771).
+  # counts it (src/main/corpus.py held): one count of one store (issues/771).
   sec "pipeline inputs"
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
     local pipeline provider kind count
@@ -376,13 +376,13 @@ check_pipeline_inputs() {
   fi
 
   # Each provider's live store, the harness's own, and the mount the census and capture
-  # read it through (#628, #636).
+  # read it through (issues/628, issues/636).
   sec "live stores"
   # Per declared provider (rsc/provider/providers.csv): the code-transport store this
-  # machine holds, and the live harness mount the census and capture read (#628),
-  # ext/mnt/<provider>/code/machine-transport/<machine> (#636, #853).
+  # machine holds, and the live harness mount the census and capture read (issues/628),
+  # ext/mnt/<provider>/code/machine-transport/<machine> (issues/636, issues/853).
   local p_name p_live p_mount p_served p_rows
-  # The registry is read by the venv's python (#478); before the mint, the rows follow it.
+  # The registry is read by the venv's python (issues/478); before the mint, the rows follow it.
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
     # provider, live store, the mount as provider.mount() derives it, and whether the agent
     # verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
@@ -429,7 +429,7 @@ check_pipeline_inputs() {
   fi
 }
 
-# What the report holds to act on, and of it what is sync's own to run (#777). The report
+# What the report holds to act on, and of it what is sync's own to run (issues/777). The report
 # is run for its rows; its remedies - the checks' and the grafted nouns' alike - come back
 # as data, and sync runs each whose command its declaration names (sync.json's `x`), and
 # the mint, which is sync itself. NOT a brew install (not ours to perform) and NOT the
@@ -463,7 +463,7 @@ sync() {
     [[ -n "$a" ]] || continue
     echo "$a:"
     if [[ "$a" == "$own" ]]; then
-      # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
+      # Installing IS the work here: refuse loudly rather than half-fix the machine (issues/29).
       assert_may_send "pip install from PyPI (corpus-yoga status sync)" || exit 1
       [[ -x "$CORPUS_YOGA_VENV/bin/python" ]] || python3 -m venv "$CORPUS_YOGA_VENV"
       "$CORPUS_YOGA_VENV/bin/pip" install -q --upgrade pip
@@ -517,16 +517,16 @@ report() {
   # lives in the rows; refusal lives at the acts (forge merge refuses on the gate
   # row at merge time; a pipeline fails loudly on a missing tool at run time) —
   # severity and consumability decouple by LOCATION, not by a role or a bit.
-  # Ruled 2026-07-31 (#141): the old exit-1-on-✗ made a pipelines-only machine
+  # Ruled 2026-07-31 (issues/141): the old exit-1-on-✗ made a pipelines-only machine
   # scriptably blocked by a hook it will never trigger.
   _say report
 }
 
 main() {
-  # The sync verb's argv is the declaration's to answer (#474); the command-level
+  # The sync verb's argv is the declaration's to answer (issues/474); the command-level
   # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
-  # parse_argv renders under the venv's python (#478), so it answers only where the venv
-  # stands; before the mint, parse_args below takes sync itself (#757)
+  # parse_argv renders under the venv's python (issues/478), so it answers only where the venv
+  # stands; before the mint, parse_args below takes sync itself (issues/757)
   if [[ "${1-}" == sync && -x "$CORPUS_YOGA_VENV/bin/python" ]]; then parse_argv status sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi
