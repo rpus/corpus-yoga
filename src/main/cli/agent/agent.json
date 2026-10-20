@@ -1,5 +1,19 @@
 {
   "summary": "code-agent sessions of every served provider - the census, the live mounts, and transport between machines",
+  "wording": [
+    "absent - no local {provider} rows",
+    "would undo it",
+    "none - the claude store is not mounted",
+    "nothing - the store holds no session of it",
+    "would write them",
+    "none - no peer machine held",
+    "none - no merge record",
+    "binds it, to a name rsc/machine/machines.csv declares",
+    "on {machine}, {capture}",
+    "{machine} is no room of the store - resume the session on a room, then {capture}",
+    "corpus-yoga agent list-drafters, each message against its drafter's record",
+    "captures it"
+  ],
   "target": "src/main/cli/agent/agent.py",
   "calculus": "transport supersession merge L1 L3 L4 L6",
   "args": []

@@ -20,7 +20,7 @@ import facts  # noqa: E402
 @dataclass
 class Exports:
     """What an export is, then the ones held and the ones staged."""
-    form: str = facts.named('a staged export <X>', default="data-<X>/ with manifest-<X>.json, its capture's record")
+    form: str = facts.named('a staged export <X>', default=facts.sentence("data-<X>/ with manifest-<X>.json, its capture's record"))
     shared: str = facts.named('shared storage holds', default='data-<X>/')
     held: dict[str, corpus.Paired] | None = None
     staged: dict[str, corpus.Paired] | None = None
@@ -37,9 +37,8 @@ def main() -> int:
     pairs = corpus.pairs_facts('export')
     report = corpus.report_facts('export')
     if not pairs.held and not pairs.staged:
-        facts.say(Status('nothing held or staged', report.staged, facts.Act(
-            'request an export at https://claude.ai/settings/data-privacy-controls, then '
-            'corpus-yoga export capture --manifest <the downloaded manifest>')))
+        facts.say(Status(facts.sentence('nothing held or staged'), report.staged, facts.Act(facts.sentence(
+            'request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>'))))
         return 0
     facts.say(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged, None))
     return 0
