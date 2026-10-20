@@ -38,5 +38,8 @@
     "shellcheck",
     "pyright",
     "docker"
-  ]
+  ],
+  "explanation": {
+    "stages": "the report's tail as facts - each check section with how many invocations passed and failed, its tier, and the line where the section begins (in the full report under tmp/logs/test/run/, which the terminal's line names; in the committed report, its own line), so that a count turns back into the checks that produced it"
+  }
 }

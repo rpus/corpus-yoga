@@ -263,10 +263,13 @@ base_branch() {
 # The standing report (issues/759): each probe's rows under its section's name, typed and said as
 # one shape by status.py - with --stage, the stage's units after it. Returns 1 on
 # refuse-class drift, the merge's gate.
+# The rows' reads narrate as items under `reads:`, one offset beneath where the report
+# prints, so that a record holding both reads and report loads as one mapping (issues/755).
 status_rows() {
   local rows raw_stale
-  rows="$(branches)" || return 1
-  raw_stale="$(stale_tracking)" || return 1
+  opening reads >&2
+  rows="$(CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) branches)" || return 1
+  raw_stale="$(CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) stale_tracking)" || return 1
   reconcile | awk '{print "settings\t" $0}'
   awk '{print "branches\t" $0}' <<< "$rows"
   awk '{print "refs\t" $0}' <<< "$raw_stale"
@@ -289,8 +292,9 @@ clean() {
   # the dry run.
   local rows stale st key detail kind why item removed_branches=0 removed_refs=0
   local -a items=() left=()
-  rows="$(branches)" || return 1
-  stale="$(stale_tracking)" || return 1
+  opening reads >&2
+  rows="$(CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) branches)" || return 1
+  stale="$(CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) stale_tracking)" || return 1
   while IFS=$'\t' read -r st key detail _; do
     case "$st" in DELETABLE|SERVER_DELETABLE) items+=("branch"$'\t'"$st"$'\t'"$key"$'\t'"$detail") ;; esac
   done <<< "$rows"
