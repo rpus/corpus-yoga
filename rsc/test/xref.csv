@@ -1303,7 +1303,7 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
-src/main/validate.py,200,comment,src/main/validate_inspection.py,Y,`Path:` and `Schema path:` where it names an instance path (src/main/validate_inspection.py
+src/main/validate.py,206,comment,src/main/validate_inspection.py,Y,`Path:` and `Schema path:` where it names an instance path (src/main/validate_inspection.py
 src/main/validate_inspection.py,72,path_str,src/run_python_script.sh,Y,"f'src/run_python_script.sh ""{occurrences_script}"" ""{schema_ptr}""'"
 src/main/validate_versions.py,4,comment,src/main/validation_verdict.py,Y,"datum-version pair. The record (src/main/validation_verdict.py, issues/701) is what every reader reads - the"
 src/main/validate_versions.py,26,path_str,src/main/validate_versions.py,Y,SELF = 'src/main/validate_versions.py'

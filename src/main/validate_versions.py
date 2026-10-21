@@ -124,7 +124,7 @@ def validate_versions(input_file, schema_dir, log_dir, label):
     input_digest = _digest(input_file)
     ran = False
     if _record_current(log_out, input_digest, _digest(schema_path)):
-        record = _record(log_out)
+        record = _record(log_out)      # current: the digests agree and the fault's fields are held
         note = ' (current - skipped)'
     else:
         record = _validate_one(input_file, schema_path, log_out, input_digest)

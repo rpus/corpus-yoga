@@ -1873,9 +1873,9 @@ def check_failing_record(run) -> None:
         record = json.loads((log_dir / 'v1.verdict.json').read_text())
     beneath = {line.split(': ', 1)[0]: line.split(': ', 1)[1] for line in lines[1:] if ': ' in line}
     ok = (bool(lines) and lines[0] == 'FAIL: datum: does not validate at latest v1' and beneath.get('path') == '/turn'
-          and beneath.get('schema') == '#/properties/turn' and str(beneath.get('rule', '')).startswith('type ')
+          and beneath.get('schema') == '/properties/turn' and str(beneath.get('rule', '')).startswith('type ')
           and str(beneath.get('log', '')).endswith('v1.log') and not any(mark in said.getvalue() for mark in ('\u2026', '\u2192', '\u2014'))
-          and record.get('path') == '/turn' and record.get('schema_path') == '#/properties/turn')
+          and record.get('path') == '/turn' and record.get('schema_path') == '/properties/turn')
     run('validation: a FAIL atom names the fault - its path, rule, schema node and log - and no line of it is cut or arrowed', ok,
         None if ok else f'printed {said.getvalue()!r}; the record holds {sorted(record)}', check='validation.fail_atom_names_the_fault')
 
