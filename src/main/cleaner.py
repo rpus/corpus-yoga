@@ -15,7 +15,7 @@ beneath, `{}` where there is none; `did remove: it` or `did NOT remove: <why>` b
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
 was carried out. Then the effect line (issues/801, issues/896) - DONE only when every entry went, NOT
 DONE naming each that was NOT removed - handed to the launcher, which replies with now:,
-the room's standing read after this act, corpus-yoga status last.
+the room's standing read after this act.
 """
 from dataclasses import dataclass
 from typing import Callable

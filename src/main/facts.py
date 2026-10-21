@@ -334,7 +334,6 @@ def say(shape: DataclassInstance) -> None:
     print('\n'.join(lines(plain(shape), depth(), width=terminal_width())))
 
 
-ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every now: (issues/801, issues/947)
 import tier  # noqa: E402 - the launcher's names, one home
 
 ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (issues/896)

@@ -3399,6 +3399,31 @@ def check_reply(run) -> None:
     inner_ok = said is None and inner.getvalue().strip() == 'indexing sync: DONE - written'
     run('reply: an inner verb ends on its effect line and says no now:', inner_ok,
         said or (None if inner_ok else f'printed {inner.getvalue()!r}'), check='reply.now_is_the_launchers')
+    # the reply's now: is the fold of the nouns' own and nothing more (issues/951): no entry is
+    # fixed text, so an act's reply and bare status say the same standing; none where the
+    # fold is empty. The live bug: every reply at ee540b72 ended its now: on
+    # `corpus-yoga status: reports the room whole`, which no noun reads.
+    reply = importlib.import_module('reply')
+    standing = importlib.import_module('standing')
+    kept_environ = dict(os.environ)
+    os.environ.update({'CORPUS_YOGA_NO_SEND': '1'})     # the nouns the reply runs make no send under the gate
+    try:
+        with tempfile.TemporaryDirectory() as scratch:
+            handed = Path(scratch) / 'act.effect'
+            handed.write_text('effect: logs clean: DONE - did remove nothing\n')
+            replied = io.StringIO()
+            with contextlib.redirect_stdout(replied):
+                reply.main(['logs clean', str(handed), '0'])
+        folded = standing.room_now() or 'none - nothing to do'
+    finally:
+        os.environ.clear()
+        os.environ.update(kept_environ)
+    lines_said = replied.getvalue().splitlines()
+    loaded = facts.load('\n'.join(lines_said[:-1])) if len(lines_said) > 1 else None
+    now_said = loaded.get('now') if isinstance(loaded, dict) else None
+    alone = now_said == folded and lines_said[-1:] == ['logs clean: DONE - did remove nothing']
+    run("reply: an act's now: is the fold of the nouns' own and nothing more, none where the fold is empty", alone,
+        None if alone else f'the reply said now: {now_said!r} where the fold is {folded!r}', check='reply.now_is_the_fold_alone')
 
 
 def check_forge_aim(run) -> None:

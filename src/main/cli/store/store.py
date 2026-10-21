@@ -35,8 +35,8 @@ The janitor, store clean, acts on the second reading (issues/744): each duplicat
 species, goes with what only it feeds - its members, its record and its shadow under the
 cache - and the holder stays; an orphaned shadow, the cache's derivation of a unit the
 store no longer holds, goes too. Its lines keep their tenses - will remove before each
-act, did or did NOT after - then now:, the room's standing read after the act, corpus-yoga
-status last (issues/801), and the verdict is the last line, DONE only when every entry went.
+act, did or did NOT after - then now:, the room's standing read after the act (issues/801),
+and the verdict is the last line, DONE only when every entry went.
 """
 import sys
 from pathlib import Path
