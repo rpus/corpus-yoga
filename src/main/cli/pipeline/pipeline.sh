@@ -307,11 +307,16 @@ sections_with_fail_atoms() {
   ' "$LOG_FILE" 2>/dev/null || true
 }
 
+# An atom's facts - the lines indented beneath it, `<key>: <value>` (issues/952) - travel with
+# it, each as a row that begins with two spaces, so the tail says them beneath the atom.
 section_error_lines() {
   awk -v want="$1" -v pad="$SECTION_PAD" "$SECTION_NAME_FN"'
-    opens_section() { insec = (section_name() == want); next }
-    at_depth() { insec = 0; next }
-    insec && /^[[:space:]]*(error:|FAIL:)/ { sub(/^[[:space:]]*/, ""); print }
+    function indent() { match($0, /^[[:space:]]*/); return RLENGTH }
+    opens_section() { insec = (section_name() == want); atom = -1; next }
+    at_depth() { insec = 0; atom = -1; next }
+    insec && /^[[:space:]]*(error:|FAIL:)/ { atom = indent(); sub(/^[[:space:]]*/, ""); print; next }
+    insec && atom >= 0 && NF && indent() > atom { sub(/^[[:space:]]*/, ""); print "  " $0; next }
+    insec { atom = -1 }
   ' "$LOG_FILE"
 }
 

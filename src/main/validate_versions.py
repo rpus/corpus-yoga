@@ -20,7 +20,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from validate import validate
+from validate import fault, lines
 from validate_inspection import inspect_failure
 
 SELF = 'src/main/validate_versions.py'
@@ -54,7 +54,7 @@ def _record_current(log_out, input_digest, schema_digest):
 
 
 def _validate_one(input_file, schema_path, log_out, input_digest):
-    """Validate the pair and write its log; returns the verdict line. The log's
+    """Validate the pair and write its log; returns the verdict record. The log's
     first lines are the contract every reader relies on: stamp, datum line and
     schema line (each ending 'sha256 <digest>'), then the verdict."""
     input_bytes = os.path.getsize(input_file)
@@ -64,7 +64,8 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
     with open(input_file) as fh:
         input_lines = fh.read().count('\n')
 
-    result = validate(input_file, schema_path)
+    found = fault(input_file, schema_path)
+    result = lines(found)
     body = list(result)
     if result[0] != 'Valid!':
         # The failure inspection is part of the log, one author (issues/396); an
@@ -82,11 +83,13 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
         for line in body:
             f.write(line + '\n')
     # the verdict as data, beside the log, the one thing a reader reads (issues/701)
-    verdict.write(os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0],
-                  os.path.realpath(input_file), input_digest, input_bytes, input_lines,   # the file, not a link to it
-                  schema_path, schema_digest, result[0] == 'Valid!', result[0], at)
-
-    return result[0]
+    written = verdict.write(os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0],
+                            os.path.realpath(input_file), input_digest, input_bytes, input_lines,   # the file, not a link to it
+                            schema_path, schema_digest, found is None, result[0], at,
+                            found['path'] if found else None, found['schema'] if found else None, found['rule'] if found else None)
+    record = verdict.read(written)
+    assert record is not None, written
+    return record
 
 
 def validate_pair(input_file, schema_path, log_dir, label):
@@ -121,19 +124,22 @@ def validate_versions(input_file, schema_dir, log_dir, label):
     input_digest = _digest(input_file)
     ran = False
     if _record_current(log_out, input_digest, _digest(schema_path)):
-        status = _record_status(log_out)
-        note = ' (current — skipped)'
+        record = _record(log_out)      # current: the digests agree and the fault's fields are held
+        note = ' (current - skipped)'
     else:
-        status = _validate_one(input_file, schema_path, log_out, input_digest)
+        record = _validate_one(input_file, schema_path, log_out, input_digest)
         ran = True
         note = ''
-    if status == 'Valid!':
+    if record['verdict'] == 'valid':
         print(f'  {label}: validates at {version}{note}')
     else:
-        print(f'  FAIL: {label}: does not validate at latest {version}{note}: '
-              f'{status[:80]}{"…" if len(status) > 80 else ""}')
-        print(f'    → {log_out}')
-        print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
+        # the atom names the fault (issues/952): its subject first, then the fault's path, the
+        # rule it fails, the schema node and the log that holds the whole, each a fact beneath
+        print(f'  FAIL: {label}: does not validate at latest {version}{note}')
+        for key, said in (('path', 'path'), ('rule', 'rule'), ('schema_path', 'schema')):
+            if record.get(key):
+                print(f'    {said}: {record[key]}')
+        print(f'    log: {_said(log_out)}')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
     # records just written, so it can never lag them. The datum dir is the parent of the
@@ -149,13 +155,19 @@ def validate_versions(input_file, schema_dir, log_dir, label):
             print(f'  matrix: {os.path.relpath(mfile)}')
 
 
-def _record_status(log_out):
-    """The verdict a current record holds, in the validator's own words: 'Valid!', or its
-    first line of error."""
+def _record(log_out):
+    """The current record beside the log."""
     log_dir, version = os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0]
     record = verdict.read(verdict.path_for(log_dir, version))
     assert record is not None, log_out   # current implies a record
-    return 'Valid!' if record['verdict'] == 'valid' else record['reason']
+    return record
+
+
+def _said(log_out) -> str:
+    """The log's path as an atom says it: relative to the repository where it lies within it."""
+    repo = str(REPO)
+    whole = os.path.abspath(log_out)
+    return os.path.relpath(whole, repo) if whole.startswith(repo + os.sep) else log_out
 
 
 if __name__ == '__main__':

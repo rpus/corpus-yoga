@@ -135,10 +135,11 @@ def _resolve(node, root, at):
 
 
 def node_pointer(root, schema_path, start=''):
-    """The pointer, within the schema file, of the node whose keyword found the fault:
-    the error's schema path walked from the root (or from start, a pointer), each $ref
-    followed as it is met - jsonschema's path crosses refs without naming them - and the
-    final keyword dropped."""
+    """The pointer, within the schema file, of the node whose keyword found the fault, as
+    a JSON Pointer string (RFC 6901, ~ and / escaped, no fragment mark): the error's
+    schema path walked from the root (or from start, a pointer), each $ref followed as it
+    is met - jsonschema's path crosses refs without naming them - and the final keyword
+    dropped."""
     node, at = follow_pointer(root, start), start
     for step in list(schema_path)[:-1]:
         node, at = _resolve(node, root, at)
@@ -150,13 +151,22 @@ def node_pointer(root, schema_path, start=''):
             node = node[step]
         else:
             break
-        at = f'{at}/{step}'
+        at = f'{at}/{escaped(step)}'
     node, at = _resolve(node, root, at)
-    return '#' + at
+    return at
 
 
-def validate(data_path, schema_path, data_ptr='', schema_ptr=''):
-    """Validate data_path against schema_path. Returns output lines."""
+def escaped(step) -> str:
+    """One step of a JSON Pointer, its ~ and / escaped (RFC 6901)."""
+    return str(step).replace('~', '~0').replace('/', '~1')
+
+
+def fault(data_path, schema_path, data_ptr='', schema_ptr=''):
+    """The fault a reader acts on, as data (issues/848, issues/952): None where the data validates;
+    otherwise its message, the property at fault (where), the instance path as a JSON
+    Pointer (path) and as steps, the rule it fails - the keyword and its value - and the
+    schema node whose keyword found it (schema), a JSON Pointer in the same form. A schema
+    error is a fault with its message alone."""
     with open(data_path) as f:
         data = follow_pointer(json.load(f), data_ptr)
     with open(schema_path) as f:
@@ -166,15 +176,48 @@ def validate(data_path, schema_path, data_ptr='', schema_ptr=''):
     schema = {"$ref": f"{base_uri}#{schema_ptr}"} if schema_ptr else root_schema
     try:
         jsonschema.Draft4Validator(schema, registry=registry).validate(data)
-        return ['Valid!']
+        return None
     except jsonschema.ValidationError as top:
-        fault = legible(top)
-        where = '/'.join(str(step) for step in fault.absolute_path if not isinstance(step, int))
-        return [f'Validation error: {where}: {fault.message}' if where else f'Validation error: {fault.message}',
-                f'Path: {list(fault.absolute_path)}',
-                f'Schema path: {node_pointer(root_schema, fault.absolute_schema_path, schema_ptr)}']
+        found = legible(top)
+        steps = list(found.absolute_path)
+        return {'message': found.message,
+                'where': '/'.join(str(step) for step in steps if not isinstance(step, int)),
+                'path': '/' + '/'.join(escaped(step) for step in steps),
+                'steps': steps,
+                'rule': _rule(found),
+                'schema': node_pointer(root_schema, found.absolute_schema_path, schema_ptr)}
     except jsonschema.SchemaError as e:
-        return [f'Schema error: {e.message}']
+        return {'message': f'Schema error: {e.message}', 'where': '', 'path': None, 'steps': [], 'rule': None, 'schema': None}
+
+
+def _rule(found) -> str | None:
+    """The keyword and the value the instance fails, `type ["string", "object"]`; None for
+    a verdict the union gives (issues/894), which names no keyword of its own."""
+    keyword = found.validator if isinstance(found.validator, str) else None
+    try:
+        value = json.dumps(found.validator_value)
+    except TypeError:
+        return None
+    return f'{keyword} {value}' if keyword else None
+
+
+def lines(found) -> list[str]:
+    """A fault as the validator's lines: `Valid!` for none; else the fault's words, then
+    `Path:` and `Schema path:` where it names an instance path (src/main/validate_inspection.py
+    reads those two) - the schema node with the fragment mark, as the CLI takes a pointer."""
+    if found is None:
+        return ['Valid!']
+    if found['path'] is None:
+        return [found['message']]
+    where = found['where']
+    return [f'Validation error: {where}: {found["message"]}' if where else f'Validation error: {found["message"]}',
+            f'Path: {found["steps"]}',
+            f'Schema path: #{found["schema"]}']
+
+
+def validate(data_path, schema_path, data_ptr='', schema_ptr=''):
+    """Validate data_path against schema_path. Returns output lines - lines(fault(...))."""
+    return lines(fault(data_path, schema_path, data_ptr, schema_ptr))
 
 
 if __name__ == '__main__':

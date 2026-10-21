@@ -64,7 +64,7 @@ validate_corpus() {
     rc="$(cat "$DISPATCH_DIR/$i.rc" 2>/dev/null || echo 1)"
     # An all-current capture reports exactly one "… current — skipped" line;
     # fold those into the corpus summary and let everything else through.
-    if [[ $rc -eq 0 && "$out" != *$'\n'* && "$out" == *'version(s) current — skipped' ]]; then
+    if [[ $rc -eq 0 && "$out" != *$'\n'* && "$out" == *'version(s) current - skipped' ]]; then
       current=$((current + 1))
     else
       [[ -n "$out" ]] && printf '%s\n' "$out"
@@ -76,7 +76,7 @@ validate_corpus() {
   if [[ $total -eq 0 ]]; then
     echo "  no captures in $root"
   elif [[ $current -gt 0 ]]; then
-    echo "  $current/$total capture(s) current — skipped"
+    echo "  $current/$total capture(s) current - skipped"
   fi
   return $failed
 }

@@ -130,6 +130,7 @@ def reduce(stamp: str, commit: str, dirty: int, signature: str, exit_code: int, 
                 if record is None:
                     continue
                 one = {key: record[key] for key in ('version', 'datum_sha256', 'schema_sha256', 'verdict', 'reason', 'at')}
+                one.update({key: record.get(key) for key in ('path', 'schema_path', 'rule')})   # the fault as data (issues/952); null before it was recorded
                 if record['verdict'] != 'valid':
                     log = latest.with_name(f'{record["version"]}.log')
                     one['output'] = log.read_text() if log.is_file() else ''

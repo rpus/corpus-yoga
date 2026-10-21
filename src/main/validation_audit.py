@@ -115,7 +115,7 @@ def audit_source(pipeline: str, source: Source) -> int:
                 at_latest[0] += 1
             else:
                 where = f'{leaf(subject)}' + (f' / {item}' if item else '')
-                print(f'FAIL: {name}/{family}: does not validate at latest {version}: {where} - '
+                print(f'FAIL: {where}: {name}/{family} does not validate at latest {version} - '
                       f'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)')
                 fails += 1
         mfile = datum_dir / 'matrix.md'
