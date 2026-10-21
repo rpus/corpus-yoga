@@ -1,4 +1,4 @@
-run.py: code+schema 1744/1744
+run.py: code+schema 1745/1745
 
 
 check_required_files: |
@@ -129,6 +129,9 @@ check_verdict_record: |
 check_failing_record: |
   ✓ pipeline.failing_is_keyed_by_datum
   ✓ validation.fail_atom_names_the_fault
+
+check_server_standing: |
+  ✓ server.now_names_the_stop_or_the_start
 
 check_rehearsal_record: |
   ✓ rehearsal.record_is_whole
@@ -397,149 +400,154 @@ stages:
     failures: 0
     tier: code
     line: "129"
+  check_server_standing:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "133"
   check_rehearsal_record:
     passes: 2
     failures: 0
     tier: code
-    line: "133"
+    line: "136"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "137"
+    line: "140"
   check_unit_state:
     passes: 2
     failures: 0
     tier: code
-    line: "140"
+    line: "143"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "143"
+    line: "146"
   check_facts:
     passes: 5
     failures: 0
     tier: code
-    line: "148"
+    line: "151"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "154"
+    line: "157"
   check_status_facts:
     passes: 185
     failures: 0
     tier: code
-    line: "157"
+    line: "160"
   check_walkthrough:
     passes: 1
     failures: 0
     tier: code
-    line: "173"
+    line: "176"
   check_completions:
     passes: 10
     failures: 0
     tier: code
-    line: "176"
+    line: "179"
   check_drafters:
     passes: 2
     failures: 0
     tier: code
-    line: "183"
+    line: "186"
   check_versioned_schema_diagnostics:
     passes: 374
     failures: 0
     tier: schema
-    line: "187"
+    line: "190"
   check_schema_join:
     passes: 2
     failures: 0
     tier: schema
-    line: "214"
+    line: "217"
   check_model_join_versions:
     passes: 1
     failures: 0
     tier: schema
-    line: "218"
+    line: "221"
   check_model_table:
     passes: 1
     failures: 0
     tier: schema
-    line: "221"
+    line: "224"
   check_model_occurrences:
     passes: 3
     failures: 0
     tier: schema
-    line: "224"
+    line: "227"
   check_model_obligations:
     passes: 162
     failures: 0
     tier: schema
-    line: "229"
+    line: "232"
   check_model_identity:
     passes: 1
     failures: 0
     tier: schema
-    line: "233"
+    line: "236"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "236"
+    line: "239"
   check_record_is_the_launchers:
     passes: 1
     failures: 0
     tier: code
-    line: "239"
+    line: "242"
   check_record_names_read_once:
     passes: 1
     failures: 0
     tier: code
-    line: "242"
+    line: "245"
   check_provider_registry:
     passes: 2
     failures: 0
     tier: code
-    line: "245"
+    line: "248"
   check_forge_aim:
     passes: 6
     failures: 0
     tier: code
-    line: "249"
+    line: "252"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "254"
+    line: "257"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "257"
+    line: "260"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "261"
+    line: "264"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "267"
+    line: "270"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "273"
+    line: "276"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "276"
+    line: "279"
 
-checks[code+schema]: 171 types, 1744/1744 invocations passing
-checks[code]: 119 types, 1067/1067 invocations passing
+checks[code+schema]: 172 types, 1745/1745 invocations passing
+checks[code]: 120 types, 1068/1068 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS - code+schema 1744/1744 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1745/1745 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

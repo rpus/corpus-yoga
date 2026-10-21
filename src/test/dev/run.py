@@ -1880,6 +1880,29 @@ def check_failing_record(run) -> None:
         None if ok else f'printed {said.getvalue()!r}; the record holds {sorted(record)}', check='validation.fail_atom_names_the_fault')
 
 
+def check_server_standing(run) -> None:
+    """The server's standing is a function of two facts of the room (issues/960): the stop
+    while the daemon runs, the start while the corpus is rendered and the daemon is down,
+    none otherwise - read from the status's own function, since the gate's room never
+    runs the daemon and a rendered-output check would sample one state."""
+    import importlib.util
+    sys.path.insert(0, str(SRC / 'main'))
+    spec = importlib.util.spec_from_file_location('server_status', SRC / 'main' / 'cli' / 'server' / 'status.py')
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['server_status'] = module
+    spec.loader.exec_module(module)
+    now_of = getattr(module, 'now_of', None)
+    said = {case: now_of(*case) for case in ((True, True), (True, False), (False, True), (False, False))} if now_of else {}
+    want = {(True, True): {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}},
+            (True, False): {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}},
+            (False, True): {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}},
+            (False, False): 'none - nothing to do'}
+    run("server: its now: names the stop while the daemon runs, the start while the corpus is rendered and the daemon is down, none otherwise",
+        said == want, None if said == want else ('status.py declares no now_of(running, rendered)' if not now_of else f'said {said!r}'),
+        check='server.now_names_the_stop_or_the_start')
+
+
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
     judged (issues/815, issues/830). Over a scratch fixture - two units the run began over, one validated
@@ -3976,6 +3999,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_validate_verdict': ['src/main/validate.py', 'src/test'],
+    'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
     'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
     'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
     'check_versioned_schema_diagnostics': SCHEMA,
@@ -4238,6 +4262,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_validate_verdict, tier='code')
         run_section(check_verdict_record, tier='code')
         run_section(check_failing_record, tier='code')
+        run_section(check_server_standing, tier='code')
         run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')
         run_section(check_unit_state, tier='code')

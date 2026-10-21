@@ -54,9 +54,9 @@ start() {
 
 stop() {
   if pkill -f 'serve_markdown.py' 2>/dev/null; then
-    echo "Stopped"
+    effect "server stop: DONE - $(phrase "stopped the serve_markdown daemon")"
   else
-    echo "No serve_markdown.py process found"
+    effect "server stop: DONE - $(phrase "no serve_markdown daemon was running")"
   fi
 }
 
