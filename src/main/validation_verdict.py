@@ -8,7 +8,12 @@ own verdict.
     <log_dir>/<version>.verdict.json
     {"datum": ..., "datum_sha256": ..., "datum_bytes": N, "datum_lines": N,
      "schema": ..., "schema_sha256": ..., "version": "vN",
-     "verdict": "valid" | "invalid", "reason": <the validator's first line>, "at": <stamp>}
+     "verdict": "valid" | "invalid", "reason": <the validator's first line>, "at": <stamp>,
+     "path": <the fault's instance path, a JSON Pointer> | null,
+     "schema_path": <the schema node whose keyword found it> | null,
+     "rule": <the keyword and value the datum fails> | null}
+
+The last three (issues/952) are null where the verdict is valid or a record predates them.
 """
 import json
 from pathlib import Path
@@ -21,12 +26,14 @@ def path_for(log_dir, version: str) -> Path:
 
 
 def write(log_dir, version: str, datum: str, datum_digest: str, datum_bytes: int, datum_lines: int,
-          schema: str, schema_digest: str, valid: bool, reason: str, at: str) -> Path:
+          schema: str, schema_digest: str, valid: bool, reason: str, at: str,
+          path: str | None = None, schema_path: str | None = None, rule: str | None = None) -> Path:
     p = path_for(log_dir, version)
     p.write_text(json.dumps({
         'datum': str(datum), 'datum_sha256': datum_digest, 'datum_bytes': datum_bytes, 'datum_lines': datum_lines,
         'schema': str(schema), 'schema_sha256': schema_digest, 'version': version,
-        'verdict': 'valid' if valid else 'invalid', 'reason': reason, 'at': at}, indent=2) + '\n')
+        'verdict': 'valid' if valid else 'invalid', 'reason': reason, 'at': at,
+        'path': path, 'schema_path': schema_path, 'rule': rule}, indent=2) + '\n')
     return p
 
 

@@ -130,6 +130,27 @@
         "output": {
           "type": "string",
           "description": "the validator's whole output, the log beside the verdict, kept where the verdict is invalid: the evidence a refused unit is"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "the fault's instance path, a JSON Pointer, where the verdict is invalid; null where it is valid or the record predates the field"
+        },
+        "schema_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "the schema node whose keyword found the fault, where the verdict is invalid; null otherwise"
+        },
+        "rule": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "the keyword and the value the datum fails, where the verdict is invalid; null otherwise"
         }
       }
     }

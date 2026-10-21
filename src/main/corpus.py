@@ -497,13 +497,28 @@ def reason(first_line: str) -> str:
 
 @dataclass(frozen=True)
 class Refusal:
-    """A family's verdict against a unit: the pipeline, the family and version, and the
-    reason. Its address is the version file's path under rsc/schema/pipeline, the one home
-    the first three have."""
+    """A family's verdict against a unit: the pipeline, the family and version, the reason,
+    and where the record holds them (issues/952) the fault's instance path, the rule it
+    fails and the schema node. Its address is the version file's path under
+    rsc/schema/pipeline, the one home the first three have."""
     pipeline: str
     family: str
     version: str
     reason: str
+    where: str | None = None
+    rule: str | None = None
+    node: str | None = None
+
+    def words(self) -> str:
+        """The fault in one line: where it is and the rule it fails, or the reason alone."""
+        return f'{self.where} fails {self.rule}' if self.where and self.rule else self.where or self.reason
+
+    def facts(self) -> str | dict[str, str]:
+        """What the stage says of the refusal beneath the version file: the reason alone, or
+        the fault's path, rule and schema node where the record holds them."""
+        if self.where is None:
+            return self.reason
+        return {'path': self.where, 'rule': self.rule or '', 'schema': self.node or ''}
 
     @property
     def at(self) -> str:
@@ -583,7 +598,7 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                 main_version=main_version))
             return Judgement.UNLICENSED, facts.phrase('valid at {at} - {reason}', at=refusal.at, reason=refusal.reason), refusal
         if one['verdict'] != 'valid':
-            refusal = Refusal(unit.pipeline, family, version, reason(one['reason']))
+            refusal = Refusal(unit.pipeline, family, version, reason(one['reason']), one.get('path'), one.get('rule'), one.get('schema_path'))
             return Judgement.INVALID, facts.phrase('invalid at {at} - {reason} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)',
                                                      at=refusal.at, reason=refusal.reason), refusal
         words.append(f'{family} {version}')
@@ -1236,11 +1251,12 @@ def stage_status() -> int:
 
 def invalid_by(rows: list[Judged]) -> dict[str, object]:
     """Each family's verdict against the units once, with how many carry it: under the
-    path of the version file that found them invalid, then the reason."""
+    path of the version file that found them invalid, then the fault - where it is and the
+    rule it fails, as the record holds them (issues/952), or the reason alone."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
         if row.state == 'invalid' and row.refusal is not None:
-            path = (row.refusal.path, row.refusal.reason)
+            path = (row.refusal.path, row.refusal.words())
             counts[path] = counts.get(path, 0) + 1
     out: dict[str, object] = {}
     for path, n in sorted(counts.items()):
@@ -1461,7 +1477,7 @@ class Staged:
     words, and the rehearsal that saw it - the stage's facts, nothing of the store (issues/842)."""
     judged: str
     verdict: str | None = None
-    invalid: dict[str, str] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the reason
+    invalid: dict[str, str | dict[str, str]] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the fault - its path, rule and schema node, or the reason alone
     unlicensed: dict[str, str] | None = None    # valid at a version origin/main does not hold: that version file, by its path, and the reason
     rehearsal: str | None = None
     now: dict[str, str] | None = None        # the workflow's step that acts on it, where one does
@@ -1487,7 +1503,7 @@ def report_facts(noun: str | None) -> StageReport:
     for row in rows:
         refusal = row.refusal
         verdict = None if refusal is not None else (row.words or None)
-        invalid = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.INVALID else None
+        invalid = {refusal.path: refusal.facts()} if refusal is not None and row.judgement is Judgement.INVALID else None
         unlicensed = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.UNLICENSED else None
         found = judged_as(row)
         step = ({'corpus-yoga pipeline rehearse': facts.phrase('would judge it')} if found == 'unjudged'

@@ -1833,6 +1833,53 @@ def check_verdict_record(run) -> None:
             None if got == '✗' else f'read {got} - the verdict came from the text, not the record', check='validation.verdict_is_record')
 
 
+def check_failing_record(run) -> None:
+    """A failing stage's record names each refused datum by its id with the fault beneath
+    (issues/952): the tail keys atoms by their subject, datums refused for one fault share
+    one key, and no line is a placeholder; a validation's FAIL atom carries the fault's
+    path, rule, schema node and log, and no line of it is cut with an ellipsis or an
+    arrow. The live bug is reading-room's rehearsal 2026-10-21T141229Z, whose record read
+    `FAIL: <datum>: … toolUseResult: [{'type': 'text', 'text': '[\\n  {\\n    "uri": "…`."""
+    import contextlib
+    import importlib
+    import io
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'pipeline'))
+    tail = importlib.import_module('tail')
+    a, b = 'e2d2039d-b1e5-4691-99f9-f0629d13e243', '0a1b2c3d-0000-4000-8000-000000000000'
+    rows = [('code-transport', f'FAIL: {a}: does not validate at latest v23'), ('code-transport', '  path: /11165/toolUseResult'),
+            ('code-transport', '  log: v23.log'), ('code-transport', f'FAIL: {b}: does not validate at latest v23'),
+            ('code-transport', '  path: /11165/toolUseResult'), ('code-transport', '  log: v23.log'),
+            ('corpus', f'FAIL: {a}: code-transport/claude/session does not validate at latest v23 - a version is owed')]
+    want = {'code-transport': {f'{a}, {b}': {'does not validate at latest v23': {'path': '/11165/toolUseResult', 'log': 'v23.log'}}},
+            'corpus': {a: 'code-transport/claude/session does not validate at latest v23 - a version is owed'}}
+    got = tail.grouped(rows)
+    run('pipeline: the failing record keys each refused datum by its id, one key for one fault, the fault beneath', got == want,
+        None if got == want else f'grouped as {got!r}', check='pipeline.failing_is_keyed_by_datum')
+    validate_versions = importlib.import_module('validate_versions')
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        schema_dir = root / 'schema'
+        schema_dir.mkdir()
+        (schema_dir / 'v1.json').write_text(json.dumps({'type': 'object', 'properties': {'turn': {'type': ['string', 'object']}}}))
+        datum = root / 'datum.json'
+        datum.write_text(json.dumps({'turn': [{'type': 'text', 'text': 'x' * 200}]}))
+        log_dir = root / 'validation'
+        said = io.StringIO()
+        with contextlib.redirect_stdout(said):
+            validate_versions.validate_versions(str(datum), str(schema_dir), str(log_dir), 'datum')
+        lines = [line.strip() for line in said.getvalue().splitlines()]
+        record = json.loads((log_dir / 'v1.verdict.json').read_text())
+    beneath = {line.split(': ', 1)[0]: line.split(': ', 1)[1] for line in lines[1:] if ': ' in line}
+    ok = (bool(lines) and lines[0] == 'FAIL: datum: does not validate at latest v1' and beneath.get('path') == '/turn'
+          and beneath.get('schema') == '#/properties/turn' and str(beneath.get('rule', '')).startswith('type ')
+          and str(beneath.get('log', '')).endswith('v1.log') and not any(mark in said.getvalue() for mark in ('\u2026', '\u2192', '\u2014'))
+          and record.get('path') == '/turn' and record.get('schema_path') == '#/properties/turn')
+    run('validation: a FAIL atom names the fault - its path, rule, schema node and log - and no line of it is cut or arrowed', ok,
+        None if ok else f'printed {said.getvalue()!r}; the record holds {sorted(record)}', check='validation.fail_atom_names_the_fault')
+
+
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
     judged (issues/815, issues/830). Over a scratch fixture - two units the run began over, one validated
@@ -3904,6 +3951,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_validate_verdict': ['src/main/validate.py', 'src/test'],
+    'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
     'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -4164,6 +4212,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_tier_contract, tier='code')
         run_section(check_validate_verdict, tier='code')
         run_section(check_verdict_record, tier='code')
+        run_section(check_failing_record, tier='code')
         run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')
         run_section(check_unit_state, tier='code')
