@@ -912,8 +912,8 @@ src/main/cli/reference/sync.json,5,path_str,rsc/reference,Y,"""rsc/reference"""
 src/main/cli/reference/sync.json,8,path_str,rsc/reference,Y,"""rsc/reference"""
 src/main/cli/root.schema.json,30,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json"""
 src/main/cli/server/ensure-assets.json,10,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
-src/main/cli/server/server.json,12,path_str,src/main/cli/server/server.sh,Y,"""target"": ""src/main/cli/server/server.sh"","
-src/main/cli/server/server.json,16,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
+src/main/cli/server/server.json,13,path_str,src/main/cli/server/server.sh,Y,"""target"": ""src/main/cli/server/server.sh"","
+src/main/cli/server/server.json,17,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
 src/main/cli/server/server.sh,5,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh                 # status: daemon + render-asset presence
 src/main/cli/server/server.sh,6,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
 src/main/cli/server/server.sh,7,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh stop

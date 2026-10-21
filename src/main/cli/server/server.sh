@@ -32,21 +32,23 @@ PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdow
 help() { awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; }
 
 start() {
-  local daemon=0 have_md=0 pyargs=()
+  local daemon=0 markdown="$DATA_DIR/output/markdown" port=8182 pyargs=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --daemon) daemon=1; shift ;;
-      *) [[ "$1" == "--markdown" ]] && have_md=1; pyargs+=("$1"); shift ;;
+      --markdown) markdown="$2"; shift 2 ;;
+      --port) port="$2"; shift 2 ;;
+      *) pyargs+=("$1"); shift ;;
     esac
   done
-  [[ "$have_md" -eq 0 ]] && pyargs+=(--markdown "$DATA_DIR/output/markdown")
+  pyargs+=(--markdown "$markdown" --port "$port")
   mkdir -p "$(dirname "$LOG_FILE")"
   export PYTHONUNBUFFERED=1
   if [[ "$daemon" -eq 1 ]]; then
     nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    effect "server start: DONE - serving in the background; the daemon writes ${LOG_FILE#"$REPO_DIR/"}"
+    effect "server start: DONE - $(phrase "serves {markdown} at http://localhost:{port} in the background; the daemon writes {log}" markdown="${markdown#"$REPO_DIR/"}" port="$port" log="${LOG_FILE#"$REPO_DIR/"}")"
   else
     "${PY[@]}" "${pyargs[@]}"
   fi
