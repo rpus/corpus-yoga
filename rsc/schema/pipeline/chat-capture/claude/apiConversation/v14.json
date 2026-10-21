@@ -593,37 +593,25 @@
       ],
       "oneOf": [
         {
-          "$ref": "#/definitions/AgentArtifactToolUseBlock"
+          "$ref": "#/definitions/ArtifactToolUseBlock"
         },
         {
-          "$ref": "#/definitions/AgentBashToolUseBlock"
+          "$ref": "#/definitions/EditToolUseBlock"
         },
         {
-          "$ref": "#/definitions/AgentEditToolUseBlock"
+          "$ref": "#/definitions/SkillToolUseBlock"
         },
         {
-          "$ref": "#/definitions/AgentSearchMcpRegistryToolUseBlock"
+          "$ref": "#/definitions/SuggestConnectorsToolUseBlock"
         },
         {
-          "$ref": "#/definitions/AgentSkillToolUseBlock"
+          "$ref": "#/definitions/TaskCreateToolUseBlock"
         },
         {
-          "$ref": "#/definitions/AgentSuggestConnectorsToolUseBlock"
+          "$ref": "#/definitions/TaskUpdateToolUseBlock"
         },
         {
-          "$ref": "#/definitions/AgentTaskCreateToolUseBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentTaskUpdateToolUseBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentToolSearchToolUseBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentWebFetchToolUseBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentWriteToolUseBlock"
+          "$ref": "#/definitions/WriteToolUseBlock"
         },
         {
           "$ref": "#/definitions/AskUserToolUseBlock"
@@ -695,37 +683,25 @@
       ],
       "oneOf": [
         {
-          "$ref": "#/definitions/AgentArtifactToolResultBlock"
+          "$ref": "#/definitions/ArtifactToolResultBlock"
         },
         {
-          "$ref": "#/definitions/AgentBashToolResultBlock"
+          "$ref": "#/definitions/EditToolResultBlock"
         },
         {
-          "$ref": "#/definitions/AgentEditToolResultBlock"
+          "$ref": "#/definitions/SkillToolResultBlock"
         },
         {
-          "$ref": "#/definitions/AgentSearchMcpRegistryToolResultBlock"
+          "$ref": "#/definitions/SuggestConnectorsToolResultBlock"
         },
         {
-          "$ref": "#/definitions/AgentSkillToolResultBlock"
+          "$ref": "#/definitions/TaskCreateToolResultBlock"
         },
         {
-          "$ref": "#/definitions/AgentSuggestConnectorsToolResultBlock"
+          "$ref": "#/definitions/TaskUpdateToolResultBlock"
         },
         {
-          "$ref": "#/definitions/AgentTaskCreateToolResultBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentTaskUpdateToolResultBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentToolSearchToolResultBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentWebFetchToolResultBlock"
-        },
-        {
-          "$ref": "#/definitions/AgentWriteToolResultBlock"
+          "$ref": "#/definitions/WriteToolResultBlock"
         },
         {
           "$ref": "#/definitions/AskUserToolResultBlock"
@@ -979,9 +955,9 @@
         }
       }
     },
-    "AgentArtifactToolUseBlock": {
-      "title": "AgentArtifactToolUseBlock",
-      "description": "Tool use block for the Artifact tool - publishes or reads an artifact - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "ArtifactToolUseBlock": {
+      "title": "ArtifactToolUseBlock",
+      "description": "Tool use block for the Artifact tool - publishes or reads an artifact, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -992,7 +968,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentArtifact"
+          "$ref": "#/definitions/ToolInputArtifact"
         }
       },
       "required": [
@@ -1000,30 +976,9 @@
         "input"
       ]
     },
-    "AgentBashToolUseBlock": {
-      "title": "AgentBashToolUseBlock",
-      "description": "Tool use block for the Bash tool - runs a shell command - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "Bash"
-          ]
-        },
-        "input": {
-          "$ref": "#/definitions/ToolInputAgentBash"
-        }
-      },
-      "required": [
-        "name",
-        "input"
-      ]
-    },
-    "AgentEditToolUseBlock": {
-      "title": "AgentEditToolUseBlock",
-      "description": "Tool use block for the Edit tool - replaces a string in a file - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "EditToolUseBlock": {
+      "title": "EditToolUseBlock",
+      "description": "Tool use block for the Edit tool - replaces a string in a file, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -1034,7 +989,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentEdit"
+          "$ref": "#/definitions/ToolInputEdit"
         }
       },
       "required": [
@@ -1042,30 +997,9 @@
         "input"
       ]
     },
-    "AgentSearchMcpRegistryToolUseBlock": {
-      "title": "AgentSearchMcpRegistryToolUseBlock",
-      "description": "Tool use block for the SearchMcpRegistry tool - searches the MCP registry - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "SearchMcpRegistry"
-          ]
-        },
-        "input": {
-          "$ref": "#/definitions/ToolInputAgentSearchMcpRegistry"
-        }
-      },
-      "required": [
-        "name",
-        "input"
-      ]
-    },
-    "AgentSkillToolUseBlock": {
-      "title": "AgentSkillToolUseBlock",
-      "description": "Tool use block for the Skill tool - invokes a skill - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "SkillToolUseBlock": {
+      "title": "SkillToolUseBlock",
+      "description": "Tool use block for the Skill tool - invokes a skill, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -1076,7 +1010,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentSkill"
+          "$ref": "#/definitions/ToolInputSkill"
         }
       },
       "required": [
@@ -1084,9 +1018,9 @@
         "input"
       ]
     },
-    "AgentSuggestConnectorsToolUseBlock": {
-      "title": "AgentSuggestConnectorsToolUseBlock",
-      "description": "Tool use block for the SuggestConnectors tool - suggests connectors - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "SuggestConnectorsToolUseBlock": {
+      "title": "SuggestConnectorsToolUseBlock",
+      "description": "Tool use block for the SuggestConnectors tool - suggests connectors, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -1097,7 +1031,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentSuggestConnectors"
+          "$ref": "#/definitions/ToolInputSuggestConnectors"
         }
       },
       "required": [
@@ -1105,9 +1039,9 @@
         "input"
       ]
     },
-    "AgentTaskCreateToolUseBlock": {
-      "title": "AgentTaskCreateToolUseBlock",
-      "description": "Tool use block for the TaskCreate tool - creates a task of the task list - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "TaskCreateToolUseBlock": {
+      "title": "TaskCreateToolUseBlock",
+      "description": "Tool use block for the TaskCreate tool - creates a task of the task list, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -1118,7 +1052,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentTaskCreate"
+          "$ref": "#/definitions/ToolInputTaskCreate"
         }
       },
       "required": [
@@ -1126,9 +1060,9 @@
         "input"
       ]
     },
-    "AgentTaskUpdateToolUseBlock": {
-      "title": "AgentTaskUpdateToolUseBlock",
-      "description": "Tool use block for the TaskUpdate tool - updates a task of the task list - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "TaskUpdateToolUseBlock": {
+      "title": "TaskUpdateToolUseBlock",
+      "description": "Tool use block for the TaskUpdate tool - updates a task of the task list, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -1139,7 +1073,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentTaskUpdate"
+          "$ref": "#/definitions/ToolInputTaskUpdate"
         }
       },
       "required": [
@@ -1147,51 +1081,9 @@
         "input"
       ]
     },
-    "AgentToolSearchToolUseBlock": {
-      "title": "AgentToolSearchToolUseBlock",
-      "description": "Tool use block for the ToolSearch tool - loads deferred tools by a query - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "ToolSearch"
-          ]
-        },
-        "input": {
-          "$ref": "#/definitions/ToolInputAgentToolSearch"
-        }
-      },
-      "required": [
-        "name",
-        "input"
-      ]
-    },
-    "AgentWebFetchToolUseBlock": {
-      "title": "AgentWebFetchToolUseBlock",
-      "description": "Tool use block for the WebFetch tool - fetches a page and answers a prompt over it - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-09.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "WebFetch"
-          ]
-        },
-        "input": {
-          "$ref": "#/definitions/ToolInputAgentWebFetch"
-        }
-      },
-      "required": [
-        "name",
-        "input"
-      ]
-    },
-    "AgentWriteToolUseBlock": {
-      "title": "AgentWriteToolUseBlock",
-      "description": "Tool use block for the Write tool - writes a file - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+    "WriteToolUseBlock": {
+      "title": "WriteToolUseBlock",
+      "description": "Tool use block for the Write tool - writes a file, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
       "type": "object",
       "properties": {
         "name": {
@@ -1202,7 +1094,7 @@
           ]
         },
         "input": {
-          "$ref": "#/definitions/ToolInputAgentWrite"
+          "$ref": "#/definitions/ToolInputWrite"
         }
       },
       "required": [
@@ -1233,14 +1125,15 @@
     },
     "BashToolUseBlock": {
       "title": "BashToolUseBlock",
-      "description": "Tool use block for the bash_tool tool.",
+      "description": "Tool use block for the bash_tool tool. Named `Bash` since 2026-10-09, as Claude Code names it; `bash_tool` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "bash_tool"
+            "bash_tool",
+            "Bash"
           ]
         },
         "input": {
@@ -1296,7 +1189,7 @@
     },
     "McpToolUseBlock": {
       "title": "McpToolUseBlock",
-      "description": "Tool use block for a tool provided by a connected MCP server. The name is <integration>:<tool> (NamespacedToolName) or, from 2026-10, mcp__<server>__<tool> (AgentMcpToolName). input is an open object \u2014 shape varies arbitrarily by tool.",
+      "description": "Tool use block for a tool provided by a connected MCP server. The name is <integration>:<tool> (NamespacedToolName) or, from 2026-10, mcp__<server>__<tool> (McpPrefixedToolName). input is an open object \u2014 shape varies arbitrarily by tool.",
       "type": "object",
       "required": [
         "name",
@@ -1309,7 +1202,7 @@
               "$ref": "#/definitions/NamespacedToolName"
             },
             {
-              "$ref": "#/definitions/AgentMcpToolName"
+              "$ref": "#/definitions/McpPrefixedToolName"
             }
           ]
         },
@@ -1446,7 +1339,7 @@
     },
     "SearchMcpRegistryToolUseBlock": {
       "title": "SearchMcpRegistryToolUseBlock",
-      "description": "Tool use block for the search_mcp_registry tool, which searches the MCP connector directory.",
+      "description": "Tool use block for the search_mcp_registry tool, which searches the MCP connector directory. Named `SearchMcpRegistry` since 2026-10-09, as Claude Code names it; `search_mcp_registry` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name",
@@ -1457,7 +1350,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "search_mcp_registry"
+            "search_mcp_registry",
+            "SearchMcpRegistry"
           ]
         },
         "input": {
@@ -1488,7 +1382,7 @@
     },
     "ToolSearchToolUseBlock": {
       "title": "ToolSearchToolUseBlock",
-      "description": "Tool use block for the tool_search tool, which searches available MCP and built-in tools by query.",
+      "description": "Tool use block for the tool_search tool, which searches available MCP and built-in tools by query. Named `ToolSearch` since 2026-10-09, as Claude Code names it; `tool_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name",
@@ -1499,7 +1393,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "tool_search"
+            "tool_search",
+            "ToolSearch"
           ]
         },
         "input": {
@@ -1551,14 +1446,15 @@
     },
     "WebFetchToolUseBlock": {
       "title": "WebFetchToolUseBlock",
-      "description": "Tool use block for the web_fetch tool.",
+      "description": "Tool use block for the web_fetch tool. Named `WebFetch` since 2026-10-09, as Claude Code names it; `web_fetch` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_fetch"
+            "web_fetch",
+            "WebFetch"
           ]
         },
         "input": {
@@ -1572,14 +1468,15 @@
     },
     "WebSearchToolUseBlock": {
       "title": "WebSearchToolUseBlock",
-      "description": "Tool use block for the web_search tool. Also used for conversation_search (same input shape).",
+      "description": "Tool use block for the web_search tool. Also used for conversation_search (same input shape). Named `WebSearch` since 2026-10-09, as Claude Code names it; `web_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_search"
+            "web_search",
+            "WebSearch"
           ]
         },
         "input": {
@@ -1730,8 +1627,8 @@
         }
       }
     },
-    "AgentArtifactToolResultBlock": {
-      "title": "AgentArtifactToolResultBlock",
+    "ArtifactToolResultBlock": {
+      "title": "ArtifactToolResultBlock",
       "description": "Tool result block for the Artifact tool: text items.",
       "type": "object",
       "properties": {
@@ -1747,25 +1644,8 @@
         "name"
       ]
     },
-    "AgentBashToolResultBlock": {
-      "title": "AgentBashToolResultBlock",
-      "description": "Tool result block for the Bash tool: text items.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "Bash"
-          ]
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "AgentEditToolResultBlock": {
-      "title": "AgentEditToolResultBlock",
+    "EditToolResultBlock": {
+      "title": "EditToolResultBlock",
       "description": "Tool result block for the Edit tool: text items.",
       "type": "object",
       "properties": {
@@ -1781,25 +1661,8 @@
         "name"
       ]
     },
-    "AgentSearchMcpRegistryToolResultBlock": {
-      "title": "AgentSearchMcpRegistryToolResultBlock",
-      "description": "Tool result block for the SearchMcpRegistry tool: text items.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "SearchMcpRegistry"
-          ]
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "AgentSkillToolResultBlock": {
-      "title": "AgentSkillToolResultBlock",
+    "SkillToolResultBlock": {
+      "title": "SkillToolResultBlock",
       "description": "Tool result block for the Skill tool: text items.",
       "type": "object",
       "properties": {
@@ -1815,8 +1678,8 @@
         "name"
       ]
     },
-    "AgentSuggestConnectorsToolResultBlock": {
-      "title": "AgentSuggestConnectorsToolResultBlock",
+    "SuggestConnectorsToolResultBlock": {
+      "title": "SuggestConnectorsToolResultBlock",
       "description": "Tool result block for the SuggestConnectors tool: text items.",
       "type": "object",
       "properties": {
@@ -1832,8 +1695,8 @@
         "name"
       ]
     },
-    "AgentTaskCreateToolResultBlock": {
-      "title": "AgentTaskCreateToolResultBlock",
+    "TaskCreateToolResultBlock": {
+      "title": "TaskCreateToolResultBlock",
       "description": "Tool result block for the TaskCreate tool: text items.",
       "type": "object",
       "properties": {
@@ -1849,8 +1712,8 @@
         "name"
       ]
     },
-    "AgentTaskUpdateToolResultBlock": {
-      "title": "AgentTaskUpdateToolResultBlock",
+    "TaskUpdateToolResultBlock": {
+      "title": "TaskUpdateToolResultBlock",
       "description": "Tool result block for the TaskUpdate tool: text items.",
       "type": "object",
       "properties": {
@@ -1866,42 +1729,8 @@
         "name"
       ]
     },
-    "AgentToolSearchToolResultBlock": {
-      "title": "AgentToolSearchToolResultBlock",
-      "description": "Tool result block for the ToolSearch tool: text items.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "ToolSearch"
-          ]
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "AgentWebFetchToolResultBlock": {
-      "title": "AgentWebFetchToolResultBlock",
-      "description": "Tool result block for the WebFetch tool: text items.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "(discriminator)",
-          "type": "string",
-          "enum": [
-            "WebFetch"
-          ]
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "AgentWriteToolResultBlock": {
-      "title": "AgentWriteToolResultBlock",
+    "WriteToolResultBlock": {
+      "title": "WriteToolResultBlock",
       "description": "Tool result block for the Write tool: text items.",
       "type": "object",
       "properties": {
@@ -1936,14 +1765,15 @@
     },
     "BashToolResultBlock": {
       "title": "BashToolResultBlock",
-      "description": "Tool result block for the bash_tool tool.",
+      "description": "Tool result block for the bash_tool tool. Named `Bash` since 2026-10-09, as Claude Code names it; `bash_tool` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "bash_tool"
+            "bash_tool",
+            "Bash"
           ]
         }
       },
@@ -1999,7 +1829,7 @@
               "$ref": "#/definitions/NamespacedToolName"
             },
             {
-              "$ref": "#/definitions/AgentMcpToolName"
+              "$ref": "#/definitions/McpPrefixedToolName"
             }
           ]
         }
@@ -2126,7 +1956,7 @@
     },
     "SearchMcpRegistryToolResultBlock": {
       "title": "SearchMcpRegistryToolResultBlock",
-      "description": "Tool result block for the search_mcp_registry tool.",
+      "description": "Tool result block for the search_mcp_registry tool. Named `SearchMcpRegistry` since 2026-10-09, as Claude Code names it; `search_mcp_registry` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name"
@@ -2136,7 +1966,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "search_mcp_registry"
+            "search_mcp_registry",
+            "SearchMcpRegistry"
           ]
         }
       }
@@ -2160,7 +1991,7 @@
     },
     "ToolSearchToolResultBlock": {
       "title": "ToolSearchToolResultBlock",
-      "description": "Tool result block for the tool_search tool. Content structure unobserved.",
+      "description": "Tool result block for the tool_search tool. Content structure unobserved. Named `ToolSearch` since 2026-10-09, as Claude Code names it; `tool_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name"
@@ -2170,7 +2001,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "tool_search"
+            "tool_search",
+            "ToolSearch"
           ]
         }
       }
@@ -2211,14 +2043,15 @@
     },
     "WebFetchToolResultBlock": {
       "title": "WebFetchToolResultBlock",
-      "description": "Tool result block for the web_fetch tool.",
+      "description": "Tool result block for the web_fetch tool. Named `WebFetch` since 2026-10-09, as Claude Code names it; `web_fetch` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_fetch"
+            "web_fetch",
+            "WebFetch"
           ]
         }
       },
@@ -2228,14 +2061,15 @@
     },
     "WebSearchToolResultBlock": {
       "title": "WebSearchToolResultBlock",
-      "description": "Tool result block for the web_search tool.",
+      "description": "Tool result block for the web_search tool. Named `WebSearch` since 2026-10-09, as Claude Code names it; `web_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_search"
+            "web_search",
+            "WebSearch"
           ]
         }
       },
@@ -2331,8 +2165,8 @@
         }
       ]
     },
-    "ToolInputAgentArtifact": {
-      "title": "ToolInputAgentArtifact",
+    "ToolInputArtifact": {
+      "title": "ToolInputArtifact",
       "description": "Input for the Artifact tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2349,32 +2183,8 @@
         }
       }
     },
-    "ToolInputAgentBash": {
-      "title": "ToolInputAgentBash",
-      "description": "Input for the Bash tool, closed over the keys observed in 10 call(s) from 2026-10-14.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "command",
-        "description"
-      ],
-      "properties": {
-        "command": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "run_in_background": {
-          "type": "boolean"
-        },
-        "timeout": {
-          "type": "integer"
-        }
-      }
-    },
-    "ToolInputAgentEdit": {
-      "title": "ToolInputAgentEdit",
+    "ToolInputEdit": {
+      "title": "ToolInputEdit",
       "description": "Input for the Edit tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2399,22 +2209,8 @@
         }
       }
     },
-    "ToolInputAgentSearchMcpRegistry": {
-      "title": "ToolInputAgentSearchMcpRegistry",
-      "description": "Input for the SearchMcpRegistry tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "keywords"
-      ],
-      "properties": {
-        "keywords": {
-          "type": "array"
-        }
-      }
-    },
-    "ToolInputAgentSkill": {
-      "title": "ToolInputAgentSkill",
+    "ToolInputSkill": {
+      "title": "ToolInputSkill",
       "description": "Input for the Skill tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2427,8 +2223,8 @@
         }
       }
     },
-    "ToolInputAgentSuggestConnectors": {
-      "title": "ToolInputAgentSuggestConnectors",
+    "ToolInputSuggestConnectors": {
+      "title": "ToolInputSuggestConnectors",
       "description": "Input for the SuggestConnectors tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2441,8 +2237,8 @@
         }
       }
     },
-    "ToolInputAgentTaskCreate": {
-      "title": "ToolInputAgentTaskCreate",
+    "ToolInputTaskCreate": {
+      "title": "ToolInputTaskCreate",
       "description": "Input for the TaskCreate tool, closed over the keys observed in 9 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2463,8 +2259,8 @@
         }
       }
     },
-    "ToolInputAgentTaskUpdate": {
-      "title": "ToolInputAgentTaskUpdate",
+    "ToolInputTaskUpdate": {
+      "title": "ToolInputTaskUpdate",
       "description": "Input for the TaskUpdate tool, closed over the keys observed in 11 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2481,44 +2277,8 @@
         }
       }
     },
-    "ToolInputAgentToolSearch": {
-      "title": "ToolInputAgentToolSearch",
-      "description": "Input for the ToolSearch tool, closed over the keys observed in 3 call(s) from 2026-10-14.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "max_results",
-        "query"
-      ],
-      "properties": {
-        "max_results": {
-          "type": "integer"
-        },
-        "query": {
-          "type": "string"
-        }
-      }
-    },
-    "ToolInputAgentWebFetch": {
-      "title": "ToolInputAgentWebFetch",
-      "description": "Input for the WebFetch tool, closed over the keys observed in 1 call(s) from 2026-10-09.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "prompt",
-        "url"
-      ],
-      "properties": {
-        "prompt": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        }
-      }
-    },
-    "ToolInputAgentWrite": {
-      "title": "ToolInputAgentWrite",
+    "ToolInputWrite": {
+      "title": "ToolInputWrite",
       "description": "Input for the Write tool, closed over the keys observed in 3 call(s) from 2026-10-14.",
       "type": "object",
       "additionalProperties": false,
@@ -2566,6 +2326,14 @@
         },
         "command": {
           "type": "string"
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Seconds the command may run; optional. First observed 2026-10 with the tool named `Bash`."
+        },
+        "run_in_background": {
+          "type": "boolean",
+          "description": "Whether the command runs detached; optional. First observed 2026-10 with the tool named `Bash`."
         }
       }
     },
@@ -2612,8 +2380,8 @@
         "$ref": "#/definitions/ToolName"
       }
     },
-    "AgentMcpToolName": {
-      "title": "AgentMcpToolName",
+    "McpPrefixedToolName": {
+      "title": "McpPrefixedToolName",
       "description": "Tool name for a tool provided by a connected MCP server as claude.ai names it from 2026-10, in the form mcp__<server>__<tool>; the server segment is the connector name with spaces replaced. Example: \"mcp__Claude_Docs__read\".",
       "type": "string",
       "pattern": "^mcp__.+__.+$"
@@ -2764,6 +2532,10 @@
       "properties": {
         "query": {
           "type": "string"
+        },
+        "max_results": {
+          "type": "integer",
+          "description": "How many tools to load at most; optional. First observed 2026-10 with the tool named `ToolSearch`."
         }
       }
     },
@@ -2835,6 +2607,10 @@
         },
         "web_fetch_pdf_extract_text": {
           "type": "boolean"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "What to answer over the page; optional. First observed 2026-10 with the tool named `WebFetch`."
         }
       }
     },
@@ -2848,6 +2624,10 @@
       "properties": {
         "query": {
           "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "description": "The search mode; optional. First observed 2026-10 with the tool named `WebSearch`."
         }
       }
     },
