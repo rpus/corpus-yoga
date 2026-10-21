@@ -50,6 +50,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 from member import members  # noqa: E402
 from provider import signature  # noqa: E402 - the Signature triad, one home (issues/704)
 
@@ -402,7 +403,7 @@ def suggestions(cmds: list[dict]) -> Top:
     declared = root()
     summary = {c['command']: c['summary'] for c in cmds}
     return Top(declared['summary'], {**{f'corpus-yoga {name}': summary[name] for name in declared['suggests']},
-                                     'corpus-yoga -h': 'every command, each with its summary'})
+                                     spell.line('', h=True): 'every command, each with its summary'})
 
 
 def root_flags() -> dict[str, str]:

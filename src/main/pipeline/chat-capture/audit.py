@@ -46,6 +46,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (issues/380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (issues/421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
@@ -126,7 +127,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
     for cid, name in suspects:
         findings[f'{name} ({cid[:8]})'] = facts.Finding(
             facts.phrase('shows exactly {ceiling} human turns - the gemini page renders only the last {ceiling}, so earlier turns are likely missing from this DOM capture', ceiling=RENDER_CEILING),
-            facts.Command(f'corpus-yoga browser capture --provider gemini --id {cid}', facts.phrase('walks the page, a couple of minutes')))
+            facts.Command(spell.line('browser', 'capture', provider='gemini', id=cid), facts.phrase('walks the page, a couple of minutes')))
     # The capture against the rendering derived FROM it. gemini has no API, so nothing
     # else corroborates either one -- and `corpus-yoga pipeline run` rewrites the projection from
     # the capture every time, so a divergence means the two have already parted company.
@@ -140,7 +141,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             cid = conv_id(text) or d.name
             if cid not in projected_text:
                 findings[f'{mds[0].stem} ({cid[:8]})'] = facts.Finding(
-                    facts.phrase('captured but not projected'), facts.Command('corpus-yoga pipeline run', facts.phrase('its gemini step produces it')))
+                    facts.phrase('captured but not projected'), facts.Command(spell.line('pipeline', 'run'), facts.phrase('its gemini step produces it')))
                 suspects.append((cid, mds[0].stem))
                 continue
             cap, proj = turn_seq(text), turn_seq(projected_text[cid])
@@ -200,7 +201,7 @@ GEMINI_TAIL_JS = """(function(){
 def moved(provider: str, findings: list[tuple[str, str, str]]) -> dict[str, Moved] | str:
     """Each live finding under the conversation it names, with the command that acts on it -
     never a bare id in a list that has left its provider behind."""
-    return {cid: Moved(facts.phrase('{kind} - {detail}', kind=kind, detail=detail), facts.Command(f'corpus-yoga browser capture --provider {provider} --id {cid}', facts.phrase('recaptures it')))
+    return {cid: Moved(facts.phrase('{kind} - {detail}', kind=kind, detail=detail), facts.Command(spell.line('browser', 'capture', provider=provider, id=cid), facts.phrase('recaptures it')))
             for kind, cid, detail in findings} or 'none'
 
 

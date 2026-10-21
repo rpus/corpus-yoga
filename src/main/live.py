@@ -24,6 +24,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))   # the harness adapters: what a live store holds
 import corpus  # noqa: E402
 import facts  # noqa: E402
+import spell  # noqa: E402
 import provider as registry  # noqa: E402
 
 transport = importlib.import_module('transport')   # src/main/cli/agent/transport.py, by the path inserted above
@@ -91,7 +92,7 @@ class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
     state: str = 'absent'
     why: str = facts.phrase('no live store is read there')
-    remedy: facts.Command = facts.Command('corpus-yoga agent mount', facts.phrase('would mount it'))
+    remedy: facts.Command = facts.Command(spell.line('agent', 'mount'), facts.phrase('would mount it'))
 
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
@@ -178,7 +179,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
         pattern = '/'.join(glob.split('/')[declared.depth:])   # the glob below the unit: what a session directory holds of it
         copies = _copies(adapter, roots)
         for s in adapter.live_sessions(mount):
-            capture = f'corpus-yoga agent capture --provider {name} --id {s.id[:8]}'
+            capture = spell.line('agent', 'capture', provider=name, id=s.id[:8])
             found = _fuller(copies.get(s.id, []), s.project)
             tier, copy = found if found is not None else ('staged', None)
             live_logs = _logs(s.path, pattern)
@@ -230,4 +231,4 @@ def captures(out: dict[str, dict[str, dict[str, int]]], rows: list[Ahead]) -> No
     for row in rows:
         if row.state in ('new', 'grown', 'changed', 'diverged'):
             key = corpus.selection_of('code-transport', row.provider, row.kind) or f'{row.provider} {row.kind}'
-            corpus.step(out, f'corpus-yoga agent capture --provider {row.provider}', key)
+            corpus.step(out, spell.line('agent', 'capture', provider=row.provider), key)

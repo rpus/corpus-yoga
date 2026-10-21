@@ -42,6 +42,7 @@ sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 from latest import lineages  # noqa: E402
 
@@ -182,7 +183,7 @@ def status() -> int:
         item = Project(lineages_upstream=len(upstream), lineages_held=held,
                        files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
         if lines:
-            item.to_fetch, item.remedy = lines, facts.Command('corpus-yoga reference sync', facts.phrase('fetches them'))
+            item.to_fetch, item.remedy = lines, facts.Command(spell.line('reference', 'sync'), facts.phrase('fetches them'))
         out[name] = item
         stale += len(lines)
     facts.say(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))

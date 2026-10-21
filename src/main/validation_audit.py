@@ -25,6 +25,7 @@ from validation_matrix import rows_from_records  # noqa: E402
 import cache_io  # noqa: E402
 import frontier  # noqa: E402
 import corpus  # noqa: E402 — the one selection of units (issues/687)
+import spell  # noqa: E402
 
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
 
@@ -121,12 +122,12 @@ def audit_source(pipeline: str, source: Source) -> int:
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
             print(f'FAIL: {name}: matrix missing: {leaf(subject)} - {mfile.relative_to(REPO)}; '
-                  f'to regenerate: corpus-yoga pipeline sync {pipeline}')
+                  f'to regenerate: {spell.line("pipeline", "sync", pipeline)}')
             fails += 1
             continue
         if parse_matrix_file(mfile) != {k: sym for k, (sym, _) in expected.items()}:
             print(f'FAIL: {name}: matrix stale: {leaf(subject)} - matrix.md disagrees with its '
-                  f'latest-version logs; to regenerate: corpus-yoga pipeline sync {pipeline}')
+                  f'latest-version logs; to regenerate: {spell.line("pipeline", "sync", pipeline)}')
             fails += 1
             continue
         matrices[0] += 1
@@ -135,7 +136,7 @@ def audit_source(pipeline: str, source: Source) -> int:
         inputs[1] += 1
         if subject not in processed:
             print(f'FAIL: {name}: input unprocessed: {leaf(subject)} - no validation output under '
-                  f'{cache_root.relative_to(REPO)}/; corpus-yoga pipeline run {pipeline}')
+                  f'{cache_root.relative_to(REPO)}/; {spell.line("pipeline", "run", pipeline)}')
             fails += 1
         else:
             inputs[0] += 1

@@ -20,6 +20,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import corpus  # noqa: E402
 import facts  # noqa: E402
+import spell  # noqa: E402
 
 REFUSING = {'settings': ('drift', 'unverified'), 'branches': ('unverified',), 'refs': ('unverified',),
             'checkout': ('wrong', 'unverified')}     # the states under which the merge refuses
@@ -92,7 +93,7 @@ def main() -> int:
         does = cells[5] if len(cells) > 5 else ''
         remedy = None if not said else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said)
         if section == 'settings' and state == 'drift':
-            remedy = facts.Command('corpus-yoga forge sync', facts.phrase('would set it as declared'))   # the act; the status is its dry run (issues/881)
+            remedy = facts.Command(spell.line('forge', 'sync'), facts.phrase('would set it as declared'))   # the act; the status is its dry run (issues/881)
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
@@ -108,13 +109,13 @@ def main() -> int:
     now: dict[str, dict[str, dict[str, int]]] = {}
     for name, row in (branches or {}).items():
         if row.state in ('deletable', 'server_deletable'):
-            corpus.step(now, 'corpus-yoga forge clean', name)
+            corpus.step(now, spell.line('forge', 'clean'), name)
     for name, row in (refs or {}).items():
         if row.state == 'stale':
-            corpus.step(now, 'corpus-yoga forge clean', name)
+            corpus.step(now, spell.line('forge', 'clean'), name)
     if not refused:
         for number, head in opens.items():
-            corpus.step(now, f'corpus-yoga forge merge {number}', head)
+            corpus.step(now, spell.line('forge', 'merge', number), head)
     unread = any(row.state == 'unverified' for row in (branches or {}).values())
     out = Status(
         Settings(by_section.get('settings', {})),

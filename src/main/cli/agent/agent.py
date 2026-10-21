@@ -137,6 +137,7 @@ sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 import corpus  # noqa: E402 - the stage report, and the type of a staged unit
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
 from machine import bound_machine  # noqa: E402
@@ -240,7 +241,7 @@ def list_agents() -> Census:
             # cannot appear and how to make them appear
             absent[mount_path.relative_to(REPO).as_posix()] = Mount(
                 facts.phrase('absent - no local {provider} rows', provider=provider),
-                facts.Command('corpus-yoga agent mount', facts.phrase('would mount it')))
+                facts.Command(spell.line('agent', 'mount'), facts.phrase('would mount it')))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -270,7 +271,7 @@ class Peer:
 class Merge:
     """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (issues/881)."""
     latest: str
-    remedy: facts.Command = facts.Command('corpus-yoga agent demerge', facts.phrase('would undo it'))
+    remedy: facts.Command = facts.Command(spell.line('agent', 'demerge'), facts.phrase('would undo it'))
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
@@ -288,7 +289,7 @@ def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
             continue
         log = adapter.install_all(machine, projects, False, machine.name)
         peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'),
-                                   facts.Command(f'corpus-yoga agent install --from {machine.name} --all', facts.phrase('would write them')))
+                                   facts.Command(spell.line('agent', 'install', **{'from': machine.name, 'all': True}), facts.phrase('would write them')))
     merges = {proj.name: Merge(label) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
               if (label := adapter.latest_merge(proj)) is not None}
     return peers or facts.phrase('none - no peer machine held'), merges or facts.phrase('none - no merge record')

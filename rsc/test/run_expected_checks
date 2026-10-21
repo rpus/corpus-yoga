@@ -42,6 +42,8 @@ cli.target_exists
 cli.target_flags_advertised
 cli.verb_accepts_command_flags
 cli.verb_help_answered
+command.every_spelling_is_declared
+command.undeclared_is_unrepresentable
 completions.follows_its_own_change
 completions.offers_the_commands_as_they_are
 completions.says_why_it_offers_nothing
@@ -108,9 +110,9 @@ naming.title_matches_key
 naming.upper_camel_case
 naming.venv_default_agrees
 output.plan_lines_name_their_target
-output.prescriptions_are_commands
 phrase.each_is_said
 pipeline.failing_is_keyed_by_datum
+prescription.names_a_command
 provider.names_declared
 provider.registry_parses
 python.pyright_clean

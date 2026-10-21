@@ -54,6 +54,7 @@ SCRIPT_DIR     = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO_DIR / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
+import spell  # noqa: E402
 from safari import (  # noqa: E402
     osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_open_work_tab, safari_close_work_tab, collect_md_and_log,
@@ -122,7 +123,7 @@ def anchor(provider, mechanisms, conv_id):
     stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     what = f'--provider {provider} --mechanism {"+".join(mechanisms)}' + (f' --id {conv_id}' if conv_id else '')
     emit(f'{stamp} · {registry.signature()} · {head}{" (dirty)" if dirty else ""}')
-    emit(f'corpus-yoga browser capture {what}')
+    emit(f'{spell.line("browser", "capture")} {what}')
 
 
 def footer(interrupted=False):

@@ -36,6 +36,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
 import provider as registry  # noqa: E402
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 import transport  # noqa: E402
 from machine import bound_machine  # noqa: E402
 
@@ -152,7 +153,7 @@ def _capture(machine: str, provider: str, session: str) -> str:
     room whose live store holds a session can capture it. A machine that is no room of
     the store - a session run in the provider's cloud, or under no binding - has no such
     store, so the session is resumed on a room first."""
-    capture = f'corpus-yoga agent capture --provider {provider} --id {session}'
+    capture = spell.line('agent', 'capture', provider=provider, id=session)
     if machine == bound_machine():
         return capture
     if machine in rooms_of(provider):

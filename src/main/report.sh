@@ -46,6 +46,29 @@ value = {} if sys.argv[3] == "{}" else sys.argv[3]   # the one literal that is a
 print("\n".join(facts.lines({sys.argv[2]: value}, facts.depth() + int(sys.argv[4]) if len(sys.argv) > 4 else facts.depth())))' "${REPO_DIR:-$REPO_ROOT}/src/main" "$@"
 }
 
+# spell <noun> [<verb>] [<positional>...] [--flag [value]]...: the command as typed, from its
+# declaration - spell.line's shell face (issues/885); an undeclared noun, verb or flag fails.
+spell() {
+  "${REPO_DIR:-$REPO_ROOT}/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import spell
+noun, verb, positional, flags = "", "", [], {}
+words = sys.argv[2:]
+if words and not words[0].startswith("-"):
+    noun, words = words[0], words[1:]
+if words and not words[0].startswith("-") and noun and words[0] in spell.verbs(noun):
+    verb, words = words[0], words[1:]
+declared = {a["name"]: a for a in spell.arguments(noun, verb)}
+while words:
+    word, words = words[0], words[1:]
+    if word.startswith("-"):
+        if declared.get(word, {}).get("type", "") == "":
+            flags[word] = True
+        else:
+            flags[word], words = words[0], words[1:]
+    else:
+        positional.append(word)
+print(spell.line(noun, verb, *positional, **flags))' "${REPO_DIR:-$REPO_ROOT}/src/main" "$@"
+}
+
 effect() {
   "${REPO_DIR:-$REPO_ROOT}/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
 facts.report(None, sys.argv[2])' "${REPO_DIR:-$REPO_ROOT}/src/main" "$1"

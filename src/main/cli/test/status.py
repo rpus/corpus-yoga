@@ -18,6 +18,7 @@ import os  # noqa: E402
 import re  # noqa: E402
 import subprocess  # noqa: E402
 import facts  # noqa: E402
+import spell  # noqa: E402
 
 
 @dataclass
@@ -53,7 +54,7 @@ class Status:
     test: Test
 
 
-INSTALL = 'corpus-yoga test install-hook'
+INSTALL = spell.line('test', 'install-hook')
 
 
 def _hook_path(name: str) -> Path | None:

@@ -25,6 +25,7 @@ REPO = HERE.parents[3]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 sys.path.insert(0, str(HERE))
 from cache_io import human, orphans, size_of  # noqa: E402 - the registry, and what it does not own (issues/865)
 VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
@@ -41,7 +42,7 @@ class Orphan:
     """An entry under tmp/cache that no current step writes or reads, with the act that removes it."""
     size: str
     why: str = facts.phrase('no current step writes or reads it')
-    remedy: facts.Command = facts.Command('corpus-yoga cache clean', facts.phrase('would remove it'))
+    remedy: facts.Command = facts.Command(spell.line('cache', 'clean'), facts.phrase('would remove it'))
 
 
 @dataclass
@@ -63,7 +64,7 @@ def status_facts() -> Status:
     return Status(Tree(subs or 'none'), found,
                   facts.phrase('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found
                   else facts.phrase('{n} subtree(s) present', n=len(subs)),
-                  {'corpus-yoga cache clean': {'would remove': {rel: 1 for rel in found}}} if found else facts.phrase('none - nothing to do'))
+                  {spell.line('cache', 'clean'): {'would remove': {rel: 1 for rel in found}}} if found else facts.phrase('none - nothing to do'))
 
 
 def status() -> int:
