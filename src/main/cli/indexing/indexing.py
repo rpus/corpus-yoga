@@ -58,6 +58,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
 from markdown_projection import REPO
 from declared_parser import command_parser
@@ -570,7 +571,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
                        if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
         out.candidates = Candidates(queue=facts.phrase('unknown - no concept capture on this machine'),
-                                    remedy=facts.Command('corpus-yoga indexing capture', facts.phrase('PAID, the model reads the corpus for its concepts')))
+                                    remedy=facts.Command(spell.line('indexing', 'capture'), facts.phrase('PAID, the model reads the corpus for its concepts')))
         return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
@@ -634,7 +635,7 @@ def captures() -> Captures:
         out.corpus = Currency(n, m)
         if m < n:
             out.corpus.lag = facts.phrase('the paid layer lags the corpus')
-            out.corpus.remedy = facts.Command('corpus-yoga indexing capture', facts.phrase('PAID, the model re-reads the corpus'))
+            out.corpus.remedy = facts.Command(spell.line('indexing', 'capture'), facts.phrase('PAID, the model re-reads the corpus'))
     return out
 
 

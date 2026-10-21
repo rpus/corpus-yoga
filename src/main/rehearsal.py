@@ -40,6 +40,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
+import spell  # noqa: E402
 import provider  # noqa: E402
 import tier  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
@@ -47,7 +48,7 @@ import validation_verdict as verdicts  # noqa: E402
 RECORD = tier.TMP_STAGE_REHEARSAL
 SCHEMA = REPO / 'src' / 'main' / 'rehearsal.schema.json'
 EXTENT = tier.TMP_STAGE_SCRATCH / 'extent.json'      # what begin writes and end reads: the units as the run began
-COMMAND = 'corpus-yoga pipeline rehearse'
+COMMAND = spell.line('pipeline', 'rehearse')
 
 
 def _rel(path: Path) -> str:

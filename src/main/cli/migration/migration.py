@@ -34,10 +34,11 @@ sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
 import facts  # noqa: E402
+import spell  # noqa: E402
 import tier  # noqa: E402
 
 SCRIPTS = REPO / 'rsc' / 'migration'
-SYNC = facts.Command('corpus-yoga migration sync', facts.phrase('would take them'))
+SYNC = facts.Command(spell.line('migration', 'sync'), facts.phrase('would take them'))
 HALTED = facts.Act(facts.phrase('resolve by hand what it names'))
 
 

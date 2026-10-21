@@ -35,6 +35,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
@@ -233,7 +234,7 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  remedy=(facts.Command('corpus-yoga model sync', ' and '.join(
+                  remedy=(facts.Command(spell.line('model', 'sync'), ' and '.join(
                       facts.phrase(w) for w, on in (('mints them', missing), ('removes the underived', underived)) if on))
                       if missing or underived else None)),
         table, join))

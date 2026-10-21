@@ -33,6 +33,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
 import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
 import facts  # noqa: E402
+import spell  # noqa: E402
 import tier  # noqa: E402
 
 LOGS = tier.TMP / 'logs'
@@ -100,7 +101,7 @@ class Orphan:
     logs: int
     size: str
     why: str
-    remedy: facts.Command = facts.Command('corpus-yoga logs clean', facts.phrase('would remove it'))
+    remedy: facts.Command = facts.Command(spell.line('logs', 'clean'), facts.phrase('would remove it'))
 
 
 @dataclass
@@ -120,7 +121,7 @@ def status_facts() -> Status:
     commands = [d for d in LOGS.iterdir() if d.is_dir()]
     found = {p.relative_to(REPO).as_posix(): Orphan(logs_in(p), human(size_of(p)), why) for p, why in orphans()}
     return Status(Tier(len(commands), logs_in(LOGS), human(size_of(LOGS))), found,
-                  {'corpus-yoga logs clean': {'would remove': {rel: 1 for rel in found}}} if found else facts.phrase('none - nothing to do'),
+                  {spell.line('logs', 'clean'): {'would remove': {rel: 1 for rel in found}}} if found else facts.phrase('none - nothing to do'),
                   f'{len(commands)} command(s), {logs_in(LOGS)} log(s)' + (f', {len(found)} orphan(s)' if found else ''))
 
 

@@ -97,6 +97,7 @@ from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
 import facts  # noqa: E402 - the one printer of a status's facts (issues/740)
+import spell  # noqa: E402
 import rehearsal  # noqa: E402 - the rehearsal record, one home (issues/815)
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 
@@ -1090,7 +1091,7 @@ def stage_facts() -> StageStatus:
         input=human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent',
         scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
         orphans={e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), facts.phrase('nothing reads it'),
-                                                         facts.Command('corpus-yoga stage clean', facts.phrase('would remove it')))
+                                                         facts.Command(spell.line('stage', 'clean'), facts.phrase('would remove it')))
                  for e in orphans()},
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
                 else facts.phrase('none - corpus-yoga pipeline rehearse makes one') if record is None else record),
@@ -1099,7 +1100,7 @@ def stage_facts() -> StageStatus:
                                          if BEFORE_815.is_dir() else
                                          'the record before its name carried its extension, which a record at its name supersedes (issues/815) - {migration} removes it',
                                          migration=MIGRATION_815),
-                          facts.Command('corpus-yoga migration sync', facts.phrase('would take the move')))
+                          facts.Command(spell.line('migration', 'sync'), facts.phrase('would take the move')))
                    if BEFORE_815.exists() else None)))
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
@@ -1167,11 +1168,11 @@ def store_now(rows: list[Judged] | None = None, ahead: list | None = None) -> di
     promotion_now(out, survey() if rows is None else rows)
     if STORE.is_dir():
         for twice in held_twice(STORE, *live.live_addresses()):
-            step(out, 'corpus-yoga store clean', kind_of(twice.unit))
+            step(out, spell.line('store', 'clean'), kind_of(twice.unit))
         for shadow_dir in orphaned_shadows():
-            step(out, 'corpus-yoga store clean', '/'.join(shadow_dir.relative_to(REPO).as_posix().split('/')[:3]))
+            step(out, spell.line('store', 'clean'), '/'.join(shadow_dir.relative_to(REPO).as_posix().split('/')[:3]))
         for unit, _rel in surplus(STORE):
-            step(out, 'corpus-yoga store clean', kind_of(unit))
+            step(out, spell.line('store', 'clean'), kind_of(unit))
     return out
 
 
@@ -1182,17 +1183,17 @@ def promotion_now(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged])
     holds, for each incomplete unit, and for each orphan under tmp/stage, by its path."""
     for row in rows:
         if row.state == 'unjudged':
-            step(out, 'corpus-yoga pipeline rehearse', kind_of(row.unit))
+            step(out, spell.line('pipeline', 'rehearse'), kind_of(row.unit))
     for row in rows:
         if row.state == 'promotable':
             noun = noun_of(row.unit)
             if noun is not None:
-                step(out, f'corpus-yoga {noun} promote --all', kind_of(row.unit))
+                step(out, spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), kind_of(row.unit))
     for row in rows:
         if row.state in ('held already', 'incomplete'):
-            step(out, 'corpus-yoga stage clean', kind_of(row.unit))
+            step(out, spell.line('stage', 'clean'), kind_of(row.unit))
     for e in orphans():
-        step(out, 'corpus-yoga stage clean', e.relative_to(REPO).as_posix())
+        step(out, spell.line('stage', 'clean'), e.relative_to(REPO).as_posix())
 
 
 VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture',
@@ -1402,13 +1403,13 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
                                                      facts.phrase('the record of a unit the store does not hold'))
     twice = held_twice(STORE, live, newest)
     extra = {rel.as_posix(): Surplus(human(size_of(STORE / rel)), f'{unit.path.name}.json',
-                                     facts.Command('corpus-yoga store clean', facts.phrase('would remove it')))
+                                     facts.Command(spell.line('store', 'clean'), facts.phrase('would remove it')))
              for unit, rel in surplus(STORE)}
     return StoreStatus(
         Held(human(size_of(STORE)), sum(len(u.files) for u in held), len(held)),
         held=dict(sorted(kinds.items())), stray=stray, surplus=extra,
         orphaned_shadows={d.relative_to(REPO).as_posix(): Orphan(human(size_of(d)), facts.phrase('the store holds no unit it derives from'),
-                                                                 facts.Command('corpus-yoga store clean', facts.phrase('would remove it')))
+                                                                 facts.Command(spell.line('store', 'clean'), facts.phrase('would remove it')))
                           for d in orphaned_shadows()},
         duplicates={d.unit.address.as_posix(): HeldTwice(d, human(size_of(STORE / d.unit.path)), human(size_of(STORE / d.holder.path)))
                     for d in twice},
@@ -1459,13 +1460,13 @@ def pairs_facts(noun: str) -> Pairs:
             if unit.members and unit.record:
                 out.staged[unit.address.name] = Paired(standing=facts.phrase('incomplete - {present}, missing {missing}', present=present,
                                                                                missing=', '.join(unit.missing)),
-                                                       remedy=facts.Command('corpus-yoga stage clean', facts.phrase('would remove it')))
+                                                       remedy=facts.Command(spell.line('stage', 'clean'), facts.phrase('would remove it')))
                 continue
             item = Paired(standing=facts.phrase('unpaired - {present} with no {missing} beside it', present=present,
                                                   missing=', '.join(unit.missing)))
             if not unit.members and _declares(noun, 'capture', '--manifest'):
                 where = (STAGE / unit.record[0]).relative_to(REPO)
-                item.remedy = facts.Command(f'corpus-yoga {noun} capture --manifest {shlex.quote(str(where))}',
+                item.remedy = facts.Command(spell.line(noun, 'capture', manifest=str(where)),
                                             facts.phrase('fetches its payload, where its URLs are unspent'))
             out.staged[unit.address.name] = item
     return out
@@ -1506,8 +1507,8 @@ def report_facts(noun: str | None) -> StageReport:
         invalid = {refusal.path: refusal.facts()} if refusal is not None and row.judgement is Judgement.INVALID else None
         unlicensed = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.UNLICENSED else None
         found = judged_as(row)
-        step = ({'corpus-yoga pipeline rehearse': facts.phrase('would judge it')} if found == 'unjudged'
-                else {'corpus-yoga stage clean': facts.phrase('would remove it')} if found == 'incomplete' else None)
+        step = ({spell.line('pipeline', 'rehearse'): facts.phrase('would judge it')} if found == 'unjudged'
+                else {spell.line('stage', 'clean'): facts.phrase('would remove it')} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(found, verdict, invalid, unlicensed,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)

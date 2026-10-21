@@ -18,19 +18,20 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
+import spell  # noqa: E402
 
 
 @dataclass
 class CorpusPage:
     title: str = facts.named('the corpus page')
-    producer: facts.Command = facts.Command('corpus-yoga site render', facts.phrase('renders it'))
+    producer: facts.Command = facts.Command(spell.line('site', 'render'), facts.phrase('renders it'))
 
 
 @dataclass
 class Publish:
     """What corpus-yoga site publish would land on rpus.co: each file with what changes in it, and the act (issues/881)."""
     would_land: dict[str, str | dict[str, str]]
-    remedy: facts.Command = facts.Command('corpus-yoga site publish', facts.phrase('would copy, commit and push them'))
+    remedy: facts.Command = facts.Command(spell.line('site', 'publish'), facts.phrase('would copy, commit and push them'))
 
 
 @dataclass
@@ -58,7 +59,7 @@ def main() -> int:
     index: CorpusPage | facts.Finding = CorpusPage(title)
     if title == 'ABSENT':
         index = facts.Finding(facts.phrase('absent - the corpus page is unbuilt'),
-                              facts.Command('corpus-yoga pipeline run', facts.phrase('renders it, or corpus-yoga site render')))
+                              facts.Command(spell.line('pipeline', 'run'), facts.phrase('renders it, or corpus-yoga site render')))
     land: dict[str, str | dict[str, str]] = {}
     for row in rows:
         if row[0] != 'land' or len(row) < 3:
@@ -80,7 +81,7 @@ def main() -> int:
         site.publish = facts.phrase('nothing can land - no clone of rpus.co is mounted')
     out = Status(site)
     if absent:
-        out.now = {'corpus-yoga site sync': {'would assemble': {'data/output/site/': 1}}}
+        out.now = {spell.line('site', 'sync'): {'would assemble': {'data/output/site/': 1}}}
     facts.say(out)
     return 0
 

@@ -58,6 +58,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
+import spell  # noqa: E402
 
 CLI = REPO / 'src' / 'main' / 'cli'
 sys.path.insert(0, str(CLI))
@@ -175,8 +176,8 @@ class Left:
 
     def facts(self) -> dict:
         if not self.at:                               # the top: the walk started bare stands there
-            return {'walkthrough': facts.phrase('left at the top'), 'corpus-yoga walkthrough': facts.phrase('continues from there')}
-        return {'walkthrough': facts.phrase('left at {at}', at=self.at), f'corpus-yoga walkthrough {shlex.quote(self.at)}': facts.phrase('continues from there')}
+            return {'walkthrough': facts.phrase('left at the top'), spell.line('walkthrough'): facts.phrase('continues from there')}
+        return {'walkthrough': facts.phrase('left at {at}', at=self.at), spell.line('walkthrough', '', self.at): facts.phrase('continues from there')}
 
 
 @dataclass

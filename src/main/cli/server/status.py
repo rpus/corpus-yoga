@@ -18,6 +18,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 import re  # noqa: E402
 import subprocess  # noqa: E402
 import facts  # noqa: E402
+import spell  # noqa: E402
 import tier  # noqa: E402
 
 
@@ -46,9 +47,9 @@ def now_of(running: bool, rendered: bool) -> dict[str, dict[str, dict[str, int]]
     """The server's standing (issues/960): the stop while the daemon runs; the start while the
     corpus page is rendered and the daemon is down; none otherwise."""
     if running:
-        return {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}
+        return {spell.line('server', 'stop'): {'would stop': {'serve_markdown daemon': 1}}}
     if rendered:
-        return {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}}
+        return {spell.line('server', 'start', daemon=True): {'would serve': {'data/output/markdown': 1}}}
     return facts.phrase('none - nothing to do')
 
 
@@ -68,7 +69,7 @@ def main() -> int:
     out = Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), Assets(
         facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
         (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
-        facts.Command('corpus-yoga server ensure-assets', facts.phrase('fetches them; the next corpus-yoga server start does too')) if missing else None)),
+        facts.Command(spell.line('server', 'ensure-assets'), facts.phrase('fetches them; the next corpus-yoga server start does too')) if missing else None)),
                  now_of(bool(found), rendered))
     facts.say(out)
     return 0

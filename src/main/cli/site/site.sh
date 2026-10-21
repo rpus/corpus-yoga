@@ -11,7 +11,7 @@
 # The tree has two verbs with disjoint files: sync owns every page, a file
 # rsc/site/<name>.html copied to data/output/site/<name>.html as authored (issues/650);
 # render owns index.html at the root, the corpus page present_corpus.py writes
-# at its URL position (issues/409 - formerly corpus-yoga dashboard sync) from
+# at its URL position (issues/409) from
 # rsc/site/index.template.html, the one file under rsc/site/ that is not a page.
 # sync never touches index.html; README.md documents the family.
 

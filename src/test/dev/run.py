@@ -996,140 +996,6 @@ def check_cli_surface(run) -> None:
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
 
-    # What the repo PRESCRIBES, in both the senses issues/46 and issues/76 ask for: the form of an
-    # invocation (a corpus-yoga command, never a script path) and its validity (flags the
-    # command actually advertises). One scan serves both — they are two halves of one
-    # sentence about prescribed invocations, and splitting them would mean writing the
-    # scanner twice.
-    #
-    # A PRESCRIPTION is a line carrying one of the repo's markers for "type this":
-    # → run:, reinstall:, replace:, refresh:, install via:. The same set the to-do check
-    # keys on, because a line that prescribes a remedy and a line that IS a remedy are
-    # the same line. Code that merely calls a script is not prescribing it, so an
-    # invocation elsewhere in a line is left alone — the distinction a grep for `src/`
-    # could not make.
-    prescriptions = []
-    for path in sorted(REPO_ROOT.rglob('*')):
-        if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json', '.applescript'):
-            continue
-        rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':
-            continue
-        for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
-            m = re.search(r'(?:→ run:|reinstall:|replace:|refresh:|install via:)\s+(\S+)(.*)', line)
-            if m:
-                # Carry the marker that MATCHED. Reporting a constant one quotes a line
-                # that is not in the file, and the reader goes looking for it: a rejected
-                # `refresh:` two lines from a `→ run:` reads as a rejection of the `→ run:`.
-                prescriptions.append((rel, i, m.group(1), m.group(2), line[m.start():m.start(1)].strip()))
-    run('prescriptions: some line prescribes something', bool(prescriptions),
-        None if prescriptions else 'no `→ run:` line found — the scan is looking in the wrong place',
-        law='G17', check='output.prescriptions_are_commands')
-
-    # Those prescriptions are lines this repo PRINTS, and the scan sees only the ones a
-    # clone prints. A remedy needing data to print - the data gate's - is invisible to
-    # any scan of output on a repo that ships none. They
-    # are read from the source instead: every `*_cmd` a remedy is built from must name a
-    # corpus-yoga command, whether or not this machine can print it.
-    for node in ast.walk(ast.parse((SRC / 'test' / 'dev' / 'run.py').read_text())):
-        if isinstance(node, ast.Assign) and node.targets and \
-                isinstance(node.targets[0], ast.Name) and node.targets[0].id.endswith('_cmd'):
-            name, val = node.targets[0].id, node.value
-        elif isinstance(node, ast.keyword) and (node.arg or '').endswith('_cmd'):
-            name, val = node.arg, node.value
-        else:
-            continue
-        if isinstance(val, ast.Constant) and isinstance(val.value, str):
-            head = val.value.split()[:1]
-        elif isinstance(val, ast.JoinedStr) and val.values and isinstance(val.values[0], ast.Constant):
-            head = str(val.values[0].value).split()[:1]
-        else:
-            continue                      # computed elsewhere; nothing to read here
-        if not head:
-            continue
-        ok = head[0] == 'corpus-yoga'
-        run(f'remedy: {name} at src/test/dev/run.py:{val.lineno} names a corpus-yoga command', ok,
-            None if ok else
-            f'`{head[0]}` is a path, not a command a reader types — and this remedy prints '
-            f'only on a machine with data, where no scan of output can reach it',
-            law='G17', check='output.prescriptions_are_commands')
-
-    # A prescription need not carry a marker to be one: "run src/main/<p>/run.sh first" is
-    # an instruction to type a path, in prose, and neither the markers above nor the *_cmd
-    # scan below looks at it. The imperative is what identifies it — `run` followed by a
-    # repo script — which is narrow on purpose: a line that merely MENTIONS a path (see
-    # src/…, defined in src/…) prescribes nothing and is left alone.
-    imperative = re.compile(r'\b[Rr]un\s+\.?/?((?:src|rsc)/\S+\.(?:sh|py))')
-    for path in sorted(REPO_ROOT.rglob('*')):
-        if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json'):
-            continue
-        rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):
-            continue
-        for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
-            m = imperative.search(line)
-            if not m:
-                continue
-            run(f'prescription: {rel}:{i} tells you to run a command, not a path', False,
-                f'`{line.strip()[:90]}` tells a reader to run {m.group(1)} — name the corpus-yoga '
-                f'command that does it, or there is none and that is the defect',
-                law='G17', check='output.prescriptions_are_commands')
-
-    declared = {c['command'] for c in cmds}
-    # The scan reads SOURCE, so a token can carry the quoting and punctuation of the
-    # string it sits in, and a remedy can be interpolated at run time. Neither is a
-    # defect in the prescription, so both are handled rather than reported:
-    #   `browser capture'`   the closing quote of the python literal
-    #   `$remedy`, `{c}`     the invocation is computed, and cannot be read here
-    # And a STANDARD tool is not what issues/46 objects to — its complaint is a repo script
-    # prescribed by path, which a reader cannot type and cannot find.
-    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'brew', 'echo', 'mkdir', 'open', 'pip', 'unset'}
-    def clean(tok):
-        return tok.strip('`\'",;)').lstrip('./')
-
-    def unreadable(tok):
-        # a regex or a format string, not an invocation — including this scanner's own
-        # pattern, which it finds in its own source and cannot be expected to parse
-        return not tok or any(c in tok for c in '$({\\')
-    for rel, i, head, rest, marker in prescriptions:
-        head = clean(head)
-        if unreadable(head):
-            continue                      # computed at run time, or not an invocation
-        if head in STANDARD:
-            continue
-        ok = head == 'corpus-yoga' or head in declared
-        run(f'prescription: {rel}:{i} names a corpus-yoga command', ok,
-            None if ok else f'`{marker} {head}` prescribes a path, not a command a reader types',
-            law='G17', check='output.prescriptions_are_commands')
-        if not ok:
-            continue
-        # A prescription ends where the SHELL takes over: `→ run: corpus-yoga status" >&2`
-        # prescribes `corpus-yoga status`, and `>&2` is the redirection of the echo that
-        # prints it, not a verb the reader types.
-        tail = re.split(r'[|;&<>]|\)\s*$', rest, maxsplit=1)[0]
-        words = [clean(w) for w in (tail if head == 'corpus-yoga' else f' {head}{tail}').split()]
-        words = [w for w in words if not unreadable(w)]
-        cmd = next((w for w in words if not w.startswith('-')), None)
-        if cmd is None or cmd not in declared:
-            continue
-        verbs = set(cli.subcommands_of(cmd))
-        after = words[words.index(cmd) + 1:]
-        verb = after[0] if after and not after[0].startswith('-') else ''
-        if verb and verb not in verbs:
-            run(f'prescription: {rel}:{i} names a verb `{cmd}` has', False,
-                f'`{cmd} {verb}` — its verbs are {sorted(verbs) or "(none)"}',
-                law='G17', check='output.prescriptions_are_commands')
-            continue
-        advertised = {r['arg-name'] for r in cli.command_rows(cmd)
-                      if r['arg-name'].startswith('--') and r['subcommand'] in ('', verb)}
-        used = [w for w in after if w.startswith('--')]
-        unknown = [f for f in used if f not in advertised]
-        form = f'{cmd} {verb}'.strip()
-        run(f'prescription: {rel}:{i} names flags `{form}` advertises', not unknown,
-            None if not unknown else
-            f'{", ".join(unknown)} — advertised: {sorted(advertised) or "(none)"}',
-            law='G17', check='output.prescriptions_are_commands')
-
     # One venv, declared in several shell entrypoints and once more for the editor —
     # so they are read and compared here rather than described. A comment naming which
     # files set it is a list that rots: a file is added and nothing points at it.
@@ -1597,6 +1463,93 @@ def check_cli_surface(run) -> None:
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
             None if ok else f'no `{cmd} … {sub}` line in `src/main/cli/pipeline/pipeline.sh --plan` — a bare '
             f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')
+
+
+def check_spelling(run) -> None:
+    """Every spelling of a corpus-yoga command the sources and documents carry is one the
+    declarations hold (issues/885, G17): the noun, the verb and each flag, read by
+    src/main/spell.py - the one API that spells a command from its declaration - over every
+    string literal of src/main and src/test, every line of the shell, applescript and
+    declaration files, and the live documents. A site that types a command the declarations
+    do not hold is the live bug: at 02e12eb9 src/main/corpus.py spelt `corpus-yoga <noun>
+    promote --all` for every capturing noun, and corpus-yoga export promote takes no --all.
+    The API itself refuses what is undeclared. A prescription in prose names a command,
+    never a repository path."""
+    import ast
+    import importlib
+    sys.path.insert(0, str(SRC / 'main'))
+    try:
+        spell = importlib.import_module('spell')
+    except ImportError:
+        run('spelling: src/main/spell.py spells a command from its declaration', False,
+            'src/main/spell.py does not exist: every site types its command', law='G17', check='command.every_spelling_is_declared')
+        return
+    refused = {}
+    for name, ask in (('export promote --all', lambda: spell.line('export', 'promote', all=True)),
+                      ('forge merge without its pr', lambda: spell.line('forge', 'merge')),
+                      ('a noun no declaration holds', lambda: spell.line('nonesuch'))):
+        try:
+            refused[name] = f'spelt {ask()!r}'
+        except spell.Undeclared:
+            refused[name] = None
+    spelt = {'agent capture --provider claude --id e2d2039d': spell.line('agent', 'capture', provider='claude', id='e2d2039d'),
+             'server start --daemon': spell.line('server', 'start', daemon=True), 'export promote': spell.line('export', 'promote'),
+             'forge merge 946': spell.line('forge', 'merge', 946)}
+    wrong = {k: v for k, v in spelt.items() if v != f'corpus-yoga {k}'}
+    ok = not any(refused.values()) and not wrong
+    run('spelling: the API refuses an undeclared noun, verb or flag and spells the declared as typed', ok,
+        None if ok else '; '.join([f'{k} was not refused: {v}' for k, v in refused.items() if v] + [f'{k} spelt as {v!r}' for k, v in wrong.items()]),
+        law='G17', check='command.undeclared_is_unrepresentable')
+
+    def python_texts(path: Path) -> list[tuple[int, str]]:
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:
+            return []
+        out = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str) and 'corpus-yoga' in node.value:
+                out.append((node.lineno, node.value))
+            elif isinstance(node, ast.JoinedStr):
+                text = ''.join(v.value if isinstance(v, ast.Constant) and isinstance(v.value, str) else '{}' for v in node.values)
+                if 'corpus-yoga' in text:
+                    out.append((node.lineno, text))
+        return out
+    files = [p for p in sorted((SRC / 'main').rglob('*')) if p.suffix in ('.py', '.sh', '.applescript', '.json')]
+    files += [p for p in sorted((SRC / 'test').rglob('*.py')) if p != SRC / 'test' / 'dev' / 'run.py']     # this file holds fixtures that spell no command
+    files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md')]
+    files += sorted((REPO_ROOT / '.github').glob('*.md'))
+    faults = []
+    for path in files:
+        if not path.is_file():
+            continue
+        rel = path.relative_to(REPO_ROOT)
+        texts = python_texts(path) if path.suffix == '.py' else [(i, l) for i, l in enumerate(path.read_text(errors='ignore').splitlines(), 1) if 'corpus-yoga' in l]
+        for lineno, text in texts:
+            for spelling, fault in spell.mentions(text):
+                if fault:
+                    faults.append(f'{rel}:{lineno} `{spelling[:60]}` - {fault}')
+    run('spelling: every spelling of a corpus-yoga command in the sources and documents is one the declarations hold', not faults,
+        None if not faults else '; '.join(faults)[:600], law='G17', check='command.every_spelling_is_declared')
+
+    # A prescription in prose names a command, never a path: "run src/main/<p>/run.sh first"
+    # tells a reader to type a path. The imperative identifies it - `run` followed by a
+    # repository script - and a line that merely mentions a path prescribes nothing.
+    imperative = re.compile(r'\b[Rr]un\s+\.?/?((?:src|rsc)/\S+\.(?:sh|py))')
+    told = []
+    for path in sorted(REPO_ROOT.rglob('*')):
+        if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json'):
+            continue
+        rel = path.relative_to(REPO_ROOT)
+        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):
+            continue
+        for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
+            m = imperative.search(line)
+            if m:
+                told.append(f'{rel}:{i} tells a reader to run {m.group(1)}: `{line.strip()[:80]}`')
+    run('prescription: no line tells a reader to run a repository path - a prescription names a command', not told,
+        None if not told else '; '.join(told)[:600] + ' - name the corpus-yoga command that does it, or there is none and that is the defect',
+        law='G17', check='prescription.names_a_command')
 
 
 def check_grammar_laws(run, cited: dict) -> None:
@@ -3999,6 +3952,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_validate_verdict': ['src/main/validate.py', 'src/test'],
+    'check_spelling': ['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md', '.github'],
     'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
     'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
     'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
@@ -4249,6 +4203,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # Registered after check_cli_surface alone, it saw the G-citations (all raised
         # there) and none of the L-citations, which are raised by the sections that
         # enforce the corpus laws — so three gated laws looked uncited.
+        run_section(check_spelling, tier='code')     # cites G17 before the law checks read the citations
         run_section(lambda run, _c=cited_laws: check_grammar_laws(run, _c),
                     label='check_grammar_laws', tier='code')
 

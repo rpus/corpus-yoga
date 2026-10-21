@@ -108,7 +108,7 @@ _say() {
 # The sync, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 sync_remedy() {
-  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then echo "corpus-yoga status sync"
+  if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then spell status sync
   else echo "./src/main/cli/status/status.sh sync"; fi
 }
 
@@ -404,9 +404,9 @@ check_pipeline_inputs() {
     fi
     local target; target="$(readlink "$REPO_ROOT/$p_mount" 2>/dev/null || true)"
     if [[ ! -e "$REPO_ROOT/$p_mount" && -z "$target" ]]; then
-      todo "$p_name / $p_mount" "absent" "corpus-yoga agent mount" "$(phrase 'mounts it')"
+      todo "$p_name / $p_mount" "absent" "$(spell agent mount)" "$(phrase 'mounts it')"
     elif [[ -n "$target" && "${target/#\~/$HOME}" != "${p_live/#\~/$HOME}" && "$(cd "$REPO_ROOT/$p_mount" 2>/dev/null && pwd -P)" != "$(cd "${p_live/#\~/$HOME}" 2>/dev/null && pwd -P)" ]]; then
-      todo "$p_name / $p_mount" "$(phrase 'linked elsewhere - to {target}' target="$target")" "corpus-yoga agent mount" "$(phrase 'points it at {live}' live="$p_live")"
+      todo "$p_name / $p_mount" "$(phrase 'linked elsewhere - to {target}' target="$target")" "$(spell agent mount)" "$(phrase 'points it at {live}' live="$p_live")"
     else
       ok "$p_name / $p_mount" "linked"
     fi

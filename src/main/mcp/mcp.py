@@ -45,6 +45,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import spell  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
 
 import mcp_factoring as factoring  # noqa: E402  (sibling module)
@@ -168,7 +169,7 @@ def status() -> int:
                  sum(len(b) for b in declared.values()), len(declared),
                  sum(1 for t in tagged.values() if t), len(tagged),
                  tables=facts.phrase('faced under {cache}', cache=cache) if _tables_current(declared) else facts.phrase('NOT faced under {cache}', cache=cache),
-                 remedy=None if _tables_current(declared) else facts.Command('corpus-yoga mcp sync', facts.phrase('writes them'))),
+                 remedy=None if _tables_current(declared) else facts.Command(spell.line('mcp', 'sync'), facts.phrase('writes them'))),
         additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
             facts.phrase('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
             why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
@@ -198,7 +199,7 @@ def status() -> int:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
         family.differs_by = facts.phrase('{n} line(s)', n=changed)
-        family.remedy = facts.Command('corpus-yoga mcp sync', facts.phrase('prints the diff and mints {minted} in place of {family}', minted=_successor(target).name, family=rel.name))
+        family.remedy = facts.Command(spell.line('mcp', 'sync'), facts.phrase('prints the diff and mints {minted} in place of {family}', minted=_successor(target).name, family=rel.name))
     out.family = family
     out.mcp = facts.phrase('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
     facts.say(out)
