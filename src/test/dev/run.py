@@ -2248,8 +2248,8 @@ def check_status_facts(run) -> None:
     # a grafted section is headed by its command (issues/812): `corpus-yoga <noun>`, and beneath it what
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
-              ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'), ('forge', 'next'),
-              ('stage', 'invalid'), ('stage', 'unlicensed'), ('store', 'next'), ('cache', 'next'), ('logs', 'next'), ('grammar',), ('migration',)]
+              ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'),
+              ('stage', 'invalid'), ('stage', 'unlicensed'), ('store', 'next'), ('grammar',), ('migration',)]   # the store's next: is the room's one reading (issues/945)
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')

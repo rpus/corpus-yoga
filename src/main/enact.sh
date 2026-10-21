@@ -32,17 +32,27 @@
 # the failure relay — a wrapped act rendered invisible, the wrap decorative. Sourced after
 # src/main/report.sh, whose narrate these faces say through.
 
+# bounded <cmd...>: the command under the send bound, CORPUS_YOGA_SEND_TIMEOUT seconds (60 unset),
+# through perl's alarm since macOS has no timeout command (issues/945); 124 where it ran out.
+bounded() {
+  perl -e 'my $s = shift; my $pid = fork; if (!$pid) { exec @ARGV or exit 127 }
+           $SIG{ALRM} = sub { kill TERM => $pid; waitpid $pid, 0; exit 124 }; alarm $s; waitpid $pid, 0; exit $? >> 8' "${CORPUS_YOGA_SEND_TIMEOUT:-60}" "$@"
+}
+
+# relayed <printed> <status>: the outcome beneath the item, did or did NOT, the bound named.
+relayed() {
+  if [[ "$2" -eq 0 ]]; then narrate outcome "$1" 'did' 'done' >&2
+  elif [[ "$2" -eq 124 ]]; then narrate outcome "$1" 'did NOT' "no answer within ${CORPUS_YOGA_SEND_TIMEOUT:-60} s" >&2
+  else narrate outcome "$1" 'did NOT' "exit $2" >&2; fi
+}
+
 enact() {
   local printed status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   narrate opening "$printed" >&2
-  "$@" && status=0 || status=$?
-  if [[ "$status" -eq 0 ]]; then
-    narrate outcome "$printed" 'did' 'done' >&2
-  else
-    narrate outcome "$printed" 'did NOT' "exit $status" >&2
-  fi
+  bounded "$@" && status=0 || status=$?
+  relayed "$printed" "$status"
   return "$status"
 }
 
@@ -51,7 +61,7 @@ attempt() {
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   narrate opening "$printed" >&2
-  "$@" && status=0 || status=$?
+  bounded "$@" && status=0 || status=$?
   return "$status"
 }
 
@@ -59,13 +69,13 @@ query() {
   local printed answer status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
-  answer="$("$@")" && status=0 || status=$?
+  answer="$(bounded "$@")" && status=0 || status=$?
   if [[ "$status" -eq 0 ]]; then
     narrate read "$printed" "$answer" >&2
     printf '%s\n' "$answer"
   else
     narrate opening "$printed" >&2
-    narrate outcome "$printed" 'did NOT' "exit $status" >&2
+    relayed "$printed" "$status"
   fi
   return "$status"
 }
@@ -74,14 +84,10 @@ quote() {
   local printed answer status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
-  answer="$("$@")" && status=0 || status=$?
+  answer="$(bounded "$@")" && status=0 || status=$?
   narrate opening "$printed" >&2
-  if [[ "$status" -eq 0 ]]; then
-    narrate outcome "$printed" 'did' 'done' >&2
-    printf '%s\n' "$answer"
-  else
-    narrate outcome "$printed" 'did NOT' "exit $status" >&2
-  fi
+  relayed "$printed" "$status"
+  [[ "$status" -eq 0 ]] && printf '%s\n' "$answer"
   return "$status"
 }
 
@@ -90,11 +96,7 @@ quiet() {
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   narrate opening "$printed" >&2
-  "$@" >/dev/null && status=0 || status=$?
-  if [[ "$status" -eq 0 ]]; then
-    narrate outcome "$printed" 'did' 'done' >&2
-  else
-    narrate outcome "$printed" 'did NOT' "exit $status" >&2
-  fi
+  bounded "$@" >/dev/null && status=0 || status=$?
+  relayed "$printed" "$status"
   return "$status"
 }
