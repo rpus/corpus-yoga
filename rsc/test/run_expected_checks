@@ -121,6 +121,7 @@ rehearsal.record_is_whole
 rehearsal.states_are_decidable
 reply.now_is_the_launchers
 report.gives_no_verdict_on_itself
+report.now_is_the_fold
 report.rows_are_keyed_by_subject
 report.says_what_the_nouns_say
 schema.changelog_narrative
@@ -134,6 +135,7 @@ shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart
 status.lines_load_as_yaml
+status.now_is_the_nouns_own
 status.pipeline_says_declarations_and_units
 status.remedy_names_a_command
 status.room_round_trip_holds_no_pair

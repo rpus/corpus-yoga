@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """reply.py - the launcher's reply to the reader (issues/896, issues/947): now:, the room's
 standing read after the act, corpus-yoga status last, then the act's effect line, the last
-line of every response an enacting verb gives. The standing is the one reading every status
-says (src/main/corpus.py room_now); an act hands up no steps of its own, so what its reply
-names is what the room's state allows after it.
+line of every response an enacting verb gives. The standing is the fold of every noun's own
+now:, read once and together (src/main/standing.py, issues/949); an act hands up no steps of
+its own, so what its reply names is what the room's state allows after it.
 
 The verb hands its effect up through facts.report, into the file the launcher named as
 CORPUS_YOGA_EFFECT; this reads it back through the printer's own reader and says now:
@@ -22,8 +22,8 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 sys.path.insert(0, str(_root[0] / 'src' / 'main'))
-import corpus  # noqa: E402 - the room's to-do, the one reading
 import facts  # noqa: E402
+import standing  # noqa: E402 - the room's standing, the one fold
 
 
 def main(argv: list[str]) -> int:
@@ -36,7 +36,7 @@ def main(argv: list[str]) -> int:
     effect = handed.get('effect')
     if not isinstance(effect, str) or not effect:
         effect = f'{act}: {"DONE" if code == 0 else "NOT DONE"} - exit {code}; the verb handed up no effect line'
-    shape = {'now': {**corpus.room_now(), facts.ROOM.line: facts.ROOM.does}}
+    shape = {'now': {**standing.room_now(), facts.ROOM.line: facts.ROOM.does}}
     print('\n'.join(facts.lines(facts.plain(shape), width=facts.terminal_width()) + [effect]), flush=True)
     return 0
 

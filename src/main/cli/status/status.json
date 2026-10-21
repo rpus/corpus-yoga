@@ -50,6 +50,7 @@
     "what remains - re-derived, not assumed",
     "ran the {n} named; what remains is above, each the reader's",
     "corpus-yoga {noun} is unreadable - {error}",
+    "unread - corpus-yoga {noun} did not answer within {bound} s",
     "unread - the venv is not minted",
     "corpus-yoga {noun} says nothing at {pointer}",
     "none - corpus-yoga status --show-all says what stands"
@@ -82,7 +83,8 @@
       "browser capture": "possible on macOS with osascript, Safari logged in to claude.ai and gemini.google.com; unavailable elsewhere, the other pipelines unaffected",
       "Safari's Allow JavaScript from Apple Events": "capture needs it on; disabled, capture fails fast naming it - Safari's Settings, Advanced, Show features for web developers, then Settings, Developer; on some Safari versions it cannot be read without changing it, and the row says so",
       "indexing capture": "possible with ANTHROPIC_API_KEY set; only the paid concept and category capture needs it"
-    }
+    },
+    "now": "the room's standing, folded once from the standing each noun says under its own now key - store, forge, cache, logs, server and site, each read once, together - what the room's state allows the reader to do now, by command, its verb and the things it acts on with how many; a noun that could not be read, or whose standing is a sentence other than none, stands under its command; corpus-yoga status says it last, and the launcher's reply after every act says the same fold (issues/949)"
   },
   "target": "src/main/cli/status/status.sh",
   "calculus": "L8",

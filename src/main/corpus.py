@@ -75,7 +75,6 @@ bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 import argparse
 import hashlib
 import json
-import os
 import re
 import shlex
 import shutil
@@ -1138,14 +1137,12 @@ def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-def room_now(rows: list[Judged] | None = None, ahead: list | None = None) -> dict[str, dict[str, dict[str, int]]]:
-    """The room's standing, the one reading (issues/851, issues/875, issues/945, issues/947): what
-    the store's status names under now: - the captures for what the live stores hold beyond
-    both tiers, the rehearsal for what is staged and not judged, the promotes, the stage's
-    cleaner, the store's cleaner - and what the forge's, the cache's, the logs noun's, the
-    server's and the site's statuses name under theirs, read now. Bare corpus-yoga store says
-    it, and every act's reply is it re-read after the act, so that no verb prints a subset of
-    the room's steps and no act hands up steps of its own. rows and ahead, where the caller
+def store_now(rows: list[Judged] | None = None, ahead: list | None = None) -> dict[str, dict[str, dict[str, int]]]:
+    """The store's own standing (issues/851, issues/875, issues/949): what its status names under
+    now: - the captures for what the live stores hold beyond both tiers, the rehearsal for
+    what is staged and not judged, the promotes, the stage's cleaner, the store's cleaner -
+    in the workflow's order. The room's standing folds it with the other nouns' own
+    (src/main/standing.py); no noun's status runs another. rows and ahead, where the caller
     has read them already, are not read again."""
     import live
     out: dict[str, dict[str, dict[str, int]]] = {}
@@ -1160,26 +1157,7 @@ def room_now(rows: list[Judged] | None = None, ahead: list | None = None) -> dic
             step(out, 'corpus-yoga store clean', '/'.join(shadow_dir.relative_to(REPO).as_posix().split('/')[:3]))
         for unit, _rel in surplus(STORE):
             step(out, 'corpus-yoga store clean', kind_of(unit))
-    for noun in ('forge', 'cache', 'logs', 'server', 'site'):
-        out.update(now_of(noun))
     return out
-
-
-def now_of(noun: str) -> dict[str, dict[str, dict[str, int]]]:
-    """What the noun's own status names under now:, read by running it (issues/945) - each
-    noun's reading is its own, and the room's folds them; a status that does not answer
-    within the send bound, or prints what does not load, is said so under its command."""
-    import subprocess
-    bound = int(os.environ.get('CORPUS_YOGA_SEND_TIMEOUT') or 60)
-    try:
-        asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO, timeout=bound)
-        said = facts.load(asked.stdout)
-    except subprocess.TimeoutExpired:
-        return {f'corpus-yoga {noun}': {'reports the noun': {f'unread - its status did not answer within {bound} s': 1}}}
-    except ValueError:
-        return {f'corpus-yoga {noun}': {'reports the noun': {'unread - what its status printed does not load': 1}}}
-    found = said.get('now') if isinstance(said, dict) else None
-    return found if isinstance(found, dict) else {}
 
 
 def promotion_now(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]) -> None:
