@@ -668,10 +668,9 @@ merge_chain() {
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates
   local gate_wt
   gate_wt="$(gate_worktree "$oid" "$head")"     || { echo "forge merge: NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
-  # The run streams to the terminal as it happens, and this record keeps it whole; the
-  # verdict file is read for the failing stages. No terminal: nothing to stream.
-  local gate_rc=0 live=/dev/null verdict stages
-  { : > /dev/tty; } 2>/dev/null && live=/dev/tty
+  # The run reaches the terminal once, through the launcher's tee that keeps this record
+  # whole (issues/954); the verdict file is read for the failing stages.
+  local gate_rc=0 verdict stages
   verdict="$(mktemp)"
   narrate opening "pipeline run"
   # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
@@ -679,7 +678,7 @@ merge_chain() {
   set +e
   # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
   # the one full account of what the gate ran, and the terminal is no record
-  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | tee "$verdict"
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
   set -e
   stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"
