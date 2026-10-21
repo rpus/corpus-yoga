@@ -466,18 +466,25 @@ print_plan() {
 
 main() {
   parse_args "$@"
-  # The header anchors the log's evidence (issues/365): the Signature triad the commit hook
-  # stamps - the machine this checkout is bound to (or 'unbound' - a worktree carries no
-  # binding), the provider and session that ran it where the environment declares one
-  # (issues/704) - the commit the tree stood at, and clean/dirty with the count. Every claim
-  # below dereferences against this line instead of against archaeology.
+  # The header anchors the log's evidence (issues/365, issues/955), one fact a line: when,
+  # the Signature triad the commit hook stamps - the machine this checkout is bound to (or
+  # 'unbound' - a worktree carries no binding), the provider and session that ran it where
+  # the environment declares one (issues/704) - the ref and commit the tree stood at,
+  # clean/dirty with the count, the arguments where there were any, the rehearsal where
+  # there was one. Every claim below dereferences against it instead of against archaeology.
   local signature ref dirty
   signature="$(provider_signature "$REPO_ROOT")"
   ref="$(git -C "$REPO_ROOT" branch --show-current 2>/dev/null)"
   ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
-  pair begun "$* - $(date -u '+%Y-%m-%dT%H:%M:%SZ') · $signature · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
+  opening begun
+  pair at "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" 1
+  pair by "$signature" 1
+  pair ref "$ref" 1
+  pair tree "$dirty" 1
+  if [[ $# -gt 0 ]]; then pair args "$*" 1; fi
+  if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then pair rehearsal "$CORPUS_YOGA_REHEARSAL" 1; fi
 
 
   # the tooling is a section like the stages (issues/755): its lines beneath its key
