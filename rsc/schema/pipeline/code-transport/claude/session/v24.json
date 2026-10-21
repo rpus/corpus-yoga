@@ -980,7 +980,7 @@
           "type": "boolean"
         },
         "toolUseResult": {
-          "description": "Present when this user turn is the result of a tool call fed back into the conversation. Observed as a plain string (e.g. rejection message), an object, or an array of text blocks - an MCP tool's result content, as the result of mcp__claude-vscode__getDiagnostics was on reading-room, 2026-10-21.",
+          "description": "Present when this user turn is the result of a tool call fed back into the conversation. Observed as a plain string (e.g. rejection message), an object, or an array of text blocks - an MCP server's tools/call result content (rsc/reference/mcp#/$defs/CallToolResult, its content), as the result of mcp__claude-vscode__getDiagnostics was on reading-room, 2026-10-21.",
           "type": [
             "string",
             "object",
