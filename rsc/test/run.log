@@ -155,7 +155,7 @@ check_export_atoms: |
   ✓ store.export_is_held_within_a_later_one
 
 check_status_facts: |
-  ✓ status.remedy_names_a_command  (46/46)
+  ✓ status.remedy_names_a_command  (45/45)
   ✓ status.lines_load_as_yaml  (23/23)
   ✓ status.room_round_trip_holds_no_pair  (24/24)
   ✓ report.says_what_the_nouns_say  (11/11)
@@ -256,6 +256,7 @@ check_status_is_the_dry_run: |
 
 check_reply: |
   ✓ reply.now_is_the_launchers  (2/2)
+  ✓ reply.now_is_the_fold_alone
 
 check_reference: |
   ✓ reference.provenance_declared  (2/2)
@@ -427,7 +428,7 @@ stages:
     tier: code
     line: "154"
   check_status_facts:
-    passes: 186
+    passes: 185
     failures: 0
     tier: code
     line: "157"
@@ -512,7 +513,7 @@ stages:
     tier: code
     line: "254"
   check_reply:
-    passes: 2
+    passes: 3
     failures: 0
     tier: code
     line: "257"
@@ -520,25 +521,25 @@ stages:
     passes: 21
     failures: 0
     tier: schema
-    line: "260"
+    line: "261"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "266"
+    line: "267"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "272"
+    line: "273"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "275"
+    line: "276"
 
-checks[code+schema]: 170 types, 1744/1744 invocations passing
-checks[code]: 118 types, 1067/1067 invocations passing
+checks[code+schema]: 171 types, 1744/1744 invocations passing
+checks[code]: 119 types, 1067/1067 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
 dev gate: PASS - code+schema 1744/1744 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

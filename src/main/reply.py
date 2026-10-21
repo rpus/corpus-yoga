@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""reply.py - the launcher's reply to the reader (issues/896, issues/947): now:, the room's
-standing read after the act, corpus-yoga status last, then the act's effect line, the last
+"""reply.py - the launcher's reply to the reader (issues/896, issues/947, issues/951): now:, the
+room's standing read after the act and nothing more, then the act's effect line, the last
 line of every response an enacting verb gives. The standing is the fold of every noun's own
 now:, read once and together (src/main/standing.py, issues/949); an act hands up no steps of
 its own, so what its reply names is what the room's state allows after it.
@@ -36,7 +36,7 @@ def main(argv: list[str]) -> int:
     effect = handed.get('effect')
     if not isinstance(effect, str) or not effect:
         effect = f'{act}: {"DONE" if code == 0 else "NOT DONE"} - exit {code}; the verb handed up no effect line'
-    shape = {'now': {**standing.room_now(), facts.ROOM.line: facts.ROOM.does}}
+    shape = {'now': standing.room_now() or facts.phrase('none - nothing to do')}
     print('\n'.join(facts.lines(facts.plain(shape), width=facts.terminal_width()) + [effect]), flush=True)
     return 0
 
