@@ -2249,7 +2249,7 @@ def check_status_facts(run) -> None:
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'),
-              ('stage', 'invalid'), ('stage', 'unlicensed'), ('store', 'now'), ('grammar',), ('migration',)]   # the store's now: is the room's one reading (issues/945)
+              ('stage', 'invalid'), ('stage', 'unlicensed'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')
@@ -2265,6 +2265,28 @@ def check_status_facts(run) -> None:
     same = by_test.removeprefix('yes - ') == by_forge or by_forge.endswith(by_test)
     run('report: the forge says the commit hook as corpus-yoga test says it', same,
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
+    # The room's standing is one fold of every noun's own now: (issues/949): no noun's now: names a
+    # command another noun's now: names - a noun that ran another would - and the report's
+    # now: is the fold of theirs. The live bug: at 1e9b8a8f corpus-yoga store ran the five
+    # other nouns and said their now: as its own.
+    nouns_with_now = ('store', 'forge', 'cache', 'logs', 'server', 'site')
+    own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
+    named_by: dict[str, str] = {}
+    twice: list[str] = []
+    for noun in nouns_with_now:
+        block = own_now[noun]
+        for command in (block if isinstance(block, dict) else {}):
+            if command in named_by:
+                twice.append(f'{command} - by corpus-yoga {named_by[command]} and corpus-yoga {noun}')
+            named_by.setdefault(command, noun)
+    run('status: no noun\'s now: names a command another noun\'s now: names', not twice,
+        None if not twice else '; '.join(twice)[:300], check='status.now_is_the_nouns_own')
+    import importlib
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
+    folded = importlib.import_module('standing').fold(own_now) or 'none - nothing to do'
+    same = whole.get('now') == folded
+    run('report: its now: is the fold of every noun\'s own now:', same,
+        None if same else f'the report says {str(whole.get("now"))[:120]} where the fold is {str(folded)[:120]}', check='report.now_is_the_fold')
 
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,

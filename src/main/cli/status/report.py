@@ -8,15 +8,15 @@ in pairs, and stand under `remedy` beside it (issues/763, issues/777). A row `<s
 <pointer>` is what that noun's own status says at that spot, loaded as the data it is
 (issues/777): whole in the full report, and otherwise what holds a remedy - or, with `standing`
 as a fifth column (issues/824), the spot's facts as they stand, since what the stage says to run
-next is no remedy and is still what the room needs doing. Runs under the venv's
-python, or under python3 before the venv is minted, where no noun can be asked.
+next is no remedy and is still what the room needs doing. The report ends on now:, the
+room's standing folded once from every noun's own (src/main/standing.py, issues/949). Runs under
+the venv's python, or under python3 before the venv is minted, where no noun can be asked.
 
 usage: report.py report <rows-file> <show-all: 0|1>
        report.py remedies <rows-file> ...      # each remedy the report holds: command, what it does, where
 """
 from __future__ import annotations
 import os
-import subprocess
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -29,6 +29,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
+import standing  # noqa: E402
 
 
 @dataclass
@@ -38,9 +39,10 @@ class Report:
     or is the thing itself by its address; the commands that act on a row stand under
     `remedy` beside its last part, each with what it does. No key names a kind."""
     sections: Mapping[str, object]
+    now: dict | str = facts.phrase('unread - the venv is not minted')   # the room's standing, last (issues/949)
 
     def facts(self) -> dict:
-        return {name: self.sections[name] for name in sorted(self.sections)}   # one order, a reader's: alphabetical
+        return {**{name: self.sections[name] for name in sorted(self.sections)}, 'now': self.now}   # one order, a reader's: alphabetical, the standing last
 
 
 def needing(node):
@@ -54,31 +56,7 @@ def needing(node):
     return kept or None
 
 
-_said: dict[str, object] = {}     # each noun's status, read once a report, however many spots are grafted from it
-
-
-def read_at_once(nouns: list[str]) -> None:
-    """Read every grafted noun's status together, so the report takes the time of the
-    slowest and not their sum (issues/811): each is a process of its own, and none reads another."""
-    from concurrent.futures import ThreadPoolExecutor
-    with ThreadPoolExecutor(max_workers=max(1, len(nouns))) as pool:
-        for noun in nouns:
-            pool.submit(said_by, noun)
-
-
-def said_by(noun: str):
-    """What the noun's bare status says, loaded; or, in words, why it could not be read."""
-    if noun not in _said:
-        asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO)
-        try:
-            at = facts.load(asked.stdout)
-        except ValueError as error:
-            at = facts.phrase('corpus-yoga {noun} is unreadable - {error}', noun=noun, error=error)
-        _said[noun] = at
-    return _said[noun]
-
-
-def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
+def grafted(noun: str, pointer: str, whole: bool, as_standing: bool = False):
     """What the noun's own status says at the pointer: its facts, loaded. None where the
     short report has nothing of it to show: what holds a remedy - a command the reader
     types, or the reader's own act in words, which is shown and never run (issues/866) - or, for
@@ -87,7 +65,7 @@ def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return facts.phrase('unread - the venv is not minted') if whole else None
-    at = said_by(noun)
+    at = standing.said_by(noun)
     if isinstance(at, str):
         return at
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
@@ -96,7 +74,7 @@ def grafted(noun: str, pointer: str, whole: bool, standing: bool = False):
         at = at[token]
     if whole:
         return at
-    if standing:
+    if as_standing:
         return at if isinstance(at, (dict, list)) and at else None
     return needing(at)
 
@@ -120,7 +98,7 @@ def main() -> int:
     rows = [line.split('\t') for line in Path(rows_file).read_text().splitlines() if line.strip()]
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if venv.is_file():
-        read_at_once(sorted({row[2] for row in rows if row[1] == 'graft'}))
+        standing.read_at_once(sorted({row[2] for row in rows if row[1] == 'graft'} | set(standing.NOUNS)))   # the grafted and the folded, one batch
     for name, kind, subject, stands, *rest in rows:
         if kind == 'graft':
             # the section is the command (issues/812); beneath it, what stands at the pointer, under
@@ -152,10 +130,10 @@ def main() -> int:
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
-    if not sections and not whole:
-        facts.say(Report({'remedy': facts.phrase('none - corpus-yoga status --show-all says what stands')}))   # a status loads as one mapping: the empty case says its one fact
-        return 0
-    facts.say(Report(sections))
+    report = Report(sections if sections or whole else {'remedy': facts.phrase('none - corpus-yoga status --show-all says what stands')})   # a status loads as one mapping: the empty case says its one fact
+    if venv.is_file():
+        report.now = standing.room_now() or facts.phrase('none - nothing to do')
+    facts.say(report)
     return 0
 
 

@@ -507,7 +507,6 @@ report() {
   check_pipeline_inputs
   graft stage "/invalid" standing
   graft stage "/unlicensed" standing
-  graft store "/now" standing
   graft migration ""
 
   # A report is information: it exits 0 unless it could not BE produced. Severity

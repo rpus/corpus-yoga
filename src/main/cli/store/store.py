@@ -26,10 +26,10 @@ declaration selects, at an address. Three readings, and nothing written:
 The store's status reads everything upstream of it (issues/851): the stage against the store,
 and the live stores against the fuller of the staged and the held copy
 (src/main/live.py), so that it alone
-names every act the room's state allows under now: - the captures, the rehearsal, the
-promotes, the stage's cleaner and its own, in the workflow's order, and what the other
-nouns' statuses name under theirs (issues/947). The stage's status is
-a report of its tier and names none.
+names the workflow's steps under now: - the captures, the rehearsal, the promotes, the
+stage's cleaner and its own, in the workflow's order; the room's standing folds them with
+the other nouns' own (src/main/standing.py, issues/949). The stage's status is a report of its
+tier and names none.
 
 The janitor, store clean, acts on the second reading (issues/744): each duplicate, of either
 species, goes with what only it feeds - its members, its record and its shadow under the
@@ -95,15 +95,9 @@ def entries() -> list[cleaner.Entry]:
     return out
 
 
-def store_now(rows: list[corpus.Judged], ahead: list[live.Ahead]) -> dict[str, dict[str, dict[str, int]]]:
-    """The room's standing, by command, in the workflow's order (issues/851): the room's one
-    reading, corpus.room_now, over the rows and the live reading this status has already read."""
-    return corpus.room_now(rows, ahead)
-
-
 def status_facts() -> corpus.StoreStatus:
     """Bare corpus-yoga store, whole: the store's own readings, the stage against the
-    store, the live stores against both tiers, and the room's standing."""
+    store, the live stores against both tiers, and its own standing."""
     out, held, twice = corpus.store_facts(*live.live_addresses())
     rows = corpus.survey()
     out.staged = corpus.promotion_facts(rows) if rows else facts.phrase('none staged')
@@ -112,7 +106,7 @@ def status_facts() -> corpus.StoreStatus:
     items, found, level = live.ahead_facts(ahead, absent)
     out.live = items if items else (facts.phrase('no live store is mounted in this workspace') if not ahead
                                     else facts.phrase('nothing beyond the tiers - {level} live unit(s) level with the copies', level=level))
-    out.now = store_now(rows, ahead) or facts.phrase('none - nothing to do')
+    out.now = corpus.store_now(rows, ahead) or facts.phrase('none - nothing to do')
     return out
 
 
