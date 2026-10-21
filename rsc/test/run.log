@@ -249,7 +249,7 @@ check_status_is_the_dry_run: |
   ✓ verbs.status_is_the_dry_run
 
 check_reply: |
-  ✓ reply.next_is_the_launchers  (2/2)
+  ✓ reply.now_is_the_launchers  (2/2)
 
 check_reference: |
   ✓ reference.provenance_declared  (2/2)

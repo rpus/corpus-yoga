@@ -334,40 +334,40 @@ def say(shape: DataclassInstance) -> None:
     print('\n'.join(lines(plain(shape), depth(), width=terminal_width())))
 
 
-ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every next: (issues/801)
+ROOM = Command('corpus-yoga status', 'reports the room whole')   # the last entry of every now: (issues/801, issues/947)
 import tier  # noqa: E402 - the launcher's names, one home
 
 ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (issues/896)
 EFFECT = 'CORPUS_YOGA_EFFECT'    # and the file the act hands its effect up through
 
 
-def handed_up(effect: str, following) -> bool:
+def handed_up(effect: str) -> bool:
     """Whether this effect is the launcher's to say: the launcher named the act it
     dispatched and the file to hand the effect through, and the effect line is that act's
-    - `<command> <verb>: …` - not an inner verb's. Where it is, the effect and the act's own
-    following entries are written there, in the printer's lines, for src/main/reply.py."""
+    - `<command> <verb>: …` - not an inner verb's. Where it is, the effect is written there,
+    in the printer's lines, for src/main/reply.py."""
     act, path = os.environ.get(ACT, ''), os.environ.get(EFFECT, '')
     if not act or not path or not effect.startswith(act + ':'):
         return False
-    handed = {'following': following if isinstance(following, dict) else {}, 'effect': effect}
+    handed = {'effect': effect}
     Path(path).write_text('\n'.join(lines(plain(handed))) + '\n')
     return True
 
 
-def report_lines(outcomes, effect: str, following=None) -> list[str]:
+def report_lines(outcomes, effect: str) -> list[str]:
     """What an act reports (issues/801, issues/896), as lines: its facts by outcome, where it has not
     already printed them act by act; then its effect line, `<noun> <verb>: DONE - …` or
-    `NOT DONE - …`. next: is the launcher's reply, never the verb's: where the launcher
-    dispatched this act the effect is handed up and the launcher says next: then the
+    `NOT DONE - …`. now: is the launcher's reply, never the verb's: where the launcher
+    dispatched this act the effect is handed up and the launcher says now: - the room's
+    standing read after the act, which no act adds steps of its own to (issues/947) - then the
     effect; where none did - an inner invocation, a step of another verb - the effect is
-    the last line and no next: is said. following: the act's own next: entries, a command
-    beside what it does, handed up with the effect."""
+    the last line and no now: is said."""
     out: list[str] = []
     if outcomes:
         said = plain(outcomes)
         if isinstance(said, dict):
             out = lines(plain(said), width=terminal_width())
-    if handed_up(effect, following):
+    if handed_up(effect):
         return out
     return out + [effect]
 
@@ -397,9 +397,9 @@ def phrase(template: str, **places) -> str:
     return template.format_map(places)
 
 
-def report(outcomes, effect: str, following=None) -> None:
+def report(outcomes, effect: str) -> None:
     """Print what an act reports (issues/801, issues/896): report_lines, each a line."""
-    said = report_lines(outcomes, effect, following)
+    said = report_lines(outcomes, effect)
     if said:
         pad = ' ' * (depth() * STEP)
         print('\n'.join(pad + line for line in said), flush=True)

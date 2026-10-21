@@ -168,7 +168,7 @@ def end(stamp: str, exit_code: int) -> int:
     write(record)
     judged = sum(1 for unit in record['units'].values() if unit['verdicts'])
     # what an act reports (issues/801, issues/896): its effect, DONE where the run completed, its record
-    # written either way; the launcher replies with next:, what the room can do now that
+    # written either way; the launcher replies with now:, the room's standing now that
     # the stage is judged
     saw = f'rehearsal {stamp} saw {len(record["units"])} unit(s), judged {judged} - the record is {_rel(RECORD)}'
     facts.report(None, f'pipeline rehearse: {"DONE" if exit_code == 0 else "NOT DONE"} - {saw}'

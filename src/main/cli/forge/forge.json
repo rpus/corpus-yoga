@@ -4,6 +4,7 @@
     "would set it as declared",
     "refuse-class drift - corpus-yoga forge merge refuses while it stands",
     "ready - no refuse-class drift",
+    "unread - the forge was not asked; branches says why",
     "declared {want}, live {got}",
     "no src/main/cli/forge/forge.csv",
     "not installed",
@@ -145,7 +146,7 @@
     "forge settings": "the forge's merge settings, declared in src/main/cli/forge/forge.csv and compared row by row with what the forge holds for this checkout's remote; a drift carries corpus-yoga forge sync as its remedy, and a forge not read says why under live",
     "branches": "each branch the forge or this clone holds, and whether it is kept or deletable - its work merged, or its PR superseded - judged against the merged head the forge recorded, fetched where this checkout lacks it, and unverified where it cannot be held; corpus-yoga forge clean removes the deletable, and a branch kept on evidence carries the reader's act as its remedy, which bare status says",
     "remote-tracking refs": "the refs this clone keeps for branches the forge has deleted, each stale one by name",
-    "next": "what to run next - corpus-yoga forge clean, what it would do, and each deletable branch and stale tracking ref it would remove by name; the workflow's step, which remedies nothing. none where the forge holds nothing to remove",
+    "now": "the room's standing as the forge reads it - corpus-yoga forge clean, what it would do, and each deletable branch and stale tracking ref it would remove by name; each open PR's merge over its head branch, while no refuse-class drift stands; the workflow's steps, which remedy nothing. none where the forge holds nothing to remove and no PR is open; unread where the forge was not asked",
     "this checkout": "the branch the checkout is on against its upstream, and the commit hook, as corpus-yoga test says it"
   }
 }

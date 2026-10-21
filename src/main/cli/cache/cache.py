@@ -12,7 +12,7 @@ src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whos
 are the two halves of the reproduction ritual: `corpus-yoga cache clean &&
 corpus-yoga cache sync` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
 idempotent regenerator (L1); `clean` is the only destructive verb, and takes no flag
-(issues/865): what it would remove is what bare cache names under orphans: and next:.
+(issues/865): what it would remove is what bare cache names under orphans: and now:.
 STDLIB-ONLY, like everything it routes to.
 """
 import os
@@ -47,12 +47,12 @@ class Orphan:
 @dataclass
 class Status:
     """Bare corpus-yoga cache: the subtrees present, each orphan by its path, and under
-    next: the cleaner over what it would remove, by path (issues/865), so that bare status, which
-    grafts next:, names an orphaned subtree a room carries."""
+    now: the cleaner over what it would remove, by path (issues/865), so that the room's one
+    reading, which folds this block, names an orphaned subtree a room carries."""
     tmp_cache: Tree = facts.named('tmp/cache')
     orphans: dict[str, Orphan] | None = None
-    cache: str = ''               # the tree's count, a fact of the room; a status ends on next: (issues/740)
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None
+    cache: str = ''               # the tree's count, a fact of the room; a status ends on now: (issues/740)
+    now: dict[str, dict[str, dict[str, int]]] | str | None = None
 
 
 def status_facts() -> Status:

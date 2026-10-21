@@ -131,7 +131,7 @@ main() {
     i=$((i + 1))
   done
   # what an act reports (issues/876, issues/896): the effect, the last line where no launcher asked for
-  # it, carried in the record; the launcher replies with next:, the rehearsal that judges
+  # it, carried in the record; the launcher replies with now:, the rehearsal that judges
   # what was staged
   if [[ -n "$dry_run" ]]; then
     effect "browser capture: DONE - dry run; nothing staged, nothing spent"

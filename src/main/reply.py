@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-"""reply.py - the launcher's reply to the reader (issues/896): next:, the room's to-do read after
-the act, with the act's own following entries and corpus-yoga status last, then the act's
-effect line, the last line of every response an enacting verb gives.
+"""reply.py - the launcher's reply to the reader (issues/896, issues/947): now:, the room's
+standing read after the act, corpus-yoga status last, then the act's effect line, the last
+line of every response an enacting verb gives. The standing is the one reading every status
+says (src/main/corpus.py room_now); an act hands up no steps of its own, so what its reply
+names is what the room's state allows after it.
 
 The verb hands its effect up through facts.report, into the file the launcher named as
-CORPUS_YOGA_EFFECT; this reads it back through the printer's own reader and says next:
+CORPUS_YOGA_EFFECT; this reads it back through the printer's own reader and says now:
 once, from the room as the nouns read it now. A verb that handed nothing up - it crashed,
 or exited before its effect - is said as NOT DONE with its exit code, so that a response
 still ends on an effect line and the silence is legible.
@@ -31,11 +33,10 @@ def main(argv: list[str]) -> int:
         read = facts.load(path.read_text())
         handed = read if isinstance(read, dict) else {}
         path.unlink()
-    following = handed.get('following')
     effect = handed.get('effect')
     if not isinstance(effect, str) or not effect:
         effect = f'{act}: {"DONE" if code == 0 else "NOT DONE"} - exit {code}; the verb handed up no effect line'
-    shape = {'next': {**corpus.room_next(), **(following if isinstance(following, dict) else {}), facts.ROOM.line: facts.ROOM.does}}
+    shape = {'now': {**corpus.room_now(), facts.ROOM.line: facts.ROOM.does}}
     print('\n'.join(facts.lines(facts.plain(shape), width=facts.terminal_width()) + [effect]), flush=True)
     return 0
 

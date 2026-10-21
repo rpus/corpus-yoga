@@ -125,7 +125,7 @@ sync_matrices() {
   if (( rc == 0 )); then
     effect "pipeline sync: DONE - $(phrase "each datum's matrix.md re-rendered from its validation logs")"
   else
-    effect "pipeline sync: NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")" "corpus-yoga pipeline run" "$(phrase "validates the data the matrices read")"
+    effect "pipeline sync: NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")"
   fi
   return $rc
 }
@@ -581,7 +581,7 @@ main() {
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    effect "pipeline run: DONE - $(phrase "usr gate PASS; all pipelines completed")" "corpus-yoga server start --daemon" "$(phrase "serves data/output/markdown at http://localhost:8182")"
+    effect "pipeline run: DONE - $(phrase "usr gate PASS; all pipelines completed")"
   else
     effect "pipeline run: NOT DONE - $(phrase "usr gate FAIL; the failing stage(s) are named above")"
   fi

@@ -20,7 +20,6 @@
     "committed with the copy",
     "ext/mnt/site is not a git clone; corpus-yoga status reports the mount",
     "no publish tree at data/output/site/",
-    "assembles it",
     "no effect; rpus.co's clone already holds the publish tree as assembled",
     "nothing to commit - the clone already held the tree",
     "rpus.co serves the publish tree on Netlify's next build",

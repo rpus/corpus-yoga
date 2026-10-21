@@ -46,7 +46,7 @@ start() {
     nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    effect "server start: DONE - serving in the background; the daemon writes ${LOG_FILE#"$REPO_DIR/"}" "corpus-yoga server stop" "stops it"
+    effect "server start: DONE - serving in the background; the daemon writes ${LOG_FILE#"$REPO_DIR/"}"
   else
     "${PY[@]}" "${pyargs[@]}"
   fi

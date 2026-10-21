@@ -225,7 +225,7 @@ def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[dict[str, Ahead |
 
 
 def captures(out: dict[str, dict[str, dict[str, int]]], rows: list[Ahead]) -> None:
-    """Into a next: block, each live thing ahead of its copy under the capture, by
+    """Into a now: block, each live thing ahead of its copy under the capture, by
     provider, that would stage it, keyed by the selection it is counted under."""
     for row in rows:
         if row.state in ('new', 'grown', 'changed', 'diverged'):

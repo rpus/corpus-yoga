@@ -784,7 +784,7 @@ src/main/cli/cli.py,234,comment,rsc/CALCULUS.md,Y,"The corpus laws, parsed from 
 src/main/cli/cli.py,379,comment,src/main/cli/corpus-yoga.json,Y,"# the top's own declaration, src/main/cli/corpus-yoga.json, validated against src/main/cli/root.schema.json:"
 src/main/cli/cli.py,379,comment,src/main/cli/root.schema.json,Y,"# the top's own declaration, src/main/cli/corpus-yoga.json, validated against src/main/cli/root.schema.json:"
 src/main/cli/command.schema.json,66,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
-src/main/cli/completions/completions.json,28,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
+src/main/cli/completions/completions.json,26,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
 src/main/cli/completions/completions.py,4,comment,src/main/cli/completions/offer.py,Y,"in ~/.zshrc that make it. What tab offers is src/main/cli/completions/offer.py's, asked by"
 src/main/cli/completions/completions.py,5,comment,src/main/cli/completions/offer.zsh,Y,src/main/cli/completions/offer.zsh each time tab is pressed; src/main/cli/completions/_corpus-yoga
 src/main/cli/completions/completions.py,21,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
@@ -805,8 +805,8 @@ src/main/cli/forge/capture.py,42,comment,src/main/cli/forge/capture.py,Y,src/run
 src/main/cli/forge/capture.py,50,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
 src/main/cli/forge/capture.py,62,path_str,src/main/cli/forge/review-counts.graphql,Y,REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 src/main/cli/forge/capture.py,103,comment,src/main/cli/forge/review-counts.graphql,Y,"(src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."
-src/main/cli/forge/forge.json,118,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
-src/main/cli/forge/forge.json,142,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge/forge.json,119,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
+src/main/cli/forge/forge.json,143,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   corpus-yoga forge sync            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the
 src/main/cli/forge/forge.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/forge/forge.sh,23,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -815,12 +815,12 @@ src/main/cli/forge/forge.sh,27,comment,src/main/cli/parse_argv.sh,Y,# shellcheck
 src/main/cli/forge/forge.sh,29,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/forge/forge.sh,31,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/forge/forge.sh,71,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge/forge.sh,284,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
-src/main/cli/forge/forge.sh,291,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
-src/main/cli/forge/forge.sh,398,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
-src/main/cli/forge/forge.sh,541,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,599,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,794,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,287,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
+src/main/cli/forge/forge.sh,294,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
+src/main/cli/forge/forge.sh,401,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
+src/main/cli/forge/forge.sh,544,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
+src/main/cli/forge/forge.sh,602,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
+src/main/cli/forge/forge.sh,797,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/raise.py,5,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,7,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,11,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
@@ -880,7 +880,7 @@ src/main/cli/model/sync.json,5,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/sync.json,6,path_str,rsc/model,Y,"""rsc/model"""
 src/main/cli/parse_argv.py,27,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/pipeline/audit.json,14,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/pipeline/pipeline.json,39,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
+src/main/cli/pipeline/pipeline.json,37,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
 src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,29,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/pipeline/pipeline.sh,31,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -920,10 +920,10 @@ src/main/cli/server/server.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=
 src/main/cli/server/server.sh,20,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/server/server.sh,22,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/server/start.json,31,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
-src/main/cli/server/status.py,10,path_str,src/main/cli/server/status.py,Y,SELF = 'src/main/cli/server/status.py'
+src/main/cli/server/status.py,11,path_str,src/main/cli/server/status.py,Y,SELF = 'src/main/cli/server/status.py'
 src/main/cli/site/render.json,7,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
-src/main/cli/site/site.json,49,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
-src/main/cli/site/site.json,54,path_str,rsc/site,Y,"""rsc/site"","
+src/main/cli/site/site.json,48,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.json,53,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
 src/main/cli/site/site.sh,23,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -933,7 +933,7 @@ src/main/cli/site/site.sh,31,comment,src/main/report.sh,Y,# shellcheck source=sr
 src/main/cli/site/site.sh,36,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/site.sh,110,comment,src/main/model/compare_pages.py,Y,"# (issues/652, src/main/model/compare_pages.py), since a line diff of two renders misstates it."
 src/main/cli/site/status.py,14,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
-src/main/cli/site/status.py,73,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
+src/main/cli/site/status.py,75,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,7,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,44,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
@@ -979,7 +979,7 @@ src/main/cli/store/store.json,51,path_str,rsc/naming/export_archive_members.csv,
 src/main/cli/store/store.json,52,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.py,8,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 src/main/cli/store/store.py,28,comment,src/main/live.py,Y,"(src/main/live.py), so that it alone"
-src/main/cli/store/store.py,43,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
+src/main/cli/store/store.py,44,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
 src/main/cli/subcommand.schema.json,50,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,11,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/test/install-hook.json,5,path_str,rsc/test,Y,"""rsc/test"""
@@ -1012,7 +1012,7 @@ src/main/corpus.py,211,comment,rsc/naming/export_archive_members.csv,Y,"capture 
 src/main/corpus.py,539,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
 src/main/enact.sh,33,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
-src/main/facts.py,348,comment,src/main/reply.py,Y,"following entries are written there, in the printer's lines, for src/main/reply.py."
+src/main/facts.py,348,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,119,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
@@ -1273,11 +1273,12 @@ src/main/rehearsal.py,18,comment,src/main/validation_verdict.py,Y,"(src/main/val
 src/main/rehearsal.py,21,comment,src/main/rehearsal.schema.json,Y,"src/main/rehearsal.schema.json, held on every write and every read: what does not"
 src/main/rehearsal.py,24,comment,src/main/corpus.py,Y,"A unit's standing to the record is decidable from it (src/main/corpus.py, `verdict`):"
 src/main/rehearsal.py,36,path_str,src/main/rehearsal.py,Y,SELF = 'src/main/rehearsal.py'
-src/main/reply.py,13,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/reply.py <act> <effect-file> <exit-code>
-src/main/reply.py,13,comment,src/main/reply.py,Y,src/run_python_script.sh src/main/reply.py <act> <effect-file> <exit-code>
-src/main/reply.py,18,path_str,src/main/reply.py,Y,SELF = 'src/main/reply.py'
-src/main/report.sh,5,comment,src/main/reply.py,Y,"# (src/main/reply.py); where no launcher asked - an inner invocation, a step of another"
-src/main/report.sh,6,comment,src/main/facts.py,Y,"# verb - the effect line is printed as the last line. Through src/main/facts.py, so that"
+src/main/reply.py,5,comment,src/main/corpus.py,Y,"says (src/main/corpus.py room_now); an act hands up no steps of its own, so what its reply"
+src/main/reply.py,15,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/reply.py <act> <effect-file> <exit-code>
+src/main/reply.py,15,comment,src/main/reply.py,Y,src/run_python_script.sh src/main/reply.py <act> <effect-file> <exit-code>
+src/main/reply.py,20,path_str,src/main/reply.py,Y,SELF = 'src/main/reply.py'
+src/main/report.sh,4,comment,src/main/reply.py,Y,"# room's standing read after the act, and the effect (src/main/reply.py); where no launcher asked - an inner invocation,"
+src/main/report.sh,5,comment,src/main/facts.py,Y,"# verb - the effect line is printed as the last line. Through src/main/facts.py, so that"
 src/main/safari.py,15,path_str,src/main/safari.py,Y,SELF = 'src/main/safari.py'
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/pipeline/chat-export/claude/"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/pipeline/chat-export/claude/"

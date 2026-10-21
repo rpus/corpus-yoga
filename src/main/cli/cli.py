@@ -493,9 +493,9 @@ def dispatch(row: dict, rest: list[str]) -> int:
     face is exec'd, so signals, exit codes and interactivity are the target's own. An
     act the reader typed - an enacting verb, dispatched by no outer launcher - runs as
     the launcher's child, its output through a tee into its run log (_log_enacting), and
-    the launcher replies after it (issues/896): next:, the room's to-do read once after the
+    the launcher replies after it (issues/896): now:, the room's standing read once after the
     act, then the act's effect line, handed up by the verb through the file
-    facts.EFFECT names. Only the launcher says next:, so a verb run as a step of another verb says
+    facts.EFFECT names. Only the launcher says now:, so a verb run as a step of another verb says
     none; an inner launcher - one the outer act runs - finds facts.ACT set, tees its verb's
     record (issues/708) and execs, its verb's effect line the step's last line. Signals from the terminal
     reach the child through the process group; the launcher's exit code is the child's."""

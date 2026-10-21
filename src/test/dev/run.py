@@ -2249,7 +2249,7 @@ def check_status_facts(run) -> None:
     # stands at each pointer under the pointer's last key, or the noun's whole status
     grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
               ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'),
-              ('stage', 'invalid'), ('stage', 'unlicensed'), ('store', 'next'), ('grammar',), ('migration',)]   # the store's next: is the room's one reading (issues/945)
+              ('stage', 'invalid'), ('stage', 'unlicensed'), ('store', 'now'), ('grammar',), ('migration',)]   # the store's now: is the room's one reading (issues/945)
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
         section = whole.get(f'corpus-yoga {noun}')
@@ -3290,11 +3290,12 @@ def check_status_is_the_dry_run(run) -> None:
 
 
 def check_reply(run) -> None:
-    """next: is the launcher's reply, never the verb's (issues/896): where the launcher named the
-    act it dispatched and the file to hand the effect through, the printer's report says
-    no next: and writes the effect there; where no launcher asked, or the effect is an inner
-    verb's, the effect line is the last line and still no next: is said. The live bug is
-    reading-room's rehearsal log of 2026-10-14, five next: blocks in one run."""
+    """now: is the launcher's reply, never the verb's (issues/896, issues/947): where the launcher
+    named the act it dispatched and the file to hand the effect through, the printer's report
+    says no now:, hands up no steps of its own, and writes the effect there; where no launcher
+    asked, or the effect is an inner verb's, the effect line is the last line and still no
+    now: is said. The live bug is reading-room's rehearsal log of 2026-10-14, five next:
+    blocks in one run."""
     sys.path.insert(0, str(SRC / 'main'))
     import contextlib
     import importlib
@@ -3310,10 +3311,10 @@ def check_reply(run) -> None:
             outer, inner = io.StringIO(), io.StringIO()
             try:
                 with contextlib.redirect_stdout(outer):
-                    facts.report(None, 'stage clean: DONE - did remove 1 duplicate', {'corpus-yoga x': 'would y'})
+                    facts.report(None, 'stage clean: DONE - did remove 1 duplicate')
                 with contextlib.redirect_stdout(inner):
                     facts.report(None, 'indexing sync: DONE - written')
-                said = 'the printer says next: itself' if 'next:' in outer.getvalue() + inner.getvalue() else None
+                said = 'the printer says now: itself' if 'now:' in outer.getvalue() + inner.getvalue() else None
             except TypeError as error:
                 said = f'the printer takes the room\'s to-do from the verb: {error}'
             read = facts.load(handed.read_text()) if handed.is_file() else None
@@ -3323,13 +3324,12 @@ def check_reply(run) -> None:
                     os.environ.pop(k, None)
                 else:
                     os.environ[k] = v
-    handed_ok = (said is None and isinstance(read, dict) and read.get('effect') == 'stage clean: DONE - did remove 1 duplicate'
-                 and read.get('following') == {'corpus-yoga x': 'would y'} and outer.getvalue().strip() == '')
-    run('reply: an act the launcher dispatched hands its effect up and says no next:', handed_ok,
-        said or (None if handed_ok else f'handed {read!r}; printed {outer.getvalue()!r}'), check='reply.next_is_the_launchers')
+    handed_ok = (said is None and read == {'effect': 'stage clean: DONE - did remove 1 duplicate'} and outer.getvalue().strip() == '')
+    run('reply: an act the launcher dispatched hands its effect up, nothing else, and says no now:', handed_ok,
+        said or (None if handed_ok else f'handed {read!r}; printed {outer.getvalue()!r}'), check='reply.now_is_the_launchers')
     inner_ok = said is None and inner.getvalue().strip() == 'indexing sync: DONE - written'
-    run('reply: an inner verb ends on its effect line and says no next:', inner_ok,
-        said or (None if inner_ok else f'printed {inner.getvalue()!r}'), check='reply.next_is_the_launchers')
+    run('reply: an inner verb ends on its effect line and says no now:', inner_ok,
+        said or (None if inner_ok else f'printed {inner.getvalue()!r}'), check='reply.now_is_the_launchers')
 
 
 def check_forge_aim(run) -> None:
