@@ -5,7 +5,10 @@
     "not running",
     "{got}/{total} in ext/lib/serve_markdown",
     "all of them",
-    "fetches them; the next corpus-yoga server start does too"
+    "fetches them; the next corpus-yoga server start does too",
+    "serves {markdown} at http://localhost:{port} in the background; the daemon writes {log}",
+    "stopped the serve_markdown daemon",
+    "no serve_markdown daemon was running"
   ],
   "target": "src/main/cli/server/server.sh",
   "calculus": "project",

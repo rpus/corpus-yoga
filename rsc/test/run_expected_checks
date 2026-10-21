@@ -134,6 +134,7 @@ schema.pipeline_schema_placed
 schema.single_version
 schema.valid_against_meta_schema
 schema.valid_json_with_schema
+server.now_names_the_stop_or_the_start
 shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart

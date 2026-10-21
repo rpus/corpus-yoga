@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
 status.py - bare `corpus-yoga server`: whether the markdown daemon runs, the render assets
-present against their manifest (issues/759), and under now: its start where the corpus is
-rendered and the daemon is down (issues/947). Reads; writes nothing.
+present against their manifest (issues/759), and under now: the stop while the daemon runs,
+the start where the corpus is rendered and the daemon is down (issues/947, issues/960).
+Reads; writes nothing.
 """
 import sys
 from dataclasses import dataclass
@@ -41,6 +42,16 @@ class Status:
     now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/947)
 
 
+def now_of(running: bool, rendered: bool) -> dict[str, dict[str, dict[str, int]]] | str:
+    """The server's standing (issues/960): the stop while the daemon runs; the start while the
+    corpus page is rendered and the daemon is down; none otherwise."""
+    if running:
+        return {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}
+    if rendered:
+        return {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}}
+    return facts.phrase('none - nothing to do')
+
+
 def main() -> int:
     found = subprocess.run(['pgrep', '-f', 'serve_markdown.py'], capture_output=True, text=True).stdout.split()
     manifest = REPO / 'src' / 'main' / 'model' / 'serve_assets.txt'
@@ -57,9 +68,8 @@ def main() -> int:
     out = Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), Assets(
         facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
         (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
-        facts.Command('corpus-yoga server ensure-assets', facts.phrase('fetches them; the next corpus-yoga server start does too')) if missing else None)))
-    if rendered and not found:
-        out.now = {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}}
+        facts.Command('corpus-yoga server ensure-assets', facts.phrase('fetches them; the next corpus-yoga server start does too')) if missing else None)),
+                 now_of(bool(found), rendered))
     facts.say(out)
     return 0
 
