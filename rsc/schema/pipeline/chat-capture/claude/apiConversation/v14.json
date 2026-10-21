@@ -47,7 +47,7 @@
         },
         "current_leaf_message_uuid": {
           "description": "UUID of the active branch tip.",
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "is_starred": {
           "type": "boolean"
@@ -108,6 +108,10 @@
         "is_multiplayer": {
           "description": "Whether the conversation is shared with other accounts on claude.ai. Observed reading-room 2026-10-07 on every one of the account's 123 conversations, false in each; the captures of 2026-09-27 and before carry it not, so it is optional. Undeclared before v13.",
           "type": "boolean"
+        },
+        "has_assistant_outputs": {
+          "type": "boolean",
+          "description": "Whether the conversation holds assistant outputs. First observed 2026-10-14, true, on one conversation of 2026-10-14; absent on every other."
         }
       }
     },
@@ -123,12 +127,15 @@
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$"
     },
-    "UuidV4orV7": {
-      "title": "UuidV4orV7",
-      "description": "A UUID that is either v4 or v7. Some fields were strictly v7 in earlier exports but v4 UUIDs appeared in later exports.",
+    "UuidV4orV5orV7": {
+      "title": "UuidV4orV5orV7",
+      "description": "A UUID of version 4, 5 or 7: v7 in the earliest exports, v4 since, and from 2026-10-14 v5 on one message.",
       "oneOf": [
         {
           "$ref": "#/definitions/UuidV4"
+        },
+        {
+          "$ref": "#/definitions/UuidV5"
         },
         {
           "$ref": "#/definitions/UuidV7"
@@ -156,7 +163,7 @@
       "additionalProperties": false,
       "properties": {
         "uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "text": {
           "type": "string"
@@ -191,7 +198,7 @@
           }
         },
         "parent_message_uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "index": {
           "description": "Zero-based position in the conversation.",
@@ -281,6 +288,12 @@
         "sender"
       ]
     },
+    "UuidV5": {
+      "title": "UuidV5",
+      "description": "UUID version 5 (name-based, SHA-1): the third group begins with 5. First observed 2026-10-14 on one assistant message of conversation 50eea711, in the capture and the export alike.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
     "UuidV7": {
       "title": "UuidV7",
       "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
@@ -313,7 +326,7 @@
         },
         "id": {
           "description": "API only. Attachment identifier (UUID).",
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "created_at": {
           "description": "API only.",
@@ -334,10 +347,10 @@
           "type": "string"
         },
         "file_uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "created_at": {
           "$ref": "#/definitions/Timestamp"
@@ -471,7 +484,14 @@
           "type": "string"
         },
         "metadata": {
-          "$ref": "#/definitions/WebpageMetadata"
+          "oneOf": [
+            {
+              "$ref": "#/definitions/WebpageMetadata"
+            },
+            {
+              "$ref": "#/definitions/GenericMetadata"
+            }
+          ]
         },
         "origin_tool_name": {
           "type": "string"
@@ -573,6 +593,39 @@
       ],
       "oneOf": [
         {
+          "$ref": "#/definitions/AgentArtifactToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentBashToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentEditToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentSearchMcpRegistryToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentSkillToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentSuggestConnectorsToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentTaskCreateToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentTaskUpdateToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentToolSearchToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentWebFetchToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentWriteToolUseBlock"
+        },
+        {
           "$ref": "#/definitions/AskUserToolUseBlock"
         },
         {
@@ -642,6 +695,39 @@
       ],
       "oneOf": [
         {
+          "$ref": "#/definitions/AgentArtifactToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentBashToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentEditToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentSearchMcpRegistryToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentSkillToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentSuggestConnectorsToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentTaskCreateToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentTaskUpdateToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentToolSearchToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentWebFetchToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/AgentWriteToolResultBlock"
+        },
+        {
           "$ref": "#/definitions/AskUserToolResultBlock"
         },
         {
@@ -655,6 +741,9 @@
         },
         {
           "$ref": "#/definitions/McpToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/MemoryAppendToolResultBlock"
         },
         {
           "$ref": "#/definitions/MemoryReadToolResultBlock"
@@ -713,7 +802,8 @@
           "type": "string",
           "enum": [
             "webpage_metadata"
-          ]
+          ],
+          "description": "(discriminator)"
         },
         "site_domain": {
           "type": "string"
@@ -722,6 +812,36 @@
           "type": "string"
         },
         "site_name": {
+          "type": "string"
+        }
+      }
+    },
+    "GenericMetadata": {
+      "title": "GenericMetadata",
+      "description": "A citation's metadata where the source is no web page the search tool described: its type, a uuid, a preview title and a source, empty. First observed 2026-10-09 on a citation of the WebFetch tool's answer in conversation d11565d6.",
+      "type": "object",
+      "required": [
+        "type",
+        "uuid",
+        "preview_title",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "generic_metadata"
+          ],
+          "description": "(discriminator)"
+        },
+        "uuid": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "preview_title": {
+          "type": "string"
+        },
+        "source": {
           "type": "string"
         }
       }
@@ -859,6 +979,237 @@
         }
       }
     },
+    "AgentArtifactToolUseBlock": {
+      "title": "AgentArtifactToolUseBlock",
+      "description": "Tool use block for the Artifact tool - publishes or reads an artifact - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Artifact"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentArtifact"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentBashToolUseBlock": {
+      "title": "AgentBashToolUseBlock",
+      "description": "Tool use block for the Bash tool - runs a shell command - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Bash"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentBash"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentEditToolUseBlock": {
+      "title": "AgentEditToolUseBlock",
+      "description": "Tool use block for the Edit tool - replaces a string in a file - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Edit"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentEdit"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentSearchMcpRegistryToolUseBlock": {
+      "title": "AgentSearchMcpRegistryToolUseBlock",
+      "description": "Tool use block for the SearchMcpRegistry tool - searches the MCP registry - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "SearchMcpRegistry"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentSearchMcpRegistry"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentSkillToolUseBlock": {
+      "title": "AgentSkillToolUseBlock",
+      "description": "Tool use block for the Skill tool - invokes a skill - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Skill"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentSkill"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentSuggestConnectorsToolUseBlock": {
+      "title": "AgentSuggestConnectorsToolUseBlock",
+      "description": "Tool use block for the SuggestConnectors tool - suggests connectors - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "SuggestConnectors"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentSuggestConnectors"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentTaskCreateToolUseBlock": {
+      "title": "AgentTaskCreateToolUseBlock",
+      "description": "Tool use block for the TaskCreate tool - creates a task of the task list - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskCreate"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentTaskCreate"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentTaskUpdateToolUseBlock": {
+      "title": "AgentTaskUpdateToolUseBlock",
+      "description": "Tool use block for the TaskUpdate tool - updates a task of the task list - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskUpdate"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentTaskUpdate"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentToolSearchToolUseBlock": {
+      "title": "AgentToolSearchToolUseBlock",
+      "description": "Tool use block for the ToolSearch tool - loads deferred tools by a query - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "ToolSearch"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentToolSearch"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentWebFetchToolUseBlock": {
+      "title": "AgentWebFetchToolUseBlock",
+      "description": "Tool use block for the WebFetch tool - fetches a page and answers a prompt over it - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-09.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "WebFetch"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentWebFetch"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "AgentWriteToolUseBlock": {
+      "title": "AgentWriteToolUseBlock",
+      "description": "Tool use block for the Write tool - writes a file - one of the agent tools claude.ai names as Claude Code names them, PascalCase, from 2026-10. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Write"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputAgentWrite"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
     "AskUserToolUseBlock": {
       "title": "AskUserToolUseBlock",
       "description": "Tool use block for the ask_user_input_v0 tool.",
@@ -945,7 +1296,7 @@
     },
     "McpToolUseBlock": {
       "title": "McpToolUseBlock",
-      "description": "Tool use block for a tool provided by a connected MCP server. The name follows the pattern <integration>:<tool>, where integration is the claude.ai connector name and tool is the MCP tool name. input is an open object \u2014 shape varies arbitrarily by tool.",
+      "description": "Tool use block for a tool provided by a connected MCP server. The name is <integration>:<tool> (NamespacedToolName) or, from 2026-10, mcp__<server>__<tool> (AgentMcpToolName). input is an open object \u2014 shape varies arbitrarily by tool.",
       "type": "object",
       "required": [
         "name",
@@ -953,7 +1304,14 @@
       ],
       "properties": {
         "name": {
-          "$ref": "#/definitions/NamespacedToolName"
+          "oneOf": [
+            {
+              "$ref": "#/definitions/NamespacedToolName"
+            },
+            {
+              "$ref": "#/definitions/AgentMcpToolName"
+            }
+          ]
         },
         "input": {
           "type": "object"
@@ -1372,6 +1730,193 @@
         }
       }
     },
+    "AgentArtifactToolResultBlock": {
+      "title": "AgentArtifactToolResultBlock",
+      "description": "Tool result block for the Artifact tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Artifact"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentBashToolResultBlock": {
+      "title": "AgentBashToolResultBlock",
+      "description": "Tool result block for the Bash tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Bash"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentEditToolResultBlock": {
+      "title": "AgentEditToolResultBlock",
+      "description": "Tool result block for the Edit tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Edit"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentSearchMcpRegistryToolResultBlock": {
+      "title": "AgentSearchMcpRegistryToolResultBlock",
+      "description": "Tool result block for the SearchMcpRegistry tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "SearchMcpRegistry"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentSkillToolResultBlock": {
+      "title": "AgentSkillToolResultBlock",
+      "description": "Tool result block for the Skill tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Skill"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentSuggestConnectorsToolResultBlock": {
+      "title": "AgentSuggestConnectorsToolResultBlock",
+      "description": "Tool result block for the SuggestConnectors tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "SuggestConnectors"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentTaskCreateToolResultBlock": {
+      "title": "AgentTaskCreateToolResultBlock",
+      "description": "Tool result block for the TaskCreate tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskCreate"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentTaskUpdateToolResultBlock": {
+      "title": "AgentTaskUpdateToolResultBlock",
+      "description": "Tool result block for the TaskUpdate tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskUpdate"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentToolSearchToolResultBlock": {
+      "title": "AgentToolSearchToolResultBlock",
+      "description": "Tool result block for the ToolSearch tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "ToolSearch"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentWebFetchToolResultBlock": {
+      "title": "AgentWebFetchToolResultBlock",
+      "description": "Tool result block for the WebFetch tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "WebFetch"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AgentWriteToolResultBlock": {
+      "title": "AgentWriteToolResultBlock",
+      "description": "Tool result block for the Write tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Write"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
     "AskUserToolResultBlock": {
       "title": "AskUserToolResultBlock",
       "description": "Tool result block for the ask_user_input_v0 tool.",
@@ -1449,9 +1994,33 @@
       ],
       "properties": {
         "name": {
-          "$ref": "#/definitions/NamespacedToolName"
+          "oneOf": [
+            {
+              "$ref": "#/definitions/NamespacedToolName"
+            },
+            {
+              "$ref": "#/definitions/AgentMcpToolName"
+            }
+          ]
         }
       }
+    },
+    "MemoryAppendToolResultBlock": {
+      "title": "MemoryAppendToolResultBlock",
+      "description": "Tool result block for the memory_append tool, claude.ai's first-party Memory integration appending to a memory; its use is named mcp__memory__memory_append. First observed 2026-10-15.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "memory_append"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
     },
     "MemoryReadToolResultBlock": {
       "title": "MemoryReadToolResultBlock",
@@ -1762,6 +2331,210 @@
         }
       ]
     },
+    "ToolInputAgentArtifact": {
+      "title": "ToolInputAgentArtifact",
+      "description": "Input for the Artifact tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "url"
+      ],
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputAgentBash": {
+      "title": "ToolInputAgentBash",
+      "description": "Input for the Bash tool, closed over the keys observed in 10 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "description"
+      ],
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "run_in_background": {
+          "type": "boolean"
+        },
+        "timeout": {
+          "type": "integer"
+        }
+      }
+    },
+    "ToolInputAgentEdit": {
+      "title": "ToolInputAgentEdit",
+      "description": "Input for the Edit tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_path",
+        "new_string",
+        "old_string",
+        "replace_all"
+      ],
+      "properties": {
+        "file_path": {
+          "type": "string"
+        },
+        "new_string": {
+          "type": "string"
+        },
+        "old_string": {
+          "type": "string"
+        },
+        "replace_all": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ToolInputAgentSearchMcpRegistry": {
+      "title": "ToolInputAgentSearchMcpRegistry",
+      "description": "Input for the SearchMcpRegistry tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keywords"
+      ],
+      "properties": {
+        "keywords": {
+          "type": "array"
+        }
+      }
+    },
+    "ToolInputAgentSkill": {
+      "title": "ToolInputAgentSkill",
+      "description": "Input for the Skill tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skill"
+      ],
+      "properties": {
+        "skill": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputAgentSuggestConnectors": {
+      "title": "ToolInputAgentSuggestConnectors",
+      "description": "Input for the SuggestConnectors tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuids"
+      ],
+      "properties": {
+        "uuids": {
+          "type": "array"
+        }
+      }
+    },
+    "ToolInputAgentTaskCreate": {
+      "title": "ToolInputAgentTaskCreate",
+      "description": "Input for the TaskCreate tool, closed over the keys observed in 9 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activeForm",
+        "description",
+        "subject"
+      ],
+      "properties": {
+        "activeForm": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputAgentTaskUpdate": {
+      "title": "ToolInputAgentTaskUpdate",
+      "description": "Input for the TaskUpdate tool, closed over the keys observed in 11 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "taskId"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "taskId": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputAgentToolSearch": {
+      "title": "ToolInputAgentToolSearch",
+      "description": "Input for the ToolSearch tool, closed over the keys observed in 3 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_results",
+        "query"
+      ],
+      "properties": {
+        "max_results": {
+          "type": "integer"
+        },
+        "query": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputAgentWebFetch": {
+      "title": "ToolInputAgentWebFetch",
+      "description": "Input for the WebFetch tool, closed over the keys observed in 1 call(s) from 2026-10-09.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt",
+        "url"
+      ],
+      "properties": {
+        "prompt": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputAgentWrite": {
+      "title": "ToolInputAgentWrite",
+      "description": "Input for the Write tool, closed over the keys observed in 3 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content",
+        "file_path"
+      ],
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "file_path": {
+          "type": "string"
+        }
+      }
+    },
     "ToolInputAskUser": {
       "title": "ToolInputAskUser",
       "description": "Input for the ask_user_input_v0 tool, which presents the user with one or more questions as interactive widgets. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
@@ -1838,6 +2611,12 @@
       "not": {
         "$ref": "#/definitions/ToolName"
       }
+    },
+    "AgentMcpToolName": {
+      "title": "AgentMcpToolName",
+      "description": "Tool name for a tool provided by a connected MCP server as claude.ai names it from 2026-10, in the form mcp__<server>__<tool>; the server segment is the connector name with spaces replaced. Example: \"mcp__Claude_Docs__read\".",
+      "type": "string",
+      "pattern": "^mcp__.+__.+$"
     },
     "ToolInputMemoryRead": {
       "title": "ToolInputMemoryRead",
@@ -2218,8 +2997,15 @@
           "type": "string"
         },
         "updated_at": {
-          "description": "When the memory was last written.",
-          "$ref": "#/definitions/Timestamp"
+          "description": "When the memory was last updated; null on the one memory_append result of 2026-10-15, a Timestamp on every read.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
         },
         "parsed": {
           "$ref": "#/definitions/MemoryDocumentParsed"
@@ -2228,11 +3014,20 @@
           "$ref": "#/definitions/MemoryDocumentTarget"
         },
         "memory_op_kind": {
-          "description": "The operation that produced the document. Observed value: \"read\", from 2026-09-15; absent before.",
+          "description": "The operation that produced the document, an open set: \"read\" from 2026-09-15 on memory_read results, \"write\" from 2026-10-15 on the one memory_append result; absent before.",
           "type": "string",
           "enum": [
-            "read"
+            "read",
+            "write"
           ]
+        },
+        "memory_id": {
+          "type": "string",
+          "description": "The memory's id. First observed 2026-10-09 on a memory_read result; absent before."
+        },
+        "forgiven": {
+          "type": "boolean",
+          "description": "First observed 2026-10-15 on the one memory_append result; absent on every read."
         }
       }
     },
@@ -2633,6 +3428,10 @@
           "description": "The wikilinks' references. Observed only empty; the element form is unobserved.",
           "type": "array",
           "maxItems": 0
+        },
+        "blocks": {
+          "type": "null",
+          "description": "The memory's blocks, as parsed: null on each of the 3 documents observed from 2026-10-09; absent before."
         }
       }
     },

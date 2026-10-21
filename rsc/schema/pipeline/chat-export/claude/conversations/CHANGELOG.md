@@ -19,6 +19,62 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v22
+
+claude.ai names its tools as Claude Code names them, and the export stops writing what the
+capture still carries. The export of 2026-10-21 (`data-0fc4c1e0-…-2026-10-21-20-22-10`),
+captured on reading-room by `corpus-yoga export capture` into the stage, is refused at v21
+by the rehearsal of 2026-10-21T202530Z at conversation 96, a `conversation_search` result's
+text item without `uuid`, which v21 required: 100 items across the export lack it, on tools
+of 2026-07-02 and on every result of the new tools. Validating the export fault by fault on
+reading-room, 2026-10-21, surfaced the rest: from 2026-10-09 the built-in tools are named
+PascalCase - `WebFetch`, `TaskCreate`, `TaskUpdate`, `Write`, `Bash`, `Edit`, `ToolSearch`, `SearchMcpRegistry`, `SuggestConnectors`, `Skill` and `Artifact` and, once on 2026-10-02, `WebSearch` - and the MCP tools
+`mcp__<server>__<tool>`; the export writes the results of all of them with an empty name,
+77 of them, where the API capture of the same conversations names each; three results,
+`TaskCreate` and `TaskUpdate`, are named and carry `tool_origin`; every agent tool's
+tool_use block has null `start_timestamp`, `stop_timestamp` and `message`, which the API
+capture carries; a `memory_append` result answers a `mcp__memory__memory_append` use; one
+message's uuid is version 5; an injected prompt's source is `mcp_instructions_delta`, the
+harness's system reminder carrying the MCP servers' instructions, since 2026-10-17; and the
+memory documents grew as the capture's did.
+
+The browser capture of 2026-10-21 shows the same change from its side, so apiConversation
+v14 is minted in the same cycle, the coupled change: the tool definitions are one shape
+under one name in both families (rsc/model/model_join.csv). Where the two differ is the
+results - unnamed here, named in the capture - and `WebSearch`, used in a conversation
+whose capture predates the call.
+
+Validated on reading-room, 2026-10-21: v21 refuses the export at conversation 96 and stops;
+v22 refuses none of its 126 conversations, nor any export held under data/input. v22 adds
+alternatives, keys and values, drops one requirement and narrows nothing, so every datum v21
+admits, v22 admits.
+
+### Replaces
+
+v21
+
+#### Relaxed
+
+- The agent tools: for each of `WebFetch`, `TaskCreate`, `TaskUpdate`, `Write`, `Bash`, `Edit`, `ToolSearch`, `SearchMcpRegistry`, `SuggestConnectors`, `Skill` and `Artifact` and `WebSearch`, an `Agent<Tool>ToolUseBlock` with
+  `ToolInputAgent<Tool>`, a closed object of the keys observed; `AgentTaskCreateToolResultBlock`
+  and `AgentTaskUpdateToolResultBlock`, the two named results; `UnnamedToolResultBlock`, a
+  result whose name is empty; `ToolUseBlock` and `ToolResultBlock` gain the alternatives.
+- `AgentMcpToolName`, `mcp__<server>__<tool>`: `McpToolUseBlock` and `McpToolResultBlock`
+  name a `NamespacedToolName` or an `AgentMcpToolName`.
+- `MemoryAppendToolResultBlock`, the `memory_append` result.
+- `ToolResultContentItem`: `uuid` no longer required.
+- `ToolUseBlockBase`: `start_timestamp`, `stop_timestamp` and `message` null or as before.
+- `InjectedPromptBlock.injection_source`: `mcp_instructions_delta`.
+- `UuidV5`, and `UuidV4orV5orV7` in place of `UuidV4orV7` wherever a message or file uuid
+  was typed - a rename, every reference moved with it.
+- `MemoryDocument`: optional `memory_id` and `forgiven`; `memory_op_kind` "write";
+  `updated_at` null or a Timestamp. `MemoryDocumentParsed`: optional `blocks`, null.
+
+#### Refactored
+
+- The new definitions stand where the BFS repair places them; no earlier definition moved.
+  No validation effect.
+
 ## v21
 
 The export stops timestamping text. The export of 2026-09-28, captured on
