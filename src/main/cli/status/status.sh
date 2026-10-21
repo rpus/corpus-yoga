@@ -504,13 +504,10 @@ report() {
   graft test "/test/signature hook"
   graft forge "/forge settings"
   graft forge "/branches"
-  graft forge "/next" standing
   check_pipeline_inputs
   graft stage "/invalid" standing
   graft stage "/unlicensed" standing
   graft store "/next" standing
-  graft cache "/next" standing
-  graft logs "/next" standing
   graft migration ""
 
   # A report is information: it exits 0 unless it could not BE produced. Severity

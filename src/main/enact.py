@@ -22,11 +22,18 @@ held identical by the gate.
 CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr; silencing it
 (stderr to devnull) renders a wrapped act invisible and the wrap decorative.
 """
+import os
 import shlex
 import subprocess
 import sys
 
 import facts
+
+SEND_TIMEOUT = 'CORPUS_YOGA_SEND_TIMEOUT'   # the bound on any one command, in seconds (issues/945); 60 unset
+
+
+def bound() -> int:
+    return int(os.environ.get(SEND_TIMEOUT) or 60)
 
 
 def _said(event) -> None:
@@ -36,7 +43,11 @@ def _said(event) -> None:
 def enact(*command: str) -> int:
     printed = ' '.join(shlex.quote(part) for part in command)
     print(facts.narration({printed: {'did': 'done'}})[0], file=sys.stderr)
-    status = subprocess.call(command)
+    try:
+        status = subprocess.call(command, timeout=bound())
+    except subprocess.TimeoutExpired:
+        print('\n'.join(facts.narration({printed: {'did NOT': f'no answer within {bound()} s'}})[1:]), file=sys.stderr)
+        return 124
     outcome = {'did': 'done'} if status == 0 else {'did NOT': f'exit {status}'}
     print('\n'.join(facts.narration({printed: outcome})[1:]), file=sys.stderr)
     return status
@@ -44,7 +55,11 @@ def enact(*command: str) -> int:
 
 def query(*command: str) -> str:
     printed = ' '.join(shlex.quote(part) for part in command)
-    result = subprocess.run(command, capture_output=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=bound())
+    except subprocess.TimeoutExpired:
+        _said({printed: {'did NOT': f'no answer within {bound()} s'}})
+        raise subprocess.CalledProcessError(124, command)
     if result.returncode != 0:
         sys.stderr.write(result.stderr)
         _said({printed: {'did NOT': f'exit {result.returncode}'}})
@@ -56,7 +71,11 @@ def query(*command: str) -> str:
 
 def quote(*command: str) -> str:
     printed = ' '.join(shlex.quote(part) for part in command)
-    result = subprocess.run(command, capture_output=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=bound())
+    except subprocess.TimeoutExpired:
+        _said({printed: {'did NOT': f'no answer within {bound()} s'}})
+        raise subprocess.CalledProcessError(124, command)
     if result.returncode != 0:
         sys.stderr.write(result.stderr)
         _said({printed: {'did NOT': f'exit {result.returncode}'}})
@@ -67,7 +86,11 @@ def quote(*command: str) -> str:
 
 def quiet(*command: str) -> None:
     printed = ' '.join(shlex.quote(part) for part in command)
-    result = subprocess.run(command, capture_output=True, text=True)
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=bound())
+    except subprocess.TimeoutExpired:
+        _said({printed: {'did NOT': f'no answer within {bound()} s'}})
+        raise subprocess.CalledProcessError(124, command)
     if result.returncode != 0:
         sys.stderr.write(result.stderr)
         _said({printed: {'did NOT': f'exit {result.returncode}'}})
