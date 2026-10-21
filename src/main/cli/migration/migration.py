@@ -100,7 +100,7 @@ class Log:
 
 def sync() -> int:
     """One list of the scripts with steps, each run after it is named (issues/881: what it would
-    take is the bare status's). Then what an act reports (issues/801): next:, and the verdict as
+    take is the bare status's). Then what an act reports (issues/801): now:, and the verdict as
     the last line."""
     log = Log(True)
     seen = survey()

@@ -6,7 +6,7 @@ one way.
 An entry is what a noun's clean acts on: its kind (a word the noun's plural table knows),
 its key (the address or path it is said under), its facts (said beneath the key), and the
 act that removes it, returning None when it is gone and otherwise why it is not; `under`
-is the selection the entry is counted under by a next: block, where one applies. A
+is the selection the entry is counted under by a now: block, where one applies. A
 cleaner takes no flag (issues/844): what it would remove is what the noun's status names, so
 there is no dry run, and the act is one act.
 
@@ -14,8 +14,8 @@ The lines keep their tenses - `will remove:` over the entries, each keyed with i
 beneath, `{}` where there is none; `did remove: it` or `did NOT remove: <why>` beneath each after
 its act, so a log read after a crash shows the intention and, entry by entry, whether it
 was carried out. Then the effect line (issues/801, issues/896) - DONE only when every entry went, NOT
-DONE naming each that was NOT removed - handed to the launcher, which replies with next:,
-the acts the room can take after this one, corpus-yoga status last.
+DONE naming each that was NOT removed - handed to the launcher, which replies with now:,
+the room's standing read after this act, corpus-yoga status last.
 """
 from dataclasses import dataclass
 from typing import Callable
@@ -36,10 +36,9 @@ def count(n: int, kind: str, plural: dict[str, str]) -> str:
     return f'{n} {kind if n == 1 else plural[kind]}'
 
 
-def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Callable[[], dict] | None = None) -> int:
-    """One loop over the one list: each entry said, then its act; following gives the noun's
-    own next: entries, handed up with the effect where the noun has some. Returns 1 while
-    anything named was NOT removed."""
+def clean(noun: str, entries: list[Entry], plural: dict[str, str]) -> int:
+    """One loop over the one list: each entry said, then its act, then the effect. Returns 1
+    while anything named was NOT removed."""
     did = {kind: 0 for kind in plural}
     left: list[str] = []
     width = facts.terminal_width()
@@ -55,9 +54,8 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str], following: Ca
         for line in facts.lines({'did remove': 'it'} if why is None else {'did NOT remove': why}, 2, width=width):
             print(line)
     counts = ', '.join(count(did[kind], kind, plural) for kind in plural if did[kind]) or 'nothing'
-    own = following() if following else None
     if left:
-        facts.report(None, f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left), own)
+        facts.report(None, f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
     else:
-        facts.report(None, f'{noun} clean: DONE - did remove {counts}', own)
+        facts.report(None, f'{noun} clean: DONE - did remove {counts}')
     return 1 if left else 0

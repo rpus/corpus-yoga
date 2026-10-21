@@ -105,12 +105,12 @@ class Orphan:
 
 @dataclass
 class Status:
-    """Bare corpus-yoga logs: the tier, each orphan by its path, and under next: the cleaner
+    """Bare corpus-yoga logs: the tier, each orphan by its path, and under now: the cleaner
     over what it would remove, by path - the shape the cache's and the store's statuses
-    have, so that bare status, which grafts next:, names an orphaned log directory."""
+    have, so that the room's one reading, which folds this block, names an orphaned log directory."""
     tmp_logs: Tier | str = facts.named('tmp/logs')
     orphans: dict[str, Orphan] | None = None
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None
+    now: dict[str, dict[str, dict[str, int]]] | str | None = None
     logs: str = ''                # the verdict
 
 
@@ -146,7 +146,7 @@ def entries() -> list[cleaner.Entry]:
 def main() -> int:
     args = command_parser('logs').parse_args()
     if args.verb == 'clean':
-        return cleaner.clean('logs', entries(), KINDS, lambda: own if isinstance(own := status_facts().next, dict) else {})
+        return cleaner.clean('logs', entries(), KINDS)
     facts.say(status_facts())
     return 0
 

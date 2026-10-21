@@ -2,7 +2,7 @@
 """
 status.py - bare `corpus-yoga site`: the publish tree against its sources, the corpus page and
 the deploy mount, read as rows on stdin from site.sh, which holds what a page is (issues/759):
-`pages <standing>`, `page <file> <standing>`, `index <title>` or `index ABSENT`,
+`pages absent <standing>` where the publish tree is absent, `page <file> <standing>`, `index <title>` or `index ABSENT`,
 `deploy <words>`, `land <file> <what changes>` for each file corpus-yoga site publish would
 land on rpus.co (issues/881) - the corpus page one row per line of its comparison, `<part>: <words>`,
 said as facts beneath the file - tab-separated. Reads; writes nothing.
@@ -46,12 +46,14 @@ class Site:
 @dataclass
 class Status:
     site: Site
+    now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/947): the sync, where the publish tree is absent
 
 
 def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.strip()]
     stale = {row[1]: row[2] for row in rows if row[0] == 'page'}
-    standing = next((row[1] for row in rows if row[0] == 'pages'), facts.phrase('current with rsc/site/'))
+    absent = any(row[0] == 'pages' and row[1] == 'absent' for row in rows)
+    standing = next((row[2] for row in rows if row[0] == 'pages'), facts.phrase('current with rsc/site/'))
     title = next((row[1] for row in rows if row[0] == 'index'), 'ABSENT')
     index: CorpusPage | facts.Finding = CorpusPage(title)
     if title == 'ABSENT':
@@ -76,7 +78,10 @@ def main() -> int:
         site.publish = Publish(land)
     elif site.deploy != facts.phrase("the mount ext/mnt/site is present, rpus.co's clone"):
         site.publish = facts.phrase('nothing can land - no clone of rpus.co is mounted')
-    facts.say(Status(site))
+    out = Status(site)
+    if absent:
+        out.now = {'corpus-yoga site sync': {'would assemble': {'data/output/site/': 1}}}
+    facts.say(out)
     return 0
 
 

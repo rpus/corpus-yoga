@@ -10,7 +10,7 @@
     "squashes": "pinned to the head every check saw, with no message flags, so the body is assembled from the branch's commits and keeps their signatures",
     "converges": "this checkout on the merge commit",
     "concludes": "the merge as a fresh process of the tree converged on (issues/910) - the sweep via corpus-yoga forge clean, each aimed issue's state, the effect - so that a merge that changes an interface those steps call cannot break them",
-    "ends": "with each aimed issue's state read from the forge after the squash (issues/735), next:, and one anchored verdict - DONE naming the squash and how many aimed issues the forge closed, or NOT DONE naming the halt, each headed forge merge"
+    "ends": "with each aimed issue's state read from the forge after the squash (issues/735), now:, and one anchored verdict - DONE naming the squash and how many aimed issues the forge closed, or NOT DONE naming the halt, each headed forge merge"
   },
   "args": [
     {

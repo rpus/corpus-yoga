@@ -910,8 +910,8 @@ def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
 def promote(noun: str, selected: list[Unit]) -> int:
     """Promote the units, their verdicts read from the rehearsal record: each promotable
     one copied over the held one by address, the rest named; the stage is never written.
-    The lines are grouped by what they share, next: names what the room can do after the
-    act (issues/801), and the verdict is the last line - a unit that would lose counted as refused, since the act
+    The lines are grouped by what they share, now: names what the room's state allows after
+    the act (issues/801), and the verdict is the last line - a unit that would lose counted as refused, since the act
     was asked and declined it (issues/867). Exit 1 while anything asked for was left undone."""
     rows = survey(selected)
     if not rows:
@@ -1065,8 +1065,8 @@ def stage_facts() -> StageStatus:
     which the declaration's explanation names once - by the reason with how many carry it,
     then what is valid at a version origin/main does not hold, unlicensed there. What
     follows an invalid verdict and where its whole
-    output is are constant, and the declaration's explanation says them; what to run next
-    is the store's status's to say (issues/851)."""
+    output is are constant, and the declaration's explanation says them; what the room's
+    state allows now is the store's status's to say (issues/851)."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
         return StageStatus(facts.phrase('absent - nothing captured since the last clean, no rehearsal made'))
@@ -1138,20 +1138,21 @@ def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-def room_next(rows: list[Judged] | None = None, ahead: list | None = None) -> dict[str, dict[str, dict[str, int]]]:
-    """The room's to-do, the one reading (issues/851, issues/875, issues/945): what the store's status
-    names under next: - the captures for what the live stores hold beyond both tiers, the
-    rehearsal for what is staged and not judged, the promotes, the stage's cleaner, the
-    store's cleaner - and what the forge's, the cache's and the logs noun's statuses name
-    under theirs, read now. Bare corpus-yoga store says it, and every act ends on it re-read
-    after its effect, so that no verb prints a subset of the room's steps. rows and ahead,
-    where the caller has read them already, are not read again."""
+def room_now(rows: list[Judged] | None = None, ahead: list | None = None) -> dict[str, dict[str, dict[str, int]]]:
+    """The room's standing, the one reading (issues/851, issues/875, issues/945, issues/947): what
+    the store's status names under now: - the captures for what the live stores hold beyond
+    both tiers, the rehearsal for what is staged and not judged, the promotes, the stage's
+    cleaner, the store's cleaner - and what the forge's, the cache's, the logs noun's, the
+    server's and the site's statuses name under theirs, read now. Bare corpus-yoga store says
+    it, and every act's reply is it re-read after the act, so that no verb prints a subset of
+    the room's steps and no act hands up steps of its own. rows and ahead, where the caller
+    has read them already, are not read again."""
     import live
     out: dict[str, dict[str, dict[str, int]]] = {}
     if ahead is None:
         ahead, _absent = live.ahead()
     live.captures(out, ahead)
-    promotion_next(out, survey() if rows is None else rows)
+    promotion_now(out, survey() if rows is None else rows)
     if STORE.is_dir():
         for twice in held_twice(STORE, *live.live_addresses()):
             step(out, 'corpus-yoga store clean', kind_of(twice.unit))
@@ -1159,15 +1160,15 @@ def room_next(rows: list[Judged] | None = None, ahead: list | None = None) -> di
             step(out, 'corpus-yoga store clean', '/'.join(shadow_dir.relative_to(REPO).as_posix().split('/')[:3]))
         for unit, _rel in surplus(STORE):
             step(out, 'corpus-yoga store clean', kind_of(unit))
-    for noun in ('forge', 'cache', 'logs'):
-        out.update(next_of(noun))
+    for noun in ('forge', 'cache', 'logs', 'server', 'site'):
+        out.update(now_of(noun))
     return out
 
 
-def next_of(noun: str) -> dict[str, dict[str, dict[str, int]]]:
-    """What the noun's own status names under next:, read by running it (issues/945) - each
+def now_of(noun: str) -> dict[str, dict[str, dict[str, int]]]:
+    """What the noun's own status names under now:, read by running it (issues/945) - each
     noun's reading is its own, and the room's folds them; a status that does not answer
-    within the send bound, or prints no next:, is said so under its command."""
+    within the send bound, or prints what does not load, is said so under its command."""
     import subprocess
     bound = int(os.environ.get('CORPUS_YOGA_SEND_TIMEOUT') or 60)
     try:
@@ -1177,12 +1178,12 @@ def next_of(noun: str) -> dict[str, dict[str, dict[str, int]]]:
         return {f'corpus-yoga {noun}': {'reports the noun': {f'unread - its status did not answer within {bound} s': 1}}}
     except ValueError:
         return {f'corpus-yoga {noun}': {'reports the noun': {'unread - what its status printed does not load': 1}}}
-    found = said.get('next') if isinstance(said, dict) else None
+    found = said.get('now') if isinstance(said, dict) else None
     return found if isinstance(found, dict) else {}
 
 
-def promotion_next(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]) -> None:
-    """Into a next: block, what the store's status says to run on the stage, in the
+def promotion_now(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]) -> None:
+    """Into a now: block, what the store's status says to run on the stage, in the
     workflow's order (issues/851): the rehearsal for what is not judged, each capturing noun's
     promote for its promotable units, and the stage's cleaner for what the store already
     holds, for each incomplete unit, and for each orphan under tmp/stage, by its path."""
@@ -1201,16 +1202,17 @@ def promotion_next(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged]
         step(out, 'corpus-yoga stage clean', e.relative_to(REPO).as_posix())
 
 
-VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture'}   # what a next: command would do, by its verb word (issues/846)
+VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture',
+         'merge': 'would merge', 'start': 'would serve'}   # what a now: command would do, by its verb word (issues/846)
 
 
 def verb_of(command: str) -> str:
-    """What a command of a next: block does, from its verb word - `corpus-yoga <noun> <verb> ...`."""
+    """What a command of a now: block does, from its verb word - `corpus-yoga <noun> <verb> ...`."""
     return VERBS[command.split()[2]]
 
 
 def step(out: dict[str, dict[str, dict[str, int]]], command: str, key: str, n: int = 1) -> None:
-    """One more of a next: block's counts - by command, what it does, then the kind it acts on."""
+    """One more of a now: block's counts - by command, what it does, then the kind it acts on."""
     kinds = out.setdefault(command, {}).setdefault(verb_of(command), {})
     kinds[key] = kinds.get(key, 0) + n
 
@@ -1382,7 +1384,7 @@ class StoreStatus:
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (issues/842)
     would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (issues/867)
     live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, issues/851)
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each kind it acts on: how many (issues/836)
+    now: dict[str, dict[str, dict[str, int]]] | str | None = None   # the room's standing: by command, its verb, each kind it acts on: how many (issues/836, issues/947)
 
 
 def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, int]:
@@ -1484,7 +1486,7 @@ class Staged:
     invalid: dict[str, str] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the reason
     unlicensed: dict[str, str] | None = None    # valid at a version origin/main does not hold: that version file, by its path, and the reason
     rehearsal: str | None = None
-    next: dict[str, str] | None = None       # the workflow's step that acts on it, where one does
+    now: dict[str, str] | None = None        # the workflow's step that acts on it, where one does
 
 
 @dataclass

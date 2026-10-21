@@ -173,8 +173,7 @@ def install_completion() -> int:
         d.unlink()
     if dumps:
         print('  ~/.zcompdump*: ' + facts.phrase('{n} removed - the next terminal rebuilds it', n=len(dumps)))
-    facts.report(None, 'completions install: DONE - ' + facts.phrase('{zshrc} holds the four lines', zshrc=tilde(zshrc)),
-                 {'open a new terminal': facts.phrase('tab completes corpus-yoga from then on')})
+    facts.report(None, 'completions install: DONE - ' + facts.phrase('{zshrc} holds the four lines; a new terminal tab-completes corpus-yoga from then on', zshrc=tilde(zshrc)))
     return 0
 
 
@@ -201,8 +200,7 @@ def uninstall_completion() -> int:
         facts.report(None, f'completions uninstall: NOT DONE - {refused}')
         return 1
     zshrc.write_text('\n'.join(kept) + '\n')
-    facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched', n=removed_line_count, zshrc=tilde(zshrc)),
-                 {'open a new terminal': facts.phrase('the removal takes effect from then on')})
+    facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched, and a new terminal no longer completes', n=removed_line_count, zshrc=tilde(zshrc)))
     return 0
 
 

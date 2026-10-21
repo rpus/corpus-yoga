@@ -17,7 +17,7 @@ The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with syn
 
 The verb takes no flag (issues/865), as the stage's and the store's cleaners do (issues/844): what it
 would remove is what the status names, and its faces are src/main/cleaner.py's - will
-remove: before each act, did or did NOT after, next: and the verdict last (issues/801).
+remove: before each act, did or did NOT after, now: and the verdict last (issues/801).
 
 Usage:
     corpus-yoga cache clean
@@ -67,7 +67,7 @@ def entries() -> list[cleaner.Entry]:
 
 def main() -> int:
     verb_parser('cache', 'clean').parse_args()
-    return cleaner.clean('cache', entries(), KINDS, lambda: own if isinstance(own := noun.status_facts().next, dict) else {})
+    return cleaner.clean('cache', entries(), KINDS)
 
 
 if __name__ == '__main__':

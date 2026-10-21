@@ -83,7 +83,8 @@ superseding_force_push() {  # <pr-number> <tip>
   done <<< "$events"
 }
 
-# rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and clean(). A KEPT row
+# rows: STATUS \t branch \t detail [\t remedy] - parsed by status() and clean() - and, last, each
+# open PR as PR \t number \t head branch, which status() names the merge of (issues/947). A KEPT row
 # whose keeping rests on evidence - commits the base or the merge does not hold - carries
 # the reader's act in words as its remedy, never a command, so that bare status says it
 # and status sync never runs it (issues/866).
@@ -205,6 +206,8 @@ branches() {
   else
     echo -e "UNVERIFIED\tlive\t$(phrase "git ls-remote unreachable")"
   fi
+  # each open PR by its number with its head branch (issues/947): the standing names its merge
+  jq -r 'map(select(.state == "OPEN")) | sort_by(.number) | .[] | "PR\t\(.number)\t\(.headRefName)"' <<< "$prs"
 }
 
 # rows: STATUS \t ref \t detail - parsed by status() and clean()

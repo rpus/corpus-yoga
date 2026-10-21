@@ -336,7 +336,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
     them. A session is named within its provider, as the browser capture names
     a conversation within its provider - a uuid's shape does not say whose it is.
     The log is facts nested by outcome under each provider's address (issues/857), then
-    next:, then the one verdict."""
+    now:, then the one verdict."""
     names = [row['provider'] for row, _, _ in served()]
     if provider is not None and provider not in names:
         sys.exit('error: ' + facts.phrase('{provider} is not a provider the agent verb serves - served {names}', provider=repr(provider), names=', '.join(names)))
@@ -368,7 +368,7 @@ def capture(uuid8: str | None, provider: str | None) -> int:
         logs.append(log)
         out[str(registry.address(row))] = log.facts() or f'nothing - {transport.LIVE} holds no session'
     # what an act reports (issues/801, issues/896): its facts by outcome and its effect; the launcher
-    # replies with next:, what the room can do after the capture
+    # replies with now:, the room's standing after the capture
     facts.report(out, transport.verdict('agent capture', logs))
     return sum(log.conflicts for log in logs)
 

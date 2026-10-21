@@ -63,8 +63,8 @@ class Status:
     refs: Section | None = facts.named('remote-tracking refs', default=None)
     checkout: Section | None = facts.named('this checkout', default=None)
     staged: dict[str, corpus.Staged] | None = None
-    forge: str = ''               # the merge's gate, a fact of the room; a status ends on next: (issues/740)
-    next: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (issues/871)
+    forge: str = ''               # the merge's gate, a fact of the room; a status ends on now: (issues/740)
+    now: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (issues/871, issues/947)
 
 
 def _test_status():
@@ -80,11 +80,15 @@ def _test_status():
 
 def main() -> int:
     by_section: dict[str, dict[str, Row]] = {}
+    opens: dict[str, str] = {}        # each open PR by its number: its head branch (issues/947)
     for line in sys.stdin.read().splitlines():
         cells = line.split('\t')
         if len(cells) < 4 or not cells[1]:
             continue
         section, state, said = cells[0], cells[1].lower(), cells[4] if len(cells) > 4 else ''
+        if state == 'pr':
+            opens[cells[2]] = cells[3]
+            continue
         does = cells[5] if len(cells) > 5 else ''
         remedy = None if not said else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said)
         if section == 'settings' and state == 'drift':
@@ -97,16 +101,21 @@ def main() -> int:
     by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.remedy),
                               **by_section.get('checkout', {})}
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
-    # what to run next (issues/871): the cleaner over each branch and each tracking ref it would
-    # remove, by name, as the store's and the cache's statuses name theirs - the dry run is
-    # the status, and bare corpus-yoga status grafts this block
-    following: dict[str, dict[str, dict[str, int]]] = {}
+    # the standing (issues/871, issues/947): the cleaner over each branch and each tracking ref it
+    # would remove, by name, and each open PR's merge over its head branch while no
+    # refuse-class drift stands - the dry run is the status, and the room's one reading
+    # folds this block; unread where the forge was not asked
+    now: dict[str, dict[str, dict[str, int]]] = {}
     for name, row in (branches or {}).items():
         if row.state in ('deletable', 'server_deletable'):
-            corpus.step(following, 'corpus-yoga forge clean', name)
+            corpus.step(now, 'corpus-yoga forge clean', name)
     for name, row in (refs or {}).items():
         if row.state == 'stale':
-            corpus.step(following, 'corpus-yoga forge clean', name)
+            corpus.step(now, 'corpus-yoga forge clean', name)
+    if not refused:
+        for number, head in opens.items():
+            corpus.step(now, f'corpus-yoga forge merge {number}', head)
+    unread = any(row.state == 'unverified' for row in (branches or {}).values())
     out = Status(
         Settings(by_section.get('settings', {})),
         Section(branches) if branches else None,
@@ -117,7 +126,7 @@ def main() -> int:
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')
         out.staged = report.staged
-    out.next = following or facts.phrase('none - nothing to do')
+    out.now = now or facts.phrase('unread - the forge was not asked; branches says why' if unread else 'none - nothing to do')
     facts.say(out)
     return 1 if refused else 0
 

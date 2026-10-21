@@ -135,7 +135,7 @@ def check_issue(args, text: str) -> None:
     should.check_body(text)
 
 
-def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, dict, str]:
+def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
     numbers = [int(n) for n in args.issue]
     titles: dict[int, str] = {}
     for number in numbers:
@@ -158,11 +158,10 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, dict, s
     outcomes = {'did raise': {f'pull/{pr}': url, 'head': args.head, 'base': base, 'title copies': f'issues/{numbers[0]}',
                               'aims to complete': {f'issues/{n}': titles[n] for n in numbers},
                               'body': str(sent.relative_to(REPO))}}
-    following = {f'corpus-yoga forge merge {pr}': 'merges it on the reviewer\'s word'}
-    return outcomes, following, f'forge raise: DONE - did raise pull/{pr} at {args.head} for ' + ', '.join(f'issues/{n}' for n in numbers)
+    return outcomes, f'forge raise: DONE - did raise pull/{pr} at {args.head} for ' + ', '.join(f'issues/{n}' for n in numbers)
 
 
-def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, dict, str]:
+def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
     blocked_by = [int(n) for n in args.blocked_by or []]
     blocks = [int(n) for n in args.blocks or []]
     supersedes = int(args.supersedes) if args.supersedes else None
@@ -201,8 +200,8 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, dict
                               'body': str(sent.relative_to(REPO))}}
     wired = sorted(set(blocked_by) ^ set(read_blocked_by)) + sorted(set(blocks) ^ set(read_blocks))
     if wired:
-        return outcomes, {}, f'forge raise: NOT DONE - did raise issues/{number}, but the forge reads edges other than those wired, ' + ', '.join(f'issues/{n}' for n in wired)
-    return outcomes, {}, (f'forge raise: DONE - did raise issues/{number}; blocked by {len(read_blocked_by)}, blocking {len(read_blocks)}'
+        return outcomes, f'forge raise: NOT DONE - did raise issues/{number}, but the forge reads edges other than those wired, ' + ', '.join(f'issues/{n}' for n in wired)
+    return outcomes, (f'forge raise: DONE - did raise issues/{number}; blocked by {len(read_blocked_by)}, blocking {len(read_blocks)}'
                           + (f'; did supersede issues/{supersedes}' if supersedes else ''))
 
 
@@ -220,14 +219,14 @@ def main(argv: list[str]) -> int:
             raise Refused(f'the Signature triad is not derivable here: {signature}; the session names no provider the registry declares')
         assert_may_send('gh issue view, gh api, gh repo view and the raise\'s writes (forge raise)')
         face = raise_pr if args.kind == 'pr' else raise_issue
-        outcomes, following, effect = face(args, f'Signature: {signature}', text, stamp)
+        outcomes, effect = face(args, f'Signature: {signature}', text, stamp)
     except (Refused, SendRefused, ValueError) as why:
         facts.report(None, f'forge raise: NOT DONE - {why}')
         return 1
     except subprocess.CalledProcessError:
         facts.report(None, 'forge raise: NOT DONE - a gh call failed; the NOT-done line above names it')
         return 1
-    facts.report(outcomes, effect, {**following})
+    facts.report(outcomes, effect)
     return 0 if effect.startswith('forge raise: DONE') else 1
 
 
