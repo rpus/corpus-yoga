@@ -7,6 +7,34 @@ render time, rather than writing per-datum `vN.log` files under `tmp/cache/`
 
 ---
 
+## v4
+
+A message's uuid of version 5. Reading-room's browser capture and export of 2026-10-21
+carry one assistant message, of 2026-10-14 in conversation `50eea711-…`, whose uuid is
+version 5; the projection of that conversation to markdown fails v3 at messages/24/uuid,
+the rehearsal of 2026-10-21T204323Z flagging it `INVALID 124-cayley_dickson_construction_identities:
+fails markdownConversation`. The uuid union gains `UuidV5` and is renamed
+`UuidV4orV5orV7`, in step with apiConversation v14 and conversations v22, minted in the
+same cycle, which share the definition by name.
+
+Validated on reading-room, 2026-10-21: v3 refuses the projection at message 24; v4 refuses
+none of the 125 staged conversations' projections. v4 adds an alternative and narrows
+nothing, so every datum v3 admits, v4 admits.
+
+### Replaces
+
+v3
+
+#### Relaxed
+
+- `UuidV5`, and `UuidV4orV5orV7` in place of `UuidV4orV7` on `MarkdownMessage.uuid` - a
+  rename, every reference moved with it.
+
+#### Refactored
+
+- The new definition stands where the BFS repair places it; no earlier definition moved.
+  No validation effect.
+
 ## v3
 
 ### Replaces

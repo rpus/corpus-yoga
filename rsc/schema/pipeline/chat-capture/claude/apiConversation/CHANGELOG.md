@@ -13,6 +13,69 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v14
+
+claude.ai names its tools as Claude Code names them, and the capture grew in five other
+places. Reading-room's browser capture of 2026-10-21 staged 125 conversations, two of which
+the rehearsal of 2026-10-21T201504Z refuses at v13: `50eea711-…` (created 2026-10-14) at
+its top, a key no version knew, `has_assistant_outputs`, true; `d11565d6-…` at message 138,
+a tool_use named `WebFetch`, neither a `ToolName` nor an `<integration>:<tool>` name.
+Validating the two fault by fault on reading-room, 2026-10-21, surfaced the rest, each
+observed from 2026-10-09. Five tools v13 knew are named PascalCase - `Bash` for `bash_tool`, `WebFetch` for `web_fetch`, `WebSearch` for `web_search`, `ToolSearch` for `tool_search`, `SearchMcpRegistry` for `search_mcp_registry` - their
+inputs the same keys with one or two optional keys more; seven tools no version knew -
+`TaskCreate`, `TaskUpdate`, `Write`, `Edit`, `Skill`, `Artifact` and `SuggestConnectors` - each with its input and, in the capture, a named result; the MCP tools are named
+`mcp__<server>__<tool>` (`mcp__Wolfram__WolframLanguageEvaluator`, five
+`mcp__Claude_Docs__*`, `mcp__memory__memory_read`, `mcp__memory__memory_append`,
+`mcp__claude_ai__conversation_search`), where every capture before used
+`<integration>:<tool>`; a `memory_append` result, named in the old form, answers a
+`mcp__memory__memory_append` use; one assistant message's uuid is version 5; a `WebFetch`
+answer's citation carries `generic_metadata`; and the memory documents of `memory_read`
+and `memory_append` carry `memory_id`, `forgiven`, `memory_op_kind` "write", `updated_at`
+null and `parsed.blocks` null. The 123 other staged captures, and the 123 held under
+data/input, use the old names and carry none of it.
+
+The export of 2026-10-21 shows the same change from its side, so conversations v22 is
+minted in the same cycle, the coupled change: the widened blocks and the new tools'
+definitions are one shape under one name in both families (rsc/model/model_join.csv), as
+is the markdown projection's uuid union, markdownConversation v4. Where the two families
+differ is the results - named here, unnamed in the export - and the citation's metadata,
+which the export does not carry.
+
+Validated on reading-room, 2026-10-21: v13 refuses `50eea711-…` at its top and `d11565d6-…`
+at message 138 and stops; v14 refuses neither, nor any of the 123 other staged captures nor
+the 123 held. v14 adds alternatives, keys and values and narrows nothing, so every datum v13
+admits, v14 admits.
+
+### Replaces
+
+v13
+
+#### Relaxed
+
+- `ApiConversation`: optional `has_assistant_outputs`, a boolean, observed true once.
+- The renamed tools: `BashToolUseBlock`, `WebFetchToolUseBlock`, `WebSearchToolUseBlock`,
+  `ToolSearchToolUseBlock` and `SearchMcpRegistryToolUseBlock`, and their result blocks,
+  name the new name beside the old; `ToolInputBash` gains optional `timeout` and
+  `run_in_background`, `ToolInputWebFetch` optional `prompt`, `ToolInputWebSearch` optional
+  `mode`, `ToolInputToolSearch` optional `max_results`.
+- The new tools: for each of `TaskCreate`, `TaskUpdate`, `Write`, `Edit`, `Skill`, `Artifact` and `SuggestConnectors`, a `<Tool>ToolUseBlock` with `ToolInput<Tool>`, a closed
+  object of the keys observed, and a `<Tool>ToolResultBlock`; `ApiToolUseBlock` and
+  `ApiToolResultBlock` gain the alternatives.
+- `McpPrefixedToolName`, `mcp__<server>__<tool>`: `McpToolUseBlock` and `McpToolResultBlock`
+  name a `NamespacedToolName` or a `McpPrefixedToolName`.
+- `MemoryAppendToolResultBlock`, the `memory_append` result.
+- `UuidV5`, and `UuidV4orV5orV7` in place of `UuidV4orV7` wherever a message, attachment or
+  file uuid was typed - a rename, every reference moved with it.
+- `GenericMetadata`, and `ApiCitation.metadata` a `WebpageMetadata` or a `GenericMetadata`,
+  `WebpageMetadata.type` its discriminator.
+- `MemoryDocument`: optional `memory_id` and `forgiven`; `memory_op_kind` "write", an open
+  set; `updated_at` null or a Timestamp. `MemoryDocumentParsed`: optional `blocks`, null.
+
+#### Refactored
+
+- The new definitions stand where the BFS repair places them; no earlier definition moved.
+  No validation effect.
+
 ## v13
 
 claude.ai's API returns a third flag on every conversation that no version knew.

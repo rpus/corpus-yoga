@@ -1,16 +1,25 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "ApiConversation",
-  "description": "Schema for a single claude.ai conversation as returned by the internal chat API (GET /api/organizations/{org}/chat_conversations/{id}). v1 validated against 55 live API responses (all pass). See rsc/schema/pipeline/chat-export/claude/conversations/ for the bulk-export format.",
+  "title": "conversations",
+  "description": "Schema for the Claude.ai bulk conversation export format (conversations.json), obtained via Settings > Privacy > Export Data. The export format is the Claude API data model extended with a persistence and UI envelope. The core ContentBlock discriminated union (text, tool_use, tool_result) is shared verbatim with the API; the envelope fields (start_timestamp, stop_timestamp, display_content, integration_*, icon_name, approval_*, is_mcp_app, mcp_server_url) are claude.ai additions layered on top with no direct API counterpart. See: https://platform.claude.com/docs/en/build-with-claude/working-with-messages",
   "allOf": [
     {
-      "$ref": "#/definitions/ApiConversation"
+      "$ref": "#/definitions/Conversations"
     }
   ],
   "definitions": {
-    "ApiConversation": {
-      "title": "ApiConversation",
-      "description": "Live claude.ai API conversation. Differs from bulk-export Conversation: adds current_leaf_message_uuid, is_starred, is_temporary, model, platform, settings; omits account. No existing definitions modified. v4 adds is_wiggle_enabled and effective_thinking_mode, two root fields introduced by the claude.ai API after v3.",
+    "Conversations": {
+      "title": "Conversations",
+      "description": "All conversations in a claude.ai data export, as a JSON array.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Conversation"
+      }
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A single conversation thread. No direct equivalent in the API, which is stateless \u2014 the full message history is supplied on every request. The name, summary, created_at, updated_at, and account fields are claude.ai persistence-layer additions.",
       "type": "object",
       "required": [
         "uuid",
@@ -18,14 +27,7 @@
         "summary",
         "created_at",
         "updated_at",
-        "current_leaf_message_uuid",
-        "is_starred",
-        "is_temporary",
-        "model",
-        "platform",
-        "settings",
-        "is_wiggle_enabled",
-        "effective_thinking_mode",
+        "account",
         "chat_messages"
       ],
       "additionalProperties": false,
@@ -37,77 +39,34 @@
           "type": "string"
         },
         "summary": {
+          "description": "Claude-generated summary of the conversation. Empty string for chats not yet processed by the 24-hour summarisation cycle (typically the most recent exports).",
           "type": "string"
         },
         "created_at": {
           "$ref": "#/definitions/Timestamp"
         },
         "updated_at": {
+          "description": "Timestamp of the last modification to the conversation, updated whenever a message is added. Almost coincides with the `updated_at` of the final message. The rare ~1-second discrepancy likely arises when the last activity is a human message or a tool result whose stop_timestamp lags the conversation update slightly.",
           "$ref": "#/definitions/Timestamp"
         },
-        "current_leaf_message_uuid": {
-          "description": "UUID of the active branch tip.",
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "is_starred": {
-          "type": "boolean"
-        },
-        "is_temporary": {
-          "type": "boolean"
-        },
-        "model": {
-          "description": "Claude model. Example: \"claude-sonnet-4-6\".",
-          "type": "string"
-        },
-        "platform": {
-          "description": "Platform. Example: \"CLAUDE_AI\".",
-          "type": "string"
-        },
-        "settings": {
-          "description": "Conversation-level feature settings.",
-          "type": "object"
-        },
-        "is_wiggle_enabled": {
-          "description": "Observed always true across the captured corpus (no false seen).",
-          "type": "boolean"
-        },
-        "effective_thinking_mode": {
-          "description": "Extended-thinking mode. Observed values: \"off\", \"auto\", \"extended\" (open set, kept as string since claude.ai may add modes).",
-          "type": "string"
+        "account": {
+          "type": "object",
+          "required": [
+            "uuid"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "uuid": {
+              "$ref": "#/definitions/UuidV4"
+            }
+          }
         },
         "chat_messages": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "allOf": [
-              {
-                "$ref": "#/definitions/ApiMessageBase"
-              },
-              {
-                "$ref": "#/definitions/HasSenderDiscriminatorProperty"
-              }
-            ],
-            "oneOf": [
-              {
-                "$ref": "#/definitions/ApiHumanMessage"
-              },
-              {
-                "$ref": "#/definitions/ApiAssistantMessage"
-              }
-            ]
+            "$ref": "#/definitions/Message"
           }
-        },
-        "is_archived": {
-          "description": "Whether the conversation is archived on claude.ai. Observed reading-room 2026-09-27 on every one of the account's 121 conversations, false in each; the captures of 2026-09-17 carry neither this nor workspace_upgraded, so both are optional. Undeclared before v12.",
-          "type": "boolean"
-        },
-        "workspace_upgraded": {
-          "description": "Whether the conversation was carried into a workspace by claude.ai's upgrade. Observed reading-room 2026-09-27 on every one of the account's 121 conversations, false in each. Undeclared before v12.",
-          "type": "boolean"
-        },
-        "is_multiplayer": {
-          "description": "Whether the conversation is shared with other accounts on claude.ai. Observed reading-room 2026-10-07 on every one of the account's 123 conversations, false in each; the captures of 2026-09-27 and before carry it not, so it is optional. Undeclared before v13.",
-          "type": "boolean"
         }
       }
     },
@@ -123,21 +82,9 @@
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$"
     },
-    "UuidV4orV7": {
-      "title": "UuidV4orV7",
-      "description": "A UUID that is either v4 or v7. Some fields were strictly v7 in earlier exports but v4 UUIDs appeared in later exports.",
-      "oneOf": [
-        {
-          "$ref": "#/definitions/UuidV4"
-        },
-        {
-          "$ref": "#/definitions/UuidV7"
-        }
-      ]
-    },
-    "ApiMessageBase": {
-      "title": "ApiMessageBase",
-      "description": "Base for live API messages. Like bulk-export Message but adds index, truncated, sync_sources, stop_reason (optional), input_mode, chat_feedback. Shared by ApiHumanMessage and ApiAssistantMessage. Do not use directly.",
+    "Message": {
+      "title": "Message",
+      "description": "Corresponds to a single element of the messages array in the API request/response. The API uses role: \"user\"/\"assistant\"; the export uses sender: \"human\"/\"assistant\". API-level fields id, type, stop_reason, stop_sequence, and usage are stripped in the export. attachments and files are claude.ai UI additions with no API counterpart.",
       "type": "object",
       "required": [
         "uuid",
@@ -148,22 +95,21 @@
         "updated_at",
         "attachments",
         "files",
-        "parent_message_uuid",
-        "index",
-        "truncated",
-        "sync_sources"
+        "parent_message_uuid"
       ],
       "additionalProperties": false,
       "properties": {
         "uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         },
         "text": {
           "type": "string"
         },
         "content": {
           "type": "array",
-          "items": {}
+          "items": {
+            "$ref": "#/definitions/ContentBlock"
+          }
         },
         "sender": {
           "type": "string",
@@ -176,120 +122,71 @@
           "$ref": "#/definitions/Timestamp"
         },
         "updated_at": {
+          "description": "Always equal to created_at in observed exports. Messages appear to be immutable \u2014 this field exists for structural symmetry with Conversation.updated_at but carries no independent information.",
           "$ref": "#/definitions/Timestamp"
         },
         "attachments": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ApiAttachment"
+            "$ref": "#/definitions/Attachment"
           }
         },
         "files": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ApiMessageFile"
+            "$ref": "#/definitions/MessageFile"
           }
         },
         "parent_message_uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "index": {
-          "description": "Zero-based position in the conversation.",
-          "type": "integer"
-        },
-        "truncated": {
-          "description": "Whether message content was truncated.",
-          "type": "boolean"
-        },
-        "sync_sources": {
-          "description": "Always empty in observed API responses.",
-          "type": "array"
-        },
-        "stop_reason": {
-          "description": "Reason generation stopped (assistant messages, optional).",
-          "type": "string"
-        },
-        "input_mode": {
-          "description": "Input modality. Observed value: \"text\".",
-          "type": "string"
-        },
-        "chat_feedback": {
-          "description": "User feedback on an assistant message.",
-          "type": "object"
-        },
-        "compaction_summary": {
-          "description": "Summary injected when the conversation was compacted to free context window space. Items are text blocks.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ApiTextBlock"
-          }
+          "$ref": "#/definitions/UuidV4orV5orV7"
         }
       }
     },
-    "HasSenderDiscriminatorProperty": {
-      "title": "HasSenderDiscriminatorProperty",
-      "description": "Abstract base asserting that the sender field is required and typed as a string. Added via allOf to union wrappers that discriminate on sender, parallel to HasTypeDiscriminatorProperty and HasNameDiscriminatorProperty.",
+    "UuidV4orV5orV7": {
+      "title": "UuidV4orV5orV7",
+      "description": "A UUID of version 4, 5 or 7: v7 in the earliest exports, v4 since, and from 2026-10-14 v5 on one message.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UuidV4"
+        },
+        {
+          "$ref": "#/definitions/UuidV5"
+        },
+        {
+          "$ref": "#/definitions/UuidV7"
+        }
+      ]
+    },
+    "ContentBlock": {
+      "title": "ContentBlock",
+      "description": "The API content block union - text, tool_use, tool_result, with thinking - and, from the export of 2026-09-17, the injected prompt block, claude.ai's own, which the API union lacks. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
-      "required": [
-        "sender"
+      "allOf": [
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
       ],
-      "properties": {
-        "sender": {
-          "type": "string"
-        }
-      }
-    },
-    "ApiHumanMessage": {
-      "title": "ApiHumanMessage",
-      "description": "Constrains sender to \"human\" and content to ApiContentBlock. Shared fields in ApiMessageBase.",
-      "type": "object",
-      "properties": {
-        "sender": {
-          "type": "string",
-          "enum": [
-            "human"
-          ]
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TextBlock"
         },
-        "content": {
-          "items": {
-            "$ref": "#/definitions/ApiContentBlock"
-          }
+        {
+          "$ref": "#/definitions/ThinkingBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/InjectedPromptBlock"
         }
-      },
-      "required": [
-        "sender"
       ]
     },
-    "ApiAssistantMessage": {
-      "title": "ApiAssistantMessage",
-      "description": "Constrains sender to \"assistant\" and content to ApiContentBlock. Shared fields in ApiMessageBase.",
-      "type": "object",
-      "properties": {
-        "sender": {
-          "type": "string",
-          "enum": [
-            "assistant"
-          ]
-        },
-        "content": {
-          "items": {
-            "$ref": "#/definitions/ApiContentBlock"
-          }
-        }
-      },
-      "required": [
-        "sender"
-      ]
-    },
-    "UuidV7": {
-      "title": "UuidV7",
-      "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
-      "type": "string",
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    },
-    "ApiAttachment": {
-      "title": "ApiAttachment",
-      "description": "Live API file attachment. Like bulk-export Attachment but adds id and created_at (absent in bulk export).",
+    "Attachment": {
+      "title": "Attachment",
+      "description": "A file attached to a human message in the claude.ai UI. No direct API counterpart in the export format; the API accepts file content inline as base64 or via the Files API, but the export stores extracted text content. See: https://platform.claude.com/docs/en/build-with-claude/files",
       "type": "object",
       "required": [
         "file_name",
@@ -303,27 +200,29 @@
           "type": "string"
         },
         "file_size": {
+          "description": "File size in bytes.",
           "type": "integer"
         },
         "file_type": {
-          "type": "string"
+          "description": "Observed values listed. Mixed convention \u2014 extension-style and MIME-type-style values both observed. Likely an open set; do not treat as exhaustive.",
+          "type": "string",
+          "enum": [
+            "application/json",
+            "txt",
+            "text/html",
+            "text/javascript",
+            "text/markdown",
+            "text/x-python-script"
+          ]
         },
         "extracted_content": {
           "type": "string"
-        },
-        "id": {
-          "description": "API only. Attachment identifier (UUID).",
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "created_at": {
-          "description": "API only.",
-          "$ref": "#/definitions/Timestamp"
         }
       }
     },
-    "ApiMessageFile": {
-      "title": "ApiMessageFile",
-      "description": "Live API file reference. Like bulk-export MessageFile but adds created_at, file_kind, path, success, uuid, size_bytes, document_asset and image-specific fields (absent in bulk export).",
+    "MessageFile": {
+      "title": "MessageFile",
+      "description": "A reference to an image or file attached to a message via the claude.ai UI.",
       "type": "object",
       "required": [
         "file_name"
@@ -334,152 +233,21 @@
           "type": "string"
         },
         "file_uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "created_at": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "file_kind": {
-          "type": "string"
-        },
-        "path": {
-          "type": "string"
-        },
-        "success": {
-          "type": "boolean"
-        },
-        "size_bytes": {
-          "type": "integer"
-        },
-        "document_asset": {
-          "type": "object"
-        },
-        "thumbnail_url": {
-          "type": "string"
-        },
-        "preview_url": {
-          "type": "string"
-        },
-        "thumbnail_asset": {
-          "type": "object"
-        },
-        "preview_asset": {
-          "type": "object"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         }
       }
     },
-    "ApiTextBlock": {
-      "title": "ApiTextBlock",
-      "description": "Live API text block. Like TextBlock but omits flags (always null in bulk export) and uses ApiCitation for citations.",
-      "type": "object",
-      "required": [
-        "type",
-        "text",
-        "citations",
-        "start_timestamp",
-        "stop_timestamp"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "type": {
-          "type": "string",
-          "description": "(discriminator)",
-          "enum": [
-            "text"
-          ]
-        },
-        "start_timestamp": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "stop_timestamp": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "text": {
-          "type": "string"
-        },
-        "citations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ApiCitation"
-          }
-        },
-        "flags": {
-          "description": "Always null in observed API responses.",
-          "type": "null"
-        },
-        "citations_grouping_mode": {
-          "description": "Display grouping mode for citations. Observed value: \"combine\". Likely an open set.",
-          "type": "string"
-        }
-      }
+    "UuidV5": {
+      "title": "UuidV5",
+      "description": "UUID version 5 (name-based, SHA-1): the third group begins with 5. First observed 2026-10-14 on one assistant message of conversation 50eea711, in the capture and the export alike.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     },
-    "ApiContentBlock": {
-      "title": "ApiContentBlock",
-      "description": "Content block union for live API messages. Uses API-specific variants that omit always-null bulk-export envelope fields.",
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
-        }
-      ],
-      "oneOf": [
-        {
-          "$ref": "#/definitions/ApiTextBlock"
-        },
-        {
-          "$ref": "#/definitions/ApiThinkingBlock"
-        },
-        {
-          "$ref": "#/definitions/ApiToolUseBlock"
-        },
-        {
-          "$ref": "#/definitions/ApiToolResultBlock"
-        }
-      ]
-    },
-    "ApiCitation": {
-      "title": "ApiCitation",
-      "description": "Live API citation. Unlike bulk-export Citation (which uses a details object), this format carries title, url, metadata, origin_tool_name, sources directly.",
-      "type": "object",
-      "required": [
-        "uuid",
-        "start_index",
-        "end_index",
-        "title",
-        "url"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "uuid": {
-          "$ref": "#/definitions/UuidV4"
-        },
-        "start_index": {
-          "description": "Character offset of citation start.",
-          "type": "integer"
-        },
-        "end_index": {
-          "description": "Character offset of citation end.",
-          "type": "integer"
-        },
-        "title": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        },
-        "metadata": {
-          "$ref": "#/definitions/WebpageMetadata"
-        },
-        "origin_tool_name": {
-          "type": "string"
-        },
-        "sources": {
-          "type": "array"
-        }
-      }
+    "UuidV7": {
+      "title": "UuidV7",
+      "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },
     "HasTypeDiscriminatorProperty": {
       "title": "HasTypeDiscriminatorProperty",
@@ -494,9 +262,71 @@
         }
       }
     },
-    "ApiThinkingBlock": {
-      "title": "ApiThinkingBlock",
-      "description": "Live API thinking block. Like ThinkingBlock; alternative_display_type and flags are absent from earlier captures and null where a capture carries them, as the bulk export always has them; signature is optional (present in bulk export, absent in some API responses).",
+    "TextBlock": {
+      "title": "TextBlock",
+      "description": "Corresponds to the API text content block (type: \"text\"). start_timestamp and stop_timestamp are claude.ai additions recording generation timing; they have no API counterpart. flags is a claude.ai addition, always null in observed exports. citations corresponds to the API Citations feature. See: https://platform.claude.com/docs/en/build-with-claude/citations",
+      "type": "object",
+      "required": [
+        "type",
+        "text",
+        "citations",
+        "flags",
+        "start_timestamp",
+        "stop_timestamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "(discriminator)",
+          "enum": [
+            "text"
+          ]
+        },
+        "start_timestamp": {
+          "description": "Null on every text block written since 2026-08-28 in the export of 2026-09-28 (24 blocks, reading-room; the API capture of the same conversation carries each timestamp), a Timestamp on every earlier one. The API capture is the durable source of the timestamps the export no longer writes. Undeclared before v21.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
+        },
+        "stop_timestamp": {
+          "description": "Null where start_timestamp is null, a Timestamp otherwise. Undeclared before v21.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Citation"
+          }
+        },
+        "flags": {
+          "description": "Always null in observed exports. Possibly reserved for future use.",
+          "type": "null"
+        },
+        "citations_grouping_mode": {
+          "description": "Display grouping mode for citations. Observed value: \"combine\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ThinkingBlock": {
+      "title": "ThinkingBlock",
+      "description": "A block containing Claude's extended thinking, emitted when extended thinking is enabled. No direct equivalent in the standard API content block union \u2014 thinking blocks appear in the export but are stripped from the API response visible to callers. See: https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
       "type": "object",
       "required": [
         "type",
@@ -506,6 +336,9 @@
         "truncated",
         "hidden",
         "thinking_hidden",
+        "alternative_display_type",
+        "signature",
+        "flags",
         "start_timestamp",
         "stop_timestamp"
       ],
@@ -524,54 +357,81 @@
         "stop_timestamp": {
           "$ref": "#/definitions/Timestamp"
         },
+        "flags": {
+          "type": "null",
+          "description": "Always null in observed exports. Possibly reserved for future use."
+        },
         "thinking": {
+          "description": "The full reasoning text produced during extended thinking.",
           "type": "string"
         },
         "summaries": {
+          "description": "Claude-generated summaries of thinking segments. Always present but may be empty.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/ThinkingSummary"
           }
         },
         "cut_off": {
+          "description": "Whether the thinking was cut off before completion.",
           "type": "boolean"
         },
         "truncated": {
+          "description": "Whether the thinking content was truncated in the export.",
           "type": "boolean"
         },
+        "alternative_display_type": {
+          "description": "Always null in observed exports. Possibly reserved for future use.",
+          "type": "null"
+        },
+        "signature": {
+          "description": "Cryptographic signature over the thinking content, used by the API to verify that thinking blocks have not been tampered with when passed back in subsequent turns. Null observed once (2026-08-23, a block whose thinking is empty and thinking_hidden true): the harness leaves an unsigned blank.",
+          "$ref": "#/definitions/NullableString"
+        },
         "hidden": {
+          "description": "Whether the thinking block is collapsed/hidden in the claude.ai UI. Present on every thinking block in the current export format (added by claude.ai mid-2026); required, matching the live-API ApiThinkingBlock (apiConversation v6). Exports predating the field fail v12 and were dropped, as with approval_key_legacy at v10.",
           "type": "boolean"
         },
         "thinking_hidden": {
-          "description": "Whether the thinking body is hidden in the UI \u2014 new in the 2026-07 API beside the existing 'hidden'. REQUIRED: the API stamps it on every thinking block it serves (observed on all 4 blocks of the first carrying capture); a post-introduction block without it is drift and fails loudly. Observed false only.",
+          "description": "Whether the thinking body is hidden in the UI \u2014 new in the 2026-07 export beside the existing 'hidden'. REQUIRED: the export serializer stamps it on every thinking block, even in the batch's oldest conversations (observed on all 217 blocks of the first carrying batch); a post-introduction block without it is drift and fails loudly. Observed false only.",
           "type": "boolean"
-        },
-        "signature": {
-          "type": "string"
-        },
-        "alternative_display_type": {
-          "description": "Null in every capture that carries it; absent from earlier captures.",
-          "type": "null"
-        },
-        "flags": {
-          "description": "Null in every capture that carries it; absent from earlier captures.",
-          "type": "null"
         }
       }
     },
-    "ApiToolUseBlock": {
-      "title": "ApiToolUseBlock",
-      "description": "Live API tool_use block. Uses ApiToolUseBlockBase. Same per-tool subtypes as ToolUseBlock.",
+    "ToolUseBlock": {
+      "title": "ToolUseBlock",
+      "description": "Corresponds to the API tool_use content block emitted by the assistant when it decides to call a tool. Combines shared fields from ToolUseBlockBase with per-tool input schemas via allOf/oneOf, discriminated by the name field. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
       "allOf": [
         {
-          "$ref": "#/definitions/ApiToolUseBlockBase"
+          "$ref": "#/definitions/ToolUseBlockBase"
         },
         {
           "$ref": "#/definitions/HasNameDiscriminatorProperty"
         }
       ],
       "oneOf": [
+        {
+          "$ref": "#/definitions/ArtifactToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/EditToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/SkillToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/SuggestConnectorsToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/TaskCreateToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/TaskUpdateToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/WriteToolUseBlock"
+        },
         {
           "$ref": "#/definitions/AskUserToolUseBlock"
         },
@@ -624,23 +484,32 @@
           "$ref": "#/definitions/WebFetchToolUseBlock"
         },
         {
+          "$ref": "#/definitions/WebSearchFastToolUseBlock"
+        },
+        {
           "$ref": "#/definitions/WebSearchToolUseBlock"
         }
       ]
     },
-    "ApiToolResultBlock": {
-      "title": "ApiToolResultBlock",
-      "description": "Live API tool_result block. Uses ApiToolResultBlockBase and ApiToolResultSearchItem for search results. Same per-tool subtypes as ToolResultBlock.",
+    "ToolResultBlock": {
+      "title": "ToolResultBlock",
+      "description": "Corresponds to the API tool_result content block, supplied by the user/client in response to a tool_use block. Combines shared fields from ToolResultBlockBase with per-tool subtypes via allOf/oneOf, discriminated by the name field. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
       "allOf": [
         {
-          "$ref": "#/definitions/ApiToolResultBlockBase"
+          "$ref": "#/definitions/ToolResultBlockBase"
         },
         {
           "$ref": "#/definitions/HasNameDiscriminatorProperty"
         }
       ],
       "oneOf": [
+        {
+          "$ref": "#/definitions/TaskCreateToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/TaskUpdateToolResultBlock"
+        },
         {
           "$ref": "#/definitions/AskUserToolResultBlock"
         },
@@ -655,6 +524,9 @@
         },
         {
           "$ref": "#/definitions/McpToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/MemoryAppendToolResultBlock"
         },
         {
           "$ref": "#/definitions/MemoryReadToolResultBlock"
@@ -684,6 +556,9 @@
           "$ref": "#/definitions/ToolSearchToolResultBlock"
         },
         {
+          "$ref": "#/definitions/UnnamedToolResultBlock"
+        },
+        {
           "$ref": "#/definitions/ViewToolResultBlock"
         },
         {
@@ -693,36 +568,98 @@
           "$ref": "#/definitions/WebFetchToolResultBlock"
         },
         {
+          "$ref": "#/definitions/WebSearchFastToolResultBlock"
+        },
+        {
           "$ref": "#/definitions/WebSearchToolResultBlock"
         }
       ]
     },
-    "WebpageMetadata": {
-      "title": "WebpageMetadata",
-      "description": "Metadata about a web page returned as part of a search result item, containing the site domain, favicon URL, and site name.",
+    "InjectedPromptBlock": {
+      "title": "InjectedPromptBlock",
+      "description": "A prompt claude.ai injected into a human message beside what the person typed. First observed in the export of 2026-09-17, on 14 human messages of two conversations dated 2026-08-26 to 2026-09-01; the live captures of the same conversations carry no such block.",
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "type",
-        "site_domain",
-        "favicon_url",
-        "site_name"
+        "prompt",
+        "injection_source",
+        "initial_turn_only",
+        "skip_on_truncated_continuation",
+        "flags",
+        "start_timestamp",
+        "stop_timestamp"
+      ],
+      "properties": {
+        "type": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "injected_prompt_block"
+          ]
+        },
+        "prompt": {
+          "description": "The injected text.",
+          "type": "string"
+        },
+        "injection_source": {
+          "description": "What injected it. Observed values: \"date_note\" (the current date), \"melange_tombstone\", and since 2026-09-27 (the export of 2026-09-28, reading-room) \"memory_block_head\" (the user memory snapshot), \"agent_listing\" and \"deferred_tools_delta\" (the harness's system reminders in a conversation run from Claude Code). Likely an open set. Since 2026-10-17 (the export of 2026-10-21, reading-room) \"mcp_instructions_delta\", the harness's system reminder carrying the MCP servers' instructions.",
+          "type": "string",
+          "enum": [
+            "date_note",
+            "melange_tombstone",
+            "memory_block_head",
+            "agent_listing",
+            "deferred_tools_delta",
+            "mcp_instructions_delta"
+          ]
+        },
+        "initial_turn_only": {
+          "description": "Whether the injection belongs to the conversation's first turn alone. Observed only false.",
+          "type": "boolean"
+        },
+        "skip_on_truncated_continuation": {
+          "description": "Whether a truncated continuation drops the injection. Observed only false.",
+          "type": "boolean"
+        },
+        "flags": {
+          "description": "Always null.",
+          "type": "null"
+        },
+        "start_timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "stop_timestamp": {
+          "description": "Equal to start_timestamp in every observed block.",
+          "$ref": "#/definitions/Timestamp"
+        }
+      }
+    },
+    "Citation": {
+      "title": "Citation",
+      "description": "Corresponds to the API Citations feature, which provides references from assistant responses to source documents. start_index and end_index are character offsets into the message text. See: https://platform.claude.com/docs/en/build-with-claude/citations",
+      "type": "object",
+      "required": [
+        "uuid",
+        "start_index",
+        "end_index",
+        "details"
       ],
       "additionalProperties": false,
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "webpage_metadata"
-          ]
+        "uuid": {
+          "$ref": "#/definitions/UuidV4"
         },
-        "site_domain": {
-          "type": "string"
+        "start_index": {
+          "description": "Character offset of citation start in message text.",
+          "type": "integer"
         },
-        "favicon_url": {
-          "type": "string"
+        "end_index": {
+          "description": "Character offset of citation end in message text.",
+          "type": "integer"
         },
-        "site_name": {
-          "type": "string"
+        "details": {
+          "$ref": "#/definitions/CitationDetails"
         }
       }
     },
@@ -740,20 +677,40 @@
         }
       }
     },
-    "ApiToolUseBlockBase": {
-      "title": "ApiToolUseBlockBase",
-      "description": "Base for live API tool_use blocks. Omits the always-null bulk-export envelope fields (approval_key, approval_options, context, flags, is_mcp_app, mcp_server_url) and makes display_content, icon_name, integration_* optional (sometimes absent). Do not use directly \u2014 use ApiToolUseBlock.",
+    "NullableString": {
+      "title": "NullableString",
+      "description": "Shared primitive: a field that is either null or a free-form string. Used wherever a string field may be absent in observed exports.",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ToolUseBlockBase": {
+      "title": "ToolUseBlockBase",
+      "description": "Base schema for all tool_use content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly \u2014 use ToolUseBlock, which combines this base with the named subtypes via allOf/oneOf.",
       "type": "object",
       "required": [
         "type",
         "id",
         "name",
         "input",
+        "approval_key",
+        "approval_key_legacy",
+        "approval_options",
+        "context",
+        "display_content",
+        "flags",
+        "icon_name",
+        "integration_icon_url",
+        "tool_identifier",
+        "integration_name",
+        "is_mcp_app",
         "message",
         "start_timestamp",
-        "stop_timestamp"
+        "stop_timestamp",
+        "mcp_server_url",
+        "hidden_in_chat"
       ],
-      "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
@@ -763,17 +720,37 @@
           ]
         },
         "tool_origin": {
-          "description": "Origin classifier for the tool behind the block. First observed 2026-08-13 on the memory_user_edits add call and its result in capture 6178046a - the only 2 tool blocks carrying it in the live corpus, so it is optional. Observed first_party only; a new value fails loudly.",
+          "description": "Origin classifier for the tool behind the block. First observed 2026-08-13 on the memory_user_edits add call and its result in conversation 6178046a - 2 of the 3690 tool blocks in the 2026-08-17 export, every other block lacking it (the serializer does not re-render history with it, unlike tool_identifier at v15), so it is optional. Observed first_party only; a new value fails loudly.",
           "type": "string",
           "enum": [
             "first_party"
           ]
         },
         "start_timestamp": {
-          "$ref": "#/definitions/Timestamp"
+          "description": "A Timestamp on every tool_use block before 2026-10; null on every agent tool's block since 2026-10-14 (the export of 2026-10-21, reading-room), as on the text blocks since 2026-08-28. The API capture carries the timestamps the export no longer writes.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
         },
         "stop_timestamp": {
-          "$ref": "#/definitions/Timestamp"
+          "description": "A Timestamp on every tool_use block before 2026-10; null on every agent tool's block since 2026-10-14 (the export of 2026-10-21, reading-room), as on the text blocks since 2026-08-28. The API capture carries the timestamps the export no longer writes.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
+        },
+        "flags": {
+          "description": "Always null in observed exports. Possibly reserved for future use.",
+          "type": "null"
         },
         "id": {
           "$ref": "#/definitions/ToolId"
@@ -782,10 +759,12 @@
           "type": "string"
         },
         "input": {
+          "description": "Tool-specific input parameters. Shape varies by tool name; name is sufficient to imply schema. Evidenced name-to-schema mappings: bash_tool -> ToolInputBash (https://platform.claude.com/docs/en/agents-and-tools/tool-use/bash-tool); memory_user_edits -> ToolInputMemoryUserEdits ( https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool); str_replace -> ToolInputStrReplace; view -> ToolInputView; create_file -> ToolInputCreateFile; web_fetch -> ToolInputWebFetch (https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool); web_search -> ToolInputWebSearch (https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool); present_files -> ToolInputPresentFiles; visualize:show_widget -> ToolInputVisualizer; visualize:read_me -> ToolInputReadMe; ask_user_input_v0 -> ToolInputAskUser; recent_chats -> ToolInputRecentChats; conversation_search -> ToolInputConversationSearch (claude.ai-internal tool, no public API documentation); tool_search -> ToolInputToolSearch (https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool); . Three further inputs are defined for tools no tool-use block of this family names, so no block references them (declared in unreachable.csv - v19, reading-room, 2026-09-09): computer_use -> ToolInputComputerUse (https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool); text_editor -> ToolInputTextEditor (https://platform.claude.com/docs/en/agents-and-tools/tool-use/text-editor-tool); code_execution -> ToolInputCodeExecution (https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool).",
           "type": "object"
         },
         "message": {
-          "type": "string"
+          "description": "A string on every tool_use block before 2026-10; null on every agent tool's block since 2026-10-14 (the export of 2026-10-21, reading-room). The API capture carries the message.",
+          "$ref": "#/definitions/NullableString"
         },
         "integration_name": {
           "$ref": "#/definitions/IntegrationName"
@@ -793,17 +772,15 @@
         "integration_icon_url": {
           "$ref": "#/definitions/NullableString"
         },
+        "tool_identifier": {
+          "description": "Always null in observed exports (null on all 1843 tool_use blocks of the 2026-07-07 export, which re-renders ALL history with this envelope field \u2014 the sole difference from the 2026-07-05 rendering). Absent from live API captures and from apiConversation as of the same date: bulk-export-only so far. Possibly reserved for future use.",
+          "type": "null"
+        },
         "icon_name": {
           "$ref": "#/definitions/IconName"
         },
-        "is_mcp_app": {
-          "$ref": "#/definitions/NullableBoolean"
-        },
-        "display_content": {
-          "$ref": "#/definitions/ApiDisplayContent"
-        },
         "context": {
-          "description": "Always null in observed API responses.",
+          "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
         },
         "approval_options": {
@@ -824,27 +801,26 @@
           "description": "Approval key for MCP tool calls requiring user consent.",
           "$ref": "#/definitions/NullableString"
         },
+        "approval_key_legacy": {
+          "description": "Deprecated/legacy form of approval_key. Null on 1842 of 1843 tool_use blocks in the 2026-07-05 export; one MCP tool call carried a real key string (the same call whose live capture forced the api-side field at apiConversation v8, where it is optional and never null \u2014 the export emits the field always, null when unused).",
+          "$ref": "#/definitions/NullableString"
+        },
+        "is_mcp_app": {
+          "$ref": "#/definitions/NullableBoolean"
+        },
         "mcp_server_url": {
           "description": "URL of the MCP server providing this tool.",
           "$ref": "#/definitions/NullableString"
         },
-        "flags": {
-          "description": "Always null in observed API responses.",
-          "type": "null"
-        },
-        "approval_key_legacy": {
-          "description": "Deprecated/legacy form of approval_key. First observed in the API in 2026-07 captures on a single MCP tool call, as a real key string, the field otherwise absent; captures of 2026-09 also carry it null, on first-party tool calls, as the bulk export always has (conversations v10+ requires the field).",
-          "$ref": "#/definitions/NullableString"
+        "display_content": {
+          "$ref": "#/definitions/DisplayContent"
         },
         "hidden_in_chat": {
-          "description": "Null where present; absent from earlier captures. The bulk export has carried it, null, since conversations v17.",
-          "type": "null"
-        },
-        "tool_identifier": {
-          "description": "Null where present; absent from earlier captures. The bulk export has carried it, null, since 2026-07-07.",
+          "description": "Whether the block is hidden from the chat display. The export serializer stamps it on EVERY tool_use and tool_result block of the 2026-07-22 export (batch 128fd3c8, export epoch 1784702804), oldest conversations included, so it is required \u2014 the thinking_hidden precedent (v16). Only null observed; a non-null value is drift and fails loudly.",
           "type": "null"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "HasNameDiscriminatorProperty": {
       "title": "HasNameDiscriminatorProperty",
@@ -858,6 +834,153 @@
           "type": "string"
         }
       }
+    },
+    "ArtifactToolUseBlock": {
+      "title": "ArtifactToolUseBlock",
+      "description": "Tool use block for the Artifact tool - publishes or reads an artifact, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Artifact"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputArtifact"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "EditToolUseBlock": {
+      "title": "EditToolUseBlock",
+      "description": "Tool use block for the Edit tool - replaces a string in a file, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Edit"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputEdit"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "SkillToolUseBlock": {
+      "title": "SkillToolUseBlock",
+      "description": "Tool use block for the Skill tool - invokes a skill, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Skill"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputSkill"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "SuggestConnectorsToolUseBlock": {
+      "title": "SuggestConnectorsToolUseBlock",
+      "description": "Tool use block for the SuggestConnectors tool - suggests connectors, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "SuggestConnectors"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputSuggestConnectors"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "TaskCreateToolUseBlock": {
+      "title": "TaskCreateToolUseBlock",
+      "description": "Tool use block for the TaskCreate tool - creates a task of the task list, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskCreate"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputTaskCreate"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "TaskUpdateToolUseBlock": {
+      "title": "TaskUpdateToolUseBlock",
+      "description": "Tool use block for the TaskUpdate tool - updates a task of the task list, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskUpdate"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputTaskUpdate"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "WriteToolUseBlock": {
+      "title": "WriteToolUseBlock",
+      "description": "Tool use block for the Write tool - writes a file, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Write"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputWrite"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
     },
     "AskUserToolUseBlock": {
       "title": "AskUserToolUseBlock",
@@ -882,14 +1005,15 @@
     },
     "BashToolUseBlock": {
       "title": "BashToolUseBlock",
-      "description": "Tool use block for the bash_tool tool.",
+      "description": "Tool use block for the bash_tool tool. Named `Bash` since 2026-10-09, as Claude Code names it; `bash_tool` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "bash_tool"
+            "bash_tool",
+            "Bash"
           ]
         },
         "input": {
@@ -945,7 +1069,7 @@
     },
     "McpToolUseBlock": {
       "title": "McpToolUseBlock",
-      "description": "Tool use block for a tool provided by a connected MCP server. The name follows the pattern <integration>:<tool>, where integration is the claude.ai connector name and tool is the MCP tool name. input is an open object \u2014 shape varies arbitrarily by tool.",
+      "description": "Tool use block for a tool provided by a connected MCP server. The name is <integration>:<tool> (NamespacedToolName) or, from 2026-10, mcp__<server>__<tool> (McpPrefixedToolName). input is an open object \u2014 shape varies arbitrarily by tool.",
       "type": "object",
       "required": [
         "name",
@@ -953,7 +1077,14 @@
       ],
       "properties": {
         "name": {
-          "$ref": "#/definitions/NamespacedToolName"
+          "oneOf": [
+            {
+              "$ref": "#/definitions/NamespacedToolName"
+            },
+            {
+              "$ref": "#/definitions/McpPrefixedToolName"
+            }
+          ]
         },
         "input": {
           "type": "object"
@@ -1088,7 +1219,7 @@
     },
     "SearchMcpRegistryToolUseBlock": {
       "title": "SearchMcpRegistryToolUseBlock",
-      "description": "Tool use block for the search_mcp_registry tool, which searches the MCP connector directory.",
+      "description": "Tool use block for the search_mcp_registry tool, which searches the MCP connector directory. Named `SearchMcpRegistry` since 2026-10-09, as Claude Code names it; `search_mcp_registry` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name",
@@ -1099,7 +1230,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "search_mcp_registry"
+            "search_mcp_registry",
+            "SearchMcpRegistry"
           ]
         },
         "input": {
@@ -1130,7 +1262,7 @@
     },
     "ToolSearchToolUseBlock": {
       "title": "ToolSearchToolUseBlock",
-      "description": "Tool use block for the tool_search tool, which searches available MCP and built-in tools by query.",
+      "description": "Tool use block for the tool_search tool, which searches available MCP and built-in tools by query. Named `ToolSearch` since 2026-10-09, as Claude Code names it; `tool_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name",
@@ -1141,7 +1273,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "tool_search"
+            "tool_search",
+            "ToolSearch"
           ]
         },
         "input": {
@@ -1193,14 +1326,15 @@
     },
     "WebFetchToolUseBlock": {
       "title": "WebFetchToolUseBlock",
-      "description": "Tool use block for the web_fetch tool.",
+      "description": "Tool use block for the web_fetch tool. Named `WebFetch` since 2026-10-09, as Claude Code names it; `web_fetch` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_fetch"
+            "web_fetch",
+            "WebFetch"
           ]
         },
         "input": {
@@ -1212,16 +1346,16 @@
         "input"
       ]
     },
-    "WebSearchToolUseBlock": {
-      "title": "WebSearchToolUseBlock",
-      "description": "Tool use block for the web_search tool. Also used for conversation_search (same input shape).",
+    "WebSearchFastToolUseBlock": {
+      "title": "WebSearchFastToolUseBlock",
+      "description": "Tool use block for the web_search_fast tool, a first-party web search observed once, on 2026-08-28. Its input is a query, as web_search's is, so it uses ToolInputWebSearch.",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_search"
+            "web_search_fast"
           ]
         },
         "input": {
@@ -1233,18 +1367,51 @@
         "input"
       ]
     },
-    "ApiToolResultBlockBase": {
-      "title": "ApiToolResultBlockBase",
-      "description": "Base for live API tool_result blocks. Omits the always-null bulk-export fields (flags, meta, structured_content, mcp_server_url, start_timestamp, stop_timestamp) and makes display_content, icon_name, integration_*, message optional. Do not use directly \u2014 use ApiToolResultBlock.",
+    "WebSearchToolUseBlock": {
+      "title": "WebSearchToolUseBlock",
+      "description": "Tool use block for the web_search tool. Also used for conversation_search (same input shape). Named `WebSearch` since 2026-10-09, as Claude Code names it; `web_search` before (v14/v22, reading-room 2026-10-21).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "web_search",
+            "WebSearch"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputWebSearch"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "ToolResultBlockBase": {
+      "title": "ToolResultBlockBase",
+      "description": "Base schema for all tool_result content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly \u2014 use ToolResultBlock, which combines this base with the named subtypes via allOf/oneOf.",
       "type": "object",
       "required": [
         "type",
         "tool_use_id",
         "is_error",
         "content",
-        "name"
+        "display_content",
+        "flags",
+        "icon_name",
+        "integration_icon_url",
+        "integration_name",
+        "message",
+        "meta",
+        "name",
+        "start_timestamp",
+        "stop_timestamp",
+        "structured_content",
+        "mcp_server_url",
+        "hidden_in_chat"
       ],
-      "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
@@ -1254,14 +1421,14 @@
           ]
         },
         "tool_origin": {
-          "description": "Origin classifier for the tool behind the block. First observed 2026-08-13 on the memory_user_edits add call and its result in capture 6178046a - the only 2 tool blocks carrying it in the live corpus, so it is optional. Observed first_party only; a new value fails loudly.",
+          "description": "Origin classifier for the tool behind the block. First observed 2026-08-13 on the memory_user_edits add call and its result in conversation 6178046a - 2 of the 3690 tool blocks in the 2026-08-17 export, every other block lacking it (the serializer does not re-render history with it, unlike tool_identifier at v15), so it is optional. Observed first_party only; a new value fails loudly.",
           "type": "string",
           "enum": [
             "first_party"
           ]
         },
         "start_timestamp": {
-          "description": "Was always null in observed API responses through v7; real timestamps first observed on web_search tool results in 2026-07 captures \u2014 the same relaxation as conversations v13 (the two schemas describe the same underlying blocks).",
+          "description": "Was always null in observed exports through v12; real timestamps first observed on web_search tool results in the 2026-07 export.",
           "oneOf": [
             {
               "type": "null"
@@ -1272,7 +1439,7 @@
           ]
         },
         "stop_timestamp": {
-          "description": "Was always null in observed API responses through v7; real timestamps first observed on web_search tool results in 2026-07 captures \u2014 the same relaxation as conversations v13 (the two schemas describe the same underlying blocks).",
+          "description": "Was always null in observed exports through v12; real timestamps first observed on web_search tool results in the 2026-07 export.",
           "oneOf": [
             {
               "type": "null"
@@ -1283,7 +1450,7 @@
           ]
         },
         "flags": {
-          "description": "Always null in observed API responses.",
+          "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
         },
         "tool_use_id": {
@@ -1305,10 +1472,10 @@
                 "$ref": "#/definitions/ToolResultContentItem"
               },
               {
-                "$ref": "#/definitions/ApiToolResultSearchItem"
+                "$ref": "#/definitions/ToolResultSearchItem"
               },
               {
-                "$ref": "#/definitions/ApiToolResultLocalResource"
+                "$ref": "#/definitions/ToolResultLocalResource"
               }
             ]
           }
@@ -1329,10 +1496,6 @@
               "$ref": "#/definitions/MemoryDocumentList"
             }
           ]
-        },
-        "hidden_in_chat": {
-          "description": "Null where present; absent from earlier captures.",
-          "type": "null"
         },
         "meta": {
           "description": "Metadata for the tool result. May be null or contain output format info. Observed non-null values include {output_format_category: 'md'|'none'|'other'}.",
@@ -1368,9 +1531,48 @@
           "$ref": "#/definitions/IconName"
         },
         "display_content": {
-          "$ref": "#/definitions/ApiDisplayContent"
+          "$ref": "#/definitions/DisplayContent"
+        },
+        "hidden_in_chat": {
+          "description": "Whether the block is hidden from the chat display. The export serializer stamps it on EVERY tool_use and tool_result block of the 2026-07-22 export (batch 128fd3c8, export epoch 1784702804), oldest conversations included, so it is required \u2014 the thinking_hidden precedent (v16). Only null observed; a non-null value is drift and fails loudly.",
+          "type": "null"
         }
-      }
+      },
+      "additionalProperties": false
+    },
+    "TaskCreateToolResultBlock": {
+      "title": "TaskCreateToolResultBlock",
+      "description": "Tool result block for the TaskCreate tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskCreate"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "TaskUpdateToolResultBlock": {
+      "title": "TaskUpdateToolResultBlock",
+      "description": "Tool result block for the TaskUpdate tool: text items.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "TaskUpdate"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
     },
     "AskUserToolResultBlock": {
       "title": "AskUserToolResultBlock",
@@ -1391,14 +1593,15 @@
     },
     "BashToolResultBlock": {
       "title": "BashToolResultBlock",
-      "description": "Tool result block for the bash_tool tool.",
+      "description": "Tool result block for the bash_tool tool. Named `Bash` since 2026-10-09, as Claude Code names it; `bash_tool` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "bash_tool"
+            "bash_tool",
+            "Bash"
           ]
         }
       },
@@ -1449,9 +1652,33 @@
       ],
       "properties": {
         "name": {
-          "$ref": "#/definitions/NamespacedToolName"
+          "oneOf": [
+            {
+              "$ref": "#/definitions/NamespacedToolName"
+            },
+            {
+              "$ref": "#/definitions/McpPrefixedToolName"
+            }
+          ]
         }
       }
+    },
+    "MemoryAppendToolResultBlock": {
+      "title": "MemoryAppendToolResultBlock",
+      "description": "Tool result block for the memory_append tool, claude.ai's first-party Memory integration appending to a memory; its use is named mcp__memory__memory_append. First observed 2026-10-15.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "memory_append"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
     },
     "MemoryReadToolResultBlock": {
       "title": "MemoryReadToolResultBlock",
@@ -1557,7 +1784,7 @@
     },
     "SearchMcpRegistryToolResultBlock": {
       "title": "SearchMcpRegistryToolResultBlock",
-      "description": "Tool result block for the search_mcp_registry tool.",
+      "description": "Tool result block for the search_mcp_registry tool. Named `SearchMcpRegistry` since 2026-10-09, as Claude Code names it; `search_mcp_registry` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name"
@@ -1567,7 +1794,8 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "search_mcp_registry"
+            "search_mcp_registry",
+            "SearchMcpRegistry"
           ]
         }
       }
@@ -1591,7 +1819,7 @@
     },
     "ToolSearchToolResultBlock": {
       "title": "ToolSearchToolResultBlock",
-      "description": "Tool result block for the tool_search tool. Content structure unobserved.",
+      "description": "Tool result block for the tool_search tool. Content structure unobserved. Named `ToolSearch` since 2026-10-09, as Claude Code names it; `tool_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "required": [
         "name"
@@ -1601,10 +1829,28 @@
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "tool_search"
+            "tool_search",
+            "ToolSearch"
           ]
         }
       }
+    },
+    "UnnamedToolResultBlock": {
+      "title": "UnnamedToolResultBlock",
+      "description": "Tool result block the export writes with an empty name for every agent tool's result (the API capture names them). First observed 2026-10-14.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            ""
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
     },
     "ViewToolResultBlock": {
       "title": "ViewToolResultBlock",
@@ -1642,14 +1888,32 @@
     },
     "WebFetchToolResultBlock": {
       "title": "WebFetchToolResultBlock",
-      "description": "Tool result block for the web_fetch tool.",
+      "description": "Tool result block for the web_fetch tool. Named `WebFetch` since 2026-10-09, as Claude Code names it; `web_fetch` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_fetch"
+            "web_fetch",
+            "WebFetch"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "WebSearchFastToolResultBlock": {
+      "title": "WebSearchFastToolResultBlock",
+      "description": "Tool result block for the web_search_fast tool: knowledge items, as web_search returns them.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "web_search_fast"
           ]
         }
       },
@@ -1659,20 +1923,42 @@
     },
     "WebSearchToolResultBlock": {
       "title": "WebSearchToolResultBlock",
-      "description": "Tool result block for the web_search tool.",
+      "description": "Tool result block for the web_search tool. Named `WebSearch` since 2026-10-09, as Claude Code names it; `web_search` before (v14/v22, reading-room 2026-10-21).",
       "type": "object",
       "properties": {
         "name": {
           "description": "(discriminator)",
           "type": "string",
           "enum": [
-            "web_search"
+            "web_search",
+            "WebSearch"
           ]
         }
       },
       "required": [
         "name"
       ]
+    },
+    "CitationDetails": {
+      "title": "CitationDetails",
+      "description": "Details of a citation source. Only web_search_citation observed in this export; other types may exist. Corresponds to the source object in the API Citations feature. See: https://platform.claude.com/docs/en/build-with-claude/citations",
+      "type": "object",
+      "required": [
+        "type",
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "web_search_citation"
+          ]
+        },
+        "url": {
+          "type": "string"
+        }
+      }
     },
     "ToolId": {
       "title": "ToolId",
@@ -1682,19 +1968,11 @@
     },
     "IntegrationName": {
       "title": "IntegrationName",
-      "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v6; opened at v7 when 'File Creation' appeared, exactly as the description had warned.",
+      "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v12; opened at v13 when 'File Creation' appeared in a bulk export, exactly as the description had warned (and as apiConversation v7 had already done).",
       "oneOf": [
         {
           "$ref": "#/definitions/NullableString"
         }
-      ]
-    },
-    "NullableString": {
-      "title": "NullableString",
-      "description": "Shared primitive: a field that is either null or a free-form string. Used wherever a string field may be absent in observed exports.",
-      "type": [
-        "null",
-        "string"
       ]
     },
     "IconName": {
@@ -1726,9 +2004,9 @@
         "boolean"
       ]
     },
-    "ApiDisplayContent": {
-      "title": "ApiDisplayContent",
-      "description": "Display content for live API tool blocks. Like DisplayContent but substitutes ApiRichLink and ApiRichContentItem (which have relaxed requirements for always-null fields) and ApiDisplayContentCodeBlock (filename optional).",
+    "DisplayContent": {
+      "title": "DisplayContent",
+      "description": "A claude.ai UI addition with no API counterpart. Provides a structured rendering hint for the web interface, summarising the tool interaction in a human-readable form. Null when no display hint is provided. rich_link only observed in ToolResultBlock; table only observed in ToolUseBlock.",
       "oneOf": [
         {
           "type": "null"
@@ -1741,16 +2019,16 @@
           ],
           "oneOf": [
             {
-              "$ref": "#/definitions/ApiDisplayContentCodeBlock"
+              "$ref": "#/definitions/DisplayContentCodeBlock"
             },
             {
               "$ref": "#/definitions/DisplayContentJsonBlock"
             },
             {
-              "$ref": "#/definitions/ApiRichLink"
+              "$ref": "#/definitions/DisplayContentRichLink"
             },
             {
-              "$ref": "#/definitions/ApiRichContentItem"
+              "$ref": "#/definitions/DisplayContentRichContent"
             },
             {
               "$ref": "#/definitions/DisplayContentTable"
@@ -1761,6 +2039,136 @@
           ]
         }
       ]
+    },
+    "ToolInputArtifact": {
+      "title": "ToolInputArtifact",
+      "description": "Input for the Artifact tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "url"
+      ],
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputEdit": {
+      "title": "ToolInputEdit",
+      "description": "Input for the Edit tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_path",
+        "new_string",
+        "old_string",
+        "replace_all"
+      ],
+      "properties": {
+        "file_path": {
+          "type": "string"
+        },
+        "new_string": {
+          "type": "string"
+        },
+        "old_string": {
+          "type": "string"
+        },
+        "replace_all": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ToolInputSkill": {
+      "title": "ToolInputSkill",
+      "description": "Input for the Skill tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skill"
+      ],
+      "properties": {
+        "skill": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputSuggestConnectors": {
+      "title": "ToolInputSuggestConnectors",
+      "description": "Input for the SuggestConnectors tool, closed over the keys observed in 1 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uuids"
+      ],
+      "properties": {
+        "uuids": {
+          "type": "array"
+        }
+      }
+    },
+    "ToolInputTaskCreate": {
+      "title": "ToolInputTaskCreate",
+      "description": "Input for the TaskCreate tool, closed over the keys observed in 9 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activeForm",
+        "description",
+        "subject"
+      ],
+      "properties": {
+        "activeForm": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputTaskUpdate": {
+      "title": "ToolInputTaskUpdate",
+      "description": "Input for the TaskUpdate tool, closed over the keys observed in 11 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "taskId"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "taskId": {
+          "type": "string"
+        }
+      }
+    },
+    "ToolInputWrite": {
+      "title": "ToolInputWrite",
+      "description": "Input for the Write tool, closed over the keys observed in 3 call(s) from 2026-10-14.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content",
+        "file_path"
+      ],
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "file_path": {
+          "type": "string"
+        }
+      }
     },
     "ToolInputAskUser": {
       "title": "ToolInputAskUser",
@@ -1793,6 +2201,14 @@
         },
         "command": {
           "type": "string"
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Seconds the command may run; optional. First observed 2026-10 with the tool named `Bash`."
+        },
+        "run_in_background": {
+          "type": "boolean",
+          "description": "Whether the command runs detached; optional. First observed 2026-10 with the tool named `Bash`."
         }
       }
     },
@@ -1839,15 +2255,35 @@
         "$ref": "#/definitions/ToolName"
       }
     },
+    "McpPrefixedToolName": {
+      "title": "McpPrefixedToolName",
+      "description": "Tool name for a tool provided by a connected MCP server as claude.ai names it from 2026-10, in the form mcp__<server>__<tool>; the server segment is the connector name with spaces replaced. Example: \"mcp__Claude_Docs__read\".",
+      "type": "string",
+      "pattern": "^mcp__.+__.+$"
+    },
     "ToolInputMemoryRead": {
       "title": "ToolInputMemoryRead",
-      "description": "Input for the memory_read tool: empty where the tool recalls what it judges relevant (2026-08 captures), or the path of the one memory to read (2026-09 captures).",
+      "description": "Input for the memory_read tool: the memories to read. The conversations of 2026-08 name two or three paths as a list; those of 2026-09 name one path as a string. The live captures of the 2026-08 conversations show the input empty, which no export does.",
       "type": "object",
       "additionalProperties": false,
+      "required": [
+        "path"
+      ],
       "properties": {
         "path": {
-          "description": "The memory's path. Example: \"/areas/yoga-corpus.md\".",
-          "type": "string"
+          "description": "One memory's path, or a list of paths. Example: \"/areas/yoga-corpus.md\".",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         }
       }
     },
@@ -1985,6 +2421,10 @@
       "properties": {
         "query": {
           "type": "string"
+        },
+        "max_results": {
+          "type": "integer",
+          "description": "How many tools to load at most; optional. First observed 2026-10 with the tool named `ToolSearch`."
         }
       }
     },
@@ -2056,6 +2496,10 @@
         },
         "web_fetch_pdf_extract_text": {
           "type": "boolean"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "What to answer over the page; optional. First observed 2026-10 with the tool named `WebFetch`."
         }
       }
     },
@@ -2069,12 +2513,16 @@
       "properties": {
         "query": {
           "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "description": "The search mode; optional. First observed 2026-10 with the tool named `WebSearch`."
         }
       }
     },
     "ToolResultContentItem": {
       "title": "ToolResultContentItem",
-      "description": "A plain text item within a tool result content array. Corresponds to a text content block in the API tool_result. uuid is a claude.ai addition, absent from the memory_read results of 2026-09.",
+      "description": "A plain text item within a tool result content array. Corresponds to a text content block in the API tool_result. uuid is a claude.ai addition. uuid is absent on the results of 2026-07-02 and of the agent tools, so it is no longer required (v22).",
       "type": "object",
       "required": [
         "type",
@@ -2097,9 +2545,9 @@
         }
       }
     },
-    "ApiToolResultSearchItem": {
-      "title": "ApiToolResultSearchItem",
-      "description": "Live API knowledge item: a web search result (web_search, carrying text) or a fetched-page record (web_fetch, metadata only). text, is_citable, and prompt_context_metadata may be absent \u2014 absent on every web_fetch item; present on web_search items (and required by the bulk-export ToolResultSearchItem until conversations v14, when a web_fetch item first appeared in an export and the two sides converged on this looser shape).",
+    "ToolResultSearchItem": {
+      "title": "ToolResultSearchItem",
+      "description": "A knowledge item within a tool result content array \u2014 a web search result from the built-in web_search tool (carrying the result text), or, since the 2026-07 exports, a fetched-page record from the web_fetch tool (metadata only: no text, no is_citable, no prompt_context_metadata \u2014 the fetched content itself is not echoed into the export). text was required until v13, when web_search was the only producer. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
       "type": "object",
       "required": [
         "type",
@@ -2110,15 +2558,15 @@
       ],
       "additionalProperties": false,
       "properties": {
+        "title": {
+          "type": "string"
+        },
         "type": {
           "type": "string",
           "description": "(discriminator)",
           "enum": [
             "knowledge"
           ]
-        },
-        "title": {
-          "type": "string"
         },
         "url": {
           "type": "string"
@@ -2145,17 +2593,28 @@
               "$ref": "#/definitions/PromptContextMetadataFetch"
             }
           ]
+        },
+        "links": {
+          "description": "Related URLs surfaced with the result; null for nearly all items, occasionally a short list.",
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
-    "ApiToolResultLocalResource": {
-      "title": "ApiToolResultLocalResource",
-      "description": "Live API local resource item. mime_type is optional (required in bulk-export ToolResultLocalResource).",
+    "ToolResultLocalResource": {
+      "title": "ToolResultLocalResource",
+      "description": "A reference to a file generated by Claude and presented to the user via the claude.ai UI. No direct API counterpart \u2014 the file_path refers to the container filesystem used by the claude.ai computer-use environment. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
       "type": "object",
       "required": [
         "type",
         "file_path",
         "name",
+        "mime_type",
         "uuid"
       ],
       "additionalProperties": false,
@@ -2218,8 +2677,15 @@
           "type": "string"
         },
         "updated_at": {
-          "description": "When the memory was last written.",
-          "$ref": "#/definitions/Timestamp"
+          "description": "When the memory was last updated; null on the one memory_append result of 2026-10-15, a Timestamp on every read.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
         },
         "parsed": {
           "$ref": "#/definitions/MemoryDocumentParsed"
@@ -2228,17 +2694,26 @@
           "$ref": "#/definitions/MemoryDocumentTarget"
         },
         "memory_op_kind": {
-          "description": "The operation that produced the document. Observed value: \"read\", from 2026-09-15; absent before.",
+          "description": "The operation that produced the document, an open set: \"read\" from 2026-09-15 on memory_read results, \"write\" from 2026-10-15 on the one memory_append result; absent before.",
           "type": "string",
           "enum": [
-            "read"
+            "read",
+            "write"
           ]
+        },
+        "memory_id": {
+          "type": "string",
+          "description": "The memory's id. First observed 2026-10-09 on a memory_read result; absent before."
+        },
+        "forgiven": {
+          "type": "boolean",
+          "description": "First observed 2026-10-15 on the one memory_append result; absent on every read."
         }
       }
     },
     "MemoryDocumentList": {
       "title": "MemoryDocumentList",
-      "description": "Several memories returned by one memory_read (two or three observed, the 2026-08 captures whose input is empty).",
+      "description": "Several memories returned by one memory_read (two or three observed, the 2026-08 conversations whose input is empty).",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -2255,13 +2730,14 @@
         }
       }
     },
-    "ApiDisplayContentCodeBlock": {
-      "title": "ApiDisplayContentCodeBlock",
-      "description": "Live API code block display content. filename is optional (required in bulk-export DisplayContentCodeBlock).",
+    "DisplayContentCodeBlock": {
+      "title": "DisplayContentCodeBlock",
+      "description": "A code block rendering hint for the claude.ai UI. Observed in both ToolUseBlock and ToolResultBlock display_content.",
       "type": "object",
       "required": [
         "type",
         "code",
+        "filename",
         "language"
       ],
       "additionalProperties": false,
@@ -2315,9 +2791,9 @@
         }
       }
     },
-    "ApiRichLink": {
-      "title": "ApiRichLink",
-      "description": "Rich link display content for API responses. subtitles and resource_type on the inner link may be absent (always null in bulk export).",
+    "DisplayContentRichLink": {
+      "title": "DisplayContentRichLink",
+      "description": "A rich link rendering hint for the claude.ai UI. Only observed in ToolResultBlock display_content, not in ToolUseBlock.",
       "type": "object",
       "required": [
         "type",
@@ -2334,45 +2810,16 @@
           ]
         },
         "link": {
-          "type": "object",
-          "required": [
-            "title",
-            "url",
-            "icon_url",
-            "source"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "title": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
-            },
-            "icon_url": {
-              "type": "string"
-            },
-            "source": {
-              "type": "string"
-            },
-            "subtitles": {
-              "description": "Always null in observed exports.",
-              "type": "null"
-            },
-            "resource_type": {
-              "description": "Always null in observed exports.",
-              "type": "null"
-            }
-          }
+          "$ref": "#/definitions/RichLink"
         },
         "is_trusted": {
           "type": "boolean"
         }
       }
     },
-    "ApiRichContentItem": {
-      "title": "ApiRichContentItem",
-      "description": "Rich content display for API responses. Two producers observed: past-conversation links (title and url) and, first observed 2026-08-13, the memory_user_edits result summary (title plus a subtitles string array, no url), and from 2026-08-26 the memory_read result (the memory's path as title, its text as subtitles, url null or absent) - so only title is required. The always-null fields (resource_type, icon_url, source) may be absent.",
+    "DisplayContentRichContent": {
+      "title": "DisplayContentRichContent",
+      "description": "A rich content rendering hint for the claude.ai UI, observed in ToolResultBlock display_content for past-chat search results (recent_chats, conversation_search tools). Each item in content is a chat link with title and URL.",
       "type": "object",
       "required": [
         "type",
@@ -2390,46 +2837,7 @@
         "content": {
           "type": "array",
           "items": {
-            "type": "object",
-            "required": [
-              "title"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "title": {
-                "type": "string"
-              },
-              "url": {
-                "description": "A string on past-conversation links; absent on the memory_user_edits producer; null or absent on memory_read's.",
-                "$ref": "#/definitions/NullableString"
-              },
-              "subtitles": {
-                "description": "Absent or null on past-conversation links; a string array on the memory_user_edits producer.",
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                ]
-              },
-              "resource_type": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              },
-              "icon_url": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              },
-              "source": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              }
-            }
+            "$ref": "#/definitions/RichContentItem"
           }
         }
       }
@@ -2537,6 +2945,35 @@
         "web_search"
       ]
     },
+    "WebpageMetadata": {
+      "title": "WebpageMetadata",
+      "description": "Metadata about a web page returned as part of a search result item, containing the site domain, favicon URL, and site name.",
+      "type": "object",
+      "required": [
+        "type",
+        "site_domain",
+        "favicon_url",
+        "site_name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "webpage_metadata"
+          ]
+        },
+        "site_domain": {
+          "type": "string"
+        },
+        "favicon_url": {
+          "type": "string"
+        },
+        "site_name": {
+          "type": "string"
+        }
+      }
+    },
     "PromptContextMetadataSearch": {
       "title": "PromptContextMetadataSearch",
       "description": "Metadata attached to a web search result item, identifying the source URL and search provider. age is optional, present only when the search result includes a publication date.",
@@ -2633,6 +3070,10 @@
           "description": "The wikilinks' references. Observed only empty; the element form is unobserved.",
           "type": "array",
           "maxItems": 0
+        },
+        "blocks": {
+          "type": "null",
+          "description": "The memory's blocks, as parsed: null on each of the 3 documents observed from 2026-10-09; absent before."
         }
       }
     },
@@ -2655,6 +3096,107 @@
           "type": "boolean"
         }
       }
+    },
+    "RichLink": {
+      "title": "RichLink",
+      "description": "A structured link object within a DisplayContentRichLink block, containing title, URL, icon, and source. subtitles and resource_type are always null in observed exports.",
+      "type": "object",
+      "required": [
+        "title",
+        "url",
+        "icon_url",
+        "source",
+        "subtitles",
+        "resource_type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "icon_url": {
+          "type": "string"
+        },
+        "source": {
+          "description": "Short source label derived from the fetched site (a site/publication slug). Open set \u2014 typed as a free string, matching apiConversation ApiRichLink.source. Was a closed enum through v11; widened at v12 when a previously-unlisted site appeared, exactly as the v11 description had warned.",
+          "type": "string"
+        },
+        "subtitles": {
+          "description": "Always null in observed exports.",
+          "type": "null"
+        },
+        "resource_type": {
+          "description": "Always null in observed exports.",
+          "type": "null"
+        }
+      }
+    },
+    "RichContentItem": {
+      "title": "RichContentItem",
+      "description": "A single item within a DisplayContentRichContent block. Two producers observed: past-conversation links (recent_chats, conversation_search - a string url, subtitles null) and, first observed 2026-08-13, the memory_user_edits result summary (a subtitles string array, url null). All six keys are always present; resource_type, icon_url, and source are always null in observed exports.",
+      "type": "object",
+      "required": [
+        "title",
+        "subtitles",
+        "url",
+        "resource_type",
+        "icon_url",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "description": "A string on past-conversation links; null on the memory_user_edits producer.",
+          "$ref": "#/definitions/NullableString"
+        },
+        "subtitles": {
+          "description": "Null on past-conversation links; a string array on the memory_user_edits producer.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "resource_type": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        },
+        "icon_url": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        },
+        "source": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        }
+      }
+    },
+    "ToolInputComputerUse": {
+      "title": "ToolInputComputerUse",
+      "description": "Input for the computer_use tool. Not observed in this export. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
+      "type": "object"
+    },
+    "ToolInputTextEditor": {
+      "title": "ToolInputTextEditor",
+      "description": "Input for the text_editor tool. Not observed in this export. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/text-editor-tool",
+      "type": "object"
+    },
+    "ToolInputCodeExecution": {
+      "title": "ToolInputCodeExecution",
+      "description": "Input for the code_execution tool. Not observed in this export. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool",
+      "type": "object"
     }
   }
 }

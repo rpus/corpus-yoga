@@ -66,16 +66,19 @@
         },
         "uuid": {
           "description": "The source message's uuid (apiConversation chat_messages[].uuid / bulk-export Conversation chat_messages[].uuid) \u2014 identical across the two sources, which is what makes the rendered anchors agree cross-source.",
-          "$ref": "#/definitions/UuidV4orV7"
+          "$ref": "#/definitions/UuidV4orV5orV7"
         }
       }
     },
-    "UuidV4orV7": {
-      "title": "UuidV4orV7",
-      "description": "A UUID that is either v4 or v7. Some fields were strictly v7 in earlier exports but v4 UUIDs appeared in later exports.",
+    "UuidV4orV5orV7": {
+      "title": "UuidV4orV5orV7",
+      "description": "A UUID of version 4, 5 or 7: v7 in the earliest exports, v4 since, and from 2026-10-14 v5 on one message.",
       "oneOf": [
         {
           "$ref": "#/definitions/UuidV4"
+        },
+        {
+          "$ref": "#/definitions/UuidV5"
         },
         {
           "$ref": "#/definitions/UuidV7"
@@ -87,6 +90,12 @@
       "description": "Standard UUID version 4 (randomly generated). Used for conversation, account, and tool result content item identifiers. Example: \"e5b78a25-53f5-4d1a-82f4-e35bfe406bd4\". A zero v4 UUID (00000000-0000-4000-8000-000000000000, not the RFC 4122 nil UUID 00000000-0000-0000-0000-000000000000) is used by convention in claude.ai exports as a sentinel value for parent_message_uuid, to indicate a root message with no parent.",
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "UuidV5": {
+      "title": "UuidV5",
+      "description": "UUID version 5 (name-based, SHA-1): the third group begins with 5. First observed 2026-10-14 on one assistant message of conversation 50eea711, in the capture and the export alike.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     },
     "UuidV7": {
       "title": "UuidV7",
