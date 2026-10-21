@@ -980,11 +980,15 @@
           "type": "boolean"
         },
         "toolUseResult": {
-          "description": "Present when this user turn is the result of a tool call fed back into the conversation. Observed as a plain string (e.g. rejection message) or an object.",
+          "description": "Present when this user turn is the result of a tool call fed back into the conversation. Observed as a plain string (e.g. rejection message), an object, or an array of text blocks - an MCP tool's result content, as the result of mcp__claude-vscode__getDiagnostics was on reading-room, 2026-10-21.",
           "type": [
             "string",
-            "object"
-          ]
+            "object",
+            "array"
+          ],
+          "items": {
+            "$ref": "#/definitions/TextBlock"
+          }
         },
         "sourceToolAssistantUUID": {
           "description": "UUID of the assistant turn whose tool call this user turn responds to.",
@@ -1635,6 +1639,29 @@
         }
       }
     },
+    "TextBlock": {
+      "title": "TextBlock",
+      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text"
+          ],
+          "description": "(discriminator)"
+        },
+        "text": {
+          "description": "The text content.",
+          "type": "string"
+        }
+      }
+    },
     "TurnOrigin": {
       "title": "TurnOrigin",
       "description": "Where a user turn came from (2.1.263 onward). Observed kinds: \"human\" and \"task-notification\" (a background task's completion delivered as a turn). Likely an open set.",
@@ -1810,29 +1837,6 @@
               }
             }
           ]
-        }
-      }
-    },
-    "TextBlock": {
-      "title": "TextBlock",
-      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
-      "type": "object",
-      "required": [
-        "type",
-        "text"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "text"
-          ],
-          "description": "(discriminator)"
-        },
-        "text": {
-          "description": "The text content.",
-          "type": "string"
         }
       }
     },

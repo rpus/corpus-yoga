@@ -6,6 +6,39 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v24
+
+One shape of a user turn's `toolUseResult` that v23 did not admit. Reading-room's session
+`e2d2039d-b1e5-4691-99f9-f0629d13e243`, captured on 2026-10-21 by `corpus-yoga agent capture`
+into the stage, is refused at v23 by the rehearsal of 2026-10-21T141229Z at its record
+11165: the turn that fed back the result of the VS Code diagnostics tool,
+`mcp__claude-vscode__getDiagnostics`, carries `toolUseResult` as an array of one text
+block - `[{"type": "text", "text": "[\n  {\n    \"uri\": ...`, the tool's result content
+as the MCP server returned it - where v23 declared a string or an object. The session
+holds 1722 object forms, 24 string forms and this one array; its one element is a
+`TextBlock`. The held copy of the same session under data/input stops short of the turn.
+
+Read as the harness writing an MCP tool's result content through unchanged where a built-in
+tool's result is written as its own object: `ToolResultBlock.content` has carried the same
+array-of-text-blocks form since v1.
+
+Validated over the staged session's conversion on reading-room, 2026-10-21: v23 refuses it
+at record 11165 and stops; v24 refuses none. v24 adds an alternative and narrows nothing,
+so every datum v23 admits, v24 admits.
+
+### Replaces
+
+v23
+
+#### Relaxed
+
+- `UserTurnType.toolUseResult` - an array of `TextBlock`s beside the string and the object.
+
+#### Refactored
+
+- `TextBlock` - moves earlier in the file, the BFS order repair placing it where
+  `UserTurnType` first references it. No validation effect.
+
 ## v23
 
 Three record types Claude Code 2.1.300 writes that v22 did not declare. Home-room's
