@@ -637,7 +637,9 @@ merge_chain() {
   enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge merge: NOT DONE - $(phrase "the fetch failed")"; return 1; }
   branch_here="$(git -C "$REPO_DIR" branch --show-current)"
   if [[ "$branch_here" == "$head" ]]; then
-    [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]]       || { echo "forge merge: NOT DONE - $(phrase "this checkout holds {head} with a dirty tree; commit or stash first, never reset" head="$head")"; return 1; }
+    local dirty
+    dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
+    [[ -z "$dirty" ]]       || { echo "forge merge: NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
     git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge merge: NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
   fi
   # The squash pin is the merge's OWN sha (issues/488): the head fetched here, or the

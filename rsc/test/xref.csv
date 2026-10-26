@@ -873,7 +873,7 @@ src/main/cli/forge/forge.sh,294,comment,src/main/cleaner.py,Y,"# every clean ver
 src/main/cli/forge/forge.sh,401,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
 src/main/cli/forge/forge.sh,544,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
 src/main/cli/forge/forge.sh,602,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,796,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,798,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/raise.py,5,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,7,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,11,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
