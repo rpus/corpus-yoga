@@ -42,7 +42,7 @@ STEP = 2   # the indentation of a subordinate fact
 
 # a plain scalar YAML reads as a number, a boolean, null, a date or a time - a time only where
 # its clock has colons, so a stamp like 2026-10-04T182101Z is text - or that its indicators would cut
-_NOT_PLAIN = re.compile(r'[-+]?(\d[\d_]*|\d*\.\d+|0x[0-9a-fA-F]+|\.inf|\.nan)|true|false|yes|no|on|off|null|~'
+_NOT_PLAIN = re.compile(r'[-+]?(\d[\d_]*|\d*\.\d+([eE][-+]\d+)?|0x[0-9a-fA-F]+|\.inf|\.nan)|true|false|yes|no|on|off|null|~'
                         r'|\d{4}-\d\d?-\d\d?([Tt ]\d\d?:\d\d:\d\d(\.\d*)?( ?(Z|[-+]\d\d?(:\d\d)?))?)?', re.I)
 _INDICATORS = set('?:,[]{}#&*!|>\'"%@`')
 
@@ -55,8 +55,10 @@ def scalar(value) -> str:
         return 'null'
     if isinstance(value, bool):
         return 'true' if value else 'false'
-    if isinstance(value, (int, float)):
+    if isinstance(value, int):
         return repr(value)
+    if isinstance(value, float):
+        return _float(value)
     text = str(value)
     plain = (text and text == text.strip() and not _NOT_PLAIN.fullmatch(text)
              and ': ' not in text and ' #' not in text and not text.endswith(':')
@@ -161,7 +163,23 @@ def opening(key: str, depth: int = 0) -> str:
 
 # -- reading: the printer's inverse ------------------------------------------------------------
 
-_NUMBER = re.compile(r'-?\d+(\.\d+)?(e[-+]?\d+)?')
+# YAML's own number grammar, as its readers resolve it: a float has a dot, and an exponent
+# follows the dot with its sign - so a sha of the shape 34e10310 is the string it is.
+_NUMBER = re.compile(r'-?\d+(\.\d+([eE][-+]\d+)?)?')
+_NOT_FINITE = {'.inf': float('inf'), '-.inf': float('-inf'), '.nan': float('nan')}
+
+
+def _float(value: float) -> str:
+    """A float as YAML reads it back: repr with a dot before any exponent, and YAML's
+    spelling of the infinities and nan."""
+    if value != value:
+        return '.nan'
+    if value in (float('inf'), float('-inf')):
+        return '.inf' if value > 0 else '-.inf'
+    text = repr(value)
+    if 'e' in text and '.' not in text:
+        text = text.replace('e', '.0e')
+    return text
 
 
 def _scalar(text: str):
@@ -172,8 +190,10 @@ def _scalar(text: str):
         return {'null': None, 'true': True, 'false': False}[text]
     if text in ('{}', '[]'):
         return {} if text == '{}' else []
+    if text in _NOT_FINITE:
+        return _NOT_FINITE[text]
     if _NUMBER.fullmatch(text):
-        return float(text) if ('.' in text or 'e' in text) else int(text)
+        return float(text) if '.' in text else int(text)
     return text
 
 
