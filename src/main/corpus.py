@@ -450,15 +450,16 @@ def family_dir(pipeline: str, family: str) -> str:
     return f'{SCHEMA_ROOT}/{pipeline}/{family}'
 
 
-def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str]:
-    """The digest of origin/main's latest version file of a family, and the version's name."""
+def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str | None]:
+    """The digest of origin/main's latest version file of a family, and the version's name;
+    None and None where origin/main holds no version of the family at all."""
     fam_dir = family_dir(pipeline, family)
     ls = subprocess.run(['git', '-C', str(REPO), 'ls-tree', '--name-only', 'origin/main', fam_dir + '/'],
                         capture_output=True, text=True).stdout.split()
     versions = sorted((v for v in ls if v.rsplit('/', 1)[-1].startswith('v') and v.endswith('.json')),
                       key=lambda v: int(''.join(c for c in v.rsplit('/', 1)[-1] if c.isdigit()) or 0))
     if not versions:
-        return None, '(no version at origin/main)'
+        return None, None
     blob = subprocess.run(['git', '-C', str(REPO), 'show', f'origin/main:{versions[-1]}'], capture_output=True).stdout
     return _digest(blob), versions[-1].rsplit('/', 1)[-1][:-5]
 
@@ -536,7 +537,10 @@ def version_number(version: str) -> int:
 
 
 def judges_of(unit: Unit) -> list[str]:
-    """The families of the unit's pipeline that judge its provider's units."""
+    """The families of the unit's pipeline that judge its provider's units. A unit measured
+    as a mirror - gemini's ordering file - is replaced whole and no family judges it."""
+    if unit.measure in MIRRORS:
+        return []
     schemas = pipelines()[unit.pipeline]['schemas'] if unit.pipeline else []
     return [s for s in schemas if unit.provider is None or '/' not in s or s.startswith(unit.provider + '/')]
 
@@ -590,6 +594,12 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                 return Judgement.UNJUDGED, facts.phrase(
                     'the verdict at {family} {version} is against a schema origin/main does not hold - corpus-yoga pipeline rehearse re-judges it',
                     family=family, version=version), None
+            if digest is None and main_version is None:
+                # a family this checkout declares and origin/main does not hold at all (issues/965): the
+                # mint's merge licenses the promotion, as it does a version main does not hold
+                refusal = Refusal(unit.pipeline, family, version, facts.phrase(
+                    "a family of this checkout, which origin/main does not hold - the mint's merge licenses the promotion"))
+                return Judgement.UNLICENSED, facts.phrase('valid at {at} - {reason}', at=refusal.at, reason=refusal.reason), refusal
             if digest is None or version_number(version) < version_number(main_version or ''):
                 return Judgement.SUPERSEDED, facts.phrase(
                     'judged at {family} {version}; origin/main holds {main_version} - corpus-yoga pipeline rehearse re-judges it',

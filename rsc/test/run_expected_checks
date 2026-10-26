@@ -111,6 +111,7 @@ naming.upper_camel_case
 naming.venv_default_agrees
 output.plan_lines_name_their_target
 phrase.each_is_said
+pipeline.every_provider_is_judged
 pipeline.failing_is_keyed_by_datum
 prescription.names_a_command
 provider.names_declared

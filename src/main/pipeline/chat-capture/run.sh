@@ -52,16 +52,23 @@ run_one() {
 
 run_corpus() {
   local root="${1%/}" dom_root="${2%/}" store="${3%/}"
+  # each provider's steps run where that provider's captures stand (issues/965): a room
+  # holding gemini's alone, or claude's alone, runs the one and skips the other
+  local has_api=0 has_dom=0
+  [[ -n "$root" ]] && compgen -G "$root/*/" > /dev/null && has_api=1
+  [[ -d "$dom_root" ]] && has_dom=1
   # validate: announces itself once and folds the all-current captures into one
   # summary line, so a 95-capture steady state is one line
-  step validate              "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
+  step_if "$has_api" "where claude's API captures stand" validate "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
   # project_markdown: render api JSON -> markdown always (no DOM scrape needed)
-  step project_markdown      "$REPO_DIR/src/run_python_script.sh" \
+  step_if "$has_api" "where claude's API captures stand" project_markdown "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/project_markdown.py" --api-capture "$root"
-  # gemini/project_markdown: gemini's scrapes ARE markdown already — copy them into the
-  # presentation tree beside claude's projections (data/output/markdown/{claude,gemini}),
-  # anchoring each turn heading; a slug collision gets the conversation id prefixed.
-  step gemini_project_markdown  "$REPO_DIR/src/run_python_script.sh" \
+  # gemini: each scrape lifted and judged against the markdownConversation family, then
+  # copied into the presentation tree beside claude's projections
+  # (data/output/markdown/{claude,gemini}), anchoring each turn heading; a slug collision
+  # gets the conversation id prefixed.
+  step_if "$has_dom" "where gemini's DOM captures stand" validate_gemini "$SCRIPT_DIR/gemini/validate.sh" --dom-capture "$dom_root"
+  step_if "$has_dom" "where gemini's DOM captures stand" gemini_project_markdown "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/gemini/project_markdown.py" --dom-capture "$dom_root"
   # audit: capture-health report against the fresh projections — findings
   # inform, never gate: severity attaches to the RECORD, and the record was already
@@ -92,16 +99,14 @@ main() {
     api_root="$(resolve_input "$input_root" "$SCRIPT_DIR/pipeline.json" claude)"
     dom_root="$(resolve_input "$input_root" "$SCRIPT_DIR/pipeline.json" gemini)"
     store="${input_root%%/<provider>/*}"
-    if [[ ! -d "$api_root" ]]; then
-      echo "no captures in $api_root (populate via: corpus-yoga browser capture --provider claude)"
-      exit 0
-    fi
-    local root; root="$(cd "$api_root" && pwd)"
-    if ! compgen -G "$root/*/" > /dev/null; then
-      echo "no captures in $root"
+    local root=''
+    if [[ -d "$api_root" ]]; then
+      root="$(cd "$api_root" && pwd)"
+      compgen -G "$root/*/" > /dev/null || echo "no captures in $root"
     else
-      run_corpus "$root" "$dom_root" "$store"
+      echo "no captures in $api_root (populate via: corpus-yoga browser capture --provider claude)"
     fi
+    run_corpus "$root" "$dom_root" "$store"
   fi
 }
 

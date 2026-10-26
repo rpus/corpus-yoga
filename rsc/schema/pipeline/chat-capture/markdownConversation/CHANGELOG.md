@@ -1,11 +1,48 @@
 # markdownConversation schema changelog
 
-This schema has no machine-local validation matrix: markdownConversation instances are
-projections, not captured data — `project_markdown.py` validates each one in-memory at
-render time, rather than writing per-datum `vN.log` files under `tmp/cache/`
-(see `rsc/schema/WORKFLOW.md`).
+markdownConversation instances are projections, not captured data. Since v5 the
+chat-capture pipeline's validate step lifts each capture into the shape - a claude capture
+through `project`, a gemini scrape through `project_scrape`, both in
+src/main/markdown_projection.py - and judges it as a family of the pipeline, with a
+verdict record and a `v<N>.log` under the datum's `tmp/cache/chat-capture/<provider>/<id>/validation/markdownConversation/`
+beside the capture family's; the render step validates the projection in memory as it
+always did (see `rsc/schema/WORKFLOW.md`).
 
 ---
+
+## v5
+
+The core a claude projection and a gemini scrape share. Gemini's DOM captures are written
+in the grammar claude's `render()` emits - the title line, the `<url>` line, `## Human (n)`
+and `## Gemini (n)` turns - and `turn_seq` reads both, but no family judged them: the
+chat-capture pipeline declared claude/apiConversation alone, every staged gemini unit read
+`judged: no family - promoted on its relation alone`, and the reply after `corpus-yoga
+browser capture --provider gemini` on reading-room, 2026-10-22, named their promotion with
+no rehearsal before it. The family as it stood could not hold a scrape: `summary` and each
+turn's `uuid` were required, and a scrape has neither. v5 requires the core alone - the
+title, the URL, the turns' roles and text - and keeps the summary and the uuid as the
+claude projection's own, so that a scrape lifted by the one parser (`project_scrape`)
+validates, and the family moves under the chat-capture pipeline as a family of both its
+providers (issues/965).
+
+Validated on reading-room, 2026-10-26: every claude capture's projection and every gemini
+scrape of the stage and the corpus validates at v5. v5 drops two requirements and narrows
+nothing, so every datum v4 admits, v5 admits.
+
+### Replaces
+
+v4
+
+#### Relaxed
+
+- `MarkdownConversation`: `summary` no longer required.
+- `MarkdownMessage`: `uuid` no longer required.
+- The family's address: rsc/schema/pipeline/chat-capture/markdownConversation, a family
+  of the chat-capture pipeline judging both providers' units.
+
+#### Refactored
+
+- Descriptions name both sources. No validation effect.
 
 ## v4
 

@@ -1,6 +1,7 @@
 {
   "schemas": [
-    "claude/apiConversation"
+    "claude/apiConversation",
+    "markdownConversation"
   ],
   "input": "data/input/<provider>/chat/<qualifier>-capture",
   "provider": {

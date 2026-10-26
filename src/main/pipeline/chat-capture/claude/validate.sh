@@ -18,6 +18,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/pipeline/chat-capture/claude/apiConversation"
+LEAN_SCHEMA_DIR="$REPO_DIR/rsc/schema/pipeline/chat-capture/markdownConversation"   # the core both providers share (issues/965)
 CACHE_DIR="$TMP_DIR/cache/chat-capture/claude"
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (issues/395)
@@ -37,6 +38,10 @@ validate_conversation() {
     found=1
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
       "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid" || rc=$?
+    # the capture's projection, judged as the family it renders to (issues/965)
+    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/chat-capture/lean.py" "$json" "$out_dir/markdownConversation.json" || rc=$?
+    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
+      "$out_dir/markdownConversation.json" "$LEAN_SCHEMA_DIR" "$out_dir/validation/markdownConversation" "$uuid" || rc=$?
   done
 
   if [[ "$found" -eq 0 ]]; then

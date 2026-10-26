@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "MarkdownConversation",
-  "description": "Lean projection of a claude.ai conversation: the title, URL, the source's own summary, and an ordered list of role-tagged text turns, each carrying its message uuid (the turn's durable identity \u2014 rendered as an HTML anchor on the turn's markdown heading, so an index can reference a turn across corpus renumberings). Projected (by stripping metadata) from the richer apiConversation capture, and renderable straight to markdown without any browser/DOM scraping. The same shape is the projection target for bulk-export conversations. See model_join.csv for the field correspondence. The rendered BODY is the title, a named SOURCE LIST (bulleted hyperlinks, clickable in any markdown renderer: the conversation's claude.ai URL always; the summary-readings index for the output/ render), and the turns. The summary itself is carried as data but never body-rendered: each distinct reading is deposited under data/output/markdown/claude/chat/summaries/ (summaries.py). The file opens with YAML frontmatter \u2014 write-time provenance dressing (source, currency vs the other corpus): facts about the file's derivation, not part of the conversation, hence outside this schema; strip_frontmatter() removes it before any cross-source comparison.",
+  "description": "Lean projection of a conversation - the core a claude projection and a gemini scrape share (v5): the title, the URL and an ordered list of role-tagged text turns. A claude projection carries, beside them, the source's own summary and each turn's message uuid, the turn's durable identity rendered as an HTML anchor on its heading; a gemini scrape has neither, its turns identified by role and count. Produced by src/main/markdown_projection.py from a browser apiConversation, a bulk-export Conversation, or a gemini DOM scrape.",
   "allOf": [
     {
       "$ref": "#/definitions/MarkdownConversation"
@@ -10,12 +10,11 @@
   "definitions": {
     "MarkdownConversation": {
       "title": "MarkdownConversation",
-      "description": "A whole conversation reduced to what the markdown shows.",
+      "description": "A whole conversation reduced to what the markdown shows: the core both sources share, and the summary where the source has one.",
       "type": "object",
       "required": [
         "title",
         "url",
-        "summary",
         "messages"
       ],
       "additionalProperties": false,
@@ -25,11 +24,11 @@
           "type": "string"
         },
         "url": {
-          "description": "Canonical claude.ai URL. Example: \"https://claude.ai/chat/<uuid>\".",
+          "description": "Canonical URL. Example: \"https://claude.ai/chat/<uuid>\", \"https://gemini.google.com/app/<id>\".",
           "type": "string"
         },
         "summary": {
-          "description": "The source's own summary of the conversation (apiConversation.summary / bulk-export Conversation.summary \u2014 both shapes always emit the key, so the projection carries it verbatim; the empty string where the backend has not summarised, observed only on the empty stub). A per-snapshot oracle READING, stochastic: the same transcript has been observed to re-read differently across snapshots, so it is data, never body-rendered \u2014 summaries.py deposits each distinct reading durably under data/output/markdown/claude/chat/summaries/, and compare_sources reports cross-source summary drift as its own category.",
+          "description": "The source's own summary of the conversation (apiConversation.summary / bulk-export Conversation.summary \u2014 both shapes always emit the key, so the projection carries it verbatim; the empty string where the backend has not summarised, observed only on the empty stub). A per-snapshot oracle READING, stochastic: the same transcript has been observed to re-read differently across snapshots, so it is data, never body-rendered \u2014 summaries.py deposits each distinct reading durably under data/output/markdown/claude/chat/summaries/, and compare_sources reports cross-source summary drift as its own category. Absent on a gemini scrape, which has no summary (v5).",
           "type": "string"
         },
         "messages": {
@@ -43,12 +42,11 @@
     },
     "MarkdownMessage": {
       "title": "MarkdownMessage",
-      "description": "One turn: a role, its rendered text (the text-type content blocks joined), and the source message's uuid.",
+      "description": "One turn: a role, its rendered text (the text-type content blocks joined), and, where the source has one, the source message's uuid.",
       "type": "object",
       "required": [
         "role",
-        "content",
-        "uuid"
+        "content"
       ],
       "additionalProperties": false,
       "properties": {
@@ -65,7 +63,7 @@
           "type": "string"
         },
         "uuid": {
-          "description": "The source message's uuid (apiConversation chat_messages[].uuid / bulk-export Conversation chat_messages[].uuid) \u2014 identical across the two sources, which is what makes the rendered anchors agree cross-source.",
+          "description": "The source message's uuid (apiConversation chat_messages[].uuid / bulk-export Conversation chat_messages[].uuid) \u2014 identical across the two sources, which is what makes the rendered anchors agree cross-source. Absent on a gemini scrape, whose turns are identified by role and count (v5).",
           "$ref": "#/definitions/UuidV4orV5orV7"
         }
       }
