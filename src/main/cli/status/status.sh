@@ -166,9 +166,24 @@ check_tools() {
   # ready, told apart because their remedies differ: no docker at all, or docker
   # installed with its daemon not running.
   if command -v docker &>/dev/null; then
-    local docker_server
-    if docker_server="$(docker info --format '{{.ServerVersion}}' 2>/dev/null)" && [[ -n "$docker_server" ]]; then
-      ok "docker / daemon" "$docker_server"
+    # the daemon is asked over the socket the CLI's context names, never through docker
+    # itself: a status is a read, and the CLI with its plugins may start what it reports on.
+    local docker_client docker_sock docker_answer docker_version docker_platform
+    docker_client="$(docker --version 2>/dev/null | sed -n 's/^Docker version \([^,]*\).*/\1/p')"
+    ok "docker / installed" "$(phrase 'yes - client {version}' version="${docker_client:-unread}")"
+    docker_sock="$(docker context inspect --format '{{.Endpoints.docker.Host}}' 2>/dev/null)"; docker_sock="${docker_sock#unix://}"
+    docker_answer=""
+    if [[ -S "$docker_sock" ]] && command -v curl &>/dev/null && command -v python3 &>/dev/null; then
+      docker_answer="$(curl -s --max-time 3 --unix-socket "$docker_sock" http://localhost/version 2>/dev/null | python3 -c 'import json, sys
+try:
+    d = json.load(sys.stdin)
+except ValueError:
+    sys.exit(0)
+print(d.get("Version", ""), d.get("Platform", {}).get("Name", ""), sep="\t")' 2>/dev/null)"
+    fi
+    docker_version="${docker_answer%%$'\t'*}"; docker_platform="${docker_answer#*$'\t'}"
+    if [[ -n "$docker_version" ]]; then
+      ok "docker / daemon" "$(phrase 'running ({version}) - answers on {socket} as {platform}' version="$docker_version" socket="${docker_sock/#$HOME/~}" platform="${docker_platform:-an unnamed platform}")"
     else
       todo "docker / daemon" "$(phrase 'not running - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses')" "open -a Docker" "$(phrase 'starts Docker Desktop')"
     fi

@@ -10,6 +10,8 @@
     "no - corpus-yoga test run skips its shell lint",
     "not running - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses",
     "starts Docker Desktop",
+    "yes - client {version}",
+    "running ({version}) - answers on {socket} as {platform}",
     "no - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses",
     "antlr4-tools, java {version}",
     "no - antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current",
