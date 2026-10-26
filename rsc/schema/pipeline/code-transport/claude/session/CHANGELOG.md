@@ -6,6 +6,33 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v25
+
+The harness stops sending safeguards. Reading-room's session `e2d2039d-b1e5-4691-99f9-f0629d13e243`,
+captured on 2026-10-26 by `corpus-yoga agent capture` into the stage, is refused at v24 by
+the rehearsal of 2026-10-26T112156Z at its record 22488, an `api-request` whose `params`
+carries no `safeguards`, which v24 required: from 2026-10-26T10:10:00Z every request record
+the session writes omits the key - 53 of its 1172 - and every earlier one carries it, the
+`classifier_context` v23 declared open. Read as the harness no longer passing the
+safeguards parameter on its API calls; whether it returns is the next capture's to say.
+No other family carries the key (rsc/model/model_join.csv names no row for it).
+
+Validated over the staged session's conversion on reading-room, 2026-10-26: v24 refuses it
+at record 22488 and stops; v25 refuses none of its 22,600 records. v25 drops one
+requirement and narrows nothing, so every datum v24 admits, v25 admits.
+
+### Replaces
+
+v24
+
+#### Relaxed
+
+- `ApiRequestParams`: `safeguards` no longer required.
+
+#### Refactored
+
+None.
+
 ## v24
 
 One shape of a user turn's `toolUseResult` that v23 did not admit. Reading-room's session
