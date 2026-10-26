@@ -1542,7 +1542,6 @@
         "max_tokens",
         "thinking",
         "context_management",
-        "safeguards",
         "output_config"
       ],
       "additionalProperties": false,
@@ -1570,7 +1569,7 @@
           "$ref": "#/definitions/ContextManagementParams"
         },
         "safeguards": {
-          "description": "Observed: one safeguard per record.",
+          "description": "Observed: one safeguard per record. Absent on every api-request record written from 2026-10-26T10:10Z on reading-room, 53 of 1172 in session e2d2039d; present on every earlier one (v25).",
           "type": "array",
           "minItems": 1,
           "items": {
