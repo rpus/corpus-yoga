@@ -94,7 +94,7 @@
     "issues/{issue} is blocked by open issues/{blocker}, which this body does not aim at (issues/482)",
     "refuse-class drift; the standing report above names it",
     "the fetch failed",
-    "this checkout holds {head} with a dirty tree; commit or stash first, never reset",
+    "this checkout holds {head} with a dirty tree - {paths}",
     "local {head} holds commits origin/{head} does not; push them first",
     "base unmoved - origin/{head} already stands on origin/{base}; nothing to relocate",
     "origin has no refs/heads/{head} to lease against",

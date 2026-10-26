@@ -873,7 +873,7 @@ src/main/cli/forge/forge.sh,294,comment,src/main/cleaner.py,Y,"# every clean ver
 src/main/cli/forge/forge.sh,401,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
 src/main/cli/forge/forge.sh,544,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
 src/main/cli/forge/forge.sh,602,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,796,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,798,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/raise.py,5,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,7,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,11,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
@@ -998,14 +998,14 @@ src/main/cli/stage/stage.py,20,comment,src/main/cleaner.py,Y,"The janitor's face
 src/main/cli/stage/stage.py,29,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/status/report.py,12,comment,src/main/standing.py,Y,"room's standing folded once from every noun's own (src/main/standing.py, issues/949). Runs under"
 src/main/cli/status/report.py,25,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
-src/main/cli/status/status.json,89,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
-src/main/cli/status/status.json,101,path_str,rsc/machine,Y,"""rsc/machine"","
-src/main/cli/status/status.json,102,path_str,rsc/test,Y,"""rsc/test"","
-src/main/cli/status/status.json,108,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
-src/main/cli/status/status.json,109,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
-src/main/cli/status/status.json,110,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/status/status.json,111,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
-src/main/cli/status/status.json,112,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/status/status.json,91,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
+src/main/cli/status/status.json,103,path_str,rsc/machine,Y,"""rsc/machine"","
+src/main/cli/status/status.json,104,path_str,rsc/test,Y,"""rsc/test"","
+src/main/cli/status/status.json,110,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
+src/main/cli/status/status.json,111,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
+src/main/cli/status/status.json,112,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
+src/main/cli/status/status.json,113,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
+src/main/cli/status/status.json,114,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/status/status.sh,2,comment,src/main/cli/status/status.sh,Y,"# src/main/cli/status/status.sh — what this machine has, and what it still needs."
 src/main/cli/status/status.sh,16,comment,src/main/cli/status/status.sh,Y,#   src/main/cli/status/status.sh              # what still needs attention; a section with nothing to say is not shown
 src/main/cli/status/status.sh,17,comment,src/main/cli/status/status.sh,Y,"#   src/main/cli/status/status.sh --show-all   # the full report, what is satisfied included"
@@ -1013,10 +1013,10 @@ src/main/cli/status/status.sh,27,comment,src/main/tier.sh,Y,# shellcheck source=
 src/main/cli/status/status.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/status/status.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/status/status.sh,34,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
-src/main/cli/status/status.sh,295,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
-src/main/cli/status/status.sh,366,comment,src/main/corpus.py,Y,# counts it (src/main/corpus.py held): one count of one store (issues/771).
-src/main/cli/status/status.sh,381,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
-src/main/cli/status/status.sh,388,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
+src/main/cli/status/status.sh,310,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
+src/main/cli/status/status.sh,381,comment,src/main/corpus.py,Y,# counts it (src/main/corpus.py held): one count of one store (issues/771).
+src/main/cli/status/status.sh,396,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
+src/main/cli/status/status.sh,403,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
 src/main/cli/status/sync.json,14,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/status/sync.json,15,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/status/sync.json,21,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -1068,7 +1068,7 @@ src/main/corpus.py,558,comment,src/main/rehearsal.py,Y,"from the rehearsal recor
 src/main/corpus.py,1171,comment,src/main/standing.py,Y,"(src/main/standing.py); no noun's status runs another. rows and ahead, where the caller"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
 src/main/enact.sh,33,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
-src/main/facts.py,347,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
+src/main/facts.py,367,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,120,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
