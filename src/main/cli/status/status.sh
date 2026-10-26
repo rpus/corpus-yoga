@@ -209,6 +209,22 @@ check_venv() {
   sec "venv"
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then
     ok "$CORPUS_YOGA_VENV / minted" "$(phrase "{version}; CORPUS_YOGA_VENV= names another" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
+    # what that python trusts (issues/971), read from the python itself and never from a
+    # bundle's path alone: the bundle it loads, its roots, and the variable that pins a
+    # bundle other than its own - a session's environment can pin one a terminal does not.
+    local trust bundle roots own variable
+    trust="$("$CORPUS_YOGA_VENV/bin/python" -c 'import os, ssl
+paths = ssl.get_default_verify_paths()
+variable = next((name for name in (paths.openssl_cafile_env, paths.openssl_capath_env) if os.environ.get(name)), "")
+print(paths.cafile or paths.capath or "", ssl.create_default_context().cert_store_stats()["x509_ca"], paths.openssl_cafile, variable, sep="\t")' 2>/dev/null)"
+    IFS=$'\t' read -r bundle roots own variable <<< "$trust"
+    if [[ -n "$variable" && "$bundle" != "$own" ]]; then
+      todo "$CORPUS_YOGA_VENV / trusts" "$(phrase '{bundle} - {roots} roots, pinned by {variable}; unpinned, the python reads {own}' bundle="${bundle/#$HOME/~}" roots="$roots" variable="$variable" own="${own/#$HOME/~}")" "unset $variable" "$(phrase 'lets the python read its own bundle')"
+    elif [[ -n "$roots" ]]; then
+      ok "$CORPUS_YOGA_VENV / trusts" "$(phrase '{bundle} - {roots} roots' bundle="${bundle/#$HOME/~}" roots="$roots")"
+    else
+      info "$CORPUS_YOGA_VENV / trusts" "$(phrase 'unread - the ssl module of the python did not answer')"
+    fi
   else
     todo "$CORPUS_YOGA_VENV / minted" "$(phrase 'no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another')" "$(sync_remedy)" "$(phrase 'mints it and installs src/requirements.txt')"
   fi
