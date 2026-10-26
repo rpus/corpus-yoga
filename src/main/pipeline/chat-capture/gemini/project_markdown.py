@@ -36,7 +36,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
+from markdown_projection import md_validator, project_scrape, REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 
@@ -69,7 +69,7 @@ def main():
     src = Path(args.dom_capture)
     if not src.is_dir():
         print(f'no gemini captures in {src} — nothing to copy')
-        return
+        return 0
     out = Path(args.out)
     order = ordering(src)
     dirs = sorted((p for p in src.iterdir() if p.is_dir()),
@@ -80,13 +80,19 @@ def main():
     ordinals = {d.name: order.get(d.name) or next(tail) for d in dirs}
     width = len(str(max(len(order), len(dirs)))) if (order or dirs) else 1
     files = {}
+    valid = md_validator()
+    n_bad = 0
     for d in dirs:
         for f in sorted(d.glob('*.md')):
             prefix = f'{ordinals[d.name]:0{width}d}-' if order else ''
             name = f'{prefix}{f.name}'
             if name in files:
                 name = f'{prefix}{d.name}-{f.name}'
-            files[name] = anchored(f.read_text())
+            text = f.read_text()
+            if not valid.is_valid(project_scrape(text)):     # held to the family as claude's projections are (issues/965)
+                n_bad += 1
+                print(f'  INVALID {name}: fails markdownConversation', file=sys.stderr)
+            files[name] = anchored(text)
     # L4, one step down from the capture guard: the projection never shrinks either.
     # Matched by conversation id and not by filename, because the ordinal prefix
     # renumbers as the corpus grows -- a shorter rendering would otherwise arrive under
@@ -118,7 +124,9 @@ def main():
     # '27 pruned' — indistinguishable from a purge in the one line that mattered.
     deposit(out, files, f'gemini: {len(files)} scrape(s)', identity=conv_id, note=' (anchored)',
             because='its capture departed from data/input/gemini/chat/DOM-capture/')
+    print(f'rendered {len(files)} scrapes to {out} ({n_bad} invalid)')
+    return 1 if n_bad else 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

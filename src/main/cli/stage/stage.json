@@ -16,6 +16,7 @@
     "the verdict at {family} {version} is against a schema origin/main does not hold - corpus-yoga pipeline rehearse re-judges it",
     "judged at {family} {version}; origin/main holds {main_version} - corpus-yoga pipeline rehearse re-judges it",
     "a version of this checkout, which origin/main does not hold ({main_version} there) - the mint's merge licenses the promotion",
+    "a family of this checkout, which origin/main does not hold - the mint's merge licenses the promotion",
     "valid at {at} - {reason}",
     "invalid at {at} - {reason} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)",
     "validates at {families} (origin/main; rehearsal {stamp})",

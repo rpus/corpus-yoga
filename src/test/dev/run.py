@@ -1856,6 +1856,25 @@ def check_server_standing(run) -> None:
         check='server.now_names_the_stop_or_the_start')
 
 
+def check_providers_judged(run) -> None:
+    """Every provider a pipeline captures for is judged by a family of that pipeline
+    (issues/965): a unit of the provider has at least one judge, so the rehearsal stands
+    before its promotion. The live bug at e44b82f3 on reading-room, 2026-10-22: chat-capture
+    declared claude/apiConversation alone, and every gemini unit read `judged: no family -
+    promoted on its relation alone`."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    unjudged = []
+    for name, declared in sorted(corpus.pipelines().items()):
+        for provider in sorted(declared.get('provider', {})):
+            unit = corpus.Unit(Path(provider) / 'chat' / 'x', [Path(provider) / 'chat' / 'x'], [], [], 'message-uuids', name, provider, subject=('x',))
+            if not corpus.judges_of(unit):
+                unjudged.append(f'{name}/{provider}')
+    run('pipeline: every provider a pipeline captures for is judged by a family of the pipeline', not unjudged,
+        None if not unjudged else f'no family judges {", ".join(unjudged)} - their units promote on their relation alone',
+        check='pipeline.every_provider_is_judged')
+
+
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
     judged (issues/815, issues/830). Over a scratch fixture - two units the run began over, one validated
@@ -3952,6 +3971,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_validate_verdict': ['src/main/validate.py', 'src/test'],
+    'check_providers_judged': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_spelling': ['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md', '.github'],
     'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
     'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
@@ -4217,6 +4237,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_validate_verdict, tier='code')
         run_section(check_verdict_record, tier='code')
         run_section(check_failing_record, tier='code')
+        run_section(check_providers_judged, tier='code')
         run_section(check_server_standing, tier='code')
         run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')

@@ -26,7 +26,7 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-MD_SCHEMA = REPO / 'rsc' / 'schema' / 'markdownConversation' / 'v4.json'
+MD_SCHEMA = REPO / 'rsc' / 'schema' / 'pipeline' / 'chat-capture' / 'markdownConversation' / 'v5.json'
 
 
 def turn_text(msg):
@@ -81,8 +81,9 @@ def _lean(name, uuid, messages, summary=''):
     """Lean markdownConversation dict (metadata stripped) from a message list. Each turn
     keeps its message uuid — the turn's durable identity (identical across the browser-capture
     and bulk-export shapes), rendered as the heading anchor. The source's own summary is
-    carried VERBATIM (v3 requires it: both shapes always emit the key — the empty string
-    where the backend has not summarised, observed only on the empty stub)."""
+    carried VERBATIM (both shapes always emit the key — the empty string where the backend
+    has not summarised, observed only on the empty stub); since v5 the family requires
+    neither, since a gemini scrape has neither (project_scrape)."""
     return {
         'title': name,
         'url': f"https://claude.ai/chat/{uuid}",
@@ -104,6 +105,19 @@ def project(conv):
         leaf = max(msgs, key=lambda m: m['created_at'])['uuid'] if msgs else None
     return _lean(conv['name'], conv['uuid'], _path_to_root(msgs, leaf),
                  summary=conv.get('summary') or '')
+
+
+def project_scrape(md):
+    """Project one gemini DOM scrape - the markdown dom.js writes in render()'s grammar - to
+    the lean dict (issues/965): the title from the heading line, the URL from the <url> line,
+    the turns from turn_seq, each a role and its text and nothing more, since a scrape
+    carries no message uuid and no summary. The dual of the scrape's own grammar, as
+    project() is of the API's."""
+    body = strip_frontmatter(md)
+    title = next((line[2:].strip() for line in body.splitlines() if line.startswith('# ')), '')
+    url = next((line.strip()[1:-1] for line in body.splitlines() if line.startswith('<http') and line.rstrip().endswith('>')), '')
+    role = {'H': 'human', 'A': 'assistant'}
+    return {'title': title, 'url': url, 'messages': [{'role': role[r], 'content': text} for r, text in turn_seq(body)]}
 
 
 def render(conv, frontmatter=None, summaries_link=None):

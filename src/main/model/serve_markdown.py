@@ -146,7 +146,7 @@ const mathOpts={{delimiters:[
   {{left:'\\\\(',right:'\\\\)',display:false}},{{left:'\\\\[',right:'\\\\]',display:true}}
 ]}};
 let i=0;
-/* provenance frontmatter (dressing, not conversation — see markdownConversation v3):
+/* provenance frontmatter (dressing, not conversation — outside the markdownConversation family):
    marked has no YAML support, so lift a leading --- block into a muted meta table.
    Values that ARE references become links: the uuid item is the conversation's one
    claude.ai link (the old <url> preamble line retired into it), and relative paths

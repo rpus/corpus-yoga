@@ -86,7 +86,7 @@
       "pipeline/code-transport/sessionConversation": [
         "#/messages/0"
       ],
-      "markdownConversation": [
+      "pipeline/chat-capture/markdownConversation": [
         "#/messages/0"
       ]
     }
