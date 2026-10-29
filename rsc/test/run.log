@@ -1,4 +1,4 @@
-run.py: code+schema 1740/1740
+run.py: code+schema 1849/1849
 
 
 check_required_files: |
@@ -63,7 +63,9 @@ check_cli_surface: |
   ✓ cli.step_invokes_verb  (7/7)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_answered  (24/24)
+  ✓ cli.verb_help_is_the_nouns_entry  (76/76)
+  ✓ cli.verb_help_answered  (54/54)
+  ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
   ✓ cli.exclusive_class_parses  (10/10)
@@ -328,7 +330,7 @@ stages:
     tier: code
     line: "33"
   check_cli_verb_help:
-    passes: 24
+    passes: 133
     failures: 0
     tier: code
     line: "65"
@@ -336,235 +338,235 @@ stages:
     passes: 10
     failures: 0
     tier: code
-    line: "68"
+    line: "70"
   check_effects:
     passes: 3
     failures: 0
     tier: code
-    line: "71"
+    line: "73"
   check_cache_io:
     passes: 18
     failures: 0
     tier: code
-    line: "76"
+    line: "78"
   check_accumulate_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "82"
+    line: "84"
   check_capture_monotone:
     passes: 4
     failures: 0
     tier: code
-    line: "85"
+    line: "87"
   check_spelling:
     passes: 3
     failures: 0
     tier: code
-    line: "88"
+    line: "90"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "93"
+    line: "95"
   check_schema_layout:
     passes: 26
     failures: 0
     tier: schema
-    line: "107"
+    line: "109"
   check_schema_validity:
     passes: 15
     failures: 0
     tier: schema
-    line: "111"
+    line: "113"
   check_schema_meta_validity:
     passes: 15
     failures: 0
     tier: schema
-    line: "114"
+    line: "116"
   check_schema_single_version:
     passes: 15
     failures: 0
     tier: schema
-    line: "117"
+    line: "119"
   check_schema_changelogs:
     passes: 30
     failures: 0
     tier: schema
-    line: "120"
+    line: "122"
   check_tier_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "124"
+    line: "126"
   check_validate_verdict:
     passes: 4
     failures: 0
     tier: code
-    line: "127"
+    line: "129"
   check_verdict_record:
     passes: 2
     failures: 0
     tier: code
-    line: "130"
+    line: "132"
   check_failing_record:
     passes: 2
     failures: 0
     tier: code
-    line: "133"
+    line: "135"
   check_providers_judged:
     passes: 1
     failures: 0
     tier: code
-    line: "137"
+    line: "139"
   check_server_standing:
     passes: 1
     failures: 0
     tier: code
-    line: "140"
+    line: "142"
   check_rehearsal_record:
     passes: 2
     failures: 0
     tier: code
-    line: "143"
+    line: "145"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "147"
+    line: "149"
   check_unit_state:
     passes: 2
     failures: 0
     tier: code
-    line: "150"
+    line: "152"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "153"
+    line: "155"
   check_facts:
     passes: 5
     failures: 0
     tier: code
-    line: "158"
+    line: "160"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "164"
+    line: "166"
   check_status_facts:
     passes: 155
     failures: 0
     tier: code
-    line: "167"
+    line: "169"
   check_walkthrough:
     passes: 1
     failures: 0
     tier: code
-    line: "183"
+    line: "185"
   check_completions:
     passes: 10
     failures: 0
     tier: code
-    line: "186"
+    line: "188"
   check_drafters:
     passes: 2
     failures: 0
     tier: code
-    line: "193"
+    line: "195"
   check_versioned_schema_diagnostics:
     passes: 374
     failures: 0
     tier: schema
-    line: "197"
+    line: "199"
   check_schema_join:
     passes: 2
     failures: 0
     tier: schema
-    line: "224"
+    line: "226"
   check_model_join_versions:
     passes: 1
     failures: 0
     tier: schema
-    line: "228"
+    line: "230"
   check_model_table:
     passes: 1
     failures: 0
     tier: schema
-    line: "231"
+    line: "233"
   check_model_occurrences:
     passes: 3
     failures: 0
     tier: schema
-    line: "234"
+    line: "236"
   check_model_obligations:
     passes: 200
     failures: 0
     tier: schema
-    line: "239"
+    line: "241"
   check_model_identity:
     passes: 1
     failures: 0
     tier: schema
-    line: "243"
+    line: "245"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "246"
+    line: "248"
   check_record_is_the_launchers:
     passes: 1
     failures: 0
     tier: code
-    line: "249"
+    line: "251"
   check_record_names_read_once:
     passes: 1
     failures: 0
     tier: code
-    line: "252"
+    line: "254"
   check_provider_registry:
     passes: 2
     failures: 0
     tier: code
-    line: "255"
+    line: "257"
   check_forge_aim:
     passes: 6
     failures: 0
     tier: code
-    line: "259"
+    line: "261"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "264"
+    line: "266"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "267"
+    line: "269"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "271"
+    line: "273"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "277"
+    line: "279"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "283"
+    line: "285"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "286"
+    line: "288"
 
-checks[code+schema]: 175 types, 1740/1740 invocations passing
-checks[code]: 123 types, 1024/1024 invocations passing
+checks[code+schema]: 177 types, 1849/1849 invocations passing
+checks[code]: 125 types, 1133/1133 invocations passing
 checks[schema]: 52 types, 716/716 invocations passing
 
-dev gate: PASS - code+schema 1740/1740 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1849/1849 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

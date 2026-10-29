@@ -35,6 +35,7 @@ cli.flag_not_axis_value
 cli.help_is_the_declaration
 cli.no_send_flag
 cli.prose_holds_no_pair
+cli.refusal_is_the_declaration
 cli.step_invokes_verb
 cli.subcommands_dispatch
 cli.table_parses
@@ -42,6 +43,7 @@ cli.target_exists
 cli.target_flags_advertised
 cli.verb_accepts_command_flags
 cli.verb_help_answered
+cli.verb_help_is_the_nouns_entry
 command.every_spelling_is_declared
 command.undeclared_is_unrepresentable
 completions.follows_its_own_change
