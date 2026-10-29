@@ -713,7 +713,10 @@ def check_cli_verb_help(run) -> None:
                         'verbs': {verb: declared['verbs'][verb]}}
             if whole:
                 selected = {**{key: declared[key] for key in ('arguments', 'defaults') if key in declared}, **selected}
-            expected = '\n'.join(facts.lines({c['command']: selected}, width=None)) + '\n'
+            # at the narration depth the gate itself stands at: a verb run as a step of another
+            # verb says its lines beneath the outer record, help included, and the merge's data
+            # gate runs this gate three verbs deep
+            expected = '\n'.join(facts.lines({c['command']: selected}, facts.depth(), width=None)) + '\n'
             generated = (parsers[verb] if whole else verb_parser(c['command'], verb)).format_help()
             run(f'cli: {c["command"]} {verb}: -h is the verb\'s entry of the noun\'s help', generated == expected,
                 None if generated == expected else f'the generated parser says {generated.splitlines()[0]!r}',
