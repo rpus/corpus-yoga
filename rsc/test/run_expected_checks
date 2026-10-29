@@ -42,6 +42,7 @@ cli.target_exists
 cli.target_flags_advertised
 cli.verb_accepts_command_flags
 cli.verb_help_answered
+cli.verb_help_is_the_nouns_entry
 command.every_spelling_is_declared
 command.undeclared_is_unrepresentable
 completions.follows_its_own_change

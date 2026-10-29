@@ -2,7 +2,8 @@
 
 A declaration already states a command's structure — verbs, arguments, arity,
 wording, outward sends — so its parser is derived, never hand-built (issues/474, issues/476):
-argparse owns the parsing and the -h, the declaration owns everything it can say,
+argparse owns the parsing, the printer owns the -h (DeclaredParser, issues/973), the
+declaration owns everything it can say,
 and a target contributes only its semantic residue (default, type, dest, nargs)
 as per-argument overrides. verb_parser() is one verb's standalone parser (the
 bash targets' parse_argv face); command_parser() is a python target's whole
@@ -24,6 +25,43 @@ any venv exists.
 import argparse
 import sys
 from pathlib import Path
+
+
+class DeclaredParser(argparse.ArgumentParser):
+    """A generated parser whose help is the declaration's entry of the noun's help through
+    the one printer (issues/973): `declared` names (command, verb) - verb None for a
+    command's own parser - and -h prints that entry as `corpus-yoga <command> -h` prints
+    it. argparse keeps the parsing and the usage line of a refusal, plain: it is told
+    not to paint where the interpreter offers to (python 3.14's argparse colours a
+    terminal unless told otherwise)."""
+
+    def __init__(self, *args, declared: tuple, command_arguments: bool = False, **kwargs):
+        try:
+            super().__init__(*args, color=False, **kwargs)
+        except TypeError:                   # an interpreter whose argparse has no colour
+            super().__init__(*args, **kwargs)
+        self.declared = declared
+        self.command_arguments = command_arguments   # a subparser re-accepts the command's flags (issues/33)
+
+    def _shape(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
+        from cli import help_shape
+        return help_shape(*self.declared, command_arguments=self.command_arguments)
+
+    def format_help(self) -> str:
+        """The help as a capture reads it: one line a fact."""
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
+        import facts
+        return '\n'.join(facts.lines(facts.plain(self._shape()), facts.depth(), width=None)) + '\n'
+
+    def print_help(self, file=None) -> None:
+        """The help as the reader sees it: said as every status is, at the terminal's width."""
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
+        import facts
+        if file is None or file is sys.stdout:
+            facts.say(self._shape())
+        else:
+            file.write(self.format_help())
 
 
 def _rows(command: str) -> list[dict]:
@@ -90,7 +128,6 @@ def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
             declared = r['default']
             value = _tier_path(declared) if r['arg-type'] in _path_arg_types() else declared
             kwargs.setdefault('default', value)
-            kwargs['help'] = f"{kwargs['help']} (default: {declared})"
         if '/' in card:
             # never setdefault here: its group argument is evaluated on EVERY
             # member, and each extra evaluation registers a stray EMPTY required
@@ -127,10 +164,10 @@ def verb_parser(command: str, verb: str,
                 overrides: dict | None = None) -> argparse.ArgumentParser:
     """One verb's standalone parser, whole from its declaration."""
     rows = [r for r in _rows(command) if r['subcommand'] == verb]
-    parser = argparse.ArgumentParser(
+    parser = DeclaredParser(
         prog=f'corpus-yoga {command} {verb}', description=_description(rows),
         epilog=_epilog(command, verb),
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+        formatter_class=argparse.RawDescriptionHelpFormatter, declared=(command, verb))
     _add_arguments(parser, rows, (overrides or {}))
     return parser
 
@@ -144,20 +181,21 @@ def command_parser(command: str, overrides: dict | None = None,
     rows = _rows(command)
     over = overrides or {}
     root_rows = [r for r in rows if not r['subcommand']]
-    parser = argparse.ArgumentParser(prog=f'corpus-yoga {command}',
-                                     description=_description(root_rows))
+    parser = DeclaredParser(prog=f'corpus-yoga {command}',
+                            description=_description(root_rows), declared=(command, None))
     _add_arguments(parser, root_rows, over.get('', {}))
     verbs: list[str] = []
     for r in rows:
         if r['subcommand'] and r['subcommand'] not in verbs:
             verbs.append(r['subcommand'])
     if verbs:
-        action = parser.add_subparsers(dest=dest)
+        action = parser.add_subparsers(dest=dest, parser_class=DeclaredParser)
         for verb in verbs:
             verb_rows = [r for r in rows if r['subcommand'] == verb]
             sub = action.add_parser(verb, description=_description(verb_rows),
                                     epilog=_epilog(command, verb),
-                                    formatter_class=argparse.RawDescriptionHelpFormatter)
+                                    formatter_class=argparse.RawDescriptionHelpFormatter,
+                                    declared=(command, verb), command_arguments=True)
             _add_arguments(sub, verb_rows, over.get(verb, {}))
             # Re-accept the root's flags after the verb (issues/33). SUPPRESS defaults:
             # a subparser writes its defaults into the shared namespace AFTER the

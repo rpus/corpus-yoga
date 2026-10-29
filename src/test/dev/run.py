@@ -679,34 +679,50 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
 
 
 def check_cli_verb_help(run) -> None:
-    """Every bash target's verb answers -h from its declaration (issues/474): the target is
-    invoked live and must print exactly the generated parser's own help
-    (declared_parser.verb_parser — the same derivation the target's parse_argv face
-    speaks) and exit 0. Before parse_argv.sh, a verb-level -h landed in the verb's own
-    argv — an ENACTING verb could receive a flag-shaped token as its argument and
-    start its chain (tmp/logs/forge/flip/2026-08-13T083136Z.log, reading-room, is the
-    fixture). Python targets answer through their own parsers and are
-    check_cli_surface's subject, not this one's. Live and local: the parse face exits
-    before any verb body runs, so nothing here reaches the network or an enacting
-    step."""
-    from declared_parser import verb_parser
+    """Every verb answers -h from its declaration (issues/474), and what it answers is the verb's
+    entry of the noun's help through the one printer (issues/973): `corpus-yoga <command> <verb> -h`
+    is invoked live, as the reader types it, and must print exactly the generated parser's
+    own help and exit 0; and that help, in process, is the printer's render of the entry
+    `corpus-yoga <command> -h` holds for the verb, one line a fact - never argparse's own
+    prose, which says the verb in a second grammar and paints a terminal in colour since
+    python 3.14. Before parse_argv.sh, a verb-level -h landed in a bash verb's own argv -
+    an ENACTING verb could receive a flag-shaped token as its argument and start its chain
+    (tmp/logs/forge/flip/2026-08-13T083136Z.log, reading-room, is the fixture). Live and
+    local: every parser exits on -h before any verb body runs, so nothing here reaches
+    the network or an enacting step."""
+    import argparse
+    from declared_parser import command_parser, verb_parser
+    sys.path.insert(0, str(SRC / 'main'))
+    import importlib
+    facts = importlib.import_module('facts')
+    env = {**os.environ, 'CORPUS_YOGA_NO_SEND': '1'}
     for c in cli.commands():
-        target = REPO_ROOT / c['target']
-        if target.suffix != '.sh' or not target.exists():
-            continue
+        # a python target parses through command_parser, whose subparsers re-accept the
+        # command's own flags after the verb (issues/33) and say so; a bash target's verb
+        # parses through verb_parser, whole from the verb's rows alone
+        whole = c['target'].endswith('.py') and not c['target'].endswith('cli.py')
+        parsers = (next(a for a in command_parser(c['command'])._actions if isinstance(a, argparse._SubParsersAction)).choices
+                   if whole and cli.subcommands_of(c['command']) else {})
         for verb in cli.subcommands_of(c['command']):
-            expected = verb_parser(c['command'], verb).format_help()
-            proc = subprocess.run([str(target), verb, '-h'],
-                                  capture_output=True, text=True, cwd=REPO_ROOT)
-            ok = proc.returncode == 0 and proc.stdout == expected
+            declared = cli.help_of(c['command'])
+            selected = {'verbs': {verb: declared['verbs'][verb]}}
+            if whole:
+                selected = {**{key: declared[key] for key in ('arguments', 'defaults') if key in declared}, **selected}
+            expected = '\n'.join(facts.lines({c['command']: selected}, width=None)) + '\n'
+            generated = (parsers[verb] if whole else verb_parser(c['command'], verb)).format_help()
+            run(f'cli: {c["command"]} {verb}: -h is the verb\'s entry of the noun\'s help', generated == expected,
+                None if generated == expected else f'the generated parser says {generated.splitlines()[0]!r}',
+                check='cli.verb_help_is_the_nouns_entry')
+            proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), c['command'], verb, '-h'],
+                                  capture_output=True, text=True, cwd=REPO_ROOT, env=env)
+            ok = proc.returncode == 0 and proc.stdout == generated
             detail = None
             if not ok:
                 first = ((proc.stdout + proc.stderr).strip().splitlines() or ['(no output)'])[0]
-                detail = (f'exit {proc.returncode}, first line {first!r} — expected the '
+                detail = (f'exit {proc.returncode}, first line {first!r} - expected the '
                           f"declaration's generated parser (declared_parser.verb_parser)")
             run(f'cli: {c["command"]} {verb}: -h answered from the declaration', ok,
                 detail, law='G5', check='cli.verb_help_answered')
-
 
 def check_cli_exclusive_classes(run) -> None:
     """Every declared 1/-class parses as promised, IN PROCESS on the generated

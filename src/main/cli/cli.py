@@ -349,6 +349,9 @@ def _said(declared: dict, summary: str, form: str, usage: str | None = None) -> 
     arguments = {a['name']: a['help'] for a in declared.get('args', [])}
     if arguments:
         out['arguments'] = arguments
+    defaults = {a['name']: a['default'] for a in declared.get('args', []) if a.get('default') is not None}
+    if defaults:
+        out['defaults'] = defaults            # a declared default is data (issues/477): a fact beside the help, never composed into it
     out.update({word: declared[key] for key, word in EFFECT.items() if declared.get(key)})
     return out
 
@@ -375,6 +378,21 @@ class Help:
 
     def facts(self) -> dict:
         return {self.command: self.declared}
+
+
+def help_shape(command: str, verb: str | None = None, command_arguments: bool = False) -> Help:
+    """The help a reader asked for: the command's whole, or - for `corpus-yoga <command> <verb> -h` -
+    the verb's own entry selected from it, under the same heads (issues/973), so that
+    help is one grammar at every level and the verb's says what the command's holds for it.
+    With command_arguments, the command's own arguments are selected too: a parser that
+    accepts them after the verb (issues/33) says so where it says the verb."""
+    declared = help_of(command)
+    if verb is None:
+        return Help(command, declared)
+    selected = {'verbs': {verb: declared['verbs'][verb]}}
+    if command_arguments:
+        selected = {**{key: declared[key] for key in ('arguments', 'defaults') if key in declared}, **selected}
+    return Help(command, selected)
 
 
 # the top's own declaration, src/main/cli/corpus-yoga.json, validated against src/main/cli/root.schema.json:
@@ -550,7 +568,7 @@ def main() -> int:
     # argparse, which carries that subcommand's own flags: the target's parser, or the
     # one cli.py builds for a command it handles itself.
     if rest and rest[0] in ('-h', '--help'):
-        facts.say(Help(row['command'], help_of(row['command'])))
+        facts.say(help_shape(row['command']))
         return 0
     return dispatch(row, rest)                # a bare noun is its status, facts alone; how it is typed is -h's to say
 

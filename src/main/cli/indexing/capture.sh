@@ -31,6 +31,7 @@ MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, 
 source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (issues/29)
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
+source "$REPO_DIR/src/main/cli/parse_argv.sh"   # -h and the refusal of undeclared argv, from the declaration (issues/474)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
@@ -335,6 +336,7 @@ corpus_conversations() {
 }
 
 capture() {
+  parse_argv indexing capture "$@"
   local conversations="" only="" dry_run=""
   while [[ $# -gt 0 ]]; do
     case "$1" in

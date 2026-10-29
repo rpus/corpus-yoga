@@ -50,12 +50,14 @@ declared help lines as headed subparagraphs), what tab offers in zsh
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `corpus-yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `corpus-yoga` suggests what to run next and runs none of it, and a verb's own flags live one
-level down at `corpus-yoga <command> <verb> -h`, answered by the target's own parser: argparse
-for a python target (or the parser `cli.py` builds for a command it handles itself),
-`parse_argv` for a bash target — sourced from `src/main/cli/parse_argv.sh` at each verb's
-dispatch, it hands the argv to `src/main/cli/parse_argv.py`, which answers `-h` from the
-declaration and refuses argv the declaration does not express, so an enacting verb can
-never receive a flag-shaped token as its argument (issues/474; `cli.verb_help_answered` holds it).
+level down at `corpus-yoga <command> <verb> -h`, which prints the verb's entry of the command's
+help - the same lines `corpus-yoga <command> -h` holds under `verbs:`, through the one printer
+(issues/973; `cli.verb_help_is_the_nouns_entry` holds it) - answered by the target's own parser:
+the generated one for a python target, `parse_argv` for a bash target — sourced from
+`src/main/cli/parse_argv.sh` at each verb's dispatch, it hands the argv to
+`src/main/cli/parse_argv.py`, which answers `-h` from the declaration and refuses argv the
+declaration does not express, so an enacting verb can never receive a flag-shaped token as
+its argument (issues/474; `cli.verb_help_answered` holds it).
 A python target's parser is likewise GENERATED — `src/declared_parser.py` builds it whole from
 the declaration (structure, wording, prog `corpus-yoga agent capture` rather than `agent.py capture`,
 sends as each verb's epilog), the target passing only its semantic residue (default, type, dest,
