@@ -2,8 +2,8 @@
 
 A declaration already states a command's structure — verbs, arguments, arity,
 wording, outward sends — so its parser is derived, never hand-built (issues/474, issues/476):
-argparse owns the parsing, the printer owns the -h (DeclaredParser, issues/973), the
-declaration owns everything it can say,
+argparse owns the parsing, the printer owns the -h and the refusal (DeclaredParser,
+issues/973), the declaration owns everything it can say,
 and a target contributes only its semantic residue (default, type, dest, nargs)
 as per-argument overrides. verb_parser() is one verb's standalone parser (the
 bash targets' parse_argv face); command_parser() is a python target's whole
@@ -25,6 +25,7 @@ any venv exists.
 import argparse
 import sys
 from pathlib import Path
+from typing import NoReturn
 
 
 class DeclaredParser(argparse.ArgumentParser):
@@ -62,6 +63,29 @@ class DeclaredParser(argparse.ArgumentParser):
             facts.say(self._shape())
         else:
             file.write(self.format_help())
+
+    def error(self, message: str) -> NoReturn:
+        """A refusal restates the declaration (issues/973): the form of what was typed and what it
+        requires, as facts on stderr, then the effect line `<act>: NOT DONE - <what was refused>`
+        - handed up to the launcher where it dispatched this act, last on stderr otherwise
+        (an inner invocation, a step of another verb, hands nothing up: facts.handed_up holds
+        the act to its own). A command's parser refuses leftover argv on the verb's behalf,
+        so the act is the verb typed, read from argv."""
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
+        import facts
+        from cli import refusal_shape, subcommands_of
+        command, verb = self.declared
+        if verb is None:                      # a command's parser refuses leftover argv on the verb's behalf: the verb typed
+            verb = next((word for word in sys.argv[1:] if word in subcommands_of(command)), None)
+        act = f'{command} {verb}' if verb else command
+        shape = refusal_shape(command, verb)
+        lines = facts.lines(facts.plain(shape), facts.depth(), width=None)
+        effect = f'{act}: NOT DONE - {message}'
+        if not facts.handed_up(effect):
+            lines.append(effect)
+        print('\n'.join(lines), file=sys.stderr, flush=True)
+        sys.exit(2)
 
 
 def _rows(command: str) -> list[dict]:

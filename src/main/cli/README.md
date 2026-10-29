@@ -51,8 +51,12 @@ declared help lines as headed subparagraphs), what tab offers in zsh
 `corpus-yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `corpus-yoga` suggests what to run next and runs none of it, and a verb's own flags live one
 level down at `corpus-yoga <command> <verb> -h`, which prints the verb's entry of the command's
-help - the same lines `corpus-yoga <command> -h` holds under `verbs:`, through the one printer
-(issues/973; `cli.verb_help_is_the_nouns_entry` holds it) - answered by the target's own parser:
+help - the same lines `corpus-yoga <command> -h` holds under `verbs:`, through the one printer,
+with the launcher's flags under `inherited:` and the cardinalities in words under `required:` and
+`repeatable:` (issues/973; `cli.verb_help_is_the_nouns_entry` holds it); argv the declaration does
+not express is refused with the verb's `form:` and `required:` restated and the effect line
+`<act>: NOT DONE - <what was refused>` (`cli.refusal_is_the_declaration` holds it) - answered by
+the target's own parser:
 the generated one for a python target, `parse_argv` for a bash target — sourced from
 `src/main/cli/parse_argv.sh` at each verb's dispatch, it hands the argv to
 `src/main/cli/parse_argv.py`, which answers `-h` from the declaration and refuses argv the

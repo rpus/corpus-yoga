@@ -35,6 +35,7 @@ cli.flag_not_axis_value
 cli.help_is_the_declaration
 cli.no_send_flag
 cli.prose_holds_no_pair
+cli.refusal_is_the_declaration
 cli.step_invokes_verb
 cli.subcommands_dispatch
 cli.table_parses

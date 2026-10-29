@@ -703,9 +703,14 @@ def check_cli_verb_help(run) -> None:
         whole = c['target'].endswith('.py') and not c['target'].endswith('cli.py')
         parsers = (next(a for a in command_parser(c['command'])._actions if isinstance(a, argparse._SubParsersAction)).choices
                    if whole and cli.subcommands_of(c['command']) else {})
+        declared = cli.help_of(c['command'])
+        if cli.subcommands_of(c['command']):
+            run(f'cli: {c["command"]}: help says the flags every level inherits from the launcher', 'inherited' in declared,
+                None if 'inherited' in declared else 'the command\'s help has no inherited: head',
+                check='cli.verb_help_is_the_nouns_entry')
         for verb in cli.subcommands_of(c['command']):
-            declared = cli.help_of(c['command'])
-            selected = {'verbs': {verb: declared['verbs'][verb]}}
+            selected = {**({'inherited': declared['inherited']} if 'inherited' in declared else {}),
+                        'verbs': {verb: declared['verbs'][verb]}}
             if whole:
                 selected = {**{key: declared[key] for key in ('arguments', 'defaults') if key in declared}, **selected}
             expected = '\n'.join(facts.lines({c['command']: selected}, width=None)) + '\n'
@@ -723,6 +728,29 @@ def check_cli_verb_help(run) -> None:
                           f"declaration's generated parser (declared_parser.verb_parser)")
             run(f'cli: {c["command"]} {verb}: -h answered from the declaration', ok,
                 detail, law='G5', check='cli.verb_help_answered')
+    # A refusal restates the declaration (issues/973): argv the declaration does not express is
+    # refused with the verb's form and what it requires, as facts on stderr, and the effect
+    # line `<act>: NOT DONE - <what was refused>` closes the record - never argparse's usage
+    # block, never "the verb handed up no effect line". One probe per parser path: a bash
+    # verb through parse_argv, a python verb's own parser, a python command's subparser;
+    # each refuses before any verb body runs.
+    for words, message in ((['agent', 'capture'], 'one of the arguments --provider --all is required'),
+                           (['cache', 'sync', '--nonsense'], 'unrecognized arguments: --nonsense'),
+                           (['store', 'clean', '--nonsense'], 'unrecognized arguments: --nonsense')):
+        command, verb = words[0], words[1]
+        proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, cwd=REPO_ROOT, env=env)
+        entry = cli.help_of(command)['verbs'][verb]
+        form = f"form: {entry['form']}"
+        wanted = [form] + (['required:'] if entry.get('required') else [])
+        said = (proc.stdout + proc.stderr).splitlines()    # the launcher folds the act's stderr into its record
+        missing = [line for line in wanted if not any(line_said.strip() == line for line_said in said)]
+        effect = f'{command} {verb}: NOT DONE - {message}'
+        # the effect closes the launcher's record on stdout where it wrapped the act; a query verb
+        # is not wrapped, and its refusal closes on stderr
+        last = ((proc.stdout.strip() or proc.stderr.strip()).splitlines() or [''])[-1]
+        ok = proc.returncode != 0 and not missing and last == effect
+        detail = None if ok else f'exit {proc.returncode}; the record lacks {missing}; the last line is {last!r}'
+        run(f'cli: {" ".join(words)}: refused with the declaration', ok, detail, check='cli.refusal_is_the_declaration')
 
 def check_cli_exclusive_classes(run) -> None:
     """Every declared 1/-class parses as promised, IN PROCESS on the generated
@@ -892,6 +920,7 @@ def check_cli_surface(run) -> None:
             if f'corpus-yoga {c["command"]} ' in line or f'{target.name} ' in line or '$0' in line:
                 real.update(re.findall(r'--[a-z][\w-]+', line.split(' # ')[0]))
         real.discard('--help')
+        real -= set(cli.root_flags())        # the launcher's flags, said at every level as inherited (issues/973), advertised at the top
         unadvertised = sorted(real - set(flags))
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'

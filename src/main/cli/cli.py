@@ -352,8 +352,28 @@ def _said(declared: dict, summary: str, form: str, usage: str | None = None) -> 
     defaults = {a['name']: a['default'] for a in declared.get('args', []) if a.get('default') is not None}
     if defaults:
         out['defaults'] = defaults            # a declared default is data (issues/477): a fact beside the help, never composed into it
+    out.update(_arity(declared.get('args', [])))
     out.update({word: declared[key] for key, word in EFFECT.items() if declared.get(key)})
     return out
+
+
+def _arity(args: list[dict]) -> dict:
+    """What the cardinalities say in words (issues/973): `required` - each argument a bare count
+    requires, and each class one of whose members is required, spelled as the form spells
+    it; `repeatable` - each argument that may stand more than once. Optional is unsaid, as
+    the form's brackets say it."""
+    required: list[str] = []
+    seen: set[str] = set()
+    for a in args:
+        card = a.get('cardinality', '')
+        if '/' in card:
+            if card not in seen:
+                seen.add(card)
+                required.append(' | '.join(m['name'] for m in args if m.get('cardinality', '') == card))
+        elif card == '1':
+            required.append(a['name'])
+    repeatable = [a['name'] for a in args if a.get('cardinality', '') == '*']
+    return {**({'required': required} if required else {}), **({'repeatable': repeatable} if repeatable else {})}
 
 
 def help_of(command: str) -> dict:
@@ -363,6 +383,7 @@ def help_of(command: str) -> dict:
     forms = dict(zip([''] + subcommands_of(command), command_forms(command)))
     sketch = usage_of(command)
     out = _said(json.loads(_declaration(command).read_text()), 'summary', forms[''], f'corpus-yoga {command} {sketch}' if sketch else None)
+    out['inherited'] = root_flags()           # the flags every command and verb takes from the launcher, wherever they stand (issues/973)
     verbs = {verb: _said(json.loads((CLI / command / f'{verb}.json').read_text()), 'help', forms[verb])
              for verb in subcommands_of(command)}
     if verbs:
@@ -389,10 +410,19 @@ def help_shape(command: str, verb: str | None = None, command_arguments: bool = 
     declared = help_of(command)
     if verb is None:
         return Help(command, declared)
-    selected = {'verbs': {verb: declared['verbs'][verb]}}
+    selected = {'inherited': declared['inherited'], 'verbs': {verb: declared['verbs'][verb]}}
     if command_arguments:
         selected = {**{key: declared[key] for key in ('arguments', 'defaults') if key in declared}, **selected}
     return Help(command, selected)
+
+
+def refusal_shape(command: str, verb: str | None) -> Help:
+    """What a refusal restates (issues/973): the form of what was typed and what it requires -
+    the facts of the declaration the argv did not meet - under the same heads as help."""
+    declared = help_of(command)
+    entry = declared['verbs'][verb] if verb else declared
+    facts = {key: entry[key] for key in ('form', 'required') if key in entry}
+    return Help(command, {'verbs': {verb: facts}} if verb else facts)
 
 
 # the top's own declaration, src/main/cli/corpus-yoga.json, validated against src/main/cli/root.schema.json:
