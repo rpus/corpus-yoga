@@ -598,6 +598,17 @@ merge_chain() {
   assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR merges" pr="$pr" state="$state")"; return 1; }
+  # A checkout that holds the head with a dirty tree refuses HERE (issues/975), before any
+  # read but the one that named the head: the dirt is usually a red gate's own findings in
+  # rsc/test/run.log, evidence the merge leaves where the gate wrote it, and the refusal
+  # costs the reader one git read rather than the forge's reads, the standing report and
+  # the fetch.
+  branch_here="$(git -C "$REPO_DIR" branch --show-current)"
+  if [[ "$branch_here" == "$head" ]]; then
+    local dirty
+    dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
+    [[ -z "$dirty" ]]       || { echo "forge merge: NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
+  fi
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE - $(phrase "the body read failed")"; return 1; }
   # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one
   # line per issue, as corpus-yoga forge raise writes them; a line that says the phrase
@@ -635,11 +646,7 @@ merge_chain() {
   CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
   enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge merge: NOT DONE - $(phrase "the fetch failed")"; return 1; }
-  branch_here="$(git -C "$REPO_DIR" branch --show-current)"
   if [[ "$branch_here" == "$head" ]]; then
-    local dirty
-    dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
-    [[ -z "$dirty" ]]       || { echo "forge merge: NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
     git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge merge: NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
   fi
   # The squash pin is the merge's OWN sha (issues/488): the head fetched here, or the
