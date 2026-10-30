@@ -282,8 +282,12 @@ def select(root: Path, store: Store) -> list[Unit]:
                     if companion.exists():
                         members.append(companion.relative_to(root))
                 files = [f for m in members for f in _files_under(root, root / m)]
+                # a directory the selection names with no file under it has no payload (issues/988):
+                # incomplete, the janitor's, never a rehearsal's input - a capture interrupted
+                # before it fetched leaves exactly this
+                missing = ['every file - the directory is empty'] if dirs_only and not files else []
                 unit = Unit(address, members, files, [], measure, store.pipeline, store.provider, subject, kind=kind,
-                            selection=f'{store.input.as_posix()}/{pattern}')
+                            selection=f'{store.input.as_posix()}/{pattern}', missing=missing)
                 units[address] = unit
             unit.selected.append(item.relative_to(root))
     return list(units.values())
