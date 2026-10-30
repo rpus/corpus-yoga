@@ -82,6 +82,9 @@
           "$ref": "#/definitions/CostStateRecord"
         },
         {
+          "$ref": "#/definitions/ToolsUsedRecord"
+        },
+        {
           "$ref": "#/definitions/ApiRequestShapeRecord"
         },
         {
@@ -719,6 +722,36 @@
         "hasUnknownModelCost": {
           "description": "Whether a model's cost was unknown to the harness. Observed false.",
           "type": "boolean"
+        }
+      }
+    },
+    "ToolsUsedRecord": {
+      "title": "ToolsUsedRecord",
+      "description": "The tools the session has used, by the names ToolUseBlock.name uses, written by Claude Code 2.1.311 or later. Observed once on reading-room in session e2d2039d-b1e5-4691-99f9-f0629d13e243, captured 2026-10-30: one record among 25,493, between two cost-state records, after the last record of 2.1.310 and before the first of 2.1.312; it carries no timestamp and no version of its own. Undeclared before v26.",
+      "type": "object",
+      "required": [
+        "type",
+        "tools",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tools-used"
+          ],
+          "description": "(discriminator)"
+        },
+        "tools": {
+          "description": "The tool names used, in the order the harness lists them; the words ToolUseBlock.name uses.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
         }
       }
     },
@@ -1454,6 +1487,14 @@
         },
         "cacheCreationInputTokens": {
           "description": "Input tokens written to the prompt cache. Observed 4961733 and 0.",
+          "type": "integer"
+        },
+        "cacheCreationEphemeral1hInputTokens": {
+          "description": "Input tokens written to the prompt cache under the one-hour lifetime, written by Claude Code 2.1.312 or later beside cacheCreationInputTokens, to which it and its five-minute sibling do not sum (582744 and 0 against 15705227). Observed on reading-room on 2026-10-30 in the last cost-state record of session e2d2039d-b1e5-4691-99f9-f0629d13e243, for one model of its two; undeclared before v26.",
+          "type": "integer"
+        },
+        "cacheCreationEphemeral5mInputTokens": {
+          "description": "Input tokens written to the prompt cache under the five-minute lifetime, written by Claude Code 2.1.312 or later beside cacheCreationInputTokens. Observed 0 in the same record as its one-hour sibling; undeclared before v26.",
           "type": "integer"
         },
         "webSearchRequests": {
