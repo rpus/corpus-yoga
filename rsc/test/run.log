@@ -29,6 +29,7 @@ check_templates: |
 check_xref: |
   ✓ xref.no_bad_pointers
   ✓ xref.score_matches_expectation
+  ✓ xref.version_named_inside_its_family
 
 check_cli_surface: |
   ✓ cli.table_parses
@@ -321,7 +322,7 @@ stages:
     tier: code
     line: "26"
   check_xref:
-    passes: 2
+    passes: 3
     failures: 0
     tier: code
     line: "29"
@@ -329,117 +330,117 @@ stages:
     passes: 581
     failures: 0
     tier: code
-    line: "33"
+    line: "34"
   check_cli_verb_help:
     passes: 133
     failures: 0
     tier: code
-    line: "65"
+    line: "66"
   check_cli_exclusive_classes:
     passes: 10
     failures: 0
     tier: code
-    line: "70"
+    line: "71"
   check_effects:
     passes: 3
     failures: 0
     tier: code
-    line: "73"
+    line: "74"
   check_cache_io:
     passes: 18
     failures: 0
     tier: code
-    line: "78"
+    line: "79"
   check_accumulate_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "84"
+    line: "85"
   check_capture_monotone:
     passes: 4
     failures: 0
     tier: code
-    line: "87"
+    line: "88"
   check_spelling:
     passes: 3
     failures: 0
     tier: code
-    line: "90"
+    line: "91"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "95"
+    line: "96"
   check_schema_layout:
     passes: 26
     failures: 0
     tier: schema
-    line: "109"
+    line: "110"
   check_schema_validity:
     passes: 15
     failures: 0
     tier: schema
-    line: "113"
+    line: "114"
   check_schema_meta_validity:
     passes: 15
     failures: 0
     tier: schema
-    line: "116"
+    line: "117"
   check_schema_single_version:
     passes: 15
     failures: 0
     tier: schema
-    line: "119"
+    line: "120"
   check_schema_changelogs:
     passes: 30
     failures: 0
     tier: schema
-    line: "122"
+    line: "123"
   check_tier_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "126"
+    line: "127"
   check_validate_verdict:
     passes: 4
     failures: 0
     tier: code
-    line: "129"
+    line: "130"
   check_verdict_record:
     passes: 2
     failures: 0
     tier: code
-    line: "132"
+    line: "133"
   check_failing_record:
     passes: 2
     failures: 0
     tier: code
-    line: "135"
+    line: "136"
   check_providers_judged:
     passes: 1
     failures: 0
     tier: code
-    line: "139"
+    line: "140"
   check_server_standing:
     passes: 1
     failures: 0
     tier: code
-    line: "142"
+    line: "143"
   check_rehearsal_record:
     passes: 2
     failures: 0
     tier: code
-    line: "145"
+    line: "146"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "149"
+    line: "150"
   check_unit_state:
     passes: 3
     failures: 0
     tier: code
-    line: "152"
+    line: "153"
   check_store:
     passes: 3
     failures: 0
