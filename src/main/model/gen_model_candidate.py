@@ -13,7 +13,7 @@ Examples:
     python src/main/model/gen_model_candidate.py conversations rsc/schema/pipeline/chat-export/claude/conversations/v23.json
     python src/main/model/gen_model_candidate.py memories      rsc/schema/pipeline/chat-export/claude/memories/v4.json
     python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v25.json
-    python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v15.json
+    python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v14.json
 
 Output: JSON to stdout. Redirect to tmp/cache/model/catalogue/<family's address>/<version>.json for review.
 Normally invoked via corpus-yoga model which handles all schemas automatically.

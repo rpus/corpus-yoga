@@ -13,37 +13,6 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
-## v15
-
-A web fetch result's metadata gains the URL the fetch ended at, minted with conversations
-v23: reading-room's bulk export of 2026-10-30 carries a `web_fetch` result item of
-2026-10-27T22:04:25Z whose `prompt_context_metadata` holds `final_url` beside
-`content_type`, `destination_url` and `mime_type`, equal to `destination_url`, which
-`PromptContextMetadataFetch` closed. The definition is the one chat-export's conversations
-holds under the same name, identical by its rsc/model/model_join.csv row, so this family
-admits the key in the same words. No capture held on reading-room carries it yet: the
-browser capture of 2026-10-30 (`0e537a54-5db8-4164-9a49-06155980b978`, 30 messages, nine
-`web_fetch` results) carries no `final_url`.
-
-Validated on reading-room, 2026-10-30: the capture of 2026-10-30 validates at v14 and at
-v15. v15 adds one optional key and narrows nothing, so every datum v14 admits, v15 admits.
-
-### Replaces
-
-v14
-
-#### Restricted
-
-None.
-
-#### Relaxed
-
-- `PromptContextMetadataFetch`: `final_url`, an optional string.
-
-#### Refactored
-
-None.
-
 ## v14
 
 claude.ai names its tools as Claude Code names them, and the capture grew in five other

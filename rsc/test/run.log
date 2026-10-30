@@ -1,4 +1,4 @@
-run.py: code+schema 1849/1849
+run.py: code+schema 1847/1847
 
 
 check_required_files: |
@@ -239,8 +239,8 @@ check_model_occurrences: |
   ✓ model.occurrences_cover_edges
 
 check_model_obligations: |
-  ✓ model.shared_type_disposed  (102/102)
-  ✓ model.documented_type_grounded  (98/98)
+  ✓ model.shared_type_disposed  (101/101)
+  ✓ model.documented_type_grounded  (97/97)
 
 check_model_identity: |
   ✓ model.identity_holds
@@ -500,7 +500,7 @@ stages:
     tier: schema
     line: "236"
   check_model_obligations:
-    passes: 200
+    passes: 198
     failures: 0
     tier: schema
     line: "241"
@@ -565,8 +565,8 @@ stages:
     tier: code
     line: "288"
 
-checks[code+schema]: 177 types, 1849/1849 invocations passing
+checks[code+schema]: 177 types, 1847/1847 invocations passing
 checks[code]: 125 types, 1133/1133 invocations passing
-checks[schema]: 52 types, 716/716 invocations passing
+checks[schema]: 52 types, 714/714 invocations passing
 
-dev gate: PASS - code+schema 1849/1849 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1847/1847 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
