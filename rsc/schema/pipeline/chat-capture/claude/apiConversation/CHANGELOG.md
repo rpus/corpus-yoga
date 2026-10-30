@@ -13,6 +13,39 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v15
+
+A past-conversation link carries the linked conversation's state. Reading-room's API capture
+sweep of 2026-10-30 at 08:49 staged 125 conversations, one of which the rehearsal of
+2026-10-30T085756Z refuses at v14: `d11565d6-640e-465a-9aca-b77a96404d49` at message 154
+(`01a140b3-d2b0-72b1-b1dc-ba49ac7f1e3f`), a `conversation_search` result of
+2026-10-15T17:55:13Z whose `rich_content` items carry `linked_chat` - `updated_at`, an ISO
+instant, and `summary_line`, a sentence - beside `title` and `url`, which
+`ApiRichContentItem` closed. Three items of that one result carry it; no other item of the
+125 captures does - 173 past-conversation links from 2026-04-11 carry `title` and `url`
+alone - and the bulk export of 2026-10-30 holds the same message's items without it (the
+join row added with this mint says so, as a judgment of two renders at one date).
+
+Validated over the staged capture on reading-room, 2026-10-30: v14 refuses it at message
+154 and stops; v15 refuses none of its 263 messages. v15 adds one optional object and
+narrows nothing, so every datum v14 admits, v15 admits.
+
+### Replaces
+
+v14
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `ApiRichContentItem`: each item admits `linked_chat`, an object of `updated_at` and `summary_line`.
+
+#### Refactored
+
+None.
+
 ## v14
 
 claude.ai names its tools as Claude Code names them, and the capture grew in five other

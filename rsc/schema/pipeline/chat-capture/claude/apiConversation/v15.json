@@ -2992,6 +2992,23 @@
                   }
                 ]
               },
+              "linked_chat": {
+                "description": "The linked conversation's state, carried per item by a conversation_search result since 2026-10-15: observed on reading-room in the capture of 2026-10-30 of conversation d11565d6-640e-465a-9aca-b77a96404d49, three items of one result of 2026-10-15T17:55:13Z, each updated_at an ISO instant and summary_line a sentence; the bulk export of 2026-10-30 holds the same items without it. Absent on every other item of the 125 captures staged. Undeclared before v15.",
+                "type": "object",
+                "required": [
+                  "updated_at",
+                  "summary_line"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "updated_at": {
+                    "type": "string"
+                  },
+                  "summary_line": {
+                    "type": "string"
+                  }
+                }
+              },
               "resource_type": {
                 "description": "Always null in observed exports.",
                 "type": "null"
