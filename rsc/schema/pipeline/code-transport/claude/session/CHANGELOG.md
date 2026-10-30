@@ -6,6 +6,45 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v26
+
+Two things Claude Code 2.1.312 writes. Reading-room's session `e2d2039d-b1e5-4691-99f9-f0629d13e243`,
+captured on 2026-10-30 by `corpus-yoga agent capture` into the stage, is refused at v25 by
+the rehearsal of 2026-10-30T000655Z at its record 24512, `{"type": "tools-used", "tools":
+["Bash", "Write"], "sessionId": …}` - a record kind the union did not list, standing once
+among the session's 25,493 records between two `cost-state` records, after the last record
+of 2.1.310 (2026-10-26T20:05:18Z) and before the first of 2.1.312 (2026-10-29T18:25:48Z),
+with no timestamp and no version of its own. Admitted, v25 refuses the same session at its
+last record, 25492, a `cost-state` whose `modelUsage` for one of its two models carries
+`cacheCreationEphemeral1hInputTokens` (582744) and `cacheCreationEphemeral5mInputTokens`
+(0) beside `cacheCreationInputTokens` (15705227), which `ModelUsage` closed; the record
+follows a 2.1.312 record of 2026-10-30T00:03:03Z. No other session held on reading-room
+carries either. The export and API conversation families name tools per block and carry
+no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as
+`CostStateRecord` does).
+
+Validated over the rehearsal's conversion of the staged session on reading-room, 2026-10-30:
+v25 refuses it at record 24512 and stops; v26 refuses none of its 25,493 records. v26 adds
+one record kind and two optional keys and narrows nothing, so every datum v25 admits, v26
+admits.
+
+### Replaces
+
+v25
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Record`: a `ToolsUsedRecord` branch - `type` `tools-used`, `tools` an array of tool names, `sessionId`.
+- `ModelUsage`: `cacheCreationEphemeral1hInputTokens` and `cacheCreationEphemeral5mInputTokens`, optional integers.
+
+#### Refactored
+
+None.
+
 ## v25
 
 The harness stops sending safeguards. Reading-room's session `e2d2039d-b1e5-4691-99f9-f0629d13e243`,
