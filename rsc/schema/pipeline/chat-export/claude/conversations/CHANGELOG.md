@@ -19,6 +19,46 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v23
+
+A web fetch result's metadata gains the URL the fetch ended at. Reading-room's bulk export
+of 2026-10-30 (`data-0fc4c1e0-…-2026-10-30-08-09-42`), captured by `corpus-yoga export
+capture` into the stage, is refused at v22 by the rehearsal of 2026-10-30T081341Z at
+conversation 118, message 232: a `web_fetch` result item of 2026-10-27T22:04:25Z
+(conversation `d11565d6-640e-465a-9aca-b77a96404d49`) whose `prompt_context_metadata` is
+`{"content_type": "html", "destination_url": "https://already-clean.goodfire.com",
+"final_url": "https://already-clean.goodfire.com", "mime_type": "text/html; charset=utf-8"}`,
+and `PromptContextMetadataFetch` closed its three keys. One of the export's 30 `web_fetch`
+items carries `final_url`, equal to `destination_url`; the 29 earlier, the first of
+2026-06-29, do not. The API capture of the same conversation, staged on reading-room on
+2026-10-30 after the item (263 messages, updated 2026-10-27T23:14:42Z), holds the same
+message, `01a17f63-1bb5-7d85-9687-cea97b02faa1`, with the same `web_fetch` item carrying
+no `prompt_context_metadata` at all, where the export's item carries it with `final_url`
+beside `is_citable`, `links` and `text`. So the key is the export's: `PromptContextMetadataFetch`,
+one definition under one name in both families and identical by its rsc/model/model_join.csv
+row since 2026-08-25, is from v23 the wider of the two, and the row says apiConversation's
+is a subset of it.
+
+Validated over the staged export on reading-room, 2026-10-30: v22 refuses it at that item
+and stops; v23 refuses none of its 126 conversations. v23 adds one optional key and narrows
+nothing, so every datum v22 admits, v23 admits.
+
+### Replaces
+
+v22
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `PromptContextMetadataFetch`: `final_url`, an optional string.
+
+#### Refactored
+
+None.
+
 ## v22
 
 claude.ai names its tools as Claude Code names them, and the export stops writing what the

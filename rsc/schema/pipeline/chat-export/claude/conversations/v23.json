@@ -3022,6 +3022,10 @@
         },
         "destination_url": {
           "type": "string"
+        },
+        "final_url": {
+          "description": "The URL the fetch ended at, beside destination_url, the one it was sent to. Observed once, equal to destination_url, in reading-room's export of 2026-10-30 at a web_fetch result of 2026-10-27T22:04:25Z (conversation d11565d6-640e-465a-9aca-b77a96404d49); the 29 earlier web_fetch items, the first of 2026-06-29, carry no final_url. The API capture of the same conversation, staged on reading-room on 2026-10-30 after the item (263 messages, updated 2026-10-27T23:14:42Z), holds the same item with no prompt_context_metadata at all, so apiConversation's PromptContextMetadataFetch is a subset of this one. Undeclared before v23.",
+          "type": "string"
         }
       }
     },
