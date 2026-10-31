@@ -39,6 +39,7 @@ Usage:
 """
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -165,6 +166,7 @@ PROVIDERS = {
         'discover_url': 'https://claude.ai/chats',
         'link_sel':     'a[href*="/chat/"]',
         'id_re':        None,
+        'full_id_re':   r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',   # a conversation's uuid, as its page URL carries it
     },
     'gemini': {
         'mechanisms':   ('DOM',),
@@ -172,6 +174,7 @@ PROVIDERS = {
         'discover_url': 'https://gemini.google.com/app',
         'link_sel':     'a[href*="/app/"]',
         'id_re':        r'^[0-9a-f]{8,}$',
+        'full_id_re':   r'[0-9a-f]{16}',   # a conversation's id, as its page URL carries it
         'ready_sel':    'button[aria-label="Copy"]',
         # the DOM scrapes carry no timestamps, so the listing order is the one
         # ordering observation there is — persisted as ordering.txt on every
@@ -256,6 +259,23 @@ def wait_for_ready(selector, timeout=READY_TIMEOUT):
             pass
         time.sleep(0.5)
     return False
+
+
+def resolve_id(prefix, ids):
+    """The one id of the listing the typed prefix names - the id itself, or exactly one id
+    that starts with it - or None where it names none or several (issues/990). A prefix is
+    never navigated to or filed under: the site resolves no prefix, and a unit's address is
+    its conversation's full id, which a later sweep overwrites in place."""
+    if prefix in ids:
+        return prefix
+    named = [i for i in ids if i.startswith(prefix)]
+    return named[0] if len(named) == 1 else None
+
+
+def full_id_in(url, cfg):
+    """The full conversation id a page URL carries, by the provider's id shape; None where none."""
+    found = re.search(cfg['full_id_re'], url or '')
+    return found.group(0) if found else None
 
 
 def wait_for_url(conv_id, timeout=READY_TIMEOUT):
@@ -558,14 +578,27 @@ def main():
         # work tab and restore the front tab — so the audit's remedy runs as printed. Either
         # way the id is verified against the page before filing (wait_for_url on the
         # navigating path), never trusted.
+        # The id typed is a full id or a prefix of one (issues/990): resolved to the full id before
+        # any navigation - from the front tab's URL where it shows the conversation, else from
+        # the listing the discovery reads - and the unit is filed under the full id, which a
+        # later sweep overwrites in place. The site resolves no prefix, so none is navigated to.
         front_url = osascript('tell application "Safari" to get URL of front document')
-        if args.id in front_url:
-            failed = capture_all(args.provider, [args.id], api_root, dom_root,
+        shown = full_id_in(front_url, cfg)
+        if shown is not None and shown.startswith(args.id):
+            failed = capture_all(args.provider, [shown], api_root, dom_root,
                                  navigate=False, mechanisms=mechanisms, dry_run=args.dry_run)
         else:
             prev_tab = safari_open_work_tab()
             try:
-                failed = capture_all(args.provider, [args.id], api_root, dom_root,
+                full = args.id if re.fullmatch(cfg['full_id_re'], args.id) else None
+                if full is None:
+                    listed = ids_from_safari(args.provider, cfg)
+                    full = resolve_id(args.id, listed)
+                    if full is None:
+                        emit('FAIL: ' + facts.phrase('{id} names {n} conversation(s) of the listing - a prefix names exactly one',
+                                                     id=args.id, n=sum(1 for i in listed if i.startswith(args.id))))
+                        raise SystemExit(1)
+                failed = capture_all(args.provider, [full], api_root, dom_root,
                                      navigate=True, mechanisms=mechanisms, dry_run=args.dry_run)
             finally:
                 safari_close_work_tab(prev_tab)

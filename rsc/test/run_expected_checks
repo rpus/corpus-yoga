@@ -19,6 +19,7 @@ calculus.laws_parse
 calculus.state_declared
 calculus.unenforced_names_issue
 capture.monotone_record
+capture.prefix_resolves_to_one
 checks
 cli.advertised_flags_exist
 cli.bare_suggests_and_runs_nothing
