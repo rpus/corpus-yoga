@@ -147,7 +147,7 @@ def _git(*words: str) -> str:
 
 def begin(stamp: str) -> int:
     import corpus
-    units = corpus.units(corpus.STAGE) if corpus.STAGE.is_dir() else []
+    units = corpus.whole()                 # the extent is the whole units: an incomplete one is passed over (issues/996)
     EXTENT.parent.mkdir(parents=True, exist_ok=True)
     EXTENT.write_text(json.dumps({'stamp': stamp, 'units': extent(units, corpus.own_digests)}, indent=1) + '\n')
     print(f'rehearse: {len(units)} unit(s) staged as the run begins - their digests are {_rel(EXTENT)}')
@@ -160,7 +160,7 @@ def end(stamp: str, exit_code: int) -> int:
     if not isinstance(seen, dict) or seen.get('stamp') != stamp:
         facts.report(None, f'pipeline rehearse: NOT DONE - {_rel(EXTENT)} is not the extent of rehearsal {stamp}; no record written')
         return 1
-    units = corpus.units(corpus.STAGE) if corpus.STAGE.is_dir() else []
+    units = corpus.whole()                 # an incomplete unit is passed over, never judged (issues/996)
     record = reduce(stamp, _git('rev-parse', '--short', 'HEAD') or '(no git)', len(_git('status', '--porcelain').splitlines()),
                     provider.signature(), exit_code, seen['units'], units, lambda u: u.cache, corpus.family_of)
     bad = faults(record)

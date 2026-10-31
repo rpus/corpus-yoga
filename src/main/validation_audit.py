@@ -57,12 +57,13 @@ def datum_dirs(cache_root: Path, depth: int) -> list[Path]:
     return sorted(v.parent for v in cache_root.glob(glob) if v.is_dir())
 
 
-def input_subjects(store: corpus.Store) -> list:
+def input_subjects(store: corpus.Store, root: Path | None = None) -> list:
     """Each input entry of a store as its cache subject - the units src/main/corpus.py
     selects for it under data/input (issues/687): a bare name at depth 1, where a datum is a
-    directory, else the tuple of path parts the subject is cut to."""
-    root = tier.DATA / 'input'
-    units = corpus.select(root, store)
+    directory, else the tuple of path parts the subject is cut to. An incomplete unit is
+    passed over by the rehearsal and owes no output (issues/996)."""
+    root = tier.DATA / 'input' if root is None else root
+    units = [u for u in corpus.select(root, store) if not u.missing]
     if store.depth == 1:
         return sorted(u.subject[0] for u in units if (root / u.path).is_dir())
     return sorted({u.subject for u in units})

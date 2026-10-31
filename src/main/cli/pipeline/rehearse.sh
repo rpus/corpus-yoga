@@ -38,9 +38,9 @@ source "$REPO_ROOT/src/main/report.sh"   # sentence - the one face a sentence is
 
 main() {
   local stamp
-  # the stage's word first (issues/721): a rehearsal judges a stage the stage reads as whole, and
-  # no pipeline is shown an incomplete unit - the janitor is the remedy
-  "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
+  # the stage's word first (issues/996): each incomplete unit is said as passed over - the
+  # janitor's, never a pipeline's input - and the whole units are judged
+  "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.pass_over())' "$REPO_ROOT/src/main"
   # the rehearsal's stamp is the launcher's where it ran the verb (issues/708), so the record,
   # tmp/logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
   stamp="$(stamp_of pipeline rehearse)"
