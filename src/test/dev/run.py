@@ -3886,6 +3886,29 @@ def check_xref(run):
     return rows
 
 
+def check_capture_prefix(run) -> None:
+    """A browser capture by id files its unit under the conversation's full uuid (issues/990): a
+    typed prefix of eight characters or more resolves to exactly one id of the listing, or
+    to none, before any navigation - never typed into a URL the site cannot resolve, never
+    used as a directory's name. Held over the resolver alone, in process: Safari is the
+    reader's, not the gate's."""
+    import importlib
+    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'browser'))
+    capture = importlib.import_module('capture')
+    resolve = getattr(capture, 'resolve_id', None)
+    if resolve is None:
+        run('capture: a typed prefix resolves to the one full id it names', False,
+            'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one')
+        return
+    listing = ['d11565d6-640e-465a-9aca-b77a96404d49', 'd1156000-0000-4000-8000-000000000000', '0e537a54-5db8-4164-9a49-06155980b978']
+    got = [resolve('d11565d6', listing), resolve('d1156', listing), resolve('ffffffff', listing),
+           resolve('d11565d6-640e-465a-9aca-b77a96404d49', listing)]
+    expected = ['d11565d6-640e-465a-9aca-b77a96404d49', None, None, 'd11565d6-640e-465a-9aca-b77a96404d49']
+    run('capture: a typed prefix resolves to the one full id it names', got == expected,
+        None if got == expected else f'the resolver read {got}, where one match, several, none and the full id itself read {expected}',
+        check='capture.prefix_resolves_to_one')
+
+
 def check_capture_monotone(run) -> None:
     """L4 where a browser capture BECOMES the record. Gemini has no API, so its DOM
     capture is the only copy, and the page renders just its last few human turns until
@@ -4028,6 +4051,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_effects': ['src/main/cli'],
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
+    'check_capture_prefix': ['src/main/cli/browser/capture.py'],
     'check_capture_monotone': ['src', 'data/output/indexing'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_schema_validity': SCHEMA,
@@ -4291,6 +4315,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
+        run_section(check_capture_prefix, tier='code')
         run_section(check_capture_monotone, tier='code')
         # LAST of the code tier, because it reads the citation ledger: a law is held by
         # whichever check cites it, and until every section has run the ledger is partial.

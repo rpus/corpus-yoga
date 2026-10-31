@@ -42,6 +42,7 @@
     "recaptures it",
     "listing fetch failed ({why})",
     "never captured",
+    "{id} names {n} conversation(s) of the listing - a prefix names exactly one",
     "captured {captured} < updated {updated}",
     "\"{name}\" - rendered tail no longer matches the captured last turns",
     "none - the API capture is the record (DOM retired)",
