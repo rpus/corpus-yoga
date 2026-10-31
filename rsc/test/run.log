@@ -156,7 +156,7 @@ check_unit_companion: |
 check_unit_state: |
   ✓ stage.states_are_told_apart  (2/2)
   ✓ stage.empty_selection_is_incomplete
-  ✓ audit.counts_what_pipelines_were_shown
+  ✓ stage.recapture_names_a_full_id
 
 check_store: |
   ✓ store.unit_names_its_kind

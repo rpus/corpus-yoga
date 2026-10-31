@@ -145,6 +145,7 @@ server.now_names_the_stop_or_the_start
 shell.shellcheck_clean
 stage.empty_selection_is_incomplete
 stage.export_is_one_unit
+stage.recapture_names_a_full_id
 stage.states_are_told_apart
 status.lines_load_as_yaml
 status.now_is_the_nouns_own
