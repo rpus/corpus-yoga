@@ -282,8 +282,12 @@ def select(root: Path, store: Store) -> list[Unit]:
                     if companion.exists():
                         members.append(companion.relative_to(root))
                 files = [f for m in members for f in _files_under(root, root / m)]
+                # a directory the selection names with no file under it has no payload (issues/988):
+                # incomplete, the janitor's, never a rehearsal's input - a capture interrupted
+                # before it fetched leaves exactly this
+                missing = [f'its {kind}'] if dirs_only and not files else []    # what the selection names it: a capture, an export
                 unit = Unit(address, members, files, [], measure, store.pipeline, store.provider, subject, kind=kind,
-                            selection=f'{store.input.as_posix()}/{pattern}')
+                            selection=f'{store.input.as_posix()}/{pattern}', missing=missing)
                 units[address] = unit
             unit.selected.append(item.relative_to(root))
     return list(units.values())
@@ -632,6 +636,16 @@ def noun_of(unit: Unit) -> str | None:
     return None
 
 
+def recapture_of(unit: Unit) -> str | None:
+    """The capture that fetches an empty capture unit again (issues/988): the capturing noun's
+    capture by id, for the provider and the id the directory is named by, where the noun's
+    capture takes an id; None for a unit that is whole or that no capture by id reaches."""
+    noun = noun_of(unit)
+    if noun is None or not (unit.members and not unit.files) or unit.provider is None or not spell.takes(noun, 'capture', 'id'):
+        return None
+    return spell.line(noun, 'capture', provider=unit.provider, id=unit.address.name)
+
+
 REMEDY = {
     Relation.AHEAD:    facts.phrase('the held unit holds more - a recapture replaces the staged copy'),
     Relation.DIVERGED: facts.phrase('each holds what the other lacks - the reader reconciles the two'),
@@ -667,6 +681,15 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
         if unit.missing:
+            if unit.members and not unit.files:          # a directory the selection names with nothing under it (issues/988)
+                again = recapture_of(unit)
+                rows.append(Judged(unit, rel, facts.phrase('nothing staged under it'), Judgement.UNJUDGED,
+                                   facts.phrase('empty, missing {missing}; {capture} fetches it again, {janitor} removes it',
+                                                missing=', '.join(unit.missing), capture=again, janitor=spell.line('stage', 'clean'))
+                                   if again else
+                                   facts.phrase('empty, missing {missing}; {janitor} removes it',
+                                                missing=', '.join(unit.missing), janitor=spell.line('stage', 'clean'))))
+                continue
             whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
             rows.append(Judged(unit, Relation.ABSENT if not unit.members else rel,
                                facts.phrase('no {missing} staged', missing=', '.join(unit.missing)), Judgement.UNJUDGED,
@@ -694,10 +717,9 @@ def refuse_rehearsal() -> int:
     bad = incomplete()
     if not bad:
         return 0
-    print(f'rehearse: NOT DONE - the stage holds {len(bad)} incomplete unit(s), which no pipeline is shown:')
-    for u in bad:
-        print(f'  {u.address}: missing {", ".join(u.missing)}')
-    print('    → run: corpus-yoga stage clean')
+    facts.report({'incomplete': {u.address.as_posix(): facts.phrase('missing {missing}', missing=', '.join(u.missing)) for u in bad}},
+                 'pipeline rehearse: NOT DONE - ' + facts.phrase('the stage holds {n} incomplete unit(s), which no pipeline is shown - {janitor} removes them',
+                                                                 n=len(bad), janitor=spell.line('stage', 'clean')))
     return 1
 
 
@@ -1200,14 +1222,19 @@ def promotion_now(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged])
             if noun is not None:
                 step(out, spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), kind_of(row.unit))
     for row in rows:
+        if row.state == 'incomplete' and (again := recapture_of(row.unit)):
+            step(out, again, kind_of(row.unit))
+    for row in rows:
         if row.state in ('held already', 'incomplete'):
-            step(out, spell.line('stage', 'clean'), kind_of(row.unit))
+            step_by_kind(out, spell.line('stage', 'clean'), kind_of(row.unit),
+                         JANITOR_KINDS['duplicate' if row.state == 'held already' else 'incomplete unit'])
     for e in orphans():
         step(out, spell.line('stage', 'clean'), e.relative_to(REPO).as_posix())
 
 
 VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture',
          'merge': 'would merge', 'start': 'would serve'}   # what a now: command would do, by its verb word (issues/846)
+JANITOR_KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units'}   # each kind of entry the stage's janitor removes, and its plural
 
 
 def verb_of(command: str) -> str:
@@ -1219,6 +1246,16 @@ def step(out: dict[str, dict[str, dict[str, int]]], command: str, key: str, n: i
     """One more of a now: block's counts - by command, what it does, then the kind it acts on."""
     kinds = out.setdefault(command, {}).setdefault(verb_of(command), {})
     kinds[key] = kinds.get(key, 0) + n
+
+
+def step_by_kind(out: dict, command: str, key: str, kind: str, n: int = 1) -> None:
+    """One more of a now: block's counts where one selection holds entries of several kinds
+    (issues/988): by command, what it does, the selection, then the kind of entry - so that
+    a janitor's would-remove says what of a selection it removes, a duplicate or an
+    incomplete unit, and never folds the two into one count."""
+    kinds: dict = out.setdefault(command, {}).setdefault(verb_of(command), {})
+    below: dict = kinds.setdefault(key, {})
+    below[kind] = below.get(kind, 0) + n
 
 
 def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
@@ -1517,8 +1554,10 @@ def report_facts(noun: str | None) -> StageReport:
         invalid = {refusal.path: refusal.facts()} if refusal is not None and row.judgement is Judgement.INVALID else None
         unlicensed = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.UNLICENSED else None
         found = judged_as(row)
+        again = recapture_of(row.unit) if found == 'incomplete' else None
         step = ({spell.line('pipeline', 'rehearse'): facts.phrase('would judge it')} if found == 'unjudged'
-                else {spell.line('stage', 'clean'): facts.phrase('would remove it')} if found == 'incomplete' else None)
+                else {**({again: facts.phrase('would fetch it again')} if again else {}),
+                      spell.line('stage', 'clean'): facts.phrase('would remove it')} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(found, verdict, invalid, unlicensed,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)

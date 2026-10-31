@@ -2085,6 +2085,21 @@ def check_unit_state(run) -> None:
                   if '→ run: rm' in line]
     run('stage: no status line prescribes a removal', not prescribed,
         None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')
+    # A directory a store's selection names with no file under it has no payload (issues/988): an
+    # interrupted capture leaves exactly this, and it is the janitor's, never a rehearsal's
+    # input - held over a planted root, since the room's stage may hold none.
+    import tempfile
+    store = next(s for s in corpus.stores() if s.pipeline == 'chat-capture' and s.provider == 'claude')
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        (root / store.input / 'empty').mkdir(parents=True)
+        (root / store.input / 'full').mkdir(parents=True)
+        (root / store.input / 'full' / 'full.json').write_text('{}')
+        states = {u.address.name: state(u, Relation.ABSENT, judgement.UNJUDGED) for u in corpus.select(root, store)}
+    ok = states.get('empty') == 'incomplete' and states.get('full') == 'unjudged'
+    run('stage: a directory the selection names with no file under it is incomplete', ok,
+        None if ok else f'the states read {states}, where an empty directory is incomplete and a full one unjudged',
+        check='stage.empty_selection_is_incomplete')
 
 
 def check_store(run) -> None:
