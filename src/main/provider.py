@@ -27,7 +27,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 REGISTRY = REPO / 'rsc' / 'provider' / 'providers.csv'
-COLUMNS = ('provider', 'session_env_var', 'live_store', 'bot_author_pattern', 'note')
+COLUMNS = ('provider', 'session_env_var', 'live_store', 'bot_author_pattern', 'note', 'conversation_id_shape')
 SEPARATOR = '\x1f'   # the ASCII unit separator: not whitespace, so `IFS=$'\x1f' read -r` keeps an empty field
 
 
@@ -63,6 +63,13 @@ def provider(name: str) -> dict[str, str]:
             return r
     raise KeyError(f'{name!r} is not a declared provider - declare it in '
                    f'{REGISTRY.relative_to(REPO)}; declared: {", ".join(provider_names())}')
+
+
+def conversation_id_shape(name: str) -> str:
+    """The regular expression a provider's full conversation id matches, as its page URL
+    carries it (issues/994): what a capture files a unit under, and what the stage asks of a
+    unit's directory before it offers the capture again."""
+    return provider(name)['conversation_id_shape']
 
 
 def live_store(row: dict[str, str]) -> Path | None:

@@ -97,6 +97,7 @@ from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
 import facts  # noqa: E402 - the one printer of a status's facts (issues/740)
+import provider as registry  # noqa: E402 - the provider registry, one home of a provider's id shape (issues/994)
 import spell  # noqa: E402
 import rehearsal  # noqa: E402 - the rehearsal record, one home (issues/815)
 import tier  # noqa: E402 — the tiers, one home (issues/702)
@@ -643,6 +644,8 @@ def recapture_of(unit: Unit) -> str | None:
     noun = noun_of(unit)
     if noun is None or not (unit.members and not unit.files) or unit.provider is None or not spell.takes(noun, 'capture', 'id'):
         return None
+    if not re.fullmatch(registry.conversation_id_shape(unit.provider), unit.address.name):
+        return None                       # named otherwise - by a typed prefix - no capture fills it (issues/994)
     return spell.line(noun, 'capture', provider=unit.provider, id=unit.address.name)
 
 

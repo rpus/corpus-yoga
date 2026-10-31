@@ -2118,6 +2118,21 @@ def check_unit_state(run) -> None:
     run('stage: the audit counts only the units a rehearsal shows the pipelines', ok,
         None if ok else f'the audit counts {counted}, where the whole unit alone is owed output',
         check='audit.counts_what_pipelines_were_shown')
+    # The capture an empty unit is offered again names the unit's directory as the id, and a
+    # capture files under the full id (issues/990): so the offer stands only where the directory
+    # is a full id of the provider's declared shape (issues/994) - a prefix-named directory, which
+    # an interrupted capture of a typed prefix left, is the janitor's alone.
+    recapture = getattr(corpus, 'recapture_of', None)
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        for name in ('d11565d6', 'd11565d6-640e-465a-9aca-b77a96404d49'):
+            (root / store.input / name).mkdir(parents=True)
+        offered = {u.address.name: (recapture(u) if recapture else None) for u in corpus.select(root, store)}
+    full = 'corpus-yoga browser capture --provider claude --id d11565d6-640e-465a-9aca-b77a96404d49'
+    ok = recapture is not None and offered.get('d11565d6') is None and offered.get('d11565d6-640e-465a-9aca-b77a96404d49') == full
+    run('stage: an empty unit is offered its capture again only where its directory is a full id', ok,
+        None if ok else f'the offers read {offered}, where a prefix-named directory gets none and a full-id one gets {full!r}',
+        check='stage.recapture_names_a_full_id')
 
 
 def check_store(run) -> None:

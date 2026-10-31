@@ -166,7 +166,6 @@ PROVIDERS = {
         'discover_url': 'https://claude.ai/chats',
         'link_sel':     'a[href*="/chat/"]',
         'id_re':        None,
-        'full_id_re':   r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',   # a conversation's uuid, as its page URL carries it
     },
     'gemini': {
         'mechanisms':   ('DOM',),
@@ -174,7 +173,6 @@ PROVIDERS = {
         'discover_url': 'https://gemini.google.com/app',
         'link_sel':     'a[href*="/app/"]',
         'id_re':        r'^[0-9a-f]{8,}$',
-        'full_id_re':   r'[0-9a-f]{16}',   # a conversation's id, as its page URL carries it
         'ready_sel':    'button[aria-label="Copy"]',
         # the DOM scrapes carry no timestamps, so the listing order is the one
         # ordering observation there is — persisted as ordering.txt on every
@@ -272,9 +270,10 @@ def resolve_id(prefix, ids):
     return named[0] if len(named) == 1 else None
 
 
-def full_id_in(url, cfg):
-    """The full conversation id a page URL carries, by the provider's id shape; None where none."""
-    found = re.search(cfg['full_id_re'], url or '')
+def full_id_in(url, provider):
+    """The full conversation id a page URL carries, by the provider's declared shape
+    (rsc/provider/providers.csv, issues/994); None where none."""
+    found = re.search(registry.conversation_id_shape(provider), url or '')
     return found.group(0) if found else None
 
 
@@ -583,14 +582,14 @@ def main():
         # the listing the discovery reads - and the unit is filed under the full id, which a
         # later sweep overwrites in place. The site resolves no prefix, so none is navigated to.
         front_url = osascript('tell application "Safari" to get URL of front document')
-        shown = full_id_in(front_url, cfg)
+        shown = full_id_in(front_url, args.provider)
         if shown is not None and shown.startswith(args.id):
             failed = capture_all(args.provider, [shown], api_root, dom_root,
                                  navigate=False, mechanisms=mechanisms, dry_run=args.dry_run)
         else:
             prev_tab = safari_open_work_tab()
             try:
-                full = args.id if re.fullmatch(cfg['full_id_re'], args.id) else None
+                full = args.id if re.fullmatch(registry.conversation_id_shape(args.provider), args.id) else None
                 if full is None:
                     listed = ids_from_safari(args.provider, cfg)
                     full = resolve_id(args.id, listed)
