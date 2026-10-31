@@ -23,6 +23,8 @@
     "no {missing} staged",
     "unpaired, its record or its payload absent; corpus-yoga stage clean removes it",
     "empty, missing {missing}; {janitor} removes it",
+    "empty, missing {missing}; {capture} fetches it again, {janitor} removes it",
+    "would fetch it again",
     "nothing staged under it",
     "{n} member(s) the record lists are not in the payload; corpus-yoga stage clean removes it",
     "absent - nothing captured since the last clean, no rehearsal made",

@@ -636,6 +636,16 @@ def noun_of(unit: Unit) -> str | None:
     return None
 
 
+def recapture_of(unit: Unit) -> str | None:
+    """The capture that fetches an empty capture unit again (issues/988): the capturing noun's
+    capture by id, for the provider and the id the directory is named by, where the noun's
+    capture takes an id; None for a unit that is whole or that no capture by id reaches."""
+    noun = noun_of(unit)
+    if noun is None or not (unit.members and not unit.files) or unit.provider is None or not spell.takes(noun, 'capture', 'id'):
+        return None
+    return spell.line(noun, 'capture', provider=unit.provider, id=unit.address.name)
+
+
 REMEDY = {
     Relation.AHEAD:    facts.phrase('the held unit holds more - a recapture replaces the staged copy'),
     Relation.DIVERGED: facts.phrase('each holds what the other lacks - the reader reconciles the two'),
@@ -672,7 +682,11 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
         rel, detail = relation(unit)
         if unit.missing:
             if unit.members and not unit.files:          # a directory the selection names with nothing under it (issues/988)
+                again = recapture_of(unit)
                 rows.append(Judged(unit, rel, facts.phrase('nothing staged under it'), Judgement.UNJUDGED,
+                                   facts.phrase('empty, missing {missing}; {capture} fetches it again, {janitor} removes it',
+                                                missing=', '.join(unit.missing), capture=again, janitor=spell.line('stage', 'clean'))
+                                   if again else
                                    facts.phrase('empty, missing {missing}; {janitor} removes it',
                                                 missing=', '.join(unit.missing), janitor=spell.line('stage', 'clean'))))
                 continue
@@ -1208,6 +1222,9 @@ def promotion_now(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged])
             if noun is not None:
                 step(out, spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), kind_of(row.unit))
     for row in rows:
+        if row.state == 'incomplete' and (again := recapture_of(row.unit)):
+            step(out, again, kind_of(row.unit))
+    for row in rows:
         if row.state in ('held already', 'incomplete'):
             step_by_kind(out, spell.line('stage', 'clean'), kind_of(row.unit),
                          JANITOR_KINDS['duplicate' if row.state == 'held already' else 'incomplete unit'])
@@ -1537,8 +1554,10 @@ def report_facts(noun: str | None) -> StageReport:
         invalid = {refusal.path: refusal.facts()} if refusal is not None and row.judgement is Judgement.INVALID else None
         unlicensed = {refusal.path: refusal.reason} if refusal is not None and row.judgement is Judgement.UNLICENSED else None
         found = judged_as(row)
+        again = recapture_of(row.unit) if found == 'incomplete' else None
         step = ({spell.line('pipeline', 'rehearse'): facts.phrase('would judge it')} if found == 'unjudged'
-                else {spell.line('stage', 'clean'): facts.phrase('would remove it')} if found == 'incomplete' else None)
+                else {**({again: facts.phrase('would fetch it again')} if again else {}),
+                      spell.line('stage', 'clean'): facts.phrase('would remove it')} if found == 'incomplete' else None)
         address = row.unit.address.as_posix()
         staged[address] = Staged(found, verdict, invalid, unlicensed,
                                  record['stamp'] if isinstance(record, dict) and address in record['units'] else None, step)
