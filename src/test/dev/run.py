@@ -3872,6 +3872,17 @@ def check_xref(run):
     # L9 is cited from here, a check that cannot be skipped: a citation inside a network
     # fetch never happens when the fetch fails, and a law must not look unenforced
     # because a request timed out.
+    # A family's version file is named only from inside the family (issues/986): a version
+    # number written elsewhere is a second home for the family's latest, which src/main/latest.py
+    # reads from the directory, restated by hand at every mint - and two mints in flight meet
+    # on that one line at relocation.
+    version_file = re.compile(r'^(rsc/schema/.+)/v\d+\.json$')
+    outside = sorted({(str(r[0]), str(r[1])) for r in rows
+                      if r[0] and (named := version_file.match(str(r[3])))    # an unreferenced file's row has no referrer
+                      and not str(r[0]).startswith(named.group(1) + '/')})
+    run("xref: a family's version file is named only from inside the family", not outside,
+        None if not outside else 'named outside its family at ' + ', '.join(f'{f}:{line}' for f, line in outside[:8]),
+        check='xref.version_named_inside_its_family')
     return rows
 
 

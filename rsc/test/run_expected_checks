@@ -186,3 +186,4 @@ verbs.status_is_the_dry_run
 walkthrough.walks_and_runs
 xref.no_bad_pointers
 xref.score_matches_expectation
+xref.version_named_inside_its_family
