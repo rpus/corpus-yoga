@@ -10,6 +10,7 @@
 # this file does not move when the corpus or the schema set grows — it moves only when
 accumulate.trajectory_contract
 anchor.names_its_sequence
+audit.counts_what_pipelines_were_shown
 cache_io.paths_resolve
 cache_io.pipeline_tags_match
 cache_io.read_implies_writer

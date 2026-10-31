@@ -711,16 +711,28 @@ def incomplete() -> list[Unit]:
     return [u for u in units(STAGE) if u.missing] if STAGE.is_dir() else []
 
 
-def refuse_rehearsal() -> int:
-    """The stage's word before a rehearsal: 1, with the units named and the janitor as the
-    remedy, while any staged unit is incomplete; 0 where every unit is whole (issues/721)."""
+def whole() -> list[Unit]:
+    """The staged units a rehearsal judges: every unit that is not incomplete (issues/996)."""
+    return [u for u in units(STAGE) if not u.missing] if STAGE.is_dir() else []
+
+
+@dataclass(frozen=True)
+class PassedOver:
+    """What a rehearsal passes over (issues/996): each incomplete unit, by its address, with what it misses."""
+    units: dict[str, str]
+
+    def facts(self) -> dict:
+        return {'passed over': self.units}
+
+
+def pass_over() -> int:
+    """The stage's word before a rehearsal (issues/996): each incomplete unit said as passed over,
+    with what it misses - the janitor's, never a pipeline's input - and the rehearsal goes on
+    over the whole units. Always 0: an incomplete unit holds nothing of the rest."""
     bad = incomplete()
-    if not bad:
-        return 0
-    facts.report({'incomplete': {u.address.as_posix(): facts.phrase('missing {missing}', missing=', '.join(u.missing)) for u in bad}},
-                 'pipeline rehearse: NOT DONE - ' + facts.phrase('the stage holds {n} incomplete unit(s), which no pipeline is shown - {janitor} removes them',
-                                                                 n=len(bad), janitor=spell.line('stage', 'clean')))
-    return 1
+    if bad:
+        facts.say(PassedOver({u.address.as_posix(): facts.phrase('missing {missing}', missing=', '.join(u.missing)) for u in bad}))
+    return 0
 
 
 STATES: tuple[str, ...] = ('promotable', 'held already', 'invalid', 'unlicensed', 'would lose', 'incomplete', 'unjudged')

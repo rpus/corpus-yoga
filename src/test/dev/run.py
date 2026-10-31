@@ -2100,6 +2100,24 @@ def check_unit_state(run) -> None:
     run('stage: a directory the selection names with no file under it is incomplete', ok,
         None if ok else f'the states read {states}, where an empty directory is incomplete and a full one unjudged',
         check='stage.empty_selection_is_incomplete')
+    # A rehearsal passes over an incomplete unit and judges the rest (issues/996): the audit
+    # counts as owed output only the units the pipelines were shown, so an empty directory
+    # is never an input unprocessed - held over a planted root through the audit's own reader.
+    import validation_audit as audit
+    subjects = getattr(audit, 'input_subjects', None)
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        (root / store.input / 'empty').mkdir(parents=True)
+        (root / store.input / 'full').mkdir(parents=True)
+        (root / store.input / 'full' / 'full.json').write_text('{}')
+        try:
+            counted = subjects(store, root) if subjects else None
+        except TypeError:
+            counted = None                # the reader takes no root: it counts the room's input alone
+    ok = counted == ['full']
+    run('stage: the audit counts only the units a rehearsal shows the pipelines', ok,
+        None if ok else f'the audit counts {counted}, where the whole unit alone is owed output',
+        check='audit.counts_what_pipelines_were_shown')
 
 
 def check_store(run) -> None:
@@ -4059,7 +4077,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_changelogs': SCHEMA,
     'check_tier_contract': ['src/main'],
     'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
-    'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
+    'check_unit_state': ['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'],
     'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
     'check_walkthrough': ['src/main/cli', 'src/main/facts.py', 'corpus-yoga'],
