@@ -47,7 +47,7 @@ class Site:
 @dataclass
 class Status:
     site: Site
-    now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/947): the sync, where the publish tree is absent
+    now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/947): the sync where the publish tree is absent, the publish while one would land (issues/998)
 
 
 def main() -> int:
@@ -82,6 +82,10 @@ def main() -> int:
     out = Status(site)
     if absent:
         out.now = {spell.line('site', 'sync'): {'would assemble': {'data/output/site/': 1}}}
+    elif land:
+        # the publish is the room's standing while one would land (issues/998): by page, so that
+        # the bare status names it beside the room's other acts
+        out.now = {spell.line('site', 'publish'): {'would publish': {page: 1 for page in land}}}
     facts.say(out)
     return 0
 
