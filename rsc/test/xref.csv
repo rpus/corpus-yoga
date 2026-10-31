@@ -1073,7 +1073,7 @@ src/main/corpus.py,211,comment,rsc/naming/export_archive_members.csv,Y,"capture 
 src/main/corpus.py,562,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/corpus.py,1193,comment,src/main/standing.py,Y,"(src/main/standing.py); no noun's status runs another. rows and ahead, where the caller"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
-src/main/enact.sh,33,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
+src/main/enact.sh,34,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
 src/main/facts.py,367,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'

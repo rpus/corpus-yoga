@@ -542,9 +542,9 @@ relocated() {  # <base> <head> <old-sha>
   # The worktree is a fresh tree: the machine-local parsers (src/gen, issues/597) are
   # generated there before the gate needs them, and the settle runs FROM there -
   # src/test/dev/run.sh gates the tree the current directory belongs to.
-  (cd "$wt" && quiet "$wt/corpus-yoga" grammar sync) >&2 \
+  (cd "$wt" && labour "$wt/corpus-yoga" grammar sync) >&2 \
     || say "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
-  (cd "$wt" && quiet "$wt/src/test/dev/run.sh" --settle) >&2 \
+  (cd "$wt" && labour "$wt/src/test/dev/run.sh" --settle) >&2 \
     || { say "relocation halted - the settle run failed; a red check on the relocated head is a real failure" >&2; dispose; return 1; }
   if [[ -n "$(git -C "$wt" status --porcelain rsc/test/)" ]]; then
     if ! enact git -C "$wt" add rsc/test/ >&2 \

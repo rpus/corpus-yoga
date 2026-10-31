@@ -1142,7 +1142,7 @@ def check_cli_surface(run) -> None:
                             for f in (REPO_ROOT / 'src').rglob('*')
                             if f.is_file() and f not in enact_faces
                             and f.suffix in ('.py', '.sh')
-                            and re.search(r'^(def (enact|query|quote|quiet)\(|(enact|query|quote|quiet)\(\)\s*\{)',
+                            and re.search(r'^(def (enact|labour|query|quote|quiet)\(|(enact|labour|query|quote|quiet)\(\)\s*\{)',
                                           f.read_text(), re.M))
     run('enact: the two faces speak identical relay words, and only they speak',
         not unspoken and not third_speakers,
