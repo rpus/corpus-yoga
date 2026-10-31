@@ -24,6 +24,7 @@ CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr; sile
 """
 import os
 import shlex
+import signal
 import subprocess
 import sys
 
@@ -40,11 +41,40 @@ def _said(event) -> None:
     print('\n'.join(facts.narration(event)), file=sys.stderr)
 
 
+def _ended_whole(process) -> None:
+    """End an act that ran out whole (issues/992): every descendant, deepest first, then the act,
+    so that nothing of it survives the bound - a gate's python outlived its shell once, and
+    the tree was removed beneath it."""
+    rows = [line.split() for line in subprocess.run(['ps', '-axo', 'pid=,ppid='], capture_output=True, text=True).stdout.splitlines()]
+    tree = [process.pid]
+    for pid in tree:
+        tree.extend(int(child) for child, parent in rows if int(parent) == pid)
+    for pid in reversed(tree):
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    process.wait()
+
+
+def _bounded(command, capture: bool):
+    """The command under the send bound, as subprocess.run would return it; TimeoutExpired
+    where it ran out, with nothing of it left running."""
+    with subprocess.Popen(command, stdout=subprocess.PIPE if capture else None,
+                          stderr=subprocess.PIPE if capture else None, text=True) as process:
+        try:
+            out, err = process.communicate(timeout=bound())
+        except subprocess.TimeoutExpired:
+            _ended_whole(process)
+            raise
+    return subprocess.CompletedProcess(command, process.returncode, out, err)
+
+
 def enact(*command: str) -> int:
     printed = ' '.join(shlex.quote(part) for part in command)
     print(facts.narration({printed: {'did': 'done'}})[0], file=sys.stderr)
     try:
-        status = subprocess.call(command, timeout=bound())
+        status = _bounded(command, capture=False).returncode
     except subprocess.TimeoutExpired:
         print('\n'.join(facts.narration({printed: {'did NOT': f'no answer within {bound()} s'}})[1:]), file=sys.stderr)
         return 124
@@ -53,10 +83,21 @@ def enact(*command: str) -> int:
     return status
 
 
+def labour(*command: str) -> int:
+    """enact under no bound (issues/992): a local act whose duration is its own - a gate, a sync -
+    never a send's; said and relayed exactly as enact says and relays."""
+    printed = ' '.join(shlex.quote(part) for part in command)
+    print(facts.narration({printed: {'did': 'done'}})[0], file=sys.stderr)
+    status = subprocess.call(command)
+    outcome = {'did': 'done'} if status == 0 else {'did NOT': f'exit {status}'}
+    print('\n'.join(facts.narration({printed: outcome})[1:]), file=sys.stderr)
+    return status
+
+
 def query(*command: str) -> str:
     printed = ' '.join(shlex.quote(part) for part in command)
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=bound())
+        result = _bounded(command, capture=True)
     except subprocess.TimeoutExpired:
         _said({printed: {'did NOT': f'no answer within {bound()} s'}})
         raise subprocess.CalledProcessError(124, command)
@@ -72,7 +113,7 @@ def query(*command: str) -> str:
 def quote(*command: str) -> str:
     printed = ' '.join(shlex.quote(part) for part in command)
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=bound())
+        result = _bounded(command, capture=True)
     except subprocess.TimeoutExpired:
         _said({printed: {'did NOT': f'no answer within {bound()} s'}})
         raise subprocess.CalledProcessError(124, command)
@@ -87,7 +128,7 @@ def quote(*command: str) -> str:
 def quiet(*command: str) -> None:
     printed = ' '.join(shlex.quote(part) for part in command)
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=bound())
+        result = _bounded(command, capture=True)
     except subprocess.TimeoutExpired:
         _said({printed: {'did NOT': f'no answer within {bound()} s'}})
         raise subprocess.CalledProcessError(124, command)
