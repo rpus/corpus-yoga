@@ -14,6 +14,7 @@
     "the record of a unit the store does not hold",
     "the store holds no unit it derives from",
     "{held} -> {staged} bytes of {names}",
+    "the stage holds {n} incomplete unit(s), which no pipeline is shown - {janitor} removes them",
     "{held} -> {staged} {noun}",
     "{turns} human turns of {of}",
     "{held} -> {staged}",

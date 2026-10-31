@@ -285,7 +285,7 @@ def select(root: Path, store: Store) -> list[Unit]:
                 # a directory the selection names with no file under it has no payload (issues/988):
                 # incomplete, the janitor's, never a rehearsal's input - a capture interrupted
                 # before it fetched leaves exactly this
-                missing = ['every file - the directory is empty'] if dirs_only and not files else []
+                missing = [f'its {kind}'] if dirs_only and not files else []    # what the selection names it: a capture, an export
                 unit = Unit(address, members, files, [], measure, store.pipeline, store.provider, subject, kind=kind,
                             selection=f'{store.input.as_posix()}/{pattern}', missing=missing)
                 units[address] = unit
@@ -671,6 +671,11 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
         if unit.missing:
+            if unit.members and not unit.files:          # a directory the selection names with nothing under it (issues/988)
+                rows.append(Judged(unit, rel, facts.phrase('nothing staged under it'), Judgement.UNJUDGED,
+                                   facts.phrase('empty, missing {missing}; {janitor} removes it',
+                                                missing=', '.join(unit.missing), janitor=spell.line('stage', 'clean'))))
+                continue
             whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
             rows.append(Judged(unit, Relation.ABSENT if not unit.members else rel,
                                facts.phrase('no {missing} staged', missing=', '.join(unit.missing)), Judgement.UNJUDGED,
@@ -698,10 +703,9 @@ def refuse_rehearsal() -> int:
     bad = incomplete()
     if not bad:
         return 0
-    print(f'rehearse: NOT DONE - the stage holds {len(bad)} incomplete unit(s), which no pipeline is shown:')
-    for u in bad:
-        print(f'  {u.address}: missing {", ".join(u.missing)}')
-    print('    → run: corpus-yoga stage clean')
+    facts.report({'incomplete': {u.address.as_posix(): facts.phrase('missing {missing}', missing=', '.join(u.missing)) for u in bad}},
+                 'pipeline rehearse: NOT DONE - ' + facts.phrase('the stage holds {n} incomplete unit(s), which no pipeline is shown - {janitor} removes them',
+                                                                 n=len(bad), janitor=spell.line('stage', 'clean')))
     return 1
 
 
