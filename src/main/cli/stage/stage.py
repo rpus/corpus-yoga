@@ -38,7 +38,7 @@ import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
 import corpus  # noqa: E402
 import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
-KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units'}   # each kind of entry, and its plural
+KINDS = corpus.JANITOR_KINDS   # each kind of entry, and its plural - one home, which the standing says too (issues/988)
 
 
 def _unit(unit: corpus.Unit) -> str | None:

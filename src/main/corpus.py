@@ -1209,13 +1209,15 @@ def promotion_now(out: dict[str, dict[str, dict[str, int]]], rows: list[Judged])
                 step(out, spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), kind_of(row.unit))
     for row in rows:
         if row.state in ('held already', 'incomplete'):
-            step(out, spell.line('stage', 'clean'), kind_of(row.unit))
+            step_by_kind(out, spell.line('stage', 'clean'), kind_of(row.unit),
+                         JANITOR_KINDS['duplicate' if row.state == 'held already' else 'incomplete unit'])
     for e in orphans():
         step(out, spell.line('stage', 'clean'), e.relative_to(REPO).as_posix())
 
 
 VERBS = {'promote': 'would promote', 'clean': 'would remove', 'rehearse': 'would judge', 'capture': 'would capture',
          'merge': 'would merge', 'start': 'would serve'}   # what a now: command would do, by its verb word (issues/846)
+JANITOR_KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units'}   # each kind of entry the stage's janitor removes, and its plural
 
 
 def verb_of(command: str) -> str:
@@ -1227,6 +1229,16 @@ def step(out: dict[str, dict[str, dict[str, int]]], command: str, key: str, n: i
     """One more of a now: block's counts - by command, what it does, then the kind it acts on."""
     kinds = out.setdefault(command, {}).setdefault(verb_of(command), {})
     kinds[key] = kinds.get(key, 0) + n
+
+
+def step_by_kind(out: dict, command: str, key: str, kind: str, n: int = 1) -> None:
+    """One more of a now: block's counts where one selection holds entries of several kinds
+    (issues/988): by command, what it does, the selection, then the kind of entry - so that
+    a janitor's would-remove says what of a selection it removes, a duplicate or an
+    incomplete unit, and never folds the two into one count."""
+    kinds: dict = out.setdefault(command, {}).setdefault(verb_of(command), {})
+    below: dict = kinds.setdefault(key, {})
+    below[kind] = below.get(kind, 0) + n
 
 
 def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
