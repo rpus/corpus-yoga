@@ -668,7 +668,8 @@
           bar.style.width      = width + '%';
           bar.style.background = colorMap[chat.chat];
           bar.style.opacity    = '0.88';
-          bar.title = `#${chat.ord ?? chat.chat} — ${chat.name}\nFrom: ${fmt(s.from)}\nTo: ${fmt(s.to)}\nMessages: ${s.messages}`;
+          bar.title = `#${chat.ord ?? chat.chat} — ${chat.name}\nFrom: ${fmt(s.from)}\nTo: ${fmt(s.to)}\nMessages: ${s.messages}`
+            + (chat.human === undefined ? '' : `\nHuman: ${chat.human} · Assistant: ${chat.assistant} · Bytes: ${Number(chat.bytes).toLocaleString()}`);
           track.appendChild(bar);
         });
         lane.appendChild(label); lane.appendChild(track); grid.appendChild(lane);

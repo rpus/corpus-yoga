@@ -3,6 +3,13 @@
   "phrase": [
     "renders it",
     "would copy, commit and push them",
+    "unread - no page and no corpus to compare",
+    "unread - the page declares no counts; corpus-yoga site render declares them",
+    "none - current with the corpus ({n} conversation(s))",
+    "WARN - regressed from {old} to {new}",
+    "{old} to {new}",
+    "absent from the page",
+    "gone from the corpus",
     "nothing to land - rpus.co holds the tree as assembled",
     "current with rsc/site/",
     "absent - the corpus page is unbuilt",
