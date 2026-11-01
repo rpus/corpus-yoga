@@ -1881,6 +1881,52 @@ def check_failing_record(run) -> None:
         None if ok else f'printed {said.getvalue()!r}; the record holds {sorted(record)}', check='validation.fail_atom_names_the_fault')
 
 
+def check_site_lag(run) -> None:
+    """The corpus page declares what it was rendered from per conversation - human turns,
+    assistant turns, bytes - and the site status reads those declarations against the corpus
+    now (issues/1000): a conversation that grew is a lag, one that shrank in any metric is a
+    regression said as a warning, one in the corpus and not on the page is absent, one on the
+    page and not in the corpus is gone. Held over the one derivation in process, with planted
+    declarations: the room's page and corpus are the usr gate's."""
+    import importlib
+    sys.path.insert(0, str(SRC / 'main'))
+    try:
+        declared = importlib.import_module('page_declaration')
+    except ModuleNotFoundError:
+        run('site: the page lags where its declarations differ from the corpus', False,
+            'src/main/page_declaration.py is absent: nothing declares what the page was rendered from', check='site.lag_is_read_from_declarations')
+        return
+    md = '---\nuuid: aaaa\n---\n\n# t\n\n## Human x\n\nhello\n\n---\n\n## Claude y\n\nhi there\n\n---\n\n## Human z\n\nmore\n\n---\n'
+    counts = declared.declared_of(md)
+    ok = counts == {'human': 2, 'assistant': 1, 'bytes': len(md.encode())}
+    run('site: a conversation declares its human turns, assistant turns and bytes', ok,
+        None if ok else f'the declaration read {counts}', check='site.lag_is_read_from_declarations')
+    page = {'grown': {'human': 2, 'assistant': 2, 'bytes': 100}, 'shrunk': {'human': 3, 'assistant': 3, 'bytes': 300},
+            'same': {'human': 1, 'assistant': 1, 'bytes': 10}, 'gone': {'human': 1, 'assistant': 1, 'bytes': 10}}
+    corpus = {'grown': {'human': 3, 'assistant': 3, 'bytes': 160}, 'shrunk': {'human': 3, 'assistant': 2, 'bytes': 280},
+              'same': {'human': 1, 'assistant': 1, 'bytes': 10}, 'new': {'human': 1, 'assistant': 0, 'bytes': 5}}
+    lag = declared.lag(page, corpus)
+    got = (sorted(lag.lagging), sorted(lag.regressed), sorted(lag.absent_from_page), sorted(lag.gone_from_corpus))
+    expected = (['grown'], ['shrunk'], ['new'], ['gone'])
+    run('site: the page lags where its declarations differ from the corpus', got == expected,
+        None if got == expected else f'the lag read {got}, where (lagging, regressed, absent, gone) are {expected}',
+        check='site.lag_is_read_from_declarations')
+    # The landing's page comparison survives a column one page lacks (issues/1000): a render that
+    # declares more than the published page did is a change of every row, said as such - never
+    # a crash the status reads as nothing to land.
+    sys.path.insert(0, str(SRC / 'main' / 'model'))
+    compare_pages = importlib.import_module('compare_pages')
+    old_table = {'columns': ['chat', 'uuid', 'name', 'turns'], 'rows': [[1, 'aaaa', 'a', 2]]}
+    new_table = {'columns': ['chat', 'uuid', 'name', 'turns', 'human'], 'rows': [[1, 'aaaa', 'a', 2, 1]]}
+    try:
+        said = compare_pages.compare_table('data-chats', old_table, new_table, {}, {})
+        why = None if 'changed' in said and 'human' in said else f'the comparison said {said!r}'
+    except Exception as error:   # noqa: BLE001 - the failure IS the finding
+        why = f'the comparison raised {type(error).__name__}: {error}'
+    run('site: the page comparison says a column one page lacks as a change', why is None, why,
+        check='site.page_comparison_survives_a_new_column')
+
+
 def check_server_standing(run) -> None:
     """The server's standing is a function of two facts of the room (issues/960): the stop
     while the daemon runs, the start while the corpus is rendered and the daemon is down,
@@ -4104,6 +4150,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_validate_verdict': ['src/main/validate.py', 'src/test'],
     'check_providers_judged': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_spelling': ['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md', '.github'],
+    'check_site_lag': ['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'],
     'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
     'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
     'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
@@ -4370,6 +4417,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_verdict_record, tier='code')
         run_section(check_failing_record, tier='code')
         run_section(check_providers_judged, tier='code')
+        run_section(check_site_lag, tier='code')
         run_section(check_server_standing, tier='code')
         run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')

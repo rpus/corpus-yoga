@@ -54,6 +54,7 @@ import facts  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
+from page_declaration import declared_of  # noqa: E402 - the one derivation of what a conversation declares (issues/1000)
 from word_freq_literal import words_from, filtered, tables  # noqa: E402 — one tokenizer for both presenters
 from library import LIBRARY as DOWNLOADED_DIR  # noqa: E402 — the artifact library, one authority (issues/421)
 
@@ -148,7 +149,8 @@ def main() -> int:
         m = re.search(r'^last_activity: (\S+)$', md[:400], flags=re.M)
         dormant = m.group(1) if m else (iso(max(times)) if times else '')
         turns = list(turn_seq(md))
-        chats_rows.append([n, file_ord, title, dormant, cid, provider, channel, len(turns)])
+        said = declared_of(md)                 # what the page declares of the conversation (issues/1000)
+        chats_rows.append([n, file_ord, title, dormant, cid, provider, channel, len(turns), said['human'], said['assistant'], said['bytes']])
 
         for role, body in turns:
             ws = filtered(words_from(body))
@@ -160,7 +162,7 @@ def main() -> int:
           f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}) → {out_dir.relative_to(REPO)}')
 
     write_table(out_dir, 'data-chats',
-                {'columns': ['chat', 'ord', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns'],
+                {'columns': ['chat', 'ord', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns', 'human', 'assistant', 'bytes'],
                  'rows': chats_rows}, html)
     write_table(out_dir, 'data-spans',
                 {'columns': ['chat', 'from', 'to', 'messages'], 'rows': span_rows}, html)
