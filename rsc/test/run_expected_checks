@@ -146,6 +146,7 @@ server.now_names_the_stop_or_the_start
 shell.shellcheck_clean
 site.lag_is_read_from_declarations
 site.page_comparison_survives_a_new_column
+site.turn_instant_is_read_from_the_heading
 stage.empty_selection_is_incomplete
 stage.export_is_one_unit
 stage.recapture_names_a_full_id

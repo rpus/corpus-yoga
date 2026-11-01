@@ -43,7 +43,10 @@ def render_session(conv):
     markdown_projection.py: frontmatter provenance dressing, h1 title, a
     plain-bullet preamble (sessions have no URL to link), role-labelled turn
     headings each carrying its durable anchor: the message uuid where the provider's
-    record has one, else the role and count, as a gemini chat's turns are anchored."""
+    record has one, else the role and count, as a gemini chat's turns are anchored - and the
+    turn's instant beside it where the record has one (issues/1007), since a session's uuids
+    are v4 and carry none, and the corpus page draws a conversation's bars from its turns'
+    instants."""
     label = {'human': 'Human', 'assistant': conv['provider'].capitalize()}
     count = {'human': 0, 'assistant': 0}
     out = ['---',
@@ -61,7 +64,8 @@ def render_session(conv):
     for m in conv['messages']:
         count[m['role']] += 1
         anchor = m.get('uuid') or f"{label[m['role']].lower()}-{count[m['role']]}"
-        out += [f"## {label[m['role']]} ({count[m['role']]}) <a id=\"{anchor}\"></a>",
+        at = f' data-at="{m["timestamp"][:19]}Z"' if m.get('timestamp') else ''   # second precision, as dormant_from
+        out += [f"## {label[m['role']]} ({count[m['role']]}) <a id=\"{anchor}\"{at}></a>",
                 '', m['content'], '', '---', '']
     return '\n'.join(out).rstrip() + '\n'
 
