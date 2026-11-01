@@ -24,6 +24,8 @@
     "no ext/mnt/site mount on this machine - optional; corpus-yoga status shows the convention",
     "new on rpus.co",
     "changed",
+    "changed - the comparison failed; its output above says where",
+    "absent",
     "committed with the copy",
     "ext/mnt/site is not a git clone; corpus-yoga status reports the mount",
     "no publish tree at data/output/site/",

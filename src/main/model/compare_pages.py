@@ -71,8 +71,15 @@ def label(name: str, key: tuple, record: dict) -> str:
 
 
 def changed_columns(old: dict, new: dict, name: str) -> list[str]:
+    """The columns whose values differ between the two rows - a column one row lacks among
+    them, since a page that declares more than the other did has changed in that column."""
     skip = {'chat'}   # the ordinal is a position, never a change
-    return [c for c in new if c not in skip and old.get(c) != new.get(c)]
+    return [c for c in dict.fromkeys([*old, *new]) if c not in skip and old.get(c) != new.get(c)]
+
+
+def value(record: dict, column: str) -> str:
+    """A row's value in a column, or the word for its absence."""
+    return str(record[column]) if column in record else facts.phrase('absent')
 
 
 def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dict) -> str:
@@ -93,7 +100,7 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
         shown = []
         for k in changed[:SHOWN]:
             cols = changed_columns(a[k], b[k], name)
-            shown.append(label(name, k, b[k]) + ' (' + ', '.join(facts.phrase('{column} {old} to {new}', column=c, old=a[k][c], new=b[k][c]) for c in cols) + ')')
+            shown.append(label(name, k, b[k]) + ' (' + ', '.join(facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c)) for c in cols) + ')')
         parts.append(facts.phrase('{n} changed - {labels}', n=len(changed), labels=', '.join(shown) + (', ...' if len(changed) > SHOWN else '')))
     return f'{name}: ' + '; '.join(parts)
 

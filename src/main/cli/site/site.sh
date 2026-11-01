@@ -118,10 +118,16 @@ landing() {
     elif ! cmp -s "$f" "$mount/$rel"; then
       if [[ "$rel" == index.html ]]; then
         # one row per line of the comparison: each a fact of the page, which the status
-        # nests beneath the file, never one sentence
-        "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f" | while IFS= read -r line; do
-          [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
-        done
+        # nests beneath the file, never one sentence; a comparison that fails is said as a
+        # change the comparison could not word, never read as nothing to land (issues/1000)
+        local compared
+        if compared="$("$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f")"; then
+          while IFS= read -r line; do
+            [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
+          done <<< "$compared"
+        else
+          printf 'land\t%s\t%s\n' "$rel" "$(phrase "changed - the comparison failed; its output above says where")"
+        fi
       else
         printf 'land\t%s\t%s\n' "$rel" "$(phrase "changed")"
       fi
