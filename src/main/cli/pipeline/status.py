@@ -17,8 +17,12 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'model'))   # frontier - the pipelines' declarations, as the audit reads them
 import corpus  # noqa: E402
 import facts  # noqa: E402
+import frontier  # noqa: E402
+import spell  # noqa: E402
+import validation_audit  # noqa: E402 - the audit reads what a run is owed for (issues/1005)
 
 PIPELINES = REPO / 'src' / 'main' / 'pipeline'
 
@@ -39,6 +43,18 @@ class Pipeline:
 class Status:
     pipelines: dict[str, Pipeline]
     staged: dict[str, corpus.Staged]
+    now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/1005): the run, for what is owed one
+
+
+def standing() -> dict[str, dict[str, dict[str, int]]]:
+    """The run each pipeline is owed, with what it would process by selection (issues/1005): the
+    inputs with no output and those whose output was built from other bytes, read by the audit."""
+    out: dict[str, dict[str, dict[str, int]]] = {}
+    for name, declared in frontier.pipelines():
+        owed = validation_audit.owed_by_selection(name, declared)
+        if owed:
+            out[spell.line('pipeline', 'run', name)] = {'would process': owed}
+    return out
 
 
 def steps_of(name: str, prep: str | None) -> list[str]:
@@ -76,7 +92,11 @@ def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.count('\t') == 2]
     pipelines = {name: pipeline(name, None if prep == '-' else prep) for kind, name, prep in rows if kind == 'pipeline'}
     report = corpus.report_facts(None)
-    facts.say(Status(pipelines, report.staged))
+    out = Status(pipelines, report.staged)
+    now = standing()
+    if now:
+        out.now = now
+    facts.say(out)
     return 0
 
 

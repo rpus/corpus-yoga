@@ -1,7 +1,7 @@
 """
 standing.py - the room's standing, now:, folded once from every noun's own now: (issues/949).
-Store, forge, cache, logs, server and site each say under now: what their own reading
-allows; this reads the six once, together, and folds them - the one reading bare
+Store, forge, cache, logs, server, site and pipeline each say under now: what their own reading
+allows; this reads the seven once, together, and folds them - the one reading bare
 corpus-yoga status says as its now: (src/main/cli/status/report.py) and the launcher's
 reply says after every act (src/main/reply.py). No noun's status runs another, and a noun
 that could not be read is said under its command, so that the fold hides no noun.
@@ -14,7 +14,7 @@ import enact
 import facts
 
 REPO = Path(__file__).resolve().parents[2]
-NOUNS = ('store', 'forge', 'cache', 'logs', 'server', 'site')   # the nouns whose status ends on now:
+NOUNS = ('store', 'forge', 'cache', 'logs', 'server', 'site', 'pipeline')   # the nouns whose status ends on now:
 _said: dict[str, object] = {}     # each noun's status, read once a process, however many spots are taken from it
 
 

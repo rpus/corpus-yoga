@@ -69,6 +69,62 @@ def input_subjects(store: corpus.Store, root: Path | None = None) -> list:
     return sorted({u.subject for u in units})
 
 
+def _recorded(cache_dir: Path) -> str | None:
+    """The digest an output records of what it was built from - source.sha256 beside it: one
+    digest for a file, the listing of a directory's files with theirs - or None."""
+    source = cache_dir / 'source.sha256'
+    return source.read_text().strip() if source.is_file() else None
+
+
+def _present(root: Path, unit: corpus.Unit) -> set[str]:
+    """What the input is now, in every form an output may have recorded it: each selected
+    file's digest, a directory's listing of its files with theirs, and that listing's digest."""
+    import hashlib
+    out: set[str] = set()
+    for rel in unit.files:                # every file under the unit: a directory unit selects its directory
+        if (root / rel).is_file():
+            out.add(hashlib.sha256((root / rel).read_bytes()).hexdigest())
+    top = root / unit.path
+    if top.is_dir():
+        lines = ''.join(f'{f.relative_to(top).as_posix()} {hashlib.sha256(f.read_bytes()).hexdigest()}\n'
+                        for f in sorted(p for p in top.rglob('*') if p.is_file() and p.name != '.DS_Store'))
+        out.add(lines.strip()); out.add(hashlib.sha256(lines.encode()).hexdigest())
+    return out
+
+
+def owed_units(store: corpus.Store, root: Path | None = None, cache_root: Path | None = None) -> dict[str, str]:
+    """The inputs of a store a run is owed for (issues/1005), by subject: `unprocessed` where no
+    output stands, `changed since its output` where the output records a digest the input no
+    longer has. An incomplete unit is passed over (issues/996)."""
+    root = tier.DATA / 'input' if root is None else root
+    cache_root = (tier.path(cache_io.path_for(store.pipeline)) / (store.provider or '')) if cache_root is None else cache_root
+    out: dict[str, str] = {}
+    for unit in corpus.select(root, store):
+        if unit.missing or (store.depth == 1 and not (root / unit.path).is_dir()):
+            continue                      # passed over (issues/996), or no datum of the store's depth - as input_subjects counts
+        subject = unit.subject[0] if store.depth == 1 else ' / '.join(unit.subject)
+        cache_dir = cache_root / Path(*unit.subject)
+        if not (cache_dir / 'validation').is_dir():
+            out[subject] = 'unprocessed'
+            continue
+        recorded = _recorded(cache_dir)
+        if recorded is not None and recorded not in _present(root, unit):
+            out[subject] = 'changed since its output'
+    return out
+
+
+def owed_by_selection(name: str, facts: dict) -> dict[str, int]:
+    """What a run of the pipeline would process, by the selection it declares (issues/1005): the
+    count of inputs owed a run under each - the pipeline noun's standing."""
+    counts: dict[str, int] = {}
+    for source in sources(name, facts):
+        owed = owed_units(source.store)
+        if owed:
+            key = f'{source.store.input.as_posix()}/{source.store.globs[0].pattern}'
+            counts[key] = counts.get(key, 0) + len(owed)
+    return counts
+
+
 @dataclass(frozen=True)
 class Source:
     """One store a pipeline reads, with where its validation output lies."""
@@ -133,11 +189,17 @@ def audit_source(pipeline: str, source: Source) -> int:
             continue
         matrices[0] += 1
     raw = input_subjects(source.store)
+    owed = owed_units(source.store)
     for subject in sorted(raw if depth == 1 else [' / '.join(parts) for parts in raw]):
         inputs[1] += 1
         if subject not in processed:
             print(f'FAIL: {name}: input unprocessed: {leaf(subject)} - no validation output under '
                   f'{cache_root.relative_to(REPO)}/; {spell.line("pipeline", "run", pipeline)}')
+            fails += 1
+        elif owed.get(subject) == 'changed since its output':
+            # the output records the digest it was built from, and the input no longer has it (issues/1005)
+            print(f'FAIL: {name}: input changed since its output: {leaf(subject)} - the output under '
+                  f'{cache_root.relative_to(REPO)}/ was built from other bytes; {spell.line("pipeline", "run", pipeline)}')
             fails += 1
         else:
             inputs[0] += 1

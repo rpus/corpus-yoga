@@ -2164,6 +2164,23 @@ def check_unit_state(run) -> None:
     run('stage: the audit counts only the units a rehearsal shows the pipelines', ok,
         None if ok else f'the audit counts {counted}, where the whole unit alone is owed output',
         check='audit.counts_what_pipelines_were_shown')
+    # An input whose output was built from other bytes is owed a run (issues/1005): the output
+    # records the digest of what it was built from, and the audit holds it to the input now -
+    # over a planted input and cache, in process.
+    owed = getattr(audit, 'owed_units', None)
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch) / 'input'; cache = Path(scratch) / 'cache'
+        for name, body, recorded in (('fresh', b'{"a": 1}', None), ('stale', b'{"a": 2}', 'other bytes'), ('unprocessed', b'{"a": 3}', 'absent')):
+            (root / store.input / name).mkdir(parents=True); (root / store.input / name / f'{name}.json').write_bytes(body)
+            if recorded != 'absent':
+                import hashlib
+                (cache / name / 'validation').mkdir(parents=True)
+                (cache / name / 'source.sha256').write_text((hashlib.sha256(body).hexdigest() if recorded is None else hashlib.sha256(b'other').hexdigest()) + '\n')
+        found = owed(store, root, cache) if owed else None
+    ok = found == {'stale': 'changed since its output', 'unprocessed': 'unprocessed'}
+    run('audit: an input whose output was built from other bytes is owed a run', ok,
+        None if ok else f'the audit owes {found}, where the stale and the unprocessed inputs alone are owed a run',
+        check='audit.input_changed_since_output')
     # The capture an empty unit is offered again names the unit's directory as the id, and a
     # capture files under the full id (issues/990): so the offer stands only where the directory
     # is a full id of the provider's declared shape (issues/994) - a prefix-named directory, which
@@ -2453,7 +2470,7 @@ def check_status_facts(run) -> None:
     # command another noun's now: names - a noun that ran another would - and the report's
     # now: is the fold of theirs. The live bug: at 1e9b8a8f corpus-yoga store ran the five
     # other nouns and said their now: as its own.
-    nouns_with_now = ('store', 'forge', 'cache', 'logs', 'server', 'site')
+    nouns_with_now = ('store', 'forge', 'cache', 'logs', 'server', 'site', 'pipeline')
     own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
     named_by: dict[str, str] = {}
     twice: list[str] = []
