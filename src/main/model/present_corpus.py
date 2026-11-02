@@ -54,16 +54,10 @@ import facts  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
-from page_declaration import declared_of  # noqa: E402 - the one derivation of what a conversation declares (issues/1000)
+from page_declaration import declared_of, turn_instants  # noqa: E402 - the one reading of what a conversation declares and when its turns were (issues/1000, issues/1007)
 from word_freq_literal import words_from, filtered, tables  # noqa: E402 — one tokenizer for both presenters
 from library import LIBRARY as DOWNLOADED_DIR  # noqa: E402 — the artifact library, one authority (issues/421)
 
-ANCHOR = re.compile(r'^## (?:Human|Claude|Gemini) [^\n]*<a id="([0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})"></a>', re.M)
-
-
-def uuid7_time(u: str) -> datetime:
-    """A UUIDv7's creation instant: its first 48 bits are milliseconds since epoch."""
-    return datetime.fromtimestamp(int(u.replace('-', '')[:12], 16) / 1000, tz=timezone.utc)
 
 
 def iso(dt: datetime) -> str:
@@ -142,7 +136,7 @@ def main() -> int:
         by_dir[f'{provider}/{channel}'] += 1
         md = (md_root / provider / channel / 'conversations' / f'{fname}.md').read_text()
 
-        times = [uuid7_time(u) for u in ANCHOR.findall(md)]
+        times = turn_instants(md)               # the heading's instant, else a v7 uuid's (issues/1007)
         all_times += times
         for a, b, count in spans_of(times):
             span_rows.append([n, a, b, count])

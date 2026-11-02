@@ -13,6 +13,7 @@ shrink: a format, serialisation or schema change is speaking. Reads; writes noth
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -25,6 +26,21 @@ from markdown_projection import corpus_index, turn_seq  # noqa: E402 - the forma
 
 METRICS = ('human', 'assistant', 'bytes')
 TABLE = re.compile(r'<script[^>]*id="data-chats"[^>]*>(.*?)</script>', re.S)
+TURN = re.compile(r'^## (?:Human|Claude|Gemini) [^\n]*<a id="([^"]+)"(?: data-at="([^"]+)")?></a>', re.M)
+UUID7 = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$')
+
+
+def turn_instants(md: str) -> list[datetime]:
+    """Each turn's instant, in order, where the markdown says it (issues/1007): the instant the
+    projection wrote beside the anchor, else the creation instant a v7 uuid carries in its
+    first 48 bits; a turn anchored by role and count alone, with no instant, says none."""
+    out: list[datetime] = []
+    for anchor, at in TURN.findall(md):
+        if at:
+            out.append(datetime.strptime(at, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc))
+        elif UUID7.match(anchor):
+            out.append(datetime.fromtimestamp(int(anchor.replace('-', '')[:12], 16) / 1000, tz=timezone.utc))
+    return out
 
 
 def declared_of(md: str) -> dict[str, int]:

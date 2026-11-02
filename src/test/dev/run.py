@@ -1911,6 +1911,19 @@ def check_site_lag(run) -> None:
     run('site: the page lags where its declarations differ from the corpus', got == expected,
         None if got == expected else f'the lag read {got}, where (lagging, regressed, absent, gone) are {expected}',
         check='site.lag_is_read_from_declarations')
+    # A turn's instant is read from its heading first - the instant a projection wrote beside the
+    # anchor - and from a v7 uuid only where the heading carries none (issues/1007): a code
+    # session's v4 uuids carry no instant, and its spans, bars and hover were absent for it.
+    instants = getattr(declared, 'turn_instants', None)
+    md = ('## Human (1) <a id="5d4f5604-b345-41d2-a166-05facdd3931d" data-at="2026-08-05T07:21:53Z"></a>\n\nx\n\n---\n\n'
+          '## Claude (1) <a id="01990000-0000-7000-8000-000000000000"></a>\n\ny\n\n---\n\n'
+          '## Human (2) <a id="human-2"></a>\n\nz\n\n---\n')
+    got = [i.isoformat() for i in instants(md)] if instants else None
+    expected = ['2026-08-05T07:21:53+00:00', '2025-08-31T12:00:24.064000+00:00']
+    ok = got == expected
+    run('site: a turn\'s instant is read from its heading, then from a v7 uuid', ok,
+        None if ok else f'the instants read {got}, where the heading\'s and the v7 uuid\'s are {expected}',
+        check='site.turn_instant_is_read_from_the_heading')
     # The landing's page comparison survives a column one page lacks (issues/1000): a render that
     # declares more than the published page did is a change of every row, said as such - never
     # a crash the status reads as nothing to land.
