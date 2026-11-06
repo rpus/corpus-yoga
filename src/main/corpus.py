@@ -516,9 +516,16 @@ class Refusal:
     rule: str | None = None
     node: str | None = None
 
-    def words(self) -> str:
-        """The fault in one line: where it is and the rule it fails, or the reason alone."""
-        return f'{self.where} fails {self.rule}' if self.where and self.rule else self.where or self.reason
+    def keys(self) -> tuple[str, ...]:
+        """The fault as the status nests it beneath the version file (issues/1010): where it
+        is and the rule it fails in one line; where it is, then the reason, where the record
+        holds a path and no rule - a fault inside a union; the reason alone where it holds
+        no path."""
+        if self.where and self.rule:
+            return (f'{self.where} fails {self.rule}',)
+        if self.where:
+            return (self.where, self.reason)
+        return (self.reason,)
 
     def facts(self) -> str | dict[str, str]:
         """What the stage says of the refusal beneath the version file: the reason alone, or
@@ -1315,11 +1322,12 @@ def stage_status() -> int:
 def invalid_by(rows: list[Judged]) -> dict[str, object]:
     """Each family's verdict against the units once, with how many carry it: under the
     path of the version file that found them invalid, then the fault - where it is and the
-    rule it fails, as the record holds them (issues/952), or the reason alone."""
+    rule it fails, as the record holds them (issues/952); where it is, then the reason,
+    where no rule stands (issues/1010); or the reason alone."""
     counts: dict[tuple[str, ...], int] = {}
     for row in rows:
         if row.state == 'invalid' and row.refusal is not None:
-            path = (row.refusal.path, row.refusal.words())
+            path = (row.refusal.path, *row.refusal.keys())
             counts[path] = counts.get(path, 0) + 1
     out: dict[str, object] = {}
     for path, n in sorted(counts.items()):

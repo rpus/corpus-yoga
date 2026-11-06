@@ -149,6 +149,7 @@ site.page_comparison_survives_a_new_column
 site.turn_instant_is_read_from_the_heading
 stage.empty_selection_is_incomplete
 stage.export_is_one_unit
+stage.invalid_says_the_reason
 stage.recapture_names_a_full_id
 stage.states_are_told_apart
 status.lines_load_as_yaml

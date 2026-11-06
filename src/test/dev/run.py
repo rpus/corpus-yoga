@@ -2209,6 +2209,18 @@ def check_unit_state(run) -> None:
     run('stage: an empty unit is offered its capture again only where its directory is a full id', ok,
         None if ok else f'the offers read {offered}, where a prefix-named directory gets none and a full-id one gets {full!r}',
         check='stage.recapture_names_a_full_id')
+    # An invalid verdict says the fault's reason wherever the record holds one (issues/1010):
+    # a fault inside a union carries a path and no rule, and the path alone says where and
+    # never what - so beneath the version file stands the path, and beneath it the reason.
+    def refusal(where, rule, reason='chat_messages/content/name - matches none of - A, B'):
+        return corpus.Refusal('chat-capture', 'claude/apiConversation', 'v15', reason, where, rule, '/definitions/Block')
+    faults = [refusal('/chat_messages/5/content/1/name', None), refusal('/turn', 'type string', 'type string'), refusal(None, None, 'a reason alone')]
+    said = corpus.invalid_by([corpus.Judged(whole, Relation.ABSENT, '', judgement.INVALID, '', fault) for fault in faults])
+    want = {faults[0].path: {
+        '/chat_messages/5/content/1/name': {'chat_messages/content/name - matches none of - A, B': 1},
+        '/turn fails type string': 1, 'a reason alone': 1}}
+    run('stage: an invalid verdict says the reason beneath the path where no rule stands', said == want,
+        None if said == want else f'the status says {said}, where it says {want}', check='stage.invalid_says_the_reason')
 
 
 def check_store(run) -> None:
