@@ -19,6 +19,47 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v24
+
+The harness turns a connected MCP server's tools on, and reads files, and a Read of an image
+returns one. Reading-room's bulk export of 2026-11-06 (`data-0fc4c1e0-…-2026-11-06-18-42-24`),
+captured by `corpus-yoga export capture` into the stage, is refused at v23 by the rehearsal of
+2026-11-06T200505Z at conversation 127 (`95fc8e17-2d16-4f3b-bdc0-948e121e676a`, "Safari history
+access"), message 5 (`c15376d4-02f0-4805-94c6-b1565caa54b8`, 2026-11-03T18:04:51Z): a tool_use
+named `enable__mcp__remote-devices__computer` - neither an `<integration>:<tool>` nor an
+`mcp__<server>__<tool>` name. Validating the export fault by fault on reading-room, 2026-11-06,
+surfaced two more shapes behind it, each first observed 2026-11-03 in this one conversation: a
+tool named `Read`, five tool_use blocks whose input is `file_path` and, in one, `limit`, their
+results unnamed as the export writes them; and in four of those results an item of type
+`image` carrying `file_uuid` alone, which the result-item union closed. The API capture of
+the same conversation on 2026-11-06 holds the same names and the image items with
+`preview_url` and `thumbnail_url` beside the uuid (the join rows added with this mint say so,
+as judgments of two renders at one date). No other conversation of the export's 128 carries
+any of the three.
+
+Validated over the staged export on reading-room, 2026-11-06: v23 refuses it at conversation
+127, message 5, and stops; v24 refuses none of its 128 conversations. v24 adds one tool-name
+shape, one tool with its input, and one result item, and narrows nothing, so every datum v23
+admits, v24 admits.
+
+### Replaces
+
+v23
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `McpToolUseBlock`, `McpToolResultBlock`: `name` admits `McpEnablingToolName`, `^enable__mcp__.+$`.
+- `ToolUseBlock`: admits `ReadToolUseBlock` - `name` "Read", `input` a `ToolInputRead` of `file_path` and an optional `limit`.
+- `ToolResultBlockBase`: a result item admits `ToolResultImage` - `type` "image", `file_uuid`.
+
+#### Refactored
+
+None.
+
 ## v23
 
 A web fetch result's metadata gains the URL the fetch ended at. Reading-room's bulk export
