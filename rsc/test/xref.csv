@@ -602,6 +602,7 @@ rsc/model/model_join.csv,274,path_str,rsc/schema/pipeline/chat-capture/claude/ap
 rsc/model/model_join.csv,275,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ReadToolResultBlock,Y,",,,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ReadToolResultBlock,,api_only,the API capture na"
 rsc/model/model_join.csv,276,path_str,rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ToolResultImage,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ToolResultImage,,,rsc/schema/pipeline/chat-capture/cla"
 rsc/model/model_join.csv,276,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ApiToolResultImage,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ToolResultImage,,,rsc/schema/pipeline/chat-capture/cla"
+rsc/model/model_join.csv,277,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/SessionOwnerRecord,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/SessionOwnerRecord,,,,cli_only,the account and the organ"
 rsc/provider/README.md,14,doc,rsc/test/prepare-commit-msg-hook.sh,Y,hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
 rsc/provider/README.md,18,doc,src/main/provider.py,Y,capture keys its mechanisms by declared names; `src/main/provider.py` is the
 rsc/provider/README.md,22,doc,src,Y,by a directory or a data path under `src/` is a row here.
@@ -748,10 +749,11 @@ rsc/schema/pipeline/chat-export/claude/users/v2.json,19,path_str,rsc/model/model
 rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,23,doc,rsc/model/model_join.csv,Y,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,57,doc,rsc/model/model_join.csv,Y,No other family carries the key (rsc/model/model_join.csv names no row for it).
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,549,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,929,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,19,doc,rsc/model/model_join.csv,Y,uuid the export families carry under four dressings (rsc/model/model_join.csv's
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,59,doc,rsc/model/model_join.csv,Y,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,93,doc,rsc/model/model_join.csv,Y,No other family carries the key (rsc/model/model_join.csv names no row for it).
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,585,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,965,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,77,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
@@ -1628,7 +1630,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/pipeline/code-transport/claude/projectMemory/v3.json,Y,
 ,,,rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,Y,
-,,,rsc/schema/pipeline/code-transport/claude/session/v26.json,Y,
+,,,rsc/schema/pipeline/code-transport/claude/session/v27.json,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/CHANGELOG.md,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/layer.csv,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/v1.json,Y,
