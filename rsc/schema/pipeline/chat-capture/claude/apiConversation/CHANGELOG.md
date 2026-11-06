@@ -13,6 +13,48 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v16
+
+The harness turns a connected MCP server's tools on, and reads files, and a Read of an image
+returns one. Reading-room's browser capture of 2026-11-06 staged 127 conversations, one of
+which the rehearsal of 2026-11-06T200505Z refuses at v15: `95fc8e17-2d16-4f3b-bdc0-948e121e676a`
+("Safari history access", created 2026-11-03) at message 5 (`c15376d4-02f0-4805-94c6-b1565caa54b8`,
+2026-11-03T18:04:51Z), a tool_use named `enable__mcp__remote-devices__computer` - neither an
+`<integration>:<tool>` nor an `mcp__<server>__<tool>` name - with its tool_result. Validating
+the conversation fault by fault on reading-room, 2026-11-06, surfaced two more shapes behind
+it, each first observed 2026-11-03 in this one conversation: a tool named `Read`, five
+tool_use blocks whose input is `file_path` and, in one, `limit`, with five named results; and
+in four of those results an item of type `image` - `file_uuid`, `preview_url` and
+`thumbnail_url`, the paths under `/api/<organisation>/files/<file_uuid>/` - which the
+result-item union closed. The bulk export of 2026-11-06 holds the same conversation at index
+127 with the same tool names and the image items carrying `file_uuid` alone (the join rows
+added with this mint say so, as judgments of two renders at one date). No other conversation
+of the 127 captures carries any of the three.
+
+Validated over the staged capture on reading-room, 2026-11-06: v15 refuses it at message 5
+and stops; v16 refuses none of its 74 messages. v16 adds one tool-name shape, one tool with
+its input and named result, and one result item, and narrows nothing, so every datum v15
+admits, v16 admits.
+
+### Replaces
+
+v15
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `McpToolUseBlock`, `McpToolResultBlock`: `name` admits `McpEnablingToolName`, `^enable__mcp__.+$`.
+- `ApiToolUseBlock`: admits `ReadToolUseBlock` - `name` "Read", `input` a `ToolInputRead` of `file_path` and an optional `limit`.
+- `ApiToolResultBlock`: admits `ReadToolResultBlock`.
+- `ApiToolResultBlockBase`: a result item admits `ApiToolResultImage` - `type` "image", `file_uuid`, `preview_url`, `thumbnail_url`.
+
+#### Refactored
+
+None.
+
 ## v15
 
 A past-conversation link carries the linked conversation's state. Reading-room's API capture
