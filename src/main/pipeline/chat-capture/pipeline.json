@@ -12,7 +12,12 @@
       "measure": "message-uuids",
       "extra_measure": "",
       "unit": "capture",
+      "families": [
+        "claude/apiConversation",
+        "markdownConversation"
+      ],
       "extra_unit": "",
+      "extra_families": [],
       "companion": ""
     },
     "gemini": {
@@ -22,7 +27,11 @@
       "measure": "turn-extent",
       "extra_measure": "mirror",
       "unit": "capture",
+      "families": [
+        "markdownConversation"
+      ],
       "extra_unit": "ordering",
+      "extra_families": [],
       "companion": ""
     }
   },

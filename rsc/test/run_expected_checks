@@ -118,6 +118,8 @@ output.plan_lines_name_their_target
 phrase.each_is_said
 pipeline.every_provider_is_judged
 pipeline.failing_is_keyed_by_datum
+pipeline.families_are_total
+pipeline.validate_step_judges_the_declared_families
 prescription.names_a_command
 provider.names_declared
 provider.registry_parses
@@ -147,6 +149,7 @@ shell.shellcheck_clean
 site.lag_is_read_from_declarations
 site.page_comparison_survives_a_new_column
 site.turn_instant_is_read_from_the_heading
+stage.declared_families_judge
 stage.empty_selection_is_incomplete
 stage.export_is_one_unit
 stage.recapture_names_a_full_id

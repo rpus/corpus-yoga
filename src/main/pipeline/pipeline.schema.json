@@ -17,7 +17,9 @@
         "measure",
         "extra_measure",
         "unit",
+        "families",
         "extra_unit",
+        "extra_families",
         "companion"
       ]
     },
@@ -60,7 +62,9 @@
           "measure",
           "extra_measure",
           "unit",
+          "families",
           "extra_unit",
+          "extra_families",
           "companion"
         ],
         "additionalProperties": false,
@@ -100,9 +104,25 @@
             "minLength": 1,
             "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (issues/736)."
           },
+          "families": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "The families, each an entry of schemas, that judge a unit input_glob selects: the validate step validates the unit's data against each, the rehearsal keys its verdicts by them, and the stage judges the unit by them - one home for the pairing of a unit kind to its judges (issues/1018). Empty where no family judges the kind, and the unit promotes on its relation alone."
+          },
           "extra_unit": {
             "type": "string",
             "description": "What one thing extra_input_glob selects is called. Empty exactly when extra_input_glob is."
+          },
+          "extra_families": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "The families that judge a unit extra_input_glob selects, as families does for input_glob. Empty when extra_input_glob is, and where no family judges the kind."
           },
           "companion": {
             "type": "string",
@@ -141,9 +161,25 @@
       "minLength": 1,
       "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (issues/736): a capture, an export, a session."
     },
+    "families": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "The families, each an entry of schemas, that judge a unit input_glob selects: the validate step validates the unit's data against each, the rehearsal keys its verdicts by them, and the stage judges the unit by them - one home for the pairing of a unit kind to its judges (issues/1018). Empty where no family judges the kind, and the unit promotes on its relation alone."
+    },
     "extra_unit": {
       "type": "string",
       "description": "What one thing extra_input_glob selects is called. Empty exactly when extra_input_glob is."
+    },
+    "extra_families": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "The families that judge a unit extra_input_glob selects, as families does for input_glob. Empty when extra_input_glob is, and where no family judges the kind."
     },
     "companion": {
       "type": "string",

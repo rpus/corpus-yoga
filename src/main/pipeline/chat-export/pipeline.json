@@ -12,7 +12,15 @@
   "measure": "atoms",
   "extra_measure": "",
   "unit": "export",
+  "families": [
+    "claude/conversations",
+    "claude/memories",
+    "claude/projects",
+    "claude/users",
+    "claude/login_history"
+  ],
   "extra_unit": "",
+  "extra_families": [],
   "companion": "manifest-<star>.json",
   "subject_depth": 1,
   "diagnostic_skip": {}
