@@ -85,6 +85,9 @@
           "$ref": "#/definitions/ToolsUsedRecord"
         },
         {
+          "$ref": "#/definitions/SessionOwnerRecord"
+        },
+        {
           "$ref": "#/definitions/ApiRequestShapeRecord"
         },
         {
@@ -749,6 +752,38 @@
           "items": {
             "type": "string"
           }
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "SessionOwnerRecord": {
+      "title": "SessionOwnerRecord",
+      "description": "The account and the organisation a session belongs to, written by Claude Code 2.1.314 or later. Observed once on reading-room in session e2d2039d-b1e5-4691-99f9-f0629d13e243, captured 2026-11-06: one record among 30,130, between two cost-state records after the session's tools-used record, with no timestamp and no version of its own; the organisation uuid is the one the bulk export is named by. Undeclared before v27.",
+      "type": "object",
+      "required": [
+        "type",
+        "accountUuid",
+        "organizationUuid",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "session-owner"
+          ],
+          "description": "(discriminator)"
+        },
+        "accountUuid": {
+          "$ref": "#/definitions/UuidV4",
+          "description": "The account the session was run under; the uuid chat-export's account.uuid carries."
+        },
+        "organizationUuid": {
+          "$ref": "#/definitions/UuidV4",
+          "description": "The organisation the account belongs to; the uuid a bulk export's directory name opens with."
         },
         "sessionId": {
           "$ref": "#/definitions/UuidV4"

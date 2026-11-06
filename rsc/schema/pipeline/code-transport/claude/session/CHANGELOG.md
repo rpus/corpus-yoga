@@ -6,6 +6,42 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v27
+
+A session says whose it is. Reading-room's session `e2d2039d-b1e5-4691-99f9-f0629d13e243`,
+captured on 2026-11-06 by `corpus-yoga agent capture` into the stage, is refused at v26 by
+the rehearsal of 2026-11-06T200505Z at its record 30127, `{"type": "session-owner",
+"accountUuid": "e5b78a25-…", "organizationUuid": "0fc4c1e0-…", "sessionId": "e2d2039d-…"}` -
+a record kind the union did not list, standing once among the session's 30,130 records
+between two `cost-state` records after the `tools-used` record, after the last timestamped
+record, of 2.1.314 (2026-11-02T19:55:09Z), with no timestamp and no version of its own.
+No other session held on reading-room carries it. Its account uuid is the account-holder
+uuid the export families carry under four dressings (rsc/model/model_join.csv's
+`account.uuid` edge), and its organisation uuid is the one a bulk export's directory name
+opens with - `data-0fc4c1e0-…-2026-11-06-18-42-24` on reading-room - which no property of
+any family carries; the export and API conversation families carry no organisation
+(`SessionOwnerRecord` joins as `cli_only`, as `ToolsUsedRecord` does).
+
+Validated over the rehearsal's conversion of the staged session on reading-room, 2026-11-06:
+v26 refuses it at record 30127 and stops; v27 refuses none of its 30,130 records. v27 adds
+one record kind and narrows nothing, so every datum v26 admits, v27 admits.
+
+### Replaces
+
+v26
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Record`: admits `SessionOwnerRecord` - `type` "session-owner", `accountUuid`, `organizationUuid` and `sessionId`, each a `UuidV4`.
+
+#### Refactored
+
+None.
+
 ## v26
 
 Two things Claude Code 2.1.312 writes. Reading-room's session `e2d2039d-b1e5-4691-99f9-f0629d13e243`,
