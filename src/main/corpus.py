@@ -127,6 +127,7 @@ class Unit:
     missing: list[str] = field(default_factory=list)          # what is absent of a unit named by a star, by name
     kind: str = 'file'            # what its selection's declaration calls it; what no pipeline selects is a file
     selection: str = ''           # the selection as a path under the input root: the store's input with its glob; '' where none selects it
+    families: tuple[str, ...] = ()   # the families the declaration names to judge its kind (issues/1018); () where none does
 
     @property
     def path(self) -> Path:
@@ -158,10 +159,12 @@ def resolve(template: str, provider: str | None, facts: dict) -> str:
 
 @dataclass(frozen=True)
 class Glob:
-    """One selection a store declares: what it matches, and what a unit it selects is."""
+    """One selection a store declares: what it matches, what a unit it selects is, and the
+    families that judge it (issues/1018)."""
     pattern: str                  # the glob under the store's input; a trailing / selects directories
     measure: str                  # a row of MEASURE
     kind: str                     # what the declaration calls a unit it selects
+    families: tuple[str, ...]     # the pipeline's families that judge a unit it selects; () where none does
 
 
 @dataclass(frozen=True)
@@ -186,8 +189,8 @@ def stores(declared: dict[str, dict] | None = None) -> list[Store]:
             out.append(Store(
                 pipeline=name, provider=provider,
                 input=Path(resolve(facts['input'], provider, facts).removeprefix('data/input/')),
-                globs=tuple(Glob(g, m, k) for g, m, k in ((f['input_glob'], f['measure'], f['unit']),
-                                                          (f['extra_input_glob'], f['extra_measure'], f['extra_unit'])) if g),
+                globs=tuple(Glob(g, m, k, tuple(j)) for g, m, k, j in ((f['input_glob'], f['measure'], f['unit'], f['families']),
+                                                                      (f['extra_input_glob'], f['extra_measure'], f['extra_unit'], f['extra_families'])) if g),
                 companion=f['companion'], depth=facts['subject_depth']))
     return out
 
@@ -231,7 +234,7 @@ def _select_pairs(root: Path, store: Store) -> list[Unit]:
     missing whichever is absent."""
     base = root / store.input
     first = store.globs[0]
-    pattern, measure, kind = first.pattern, first.measure, first.kind
+    pattern, measure, kind, families = first.pattern, first.measure, first.kind, first.families
     datum_form, companion_form = pattern.rstrip('/'), store.companion
     found: dict[str, None] = {}
     for item in sorted(base.glob(datum_form)):
@@ -252,7 +255,7 @@ def _select_pairs(root: Path, store: Store) -> list[Unit]:
         files = [f for m in members + record for f in _files_under(root, root / m)]
         out.append(Unit((base / star).relative_to(root), members, files, list(members), measure, store.pipeline,
                         store.provider, (datum.name,), datum.relative_to(root), record, missing, kind,
-                        f'{store.input.as_posix()}/{pattern}'))
+                        f'{store.input.as_posix()}/{pattern}', families))
     return out
 
 
@@ -288,7 +291,7 @@ def select(root: Path, store: Store) -> list[Unit]:
                 # before it fetched leaves exactly this
                 missing = [f'its {kind}'] if dirs_only and not files else []    # what the selection names it: a capture, an export
                 unit = Unit(address, members, files, [], measure, store.pipeline, store.provider, subject, kind=kind,
-                            selection=f'{store.input.as_posix()}/{pattern}', missing=missing)
+                            selection=f'{store.input.as_posix()}/{pattern}', missing=missing, families=selection.families)
                 units[address] = unit
             unit.selected.append(item.relative_to(root))
     return list(units.values())
@@ -542,12 +545,12 @@ def version_number(version: str) -> int:
 
 
 def judges_of(unit: Unit) -> list[str]:
-    """The families of the unit's pipeline that judge its provider's units. A unit measured
-    as a mirror - gemini's ordering file - is replaced whole and no family judges it."""
-    if unit.measure in MIRRORS:
-        return []
-    schemas = pipelines()[unit.pipeline]['schemas'] if unit.pipeline else []
-    return [s for s in schemas if unit.provider is None or '/' not in s or s.startswith(unit.provider + '/')]
+    """The families that judge the unit: the ones its pipeline's declaration names for its
+    kind (issues/1018) - the same the validate step validates against and the rehearsal
+    keys its verdicts by. Its measure says how it stands to the held unit, not who judges
+    it: claude's memory, a mirror, is judged by projectMemory; gemini's ordering file, a
+    mirror, by none, and promotes on its relation alone."""
+    return list(unit.families)
 
 
 def family_of(unit: Unit, leaf: str) -> str:

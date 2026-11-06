@@ -13,7 +13,14 @@
       "measure": "prefix",
       "extra_measure": "mirror",
       "unit": "session",
+      "families": [
+        "claude/session",
+        "sessionConversation"
+      ],
       "extra_unit": "memory",
+      "extra_families": [
+        "claude/projectMemory"
+      ],
       "companion": "<stem>/"
     },
     "gemini": {
@@ -22,7 +29,12 @@
       "measure": "prefix",
       "extra_measure": "",
       "unit": "session",
+      "families": [
+        "gemini/session",
+        "sessionConversation"
+      ],
       "extra_unit": "",
+      "extra_families": [],
       "companion": ""
     }
   },

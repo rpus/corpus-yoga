@@ -1972,14 +1972,72 @@ def check_providers_judged(run) -> None:
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
     unjudged = []
-    for name, declared in sorted(corpus.pipelines().items()):
-        for provider in sorted(declared.get('provider', {})):
-            unit = corpus.Unit(Path(provider) / 'chat' / 'x', [Path(provider) / 'chat' / 'x'], [], [], 'message-uuids', name, provider, subject=('x',))
-            if not corpus.judges_of(unit):
-                unjudged.append(f'{name}/{provider}')
+    for store in corpus.stores():
+        if store.provider is not None and not store.globs[0].families:     # the provider's own unit, as the declaration selects it
+            unjudged.append(f'{store.pipeline}/{store.provider}')
     run('pipeline: every provider a pipeline captures for is judged by a family of the pipeline', not unjudged,
         None if not unjudged else f'no family judges {", ".join(unjudged)} - their units promote on their relation alone',
         check='pipeline.every_provider_is_judged')
+
+
+def check_declared_families_judge(run) -> None:
+    """A unit is judged by the families its pipeline's declaration names for its kind, whatever
+    its measure (issues/1018): claude's memory, a mirror unit, by projectMemory; gemini's
+    ordering file, a mirror unit, by none. The live bug at fe5fd36f on reading-room, 2026-11-06:
+    the rehearsal of 2026-11-06T221808Z refused both staged memories at projectMemory v3 and
+    the stage judged each `no family of code-transport validates claude's`, since every
+    mirror unit was exempt from judging."""
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    judged: dict[str, list[str]] = {}
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        code = next(s for s in corpus.stores() if s.pipeline == 'code-transport' and s.provider == 'claude')
+        (root / code.input / 'room' / 'project' / 'memory').mkdir(parents=True)
+        (root / code.input / 'room' / 'project' / 'memory' / 'MEMORY.md').write_text('# index\n')
+        (root / code.input / 'room' / 'project' / 'session.jsonl').write_text('{}\n')
+        for unit in corpus.select(root, code):
+            judged[unit.kind] = corpus.judges_of(unit)
+        chat = next(s for s in corpus.stores() if s.pipeline == 'chat-capture' and s.provider == 'gemini')
+        (root / chat.input).mkdir(parents=True)
+        (root / chat.input / 'ordering.txt').write_text('a\n')
+        for unit in corpus.select(root, chat):
+            judged[unit.kind] = corpus.judges_of(unit)
+    want = {'session': ['claude/session', 'sessionConversation'], 'memory': ['claude/projectMemory'], 'ordering': []}
+    run("stage: a unit is judged by the families its declaration names for its kind, whatever its measure", judged == want,
+        None if judged == want else f'the judges read {judged}, where they are {want}', check='stage.declared_families_judge')
+    # the declaration is total over the pipeline's families, and the validate step validates
+    # against exactly the declared families of each kind - read from its enumerate face, the
+    # one that lists what it would validate (issues/1018): the declaration is one home only
+    # while every reader of the pairing agrees with it.
+    import subprocess
+    partial = {}
+    for name, declared in sorted(corpus.pipelines().items()):
+        named = {f for store in corpus.stores() if store.pipeline == name for g in store.globs for f in g.families}
+        if named != set(declared['schemas']):
+            partial[name] = sorted(set(declared['schemas']) ^ named)
+    run('pipeline: every family a pipeline declares judges some kind of its unit, and no other family does', not partial,
+        None if not partial else f'declared and judging differ by {partial}', check='pipeline.families_are_total')
+    validate = SRC / 'main' / 'pipeline' / 'code-transport' / 'validate.sh'
+    schema_root = 'rsc/schema/pipeline/code-transport/'
+    enumerated: dict[str, list[str]] = {}
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        (root / 'project' / 'memory').mkdir(parents=True)
+        (root / 'session').mkdir()
+        for kind, provider, flag, target in (('session', 'claude', '--session', root / 'session'), ('memory', 'claude', '--memory', root / 'project' / 'memory'),
+                                              ('session', 'gemini', '--session', root / 'session')):
+            said = subprocess.run([str(validate), '--enumerate', '--provider', provider, flag, str(target)], capture_output=True, text=True, cwd=REPO_ROOT).stdout
+            families = []
+            for line in said.splitlines():
+                schema = line.split('\t')[1]
+                families.append(schema.split(schema_root, 1)[1].rsplit('/', 1)[0])
+            enumerated[f'{provider}/{kind}'] = families
+    declared_families = {f'{store.provider}/{g.kind}': list(g.families) for store in corpus.stores() if store.pipeline == 'code-transport' for g in store.globs}
+    same = enumerated == declared_families
+    run('pipeline: the code-transport validate step validates each kind of unit against exactly its declared families', same,
+        None if same else f'the step enumerates {enumerated}, where the declaration names {declared_families}', check='pipeline.validate_step_judges_the_declared_families')
 
 
 def check_rehearsal_record(run) -> None:
@@ -2011,7 +2069,8 @@ def check_rehearsal_record(run) -> None:
     schema_digest = sha('c')
     def unit(name: str, pipeline: str | None = 'chat-capture') -> corpus.Unit:
         address = Path('claude/chat/API-capture') / name
-        return corpus.Unit(address, [address], [], [], 'message-uuids', pipeline, 'claude' if pipeline else None, subject=(name,))
+        judges = next(s for s in corpus.stores() if s.pipeline == 'chat-capture' and s.provider == 'claude').globs[0].families if pipeline else ()
+        return corpus.Unit(address, [address], [], [], 'message-uuids', pipeline, 'claude' if pipeline else None, subject=(name,), families=judges)
     a, b, c, d, e = unit('a'), unit('b'), unit('c'), unit('d'), unit('e', None)
     digests = {'a': {sha('a')}, 'b': {sha('b')}, 'c': {sha('c')}, 'd': {sha('d')}}
     with tempfile.TemporaryDirectory() as scratch:
@@ -4449,6 +4508,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_verdict_record, tier='code')
         run_section(check_failing_record, tier='code')
         run_section(check_providers_judged, tier='code')
+        run_section(check_declared_families_judge, tier='code')
         run_section(check_site_lag, tier='code')
         run_section(check_server_standing, tier='code')
         run_section(check_rehearsal_record, tier='code')
