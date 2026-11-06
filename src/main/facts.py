@@ -377,10 +377,11 @@ def report_lines(outcomes, effect: str) -> list[str]:
     """What an act reports (issues/801, issues/896), as lines: its facts by outcome, where it has not
     already printed them act by act; then its effect line, `<noun> <verb>: DONE - …` or
     `NOT DONE - …`. now: is the launcher's reply, never the verb's: where the launcher
-    dispatched this act the effect is handed up and the launcher says now: - the room's
-    standing read after the act, which no act adds steps of its own to (issues/947) - then the
-    effect; where none did - an inner invocation, a step of another verb - the effect is
-    the last line and no now: is said."""
+    dispatched this act the effect is handed up and the launcher replies with the bare
+    status - what stands in the way, then now:, the room's standing read after the act,
+    which no act adds steps of its own to (issues/947, issues/1016) - then the effect; where
+    none did - an inner invocation, a step of another verb - the effect is the last line
+    and no now: is said."""
     out: list[str] = []
     if outcomes:
         said = plain(outcomes)

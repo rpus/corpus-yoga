@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # report.sh - what an act reports after its lines (issues/801, issues/896), for the bash verbs:
-# effect <line> hands the act's effect line to the launcher, which replies with now:, the
-# room's standing read after the act, and the effect (src/main/reply.py); where no launcher asked - an inner invocation, a step of another
+# effect <line> hands the act's effect line to the launcher, which replies with the bare
+# status read after the act and the effect (src/main/reply.py); where no launcher asked - an inner invocation, a step of another
 # verb - the effect line is printed as the last line. Through src/main/facts.py, so that
 # no bash verb prints a tail of its own. Sourced after the script's root is known as
 # REPO_DIR or REPO_ROOT.
