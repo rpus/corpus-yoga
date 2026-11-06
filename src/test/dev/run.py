@@ -3531,7 +3531,8 @@ def check_reply(run) -> None:
     says no now:, hands up no steps of its own, and writes the effect there; where no launcher
     asked, or the effect is an inner verb's, the effect line is the last line and still no
     now: is said. The live bug is reading-room's rehearsal log of 2026-10-14, five next:
-    blocks in one run."""
+    blocks in one run. The reply itself is the bare status before the effect line
+    (issues/1016)."""
     sys.path.insert(0, str(SRC / 'main'))
     import contextlib
     import importlib
@@ -3566,12 +3567,12 @@ def check_reply(run) -> None:
     inner_ok = said is None and inner.getvalue().strip() == 'indexing sync: DONE - written'
     run('reply: an inner verb ends on its effect line and says no now:', inner_ok,
         said or (None if inner_ok else f'printed {inner.getvalue()!r}'), check='reply.now_is_the_launchers')
-    # the reply's now: is the fold of the nouns' own and nothing more (issues/951): no entry is
-    # fixed text, so an act's reply and bare status say the same standing; none where the
-    # fold is empty. The live bug: every reply at ee540b72 ended its now: on
-    # `corpus-yoga status: reports the room whole`, which no noun reads.
+    # the reply is the bare status before the effect line (issues/1016): what corpus-yoga status
+    # says, as it says it - what stands in the way, then now: - so that a refused unit stands
+    # in every tail where it stands in the status, and the reply composes nothing of its own.
+    # The live bug: reading-room's rehearsal of 2026-11-06T200505Z refused three units and
+    # replied with a now: of a promote, a clean and a server start, then NOT DONE.
     reply = importlib.import_module('reply')
-    standing = importlib.import_module('standing')
     kept_environ = dict(os.environ)
     os.environ.update({'CORPUS_YOGA_NO_SEND': '1'})     # the nouns the reply runs make no send under the gate
     try:
@@ -3581,16 +3582,17 @@ def check_reply(run) -> None:
             replied = io.StringIO()
             with contextlib.redirect_stdout(replied):
                 reply.main(['logs clean', str(handed), '0'])
-        folded = standing.room_now() or 'none - nothing to do'
+        status_said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'status'], capture_output=True, text=True, cwd=REPO_ROOT).stdout.splitlines()
     finally:
         os.environ.clear()
         os.environ.update(kept_environ)
     lines_said = replied.getvalue().splitlines()
-    loaded = facts.load('\n'.join(lines_said[:-1])) if len(lines_said) > 1 else None
-    now_said = loaded.get('now') if isinstance(loaded, dict) else None
-    alone = now_said == folded and lines_said[-1:] == ['logs clean: DONE - did remove nothing']
-    run("reply: an act's now: is the fold of the nouns' own and nothing more, none where the fold is empty", alone,
-        None if alone else f'the reply said now: {now_said!r} where the fold is {folded!r}', check='reply.now_is_the_fold_alone')
+    body = lines_said[:-1]
+    same = body == status_said and lines_said[-1:] == ['logs clean: DONE - did remove nothing']
+    differs = next((i for i, (a, b) in enumerate(zip(body, status_said), 1) if a != b), min(len(body), len(status_said)) + 1)
+    run("reply: an act's reply is the bare status before its effect line", same,
+        None if same else f'the reply has {len(body)} line(s) before its effect where the status has {len(status_said)}; they differ from line {differs}',
+        check='reply.is_the_bare_status')
 
 
 def check_forge_aim(run) -> None:
