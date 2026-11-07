@@ -35,6 +35,8 @@ OUT="$DATA_DIR/output/site"
 MODEL_DIR="$REPO_DIR/src/main/model"
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
+# shellcheck source=src/main/cli/site/landing.sh
+source "$SCRIPT_DIR/landing.sh"   # what publish would land, read against rpus.co as it stands (issues/1020)
 
 usage() {
   cat <<'EOF'
@@ -89,7 +91,9 @@ status() {
     fi
     if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
       printf 'deploy\t%s\n' "$(phrase "the mount ext/mnt/site is present, rpus.co's clone")"
-      landing
+      clone_fetch "$REPO_DIR/ext/mnt/site"
+      clone_position "$REPO_DIR/ext/mnt/site"
+      landing "$REPO_DIR/ext/mnt/site" "$OUT"
     elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
       # a machine that once deployed and moved its clone — the reader most surprised by
       # "no mount", and the one who least needs the convention; say what status says
@@ -104,39 +108,6 @@ render() {
   exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
 }
 
-# what publish would land, as rows for the status (issues/881): each new or changed file of the
-# publish tree against rpus.co's clone (deletions are not mirrored - the site repo
-# curates its own removals), and for the corpus page what changes in the page's own terms
-# (issues/652, src/main/model/compare_pages.py), since a line diff of two renders misstates it.
-landing() {
-  local mount="$REPO_DIR/ext/mnt/site" f rel
-  [[ -d "$mount/.git" && -d "$OUT" ]] || return 0
-  while IFS= read -r f; do
-    rel="${f#"$OUT"/}"
-    if [[ ! -f "$mount/$rel" ]]; then
-      printf 'land\t%s\t%s\n' "$rel" "$(phrase "new on rpus.co")"
-    elif ! cmp -s "$f" "$mount/$rel"; then
-      if [[ "$rel" == index.html ]]; then
-        # one row per line of the comparison: each a fact of the page, which the status
-        # nests beneath the file, never one sentence; a comparison that fails is said as a
-        # change the comparison could not word, never read as nothing to land (issues/1000)
-        local compared
-        if compared="$("$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f")"; then
-          while IFS= read -r line; do
-            [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
-          done <<< "$compared"
-        else
-          printf 'land\t%s\t%s\n' "$rel" "$(phrase "changed - the comparison failed; its output above says where")"
-        fi
-      else
-        printf 'land\t%s\t%s\n' "$rel" "$(phrase "changed")"
-      fi
-    fi
-  done < <(find "$OUT" -type f | sort)
-  [[ -n "$(git -C "$mount" status --porcelain)" ]] && printf 'land\t%s\t%s\n' "(the clone's own uncommitted changes)" "$(phrase "committed with the copy")"
-  return 0
-}
-
 # The act (issues/881): what it would land is the bare status's; this copies, commits and pushes.
 publish() {
   local mount="$REPO_DIR/ext/mnt/site"
@@ -148,8 +119,15 @@ publish() {
     effect "site publish: NOT DONE - $(phrase "no publish tree at data/output/site/")"
     return 1
   fi
+  # rpus.co as it stands first (issues/1020): the clone brought level by a fast-forward, so that
+  # the copy lands on what rpus.co holds; where the send is refused, the landing is read as last
+  # fetched and the push below refuses whatever would land
+  if may_send && ! level_clone "$mount"; then
+    effect "site publish: NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
+    return 1
+  fi
   local rows
-  rows="$(landing)"
+  rows="$(landing "$mount" "$OUT")"
   if [[ -z "$rows" ]]; then
     effect "site publish: DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
     return 0

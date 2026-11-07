@@ -146,8 +146,11 @@ schema.valid_against_meta_schema
 schema.valid_json_with_schema
 server.now_names_the_stop_or_the_start
 shell.shellcheck_clean
+site.clone_position_is_said
 site.lag_is_read_from_declarations
+site.landing_reads_the_fetched_origin
 site.page_comparison_survives_a_new_column
+site.publish_levels_the_clone
 site.turn_instant_is_read_from_the_heading
 stage.declared_families_judge
 stage.empty_selection_is_incomplete
