@@ -1940,6 +1940,73 @@ def check_site_lag(run) -> None:
         check='site.page_comparison_survives_a_new_column')
 
 
+def check_site_reads_rpus_co(run) -> None:
+    """The site reads rpus.co as it stands (issues/1020): what publish would land is the publish
+    tree against the clone's fetched origin, never the clone's files as they last stood; the
+    clone's position to that origin is said - behind, diverged - and publish brings it level by
+    a fast-forward, refusing where it cannot. Held over planted clones of a local bare
+    repository, since the room's clone is the usr gate's. The live bug: home-room, 2026-11-07,
+    offered a publish of index.html and corpus-yoga.html that rpus.co already held, since its
+    clone had not fetched reading-room's push."""
+    import subprocess
+    import tempfile
+    library = SRC / 'main' / 'cli' / 'site' / 'landing.sh'
+    if not library.is_file():
+        run('site: what publish would land is read against the clone\'s fetched origin', False,
+            'src/main/cli/site/landing.sh does not exist: the landing compares with the clone\'s files as they last stood',
+            check='site.landing_reads_the_fetched_origin')
+        return
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND'}   # the remote is a local directory: nothing leaves the machine
+        environment.update({'GIT_AUTHOR_NAME': 'gate', 'GIT_AUTHOR_EMAIL': 'gate@localhost', 'GIT_COMMITTER_NAME': 'gate',
+                            'GIT_COMMITTER_EMAIL': 'gate@localhost', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_CONFIG_NOSYSTEM': '1'})
+        def git(*words, cwd=root):
+            subprocess.run(['git', *words], cwd=cwd, env=environment, check=True, capture_output=True)
+        def commit(clone, text):
+            (clone / 'page.html').write_text(text)
+            git('add', '-A', cwd=clone)
+            git('commit', '-q', '-m', text, cwd=clone)
+        git('init', '-q', '--bare', '-b', 'main', 'origin.git')
+        git('clone', '-q', 'origin.git', 'publisher')
+        publisher = root / 'publisher'
+        commit(publisher, 'one')
+        git('push', '-q', 'origin', 'HEAD:main', cwd=publisher)
+        for name in ('behind', 'diverged'):
+            git('clone', '-q', 'origin.git', name)
+        commit(root / 'diverged', 'local')
+        commit(publisher, 'two')
+        git('push', '-q', 'origin', 'HEAD:main', cwd=publisher)
+        for name in ('behind', 'diverged'):
+            git('fetch', '-q', cwd=root / name)
+        tree = root / 'tree'
+        tree.mkdir()
+        (tree / 'page.html').write_text('two')
+        def said(function, *arguments):
+            script = (f'REPO_DIR={str(REPO_ROOT)!r}; source "$REPO_DIR/src/main/report.sh"; source "$REPO_DIR/src/main/send.sh"; '
+                      f'source "$REPO_DIR/src/main/enact.sh"; source "$REPO_DIR/src/main/cli/site/landing.sh"; {function} "$@"')
+            done = subprocess.run(['bash', '-c', script, 'landing', *map(str, arguments)], env=environment, capture_output=True, text=True)
+            return done.returncode, [line.split('\t') for line in done.stdout.splitlines() if line]
+        _, landed = said('landing', root / 'behind', tree)
+        run("site: what publish would land is read against the clone's fetched origin", landed == [],
+            None if landed == [] else f'a clone one commit behind lands {landed}, where rpus.co already holds the tree',
+            check='site.landing_reads_the_fetched_origin')
+        _, behind = said('clone_position', root / 'behind')
+        _, diverged = said('clone_position', root / 'diverged')
+        told = (len(behind) == 1 and behind[0][:1] == ['clone'] and behind[0][1].startswith('behind')
+                and len(diverged) == 1 and diverged[0][1].startswith('diverged'))
+        run("site: the clone's position to its fetched origin is said", told,
+            None if told else f'said {behind} of a clone behind and {diverged} of a diverged one', check='site.clone_position_is_said')
+        levelled, _ = said('level_clone', root / 'behind')
+        head = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root / 'behind', capture_output=True, text=True).stdout
+        tip = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=publisher, capture_output=True, text=True).stdout
+        refused, _ = said('level_clone', root / 'diverged')
+        level = levelled == 0 and head == tip and refused != 0
+        run('site: publish brings a clone level by a fast-forward, and refuses where it cannot', level,
+            None if level else f'levelling exited {levelled} (head {"at" if head == tip else "not at"} the origin) and {refused} on a diverged clone',
+            check='site.publish_levels_the_clone')
+
+
 def check_server_standing(run) -> None:
     """The server's standing is a function of two facts of the room (issues/960): the stop
     while the daemon runs, the start while the corpus is rendered and the daemon is down,
@@ -4243,6 +4310,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_spelling': ['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md', '.github'],
     'check_site_lag': ['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'],
     'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
+    'check_site_reads_rpus_co': ['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'],
     'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
     'check_rehearsal_record': ['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'],
     'check_versioned_schema_diagnostics': SCHEMA,
@@ -4511,6 +4579,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_declared_families_judge, tier='code')
         run_section(check_site_lag, tier='code')
         run_section(check_server_standing, tier='code')
+        run_section(check_site_reads_rpus_co, tier='code')
         run_section(check_rehearsal_record, tier='code')
         run_section(check_unit_companion, tier='code')
         run_section(check_unit_state, tier='code')

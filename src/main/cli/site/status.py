@@ -3,9 +3,11 @@
 status.py - bare `corpus-yoga site`: the publish tree against its sources, the corpus page and
 the deploy mount, read as rows on stdin from site.sh, which holds what a page is (issues/759):
 `pages absent <standing>` where the publish tree is absent, `page <file> <standing>`, `index <title>` or `index ABSENT`,
-`deploy <words>`, `land <file> <what changes>` for each file corpus-yoga site publish would
-land on rpus.co (issues/881) - the corpus page one row per line of its comparison, `<part>: <words>`,
-said as facts beneath the file - tab-separated. Reads; writes nothing.
+`deploy <words>`, `fetch <words>` where rpus.co could not be read as it stands, `clone <words>
+[<command> <what it does>]` where the clone stands to its origin (issues/1020), `land <file> <what
+changes>` for each file corpus-yoga site publish would land on rpus.co (issues/881) - the corpus
+page one row per line of its comparison, `<part>: <words>`, said as facts beneath the file -
+tab-separated. Reads; writes nothing but the clone's record of rpus.co, which site.sh fetches.
 """
 import sys
 from dataclasses import dataclass
@@ -44,6 +46,8 @@ class Site:
     index: CorpusPage | facts.Finding = facts.named('index.html')
     lags: dict[str, dict[str, str] | str] | str = facts.phrase('unread - no page and no corpus to compare')   # the page's declarations against the corpus (issues/1000)
     deploy: str = ''
+    fetch: str | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
+    clone: str | facts.Finding | None = None   # where the clone stands to rpus.co; a finding where they have diverged
     publish: Publish | str = facts.phrase('nothing to land - rpus.co holds the tree as assembled')
 
 
@@ -108,6 +112,11 @@ def main() -> int:
         parts[key] = words.replace(': ', ' - ') if words else key
     site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,
                 deploy=next((row[1] for row in rows if row[0] == 'deploy'), ''))
+    site.fetch = next((row[1] for row in rows if row[0] == 'fetch'), None)
+    position = next((row for row in rows if row[0] == 'clone'), None)
+    diverged = position is not None and len(position) >= 4
+    if position is not None:
+        site.clone = facts.Finding(position[1], facts.Command(position[2], position[3])) if diverged else position[1]
     lagging = read_lag(site)
     if land:
         site.publish = Publish(land)
@@ -121,7 +130,7 @@ def main() -> int:
         # the render is the room's standing while the page lags the corpus (issues/1000), before
         # the publish: what would be published is the lag otherwise
         now[spell.line('site', 'render')] = {'would render': {'index.html': 1}}
-    if land and not absent:
+    if land and not absent and not diverged:     # a diverged clone refuses the publish: its finding stands instead
         # the publish is the room's standing while one would land (issues/998): by page, so that
         # the bare status names it beside the room's other acts
         now[spell.line('site', 'publish')] = {'would publish': {page: 1 for page in land}}

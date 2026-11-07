@@ -2,6 +2,9 @@
   "help": "make rpus.co serve the publish tree - copy data/output/site/ into the ext/mnt/site clone, commit there, push - what it would land is corpus-yoga site's status",
   "args": [],
   "sends": {
+    "git -C ext/mnt/site pull --ff-only": [
+      "brings the clone level with rpus.co by a fast-forward before the copy (refused loudly under CORPUS_YOGA_NO_SEND)"
+    ],
     "git -C ext/mnt/site push": [
       "WRITES what rpus.co serves (refused loudly under CORPUS_YOGA_NO_SEND)"
     ]
