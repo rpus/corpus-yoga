@@ -1879,15 +1879,20 @@
     },
     "ModelId": {
       "title": "ModelId",
-      "description": "A real Claude model id, as the harness names a model. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here. The set is exhaustive over the ids observed in any such member across both rooms' sessions: as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263), and at v19 by claude-haiku-4-5-20251001 (reading-room session be12fa7c, a key of a cost-state record's modelUsage, first observed 2026-09-29, authoring no turn there); a new model in the data is unmodelled drift and mints the next version.",
+      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/model/model_join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
       "type": "string",
       "enum": [
         "claude-fable-5",
-        "claude-opus-4-8",
-        "claude-sonnet-4-6",
-        "claude-opus-5",
         "claude-fable-5-1",
-        "claude-haiku-4-5-20251001"
+        "claude-haiku-4-5-20251001",
+        "claude-opus-4-6",
+        "claude-opus-4-7",
+        "claude-opus-4-8",
+        "claude-opus-5",
+        "claude-opus-5-5",
+        "claude-sonnet-4-6",
+        "claude-sonnet-5",
+        "claude-sonnet-5-5"
       ]
     },
     "RenderedBlock": {
