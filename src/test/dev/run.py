@@ -1972,12 +1972,15 @@ def check_site_reads_rpus_co(run) -> None:
         publisher = root / 'publisher'
         commit(publisher, 'one')
         git('push', '-q', 'origin', 'HEAD:main', cwd=publisher)
-        for name in ('behind', 'diverged'):
+        for name in ('behind', 'diverged', 'elsewhere'):
             git('clone', '-q', 'origin.git', name)
         commit(root / 'diverged', 'local')
+        git('switch', '-q', '-c', 'feature', cwd=root / 'elsewhere')     # a clone standing on a branch rpus.co does not serve (issues/1026)
+        commit(root / 'elsewhere', 'feature')
+        git('push', '-q', '-u', 'origin', 'feature', cwd=root / 'elsewhere')
         commit(publisher, 'two')
         git('push', '-q', 'origin', 'HEAD:main', cwd=publisher)
-        for name in ('behind', 'diverged'):
+        for name in ('behind', 'diverged', 'elsewhere'):
             git('fetch', '-q', cwd=root / name)
         tree = root / 'tree'
         tree.mkdir()
@@ -2005,6 +2008,18 @@ def check_site_reads_rpus_co(run) -> None:
         run('site: publish brings a clone level by a fast-forward, and refuses where it cannot', level,
             None if level else f'levelling exited {levelled} (head {"at" if head == tip else "not at"} the origin) and {refused} on a diverged clone',
             check='site.publish_levels_the_clone')
+        # rpus.co is the branch it serves, the remote's default, whatever the clone has checked out
+        # (issues/1026): a clone on another branch lands what rpus.co lacks, says the branch it
+        # stands on, and is refused the publish by name
+        _, elsewhere_lands = said('landing', root / 'elsewhere', tree)
+        _, elsewhere_stands = said('clone_position', root / 'elsewhere')
+        _, off = said('off_served', root / 'elsewhere')
+        _, on = said('off_served', root / 'behind')
+        served = (elsewhere_lands == [] and len(elsewhere_stands) == 1 and 'feature' in elsewhere_stands[0][1]
+                  and off == [['feature']] and on == [])
+        run('site: rpus.co is read as the branch it serves, whatever branch the clone has checked out', served,
+            None if served else f'a clone on feature lands {elsewhere_lands}, stands {elsewhere_stands}, is off the served branch as {off}; one on it as {on}',
+            check='site.reads_the_served_branch')
 
 
 def check_server_standing(run) -> None:

@@ -47,7 +47,7 @@ class Site:
     lags: dict[str, dict[str, str] | str] | str = facts.phrase('unread - no page and no corpus to compare')   # the page's declarations against the corpus (issues/1000)
     deploy: str = ''
     fetch: str | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
-    clone: str | facts.Finding | None = None   # where the clone stands to rpus.co; a finding where they have diverged
+    clone: str | facts.Finding | None = None   # where the clone stands to the branch rpus.co serves; a finding where publish refuses it
     publish: Publish | str = facts.phrase('nothing to land - rpus.co holds the tree as assembled')
 
 
@@ -114,9 +114,9 @@ def main() -> int:
                 deploy=next((row[1] for row in rows if row[0] == 'deploy'), ''))
     site.fetch = next((row[1] for row in rows if row[0] == 'fetch'), None)
     position = next((row for row in rows if row[0] == 'clone'), None)
-    diverged = position is not None and len(position) >= 4
+    refused = position is not None and len(position) >= 4      # a clone publish refuses: no served branch, another branch, diverged
     if position is not None:
-        site.clone = facts.Finding(position[1], facts.Command(position[2], position[3])) if diverged else position[1]
+        site.clone = facts.Finding(position[1], facts.Command(position[2], position[3])) if refused else position[1]
     lagging = read_lag(site)
     if land:
         site.publish = Publish(land)
@@ -130,7 +130,7 @@ def main() -> int:
         # the render is the room's standing while the page lags the corpus (issues/1000), before
         # the publish: what would be published is the lag otherwise
         now[spell.line('site', 'render')] = {'would render': {'index.html': 1}}
-    if land and not absent and not diverged:     # a diverged clone refuses the publish: its finding stands instead
+    if land and not absent and not refused:     # a clone publish refuses: its finding stands instead
         # the publish is the room's standing while one would land (issues/998): by page, so that
         # the bare status names it beside the room's other acts
         now[spell.line('site', 'publish')] = {'would publish': {page: 1 for page in land}}
