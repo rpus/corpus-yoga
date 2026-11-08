@@ -316,7 +316,7 @@ rsc/model/model_join.csv,122,path_str,rsc/schema/pipeline/code-transport/claude/
 rsc/model/model_join.csv,123,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/FrameLinkRecord,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/FrameLinkRecord,,,,cli_only,Durable-thing publish record"
 rsc/model/model_join.csv,124,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/FallbackBlock,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/FallbackBlock,,,,cli_only,Content block recording a forc"
 rsc/model/model_join.csv,125,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/ModelId,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ModelId,,rsc/schema/pipeline/chat-capture/claude/apiConv"
-rsc/model/model_join.csv,125,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ApiConversation/properties/model,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ModelId,,rsc/schema/pipeline/chat-capture/claude/apiConv"
+rsc/model/model_join.csv,125,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ModelId,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ModelId,,rsc/schema/pipeline/chat-capture/claude/apiConv"
 rsc/model/model_join.csv,126,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/NotAModel,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/NotAModel,,,,cli_only,The ""<synthetic>"" marker on harnes"
 rsc/model/model_join.csv,127,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/Entrypoint,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/Entrypoint,,,,cli_only,Which Claude Code surface wrote t"
 rsc/model/model_join.csv,128,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/TurnBase/properties/isSidechain,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/TurnBase/properties/isSidechain,,,,cli_only,Subagent con"
@@ -705,11 +705,12 @@ rsc/schema/mcp/mcpMessage/CHANGELOG.md,40,doc,rsc/reference/mcp/2026-07-28/schem
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,44,doc,src/main/mcp/mcp_generation.py,Y,"upstream's generator would give it (`src/main/mcp/mcp_generation.py`, one rule per"
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,92,doc,rsc/schema/mcp/mcpMessage,Y,"`rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside"
 rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,114,doc,rsc/model/model_join.csv,Y,"definitions are one shape under one name in both families (rsc/model/model_join.csv), as"
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,225,doc,rsc/model/model_join.csv,Y,shared under one name (rsc/model/model_join.csv). Where the two sources differ is
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,285,doc,rsc/schema/pipeline/chat-export/claude/conversations,Y,"2026-09-16 (issues/632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout"
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,287,doc,rsc/schema/pipeline/chat-capture/claude,Y,`rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,289,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,22,doc,rsc/model/model_join.csv,Y,"definition shared with session v28 and asserted identical in rsc/model/model_join.csv, so an id"
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,143,doc,rsc/model/model_join.csv,Y,"definitions are one shape under one name in both families (rsc/model/model_join.csv), as"
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,254,doc,rsc/model/model_join.csv,Y,shared under one name (rsc/model/model_join.csv). Where the two sources differ is
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,314,doc,rsc/schema/pipeline/chat-export/claude/conversations,Y,"2026-09-16 (issues/632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout"
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,316,doc,rsc/schema/pipeline/chat-capture/claude,Y,`rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,318,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
 rsc/schema/pipeline/chat-capture/markdownConversation/CHANGELOG.md,6,doc,src/main/markdown_projection.py,Y,"src/main/markdown_projection.py - and judges it as a family of the pipeline, with a"
 rsc/schema/pipeline/chat-capture/markdownConversation/CHANGELOG.md,9,doc,rsc/schema/WORKFLOW.md,Y,always did (see `rsc/schema/WORKFLOW.md`).
 rsc/schema/pipeline/chat-capture/markdownConversation/CHANGELOG.md,40,doc,rsc/schema/pipeline/chat-capture/markdownConversation,Y,"- The family's address: rsc/schema/pipeline/chat-capture/markdownConversation, a family"
@@ -749,11 +750,12 @@ rsc/schema/pipeline/chat-export/claude/users/v2.json,19,path_str,rsc/model/model
 rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,19,doc,rsc/model/model_join.csv,Y,uuid the export families carry under four dressings (rsc/model/model_join.csv's
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,59,doc,rsc/model/model_join.csv,Y,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,93,doc,rsc/model/model_join.csv,Y,No other family carries the key (rsc/model/model_join.csv names no row for it).
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,585,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,965,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,18,doc,rsc/model/model_join.csv,Y,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,51,doc,rsc/model/model_join.csv,Y,uuid the export families carry under four dressings (rsc/model/model_join.csv's
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,91,doc,rsc/model/model_join.csv,Y,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,125,doc,rsc/model/model_join.csv,Y,No other family carries the key (rsc/model/model_join.csv names no row for it).
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,617,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,997,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,77,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
@@ -1622,7 +1624,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/cli/indexing/semanticConcepts/v2.json,Y,
 ,,,rsc/schema/mcp/mcpMessage/v5.json,Y,
 ,,,rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,Y,
-,,,rsc/schema/pipeline/chat-capture/claude/apiConversation/v16.json,Y,
+,,,rsc/schema/pipeline/chat-capture/claude/apiConversation/v17.json,Y,
 ,,,rsc/schema/pipeline/chat-capture/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/pipeline/chat-capture/markdownConversation/v5.json,Y,
 ,,,rsc/schema/pipeline/chat-export/claude/conversations/v24.json,Y,
@@ -1639,7 +1641,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/pipeline/code-transport/claude/projectMemory/v3.json,Y,
 ,,,rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,Y,
-,,,rsc/schema/pipeline/code-transport/claude/session/v27.json,Y,
+,,,rsc/schema/pipeline/code-transport/claude/session/v28.json,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/CHANGELOG.md,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/layer.csv,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/v1.json,Y,

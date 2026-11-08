@@ -13,6 +13,35 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v17
+
+A model id is one closed set the corpus shares. A conversation's `model` was a bare string,
+while the session family closed the same ids as `ModelId`; the captures carried five ids the
+session's enum lacked, and on 2026-11-07 a session met one of them, `claude-opus-5-5`, and was
+refused. `model` is now typed by `ModelId`, the set of every id either family knows, one
+definition shared with session v28 and asserted identical in rsc/model/model_join.csv, so an id
+neither knows refuses in both. The set says which ids are known, not where any was met.
+
+Validated over the 127 API captures stored on reading-room on 2026-11-08: v17 refuses none of
+them. v17 narrows `model` from any string to the set, so a capture naming an id outside it,
+which v16 admitted, v17 refuses until a version of both families admits the id.
+
+### Replaces
+
+v16
+
+#### Restricted
+
+- `ApiConversation.model`: typed by `ModelId`, the enum `claude-fable-5`, `claude-fable-5-1`, `claude-haiku-4-5-20251001`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5`, `claude-opus-5-5`, `claude-sonnet-4-6`, `claude-sonnet-5`, `claude-sonnet-5-5`, where it was any string.
+
+#### Relaxed
+
+None.
+
+#### Refactored
+
+None.
+
 ## v16
 
 The harness turns a connected MCP server's tools on, and reads files, and a Read of an image

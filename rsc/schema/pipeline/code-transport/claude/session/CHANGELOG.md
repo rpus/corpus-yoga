@@ -6,6 +6,38 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v28
+
+A model id is one closed set the corpus shares. Reading-room's session
+`e2d2039d-b1e5-4691-99f9-f0629d13e243`, captured on 2026-11-07 by `corpus-yoga agent capture`
+into the stage, is refused at v27 by the rehearsal of 2026-11-07T160259Z at its record 32743,
+an `api-request` of 2026-11-07T15:19:47Z (Claude Code 2.1.319) whose `params.model` is
+`claude-opus-5-5`, which `ModelId` did not hold. The API captures already carried that id and
+four more the enum lacked, since apiConversation typed its `model` as a bare string. `ModelId`
+is now the set of every id either family knows, one definition shared with apiConversation v17
+and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The
+set says which ids are known, not where any was met.
+
+Validated over the rehearsal's conversion of the staged session on reading-room, 2026-11-08:
+v27 refuses it at record 32743 and stops; v28 refuses none of its records. v28 widens one enum
+and narrows nothing, so every datum v27 admits, v28 admits.
+
+### Replaces
+
+v27
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `ModelId`: the enum is `claude-fable-5`, `claude-fable-5-1`, `claude-haiku-4-5-20251001`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5`, `claude-opus-5-5`, `claude-sonnet-4-6`, `claude-sonnet-5`, `claude-sonnet-5-5` - five ids more, wherever a member is typed by it.
+
+#### Refactored
+
+- `ModelId`: the description says the set is the corpus's known ids, shared with apiConversation, and no longer narrates where each was first observed.
+
 ## v27
 
 A session says whose it is. Reading-room's session `e2d2039d-b1e5-4691-99f9-f0629d13e243`,

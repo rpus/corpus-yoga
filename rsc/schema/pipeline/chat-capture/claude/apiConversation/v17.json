@@ -56,8 +56,7 @@
           "type": "boolean"
         },
         "model": {
-          "description": "Claude model. Example: \"claude-sonnet-4-6\".",
-          "type": "string"
+          "$ref": "#/definitions/ModelId"
         },
         "platform": {
           "description": "Platform. Example: \"CLAUDE_AI\".",
@@ -140,6 +139,24 @@
         {
           "$ref": "#/definitions/UuidV7"
         }
+      ]
+    },
+    "ModelId": {
+      "title": "ModelId",
+      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/model/model_join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
+      "type": "string",
+      "enum": [
+        "claude-fable-5",
+        "claude-fable-5-1",
+        "claude-haiku-4-5-20251001",
+        "claude-opus-4-6",
+        "claude-opus-4-7",
+        "claude-opus-4-8",
+        "claude-opus-5",
+        "claude-opus-5-5",
+        "claude-sonnet-4-6",
+        "claude-sonnet-5",
+        "claude-sonnet-5-5"
       ]
     },
     "ApiMessageBase": {

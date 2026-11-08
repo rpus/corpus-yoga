@@ -1,4 +1,4 @@
-run.py: code+schema 1872/1872
+run.py: code+schema 1873/1873
 
 
 check_required_files: |
@@ -160,7 +160,6 @@ check_site_reads_rpus_co: |
   ✓ site.landing_reads_the_fetched_origin
   ✓ site.clone_position_is_said
   ✓ site.publish_levels_the_clone
-  ✓ site.reads_the_served_branch
 
 check_rehearsal_record: |
   ✓ rehearsal.record_is_whole
@@ -263,8 +262,8 @@ check_model_occurrences: |
   ✓ model.occurrences_cover_edges
 
 check_model_obligations: |
-  ✓ model.shared_type_disposed  (104/104)
-  ✓ model.documented_type_grounded  (100/100)
+  ✓ model.shared_type_disposed  (105/105)
+  ✓ model.documented_type_grounded  (101/101)
 
 check_model_identity: |
   ✓ model.identity_holds
@@ -464,7 +463,7 @@ stages:
     tier: code
     line: "156"
   check_site_reads_rpus_co:
-    passes: 4
+    passes: 3
     failures: 0
     tier: code
     line: "159"
@@ -472,145 +471,145 @@ stages:
     passes: 2
     failures: 0
     tier: code
-    line: "165"
+    line: "164"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "169"
+    line: "168"
   check_unit_state:
     passes: 6
     failures: 0
     tier: code
-    line: "172"
+    line: "171"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "179"
+    line: "178"
   check_facts:
     passes: 5
     failures: 0
     tier: code
-    line: "184"
+    line: "183"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "190"
+    line: "189"
   check_status_facts:
     passes: 155
     failures: 0
     tier: code
-    line: "193"
+    line: "192"
   check_walkthrough:
     passes: 1
     failures: 0
     tier: code
-    line: "209"
+    line: "208"
   check_completions:
     passes: 10
     failures: 0
     tier: code
-    line: "212"
+    line: "211"
   check_drafters:
     passes: 2
     failures: 0
     tier: code
-    line: "219"
+    line: "218"
   check_versioned_schema_diagnostics:
     passes: 374
     failures: 0
     tier: schema
-    line: "223"
+    line: "222"
   check_schema_join:
     passes: 2
     failures: 0
     tier: schema
-    line: "250"
+    line: "249"
   check_model_join_versions:
     passes: 1
     failures: 0
     tier: schema
-    line: "254"
+    line: "253"
   check_model_table:
     passes: 1
     failures: 0
     tier: schema
-    line: "257"
+    line: "256"
   check_model_occurrences:
     passes: 3
     failures: 0
     tier: schema
-    line: "260"
+    line: "259"
   check_model_obligations:
-    passes: 204
+    passes: 206
     failures: 0
     tier: schema
-    line: "265"
+    line: "264"
   check_model_identity:
     passes: 1
     failures: 0
     tier: schema
-    line: "269"
+    line: "268"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "272"
+    line: "271"
   check_record_is_the_launchers:
     passes: 1
     failures: 0
     tier: code
-    line: "275"
+    line: "274"
   check_record_names_read_once:
     passes: 1
     failures: 0
     tier: code
-    line: "278"
+    line: "277"
   check_provider_registry:
     passes: 2
     failures: 0
     tier: code
-    line: "281"
+    line: "280"
   check_forge_aim:
     passes: 6
     failures: 0
     tier: code
-    line: "285"
+    line: "284"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "290"
+    line: "289"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "293"
+    line: "292"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "297"
+    line: "296"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "303"
+    line: "302"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "309"
+    line: "308"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "312"
+    line: "311"
 
-checks[code+schema]: 193 types, 1872/1872 invocations passing
-checks[code]: 141 types, 1152/1152 invocations passing
-checks[schema]: 52 types, 720/720 invocations passing
+checks[code+schema]: 192 types, 1873/1873 invocations passing
+checks[code]: 140 types, 1151/1151 invocations passing
+checks[schema]: 52 types, 722/722 invocations passing
 
-dev gate: PASS - code+schema 1872/1872 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1873/1873 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
