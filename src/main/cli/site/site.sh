@@ -119,6 +119,19 @@ publish() {
     effect "site publish: NOT DONE - $(phrase "no publish tree at data/output/site/")"
     return 1
   fi
+  # the branch rpus.co serves, whatever the clone has checked out (issues/1026): a clone that
+  # records none, or stands on another, is refused before any copy or commit, by name
+  local served off
+  served="$(clone_served "$mount")"
+  if [[ -z "$served" ]]; then
+    effect "site publish: NOT DONE - $(phrase "the clone records no branch rpus.co serves - corpus-yoga site names the remedy")"
+    return 1
+  fi
+  off="$(off_served "$mount")"
+  if [[ -n "$off" ]]; then
+    effect "site publish: NOT DONE - $(phrase "the clone stands on {branch}, not {local}, the branch rpus.co serves - corpus-yoga site names the switch" branch="$off" local="${served#*/}")"
+    return 1
+  fi
   # rpus.co as it stands first (issues/1020): the clone brought level by a fast-forward, so that
   # the copy lands on what rpus.co holds; where the send is refused, the landing is read as last
   # fetched and the push below refuses whatever would land
@@ -142,7 +155,7 @@ publish() {
   else
     echo "  $(phrase "nothing to commit - the clone already held the tree")"
   fi
-  enact git -C "$mount" push || return 1
+  enact git -C "$mount" push origin "HEAD:${served#*/}" || return 1
   effect "site publish: DONE - $(phrase "rpus.co serves the publish tree on Netlify's next build")"
 }
 

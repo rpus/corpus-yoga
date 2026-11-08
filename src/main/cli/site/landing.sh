@@ -4,10 +4,20 @@
 # against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
 # report.sh, send.sh and enact.sh; each function takes the clone, and the tree where it reads one.
 
-# clone_origin <clone>: the branch of rpus.co the clone tracks, as git names it; HEAD where it
-# tracks none.
-clone_origin() {
-  git -C "$1" rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || echo HEAD
+# clone_served <clone>: the branch rpus.co serves, the remote's default as the clone records it
+# (origin/HEAD), whatever branch the clone has checked out (issues/1026); nothing where it records none.
+clone_served() {
+  git -C "$1" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || true
+}
+
+# off_served <clone>: the branch the clone stands on, where it is not the one rpus.co serves;
+# nothing where it is, or where no served branch is recorded.
+off_served() {
+  local served branch
+  served="$(clone_served "$1")"
+  branch="$(git -C "$1" branch --show-current)"
+  [[ -n "$served" && "$branch" != "${served#*/}" ]] && echo "${branch:-a detached HEAD}"
+  return 0
 }
 
 # clone_fetch <clone>: the clone's record of rpus.co brought level within the send bound; a row
@@ -22,37 +32,46 @@ clone_fetch() {
 }
 
 # clone_position <clone>: the row `clone <words> [<command> <what it does>]` - where the clone
-# stands to its origin; diverged carries the command that shows where they part.
+# stands to the branch rpus.co serves; a clone that records no served branch, stands on another
+# branch, or has diverged carries the command that answers it, and publish refuses it.
 clone_position() {
-  local origin ahead behind
-  origin="$(clone_origin "$1")"
-  if [[ "$origin" == HEAD ]]; then
-    printf 'clone\t%s\n' "$(phrase "tracks no branch of rpus.co - read against its own HEAD")"
+  local served off ahead behind
+  served="$(clone_served "$1")"
+  if [[ -z "$served" ]]; then
+    printf 'clone\t%s\t%s\t%s\n' "$(phrase "records no branch rpus.co serves (origin/HEAD) - corpus-yoga site publish refuses until it does")" \
+      "git -C ext/mnt/site remote set-head origin --auto" "$(phrase "records the remote's default branch")"
     return 0
   fi
-  read -r ahead behind < <(git -C "$1" rev-list --left-right --count "HEAD...$origin")
+  off="$(off_served "$1")"
+  if [[ -n "$off" ]]; then
+    printf 'clone\t%s\t%s\t%s\n' "$(phrase "on {branch}, not {local}, the branch rpus.co serves as {served} - corpus-yoga site publish refuses until it stands on {local}" branch="$off" local="${served#*/}" served="$served")" \
+      "git -C ext/mnt/site switch ${served#*/}" "$(phrase "stands it on the branch rpus.co serves")"
+    return 0
+  fi
+  read -r ahead behind < <(git -C "$1" rev-list --left-right --count "HEAD...$served")
   if (( ahead == 0 && behind == 0 )); then
-    printf 'clone\t%s\n' "$(phrase "level with {origin}" origin="$origin")"
+    printf 'clone\t%s\n' "$(phrase "level with {origin}" origin="$served")"
   elif (( ahead == 0 )); then
-    printf 'clone\t%s\n' "$(phrase "behind {origin} by {n} commit(s) - the next corpus-yoga site publish brings it level" origin="$origin" n="$behind")"
+    printf 'clone\t%s\n' "$(phrase "behind {origin} by {n} commit(s) - the next corpus-yoga site publish brings it level" origin="$served" n="$behind")"
   elif (( behind == 0 )); then
-    printf 'clone\t%s\n' "$(phrase "ahead of {origin} by {n} commit(s) - the next corpus-yoga site publish pushes them" origin="$origin" n="$ahead")"
+    printf 'clone\t%s\n' "$(phrase "ahead of {origin} by {n} commit(s) - the next corpus-yoga site publish pushes them" origin="$served" n="$ahead")"
   else
     printf 'clone\t%s\t%s\t%s\n' \
-      "$(phrase "diverged from {origin} - {ahead} commit(s) here, {behind} there; corpus-yoga site publish refuses until they are reconciled" origin="$origin" ahead="$ahead" behind="$behind")" \
+      "$(phrase "diverged from {origin} - {ahead} commit(s) here, {behind} there; corpus-yoga site publish refuses until they are reconciled" origin="$served" ahead="$ahead" behind="$behind")" \
       "git -C ext/mnt/site status" "$(phrase "shows where the clone and rpus.co part")"
   fi
 }
 
 # landing <clone> <tree>: the rows `land <file> <what changes>` - each new or changed file of the
-# tree against the clone's origin (deletions are not mirrored - the site repo curates its own
+# tree against the branch rpus.co serves (deletions are not mirrored - the site repo curates its own
 # removals), the corpus page in the page's own terms (src/main/model/compare_pages.py, issues/652),
 # since a line diff of two renders misstates it; and the clone's own uncommitted files, which
 # the copy commits with it.
 landing() {
   local clone="$1" tree="$2" origin held f rel
   [[ -d "$clone/.git" && -d "$tree" ]] || return 0
-  origin="$(clone_origin "$clone")"
+  origin="$(clone_served "$clone")"
+  [[ -n "$origin" ]] || origin=HEAD
   held="$(mktemp "${TMPDIR:-/tmp}/landing.XXXXXX")"
   while IFS= read -r f; do
     rel="${f#"$tree"/}"
@@ -81,10 +100,13 @@ landing() {
   return 0
 }
 
-# level_clone <clone>: the clone brought level with its origin by a fast-forward, the act's first
-# step; non-zero where it cannot be - diverged, or the send refused.
+# level_clone <clone>: the clone brought level with the branch rpus.co serves by a fast-forward,
+# the act's first step; non-zero where it cannot be - no served branch recorded, the clone on
+# another branch, diverged, or the send refused.
 level_clone() {
+  local served
   assert_may_send "git -C ext/mnt/site pull --ff-only (site publish)" || return 1
-  [[ "$(clone_origin "$1")" == HEAD ]] && return 0
-  enact git -C "$1" pull --ff-only --quiet
+  served="$(clone_served "$1")"
+  [[ -n "$served" && -z "$(off_served "$1")" ]] || return 1
+  enact git -C "$1" pull --ff-only --quiet origin "${served#*/}"
 }
