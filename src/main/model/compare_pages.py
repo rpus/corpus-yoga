@@ -82,13 +82,14 @@ def value(record: dict, column: str) -> str:
     return str(record[column]) if column in record else facts.phrase('absent')
 
 
-def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dict) -> str:
+def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dict) -> str | None:
+    """What changes in one table, by row identity; None where nothing does (issues/1028)."""
     a, b = keyed(name, old, uuid_old), keyed(name, new, uuid_new)
     added = [k for k in b if k not in a]
     removed = [k for k in a if k not in b]
     changed = [k for k in b if k in a and changed_columns(a[k], b[k], name)]
     if not (added or removed or changed):
-        return f'{name}: ' + facts.phrase('identical ({n} rows)', n=len(b))
+        return None
     parts = []
     if added:
         parts.append(facts.phrase('{n} added - {labels}', n=len(added), labels=', '.join(label(name, k, b[k]) for k in added[:SHOWN])
@@ -112,8 +113,9 @@ def size(table: dict) -> str:
     return ', '.join(facts.phrase('{side} {n} words', side=side, n=len(t.get('rows', []))) for side, t in table.items())
 
 
-def compare_words(old: dict, new: dict) -> str:
-    """data-literal-words: one table per side (human, assistant, both), keyed by word."""
+def compare_words(old: dict, new: dict) -> str | None:
+    """data-literal-words: one table per side (human, assistant, both), keyed by word; None
+    where nothing changes."""
     parts = []
     for side in new:
         a = dict(old.get(side, {}).get('rows', [])) if side in old else {}
@@ -124,7 +126,7 @@ def compare_words(old: dict, new: dict) -> str:
         if added or removed or moved:
             parts.append(facts.phrase('{side} {added} entered, {removed} left, {moved} counts moved', side=side, added=len(added), removed=len(removed), moved=len(moved))
                          + (' (' + facts.phrase('entered {words}', words=', '.join(added[:SHOWN]) + (', ...' if len(added) > SHOWN else '')) + ')' if added else ''))
-    return 'data-literal-words: ' + ('; '.join(parts) if parts else facts.phrase('identical'))
+    return 'data-literal-words: ' + '; '.join(parts) if parts else None
 
 
 def uuid_by_chat(page: dict) -> dict:
@@ -142,8 +144,6 @@ def compare(old_path: Path, new_path: Path) -> list[str]:
     lines = []
     if old_title != new_title:
         lines.append('title: ' + facts.phrase('"{old}" to "{new}"', old=old_title, new=new_title))
-    else:
-        lines.append('title: ' + facts.phrase('unchanged - "{title}"', title=new_title))
     uuid_old, uuid_new = uuid_by_chat(old), uuid_by_chat(new)
     for name in sorted(set(old) | set(new)):
         if name not in new:
@@ -151,11 +151,15 @@ def compare(old_path: Path, new_path: Path) -> list[str]:
         if name not in old:
             lines.append(f'{name}: ' + facts.phrase('new on the page ({size})', size=size(new[name]))); continue
         if name == 'data-literal-words':
-            lines.append(compare_words(old[name], new[name]))
+            said = compare_words(old[name], new[name])
         elif name in IDENTITY:
-            lines.append(compare_table(name, old[name], new[name], uuid_old, uuid_new))
+            said = compare_table(name, old[name], new[name], uuid_old, uuid_new)
+        elif old[name] == new[name]:
+            said = None
         else:
-            lines.append(f'{name}: ' + facts.phrase('{standing} (no identity column declared)', standing=facts.phrase('identical') if old[name] == new[name] else facts.phrase('differs')))
+            said = facts.phrase('differs (no identity column declared)')
+        if said is not None:
+            lines.append(said if said.startswith(f'{name}: ') else f'{name}: ' + said)
     return lines
 
 
