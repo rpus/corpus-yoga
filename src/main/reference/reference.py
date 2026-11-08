@@ -152,7 +152,7 @@ class Project:
     files_hashing_as_pinned: str | None = None
     currency: str | None = None
     to_fetch: dict[str, str] | None = None   # by file: missing, or drifted from its pin
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
 
 @dataclass
@@ -183,7 +183,7 @@ def status() -> int:
         item = Project(lineages_upstream=len(upstream), lineages_held=held,
                        files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
         if lines:
-            item.to_fetch, item.remedy = lines, facts.Command(spell.line('reference', 'sync'), facts.phrase('fetches them'))
+            item.to_fetch, item.remedy = lines, facts.Would(spell.line('reference', 'sync'), {name: len(lines)})
         out[name] = item
         stale += len(lines)
     facts.say(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))

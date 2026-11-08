@@ -35,7 +35,7 @@ class Hook:
     installed, and the remedy where it does not. The home of the hooks' state (issues/778): the
     machine report and the forge say what this says."""
     installed: str
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
     @property
     def sound(self) -> bool:
@@ -74,12 +74,12 @@ def commit_hook() -> Hook:
         return Hook(facts.phrase('no - not a git clone, so no hook to install'))
     if hook.is_symlink():
         return Hook(facts.phrase('as a symlink to {target} - a rename dangles it and git then skips it in silence', target=os.readlink(hook)),
-                    facts.Command(INSTALL, facts.phrase('reinstalls it')))
+                    facts.Would(INSTALL, {'pre-commit': 1}))
     if hook.is_file() and hook.read_bytes() == (REPO / 'rsc' / 'test' / 'pre-commit-hook.sh').read_bytes():
         return Hook(facts.phrase('yes - a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run'))
     if hook.exists():
-        return Hook(facts.phrase('no - another pre-commit hook stands in its place'), facts.Command(INSTALL, facts.phrase('replaces it')))
-    return Hook(facts.phrase('no - nothing vets a commit'), facts.Command(INSTALL, facts.phrase('installs it')))
+        return Hook(facts.phrase('no - another pre-commit hook stands in its place'), facts.Would(INSTALL, {'pre-commit': 1}))
+    return Hook(facts.phrase('no - nothing vets a commit'), facts.Would(INSTALL, {'pre-commit': 1}))
 
 
 def signature_hook() -> Hook:
@@ -94,10 +94,10 @@ def signature_hook() -> Hook:
         target = link if link.is_absolute() else hook.parent / link
         if target.parent.resolve() / target.name == script.parent.resolve() / script.name:
             return Hook(facts.phrase('yes - the symlink to rsc/test/prepare-commit-msg-hook.sh'))
-        return Hook(facts.phrase('no - its symlink points elsewhere ({link})', link=link), facts.Command(INSTALL, facts.phrase('reinstalls it')))
+        return Hook(facts.phrase('no - its symlink points elsewhere ({link})', link=link), facts.Would(INSTALL, {'prepare-commit-msg': 1}))
     if hook.exists():
-        return Hook(facts.phrase('no - another prepare-commit-msg hook stands in its place'), facts.Command(INSTALL, facts.phrase('replaces it')))
-    return Hook(facts.phrase('no - a commit goes unstamped by its Signature'), facts.Command(INSTALL, facts.phrase('installs it')))
+        return Hook(facts.phrase('no - another prepare-commit-msg hook stands in its place'), facts.Would(INSTALL, {'prepare-commit-msg': 1}))
+    return Hook(facts.phrase('no - a commit goes unstamped by its Signature'), facts.Would(INSTALL, {'prepare-commit-msg': 1}))
 
 
 def main() -> int:

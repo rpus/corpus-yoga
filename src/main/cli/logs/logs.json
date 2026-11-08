@@ -11,7 +11,6 @@
     "no command corpus-yoga {command}",
     "no verb corpus-yoga {command} {verb}",
     "a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, never a directory",
-    "would remove it",
     "absent - no act has been logged",
     "none - nothing to do"
   ],

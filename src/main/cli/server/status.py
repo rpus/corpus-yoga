@@ -28,29 +28,30 @@ class Assets:
     present: str
     versions: list[str] | None = None
     absent: list[str] | str | None = None
-    remedy: facts.Command | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
 class Server:
     daemon: str = facts.named('serve_markdown daemon')
+    remedy: facts.Would | None = None     # the stop or the start the daemon's state allows (issues/960)
     render_assets: Assets | None = None
 
 
 @dataclass
 class Status:
     server: Server
-    now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/947)
+    now: dict | str = facts.phrase('none - nothing to do')   # every act the body names, gathered (issues/1028)
 
 
-def now_of(running: bool, rendered: bool) -> dict[str, dict[str, dict[str, int]]] | str:
-    """The server's standing (issues/960): the stop while the daemon runs; the start while the
-    corpus page is rendered and the daemon is down; none otherwise."""
+def daemon_act(running: bool, rendered: bool) -> facts.Would | None:
+    """The act the daemon's state allows (issues/960): the stop while it runs; the start while
+    the corpus page is rendered and it is down; none otherwise."""
     if running:
-        return {spell.line('server', 'stop'): {'would stop': {'serve_markdown daemon': 1}}}
+        return facts.Would(spell.line('server', 'stop'), {'serve_markdown daemon': 1})
     if rendered:
-        return {spell.line('server', 'start', daemon=True): {'would serve': {'data/output/markdown': 1}}}
-    return facts.phrase('none - nothing to do')
+        return facts.Would(spell.line('server', 'start', daemon=True), {'data/output/markdown': 1})
+    return None
 
 
 def main() -> int:
@@ -66,11 +67,12 @@ def main() -> int:
             if version not in versions:
                 versions.append(version)
     rendered = (tier.DATA / 'output' / 'markdown' / 'index.md').is_file()
-    out = Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), Assets(
+    out = Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), render_assets=Assets(
         facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
         (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
-        facts.Command(spell.line('server', 'ensure-assets'), facts.phrase('fetches them; the next corpus-yoga server start does too')) if missing else None)),
-                 now_of(bool(found), rendered))
+        facts.Would(spell.line('server', 'ensure-assets'), {'ext/lib/serve_markdown': len(missing)}) if missing else None)))
+    out.server.remedy = daemon_act(bool(found), rendered)
+    out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)
     return 0
 

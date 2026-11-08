@@ -1,5 +1,6 @@
 {
   "help": "make rpus.co serve the publish tree - copy data/output/site/ into the ext/mnt/site clone, commit there, push - what it would land is corpus-yoga site's status",
+  "would": "would land",
   "args": [],
   "sends": {
     "git -C ext/mnt/site pull --ff-only origin <served branch>": [

@@ -1,5 +1,6 @@
 {
   "help": "the check suite over src/ and rsc/ - code and schema, the same on any clone; the corpus is the data gate's (corpus-yoga pipeline run) (also what the pre-commit hook runs); SENDS two requests to github to check the pinned MCP schema, and, when a docker daemon is reachable, a fetch of upstream and a container run to reproduce it (mcp.reproducible); CORPUS_YOGA_NO_SEND=1 refuses all of them without failing the run",
+  "would": "would check",
   "args": [
     {
       "name": "--fix",

@@ -1,5 +1,6 @@
 {
   "help": "FREE - render index.html, the corpus page, from the captures + markdown corpus - idempotent",
+  "would": "would render",
   "args": [],
   "r": [
     "data/output/markdown",

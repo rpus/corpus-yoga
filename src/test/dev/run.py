@@ -1958,7 +1958,10 @@ def check_site_reads_rpus_co(run) -> None:
         return
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
-        environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND'}   # the remote is a local directory: nothing leaves the machine
+        # the remote is a local directory, so nothing leaves the machine; and no variable git exports to a
+        # hook reaches these clones - under the commit hook GIT_INDEX_FILE names the index being
+        # committed, and a planted clone's add and commit wrote into it (reading-room, 2026-11-08)
+        environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND' and not k.startswith('GIT_')}
         environment.update({'GIT_AUTHOR_NAME': 'gate', 'GIT_AUTHOR_EMAIL': 'gate@localhost', 'GIT_COMMITTER_NAME': 'gate',
                             'GIT_COMMITTER_EMAIL': 'gate@localhost', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_CONFIG_NOSYSTEM': '1'})
         def git(*words, cwd=root):
@@ -2001,8 +2004,8 @@ def check_site_reads_rpus_co(run) -> None:
         run("site: the clone's position to its fetched origin is said", told,
             None if told else f'said {behind} of a clone behind and {diverged} of a diverged one', check='site.clone_position_is_said')
         levelled, _ = said('level_clone', root / 'behind')
-        head = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root / 'behind', capture_output=True, text=True).stdout
-        tip = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=publisher, capture_output=True, text=True).stdout
+        head = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root / 'behind', env=environment, capture_output=True, text=True).stdout
+        tip = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=publisher, env=environment, capture_output=True, text=True).stdout
         refused, _ = said('level_clone', root / 'diverged')
         level = levelled == 0 and head == tip and refused != 0
         run('site: publish brings a clone level by a fast-forward, and refuses where it cannot', level,
@@ -2022,6 +2025,49 @@ def check_site_reads_rpus_co(run) -> None:
             check='site.reads_the_served_branch')
 
 
+def check_acts_said_once(run) -> None:
+    """What an act would do is said once (issues/1028): every acting verb declares its words,
+    `would`, in its own declaration, and a status names an act as one value - the command
+    and what it acts on - whose words are read from there; a noun's now: is every act its
+    body names, gathered, never composed beside it. The live bug: reading-room, 2026-11-08,
+    `corpus-yoga site` said one publish as `would land`, `would copy, commit and push them`
+    and, under now:, `would publish`."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import facts
+    cli_root = SRC / 'main' / 'cli'
+    silent = []
+    for declaration in sorted(cli_root.glob('*/*.json')):
+        if declaration.stem == declaration.parent.name:
+            continue
+        declared = json.loads(declaration.read_text())
+        if not isinstance(declared, dict) or not any(declared.get(k) for k in ('w', 'x', 'sends', 'consumes')):
+            continue
+        if not str(declared.get('would', '')).startswith('would '):
+            silent.append(f'{declaration.parent.name} {declaration.stem}')
+    run('cli: every acting verb declares what it would do, in its own declaration', not silent,
+        None if not silent else f'{len(silent)} acting verb(s) declare no would - {", ".join(silent[:6])}', check='cli.every_act_declares_its_would')
+    would, now_of = getattr(facts, 'Would', None), getattr(facts, 'now_of', None)
+    if would is None or now_of is None:
+        run("status: a noun's now: is every act its body names, gathered", False,
+            'src/main/facts.py has no Would and no now_of: each noun composes its now: beside its body', check='status.now_is_gathered_from_the_body')
+        return
+    @dataclass
+    class Body:
+        first: object
+        rest: list
+        now: object = None
+    one, other = 'tmp/logs/site/one', 'tmp/logs/site/other'
+    body = Body({'a': {'remedy': would('corpus-yoga logs clean', {one: 1})}},
+                [{'remedy': would('corpus-yoga logs clean', {other: 1})}, {'b': {'remedy': would('corpus-yoga logs clean', {one: 1})}}],
+                {'corpus-yoga logs clean': {'would remove': {'tmp/logs/site/elsewhere': 1}}})
+    gathered = now_of(body)
+    said = facts.plain({'remedy': would('corpus-yoga logs clean', {one: 1})})
+    want = {'corpus-yoga logs clean': {'would remove': {one: 2, other: 1}}}
+    same = gathered == want and said == {'remedy': {'corpus-yoga logs clean': {'would remove': {one: 1}}}}
+    run("status: a noun's now: is every act its body names, gathered", same,
+        None if same else f'gathered {gathered!r} and said {said!r}', check='status.now_is_gathered_from_the_body')
+
+
 def check_server_standing(run) -> None:
     """The server's standing is a function of two facts of the room (issues/960): the stop
     while the daemon runs, the start while the corpus is rendered and the daemon is down,
@@ -2034,14 +2080,15 @@ def check_server_standing(run) -> None:
     module = importlib.util.module_from_spec(spec)
     sys.modules['server_status'] = module
     spec.loader.exec_module(module)
-    now_of = getattr(module, 'now_of', None)
-    said = {case: now_of(*case) for case in ((True, True), (True, False), (False, True), (False, False))} if now_of else {}
+    daemon_act = getattr(module, 'daemon_act', None)
+    facts = sys.modules.get('facts') or __import__('facts')
+    said = {case: (facts.now_of({'remedy': daemon_act(*case)}) or 'none - nothing to do') for case in ((True, True), (True, False), (False, True), (False, False))} if daemon_act else {}
     want = {(True, True): {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}},
             (True, False): {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}},
             (False, True): {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}},
             (False, False): 'none - nothing to do'}
     run("server: its now: names the stop while the daemon runs, the start while the corpus is rendered and the daemon is down, none otherwise",
-        said == want, None if said == want else ('status.py declares no now_of(running, rendered)' if not now_of else f'said {said!r}'),
+        said == want, None if said == want else ('status.py declares no daemon_act(running, rendered)' if not daemon_act else f'said {said!r}'),
         check='server.now_names_the_stop_or_the_start')
 
 
@@ -2620,28 +2667,19 @@ def check_status_facts(run) -> None:
     same = by_test.removeprefix('yes - ') == by_forge or by_forge.endswith(by_test)
     run('report: the forge says the commit hook as corpus-yoga test says it', same,
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
-    # The room's standing is one fold of every noun's own now: (issues/949): no noun's now: names a
-    # command another noun's now: names - a noun that ran another would - and the report's
-    # now: is the fold of theirs. The live bug: at 1e9b8a8f corpus-yoga store ran the five
-    # other nouns and said their now: as its own.
+    # The room's standing is the fold of every noun's own now: (issues/949), each gathered from that
+    # noun's own body (issues/1028), with an act two nouns name over one unit taken once; and
+    # the report's now: is that fold, then each act only the report's own rows name.
     nouns_with_now = ('store', 'forge', 'cache', 'logs', 'server', 'site', 'pipeline')
     own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
-    named_by: dict[str, str] = {}
-    twice: list[str] = []
-    for noun in nouns_with_now:
-        block = own_now[noun]
-        for command in (block if isinstance(block, dict) else {}):
-            if command in named_by:
-                twice.append(f'{command} - by corpus-yoga {named_by[command]} and corpus-yoga {noun}')
-            named_by.setdefault(command, noun)
-    run('status: no noun\'s now: names a command another noun\'s now: names', not twice,
-        None if not twice else '; '.join(twice)[:300], check='status.now_is_the_nouns_own')
     import importlib
     sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
-    folded = importlib.import_module('standing').fold(own_now) or 'none - nothing to do'
-    same = whole.get('now') == folded
-    run('report: its now: is the fold of every noun\'s own now:', same,
-        None if same else f'the report says {str(whole.get("now"))[:120]} where the fold is {str(folded)[:120]}', check='report.now_is_the_fold')
+    folded = importlib.import_module('standing').fold(own_now)
+    own_rows = importlib.import_module('facts').now_of({key: value for key, value in whole.items() if key != 'now'})
+    expected = {**folded, **{line: act for line, act in own_rows.items() if line not in folded}} or 'none - nothing to do'
+    same = whole.get('now') == expected
+    run('report: its now: is the fold of every noun\'s own now:, then the acts only its own rows name', same,
+        None if same else f'the report says {str(whole.get("now"))[:120]} where the fold and its own rows give {str(expected)[:120]}', check='report.now_is_the_fold')
 
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
@@ -4324,6 +4362,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_providers_judged': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_spelling': ['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md', '.github'],
     'check_site_lag': ['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'],
+    'check_acts_said_once': ['src/main/facts.py', 'src/main/cli'],
     'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
     'check_site_reads_rpus_co': ['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'],
     'check_failing_record': ['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'],
@@ -4593,6 +4632,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_providers_judged, tier='code')
         run_section(check_declared_families_judge, tier='code')
         run_section(check_site_lag, tier='code')
+        run_section(check_acts_said_once, tier='code')
         run_section(check_server_standing, tier='code')
         run_section(check_site_reads_rpus_co, tier='code')
         run_section(check_rehearsal_record, tier='code')

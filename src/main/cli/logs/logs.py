@@ -101,7 +101,7 @@ class Orphan:
     logs: int
     size: str
     why: str
-    remedy: facts.Command = facts.Command(spell.line('logs', 'clean'), facts.phrase('would remove it'))
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -111,7 +111,7 @@ class Status:
     have, so that the room's one reading, which folds this block, names an orphaned log directory."""
     tmp_logs: Tier | str = facts.named('tmp/logs')
     orphans: dict[str, Orphan] | None = None
-    now: dict[str, dict[str, dict[str, int]]] | str | None = None
+    now: dict | str | None = None
     logs: str = ''                # the verdict
 
 
@@ -119,10 +119,12 @@ def status_facts() -> Status:
     if not LOGS.is_dir():
         return Status(facts.phrase('absent - no act has been logged'), {}, facts.phrase('none - nothing to do'), 'no logs')
     commands = [d for d in LOGS.iterdir() if d.is_dir()]
-    found = {p.relative_to(REPO).as_posix(): Orphan(logs_in(p), human(size_of(p)), why) for p, why in orphans()}
-    return Status(Tier(len(commands), logs_in(LOGS), human(size_of(LOGS))), found,
-                  {spell.line('logs', 'clean'): {'would remove': {rel: 1 for rel in found}}} if found else facts.phrase('none - nothing to do'),
-                  f'{len(commands)} command(s), {logs_in(LOGS)} log(s)' + (f', {len(found)} orphan(s)' if found else ''))
+    found = {rel: Orphan(logs_in(p), human(size_of(p)), why, facts.Would(spell.line('logs', 'clean'), {rel: 1}))
+             for p, why in orphans() for rel in (p.relative_to(REPO).as_posix(),)}
+    out = Status(Tier(len(commands), logs_in(LOGS), human(size_of(LOGS))), found, None,
+                 f'{len(commands)} command(s), {logs_in(LOGS)} log(s)' + (f', {len(found)} orphan(s)' if found else ''))
+    out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
+    return out
 
 
 def _dispose(path: Path) -> str | None:

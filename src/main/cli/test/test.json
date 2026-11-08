@@ -11,7 +11,6 @@
     "no - its symlink points elsewhere ({link})",
     "no - another prepare-commit-msg hook stands in its place",
     "no - a commit goes unstamped by its Signature",
-    "reinstalls it",
     "replaces it",
     "installs it",
     "not a git checkout",

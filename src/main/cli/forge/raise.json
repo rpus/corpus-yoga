@@ -1,5 +1,6 @@
 {
   "help": "raise a PR or an issue, the kind the first word - pr, from the issues it aims to complete, its title the first issue's verbatim copy and its why section one aim line per issue; issue, from its should and its relations, each wired as it is raised; the Signature and, for an issue, the as-at anchor stamped by the forge, so that no aim, no relation and no attribution is written by hand; the body file carries the drafter's sections alone",
+  "would": "would raise",
   "args": [
     {
       "name": "kind",

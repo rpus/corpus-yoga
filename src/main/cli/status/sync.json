@@ -1,5 +1,6 @@
 {
   "help": "make this machine satisfy what the report names - the mint of the venv, and each remedy the report holds that is the repo's to run; what it would run is corpus-yoga status's report, and it writes outside the repo",
+  "would": "would satisfy",
   "args": [],
   "sends": {
     "pip install": [

@@ -1,5 +1,6 @@
 {
   "help": "deposit new distinct states and re-render - idempotent (the only write)",
+  "would": "would deposit",
   "args": [],
   "step": "chat-export",
   "r": [

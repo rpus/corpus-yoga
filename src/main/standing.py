@@ -48,7 +48,7 @@ def fold(nows: dict[str, object]) -> dict:
     out: dict = {}
     for noun, now in nows.items():
         if isinstance(now, dict):
-            out.update(now)
+            facts.merge(out, now, once=True)   # an act two nouns name over one unit is one act (issues/1028)
         elif isinstance(now, str) and now != facts.phrase('none - nothing to do'):
             out[f'corpus-yoga {noun}'] = {'reports the noun': {now: 1}}
     return out

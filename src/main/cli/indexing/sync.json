@@ -1,5 +1,6 @@
 {
   "help": "build data/output/markdown/index.md from accepted-semantic-concepts.txt - idempotent",
+  "would": "would build",
   "args": [],
   "step": "corpus",
   "r": [

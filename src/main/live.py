@@ -66,7 +66,6 @@ class Ahead:
     tier: str = 'staged'      # which tier's copy it was read against: staged, or held
     agree: int = 0            # for a diverged session, the bytes the two agree on before they part
     link: str = ''            # the project whose directory this one is a link to
-    capture: str = ''         # the capture, by extent, that stages exactly this; empty where a session's capture brings it
 
     @property
     def key(self) -> str:
@@ -74,17 +73,17 @@ class Ahead:
         return f'{self.provider} {self.kind} {self.name}'
 
     def facts(self) -> dict:
-        """The live thing as the status states it: its state, both sides, and what stages it."""
-        staged_by: facts.Command | facts.Act | None = None
-        if self.capture:
-            staged_by = facts.Command(self.capture, facts.phrase('would stage it'))
-        elif self.kind != 'session' and self.state in ('new', 'changed'):
-            staged_by = facts.Act(facts.phrase('with a session of its project'))
+        """The live thing as the status states it: its state, both sides, and the capture that
+        stages it - the provider's, on the selection it is counted under (issues/1028)."""
+        staged_by = None
+        if self.state in ('new', 'grown', 'changed', 'diverged'):
+            key = corpus.selection_of('code-transport', self.provider, self.kind) or f'{self.provider} {self.kind}'
+            staged_by = facts.Would(spell.line('agent', 'capture', provider=self.provider), {key: 1})
         then = {'diverged': facts.phrase('a capture of it would be refused at promotion; the reader reconciles the two'),
                 'behind': facts.phrase('the {tier} copy holds more than the live store does', tier=self.tier)}.get(self.state)
         return {'state': self.state, 'live': self.live, self.tier: self.copy or None,
                 'agree for': facts.phrase('{n} bytes', n=self.agree) if self.state == 'diverged' else None,
-                'then': then, 'link to': self.link or None, 'capture': staged_by}
+                'then': then, 'link to': self.link or None, 'remedy': staged_by}
 
 
 @dataclass
@@ -92,7 +91,7 @@ class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
     state: str = 'absent'
     why: str = facts.phrase('no live store is read there')
-    remedy: facts.Command = facts.Command(spell.line('agent', 'mount'), facts.phrase('would mount it'))
+    remedy: facts.Would | None = None
 
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
@@ -179,7 +178,6 @@ def ahead() -> tuple[list[Ahead], list[str]]:
         pattern = '/'.join(glob.split('/')[declared.depth:])   # the glob below the unit: what a session directory holds of it
         copies = _copies(adapter, roots)
         for s in adapter.live_sessions(mount):
-            capture = spell.line('agent', 'capture', provider=name, id=s.id[:8])
             found = _fuller(copies.get(s.id, []), s.project)
             tier, copy = found if found is not None else ('staged', None)
             live_logs = _logs(s.path, pattern)
@@ -192,8 +190,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
                     agree = next((i for i, (a, b) in enumerate(zip(mine, theirs)) if a != b), min(len(mine), len(theirs)))
                     break
             rows.append(Ahead(name, kind, s.id[:8], state, corpus.human(s.size),
-                              '' if copy is None else corpus.human(copy.size), tier, agree=agree,
-                              capture=capture if state in ('new', 'grown') else ''))
+                              '' if copy is None else corpus.human(copy.size), tier, agree=agree))
         extras = _live_extras(name, mount)
         names: dict[Path, list[str]] = {}   # each live directory's project names: its own, and those linked to it
         for _kind, path in extras:
@@ -219,16 +216,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
 def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[dict[str, Ahead | AbsentMount], int, int]:
     """The reading as facts: the absent mounts, by path, then each live thing that is not
     level with its copy, by what it is called; returns (the items, ahead, level)."""
-    items: dict[str, Ahead | AbsentMount] = {m: AbsentMount() for m in absent}
+    items: dict[str, Ahead | AbsentMount] = {m: AbsentMount(remedy=facts.Would(spell.line('agent', 'mount'), {m: 1})) for m in absent}
     items.update({r.key: r for r in rows if r.state != 'level'})
     found = sum(1 for r in rows if r.state in ('new', 'grown', 'changed', 'diverged'))
     return items, found, sum(1 for r in rows if r.state == 'level')
-
-
-def captures(out: dict[str, dict[str, dict[str, int]]], rows: list[Ahead]) -> None:
-    """Into a now: block, each live thing ahead of its copy under the capture, by
-    provider, that would stage it, keyed by the selection it is counted under."""
-    for row in rows:
-        if row.state in ('new', 'grown', 'changed', 'diverged'):
-            key = corpus.selection_of('code-transport', row.provider, row.kind) or f'{row.provider} {row.kind}'
-            corpus.step(out, spell.line('agent', 'capture', provider=row.provider), key)

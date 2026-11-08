@@ -79,12 +79,22 @@ def grafted(noun: str, pointer: str, whole: bool, as_standing: bool = False):
     return needing(at)
 
 
+def _is_act(command: str) -> bool:
+    """Whether the command is a corpus-yoga act whose verb declares what it would do."""
+    try:
+        facts.would_of(command)
+    except (StopIteration, IndexError, OSError, KeyError, ValueError):
+        return False
+    return True
+
+
 def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
     """Each remedy the report holds that the reader types: its command, what it does, and
     where it stands. An act in words is no row here: status sync takes only commands."""
     if not isinstance(node, dict):
         return []
-    out = [(command, does, where) for command, does in node['remedy'].items()] if isinstance(node.get('remedy'), dict) else []
+    out = ([(command, next(iter(does)) if isinstance(does, dict) else does, where) for command, does in node['remedy'].items()]
+           if isinstance(node.get('remedy'), dict) else [])
     for key, value in node.items():
         if key != 'remedy':
             out += remedies(value, f'{where} / {key}' if where else str(key))
@@ -124,15 +134,22 @@ def main() -> int:
             last += ' (again)'
         at[last] = stands
         commands = {rest[i]: rest[i + 1] if i + 1 < len(rest) else '' for i in range(0, len(rest), 2) if rest[i]}
-        if commands:
-            at.setdefault('remedy', {}).update(commands)
+        for command, does in commands.items():
+            # a corpus-yoga act is said in its declared words, on what the row is about (issues/1028)
+            act = facts.plain(facts.Would(command, {last.removesuffix(' (again)'): 1})) if _is_act(command) else None
+            said_as: dict = act if isinstance(act, dict) else {command: does}
+            held = at.get('remedy')
+            at['remedy'] = facts.merge(held if isinstance(held, dict) else {}, said_as)
     if mode == 'remedies':
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
     report = Report(sections if sections or whole else {'remedy': facts.phrase('none - corpus-yoga status --show-all says what stands')})   # a status loads as one mapping: the empty case says its one fact
     if venv.is_file():
-        report.now = standing.room_now() or facts.phrase('none - nothing to do')
+        # every noun's own acts, then each act only the report's own rows name (issues/1028): a grafted
+        # spot's act is its noun's, already in that noun's now:, and is not counted twice
+        room = standing.room_now()
+        report.now = {**room, **{line: act for line, act in facts.now_of(sections).items() if line not in room}} or facts.phrase('none - nothing to do')
     facts.say(report)
     return 0
 

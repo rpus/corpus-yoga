@@ -165,7 +165,7 @@ def _capture(machine: str, provider: str, session: str) -> str:
 class Named:
     sessions_named: int
     held: int
-    held_nowhere: dict[str, facts.Command | facts.Act] | None = None   # by session: the capture that would hold it, or what the reader does first
+    held_nowhere: dict[str, facts.Command | facts.Act | facts.Would] | None = None   # by session: the capture that would hold it, or what the reader does first
 
 
 @dataclass
@@ -199,7 +199,7 @@ def brief() -> Brief | None:
         absent = [k for k in named if not held(k[1], k[2])]
         remedies = {'/'.join(k): _capture(*k) for k in absent}
         out.providers[provider] = Named(len(named), len(named) - len(absent), {
-            session: facts.Command(remedy, facts.phrase('captures it')) if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
+            session: facts.Would(remedy, {session: 1}) if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
             for session, remedy in remedies.items()} or None)
     return out
 
