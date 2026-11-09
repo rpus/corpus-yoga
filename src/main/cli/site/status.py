@@ -89,19 +89,16 @@ def main() -> int:
     index: CorpusPage | facts.Finding = CorpusPage(title)
     if title == 'ABSENT':
         index = facts.Finding(facts.phrase('absent - the corpus page is unbuilt'), facts.Would(spell.line('site', 'render'), {'index.html': 1}))
-    land: dict[str, str | dict[str, str]] = {}
+    land: dict = {}
     for row in rows:
         if row[0] != 'land' or len(row) < 3:
             continue
-        said = {} if ': ' in row[2] or row[1] in land else None
-        if said is None and row[1] not in land:
-            land[row[1]] = row[2]
-            continue
-        parts = land.setdefault(row[1], {})
-        if isinstance(parts, str):
-            parts = land[row[1]] = {}
-        key, _, words = row[2].partition(': ')
-        parts[key] = words.replace(': ', ' - ') if words else key
+        at = land                 # the file, then the keys the comparison's fact stands under, then its value (issues/1028)
+        for key in row[1:-2]:
+            if not isinstance(at.get(key), dict):
+                at[key] = {}
+            at = at[key]
+        at[row[-2]] = row[-1]
     site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,
                 deploy=next((row[1] for row in rows if row[0] == 'deploy'), ''))
     site.fetch = next((row[1] for row in rows if row[0] == 'fetch'), None)

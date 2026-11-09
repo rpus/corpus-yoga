@@ -150,6 +150,7 @@ shell.shellcheck_clean
 site.clone_position_is_said
 site.lag_is_read_from_declarations
 site.landing_reads_the_fetched_origin
+site.page_comparison_lists_measure_changes
 site.page_comparison_survives_a_new_column
 site.publish_levels_the_clone
 site.reads_the_served_branch
