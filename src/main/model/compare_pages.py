@@ -42,11 +42,12 @@ IDENTITY = {
 # to hold against expectation, so each such row is listed with them; a change elsewhere alone -
 # a format's, uniform - is counted
 MEASURES = {
-    'data-chats': ('human', 'assistant'),
+    'data-chats': ('turns', ('human', 'assistant')),   # what the measures are called together, then the columns
 }
-# the columns a table's rows are grouped by when what changed elsewhere alone is counted, per
-# table (issues/1028): a format's change is one projection's, so it is counted of that group's
-# whole - all of one channel, or some of it - and a group with nothing changed is not said
+# the columns a table's rows are grouped by, per table (issues/1028): what is added, removed or
+# changed is said by group, of that group's whole - a format's change is one projection's, all of
+# one channel or some of it, and a conversation is one of its channel's - and a group with
+# nothing in it is not said
 GROUPS = {
     'data-chats': ('provider', 'channel'),
 }
@@ -103,44 +104,54 @@ def named(name: str, keys: list, rows: dict) -> str:
 def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dict) -> list[Fact]:
     """What changes in one table, by row identity, each count of its whole (issues/1028): the rows
     added and removed; the rows whose content measures changed, each listed with them; and
-    the rows changed elsewhere alone, counted under the columns they changed in. Nothing
-    where nothing changes."""
+    the rows changed elsewhere alone, counted under the columns they changed in - each by
+    the table's groups where it declares them. Nothing where nothing changes."""
     a, b = keyed(name, old, uuid_old), keyed(name, new, uuid_new)
     added = [k for k in b if k not in a]
     removed = [k for k in a if k not in b]
     changed = {k: changed_columns(a[k], b[k], name) for k in b if k in a}
     changed = {k: cols for k, cols in changed.items() if cols}
-    measures = MEASURES.get(name, ())
+    called, measures = MEASURES.get(name, ('', ()))
+    by = GROUPS.get(name, ())
+
+    def group(record: dict) -> str:
+        return '/'.join(value(record, c) for c in by)
+
+    def grouped(keys: list, rows: dict) -> dict[str, list]:
+        out: dict[str, list] = {}
+        for k in keys:
+            out.setdefault(group(rows[k]), []).append(k)
+        return out
+
+    def whole(rows: dict, key: str) -> int:
+        return sum(1 for record in rows.values() if group(record) == key)
+
     out: list[Fact] = []
-    if added:
-        out.append((name, facts.phrase('added ({n} of {total})', n=len(added), total=len(b)), named(name, added, b)))
-    if removed:
-        out.append((name, facts.phrase('removed ({n} of {total})', n=len(removed), total=len(a)), named(name, removed, a)))
+    for part, keys, rows in ((facts.phrase('added'), added, b), (facts.phrase('removed'), removed, a)):
+        if not keys:
+            continue
+        if not by:
+            out.append((name, facts.phrase('{part} ({n} of {total})', part=part, n=len(keys), total=len(rows)), named(name, keys, rows)))
+            continue
+        for key, of_group in grouped(keys, rows).items():
+            out.append((name, part, facts.phrase('{group} ({n} of {total})', group=key, n=len(of_group), total=whole(rows, key)), named(name, of_group, rows)))
     measured = [k for k, cols in changed.items() if any(c in measures for c in cols)]
     if measured:
-        part = facts.phrase('{measures} changed ({n} of {total})', measures=' or '.join(measures), n=len(measured), total=len(b))
-        for k in measured:
-            out.append((name, part, label(name, k, b[k]), ', '.join(
-                facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c)) for c in measures if c in changed[k])))
+        part = facts.phrase('{measures} changed', measures=called)
+        for key, of_group in (grouped(measured, b) if by else {'': measured}).items():
+            under = (facts.phrase('{group} ({n} of {total})', group=key, n=len(of_group), total=whole(b, key)),) if by else ()
+            for k in of_group:
+                out.append((name, part, *under, label(name, k, b[k]), ', '.join(
+                    facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c)) for c in measures if c in changed[k])))
     rest = [k for k in changed if k not in measured]
     if rest and measures:
         part = facts.phrase('changed in {columns} alone', columns=', '.join(dict.fromkeys(c for k in rest for c in changed[k])))
-        by = GROUPS.get(name, ())
-
-        def group(record: dict) -> str:
-            return '/'.join(value(record, c) for c in by) if by else name
-
-        wholes: dict[str, int] = {}
-        for record in b.values():
-            wholes[group(record)] = wholes.get(group(record), 0) + 1
-        counts: dict[str, int] = {}
-        for k in rest:
-            counts[group(b[k])] = counts.get(group(b[k]), 0) + 1
-        for key, n in counts.items():
-            said = facts.phrase('{n} of {total}', n=n, total=wholes[key])
-            out.append((name, part, key, said) if by else (name, part, said))
+        if not by:
+            out.append((name, part, facts.phrase('{n} of {total}', n=len(rest), total=len(b))))
+        for key, of_group in (grouped(rest, b) if by else {}).items():
+            out.append((name, part, key, facts.phrase('{n} of {total}', n=len(of_group), total=whole(b, key))))
     elif rest:
-        out.append((name, facts.phrase('changed ({n} of {total})', n=len(rest), total=len(b)), ', '.join(
+        out.append((name, facts.phrase('{part} ({n} of {total})', part=facts.phrase('changed'), n=len(rest), total=len(b)), ', '.join(
             label(name, k, b[k]) + ' (' + ', '.join(facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c))
                                                     for c in changed[k]) + ')' for k in rest[:SHOWN]) + (', ...' if len(rest) > SHOWN else '')))
     return out

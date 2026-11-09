@@ -58,12 +58,13 @@
     "the clone stands on {branch}, not {local}, the branch rpus.co serves - corpus-yoga site names the switch",
     "differs (no identity column declared)",
     "changed - outside every table the page declares",
-    "added ({n} of {total})",
-    "removed ({n} of {total})",
-    "{measures} changed ({n} of {total})",
     "changed in {columns} alone",
     "{n} of {total}",
-    "changed ({n} of {total})"
+    "added",
+    "removed",
+    "{part} ({n} of {total})",
+    "{group} ({n} of {total})",
+    "{measures} changed"
   ],
   "target": "src/main/cli/site/site.sh",
   "calculus": "project",

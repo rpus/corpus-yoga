@@ -997,8 +997,8 @@ src/main/cli/server/status.py,12,path_str,src/main/cli/server/status.py,Y,SELF =
 src/main/cli/site/landing.sh,4,comment,src/main/cli/site/site.sh,Y,# against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
 src/main/cli/site/landing.sh,67,comment,src/main/model/compare_pages.py,Y,"# removals), the corpus page in the page's own terms (src/main/model/compare_pages.py, issues/652),"
 src/main/cli/site/render.json,8,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
-src/main/cli/site/site.json,68,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
-src/main/cli/site/site.json,78,path_str,rsc/site,Y,"""rsc/site"","
+src/main/cli/site/site.json,69,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.json,79,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
 src/main/cli/site/site.sh,23,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
