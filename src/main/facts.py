@@ -297,10 +297,95 @@ class Act:
 
 
 @dataclass(frozen=True)
+class Would:
+    """An act a status names (issues/1028): the command as typed, and what it would act on -
+    each thing with how many, or with what changes in it beneath. What the act would do is
+    the words its verb declares (`would`, src/main/cli/<noun>/<verb>.json), never the
+    caller's; a noun's now: is every act its body holds, gathered by now_of, so that an act
+    is said once, in one shape."""
+    line: str
+    acts_on: dict
+
+    def facts(self) -> dict:
+        return {self.line: {would_of(self.line): self.acts_on}}
+
+
+@dataclass(frozen=True)
+class Acts:
+    """Several acts named at one spot, said as one mapping by command."""
+    acts: tuple[Would, ...]
+
+    def facts(self) -> dict:
+        out: dict = {}
+        for act in self.acts:
+            merge(out, act.facts())
+        return out
+
+
+_WOULD: dict[str, str] = {}
+
+
+def would_of(line: str) -> str:
+    """What the command would do, in the words its verb declares: the verb named after the
+    noun, or the noun's own declaration where none is."""
+    words = line.split()
+    at = next(i for i, word in enumerate(words) if word.endswith('corpus-yoga'))
+    noun = words[at + 1]
+    verb = words[at + 2] if len(words) > at + 2 and not words[at + 2].startswith('-') else noun
+    key = f'{noun} {verb}'
+    if key not in _WOULD:
+        declared = Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli' / noun / f'{verb}.json'
+        _WOULD[key] = json.loads(declared.read_text())['would']
+    return _WOULD[key]
+
+
+def merge(into: dict, more: dict, once: bool = False) -> dict:
+    """More acts into a mapping of acts: counts of one thing added - or, where the same act is
+    named twice (`once`, two nouns naming one unit), the larger kept - mappings merged, and a
+    value that is neither taken as it stands."""
+    import copy
+    for key, value in more.items():
+        held = into.get(key)
+        if isinstance(value, int) and not isinstance(value, bool) and isinstance(held, int) and not isinstance(held, bool):
+            into[key] = max(held, value) if once else held + value
+        elif isinstance(value, dict) and isinstance(held, dict):
+            merge(held, value, once)
+        else:
+            into[key] = copy.deepcopy(value)
+    return into
+
+
+def now_of(shape) -> dict:
+    """A status's now: - every act it names, gathered by command and merged (issues/1028), so
+    that no noun composes its now: beside its body. An act stands under a remedy: key as its
+    command, its declared words and what it acts on; a remedy in words, or a command that is
+    no corpus-yoga act, is no act of now:, and a nested now: is no act of the body."""
+    out: dict = {}
+
+    def walk(node) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == 'now':
+                    continue
+                if key == 'remedy' and isinstance(value, dict):
+                    for line, does in value.items():
+                        if isinstance(does, dict):
+                            merge(out, {line: does})
+                    continue
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+
+    walk(plain(shape))
+    return out
+
+
+@dataclass(frozen=True)
 class Finding:
     """What a status found wrong: the FAIL the usr gate's stage table counts, and its remedy."""
     FAIL: str
-    remedy: Command | Act | None = None
+    remedy: Command | Act | Would | None = None
 
 
 def plain(shape):

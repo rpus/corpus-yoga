@@ -14,7 +14,6 @@
     "consumer and producer faced under {cache}",
     "consumer and producer NOT faced under {cache} - corpus-yoga mcp sync writes them",
     "{n} line(s)",
-    "prints the diff and mints {minted} in place of {family}",
     "{family} {standing}, {agreement} with the snapshot",
     "{family} ({n} definitions)",
     "{minted} minted in place of {family} ({n} definitions) - write its {section} section in {changelog} (the commit gate holds schema.changelog_narrative)",

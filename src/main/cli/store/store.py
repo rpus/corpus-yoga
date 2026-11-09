@@ -106,7 +106,8 @@ def status_facts() -> corpus.StoreStatus:
     items, found, level = live.ahead_facts(ahead, absent)
     out.live = items if items else (facts.phrase('no live store is mounted in this workspace') if not ahead
                                     else facts.phrase('nothing beyond the tiers - {level} live unit(s) level with the copies', level=level))
-    out.now = corpus.store_now(rows, ahead) or facts.phrase('none - nothing to do')
+    out.stage_orphans = corpus.stage_orphans() or None
+    out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     return out
 
 

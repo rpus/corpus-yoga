@@ -207,7 +207,7 @@ def uninstall_completion() -> int:
 @dataclass
 class Completions:
     standing: str = facts.named('tab-completion')
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
 
 @dataclass
@@ -246,20 +246,20 @@ def standing() -> Completions:
         return Completions(facts.phrase('not applicable - this machine has no zsh'))
     if not found:
         return Completions(facts.phrase('not set up in zsh'),
-                           facts.Command(INSTALL, facts.phrase('adds four lines to ~/.zshrc; open a new terminal afterwards')))
+                           facts.Would(INSTALL, {'~/.zshrc': 1}))
     if found == [block()[1:-1]]:
         return Completions(facts.phrase('set up')) if loaded else Completions(
             facts.phrase('written in ~/.zshrc, but zsh does not load it'),
-            facts.Command(INSTALL, facts.phrase('puts its lines where zsh reads them; open a new terminal afterwards')))
+            facts.Would(INSTALL, {'~/.zshrc': 1}))
     aliased = [match.group(1) for lines in found for line in lines
                if (match := re.fullmatch(r"alias corpus-yoga='(.*)'", line))]
     other = next((Path(a).expanduser() for a in aliased if Path(a).expanduser() != LAUNCHER), None)
     if other is None:
         return Completions(facts.phrase('set up, but not as corpus-yoga completions install sets it up'),
-                           facts.Command(INSTALL, facts.phrase('rewrites its lines in ~/.zshrc; open a new terminal afterwards')))
+                           facts.Would(INSTALL, {'~/.zshrc': 1}))
     return Completions(facts.phrase('set up for a different copy of corpus-yoga, at {where}', where=tilde(other.parent)) if other.exists()
                        else facts.phrase('set up for a copy of corpus-yoga that is gone, at {where}', where=tilde(other.parent)),
-                       facts.Command(INSTALL, facts.phrase('points ~/.zshrc at this copy; open a new terminal afterwards')))
+                       facts.Would(INSTALL, {'~/.zshrc': 1}))
 
 
 def completion_status() -> int:

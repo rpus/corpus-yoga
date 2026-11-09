@@ -13,15 +13,11 @@
     "removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched, and a new terminal no longer completes",
     "not applicable - this machine has no zsh",
     "not set up in zsh",
-    "adds four lines to ~/.zshrc; open a new terminal afterwards",
     "set up",
     "written in ~/.zshrc, but zsh does not load it",
-    "puts its lines where zsh reads them; open a new terminal afterwards",
     "set up, but not as corpus-yoga completions install sets it up",
-    "rewrites its lines in ~/.zshrc; open a new terminal afterwards",
     "set up for a different copy of corpus-yoga, at {where}",
-    "set up for a copy of corpus-yoga that is gone, at {where}",
-    "points ~/.zshrc at this copy; open a new terminal afterwards"
+    "set up for a copy of corpus-yoga that is gone, at {where}"
   ],
   "target": "src/main/cli/completions/completions.py",
   "calculus": "project L5",

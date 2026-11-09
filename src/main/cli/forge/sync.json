@@ -1,5 +1,6 @@
 {
   "help": "make the forge settings agree with src/main/cli/forge/forge.csv - what it would set is corpus-yoga forge's status; it writes outside the repo",
+  "would": "would set",
   "args": [],
   "sends": {
     "gh api -X PATCH repos/{owner}/{repo}": [

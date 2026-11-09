@@ -38,7 +38,6 @@ import spell  # noqa: E402
 import tier  # noqa: E402
 
 SCRIPTS = REPO / 'rsc' / 'migration'
-SYNC = facts.Command(spell.line('migration', 'sync'), facts.phrase('would take them'))
 HALTED = facts.Act(facts.phrase('resolve by hand what it names'))
 
 
@@ -47,7 +46,7 @@ class Script:
     """A script's state: how many steps it would take, or that it halted and what it said."""
     steps: str | None = None
     halted: str | None = None
-    remedy: facts.Command | facts.Act | None = None
+    remedy: facts.Command | facts.Act | facts.Would | None = None
 
 
 @dataclass
@@ -81,7 +80,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
             out[name] = Script(halted='; '.join(lines), remedy=HALTED)
         elif lines:
             pending += 1
-            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), remedy=SYNC)
+            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), remedy=facts.Would(spell.line('migration', 'sync'), {name: len(lines)}))
         else:
             out[name] = facts.phrase('none pending')
     return Status(out, facts.phrase('{n} script(s) - {pending} with steps pending, {halted} halted', n=len(out), pending=pending, halted=halted))

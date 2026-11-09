@@ -2,10 +2,8 @@
   "summary": "code-agent sessions of every served provider - the census, the live mounts, and transport between machines",
   "phrase": [
     "absent - no local {provider} rows",
-    "would undo it",
     "none - the claude store is not mounted",
     "nothing - the store holds no session of it",
-    "would write them",
     "none - no peer machine held",
     "none - no merge record",
     "binds it, to a name rsc/machine/machines.csv declares",

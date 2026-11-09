@@ -84,6 +84,9 @@ landing() {
         # change the comparison could not word, never read as nothing to land (issues/1000)
         local compared line
         if compared="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/compare_pages.py" "$held" "$f")"; then
+          # only what changes is said (issues/1028); a page whose bytes differ outside every table it
+          # declares still changes, and says so
+          [[ -n "$compared" ]] || compared="$(phrase "changed - outside every table the page declares")"
           while IFS= read -r line; do
             [[ -n "$line" ]] && printf 'land\t%s\t%s\n' "$rel" "$line"
           done <<< "$compared"

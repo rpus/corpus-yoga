@@ -35,6 +35,11 @@
       "minLength": 1,
       "description": "The one-line description of what this verb does, shown beneath the command's forms."
     },
+    "would": {
+      "type": "string",
+      "pattern": "^would [a-z]",
+      "description": "What the verb would do, in the words every status says it in (issues/1028): a status names the act as the command and what it acts on, and reads these words from here - one home for them. An acting verb - one with w, x, sends or consumes - declares them."
+    },
     "step": {
       "type": "string",
       "description": "Names the pipeline this verb is a corpus-wide step of, when it is one. src/main/cli/pipeline/pipeline.sh --plan must invoke it by command AND verb (G10)."

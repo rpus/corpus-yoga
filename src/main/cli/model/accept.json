@@ -1,5 +1,6 @@
 {
   "help": "adopt a machine proposal - the pre-filled row lands in rsc/model/model_join.csv with its proposed kind",
+  "would": "would adopt",
   "args": [
     {
       "name": "--all",

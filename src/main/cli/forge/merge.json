@@ -1,5 +1,6 @@
 {
   "help": "the reviewer's one act (issues/483) - refuses what cannot merge, relocates once onto a moved base, runs the data gate on the head, flips the body's phrasing to closes, squashes pinned to that head, and converges this checkout; each step beneath",
+  "would": "would merge",
   "explanation": {
     "refuses": "anything not OPEN, a checkout that holds the head with a dirty tree - refused before any read but the one that named the head, the dirt left where a red gate wrote it (issues/975) - a body whose aim lines are not in the aim's one grammar - one issue per line, as corpus-yoga forge raise writes them (issues/884) - or has none, a title that copies no aimed issue's title (issues/479), an aimed issue whose open blocker the body does not aim to complete (issues/482), or refuse-class drift in the standing report",
     "relocates": "once onto the base, only if it moved - in a detached worktree of its own under tmp/forge/merge/, disposed of whatever happens, so this checkout never moves for it (issues/507); the lifetime's one rebase, replaying only the commits the base does not already hold, tree for tree (issues/585); rsc/test/ conflicts are the syntactic class, taken wholesale and settled by the gate's own regeneration; any other conflict aborts back to review",

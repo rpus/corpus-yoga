@@ -97,7 +97,7 @@ class Project:
     files: int | None = None
     currency: str | None = None   # against the grammar they are generated from
     differing: list[str] | None = None
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
 
 @dataclass
@@ -122,7 +122,7 @@ def status() -> int:
             stale += 1
             projects_[project.name] = Project(
                 facts.phrase("no - {generated} is absent; the mcp extraction and corpus-yoga test run's mcp checks need it", generated=rel),
-                remedy=facts.Command(spell.line('grammar', 'sync'), facts.phrase('generates it from {source}, antlr4 from the venv and java from the machine', source=source)))
+                remedy=facts.Would(spell.line('grammar', 'sync'), {project.name: 1}))
             continue
         item = Project(rel.as_posix(), files=len(have))
         if not tool() or not may_send():
@@ -133,7 +133,7 @@ def status() -> int:
             if differing:
                 stale += 1
                 item.currency, item.differing = facts.phrase('STALE against {source}', source=source), differing
-                item.remedy = facts.Command(spell.line('grammar', 'sync'), facts.phrase('regenerates'))
+                item.remedy = facts.Would(spell.line('grammar', 'sync'), {project.name: len(differing)})
             else:
                 item.currency = facts.phrase('current with {source} (antlr4 {version})', source=source, version=TOOL_VERSION)
         projects_[project.name] = item

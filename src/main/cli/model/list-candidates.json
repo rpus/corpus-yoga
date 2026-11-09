@@ -1,5 +1,6 @@
 {
   "help": "render the disposal queue - undisposed shared names (the worksheet), falsified identity edges, corpus-falsified emptiness edges",
+  "would": "would render",
   "args": [],
   "r": [
     "rsc/schema",

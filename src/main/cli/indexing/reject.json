@@ -1,5 +1,6 @@
 {
   "help": "reject a concept into the disposal record",
+  "would": "would reject",
   "args": [
     {
       "name": "--all",

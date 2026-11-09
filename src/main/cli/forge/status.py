@@ -34,7 +34,7 @@ class Row:
     a sentence joining the two (issues/871) - and where a remedy stands, its `remedy` beside it (issues/777)."""
     answer: str
     state: str
-    remedy: facts.Command | facts.Act | None = None
+    remedy: facts.Command | facts.Act | facts.Would | None = None
 
     def facts(self) -> dict | str:
         if self.state == 'ok' and self.remedy is None:
@@ -45,7 +45,7 @@ class Row:
 @dataclass
 class Section:
     rows: dict[str, Row]          # by what each probe is about
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
     def facts(self) -> dict:
         return {**self.rows, 'remedy': self.remedy}
@@ -63,9 +63,10 @@ class Status:
     branches: Section | None
     refs: Section | None = facts.named('remote-tracking refs', default=None)
     checkout: Section | None = facts.named('this checkout', default=None)
+    pulls: dict[str, dict] | None = facts.named('open pull requests', default=None)   # each open PR by its number: its head, and its merge where the merge would not refuse
     staged: dict[str, corpus.Staged] | None = None
     forge: str = ''               # the merge's gate, a fact of the room; a status ends on now: (issues/740)
-    now: dict[str, dict[str, dict[str, int]]] | str | None = None   # by command, its verb, each thing it acts on: how many (issues/871, issues/947)
+    now: dict | str | None = None   # every act the body names, gathered (issues/1028)
 
 
 def _test_status():
@@ -91,9 +92,12 @@ def main() -> int:
             opens[cells[2]] = cells[3]
             continue
         does = cells[5] if len(cells) > 5 else ''
-        remedy = None if not said else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said)
+        remedy = (None if not said else facts.Would(said, {cells[2]: 1}) if said.startswith('corpus-yoga ')
+                  else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said))
         if section == 'settings' and state == 'drift':
-            remedy = facts.Command(spell.line('forge', 'sync'), facts.phrase('would set it as declared'))   # the act; the status is its dry run (issues/881)
+            remedy = facts.Would(spell.line('forge', 'sync'), {cells[2]: 1})   # the act; the status is its dry run (issues/881)
+        if section in ('branches', 'refs') and state in ('deletable', 'server_deletable', 'stale'):
+            remedy = facts.Would(spell.line('forge', 'clean'), {cells[2]: 1})   # the cleaner over what the status names (issues/871)
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
@@ -102,32 +106,23 @@ def main() -> int:
     by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.remedy),
                               **by_section.get('checkout', {})}
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
-    # the standing (issues/871, issues/947): the cleaner over each branch and each tracking ref it
-    # would remove, by name, and each open PR's merge over its head branch while no
-    # refuse-class drift stands - the dry run is the status, and the room's one reading
-    # folds this block; unread where the forge was not asked
-    now: dict[str, dict[str, dict[str, int]]] = {}
-    for name, row in (branches or {}).items():
-        if row.state in ('deletable', 'server_deletable'):
-            corpus.step(now, spell.line('forge', 'clean'), name)
-    for name, row in (refs or {}).items():
-        if row.state == 'stale':
-            corpus.step(now, spell.line('forge', 'clean'), name)
-    if not refused:
-        for number, head in opens.items():
-            corpus.step(now, spell.line('forge', 'merge', number), head)
+    # each open PR's merge over its head branch while no refuse-class drift stands (issues/947) -
+    # the dry run is the status, and now: gathers it with every other act the body names (issues/1028)
+    pulls: dict[str, dict] = {f'pull/{number}': {'head': head, **({} if refused else {'remedy': facts.Would(spell.line('forge', 'merge', number), {head: 1})})}
+                              for number, head in opens.items()}
     unread = any(row.state == 'unverified' for row in (branches or {}).values())
     out = Status(
         Settings(by_section.get('settings', {})),
         Section(branches) if branches else None,
         Section(refs) if refs else None,
         Section(checkout) if checkout else None,
+        pulls or None,
         forge=facts.phrase('refuse-class drift - corpus-yoga forge merge refuses while it stands') if refused
         else facts.phrase('ready - no refuse-class drift'))
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')
         out.staged = report.staged
-    out.now = now or facts.phrase('unread - the forge was not asked; branches says why' if unread else 'none - nothing to do')
+    out.now = facts.now_of(out) or facts.phrase('unread - the forge was not asked; branches says why' if unread else 'none - nothing to do')
     facts.say(out)
     return 1 if refused else 0
 

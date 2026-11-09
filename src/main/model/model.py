@@ -208,7 +208,7 @@ class Catalogue:
     present: str                  # the catalogues the cache holds, of those the schema tree derives
     underived: str | None = None
     not_yet_projected: int | None = None
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
 
 @dataclass
@@ -234,9 +234,8 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  remedy=(facts.Command(spell.line('model', 'sync'), ' and '.join(
-                      facts.phrase(w) for w, on in (('mints them', missing), ('removes the underived', underived)) if on))
-                      if missing or underived else None)),
+                  remedy=(facts.Would(spell.line('model', 'sync'), {'tmp/cache/model': len(missing) + len(underived)})
+                          if missing or underived else None)),
         table, join))
 
 

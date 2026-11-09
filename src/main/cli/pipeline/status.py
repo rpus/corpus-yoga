@@ -37,23 +37,25 @@ class Pipeline:
     measure: str | dict[str, str] | None
     schemas: list[str]
     steps: list[str]
+    remedy: facts.Would | None = None     # the run, for what it is owed one (issues/1005)
 
 
 @dataclass
 class Status:
     pipelines: dict[str, Pipeline]
     staged: dict[str, corpus.Staged]
-    now: dict[str, dict[str, dict[str, int]]] | str = facts.phrase('none - nothing to do')   # the standing (issues/1005): the run, for what is owed one
+    now: dict | str = facts.phrase('none - nothing to do')   # every act the body names, gathered (issues/1028)
 
 
-def standing() -> dict[str, dict[str, dict[str, int]]]:
-    """The run each pipeline is owed, with what it would process by selection (issues/1005): the
-    inputs with no output and those whose output was built from other bytes, read by the audit."""
-    out: dict[str, dict[str, dict[str, int]]] = {}
+def owed_runs() -> dict[str, facts.Would]:
+    """The run each pipeline is owed, by its name, with what it would process by selection
+    (issues/1005): the inputs with no output and those whose output was built from other
+    bytes, read by the audit."""
+    out: dict[str, facts.Would] = {}
     for name, declared in frontier.pipelines():
         owed = validation_audit.owed_by_selection(name, declared)
         if owed:
-            out[spell.line('pipeline', 'run', name)] = {'would process': owed}
+            out[name] = facts.Would(spell.line('pipeline', 'run', name), owed)
     return out
 
 
@@ -92,10 +94,11 @@ def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.count('\t') == 2]
     pipelines = {name: pipeline(name, None if prep == '-' else prep) for kind, name, prep in rows if kind == 'pipeline'}
     report = corpus.report_facts(None)
+    for name, run in owed_runs().items():
+        if name in pipelines:
+            pipelines[name].remedy = run
     out = Status(pipelines, report.staged)
-    now = standing()
-    if now:
-        out.now = now
+    out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)
     return 0
 

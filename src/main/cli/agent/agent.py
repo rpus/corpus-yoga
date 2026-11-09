@@ -213,7 +213,7 @@ class Session:
 class Mount:
     """A live store this room does not mount: which rows cannot appear, and what makes them."""
     standing: str
-    remedy: facts.Command
+    remedy: facts.Command | facts.Would
 
 
 Sessions = dict[str, dict[str, dict[str, dict[str, Session]]]]   # by where - local, then each machine - provider, project and id
@@ -241,7 +241,7 @@ def list_agents() -> Census:
             # cannot appear and how to make them appear
             absent[mount_path.relative_to(REPO).as_posix()] = Mount(
                 facts.phrase('absent - no local {provider} rows', provider=provider),
-                facts.Command(spell.line('agent', 'mount'), facts.phrase('would mount it')))
+                facts.Would(spell.line('agent', 'mount'), {mount_path.relative_to(REPO).as_posix(): 1}))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -264,14 +264,14 @@ class Peer:
     """A peer machine's store held here, and what corpus-yoga agent install would write from it
     into this machine's live store (issues/881): the install's facts by outcome, read dry."""
     would_write: dict | str
-    remedy: facts.Command
+    remedy: facts.Command | facts.Would
 
 
 @dataclass
 class Merge:
     """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (issues/881)."""
     latest: str
-    remedy: facts.Command = facts.Command(spell.line('agent', 'demerge'), facts.phrase('would undo it'))
+    remedy: facts.Would | None = None
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
@@ -289,8 +289,8 @@ def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
             continue
         log = adapter.install_all(machine, projects, False, machine.name)
         peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'),
-                                   facts.Command(spell.line('agent', 'install', **{'from': machine.name, 'all': True}), facts.phrase('would write them')))
-    merges = {proj.name: Merge(label) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
+                                   facts.Would(spell.line('agent', 'install', **{'from': machine.name, 'all': True}), {machine.name: 1}))
+    merges = {proj.name: Merge(label, facts.Would(spell.line('agent', 'demerge'), {proj.name: 1})) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
               if (label := adapter.latest_merge(proj)) is not None}
     return peers or facts.phrase('none - no peer machine held'), merges or facts.phrase('none - no merge record')
 

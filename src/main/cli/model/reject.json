@@ -1,5 +1,6 @@
 {
   "help": "record a false friend - a name_collision row lands in rsc/model/model_join.csv with the reason as its note",
+  "would": "would record",
   "args": [
     {
       "name": "--all",

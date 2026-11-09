@@ -538,7 +538,7 @@ class Orphans:
 class Candidates:
     queue: str | None = None
     undisposed: list[str] | None = None
-    remedy: facts.Command | facts.Act | None = None
+    remedy: facts.Command | facts.Act | facts.Would | None = None
 
 
 @dataclass
@@ -571,7 +571,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
                        if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
         out.candidates = Candidates(queue=facts.phrase('unknown - no concept capture on this machine'),
-                                    remedy=facts.Command(spell.line('indexing', 'capture'), facts.phrase('PAID, the model reads the corpus for its concepts')))
+                                    remedy=facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': 1}))
         return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
@@ -594,7 +594,7 @@ class Currency:
     conversations: int
     covered_by_the_captures: int
     lag: str | None = None
-    remedy: facts.Command | None = None
+    remedy: facts.Command | facts.Would | None = None
 
 
 @dataclass
@@ -635,7 +635,7 @@ def captures() -> Captures:
         out.corpus = Currency(n, m)
         if m < n:
             out.corpus.lag = facts.phrase('the paid layer lags the corpus')
-            out.corpus.remedy = facts.Command(spell.line('indexing', 'capture'), facts.phrase('PAID, the model re-reads the corpus'))
+            out.corpus.remedy = facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': n - m})
     return out
 
 

@@ -64,7 +64,7 @@ status() {
       # The pages are the rpus.co publish layer - deploy-side, optional; the
       # quickstart teaches only the render. Prescribing sync here made every
       # pipeline run nag a verb the front door never taught.
-      printf 'pages\tabsent\t%s\n' "$(phrase "absent - the rpus.co publish layer, optional; corpus-yoga site sync assembles them")"
+      printf 'pages\tabsent\t%s\n' "$(phrase "absent - the rpus.co publish layer, optional")"
     else
       local f
       # the run syncs before this probe (issues/494): a stale tree here is rsc/site/ edited

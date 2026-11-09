@@ -1,5 +1,6 @@
 {
   "help": "deposit new distinct readings and re-render each folder index - idempotent (the only write)",
+  "would": "would deposit",
   "args": [],
   "step": "chat-export",
   "r": [

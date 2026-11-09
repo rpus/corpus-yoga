@@ -42,7 +42,7 @@ class Orphan:
     """An entry under tmp/cache that no current step writes or reads, with the act that removes it."""
     size: str
     why: str = facts.phrase('no current step writes or reads it')
-    remedy: facts.Command = facts.Command(spell.line('cache', 'clean'), facts.phrase('would remove it'))
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -53,18 +53,20 @@ class Status:
     tmp_cache: Tree = facts.named('tmp/cache')
     orphans: dict[str, Orphan] | None = None
     cache: str = ''               # the tree's count, a fact of the room; a status ends on now: (issues/740)
-    now: dict[str, dict[str, dict[str, int]]] | str | None = None
+    now: dict | str | None = None
 
 
 def status_facts() -> Status:
     """The bare-noun default as facts: the state, nothing written."""
     cache = tier.TMP / 'cache'
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
-    found = {p.relative_to(REPO).as_posix(): Orphan(human(size_of(p))) for p in orphans(cache)}
-    return Status(Tree(subs or 'none'), found,
-                  facts.phrase('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found
-                  else facts.phrase('{n} subtree(s) present', n=len(subs)),
-                  {spell.line('cache', 'clean'): {'would remove': {rel: 1 for rel in found}}} if found else facts.phrase('none - nothing to do'))
+    found = {rel: Orphan(human(size_of(p)), remedy=facts.Would(spell.line('cache', 'clean'), {rel: 1}))
+             for p in orphans(cache) for rel in (p.relative_to(REPO).as_posix(),)}
+    out = Status(Tree(subs or 'none'), found,
+                 facts.phrase('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found
+                 else facts.phrase('{n} subtree(s) present', n=len(subs)))
+    out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
+    return out
 
 
 def status() -> int:

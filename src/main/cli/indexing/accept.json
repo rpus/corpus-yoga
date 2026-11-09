@@ -1,5 +1,6 @@
 {
   "help": "accept a concept as a headword (merge any aliases into it)",
+  "would": "would accept",
   "args": [
     {
       "name": "--all",
