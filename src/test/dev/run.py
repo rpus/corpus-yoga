@@ -45,6 +45,7 @@ _file = Path(__file__).resolve()
 assert any(p / SELF == _file for p in _file.parents), f'{_file} is not at its declared address {SELF}'
 
 from gate import (
+    write_check_logs,
     CHECKS,
     REPORT,
     REPORT_REL,
@@ -58,6 +59,7 @@ from gate import (
 )
 import facts  # noqa: E402 - on the paths gate.py sets
 import xref  # noqa: E402 - the gate's sibling, src/test/dev/xref.py
+from tier import GATE_CHECK  # noqa: E402 - on the paths gate.py sets
 import check  # noqa: E402
 import pkgutil
 import importlib
@@ -152,6 +154,7 @@ class RunOnce:
     terminal_text:       str
     full_fix_lines:      list
     has_failures:        bool   # any failure at all — drives the exit code and --fix
+    section_chunks:      dict   # each check's lines, by its name, for its own log (issues/1030)
 
 
 def _run_once(allow_replay: bool) -> RunOnce:
@@ -229,6 +232,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     current_tier: list = [None]
 
     section_ms: dict[str, float] = {}
+    section_chunks: dict[str, str] = {}
 
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
@@ -253,6 +257,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             for hint_, problem_, guidance_ in entry['fix']:
                 fix(hint_, problem_ or None, guidance_ or None)
             machine_buffer.write(entry['chunk'])
+            section_chunks[name] = entry['chunk']
             n = len(entry['results'])
             sections.extend([name] * n)
             tiers.extend([tier] * n)
@@ -264,7 +269,12 @@ def _run_once(allow_replay: bool) -> RunOnce:
         laws_before = {k: len(v) for k, v in cited_laws.items()}
         fix_before = {h: (len(fix_problems[h]), len(fix_guidance[h])) for h in fix_hints}
         chunk_from = machine_buffer.tell()
-        ret = fn(run)
+        os.environ[GATE_CHECK] = f'{REPORT.stem}/{name}'   # an act the check runs is logged beneath it (issues/1030)
+        try:
+            ret = fn(run)
+        finally:
+            os.environ.pop(GATE_CHECK, None)
+        section_chunks[name] = machine_buffer.getvalue()[chunk_from:]
         section_ms[name] = (time.monotonic() - t0) * 1000
         n = len(results) - before
         sections.extend([name] * n)
@@ -622,6 +632,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         terminal_text=terminal_text,
         full_fix_lines=full_fix_lines,
         has_failures=bool(failures),
+        section_chunks=section_chunks,
     )
 
 
@@ -694,6 +705,7 @@ def main():
     # they always describe this invocation's final (settled or faulted) state.
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(final.full_text)
+    write_check_logs(REPORT.with_suffix(''), final.section_chunks)   # each check's own log beside the report (issues/1030)
 
     print(final.terminal_text, end='')
 

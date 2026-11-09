@@ -114,8 +114,8 @@ main() {
     [[ -n "$p" ]] || continue
     providers+=("$p")
     provider_mechs+=("$mechs")
-    logs+=("$TMP_DIR/logs/browser/capture/$stamp.$p.progress")
-    mkdir -p "$TMP_DIR/logs/browser/capture"
+    logs+=("$LOGS_DIR/browser/capture/$stamp.$p.progress")
+    mkdir -p "$LOGS_DIR/browser/capture"
   done <<< "$scope"
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from

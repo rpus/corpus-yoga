@@ -405,7 +405,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     do_scrape = 'DOM' in mechanisms
     js_script = SCRIPT_DIR / provider / 'dom.js'
     # a refused walk's evidence is kept beside the record, in the verb's log directory (issues/708)
-    evidence_dir = tier.TMP / 'logs' / 'browser' / 'capture'
+    evidence_dir = tier.LOGS / 'browser' / 'capture'
     # The operation is CAPTURE either way — discovery is ids_from_safari, the
     # listing sweep that found the ids; navigate is a mode, not a name. The old
     # label spelled the whole pass 'discover', so a 52-minute capture log opened

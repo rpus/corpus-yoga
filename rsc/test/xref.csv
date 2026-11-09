@@ -1371,7 +1371,7 @@ src/main/standing.py,6,comment,src/main/reply.py,Y,"reply says after every act (
 src/main/tier.py,14,comment,src/main/rehearsal.py,Y,"what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). SCRATCH_TMP is the"
 src/main/tier.py,16,comment,src/main/tier.sh,Y,src/main/tier.sh is the shell twin. The dev gate holds that no other script under
 src/main/tier.py,22,path_str,src/main/tier.py,Y,SELF = 'src/main/tier.py'
-src/main/tier.py,66,comment,rsc/cache_io.csv,Y,rsc/cache_io.csv spell them - under the tiers in force.
+src/main/tier.py,71,comment,rsc/cache_io.csv,Y,rsc/cache_io.csv spell them - under the tiers in force.
 src/main/tier.sh,2,comment,src/main/tier.py,Y,"# tier.sh — the tiers as a declared contract (issues/702), the shell twin of src/main/tier.py."
 src/main/tier.sh,7,comment,src/main/tier.py,Y,"# stamp_of and record_of, and only by the act they name - src/main/tier.py, issues/708, issues/912)"
 src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
@@ -1468,29 +1468,33 @@ src/test/dev/check/site.py,97,path_str,src/main/report.sh,Y,"@check(tier='code',
 src/test/dev/check/site.py,186,path_str,src/main/cli/server/status.py,Y,"@check(tier='code', on=['src/main/cli/server/status.py', 'src/main/facts.py'], says=("
 src/test/dev/check/site.py,186,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli/server/status.py', 'src/main/facts.py'], says=("
 src/test/dev/check/site.py,32,path_str,src/main/page_declaration.py,Y,"'src/main/page_declaration.py is absent: nothing declares what the page was rendered from', check='site.lag_is_read_from"
-src/test/dev/check/surface.py,62,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/dev/check/surface.py,68,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-src/test/dev/check/surface.py,1481,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
-src/test/dev/check/surface.py,1500,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/dev/check/surface.py,27,path_str,rsc/CALCULUS.md,Y,"@check(tier='code', on=['src', 'rsc/CALCULUS.md', 'corpus-yoga.code-workspace'], says=("
-src/test/dev/check/surface.py,850,path_str,src/declared_parser.py,Y,"@check(tier='code', says=('cli.exclusive_class_parses',), on=['src/main/cli', 'src/declared_parser.py'])"
-src/test/dev/check/surface.py,1073,path_str,src/main/facts.py,Y,"'src/main/facts.py has no Would and no now_of: each noun composes its now: beside its body', check='status.now_is_gather"
-src/test/dev/check/surface.py,1047,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py', 'src/main/cli'], says=("
-src/test/dev/check/surface.py,1135,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
-src/test/dev/check/surface.py,1135,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
-src/test/dev/check/surface.py,1207,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
-src/test/dev/check/surface.py,1207,path_str,src/run_python_script.sh,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
-src/test/dev/check/surface.py,1334,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'corpus-yoga'], says=("
-src/test/dev/check/surface.py,1236,path_str,src/main/cli/completions/_corpus-yoga,Y,"run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '"
-src/test/dev/check/surface.py,1239,path_str,src/main/cli/completions/_corpus-yoga,Y,"'src/main/cli/completions/_corpus-yoga is no file', check='completions.says_why_it_offers_nothing')"
-src/test/dev/check/surface.py,1240,path_str,src/main/cli/completions/_corpus-yoga,Y,"run('completions: a terminal that has pressed tab follows a change to what tab does', False, 'src/main/cli/completions/_"
-src/test/dev/check/surface.py,1025,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
-src/test/dev/check/surface.py,251,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
-src/test/dev/check/surface.py,331,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/dev/check/surface.py,409,comment,src/main/cli/forge/sync.json,Y,# the command green (the pull/114 review's finding: src/main/cli/forge/sync.json's
-src/test/dev/check/surface.py,747,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/dev/check/surface.py,1515,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/dev/check/surface.py,1574,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/dev/check/surface.py,63,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/dev/check/surface.py,69,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
+src/test/dev/check/surface.py,1523,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
+src/test/dev/check/surface.py,1542,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/dev/check/surface.py,28,path_str,rsc/CALCULUS.md,Y,"@check(tier='code', on=['src', 'rsc/CALCULUS.md', 'corpus-yoga.code-workspace'], says=("
+src/test/dev/check/surface.py,851,path_str,src/declared_parser.py,Y,"@check(tier='code', says=('cli.exclusive_class_parses',), on=['src/main/cli', 'src/declared_parser.py'])"
+src/test/dev/check/surface.py,1074,path_str,src/main/facts.py,Y,"'src/main/facts.py has no Would and no now_of: each noun composes its now: beside its body', check='status.now_is_gather"
+src/test/dev/check/surface.py,1048,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py', 'src/main/cli'], says=("
+src/test/dev/check/surface.py,1107,path_str,src/main/tier.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])"
+src/test/dev/check/surface.py,1107,path_str,src/main/tier.sh,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])"
+src/test/dev/check/surface.py,1107,path_str,src/main/cli/cli.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])"
+src/test/dev/check/surface.py,1177,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
+src/test/dev/check/surface.py,1177,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
+src/test/dev/check/surface.py,1249,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
+src/test/dev/check/surface.py,1249,path_str,src/run_python_script.sh,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
+src/test/dev/check/surface.py,1376,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'corpus-yoga'], says=("
+src/test/dev/check/surface.py,1143,path_str,src/test/dev/gate.py,Y,"None if ok else ('src/test/dev/gate.py writes no check log' if write is None else f'the log read {said!r}'),"
+src/test/dev/check/surface.py,1278,path_str,src/main/cli/completions/_corpus-yoga,Y,"run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '"
+src/test/dev/check/surface.py,1281,path_str,src/main/cli/completions/_corpus-yoga,Y,"'src/main/cli/completions/_corpus-yoga is no file', check='completions.says_why_it_offers_nothing')"
+src/test/dev/check/surface.py,1282,path_str,src/main/cli/completions/_corpus-yoga,Y,"run('completions: a terminal that has pressed tab follows a change to what tab does', False, 'src/main/cli/completions/_"
+src/test/dev/check/surface.py,1026,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
+src/test/dev/check/surface.py,252,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
+src/test/dev/check/surface.py,332,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/dev/check/surface.py,410,comment,src/main/cli/forge/sync.json,Y,# the command green (the pull/114 review's finding: src/main/cli/forge/sync.json's
+src/test/dev/check/surface.py,748,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/dev/check/surface.py,1557,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/dev/check/surface.py,1616,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
 src/test/dev/check/tree.py,179,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (the one exemption)."
 src/test/dev/check/tree.py,254,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
 src/test/dev/check/tree.py,295,comment,src/main/spell.py,Y,src/main/spell.py - the one API that spells a command from its declaration - over every
@@ -1556,27 +1560,27 @@ src/test/dev/run.py,6,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh
 src/test/dev/run.py,7,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh --fix   # run all fix commands; stages nothing
 src/test/dev/run.py,21,comment,src/test/dev/gate.py,Y,"src/test/dev/check/ (src/test/dev/gate.py's `check`): its tier, the names it reports and"
 src/test/dev/run.py,43,path_str,src/test/dev/run.py,Y,SELF = 'src/test/dev/run.py'
-src/test/dev/run.py,76,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
-src/test/dev/run.py,76,path_str,src/test/dev/gate.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
-src/test/dev/run.py,76,path_str,src/test/dev/check,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
-src/test/dev/run.py,76,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
-src/test/dev/run.py,77,path_str,rsc/test/xref_expected_score,Y,'rsc/test/xref_expected_score']
-src/test/dev/run.py,78,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,78,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,82,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
-src/test/dev/run.py,83,path_str,rsc/model,Y,"MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
-src/test/dev/run.py,489,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
-src/test/dev/run.py,686,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,687,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
-src/test/dev/run.py,413,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,415,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,173,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
-src/test/dev/run.py,184,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,184,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,314,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
-src/test/dev/run.py,377,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,734,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,734,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,78,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
+src/test/dev/run.py,78,path_str,src/test/dev/gate.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
+src/test/dev/run.py,78,path_str,src/test/dev/check,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
+src/test/dev/run.py,78,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',"
+src/test/dev/run.py,79,path_str,rsc/test/xref_expected_score,Y,'rsc/test/xref_expected_score']
+src/test/dev/run.py,80,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,80,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,84,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
+src/test/dev/run.py,85,path_str,rsc/model,Y,"MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
+src/test/dev/run.py,499,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,697,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,698,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,423,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,425,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,176,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
+src/test/dev/run.py,187,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,187,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,324,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
+src/test/dev/run.py,387,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/dev/run.py,746,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,746,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
