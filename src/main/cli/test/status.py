@@ -23,8 +23,7 @@ import spell  # noqa: E402
 
 @dataclass
 class Checks:
-    sections: str = facts.named('src/test/dev/run.py')
-    expectation: str = 'rsc/test/run_expected_checks'
+    sections: str = facts.named('src/test/dev/check')
     report: str = 'rsc/test/run.log'
     xrefs: str = 'rsc/test/xref.csv'
 

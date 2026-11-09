@@ -94,10 +94,10 @@ opens with the same triad in its header line, so a log names the session that ra
 verb as a commit names the session that drafted it; `src/main/provider.py`'s
 `signature()` is the one derivation, and `src/main/provider.sh` its shell face.
 
-A merge conflict is almost always confined to the check's four regenerated artifacts,
-in two pairs — a derived file and the curated expectation beside it:
+A merge conflict is almost always confined to the check's three regenerated artifacts -
+two derived files and the curated expectation beside one of them:
 
-- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+- `rsc/test/run.log` (derived)
 - `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
 
 Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds

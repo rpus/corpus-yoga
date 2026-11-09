@@ -1,35 +1,158 @@
-run.py: code+schema 1881/1881
+run.py: code+schema 1895/1895
 
 
-check_required_files: |
-  ✓ files.required_exists  (10/10)
+check_schema_join: |
+  ✓ model.join_kind_declared
+  ✓ model.join_pointers_valid
 
-check_pipeline_declarations: |
-  ✓ structure.pipeline_declaration_validates  (3/3)
-  ✓ structure.pipeline_skip_names_family  (3/3)
-  ✓ structure.pipeline_name_states_input  (3/3)
-  ✓ structure.pipeline_provider_served  (4/4)
-  ✓ structure.pipeline_mechanism_whole  (4/4)
-  ✓ structure.pipeline_implements_run  (3/3)
+check_model_join_versions: |
+  ✓ model.join_family_grammar
 
-check_step_imports: |
-  ✓ imports.step_module_imports  (2/2)
+check_model_table: |
+  ✓ model.table_valid
 
-check_self_paths: |
-  ✓ structure.self_path_matches_address  (121/121)
+check_model_occurrences: |
+  ✓ model.occurrence_family_grammar
+  ✓ model.occurrence_pointers_resolve
+  ✓ model.occurrences_cover_edges
 
-check_committed_tree: |
-  ✓ structure.corpus_roots_ignored
-  ✓ structure.no_machine_facts_committed
-  ✓ anchor.names_its_sequence
+check_model_obligations: |
+  ✓ model.shared_type_disposed  (105/105)
+  ✓ model.documented_type_grounded  (101/101)
 
-check_templates: |
-  ✓ templates.teach_signature  (2/2)
+check_model_identity: |
+  ✓ model.identity_holds
 
-check_xref: |
-  ✓ xref.no_bad_pointers
-  ✓ xref.score_matches_expectation
-  ✓ xref.version_named_inside_its_family
+check_providers_judged: |
+  ✓ pipeline.every_provider_is_judged
+
+check_declared_families_judge: |
+  ✓ stage.declared_families_judge
+  ✓ pipeline.families_are_total
+  ✓ pipeline.validate_step_judges_the_declared_families
+
+check_cache_io: |
+  ✓ cache_io.registry_parses
+  ✓ cache_io.pipeline_tags_match
+  ✓ cache_io.read_implies_writer  (8/8)
+  ✓ cache_io.paths_resolve  (8/8)
+
+check_accumulate_contract: |
+  ✓ accumulate.trajectory_contract
+
+check_capture_prefix: |
+  ✓ capture.prefix_resolves_to_one
+
+check_capture_monotone: |
+  ✓ capture.monotone_record  (4/4)
+
+check_turn_count_one_home: |
+  ✓ markdown.turns_parse_in_sequence
+  ✓ markdown.turn_count_in_frontmatter
+
+check_status_facts: |
+  ✓ status.remedy_names_a_command  (15/15)
+  ✓ status.lines_load_as_yaml  (23/23)
+  ✓ status.room_round_trip_holds_no_pair  (24/24)
+  ✓ report.says_what_the_nouns_say  (11/11)
+  ✓ report.now_is_the_fold
+  ✓ status.value_holds_no_pair  (23/23)
+  ✓ phrase.each_is_said  (46/46)
+  ✓ environment.names_carry_the_prefix
+  ✓ cli.no_send_flag  (3/3)
+  ✓ status.pipeline_says_declarations_and_units  (4/4)
+  ✓ report.gives_no_verdict_on_itself
+  ✓ cli.bare_suggests_and_runs_nothing
+  ✓ report.rows_are_keyed_by_subject
+
+check_facts: |
+  ✓ facts.lines_are_yaml
+  ✓ facts.reads_back_what_it_prints  (2/2)
+  ✓ facts.wraps_and_reads_back
+  ✓ facts.wraps_only_for_a_terminal
+
+check_drafters: |
+  ✓ drafters.signature_is_read_as_written
+  ✓ drafters.first_signature_is_the_drafter
+
+check_provider_registry: |
+  ✓ provider.registry_parses
+  ✓ provider.names_declared
+
+check_forge_aim: |
+  ✓ forge.aim_one_line_per_issue  (3/3)
+  ✓ forge.issue_is_a_should_with_wired_relations  (2/2)
+  ✓ forge.squash_read_back
+
+check_schema_layout: |
+  ✓ schema.family_mirrors_writer  (15/15)
+  ✓ schema.pipeline_schema_placed  (11/11)
+
+check_schema_validity: |
+  ✓ schema.valid_json_with_schema  (15/15)
+
+check_schema_meta_validity: |
+  ✓ schema.valid_against_meta_schema  (15/15)
+
+check_schema_single_version: |
+  ✓ schema.single_version  (15/15)
+
+check_schema_changelogs: |
+  ✓ schema.changelog_narrative  (15/15)
+  ✓ schema.changelog_no_todo  (15/15)
+
+check_versioned_schema_diagnostics: |
+  ✓ schema.has_versions  (15/15)
+  ✓ composition.base_not_used_directly  (15/15)
+  ✓ composition.base_schemas_closed  (14/14)
+  ✓ composition.discriminator_values_disjoint  (15/15)
+  ✓ composition.no_additional_properties_on_subtypes  (15/15)
+  ✓ composition.wrapper_has_five_fields  (15/15)
+  ✓ documentation.discriminator_fields_annotated  (15/15)
+  ✓ documentation.every_definition_has_title_and_description  (15/15)
+  ✓ documentation.null_only_fields_documented  (15/15)
+  ✓ documentation.open_set_enums_documented  (15/15)
+  ✓ empirical.nullable_fields_surveyed  (15/15)
+  ✓ empirical.oneOf_branches_evidenced  (15/15)
+  ✓ naming.property_keys_lowercase  (15/15)
+  ✓ naming.title_matches_key  (15/15)
+  ✓ naming.upper_camel_case  (15/15)
+  ✓ structure.all_definitions_reachable  (15/15)
+  ✓ structure.bfs_order  (15/15)
+  ✓ structure.definitions_at_bottom  (15/15)
+  ✓ structure.enum_refines_explicit_type  (15/15)
+  ✓ structure.field_order  (15/15)
+  ✓ structure.keywords_declared  (15/15)
+  ✓ structure.minItems_on_non_empty_arrays  (15/15)
+  ✓ structure.no_dangling_refs  (15/15)
+  ✓ structure.no_redundant_additional_properties_true  (15/15)
+  ✓ structure.pattern_constraints_enforced  (15/15)
+  ✓ structure.required_subset_of_properties  (15/15)
+
+check_validate_verdict: |
+  ✓ validate.undeclared_type_names_the_union  (4/4)
+
+check_verdict_record: |
+  ✓ validation.verdict_is_record  (2/2)
+
+check_failing_record: |
+  ✓ pipeline.failing_is_keyed_by_datum
+  ✓ validation.fail_atom_names_the_fault
+
+check_site_lag: |
+  ✓ site.lag_is_read_from_declarations  (2/2)
+  ✓ site.turn_instant_is_read_from_the_heading
+  ✓ site.page_comparison_survives_a_new_column
+  ✓ site.page_comparison_lists_measure_changes
+
+check_site_reads_rpus_co: |
+  ✓ site.landing_reads_the_fetched_origin
+  ✓ site.clone_position_is_said
+  ✓ site.publish_levels_the_clone
+  ✓ site.reads_the_served_branch
+
+check_server_standing: |
+  ✓ server.now_names_the_stop_or_the_start
 
 check_cli_surface: |
   ✓ cli.table_parses
@@ -45,7 +168,7 @@ check_cli_surface: |
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (24/24)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (21/21)
+  ✓ naming.log_path_derives_from_command  (20/20)
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
   ✓ effects.enact_faces_agree
@@ -76,100 +199,70 @@ check_effects: |
   ✓ effects.consumer_reads
   ✓ effects.extent_covered
 
-check_cache_io: |
-  ✓ cache_io.registry_parses
-  ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (8/8)
-  ✓ cache_io.paths_resolve  (8/8)
+check_acts_said_once: |
+  ✓ cli.every_act_declares_its_would
+  ✓ status.now_is_gathered_from_the_body
 
-check_accumulate_contract: |
-  ✓ accumulate.trajectory_contract
+check_status_is_the_dry_run: |
+  ✓ verbs.status_is_the_dry_run
 
-check_capture_prefix: |
-  ✓ capture.prefix_resolves_to_one
+check_record_is_the_launchers: |
+  ✓ logs.no_verb_logs_for_itself
 
-check_capture_monotone: |
-  ✓ capture.monotone_record  (4/4)
+check_record_names_read_once: |
+  ✓ record.names_read_once
+
+check_reply: |
+  ✓ reply.now_is_the_launchers  (2/2)
+  ✓ reply.is_the_bare_status
+
+check_completions: |
+  ✓ completions.offers_the_commands_as_they_are
+  ✓ completions.says_why_it_offers_nothing
+  ✓ completions.follows_its_own_change
+  ✓ completions.sync_runs_the_install
+  ✓ completions.status_says_one_thing  (6/6)
+
+check_walkthrough: |
+  ✓ walkthrough.walks_and_runs
+
+check_required_files: |
+  ✓ files.required_exists  (9/9)
+
+check_pipeline_declarations: |
+  ✓ structure.pipeline_declaration_validates  (3/3)
+  ✓ structure.pipeline_skip_names_family  (3/3)
+  ✓ structure.pipeline_name_states_input  (3/3)
+  ✓ structure.pipeline_provider_served  (4/4)
+  ✓ structure.pipeline_mechanism_whole  (4/4)
+  ✓ structure.pipeline_implements_run  (3/3)
+
+check_step_imports: |
+  ✓ imports.step_module_imports  (2/2)
+
+check_self_paths: |
+  ✓ structure.self_path_matches_address  (122/122)
+
+check_committed_tree: |
+  ✓ structure.corpus_roots_ignored
+  ✓ structure.no_machine_facts_committed
+  ✓ anchor.names_its_sequence
+
+check_templates: |
+  ✓ templates.teach_signature  (2/2)
+
+check_xref: |
+  ✓ xref.no_bad_pointers
+  ✓ xref.score_matches_expectation
+  ✓ xref.version_named_inside_its_family
 
 check_spelling: |
   ✓ command.undeclared_is_unrepresentable
   ✓ command.every_spelling_is_declared
   ✓ prescription.names_a_command
 
-check_grammar_laws: |
-  ✓ grammar.laws_parse
-  ✓ grammar.citation_is_stated
-  ✓ calculus.laws_parse
-  ✓ calculus.state_declared
-  ✓ calculus.gated_is_cited
-  ✓ calculus.unenforced_names_issue
-  ✓ grammar.state_declared
-  ✓ grammar.gated_is_cited
-  ✓ grammar.unenforced_names_issue
-  ✓ grammar.unenforced_not_cited
-  ✓ grammar.parent_law_defined
-  ✓ grammar.enforcement_map
-
-check_schema_layout: |
-  ✓ schema.family_mirrors_writer  (15/15)
-  ✓ schema.pipeline_schema_placed  (11/11)
-
-check_schema_validity: |
-  ✓ schema.valid_json_with_schema  (15/15)
-
-check_schema_meta_validity: |
-  ✓ schema.valid_against_meta_schema  (15/15)
-
-check_schema_single_version: |
-  ✓ schema.single_version  (15/15)
-
-check_schema_changelogs: |
-  ✓ schema.changelog_narrative  (15/15)
-  ✓ schema.changelog_no_todo  (15/15)
-
 check_tier_contract: |
   ✓ tier.paths_from_contract
-
-check_validate_verdict: |
-  ✓ validate.undeclared_type_names_the_union  (4/4)
-
-check_verdict_record: |
-  ✓ validation.verdict_is_record  (2/2)
-
-check_failing_record: |
-  ✓ pipeline.failing_is_keyed_by_datum
-  ✓ validation.fail_atom_names_the_fault
-
-check_providers_judged: |
-  ✓ pipeline.every_provider_is_judged
-
-check_declared_families_judge: |
-  ✓ stage.declared_families_judge
-  ✓ pipeline.families_are_total
-  ✓ pipeline.validate_step_judges_the_declared_families
-
-check_turn_count_one_home: |
-  ✓ markdown.turns_parse_in_sequence
-  ✓ markdown.turn_count_in_frontmatter
-
-check_site_lag: |
-  ✓ site.lag_is_read_from_declarations  (2/2)
-  ✓ site.turn_instant_is_read_from_the_heading
-  ✓ site.page_comparison_survives_a_new_column
-  ✓ site.page_comparison_lists_measure_changes
-
-check_acts_said_once: |
-  ✓ cli.every_act_declares_its_would
-  ✓ status.now_is_gathered_from_the_body
-
-check_server_standing: |
-  ✓ server.now_names_the_stop_or_the_start
-
-check_site_reads_rpus_co: |
-  ✓ site.landing_reads_the_fetched_origin
-  ✓ site.clone_position_is_said
-  ✓ site.publish_levels_the_clone
-  ✓ site.reads_the_served_branch
 
 check_rehearsal_record: |
   ✓ rehearsal.record_is_whole
@@ -190,117 +283,11 @@ check_store: |
   ✓ store.held_twice_is_found
   ✓ store.surplus_is_found
 
-check_facts: |
-  ✓ facts.lines_are_yaml
-  ✓ facts.reads_back_what_it_prints  (2/2)
-  ✓ facts.wraps_and_reads_back
-  ✓ facts.wraps_only_for_a_terminal
-
 check_export_atoms: |
   ✓ store.export_is_held_within_a_later_one
 
-check_status_facts: |
-  ✓ status.remedy_names_a_command  (15/15)
-  ✓ status.lines_load_as_yaml  (23/23)
-  ✓ status.room_round_trip_holds_no_pair  (24/24)
-  ✓ report.says_what_the_nouns_say  (11/11)
-  ✓ report.now_is_the_fold
-  ✓ status.value_holds_no_pair  (23/23)
-  ✓ phrase.each_is_said  (46/46)
-  ✓ environment.names_carry_the_prefix
-  ✓ cli.no_send_flag  (3/3)
-  ✓ status.pipeline_says_declarations_and_units  (4/4)
-  ✓ report.gives_no_verdict_on_itself
-  ✓ cli.bare_suggests_and_runs_nothing
-  ✓ report.rows_are_keyed_by_subject
-
-check_walkthrough: |
-  ✓ walkthrough.walks_and_runs
-
-check_completions: |
-  ✓ completions.offers_the_commands_as_they_are
-  ✓ completions.says_why_it_offers_nothing
-  ✓ completions.follows_its_own_change
-  ✓ completions.sync_runs_the_install
-  ✓ completions.status_says_one_thing  (6/6)
-
-check_drafters: |
-  ✓ drafters.signature_is_read_as_written
-  ✓ drafters.first_signature_is_the_drafter
-
-check_versioned_schema_diagnostics: |
-  ✓ composition.base_not_used_directly  (15/15)
-  ✓ composition.base_schemas_closed  (14/14)
-  ✓ composition.discriminator_values_disjoint  (15/15)
-  ✓ composition.no_additional_properties_on_subtypes  (15/15)
-  ✓ composition.wrapper_has_five_fields  (15/15)
-  ✓ documentation.discriminator_fields_annotated  (15/15)
-  ✓ documentation.every_definition_has_title_and_description  (15/15)
-  ✓ documentation.null_only_fields_documented  (15/15)
-  ✓ documentation.open_set_enums_documented  (15/15)
-  ✓ empirical.nullable_fields_surveyed  (15/15)
-  ✓ empirical.oneOf_branches_evidenced  (15/15)
-  ✓ naming.property_keys_lowercase  (15/15)
-  ✓ naming.title_matches_key  (15/15)
-  ✓ naming.upper_camel_case  (15/15)
-  ✓ structure.all_definitions_reachable  (15/15)
-  ✓ structure.bfs_order  (15/15)
-  ✓ structure.definitions_at_bottom  (15/15)
-  ✓ structure.enum_refines_explicit_type  (15/15)
-  ✓ structure.field_order  (15/15)
-  ✓ structure.keywords_declared  (15/15)
-  ✓ structure.minItems_on_non_empty_arrays  (15/15)
-  ✓ structure.no_dangling_refs  (15/15)
-  ✓ structure.no_redundant_additional_properties_true  (15/15)
-  ✓ structure.pattern_constraints_enforced  (15/15)
-  ✓ structure.required_subset_of_properties  (15/15)
-
-check_schema_join: |
-  ✓ model.join_kind_declared
-  ✓ model.join_pointers_valid
-
-check_model_join_versions: |
-  ✓ model.join_family_grammar
-
-check_model_table: |
-  ✓ model.table_valid
-
-check_model_occurrences: |
-  ✓ model.occurrence_family_grammar
-  ✓ model.occurrence_pointers_resolve
-  ✓ model.occurrences_cover_edges
-
-check_model_obligations: |
-  ✓ model.shared_type_disposed  (105/105)
-  ✓ model.documented_type_grounded  (101/101)
-
-check_model_identity: |
-  ✓ model.identity_holds
-
 check_grammar: |
   ✓ grammar.parser_current  (2/2)
-
-check_record_is_the_launchers: |
-  ✓ logs.no_verb_logs_for_itself
-
-check_record_names_read_once: |
-  ✓ record.names_read_once
-
-check_provider_registry: |
-  ✓ provider.registry_parses
-  ✓ provider.names_declared
-
-check_forge_aim: |
-  ✓ forge.aim_one_line_per_issue  (3/3)
-  ✓ forge.issue_is_a_should_with_wired_relations  (2/2)
-  ✓ forge.squash_read_back
-
-check_status_is_the_dry_run: |
-  ✓ verbs.status_is_the_dry_run
-
-check_reply: |
-  ✓ reply.now_is_the_launchers  (2/2)
-  ✓ reply.is_the_bare_status
 
 check_reference: |
   ✓ reference.provenance_declared  (2/2)
@@ -317,318 +304,332 @@ check_mcp_factoring: |
 check_mcp_reproducible: |
   ✓ mcp.reproducible
 
+check_grammar_laws: |
+  ✓ grammar.laws_parse
+  ✓ grammar.citation_is_stated
+  ✓ calculus.laws_parse
+  ✓ calculus.state_declared
+  ✓ calculus.gated_is_cited
+  ✓ calculus.unenforced_names_issue
+  ✓ grammar.state_declared
+  ✓ grammar.gated_is_cited
+  ✓ grammar.unenforced_names_issue
+  ✓ grammar.unenforced_not_cited
+  ✓ grammar.parent_law_defined
+  ✓ grammar.enforcement_map
+
 check_expectation: |
   ✓ checks  (2/2)
 
 stages:
-  check_required_files:
-    passes: 10
-    failures: 0
-    tier: code
-    line: "4"
-  check_pipeline_declarations:
-    passes: 20
-    failures: 0
-    tier: code
-    line: "7"
-  check_step_imports:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "15"
-  check_self_paths:
-    passes: 121
-    failures: 0
-    tier: code
-    line: "18"
-  check_committed_tree:
-    passes: 3
-    failures: 0
-    tier: code
-    line: "21"
-  check_templates:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "26"
-  check_xref:
-    passes: 3
-    failures: 0
-    tier: code
-    line: "29"
-  check_cli_surface:
-    passes: 585
-    failures: 0
-    tier: code
-    line: "34"
-  check_cli_verb_help:
-    passes: 133
-    failures: 0
-    tier: code
-    line: "66"
-  check_cli_exclusive_classes:
-    passes: 10
-    failures: 0
-    tier: code
-    line: "71"
-  check_effects:
-    passes: 3
-    failures: 0
-    tier: code
-    line: "74"
-  check_cache_io:
-    passes: 18
-    failures: 0
-    tier: code
-    line: "79"
-  check_accumulate_contract:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "85"
-  check_capture_prefix:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "88"
-  check_capture_monotone:
-    passes: 4
-    failures: 0
-    tier: code
-    line: "91"
-  check_spelling:
-    passes: 3
-    failures: 0
-    tier: code
-    line: "94"
-  check_grammar_laws:
-    passes: 12
-    failures: 0
-    tier: code
-    line: "99"
-  check_schema_layout:
-    passes: 26
-    failures: 0
-    tier: schema
-    line: "113"
-  check_schema_validity:
-    passes: 15
-    failures: 0
-    tier: schema
-    line: "117"
-  check_schema_meta_validity:
-    passes: 15
-    failures: 0
-    tier: schema
-    line: "120"
-  check_schema_single_version:
-    passes: 15
-    failures: 0
-    tier: schema
-    line: "123"
-  check_schema_changelogs:
-    passes: 30
-    failures: 0
-    tier: schema
-    line: "126"
-  check_tier_contract:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "130"
-  check_validate_verdict:
-    passes: 4
-    failures: 0
-    tier: code
-    line: "133"
-  check_verdict_record:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "136"
-  check_failing_record:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "139"
-  check_providers_judged:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "143"
-  check_declared_families_judge:
-    passes: 3
-    failures: 0
-    tier: code
-    line: "146"
-  check_turn_count_one_home:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "151"
-  check_site_lag:
-    passes: 5
-    failures: 0
-    tier: code
-    line: "155"
-  check_acts_said_once:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "161"
-  check_server_standing:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "165"
-  check_site_reads_rpus_co:
-    passes: 4
-    failures: 0
-    tier: code
-    line: "168"
-  check_rehearsal_record:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "174"
-  check_unit_companion:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "178"
-  check_unit_state:
-    passes: 6
-    failures: 0
-    tier: code
-    line: "181"
-  check_store:
-    passes: 3
-    failures: 0
-    tier: code
-    line: "188"
-  check_facts:
-    passes: 5
-    failures: 0
-    tier: code
-    line: "193"
-  check_export_atoms:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "199"
-  check_status_facts:
-    passes: 154
-    failures: 0
-    tier: code
-    line: "202"
-  check_walkthrough:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "217"
-  check_completions:
-    passes: 10
-    failures: 0
-    tier: code
-    line: "220"
-  check_drafters:
-    passes: 2
-    failures: 0
-    tier: code
-    line: "227"
-  check_versioned_schema_diagnostics:
-    passes: 374
-    failures: 0
-    tier: schema
-    line: "231"
   check_schema_join:
     passes: 2
     failures: 0
     tier: schema
-    line: "258"
+    line: "4"
   check_model_join_versions:
     passes: 1
     failures: 0
     tier: schema
-    line: "262"
+    line: "8"
   check_model_table:
     passes: 1
     failures: 0
     tier: schema
-    line: "265"
+    line: "11"
   check_model_occurrences:
     passes: 3
     failures: 0
     tier: schema
-    line: "268"
+    line: "14"
   check_model_obligations:
     passes: 206
     failures: 0
     tier: schema
-    line: "273"
+    line: "19"
   check_model_identity:
     passes: 1
     failures: 0
     tier: schema
-    line: "277"
-  check_grammar:
+    line: "23"
+  check_providers_judged:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "26"
+  check_declared_families_judge:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "29"
+  check_cache_io:
+    passes: 18
+    failures: 0
+    tier: code
+    line: "34"
+  check_accumulate_contract:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "40"
+  check_capture_prefix:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "43"
+  check_capture_monotone:
+    passes: 4
+    failures: 0
+    tier: code
+    line: "46"
+  check_turn_count_one_home:
     passes: 2
     failures: 0
-    tier: schema
-    line: "280"
-  check_record_is_the_launchers:
-    passes: 1
+    tier: code
+    line: "49"
+  check_status_facts:
+    passes: 154
     failures: 0
     tier: code
-    line: "283"
-  check_record_names_read_once:
-    passes: 1
+    line: "53"
+  check_facts:
+    passes: 5
     failures: 0
     tier: code
-    line: "286"
+    line: "68"
+  check_drafters:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "74"
   check_provider_registry:
     passes: 2
     failures: 0
     tier: code
-    line: "289"
+    line: "78"
   check_forge_aim:
     passes: 6
     failures: 0
     tier: code
-    line: "293"
+    line: "82"
+  check_schema_layout:
+    passes: 26
+    failures: 0
+    tier: schema
+    line: "87"
+  check_schema_validity:
+    passes: 15
+    failures: 0
+    tier: schema
+    line: "91"
+  check_schema_meta_validity:
+    passes: 15
+    failures: 0
+    tier: schema
+    line: "94"
+  check_schema_single_version:
+    passes: 15
+    failures: 0
+    tier: schema
+    line: "97"
+  check_schema_changelogs:
+    passes: 30
+    failures: 0
+    tier: schema
+    line: "100"
+  check_versioned_schema_diagnostics:
+    passes: 389
+    failures: 0
+    tier: schema
+    line: "104"
+  check_validate_verdict:
+    passes: 4
+    failures: 0
+    tier: code
+    line: "132"
+  check_verdict_record:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "135"
+  check_failing_record:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "138"
+  check_site_lag:
+    passes: 5
+    failures: 0
+    tier: code
+    line: "142"
+  check_site_reads_rpus_co:
+    passes: 4
+    failures: 0
+    tier: code
+    line: "148"
+  check_server_standing:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "154"
+  check_cli_surface:
+    passes: 584
+    failures: 0
+    tier: code
+    line: "157"
+  check_cli_verb_help:
+    passes: 133
+    failures: 0
+    tier: code
+    line: "189"
+  check_cli_exclusive_classes:
+    passes: 10
+    failures: 0
+    tier: code
+    line: "194"
+  check_effects:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "197"
+  check_acts_said_once:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "202"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "298"
+    line: "206"
+  check_record_is_the_launchers:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "209"
+  check_record_names_read_once:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "212"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "301"
+    line: "215"
+  check_completions:
+    passes: 10
+    failures: 0
+    tier: code
+    line: "219"
+  check_walkthrough:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "226"
+  check_required_files:
+    passes: 9
+    failures: 0
+    tier: code
+    line: "229"
+  check_pipeline_declarations:
+    passes: 20
+    failures: 0
+    tier: code
+    line: "232"
+  check_step_imports:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "240"
+  check_self_paths:
+    passes: 122
+    failures: 0
+    tier: code
+    line: "243"
+  check_committed_tree:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "246"
+  check_templates:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "251"
+  check_xref:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "254"
+  check_spelling:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "259"
+  check_tier_contract:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "264"
+  check_rehearsal_record:
+    passes: 2
+    failures: 0
+    tier: code
+    line: "267"
+  check_unit_companion:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "271"
+  check_unit_state:
+    passes: 6
+    failures: 0
+    tier: code
+    line: "274"
+  check_store:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "281"
+  check_export_atoms:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "286"
+  check_grammar:
+    passes: 2
+    failures: 0
+    tier: schema
+    line: "289"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "305"
+    line: "292"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "311"
+    line: "298"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "317"
+    line: "304"
+  check_grammar_laws:
+    passes: 12
+    failures: 0
+    tier: code
+    line: "307"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "320"
+    line: "321"
 
-checks[code+schema]: 197 types, 1881/1881 invocations passing
-checks[code]: 145 types, 1159/1159 invocations passing
-checks[schema]: 52 types, 722/722 invocations passing
+checks[code+schema]: 198 types, 1895/1895 invocations passing
+checks[code]: 145 types, 1158/1158 invocations passing
+checks[schema]: 53 types, 737/737 invocations passing
 
-dev gate: PASS - code+schema 1881/1881 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1895/1895 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

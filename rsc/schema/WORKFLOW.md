@@ -411,9 +411,9 @@ git diff rsc/test/run.log
 All checks should pass. The diff to `run.log` is the final record of what
 changed — read it in the worktree, and stage it yourself when it says what you meant.
 Nothing stages on your behalf.
-Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
-lists the check types the code and schema tiers run, one per line. Adding a schema version
-multiplies invocations of existing checks and adds no check, so this file does not move for
-it. A name that stops running, or a name that runs and is not listed, fails the gate.
+A check declares the names it reports beside its function, in its subject's module under
+`src/test/dev/check/`. Adding a schema version multiplies invocations of existing checks and
+adds no check, so no declaration moves for it. A declared name that stops running, or a name
+that runs and is declared by no check, fails the gate.
 
 ---
