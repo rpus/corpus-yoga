@@ -75,9 +75,13 @@
   "calculus": "project",
   "args": [],
   "sends": {
-    "git -C ext/mnt/site fetch --quiet": [
-      "reads rpus.co as it stands, for what publish would land and where the clone stands to it"
-    ]
+    "fetch": {
+      "runs": "git fetch --quiet",
+      "refused": "degrades",
+      "does": [
+        "reads rpus.co as it stands, in the ext/mnt/site clone, for what publish would land and where the clone stands to it"
+      ]
+    }
   },
   "r": [
     "data/output/site",

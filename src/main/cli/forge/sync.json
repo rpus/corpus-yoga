@@ -3,8 +3,12 @@
   "would": "would set",
   "args": [],
   "sends": {
-    "gh api -X PATCH repos/{owner}/{repo}": [
-      "WRITES settings others see (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ]
+    "patch": {
+      "runs": "gh api -X PATCH repos/{owner}/{repo}",
+      "refused": "fails",
+      "does": [
+        "WRITES settings others see, each drifted setting as its row's remedy names it"
+      ]
+    }
   }
 }

@@ -30,7 +30,6 @@ Usage:
 """
 
 import shutil
-import subprocess
 import sys
 from dataclasses import dataclass
 import tempfile
@@ -46,7 +45,7 @@ from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 import spell  # noqa: E402
-from send import may_send, assert_may_send, SendRefused  # noqa: E402
+import send  # noqa: E402 - the tool fetches its jar on first use, a send the declaration names (issues/1022)
 
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
 GENERATED = REPO / 'src' / 'gen' / 'grammar'
@@ -74,14 +73,13 @@ def tool() -> str | None:
 def generated(project: Path) -> dict[str, str]:
     """{file name: text} of the Python-target files the tool generates from the
     project's grammars now."""
-    command = tool()
-    assert command, facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt')
+    assert tool(), facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt')
     with tempfile.TemporaryDirectory() as scratch:
-        argv = [command, '-v', TOOL_VERSION, '-Dlanguage=Python3', '-no-listener', '-o', scratch, '-Xexact-output-dir']
+        argv = ['-v', TOOL_VERSION, '-Dlanguage=Python3', '-no-listener', '-o', scratch, '-Xexact-output-dir']
         if (project / 'imports').is_dir():
             argv += ['-lib', str(project / 'imports')]
         argv += [g.name for g in sorted(project.glob('*.g4'))]
-        proc = subprocess.run(argv, cwd=project, capture_output=True, text=True)
+        proc = send.process('antlr4', *argv, cwd=project, capture_output=True, text=True)
         assert proc.returncode == 0, f'{project.name}: antlr4 refused the grammar:\n{proc.stdout}{proc.stderr}'
         return {p.name: p.read_text() for p in sorted(Path(scratch).glob('*.py'))}
 
@@ -125,10 +123,13 @@ def status() -> int:
                 remedy=facts.Would(spell.line('grammar', 'sync'), {project.name: 1}))
             continue
         item = Project(rel.as_posix(), files=len(have))
-        if not tool() or not may_send():
+        try:
+            want = generated(project) if tool() else None
+        except send.SendRefused:
+            want = None
+        if want is None:
             item.currency = facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the tool') if tool() else facts.phrase('UNVERIFIED - antlr4 not in the venv')
         else:
-            want = generated(project)
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
             if differing:
                 stale += 1
@@ -146,7 +147,6 @@ def status() -> int:
 
 
 def sync() -> int:
-    assert_may_send('running antlr4-tools, which fetches the tool jar on first use')
     if not tool():
         facts.report(None, 'grammar sync: NOT DONE - ' + facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt'))
         return 1
@@ -176,7 +176,7 @@ def main():
     args = parser.parse_args()
     try:
         sys.exit(sync() if args.verb == 'sync' else status())
-    except SendRefused as refused:
+    except send.SendRefused as refused:
         facts.report(None, f'grammar sync: NOT DONE - {refused}')
         sys.exit(1)
 

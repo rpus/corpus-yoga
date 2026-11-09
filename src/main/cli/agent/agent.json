@@ -10,7 +10,6 @@
     "on {machine}, {capture}",
     "{machine} is no room of the store - resume the session on a room, then {capture}",
     "corpus-yoga agent list-drafters, each message against its drafter's record",
-    "captures it",
     "{total} signed message(s); the first Signature of each names its drafter",
     "{named} session(s) named, {held} held",
     "{provider} is no row of rsc/provider/providers.csv",

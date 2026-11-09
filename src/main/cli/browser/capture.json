@@ -34,15 +34,20 @@
     }
   ],
   "sends": {
-    "osascript": [
-      "drives Safari against the logged-in session - navigating, and evaluating JS in the front document (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "urllib.request (claude.ai API)": [
-      "fetches conversations over the session's own authenticated API (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "fetch (in-page, session-authenticated)": [
-      "for claude, GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks - the capture completes the record (issues/422)"
-    ]
+    "api-json": {
+      "runs": "osascript -e",
+      "refused": "fails",
+      "does": [
+        "for claude, fetches each conversation's JSON in the page, over the session's own authenticated API"
+      ]
+    },
+    "asset": {
+      "runs": "osascript -e",
+      "refused": "fails",
+      "does": [
+        "for claude, GETs in the page each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks - the capture completes the record (issues/422)"
+      ]
+    }
   },
   "w": [
     "tmp/stage/input/claude/chat/API-capture",

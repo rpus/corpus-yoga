@@ -20,9 +20,69 @@ from gate import (
 from member import is_member  # noqa: E402 - on the paths gate.py sets
 from member import members  # noqa: E402 - on the paths gate.py sets
 from send import SWITCH as SEND_SWITCH  # noqa: E402 - on the paths gate.py sets
+import send as send_module  # noqa: E402 - on the paths gate.py sets
 import cli  # noqa: E402 - on the paths gate.py sets
 import completions as cli_completions  # noqa: E402 - on the paths gate.py sets
 import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
+
+
+SEND_FACES = ('enact', 'labour', 'query', 'quote', 'quiet', 'attempt')
+
+
+def sends_run_by_name() -> dict[str, str]:
+    """Every send name a script under src/main runs, with a file that runs it: in shell, the
+    word after `send <face>`, `send_cleared` or `send_runs`; in python, the name a send.*
+    call is given - directly, or through a helper whose parameter `name` it passes on, by
+    that parameter's default or the literal a caller gives it."""
+    found: dict[str, str] = {}
+    main = REPO_ROOT / 'src' / 'main'
+    shell = re.compile(r'\bsend (?:' + '|'.join(SEND_FACES) + r') ([a-z][a-z0-9-]*)|\bsend_(?:cleared|runs) ([a-z][a-z0-9-]*)')
+    for script in sorted(main.rglob('*.sh')):
+        for match in shell.finditer(script.read_text()):
+            found.setdefault(match.group(1) or match.group(2), str(script.relative_to(REPO_ROOT)))
+    trees = {}
+    for module in sorted(main.rglob('*.py')):
+        try:
+            trees[module] = ast.parse(module.read_text())
+        except SyntaxError:
+            continue
+    def literal(node):
+        return node.value if isinstance(node, ast.Constant) and isinstance(node.value, str) else None
+    def called(node):
+        return node.func.attr if isinstance(node.func, ast.Attribute) else node.func.id if isinstance(node.func, ast.Name) else None
+    passing: dict[str, int] = {}     # a helper that passes its `name` on to a send, by the parameter's position
+    functions = [(module, n) for module, tree in trees.items() for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
+    grown = True
+    while grown:                     # a helper may pass its name to another helper: until no helper is added
+        grown = False
+        for module, function in functions:
+            parameters = [a.arg for a in function.args.args]
+            if 'name' not in parameters or function.name in passing:
+                continue
+            sends = [c for c in ast.walk(function) if isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute)
+                     and isinstance(c.func.value, ast.Name) and c.func.value.id == 'send']
+            if not sends and not any(isinstance(c, ast.Call) and called(c) in passing for c in ast.walk(function)):
+                continue
+            passing[function.name] = parameters.index('name')
+            grown = True
+            defaults = function.args.defaults
+            offset = len(parameters) - len(defaults)
+            if parameters.index('name') >= offset and (default := literal(defaults[parameters.index('name') - offset])):
+                found.setdefault(default, str(module.relative_to(REPO_ROOT)))
+    for module, tree in trees.items():
+        for call in (n for n in ast.walk(tree) if isinstance(n, ast.Call)):
+            name = None
+            if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name) and call.func.value.id == 'send':
+                position = 1 if call.func.attr == 'run' else 0
+                if call.func.attr in ('run', 'process', 'urlopen', 'within', 'cleared', 'entry', 'runs') and len(call.args) > position:
+                    name = literal(call.args[position])
+            elif (helper := called(call)) in passing and helper is not None:
+                position = passing[helper]
+                given = call.args[position] if len(call.args) > position else next((k.value for k in call.keywords if k.arg == 'name'), None)
+                name = literal(given) if given is not None else None
+            if name:
+                found.setdefault(name, str(module.relative_to(REPO_ROOT)))
+    return found
 
 
 @check(tier='code', on=['src', 'rsc/CALCULUS.md', 'corpus-yoga.code-workspace'], says=(
@@ -46,7 +106,9 @@ import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
     'cli.verb_accepts_command_flags',
     'effects.enact_faces_agree',
     'effects.send_switch_read_once',
+    'effects.send_faces_agree',
     'effects.sends_declared',
+    'effects.sends_run',
     'naming.log_path_derives_from_command',
     'naming.target_stem_matches_command',
     'naming.venv_default_agrees',
@@ -374,9 +436,9 @@ def check_cli_surface(run) -> None:
                           f.suffix == '.sh' and re.search(rf'\$\{{?{SEND_SWITCH}', f.read_text())))
     run(f'send: only the two send faces read {SEND_SWITCH}', not readers,
         None if not readers else
-        f'{", ".join(readers)} reads the switch directly — python imports may_send (skip '
-        f'and pass) or assert_may_send (raise) from src/main/send.py; shell sources '
-        f'src/main/send.sh, so refusal cannot come to mean two things by accident',
+        f'{", ".join(readers)} reads the switch directly - python runs a send by its name '
+        f'through src/main/send.py, shell through src/main/send.sh, so refusal cannot come '
+        f'to mean two things by accident',
         check='effects.send_switch_read_once')
 
     # One contract, two faces (issues/277): enact.sh and enact.py speak the same relay
@@ -401,33 +463,30 @@ def check_cli_surface(run) -> None:
         '; '.join(unspoken + [f'{speaker} defines a face' for speaker in third_speakers]) or None,
         check='effects.enact_faces_agree')
 
-    # The forward half of declared sends (issues/29): a target that holds a send face performs
-    # sends, and its command must SAY so in the declaration tree. TWO tolerances, both
-    # deliberate and both to be retired by the arc's primitives-behind-faces slice:
-    # helpers reached through imports are untraced (under-catch, safe), and the hold is
-    # COMMAND-level — any one file under src/main/cli/<command>/ carrying `sends` satisfies
-    # it, so a single VERB can lose its declaration unnoticed while its siblings keep
-    # the command green (the pull/114 review's finding: src/main/cli/forge/sync.json's
-    # PATCH-write line, deleted alone, does not trip this). Per-verb needs the check to know which
-    # verb sends, which is exactly what declared doors will make knowable.
-    undeclared_senders = []
-    for c in cli.commands():
-        target = REPO_ROOT / c['target']
-        sources = [s for s in (target, target.with_suffix('.py'), target.with_suffix('.sh'))
-                   if s.exists()]
-        text = ''.join(dict.fromkeys(s.read_text() for s in sources))
-        if 'send.sh' not in text and 'from send import' not in text:
-            continue
-        declared = bool(cli.sends_of(c['command'])) or any(
-            cli.sends_of(c['command'], v) for v in cli.subcommands_of(c['command']))
-        if not declared:
-            undeclared_senders.append(c['command'])
-    run('send: every command holding a send face declares its sends', not undeclared_senders,
-        None if not undeclared_senders else
-        f'{", ".join(undeclared_senders)}: the target uses may_send/assert_may_send but no '
-        f'declaration in src/main/cli/<command>/ carries a `sends` field — declare each outward '
-        f'call where the reader decides to run the verb',
+    # Every send is run by its name (issues/1022): the names the scripts run, read where they run
+    # them, against the entries the declarations hold - the entries the runners look up, help
+    # prints and the run log narrates. A name no declaration holds cannot run, and a declared
+    # entry no script runs says a send the verb does not make.
+    declared_names = {name for declaration in CLI.glob('*/*.json')
+                      for name in (json.loads(declaration.read_text()).get('sends') or {})}
+    run_names = sends_run_by_name()
+    undeclared = sorted(f'{name} ({where})' for name, where in run_names.items() if name not in declared_names)
+    run('send: every send a script runs by name is declared', not undeclared,
+        None if not undeclared else
+        f'{", ".join(undeclared)}: no declaration under src/main/cli holds the name - declare it under '
+        f'`sends` in the declaration of each verb that runs it, or its noun\'s where its verbs share it',
         check='effects.sends_declared')
+    unrun = sorted(name for name in declared_names if name not in run_names)
+    run('send: every declared send is run by its name', not unrun,
+        None if not unrun else
+        f'{", ".join(unrun)}: declared under `sends`, but no script under src/main runs it - '
+        f'remove the entry, or run the send by its name',
+        check='effects.sends_run')
+    shell_status = re.search(r'^SEND_REFUSED=(\d+)$', (REPO_ROOT / 'src' / 'main' / 'send.sh').read_text(), re.M)
+    agrees = bool(shell_status) and int(shell_status.group(1)) == send_module.REFUSED_STATUS
+    run("send: the two faces exit a refused send's script with one status", agrees,
+        None if agrees else f'src/main/send.sh SEND_REFUSED and src/main/send.py REFUSED_STATUS differ',
+        check='effects.send_faces_agree')
 
     # Python is type-checked by pyright — Pylance's own engine — against
     # pyrightconfig.json, the ONE declaration of the import roots that the editor, this
@@ -683,9 +742,9 @@ def check_cli_surface(run) -> None:
         yield 'help', d.get('help', '')
         for a in d.get('args', []):
             yield f'argument {a.get("name")}', a.get('help', '')
-        for call, occasions in (d.get('sends') or {}).items():
-            for occasion in occasions:
-                yield f'send {call}', occasion
+        for name, entry in (d.get('sends') or {}).items():
+            for occasion in entry.get('does', []):
+                yield f'send {name}', occasion
         for topic, said in (d.get('explanation') or {}).items():
             if isinstance(said, dict):
                 for inner, sentence in said.items():

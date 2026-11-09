@@ -3,12 +3,20 @@
   "would": "would change",
   "args": [],
   "sends": {
-    "git -C ext/mnt/site pull --ff-only origin <served branch>": [
-      "brings the clone level with rpus.co by a fast-forward before the copy (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "git -C ext/mnt/site push origin HEAD:<served branch>": [
-      "WRITES what rpus.co serves (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ]
+    "level": {
+      "runs": "git pull --ff-only --quiet origin",
+      "refused": "degrades",
+      "does": [
+        "brings the ext/mnt/site clone level with the branch rpus.co serves by a fast-forward before the copy - refused, the landing is read as last fetched"
+      ]
+    },
+    "push": {
+      "runs": "git push origin",
+      "refused": "fails",
+      "does": [
+        "WRITES what rpus.co serves, from the ext/mnt/site clone"
+      ]
+    }
   },
   "r": [
     "data/output/site"

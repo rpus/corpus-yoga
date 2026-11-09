@@ -52,26 +52,41 @@
     }
   ],
   "sends": {
-    "gh issue view": [
-      "reads each named issue's state and title; a closed issue refuses the raise, and a PR's title is its first issue's"
-    ],
-    "gh api": [
-      "reads each aimed issue's open blockers (issues/482); an open blocker not aimed at refuses the raise, as it would the merge",
-      "reads the forge's main, its sha and subject, for an issue's as-at anchor",
-      "WRITES each blocked_by edge an issue is raised with, and the edges a superseded issue held, then reads the raised issue's edges back (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "gh repo view": [
-      "reads the default branch, the PR's base and the issue's anchor"
-    ],
-    "gh pr create": [
-      "WRITES the PR with the generated title and body (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "gh issue create": [
-      "WRITES the issue with its should as the title and the composed body (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "gh issue close": [
-      "WRITES the superseded issue closed as not planned, with the ledger note naming its successor, the room and the date (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ]
+    "read": {
+      "runs": "gh api",
+      "refused": "fails",
+      "does": [
+        "reads which kind holds a number, an issue's node id, and the forge's main for an issue's as-at anchor"
+      ]
+    },
+    "create-pr": {
+      "runs": "gh pr create",
+      "refused": "fails",
+      "does": [
+        "WRITES the PR with the generated title and body"
+      ]
+    },
+    "create-issue": {
+      "runs": "gh issue create",
+      "refused": "fails",
+      "does": [
+        "WRITES the issue with its should as the title and the composed body"
+      ]
+    },
+    "wire": {
+      "runs": "gh api -X POST",
+      "refused": "fails",
+      "does": [
+        "WRITES each blocked_by edge an issue is raised with, and the edges a superseded issue held"
+      ]
+    },
+    "close": {
+      "runs": "gh issue close",
+      "refused": "fails",
+      "does": [
+        "WRITES the superseded issue closed as not planned, with the ledger note naming its successor, the room and the date"
+      ]
+    }
   },
   "r": [
     "machine-name.txt"

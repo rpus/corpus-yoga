@@ -11,11 +11,28 @@ from gate import (
     check,
 )
 from latest import lineages  # noqa: E402 - on the paths gate.py sets
-from send import may_send  # noqa: E402 - on the paths gate.py sets
+import send  # noqa: E402 - on the paths gate.py sets
+import tier  # noqa: E402 - on the paths gate.py sets
 import grammar as grammar_module  # noqa: E402 - on the paths gate.py sets
 import mcp_extraction  # noqa: E402 - on the paths gate.py sets
 import mcp_face  # noqa: E402 - on the paths gate.py sets
 import mcp_factoring  # noqa: E402 - on the paths gate.py sets
+
+
+def grammar_reading(project) -> dict | None:
+    """What antlr4 generates from the project now, run under the grammar noun's declaration,
+    whose send the tool's first use is; None where the send is refused."""
+    held = os.environ.get(tier.DECLARATION)
+    os.environ[tier.DECLARATION] = 'src/main/cli/grammar/grammar.json'
+    try:
+        return grammar_module.generated(project)
+    except send.SendRefused:
+        return None
+    finally:
+        if held is None:
+            os.environ.pop(tier.DECLARATION)
+        else:
+            os.environ[tier.DECLARATION] = held
 
 
 @check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=(
@@ -37,8 +54,7 @@ def check_grammar(run) -> None:
         if not have:
             detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
                       f'rsc/rpus/grammar/{project.name} (corpus-yoga status sync does so with the rest)')
-        elif may_send() and grammar_module.tool():
-            want = grammar_module.generated(project)
+        elif grammar_module.tool() and (want := grammar_reading(project)) is not None:
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
             ok = not differing
             detail = None if ok else (f'src/gen/grammar/{project.name}: {", ".join(differing)} differ from what '
@@ -170,12 +186,14 @@ def check_mcp_reproducible(run) -> None:
     docker = shutil.which('docker')
     daemon = bool(docker) and subprocess.run([docker, 'info'], capture_output=True).returncode == 0
     ok, detail = True, None
-    if may_send() and daemon:
+    if daemon:
         # A git hook exports GIT_DIR and its kin; stripped here as well as in the script,
-        # so the protection does not depend on any script the gate runs remembering it.
+        # so the protection does not depend on any script the gate runs remembering it. The
+        # script runs under the declaration whose sends it makes, and a refused send is a skip.
         env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        env[tier.DECLARATION] = 'src/main/cli/mcp/reproduce.json'
         proc = subprocess.run([str(script)], capture_output=True, text=True, cwd=REPO_ROOT, env=env)
-        ok = proc.returncode == 0
+        ok = proc.returncode in (0, send.REFUSED_STATUS)
         if not ok:
             lines = [l for l in (proc.stdout + proc.stderr).splitlines() if l.strip()]
             detail = '\n    '.join(lines[-12:])

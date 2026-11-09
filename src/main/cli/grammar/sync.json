@@ -8,5 +8,14 @@
   ],
   "w": [
     "src/gen/grammar"
-  ]
+  ],
+  "sends": {
+    "antlr4": {
+      "runs": "antlr4",
+      "refused": "fails",
+      "does": [
+        "runs antlr4-tools, which fetches antlr4-4.13.2-complete.jar into ~/.m2 on the tool's first use, then generates the parsers on the machine's java"
+      ]
+    }
+  }
 }

@@ -113,30 +113,83 @@
     "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)",
     "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push",
     "the parsers could not be generated in the worktree - the gate below will say what it lacks",
-    "data gate green at {head}"
+    "data gate green at {head}",
+    "CORPUS_YOGA_NO_SEND=1 refuses the send git ls-remote"
   ],
   "target": "src/main/cli/forge/forge.sh",
   "calculus": "validate",
   "args": [],
   "sends": {
-    "gh api repos/{owner}/{repo}": [
-      "reads the live settings, for the report and for sync"
-    ],
-    "gh pr list --state all": [
-      "reads every PR, for the branch roster the report and prune share"
-    ],
-    "gh repo view": [
-      "reads the default branch, when the base is not given"
-    ],
-    "git remote prune --dry-run origin": [
-      "asks the remote which tracking refs it has dropped"
-    ],
-    "git fetch --quiet origin <branch>": [
-      "reads this checkout's own upstream, for the checkout row"
-    ],
-    "git fetch --quiet origin refs/pull/<n>/head": [
-      "holds a merged PR's recorded head before a local branch's containment in it is judged, where this checkout lacks the object"
-    ]
+    "repo": {
+      "runs": "gh api repos/{owner}/{repo}",
+      "refused": "degrades",
+      "does": [
+        "reads the live settings, for the report, for sync and for the merge's standing report"
+      ]
+    },
+    "prs": {
+      "runs": "gh pr list --state all --limit 200 --json number,state,headRefName,headRefOid",
+      "refused": "degrades",
+      "does": [
+        "reads every PR, for the branch roster the report, clean and the merge share"
+      ]
+    },
+    "default-branch": {
+      "runs": "gh repo view --json defaultBranchRef --jq .defaultBranchRef.name",
+      "refused": "degrades",
+      "does": [
+        "reads the default branch - the base where none is given, a raised PR's base and a raised issue's anchor"
+      ]
+    },
+    "dropped-refs": {
+      "runs": "git remote prune --dry-run origin",
+      "refused": "degrades",
+      "does": [
+        "asks the remote which tracking refs it has dropped"
+      ]
+    },
+    "upstream": {
+      "runs": "git fetch --quiet origin",
+      "refused": "degrades",
+      "does": [
+        "reads this checkout's own upstream, for the checkout row"
+      ]
+    },
+    "pull-head": {
+      "runs": "git fetch --quiet origin",
+      "refused": "degrades",
+      "does": [
+        "holds a merged PR's recorded head, refs/pull/<n>/head, before a local branch's containment in it is judged, where this checkout lacks the object"
+      ]
+    },
+    "server-branches": {
+      "runs": "git ls-remote --heads origin",
+      "refused": "degrades",
+      "does": [
+        "reads the server's branches, to find a closed-unmerged PR's leftover"
+      ]
+    },
+    "superseded": {
+      "runs": "gh api graphql -F owner={owner} -F repo={repo} -F query=@src/main/cli/forge/superseded-heads.graphql",
+      "refused": "degrades",
+      "does": [
+        "reads a merged PR's force-push history, to recognise a superseded former head"
+      ]
+    },
+    "issue": {
+      "runs": "gh issue view",
+      "refused": "fails",
+      "does": [
+        "reads an issue's state and title - each issue a raise names, each issue a merge aims at"
+      ]
+    },
+    "dependencies": {
+      "runs": "gh api",
+      "refused": "fails",
+      "does": [
+        "reads an issue's blocked_by or blocking edges - for the raise and the merge, which refuse an open blocker left unaimed (issues/482), and for the capture's deposit"
+      ]
+    }
   },
   "r": [
     "rsc/test/pre-commit-hook.sh"

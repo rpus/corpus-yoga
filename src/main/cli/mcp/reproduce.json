@@ -10,11 +10,19 @@
     "docker"
   ],
   "sends": {
-    "git fetch (github.com, upstream at the pinned commit)": [
-      "a shallow sparse checkout of what upstream's generator reads, into a temporary directory removed on exit (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "docker run (node image pull, npm registry)": [
-      "installs upstream's locked dependencies and runs scripts/generate-schemas.ts unchanged (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ]
+    "upstream": {
+      "runs": "git fetch -q --depth 1 origin",
+      "refused": "fails",
+      "does": [
+        "a shallow sparse fetch of what upstream's generator reads, at the pinned commit, into a temporary directory removed on exit"
+      ]
+    },
+    "generate": {
+      "runs": "docker run --rm",
+      "refused": "fails",
+      "does": [
+        "pulls the node image and installs upstream's locked dependencies from the npm registry, then runs scripts/generate-schemas.ts unchanged"
+      ]
+    }
   }
 }

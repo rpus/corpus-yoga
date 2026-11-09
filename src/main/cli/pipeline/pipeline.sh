@@ -31,11 +31,13 @@ source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of CORPUS_YOGA_NO_SEND (issues/29)
+source "$REPO_ROOT/src/main/send.sh"   # a send run by its name (issues/29, issues/1022)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
 source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
+# shellcheck source=src/main/enact.sh
+source "$REPO_ROOT/src/main/enact.sh"   # the faces a send runs through
 # shellcheck source=src/main/provider.sh
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (issues/704)
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
@@ -156,13 +158,13 @@ install_deps() {
   # pip reaches PyPI on every run (the upgrade check alone is a send), so refusal skips
   # it with a note and the run proceeds on the venv as-is — a fresh venv then fails at
   # its first import, visibly, with this line just above it in the log (issues/29).
-  if ! may_send; then
+  if ! send_cleared pip-upgrade 2>/dev/null; then
     phrase "CORPUS_YOGA_NO_SEND=1 refuses the send pip install - the venv serves as-is"
     return 0
   fi
   phrase "checking for pip upgrade"
-  pip install --upgrade pip
-  pip install -q -r "$REPO_ROOT/src/requirements.txt"
+  send labour pip-upgrade
+  send labour requirements "$REPO_ROOT/src/requirements.txt"
 }
 
 # Which pipelines have a prep step, and what each is called. DECLARED, not globbed for a

@@ -1,40 +1,24 @@
 #!/usr/bin/env python
 """
-audit.py — list known/suspect problems across the chat-capture corpus.
+audit.py - "are the captures I have any good?", read from the captures alone. Whether the
+account has moved on since is corpus-yoga browser's, against the account as last fetched
+(src/main/cli/browser/account.py).
 
-The recapture workflow needs a staleness detector: after having (or extending) a
-conversation, the user recaptures it (Shortcut / --id); this tool says which
-captures need attention. Two independent questions, two modes:
-
-Filesystem audit (always) — "are the captures I have any good?"
   claude — nothing to check offline: the API capture is the record (DOM retired,
   issues/418, issues/431), and validate.sh already gates each capture against the schema.
   gemini — no API capture exists, so heuristics: a DOM capture with exactly
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
 
---live (drives Safari, in a work tab) — "which conversations have moved on?"
-  claude — ONE authenticated listing fetch returns every conversation's updated_at;
-  compared against each captured JSON's updated_at: NEW (never captured) and
-  PROGRESSED (updated since capture).
-  gemini — the listing is browsed for NEW ids; then each captured conversation is
-  visited and its immediately-rendered TAIL (conversations are append-only, so an
-  unchanged tail means an unchanged conversation) is compared against the capture's
-  last agent turn, alphanumeric-normalized so markdown-vs-rendered differences wash
-  out. Mismatch = PROGRESSED (rendering edge cases err toward recapture, e.g. a
-  response ending in rendered maths).
-
 Usage:
-  src/run_python_script.sh src/main/pipeline/chat-capture/audit.py \
-    [--input input] [--api data/output/markdown/claude/chat/conversations] [--live]
+  src/run_python_script.sh src/main/pipeline/chat-capture/audit.py
+
+The captures are read under the tiers' data/input and the projections under their
+data/output/markdown - the checkout's, or a rehearsal's scratch (src/main/tier.py).
 
 Exit status is non-zero iff anything actionable is found.
 """
-import argparse
-import json
-import re
 import sys
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,7 +34,6 @@ import spell  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (issues/380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (issues/421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
-from safari import SendRefused   # --live sends; the refusal has to be catchable here
 
 # Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking one.
@@ -60,7 +43,6 @@ RENDER_CEILING = 10
 @dataclass
 class Claude:
     offline_check: str
-    live: str
 
 
 @dataclass
@@ -73,30 +55,10 @@ class Gemini:
 
 
 @dataclass
-class Moved:
-    """A conversation the live pass found new or progressed, with the capture that acts on it."""
-    standing: str
-    remedy: facts.Command | facts.Would
-
-
-@dataclass
-class Live:
-    """One provider's live pass: the account's listing against the captures."""
-    conversations_listed: int
-    new: int
-    progressed: int
-    captured_but_no_longer_listed: int
-    tail_checked: int | None = facts.named('tail-checked', default=None)
-    findings: dict[str, Moved] | str = 'none'   # by conversation
-
-
-@dataclass
 class Audit:
-    """The capture audit: each provider's offline standing, and its live pass where one ran."""
+    """The capture audit: each provider's offline standing."""
     claude: Claude | None = None
     gemini: Gemini | str | None = None
-    claude_live: Live | str | None = None
-    gemini_live: Live | str | None = None
 
 
 def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tuple[Gemini, list[str]]:
@@ -170,158 +132,32 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             [f'{n} ({c[:8]})' for c, n in suspects])
 
 
-def _alnum(s: str) -> str:
-    return re.sub(r'[^a-z0-9]', '', s.lower())
-
-
-CLAUDE_LISTING_JS = """(async function() {
-  window.__audit = '';
-  const orgId = document.cookie.match(/lastActiveOrg=([^;]+)/)?.[1];
-  if (!orgId) { window.__audit = 'ERROR: no lastActiveOrg cookie — not logged in?'; return; }
-  const r = await fetch('/api/organizations/' + orgId + '/chat_conversations?limit=10000',
-                        {credentials: 'include'});
-  if (!r.ok) { window.__audit = 'ERROR: HTTP ' + r.status; return; }
-  const d = await r.json();
-  const arr = Array.isArray(d) ? d : (d.data || d.chat_conversations || []);
-  window.__audit = JSON.stringify(arr.map(c => [c.uuid, c.updated_at]));
-})();"""
-
-# NB: no // comments in eval'd JS — safari_eval_js flattens newlines to spaces, so a
-# line comment would swallow the rest of the function. Each part is sliced SEPARATELY:
-# a long final response must not evict the human tail from the returned blob.
-GEMINI_TAIL_JS = """(function(){
-  var uq = document.querySelectorAll('user-query');
-  var mr = document.querySelectorAll('model-response');
-  var u = uq.length ? (uq[uq.length - 1].innerText || '') : '';
-  var m = mr.length ? (mr[mr.length - 1].innerText || '') : '';
-  return (u.replace(/\\s+/g, ' ').slice(-600) + ' | ' + m.replace(/\\s+/g, ' ').slice(-600));
-})()"""
-
-
-def moved(provider: str, findings: list[tuple[str, str, str]]) -> dict[str, Moved] | str:
-    """Each live finding under the conversation it names, with the command that acts on it -
-    never a bare id in a list that has left its provider behind."""
-    return {cid: Moved(facts.phrase('{kind} - {detail}', kind=kind, detail=detail), facts.Would(spell.line('browser', 'capture', provider=provider, id=cid), {cid: 1}))
-            for kind, cid, detail in findings} or 'none'
-
-
-def live_claude(captures_dir: Path) -> tuple[Live | str, list[str]]:
-    """One listing fetch: every conversation's updated_at vs the captured JSONs'."""
-    from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
-    safari_navigate('https://claude.ai/recents')
-    time.sleep(PAGE_LOAD_WAIT + 2)
-    safari_eval_js(CLAUDE_LISTING_JS)
-    raw = ''
-    for _ in range(30):
-        raw = safari_eval_js('window.__audit || ""')
-        if raw:
-            break
-        time.sleep(0.5)
-    if not raw or raw.startswith('ERROR'):
-        return facts.phrase('listing fetch failed ({why})', why=raw or 'timeout'), []
-    listing = dict(json.loads(raw))
-
-    captured = {}
-    for d in sorted(captures_dir.iterdir()):
-        j = d / f'{d.name}.json' if d.is_dir() else None
-        if j and j.exists():
-            captured[d.name] = json.load(j.open()).get('updated_at', '')
-
-    found = []
-    for uuid, updated in sorted(listing.items()):
-        if uuid not in captured:
-            found.append(('NEW', uuid, facts.phrase('never captured')))
-        elif updated > captured[uuid]:
-            found.append(('PROGRESSED', uuid, facts.phrase('captured {captured} < updated {updated}', captured=captured[uuid], updated=updated)))
-    unlisted = sorted(set(captured) - set(listing))
-    return (Live(len(listing), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
-                 len(unlisted), findings=moved('claude', found)),
-            [f'claude {kind} {cid}' for kind, cid, _ in found])
-
-
-def live_gemini(captures_dir: Path) -> tuple[Live | str, list[str]]:
-    """Browse the listing for NEW ids; tail-check each captured conversation
-    (append-only: an unchanged rendered tail means an unchanged conversation)."""
-    from capture import PROVIDERS, ids_from_safari, wait_for_ready
-    from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
-    cfg = PROVIDERS['gemini']
-    ids = ids_from_safari('gemini', cfg)
-    captured_dirs = {d.name: d for d in captures_dir.iterdir() if d.is_dir()}
-
-    found = [('NEW', i, 'never captured') for i in ids if i not in captured_dirs]
-    checked = 0
-    for cid in (i for i in ids if i in captured_dirs):
-        mds = sorted(captured_dirs[cid].glob('*.md'))
-        if not mds:
-            continue
-        seq = turn_seq(mds[0].read_text())
-        # Two probes, either match = current. The HUMAN probe is the robust one (typed
-        # text renders literally); the agent probe can false-mismatch when a response
-        # ends in rendered maths/markup, whose glyphs alnum-normalize away.
-        probes = []
-        for role in ('H', 'A'):
-            turns = [b for r, b in seq if r == role]
-            if turns:
-                probes.append(_alnum(turns[-1])[-120:])
-        probes = [p for p in probes if p]
-        if not probes:
-            continue
-        safari_navigate(cfg['chat_url'].format(id=cid))
-        time.sleep(PAGE_LOAD_WAIT)
-        wait_for_ready(cfg['ready_sel'])
-        checked += 1
-        page = _alnum(safari_eval_js(GEMINI_TAIL_JS))
-        if not any(p in page for p in probes):
-            found.append(('PROGRESSED', cid, facts.phrase('"{name}" - rendered tail no longer matches the captured last turns', name=mds[0].stem)))
-    unlisted = sorted(set(captured_dirs) - set(ids))
-    return (Live(len(ids), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
-                 len(unlisted), tail_checked=checked, findings=moved('gemini', found)),
-            [f'gemini {kind} {cid}' for kind, cid, _ in found])
-
-
 def main():
     # The one thing an unmigrated machine needs this face to say (issues/421): the
     # library's stated move — bare `corpus-yoga browser` is where a tester looks first.
     from library import migration_note
     migration_note()
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--input', default='input',
-                    help='input root, typed <provider>/<channel>/<capture> — the audit '
-                         'derives claude/chat/API-capture and gemini/chat/DOM-capture')
-    ap.add_argument('--api', default=str(tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'),
-                    help='dir of api-sourced markdown (project_markdown output)')
-    ap.add_argument('--live', action='store_true',
-                    help='also drive Safari (work tab): claude listing updated_at check; '
-                         'gemini listing + rendered-tail checks')
-    ap.add_argument('--provider', choices=['claude', 'gemini'], default=None,
-                    help='restrict to one provider (default: every provider). The live pass '
-                         'costs wildly different amounts per provider — claude is one listing '
-                         'fetch, gemini navigates to every captured conversation in turn — so '
-                         'which to pay for is the reader\'s to choose')
-    args = ap.parse_args()
-
-    shape, found = audit(Path(args.input), Path(args.api), args.provider, args.live)
+    shape, found = audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')
     facts.say(shape)
     return 1 if found else 0
 
 
-def audit(root: Path, api: Path, provider: str | None = None, live: bool = False) -> tuple[Audit, bool]:
+def audit(root: Path, api: Path, provider: str | None = None) -> tuple[Audit, bool]:
     """The audit as its shape, and whether anything actionable was found: the offline pass
-    over the captures under root, and with live the account's listing against them."""
-    claude_api = root / 'claude' / 'chat' / 'API-capture'
+    over the captures under root."""
     gemini_dom = root / 'gemini' / 'chat' / 'DOM-capture'
     suspects: list[str] = []
     out = Audit()
 
     # one restriction, applied wherever the audit is partitioned by provider — the
-    # offline pass included, so `--provider claude` means the same thing throughout
+    # whole audit, so a provider named means the same thing throughout
     def want(name):
         return provider in (None, name)
 
     if want('claude'):
         # the absence is the report: with DOM retired there is no second render to
         # reconcile the record against, and schema validation already ran per capture
-        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'), facts.phrase('--live compares it against the account'))
+        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'))
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
@@ -332,27 +168,8 @@ def audit(root: Path, api: Path, provider: str | None = None, live: bool = False
         shown = gemini_dom.relative_to(REPO) if gemini_dom.is_relative_to(REPO) else gemini_dom
         out.gemini = facts.phrase('skipped - {path} absent', path=shown)
 
-    actionable: list[str] = []
-    if live:
-        from safari import safari_open_work_tab, safari_close_work_tab
-        prev_tab = safari_open_work_tab()
-        try:
-            if claude_api.is_dir() and want('claude'):
-                out.claude_live, moved_ = live_claude(claude_api)
-                actionable += moved_
-            if gemini_dom.is_dir() and want('gemini'):
-                out.gemini_live, moved_ = live_gemini(gemini_dom)
-                actionable += moved_
-        finally:
-            safari_close_work_tab(prev_tab)
-
-    return out, bool(suspects or actionable)
+    return out, bool(suspects)
 
 
 if __name__ == '__main__':
-    try:
-        sys.exit(main())
-    except SendRefused as e:
-        # --live is a send; the filesystem audit is not. Exit 3 says refused, not "failed".
-        print(e, file=sys.stderr)
-        sys.exit(3)
+    sys.exit(main())

@@ -51,7 +51,7 @@ run_one() {
 }
 
 run_corpus() {
-  local root="${1%/}" dom_root="${2%/}" store="${3%/}"
+  local root="${1%/}" dom_root="${2%/}"
   # each provider's steps run where that provider's captures stand (issues/965): a room
   # holding gemini's alone, or claude's alone, runs the one and skips the other
   local has_api=0 has_dom=0
@@ -73,15 +73,12 @@ run_corpus() {
   # audit: capture-health report against the fresh projections — findings
   # inform, never gate: severity attaches to the RECORD, and the record was already
   # schema-validated above
-  step_ok audit     "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/audit.py" \
-    --input "$store" \
-    --api "$DATA_DIR/output/markdown/claude/chat/conversations"
+  step_ok audit     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit.py"
 }
 
 print_plan() {
   echo "chat-capture steps — corpus mode (default):"
-  run_corpus '<captures-root>' '<scrapes-root>' '<store-root>'
+  run_corpus '<captures-root>' '<scrapes-root>'
   echo "single-capture mode (--item <dir>): the validate step only"
 }
 
@@ -93,12 +90,10 @@ main() {
   if [[ -n "$capture_dir" ]]; then
     run_one "$(cd "$capture_dir" && pwd)"
   else
-    # Each provider's store is the template made its own; the store root above
-    # <provider> is what the audit walks.
-    local api_root dom_root store
+    # Each provider's store is the template made its own.
+    local api_root dom_root
     api_root="$(resolve_input "$input_root" "$SCRIPT_DIR/pipeline.json" claude)"
     dom_root="$(resolve_input "$input_root" "$SCRIPT_DIR/pipeline.json" gemini)"
-    store="${input_root%%/<provider>/*}"
     local root=''
     if [[ -d "$api_root" ]]; then
       root="$(cd "$api_root" && pwd)"
@@ -106,7 +101,7 @@ main() {
     else
       echo "no captures in $api_root (populate via: corpus-yoga browser capture --provider claude)"
     fi
-    run_corpus "$root" "$dom_root" "$store"
+    run_corpus "$root" "$dom_root"
   fi
 }
 

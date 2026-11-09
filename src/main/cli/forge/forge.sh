@@ -35,9 +35,12 @@ source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its
 reconcile() {
   [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tdeclared\t$(phrase "no src/main/cli/forge/forge.csv")\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\t$(phrase "not installed")\tbrew install gh\t$(phrase "installs it")"; return; }
-  may_send || { echo -e "UNVERIFIED\tlive\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send gh api")\t"; return; }
-  local live
-  if ! live="$(cd "$REPO_DIR" && gh api "repos/{owner}/{repo}" 2>/dev/null)"; then
+  local live status=0
+  live="$(cd "$REPO_DIR" && send quote repo)" || status=$?
+  if [[ "$status" -eq "$SEND_REFUSED" ]]; then
+    echo -e "UNVERIFIED\tlive\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send gh api")\t"
+    return
+  elif [[ "$status" -ne 0 ]]; then
     echo -e "UNVERIFIED\tlive\t$(phrase "unreachable, offline, no GitHub remote, or gh not logged in")\t"
     return
   fi
@@ -69,8 +72,7 @@ superseding_force_push() {  # <pr-number> <tip>
   # shellcheck disable=SC2016
   # the document is a file so the echo names it rather than reciting it (issues/301):
   # src/main/cli/forge/superseded-heads.graphql
-  events="$(cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" \
-    -F query=@src/main/cli/forge/superseded-heads.graphql \
+  events="$(cd "$REPO_DIR" && send quote superseded -F number="$n" \
     --jq '.data.repository.pullRequest.timelineItems.nodes[]')" || return 0
   [[ -n "$events" ]] || return 0
   while IFS= read -r event; do
@@ -93,16 +95,15 @@ branches() {
     echo -e "UNVERIFIED\tlive\t$(phrase "gh not installed")"
     return
   fi
-  if ! may_send; then
+  local prs status=0
+  prs="$(cd "$REPO_DIR" && send quote prs)" || status=$?
+  if [[ "$status" -eq "$SEND_REFUSED" ]]; then
     echo -e "UNVERIFIED\tlive\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send gh pr list")"
     return
-  fi
-  local prs
-  prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
-    --json number,state,headRefName,headRefOid)" || {
+  elif [[ "$status" -ne 0 ]]; then
     echo -e "UNVERIFIED\tlive\t$(phrase "gh pr list failed, its message above")"
     return
-  }
+  fi
   local b tip pr_json n st oid holder base
   base="$(base_branch)"
   while read -r b; do
@@ -137,11 +138,10 @@ branches() {
     # room and deleted at the merge is fetched from the PR's own ref before containment
     # is judged, and where it cannot be held the row is UNVERIFIED, never KEPT.
     if [[ "$st" == MERGED ]] && ! git -C "$REPO_DIR" cat-file -e "$oid^{commit}" 2>/dev/null; then
-      if may_send; then
-        quiet git -C "$REPO_DIR" fetch --quiet origin "refs/pull/$n/head" || true
-      fi
+      local fetched=0
+      (cd "$REPO_DIR" && send quiet pull-head "refs/pull/$n/head") || fetched=$?
       if ! git -C "$REPO_DIR" cat-file -e "$oid^{commit}" 2>/dev/null; then
-        if may_send; then
+        if [[ "$fetched" -ne "$SEND_REFUSED" ]]; then
           echo -e "UNVERIFIED\t$b\t$(phrase "pull/{pr} merged, but its head {head} is not held here and the fetch of refs/pull/{pr}/head did not bring it" pr="$n" head="${oid:0:8}")"
         else
           echo -e "UNVERIFIED\t$b\t$(phrase "pull/{pr} merged, but its head {head} is not held here and CORPUS_YOGA_NO_SEND=1 refuses the send git fetch" pr="$n" head="${oid:0:8}")"
@@ -194,7 +194,9 @@ branches() {
              | grep -v "^$base\$")
 
   local server_refs sb
-  if server_refs="$(quote git -C "$REPO_DIR" ls-remote --heads origin)"; then
+  local listed=0
+  server_refs="$(cd "$REPO_DIR" && send quote server-branches)" || listed=$?
+  if [[ "$listed" -eq 0 ]]; then
     while read -r sb; do
       [[ -n "$sb" && "$sb" != "$base" ]] || continue
       pr_json="$(jq -c --arg b "$sb" 'map(select(.headRefName == $b)) | sort_by(.number) | last // empty' <<< "$prs")"
@@ -203,6 +205,8 @@ branches() {
       [[ "$st" == CLOSED ]] || continue
       echo -e "SERVER_DELETABLE\t$sb\t$(phrase "pull/{pr} CLOSED unmerged - the forge still holds the branch" pr="$n")"
     done < <(printf '%s\n' "$server_refs" | awk '{print $2}' | sed 's#^refs/heads/##')
+  elif [[ "$listed" -eq "$SEND_REFUSED" ]]; then
+    echo -e "UNVERIFIED\tlive\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send git ls-remote")"
   else
     echo -e "UNVERIFIED\tlive\t$(phrase "git ls-remote unreachable")"
   fi
@@ -212,12 +216,12 @@ branches() {
 
 # rows: STATUS \t ref \t detail - parsed by status() and clean()
 stale_tracking() {
-  local out line ref
-  if ! may_send; then
+  local out line ref status=0
+  out="$(cd "$REPO_DIR" && send quote dropped-refs)" || status=$?
+  if [[ "$status" -eq "$SEND_REFUSED" ]]; then
     echo -e "UNVERIFIED\torigin\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send git remote prune --dry-run (tracking refs unverified)")"
     return
-  fi
-  if ! out="$(git -C "$REPO_DIR" remote prune --dry-run origin 2>/dev/null)"; then
+  elif [[ "$status" -ne 0 ]]; then
     echo -e "UNVERIFIED\torigin\t$(phrase "unreachable - cannot tell which tracking refs the forge has dropped")"
     return
   fi
@@ -240,8 +244,12 @@ upstream() {
     echo -e "OK\tcheckout\t$(phrase "{branch} has no upstream - nothing to compare" branch="$current")\t"
     return
   fi
-  may_send || { echo -e "UNVERIFIED\tcheckout\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send git fetch (checkout vs upstream unverified)")\t"; return; }
-  if ! quiet git -C "$REPO_DIR" fetch --quiet origin "$current"; then
+  local status=0
+  (cd "$REPO_DIR" && send quiet upstream "$current") || status=$?
+  if [[ "$status" -eq "$SEND_REFUSED" ]]; then
+    echo -e "UNVERIFIED\tcheckout\t$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send git fetch (checkout vs upstream unverified)")\t"
+    return
+  elif [[ "$status" -ne 0 ]]; then
     echo -e "UNVERIFIED\tcheckout\t$(phrase "unreachable - checkout vs upstream unverified")\t"
     return
   fi
@@ -259,8 +267,7 @@ upstream() {
 }
 
 base_branch() {
-  may_send || { echo main; return; }
-  (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
+  (cd "$REPO_DIR" && send quote default-branch 2>/dev/null) || echo main
 }
 
 # The standing report (issues/759): each probe's rows under its section's name, typed and said as
@@ -316,10 +323,12 @@ clean() {
         enact git -C "$REPO_DIR" branch -D "$key" >/dev/null 2>&1 || why="$(phrase "git branch -D failed")" ;;
       SERVER_DELETABLE)
         pair "deletable on the forge" "$detail - $(phrase "evidence-safe, the PR keeps its commits and diff and the reasoning lives in its thread")" 2
-        if assert_may_send "git push origin --delete $key (forge clean)"; then
-          enact git -C "$REPO_DIR" push origin --delete "$key" >/dev/null 2>&1 || why="$(phrase "git push origin --delete failed")"
-        else
+        local deleted=0
+        (cd "$REPO_DIR" && send enact delete "$key" >/dev/null 2>&1) || deleted=$?
+        if [[ "$deleted" -eq "$SEND_REFUSED" ]]; then
           why="$(phrase "CORPUS_YOGA_NO_SEND=1 refuses the send git push origin --delete")"
+        elif [[ "$deleted" -ne 0 ]]; then
+          why="$(phrase "git push origin --delete failed")"
         fi ;;
       STALE)
         pair stale "$detail" 2
@@ -345,14 +354,15 @@ clean() {
 
 # The act (issues/881): what it would set is the bare status's, drift by drift; this sets each.
 sync() {
-  assert_may_send "gh api -X PATCH (forge sync)" || exit 1
-  local rows drift=0
+  send_cleared patch || exit 1
+  local rows drift=0 words
   rows="$(reconcile)"
   while IFS=$'\t' read -r st key detail remedy; do
     [[ "$st" == DRIFT ]] || continue
     drift=1
     echo "  did set: $key"
-    (cd "$REPO_DIR" && eval "$remedy" >/dev/null) || { echo "corpus-yoga forge sync: $(phrase "{key} failed - settings unchanged for it" key="$key")" >&2; exit 1; }
+    read -ra words <<< "$remedy"   # the row's remedy ends on the field it sets, its flag before it
+    (cd "$REPO_DIR" && send enact patch "${words[@]: -2}" >/dev/null) || { echo "corpus-yoga forge sync: $(phrase "{key} failed - settings unchanged for it" key="$key")" >&2; exit 1; }
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
@@ -393,8 +403,7 @@ merge() {
 # (repos/{owner}/{repo}/commits/<sha>/pulls). Empty when the send is refused or the
 # forge unreachable.
 pr_of_commit() {  # <sha>
-  may_send || return 0
-  (cd "$REPO_DIR" && quote gh api "repos/{owner}/{repo}/commits/$1/pulls" --jq '.[0].number // empty') || true
+  (cd "$REPO_DIR" && send quote commit-pulls "repos/{owner}/{repo}/commits/$1/pulls" --jq '.[0].number // empty') || true
 }
 
 # The heads a merged PR held before each relocation (issues/585): the force-push
@@ -402,16 +411,13 @@ pr_of_commit() {  # <sha>
 # branch built on the parent before the forge relocated it carries one of these.
 # Empty when the send is refused or the forge unreachable.
 pr_former_heads() {  # <pr-number>
-  may_send || return 0
-  (cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$1" \
-      -F query=@src/main/cli/forge/superseded-heads.graphql \
+  (cd "$REPO_DIR" && send quote superseded -F number="$1" \
       --jq '.data.repository.pullRequest.timelineItems.nodes[].beforeCommit.oid') || true
 }
 
 # A merged PR's final head - the one its squash was pinned to.
 pr_final_head() {  # <pr-number>
-  may_send || return 0
-  (cd "$REPO_DIR" && quote gh pr view "$1" --json headRefOid --jq .headRefOid) || true
+  (cd "$REPO_DIR" && send quote pr "$1" --json headRefOid --jq .headRefOid) || true
 }
 
 # One patch-id per commit of a range, rsc/test/ aside (the settle regenerates it);
@@ -553,7 +559,7 @@ relocated() {  # <base> <head> <old-sha>
       dispose; return 1
     fi
   fi
-  enact git -C "$wt" push --force-with-lease="refs/heads/$head:$old_sha" origin "HEAD:refs/heads/$head" >&2 \
+  (cd "$wt" && send enact relocate --force-with-lease="refs/heads/$head:$old_sha" origin "HEAD:refs/heads/$head") >&2 \
     || { say "relocation halted - the lease refused; the branch moved under the merge" >&2; dispose; return 1; }
   oid="$(git -C "$wt" rev-parse HEAD)"
   dispose
@@ -595,8 +601,8 @@ merge_chain() {
   local record_depth=${CORPUS_YOGA_NARRATION_DEPTH:-0}
   opening refuses
   export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
-  assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
-  read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
+  send_cleared pr     || { echo "forge merge: NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
+  read -r state base head < <(cd "$REPO_DIR" && send query pr "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR merges" pr="$pr" state="$state")"; return 1; }
   # A checkout that holds the head with a dirty tree refuses HERE (issues/975), before any
   # read but the one that named the head: the dirt is usually a red gate's own findings in
@@ -609,7 +615,7 @@ merge_chain() {
     dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
     [[ -z "$dirty" ]]       || { echo "forge merge: NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
   fi
-  body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE - $(phrase "the body read failed")"; return 1; }
+  body="$(cd "$REPO_DIR" && send quote pr "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE - $(phrase "the body read failed")"; return 1; }
   # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one
   # line per issue, as corpus-yoga forge raise writes them; a line that says the phrase
   # otherwise refuses here, before any enacting step, since the flip could not read it either.
@@ -620,10 +626,10 @@ merge_chain() {
   # complete (issues/479): the should's one home is the issue, main's subject becomes
   # the disposed should, and a non-copy refuses HERE, before any enacting step.
   local title issue_number issue_title copied=0
-  title="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json title --jq .title)"     || { echo "forge merge: NOT DONE - $(phrase "the title read failed")"; return 1; }
+  title="$(cd "$REPO_DIR" && send quote pr "$pr" --json title --jq .title)"     || { echo "forge merge: NOT DONE - $(phrase "the title read failed")"; return 1; }
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
-    issue_title="$(cd "$REPO_DIR" && quote gh issue view "$issue_number" --json title --jq .title)" || continue
+    issue_title="$(cd "$REPO_DIR" && send quote issue "$issue_number" --json title --jq .title)" || continue
     [[ "$title" == "$issue_title" ]] && copied=1
   done <<< "$aimed"
   [[ "$copied" == 1 ]]     || { echo "forge merge: NOT DONE - $(phrase "the title copies no issue the body aims at (issues/479); retitle the PR as the verbatim copy of the central issue's title")"; return 1; }
@@ -633,7 +639,7 @@ merge_chain() {
   local blocker_rows blocker_number blocker_state
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
-    blocker_rows="$(cd "$REPO_DIR" && quote gh api "repos/{owner}/{repo}/issues/$issue_number/dependencies/blocked_by" --jq '.[] | [.number, .state] | @tsv')" || continue
+    blocker_rows="$(cd "$REPO_DIR" && send quote dependencies "repos/{owner}/{repo}/issues/$issue_number/dependencies/blocked_by" --jq '.[] | [.number, .state] | @tsv')" || continue
     while IFS=$'\t' read -r blocker_number blocker_state; do
       [[ -n "$blocker_number" ]] || continue
       [[ "$blocker_state" == "closed" ]] && continue
@@ -645,7 +651,7 @@ merge_chain() {
   narrate opening "standing report"
   CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
-  enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge merge: NOT DONE - $(phrase "the fetch failed")"; return 1; }
+  (cd "$REPO_DIR" && send enact fetch "$base" "$head")     || { echo "forge merge: NOT DONE - $(phrase "the fetch failed")"; return 1; }
   if [[ "$branch_here" == "$head" ]]; then
     git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge merge: NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
   fi
@@ -657,7 +663,7 @@ merge_chain() {
   if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
     say "base unmoved - origin/{head} already stands on origin/{base}; nothing to relocate" head="$head" base="$base"
   else
-    old_sha="$(git -C "$REPO_DIR" ls-remote origin "refs/heads/$head" | cut -f1)"
+    old_sha="$(cd "$REPO_DIR" && send quote lease "refs/heads/$head" | cut -f1)"
     [[ -n "$old_sha" ]] || { echo "forge merge: NOT DONE - $(phrase "origin has no refs/heads/{head} to lease against" head="$head")"; return 1; }
     oid="$(relocated "$base" "$head" "$old_sha")" || { echo "forge merge: NOT DONE - $(phrase "the relocation halted; its last line above names where")"; return 1; }
     moved=1
@@ -708,7 +714,7 @@ merge_chain() {
   say "data gate green at {head}" head="${oid:0:8}"
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening flips
   flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" flip <<< "$body")"
-  printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - $(if [[ $moved == 1 ]]; then phrase "the flip failed; the body still aims, nothing merged (the relocation stands)"; else phrase "the flip failed; the body still aims, nothing merged"; fi)"; return 1; }
+  printf '%s' "$flipped" | (cd "$REPO_DIR" && send enact edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - $(if [[ $moved == 1 ]]; then phrase "the flip failed; the body still aims, nothing merged (the relocation stands)"; else phrase "the flip failed; the body still aims, nothing merged"; fi)"; return 1; }
   # The squash is pinned to the head every check above saw; between the flip
   # and here the closes phrasing exists for an instant, and a refused squash
   # restores the body as found (issues/483).
@@ -719,18 +725,18 @@ merge_chain() {
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening verifies
   local closing
   for _ in 1 2 3 4 5; do
-    closing="$(cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F "pr=$pr" -F "query=@$REPO_DIR/src/main/cli/forge/closing-issues.graphql" --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[].number' | sort -n)" || closing=""
+    closing="$(cd "$REPO_DIR" && send quote closing -F "pr=$pr" --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[].number' | sort -n)" || closing=""
     [[ "$closing" == "$(sort -n <<< "$aimed")" ]] && break
     sleep 2
   done
   if [[ "$closing" != "$(sort -n <<< "$aimed")" ]]; then
-    printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -) && say "the body is restored as found - it aims again, nothing closed"
+    printf '%s' "$body" | (cd "$REPO_DIR" && send enact edit "$pr" --body-file -) && say "the body is restored as found - it aims again, nothing closed"
     echo "forge merge: NOT DONE - $(phrase "the forge would close [{closing}] where the body aims at [{aimed}]; nothing merged (issues/884)" closing="$(tr '\n' ' ' <<< "$closing")" aimed="$(tr '\n' ' ' <<< "$aimed")")"
     return 1
   fi
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening squashes
   if ! squashed "$pr" "$oid"; then
-    if printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -); then
+    if printf '%s' "$body" | (cd "$REPO_DIR" && send enact edit "$pr" --body-file -); then
       say "the body is restored as found - it aims again, nothing closed"
     else
       echo "FAIL: $(phrase "the restore failed too - the body says closes on an unmerged PR; edit it by hand")"
@@ -738,9 +744,9 @@ merge_chain() {
     echo "forge merge: NOT DONE - $(phrase "the squash refused; nothing merged")"
     return 1
   fi
-  landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - $(phrase "merged, but the merge commit read failed; converge by hand with git fetch origin && git merge --ff-only")"; return 1; }
+  landed="$(cd "$REPO_DIR" && send query pr "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - $(phrase "merged, but the merge commit read failed; converge by hand with git fetch origin && git merge --ff-only")"; return 1; }
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening converges
-  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"; then
+  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! (cd "$REPO_DIR" && send enact fetch)     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"; then
     echo "forge merge: NOT DONE - $(phrase "merged as {landed}, but this checkout did not converge; the last NOT-done line above names where" landed="${landed:0:8}")"
     return 1
   fi
@@ -758,10 +764,10 @@ merge_chain() {
 # done. 0 where the forge holds the PR merged, 1 where it still holds it open.
 squashed() {
   local pr="$1" oid="$2" tries="${3:-3}" pause="${4:-2}" state
-  (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") && return 0
+  (cd "$REPO_DIR" && send enact squash "$pr" --squash --match-head-commit "$oid") && return 0
   local _try
   for (( _try = 0; _try < tries; _try++ )); do
-    state="$(cd "$REPO_DIR" && query gh pr view "$pr" --json state --jq .state)" || state=""
+    state="$(cd "$REPO_DIR" && send query pr "$pr" --json state --jq .state)" || state=""
     if [[ "$state" == MERGED ]]; then
       say "the squash's reply was lost, and the forge holds pull/{pr} merged - concluded as merged" pr="$pr"
       return 0
@@ -795,7 +801,7 @@ conclude() {
     [[ -n "$issue_number" ]] || continue
     total=$((total + 1))
     opening "issues/$issue_number" 2
-    state="$(cd "$REPO_DIR" && CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 4 )) query gh issue view "$issue_number" --json state --jq .state)" || state="unread"
+    state="$(cd "$REPO_DIR" && CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 4 )) send query issue "$issue_number" --json state --jq .state)" || state="unread"
     [[ "$state" == CLOSED ]] && closed=$((closed + 1))
   done <<< "$aimed"
   export CORPUS_YOGA_NARRATION_DEPTH=$record_depth

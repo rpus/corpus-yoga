@@ -23,9 +23,11 @@ off_served() {
 # clone_fetch <clone>: the clone's record of rpus.co brought level within the send bound; a row
 # `fetch <words>` where it could not be, so that what is read after it is said as last fetched.
 clone_fetch() {
-  if ! may_send; then
+  local status=0
+  (cd "$1" && send quiet fetch) || status=$?
+  if [[ "$status" -eq "$SEND_REFUSED" ]]; then
     printf 'fetch\t%s\n' "$(phrase "unverified - CORPUS_YOGA_NO_SEND=1 refuses the fetch; read against rpus.co as last fetched")"
-  elif ! quiet git -C "$1" fetch --quiet; then
+  elif [[ "$status" -ne 0 ]]; then
     printf 'fetch\t%s\n' "$(phrase "unverified - the fetch of rpus.co did not answer; read against rpus.co as last fetched")"
   fi
   return 0
@@ -108,8 +110,8 @@ landing() {
 # another branch, diverged, or the send refused.
 level_clone() {
   local served
-  assert_may_send "git -C ext/mnt/site pull --ff-only (site publish)" || return 1
+  send_cleared level || return
   served="$(clone_served "$1")"
   [[ -n "$served" && -z "$(off_served "$1")" ]] || return 1
-  enact git -C "$1" pull --ff-only --quiet origin "${served#*/}"
+  (cd "$1" && send enact level "${served#*/}")
 }

@@ -3,8 +3,12 @@
   "would": "would install - open a new terminal afterwards",
   "args": [],
   "sends": {
-    "write ~/.zshrc": [
-      "rewrites the corpus-yoga completion block in ~/.zshrc, outside the repository; refused under CORPUS_YOGA_NO_SEND"
-    ]
+    "zshrc": {
+      "runs": "write ~/.zshrc",
+      "refused": "fails",
+      "does": [
+        "rewrites the corpus-yoga completion block in ~/.zshrc, outside the repository"
+      ]
+    }
   }
 }

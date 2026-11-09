@@ -14,12 +14,20 @@
     "~/Downloads (where Safari puts each download, under the server's name, replacing a same-named entry; moved out on arrival)"
   ],
   "sends": {
-    "osascript": [
-      "drives Safari against the logged-in session - fronting claude.ai in a work tab, navigating it to each export_url, reading the page (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "navigation to each export_url (Safari)": [
-      "the export page asks claude.ai for a signed storage URL and Safari downloads from it; each URL is one-use, so the navigation consumes it (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ]
+    "safari": {
+      "runs": "osascript -e",
+      "refused": "fails",
+      "does": [
+        "drives Safari against the logged-in session - fronting claude.ai in a work tab and reading the page"
+      ]
+    },
+    "export-url": {
+      "runs": "osascript -e",
+      "refused": "fails",
+      "does": [
+        "navigates Safari to each export_url - the export page asks claude.ai for a signed storage URL and Safari downloads from it; each URL is one-use, so the navigation consumes it, and refusal is checked before anything is staged"
+      ]
+    }
   },
   "r": [
     "data/input/claude/chat/bulk-export",

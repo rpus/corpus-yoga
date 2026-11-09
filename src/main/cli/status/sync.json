@@ -3,12 +3,20 @@
   "would": "would satisfy",
   "args": [],
   "sends": {
-    "pip install": [
-      "installs the requirements from PyPI when the venv lacks them (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "write ~/.zshrc": [
-      "sets tab-completion up where the report says it is not, through corpus-yoga completions install (refused under CORPUS_YOGA_NO_SEND)"
-    ]
+    "pip-upgrade": {
+      "runs": "pip install -q --upgrade pip",
+      "refused": "fails",
+      "does": [
+        "upgrades the venv's pip from PyPI before the requirements install"
+      ]
+    },
+    "requirements": {
+      "runs": "pip install -q -r",
+      "refused": "fails",
+      "does": [
+        "installs src/requirements.txt from PyPI into the venv where it lacks them"
+      ]
+    }
   },
   "r": [
     "machine-name.txt",

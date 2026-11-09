@@ -27,15 +27,16 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/tier.sh"
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
 MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
-# shellcheck source=src/main/send.sh
-source "$REPO_DIR/src/main/send.sh"   # the shell face of CORPUS_YOGA_NO_SEND (issues/29)
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
+# shellcheck source=src/main/enact.sh
+source "$REPO_DIR/src/main/enact.sh"
+# shellcheck source=src/main/send.sh
+source "$REPO_DIR/src/main/send.sh"   # the paid read is a send the declaration names (issues/29, issues/1022)
 source "$REPO_DIR/src/main/cli/parse_argv.sh"   # -h and the refusal of undeclared argv, from the declaration (issues/474)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
-API_URL="https://api.anthropic.com/v1/messages"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
@@ -86,11 +87,14 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
     '{model: $model, max_tokens: 4096,
       system: "You are a data analyst. Return only valid JSON.",
       messages: [{role: "user", content: $user}]}')"
-  response="$(curl -sf "$API_URL" \
-    -H "x-api-key: $ANTHROPIC_API_KEY" \
+  # the key rides a file descriptor and the request stdin, so that the narrated command names
+  # neither the secret nor the corpus; a reading takes longer than a probe, so its bound is
+  # ten minutes unless the reader names another
+  response="$(printf '%s' "$request" | CORPUS_YOGA_SEND_TIMEOUT="${CORPUS_YOGA_SEND_TIMEOUT:-600}" send quote messages \
+    -H @<(printf 'x-api-key: %s\n' "$ANTHROPIC_API_KEY") \
     -H "anthropic-version: 2023-06-01" \
     -H "content-type: application/json" \
-    -d "$request")"
+    -d @-)"
   # A reading cut off at the token ceiling is not a short reading, it is an incomplete one,
   # and the text may still parse. Ask the response why it stopped rather than inferring it
   # from the rows that arrived (L8: failure surfaces; never fabricate where the honest state
@@ -355,7 +359,7 @@ capture() {
   # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
   # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
   # working under CORPUS_YOGA_NO_SEND: it is the preamble a refused machine still deserves (issues/29).
-  [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (corpus-yoga indexing capture)" || exit 1
+  [[ -n "$dry_run" ]] || send_cleared messages || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money: a paid call is not reproducible for free, so its
   # record is the evidence. The record is the launcher's tee of the whole verb (issues/708),

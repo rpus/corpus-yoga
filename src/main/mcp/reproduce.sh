@@ -39,7 +39,7 @@
 #
 # Effects (declared in src/main/cli/mcp/reproduce.json): a git fetch from upstream
 # and a docker run (image pull, npm registry) - both sends; the temporary directory is removed on exit; nothing under the repo
-# is written. CORPUS_YOGA_NO_SEND=1 refuses the run (src/main/send.sh, assert_may_send).
+# is written. CORPUS_YOGA_NO_SEND=1 refuses the run before anything is fetched (src/main/send.sh).
 # Needs git, docker with its daemon running, and python3 (to read the provenance
 # rows).
 
@@ -49,14 +49,16 @@ SELF='src/main/mcp/reproduce.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-# shellcheck source=src/main/send.sh
-source "$REPO_DIR/src/main/send.sh"
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
+# shellcheck source=src/main/enact.sh
+source "$REPO_DIR/src/main/enact.sh"
+# shellcheck source=src/main/send.sh
+source "$REPO_DIR/src/main/send.sh"
 
 PROJECT="$REPO_DIR/rsc/reference/mcp"
 
-assert_may_send "fetching upstream and running its generator in a container"
+send_cleared upstream || exit
 
 # The pin: the newest lineage's schema.json row of provenance.csv names the lineage and
 # the upstream commit; reference.json names the upstream repository.
@@ -81,7 +83,7 @@ git -C "$WORK" init -q
 git -C "$WORK" remote add origin "$UPSTREAM"
 git -C "$WORK" sparse-checkout set --no-cone \
   '/package.json' '/package-lock.json' '/.nvmrc' '/tsconfig.json' '/scripts/generate-schemas.ts' '/schema/'
-git -C "$WORK" fetch -q --depth 1 origin "$PIN"
+(cd "$WORK" && send enact upstream "$PIN")
 git -C "$WORK" checkout -q FETCH_HEAD
 
 # The committed schema.ts stands in for upstream's, so the generation is over our bytes.
@@ -89,7 +91,7 @@ cp "$PROJECT/$LINEAGE/schema.ts" "$WORK/schema/$LINEAGE/schema.ts"
 NODE="$(tr -d 'v[:space:]' < "$WORK/.nvmrc")"
 
 echo "reproduce: docker run node:$NODE - npm ci, then npx tsx scripts/generate-schemas.ts"
-docker run --rm -v "$WORK:/work" -w /work "node:$NODE" \
+send labour generate -v "$WORK:/work" -w /work "node:$NODE" \
   sh -c 'npm ci --ignore-scripts --no-audit --no-fund --loglevel=error && npx tsx scripts/generate-schemas.ts'
 
 COMMITTED="$PROJECT/$LINEAGE/schema.json"

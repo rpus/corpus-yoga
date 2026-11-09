@@ -43,14 +43,13 @@ from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 import spell  # noqa: E402
-from send import may_send, assert_may_send, SendRefused  # noqa: E402
+import send  # noqa: E402 - every read of upstream is a send the declaration names (issues/1022)
 from latest import lineages  # noqa: E402
 
 ROOT = REPO / 'rsc' / 'reference'
 COLUMNS = ('lineage', 'file', 'url', 'pin', 'sha256')
 DATED = re.compile(r'\d{4}-\d{2}-\d{2}')
 GITHUB_CONTENTS = re.compile(r'https://api\.github\.com/repos/([^/]+)/([^/]+)/contents/(.+)')
-TIMEOUT = 20
 
 
 def projects() -> list[Path]:
@@ -77,9 +76,9 @@ def write_rows(project: Path, table: list[dict]) -> None:
         writer.writerows(sorted(table, key=lambda r: (r['lineage'], r['file'])))
 
 
-def _get(url: str) -> tuple[bytes, dict]:
+def _get(url: str, name: str = 'github-api') -> tuple[bytes, dict]:
     request = urllib.request.Request(url, headers={'User-Agent': 'corpus-yoga reference'})
-    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+    with send.urlopen(name, request) as response:
         return response.read(), dict(response.headers)
 
 
@@ -133,7 +132,7 @@ def _reading(project: Path) -> tuple[list[dict], dict[str, str]]:
     items: list[dict] = []
     lines: dict[str, str] = {}
     for item in wanted(project):
-        body, headers = _get(item['url'])
+        body, headers = _get(item['url'], 'upstream-raw')
         digest = hashlib.sha256(body).hexdigest()
         row = held.get((item['lineage'], item['file']))
         state = 'missing' if row is None else ('drifted' if row['sha256'] != digest else 'current')
@@ -173,11 +172,12 @@ def status() -> int:
         name = project.name
         held = [d.name for d in lineages(project)]
         table = rows(project)
-        if not may_send():
+        try:
+            items, lines = _reading(project)
+        except send.SendRefused:
             out[name] = Project(lineages_held=held, pinned_files=len(table),
                                 currency=facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe'))
             continue
-        items, lines = _reading(project)
         listing = declaration(project).get('lineage_listing')
         upstream = sorted({i['lineage'] for i in items}) if listing else held
         item = Project(lineages_upstream=len(upstream), lineages_held=held,
@@ -191,7 +191,6 @@ def status() -> int:
 
 
 def sync() -> int:
-    assert_may_send('fetching upstream reference lineages')
     for project in projects():
         items, lines = _reading(project)
         if not lines:
@@ -223,7 +222,7 @@ def main():
     args = parser.parse_args()
     try:
         sys.exit(sync() if args.verb == 'sync' else status())
-    except SendRefused as refused:
+    except send.SendRefused as refused:
         facts.report(None, f'reference sync: NOT DONE - {refused}')
         sys.exit(1)
 

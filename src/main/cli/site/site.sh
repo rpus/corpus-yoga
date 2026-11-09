@@ -135,7 +135,9 @@ publish() {
   # rpus.co as it stands first (issues/1020): the clone brought level by a fast-forward, so that
   # the copy lands on what rpus.co holds; where the send is refused, the landing is read as last
   # fetched and the push below refuses whatever would land
-  if may_send && ! level_clone "$mount"; then
+  local levelled=0
+  level_clone "$mount" || levelled=$?
+  if [[ "$levelled" -ne 0 && "$levelled" -ne "$SEND_REFUSED" ]]; then
     effect "site publish: NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
     return 1
   fi
@@ -147,7 +149,7 @@ publish() {
   fi
   echo "did land:"
   printf '%s\n' "$rows" | while IFS=$'\t' read -r _ rel _; do [[ -n "$rel" ]] && echo "  $rel"; done
-  assert_may_send "git -C ext/mnt/site push (site publish)" || return 1
+  send_cleared push || return 1
   enact cp -R "$OUT/" "$mount/" || return 1
   enact git -C "$mount" add -A || return 1
   if [[ -n "$(git -C "$mount" status --porcelain)" ]]; then
@@ -155,7 +157,7 @@ publish() {
   else
     echo "  $(phrase "nothing to commit - the clone already held the tree")"
   fi
-  enact git -C "$mount" push origin "HEAD:${served#*/}" || return 1
+  (cd "$mount" && send enact push "HEAD:${served#*/}") || return 1
   effect "site publish: DONE - $(phrase "rpus.co serves the publish tree on Netlify's next build")"
 }
 

@@ -14,11 +14,19 @@
     "rsc/reference"
   ],
   "sends": {
-    "urllib.request (GitHub contents and commits API)": [
-      "lists the dated lineage directories a project's reference.json names, and reads the newest commit touching each fetched file - the pin (degrades to UNVERIFIED under CORPUS_YOGA_NO_SEND)"
-    ],
-    "urllib.request (upstream raw files)": [
-      "reads every wanted file's live bytes at its pinned URL and hashes them against provenance.csv - the currency check (degrades to UNVERIFIED under CORPUS_YOGA_NO_SEND)"
-    ]
+    "github-api": {
+      "runs": "urllib.request.urlopen",
+      "refused": "degrades",
+      "does": [
+        "lists the dated lineage directories a project's reference.json names, and reads the newest commit touching each fetched file - the pin - from GitHub's contents and commits API; refused, the currency is unverified"
+      ]
+    },
+    "upstream-raw": {
+      "runs": "urllib.request.urlopen",
+      "refused": "degrades",
+      "does": [
+        "reads every wanted file's live bytes at its pinned URL and hashes them against provenance.csv - the currency check; refused, the currency is unverified"
+      ]
+    }
   }
 }

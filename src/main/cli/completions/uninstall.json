@@ -3,8 +3,12 @@
   "would": "would remove",
   "args": [],
   "sends": {
-    "write ~/.zshrc": [
-      "removes the corpus-yoga completion block from the home shell rc - outside the tree, so a send by definition; refused under CORPUS_YOGA_NO_SEND"
-    ]
+    "zshrc": {
+      "runs": "write ~/.zshrc",
+      "refused": "fails",
+      "does": [
+        "removes the corpus-yoga completion block from ~/.zshrc, outside the repository"
+      ]
+    }
   }
 }

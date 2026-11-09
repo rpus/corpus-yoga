@@ -10,7 +10,6 @@ import argparse
 import json
 import subprocess
 import sys
-import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -21,7 +20,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-from send import assert_may_send  # noqa: E402 — the python face of CORPUS_YOGA_NO_SEND (issues/29)
+import send  # noqa: E402 - a render lib's download is a send the declaration names (issues/29, issues/1022)
 import facts  # noqa: E402
 
 REPO_ROOT  = REPO
@@ -62,9 +61,9 @@ def ensure_assets() -> None:
             # start half-rendered, and the --ensure-assets caller tolerates it exactly as
             # it tolerates offline. Reached only for MISSING files, so a warmed cache
             # serves under CORPUS_YOGA_NO_SEND without a send.
-            assert_may_send(f'download {dest_rel} (corpus-yoga server ensure-assets)')
-            print(f'Downloading {dest_rel}…', flush=True)
-            urllib.request.urlretrieve(url, dest)
+            with send.urlopen('asset', url) as response:
+                print(f'Downloading {dest_rel}…', flush=True)
+                dest.write_bytes(response.read())
         except Exception as e:
             if not optional:
                 raise

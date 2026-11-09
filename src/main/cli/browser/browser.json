@@ -37,17 +37,26 @@
     "capture and projection differ from turn {first} of {n} - the projection is derived from the capture, so they cannot legitimately differ",
     "projected but no capture remains - the rendering has outlived the record it was derived from",
     "{kind} - {detail}",
-    "recaptures it",
     "listing fetch failed ({why})",
     "never captured",
     "{id} names {n} conversation(s) of the listing - a prefix names exactly one",
     "captured {captured} < updated {updated}",
     "\"{name}\" - rendered tail no longer matches the captured last turns",
     "none - the API capture is the record (DOM retired)",
-    "--live compares it against the account",
-    "skipped - {path} absent"
+    "skipped - {path} absent",
+    "unfetched - no fetch has recorded what the account holds",
+    "{n} chat(s) of the {provider} account recorded at {record}"
   ],
   "target": "src/main/cli/browser/browser.sh",
   "calculus": "capture",
-  "args": []
+  "args": [],
+  "sends": {
+    "safari": {
+      "runs": "osascript -e",
+      "refused": "fails",
+      "does": [
+        "drives Safari against the logged-in session - focusing it, opening and closing a work tab, navigating, and evaluating JS in the front document - for a capture and for a fetch"
+      ]
+    }
+  }
 }
