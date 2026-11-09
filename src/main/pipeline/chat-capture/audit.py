@@ -13,17 +13,14 @@ Filesystem audit (always) — "are the captures I have any good?"
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
 
-The live pass (drives Safari, in a work tab; `corpus-yoga browser --live <provider>`, whose
-declaration names its sends) — "which conversations have moved on?"
-  claude — ONE authenticated listing fetch returns every conversation's updated_at;
-  compared against each captured JSON's updated_at: NEW (never captured) and
-  PROGRESSED (updated since capture).
-  gemini — the listing is browsed for NEW ids; then each captured conversation is
-  visited and its immediately-rendered TAIL (conversations are append-only, so an
-  unchanged tail means an unchanged conversation) is compared against the capture's
-  last agent turn, alphanumeric-normalized so markdown-vs-rendered differences wash
-  out. Mismatch = PROGRESSED (rendering edge cases err toward recapture, e.g. a
-  response ending in rendered maths).
+Against the account as last fetched (account(), read by bare `corpus-yoga browser` from the
+record `corpus-yoga browser fetch` writes) — "which chats are new or have grown since their capture?"
+  claude — the account's list gives each chat's updated_at; compared against each captured
+  JSON's: new (never captured) and grown (updated since capture).
+  gemini — the list gives the chats; the end of each captured chat's last exchange, as it
+  rendered, is compared against the capture's last turns, alphanumeric-normalized so
+  markdown-vs-rendered differences wash out. A chat holds what it held, so a changed end is
+  a grown chat (rendering edge cases err toward recapture, e.g. a response ending in maths).
 
 Usage:
   src/run_python_script.sh src/main/pipeline/chat-capture/audit.py \
@@ -35,7 +32,6 @@ import argparse
 import json
 import re
 import sys
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -60,7 +56,6 @@ RENDER_CEILING = 10
 @dataclass
 class Claude:
     offline_check: str
-    live: str
 
 
 @dataclass
@@ -74,29 +69,35 @@ class Gemini:
 
 @dataclass
 class Moved:
-    """A conversation the live pass found new or progressed, with the capture that acts on it."""
+    """A chat new or grown since its capture, with the capture that acts on it."""
     standing: str
     remedy: facts.Command | facts.Would
 
 
 @dataclass
-class Live:
-    """One provider's live pass: the account's listing against the captures."""
-    conversations_listed: int
-    new: int
-    progressed: int
+class Account:
+    """One provider's account as last fetched, against the captures."""
+    fetched: str
+    chats_listed: int
+    new_since_capture: int
+    grown_since_capture: int
     captured_but_no_longer_listed: int
-    tail_checked: int | None = facts.named('tail-checked', default=None)
-    findings: dict[str, Moved] | str = 'none'   # by conversation
+    ends_compared: int | None = None
+    chats: dict[str, Moved] | str = facts.named('chats', default='none')   # by chat
+
+
+@dataclass
+class Unfetched:
+    """An account no fetch has recorded, with the fetch that records it."""
+    standing: str
+    remedy: facts.Would
 
 
 @dataclass
 class Audit:
-    """The capture audit: each provider's offline standing, and its live pass where one ran."""
+    """The capture audit: each provider's offline standing."""
     claude: Claude | None = None
     gemini: Gemini | str | None = None
-    claude_live: Live | str | None = None
-    gemini_live: Live | str | None = None
 
 
 def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tuple[Gemini, list[str]]:
@@ -170,113 +171,66 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             [f'{n} ({c[:8]})' for c, n in suspects])
 
 
-def _alnum(s: str) -> str:
+def alnum(s: str) -> str:
     return re.sub(r'[^a-z0-9]', '', s.lower())
 
 
-CLAUDE_LISTING_JS = """(async function() {
-  window.__audit = '';
-  const orgId = document.cookie.match(/lastActiveOrg=([^;]+)/)?.[1];
-  if (!orgId) { window.__audit = 'ERROR: no lastActiveOrg cookie — not logged in?'; return; }
-  const r = await fetch('/api/organizations/' + orgId + '/chat_conversations?limit=10000',
-                        {credentials: 'include'});
-  if (!r.ok) { window.__audit = 'ERROR: HTTP ' + r.status; return; }
-  const d = await r.json();
-  const arr = Array.isArray(d) ? d : (d.data || d.chat_conversations || []);
-  window.__audit = JSON.stringify(arr.map(c => [c.uuid, c.updated_at]));
-})();"""
+CAPTURES = {'claude': ('claude', 'chat', 'API-capture'), 'gemini': ('gemini', 'chat', 'DOM-capture')}
 
-# NB: no // comments in eval'd JS — safari_eval_js flattens newlines to spaces, so a
-# line comment would swallow the rest of the function. Each part is sliced SEPARATELY:
-# a long final response must not evict the human tail from the returned blob.
-GEMINI_TAIL_JS = """(function(){
-  var uq = document.querySelectorAll('user-query');
-  var mr = document.querySelectorAll('model-response');
-  var u = uq.length ? (uq[uq.length - 1].innerText || '') : '';
-  var m = mr.length ? (mr[mr.length - 1].innerText || '') : '';
-  return (u.replace(/\\s+/g, ' ').slice(-600) + ' | ' + m.replace(/\\s+/g, ' ').slice(-600));
-})()"""
+
+def captured(provider: str, root: Path | None = None) -> dict[str, Path]:
+    """Each captured chat of the provider, by its id, under the input root."""
+    where = (root or tier.DATA / 'input').joinpath(*CAPTURES[provider])
+    return {d.name: d for d in sorted(where.iterdir()) if d.is_dir()} if where.is_dir() else {}
 
 
 def moved(provider: str, findings: list[tuple[str, str, str]]) -> dict[str, Moved] | str:
-    """Each live finding under the conversation it names, with the command that acts on it -
-    never a bare id in a list that has left its provider behind."""
+    """Each chat new or grown since its capture, with the command that acts on it - never a
+    bare id in a list that has left its provider behind."""
     return {cid: Moved(facts.phrase('{kind} - {detail}', kind=kind, detail=detail), facts.Would(spell.line('browser', 'capture', provider=provider, id=cid), {cid: 1}))
             for kind, cid, detail in findings} or 'none'
 
 
-def live_claude(captures_dir: Path) -> tuple[Live | str, list[str]]:
-    """One listing fetch: every conversation's updated_at vs the captured JSONs'."""
-    from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
-    safari_navigate('https://claude.ai/recents')
-    time.sleep(PAGE_LOAD_WAIT + 2)
-    safari_eval_js(CLAUDE_LISTING_JS)
-    raw = ''
-    for _ in range(30):
-        raw = safari_eval_js('window.__audit || ""')
-        if raw:
-            break
-        time.sleep(0.5)
-    if not raw or raw.startswith('ERROR'):
-        return facts.phrase('listing fetch failed ({why})', why=raw or 'timeout'), []
-    listing = dict(json.loads(raw))
-
-    captured = {}
-    for d in sorted(captures_dir.iterdir()):
-        j = d / f'{d.name}.json' if d.is_dir() else None
-        if j and j.exists():
-            captured[d.name] = json.load(j.open()).get('updated_at', '')
-
+def account(provider: str, record: Path, root: Path | None = None) -> Account | Unfetched:
+    """The provider's account as last fetched, against its captures; read, never sent."""
+    if not record.is_file():
+        return Unfetched(facts.phrase('unfetched - no fetch has recorded what the account holds'),
+                         facts.Would(spell.line('browser', 'fetch', provider=provider), {f'{provider} account': 1}))
+    held = json.loads(record.read_text())
+    chats = captured(provider, root)
     found = []
-    for uuid, updated in sorted(listing.items()):
-        if uuid not in captured:
-            found.append(('NEW', uuid, facts.phrase('never captured')))
-        elif updated > captured[uuid]:
-            found.append(('PROGRESSED', uuid, facts.phrase('captured {captured} < updated {updated}', captured=captured[uuid], updated=updated)))
-    unlisted = sorted(set(captured) - set(listing))
-    return (Live(len(listing), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
-                 len(unlisted), findings=moved('claude', found)),
-            [f'claude {kind} {cid}' for kind, cid, _ in found])
-
-
-def live_gemini(captures_dir: Path) -> tuple[Live | str, list[str]]:
-    """Browse the listing for NEW ids; tail-check each captured conversation
-    (append-only: an unchanged rendered tail means an unchanged conversation)."""
-    from capture import PROVIDERS, ids_from_safari, wait_for_ready
-    from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
-    cfg = PROVIDERS['gemini']
-    ids = ids_from_safari('gemini', cfg)
-    captured_dirs = {d.name: d for d in captures_dir.iterdir() if d.is_dir()}
-
-    found = [('NEW', i, 'never captured') for i in ids if i not in captured_dirs]
-    checked = 0
-    for cid in (i for i in ids if i in captured_dirs):
-        mds = sorted(captured_dirs[cid].glob('*.md'))
-        if not mds:
-            continue
-        seq = turn_seq(mds[0].read_text())
-        # Two probes, either match = current. The HUMAN probe is the robust one (typed
-        # text renders literally); the agent probe can false-mismatch when a response
-        # ends in rendered maths/markup, whose glyphs alnum-normalize away.
-        probes = []
-        for role in ('H', 'A'):
-            turns = [b for r, b in seq if r == role]
-            if turns:
-                probes.append(_alnum(turns[-1])[-120:])
-        probes = [p for p in probes if p]
-        if not probes:
-            continue
-        safari_navigate(cfg['chat_url'].format(id=cid))
-        time.sleep(PAGE_LOAD_WAIT)
-        wait_for_ready(cfg['ready_sel'])
-        checked += 1
-        page = _alnum(safari_eval_js(GEMINI_TAIL_JS))
-        if not any(p in page for p in probes):
-            found.append(('PROGRESSED', cid, facts.phrase('"{name}" - rendered tail no longer matches the captured last turns', name=mds[0].stem)))
-    unlisted = sorted(set(captured_dirs) - set(ids))
-    return (Live(len(ids), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
-                 len(unlisted), tail_checked=checked, findings=moved('gemini', found)),
-            [f'gemini {kind} {cid}' for kind, cid, _ in found])
+    ends = None
+    if provider == 'claude':
+        updated = held['updated']
+        listed = sorted(updated)
+        for cid in listed:
+            json_file = chats[cid] / f'{cid}.json' if cid in chats else None
+            was = json.loads(json_file.read_text()).get('updated_at', '') if json_file and json_file.is_file() else None
+            if cid not in chats:
+                found.append(('new', cid, facts.phrase('never captured')))
+            elif was is not None and updated[cid] > was:
+                found.append(('grown', cid, facts.phrase('captured {captured} < updated {updated}', captured=was, updated=updated[cid])))
+    else:
+        listed = held['listed']
+        found = [('new', cid, facts.phrase('never captured')) for cid in listed if cid not in chats]
+        ends = 0
+        for cid, end in sorted(held['ends'].items()):
+            mds = sorted(chats[cid].glob('*.md')) if cid in chats else []
+            if not mds:
+                continue
+            seq = turn_seq(mds[0].read_text())
+            # Two probes, either match = current. The HUMAN probe is the robust one (typed
+            # text renders literally); the agent probe can false-mismatch when a response
+            # ends in rendered maths/markup, whose glyphs alnum-normalize away.
+            probes = [alnum([b for r, b in seq if r == role][-1])[-120:] for role in ('H', 'A') if any(r == role for r, _ in seq)]
+            probes = [p for p in probes if p]
+            if not probes:
+                continue
+            ends += 1
+            if not any(p in end for p in probes):
+                found.append(('grown', cid, facts.phrase('"{name}" - rendered tail no longer matches the captured last turns', name=mds[0].stem)))
+    return Account(held['fetched'], len(listed), sum(1 for k, _, _ in found if k == 'new'), sum(1 for k, _, _ in found if k == 'grown'),
+                   len(set(chats) - set(listed)), ends, moved(provider, found))
 
 
 def main():
@@ -297,23 +251,22 @@ def main():
     return 1 if found else 0
 
 
-def audit(root: Path, api: Path, provider: str | None = None, live: bool = False) -> tuple[Audit, bool]:
+def audit(root: Path, api: Path, provider: str | None = None) -> tuple[Audit, bool]:
     """The audit as its shape, and whether anything actionable was found: the offline pass
-    over the captures under root, and with live the account's listing against them."""
-    claude_api = root / 'claude' / 'chat' / 'API-capture'
+    over the captures under root."""
     gemini_dom = root / 'gemini' / 'chat' / 'DOM-capture'
     suspects: list[str] = []
     out = Audit()
 
     # one restriction, applied wherever the audit is partitioned by provider — the
-    # offline pass included, so `--live claude` means the same thing throughout
+    # whole audit, so a provider named means the same thing throughout
     def want(name):
         return provider in (None, name)
 
     if want('claude'):
         # the absence is the report: with DOM retired there is no second render to
         # reconcile the record against, and schema validation already ran per capture
-        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'), facts.phrase('corpus-yoga browser --live claude compares it against the account'))
+        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'))
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
@@ -324,21 +277,7 @@ def audit(root: Path, api: Path, provider: str | None = None, live: bool = False
         shown = gemini_dom.relative_to(REPO) if gemini_dom.is_relative_to(REPO) else gemini_dom
         out.gemini = facts.phrase('skipped - {path} absent', path=shown)
 
-    actionable: list[str] = []
-    if live:
-        from safari import safari_open_work_tab, safari_close_work_tab
-        prev_tab = safari_open_work_tab()
-        try:
-            if claude_api.is_dir() and want('claude'):
-                out.claude_live, moved_ = live_claude(claude_api)
-                actionable += moved_
-            if gemini_dom.is_dir() and want('gemini'):
-                out.gemini_live, moved_ = live_gemini(gemini_dom)
-                actionable += moved_
-        finally:
-            safari_close_work_tab(prev_tab)
-
-    return out, bool(suspects or actionable)
+    return out, bool(suspects)
 
 
 if __name__ == '__main__':

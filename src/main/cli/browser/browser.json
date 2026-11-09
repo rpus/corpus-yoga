@@ -44,25 +44,19 @@
     "captured {captured} < updated {updated}",
     "\"{name}\" - rendered tail no longer matches the captured last turns",
     "none - the API capture is the record (DOM retired)",
-    "corpus-yoga browser --live claude compares it against the account",
-    "skipped - {path} absent"
+    "skipped - {path} absent",
+    "unfetched - no fetch has recorded what the account holds",
+    "{n} chat(s) of the {provider} account recorded at {record}"
   ],
   "target": "src/main/cli/browser/browser.sh",
   "calculus": "capture",
-  "args": [
-    {
-      "name": "--live",
-      "type": "claude|gemini",
-      "cardinality": "",
-      "help": "the live pass - drive Safari, in a work tab, against one provider's account and say which conversations have moved on since their capture; claude's is one listing fetch, gemini's visits every captured conversation, so which to pay for is the reader's to choose"
-    }
-  ],
+  "args": [],
   "sends": {
     "safari": {
       "runs": "osascript -e",
       "refused": "fails",
       "does": [
-        "drives Safari against the logged-in session - focusing it, opening and closing a work tab, navigating, and evaluating JS in the front document - for a capture and for the live pass"
+        "drives Safari against the logged-in session - focusing it, opening and closing a work tab, navigating, and evaluating JS in the front document - for a capture and for a fetch"
       ]
     }
   }

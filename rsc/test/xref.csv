@@ -26,41 +26,41 @@ README.md,10,doc,src/main/cli/status/status.sh,Y,"./src/main/cli/status/status.s
 README.md,29,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,29,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,31,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-README.md,37,doc,src/main/tier.py,Y,"`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):"
-README.md,43,doc,src/main/rehearsal.py,Y,"`tmp/stage/rehearsal.json` (`src/main/rehearsal.py`, its shape"
-README.md,44,doc,src/main/rehearsal.schema.json,Y,"`src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote"
-README.md,80,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,81,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
-README.md,82,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,82,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,82,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,82,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,83,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,83,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,83,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,83,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,83,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,83,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,84,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
-README.md,85,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,85,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,85,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,85,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,85,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,86,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,86,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,87,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
-README.md,88,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
-README.md,89,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,90,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,91,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga statu"
-README.md,92,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
-README.md,100,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,110,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh sync` creates the
-README.md,111,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
-README.md,129,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,136,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,136,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,38,doc,src/main/tier.py,Y,"`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):"
+README.md,44,doc,src/main/rehearsal.py,Y,"`tmp/stage/rehearsal.json` (`src/main/rehearsal.py`, its shape"
+README.md,45,doc,src/main/rehearsal.schema.json,Y,"`src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote"
+README.md,81,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,82,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
+README.md,83,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,83,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,83,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,83,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,84,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,84,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,84,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,84,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,84,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,84,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,85,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
+README.md,86,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,86,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,86,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,86,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,86,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,87,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,87,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,88,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
+README.md,89,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
+README.md,90,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,91,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,92,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga statu"
+README.md,93,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,101,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,111,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh sync` creates the
+README.md,112,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
+README.md,130,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,137,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,137,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/chat-capture,Y,"""src/main/pipeline/chat-capture"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-export,Y,"""src/main/pipeline/chat-export"","
@@ -806,17 +806,17 @@ src/main/cli/agent/list-drafters.json,9,path_str,rsc/provider/providers.csv,Y,""
 src/main/cli/agent/mount.json,6,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/agent/transport.py,25,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
 src/main/cli/agent/transport.py,38,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
-src/main/cli/browser/browser.json,50,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
+src/main/cli/browser/browser.json,51,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,30,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/browser/browser.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/browser/browser.sh,34,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
-src/main/cli/browser/browser.sh,90,call,src/main/cli/browser/capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" --scope \"
-src/main/cli/browser/browser.sh,94,call,src/main/cli/browser/capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" --scope >&2"
-src/main/cli/browser/browser.sh,129,call,src/main/cli/browser/capture.sh,Y,"""$SCRIPT_DIR/capture.sh"" --progress ""${logs[$i]}"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
+src/main/cli/browser/browser.sh,91,call,src/main/cli/browser/capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" --scope \"
+src/main/cli/browser/browser.sh,95,call,src/main/cli/browser/capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" --scope >&2"
+src/main/cli/browser/browser.sh,130,call,src/main/cli/browser/capture.sh,Y,"""$SCRIPT_DIR/capture.sh"" --progress ""${logs[$i]}"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/cli/browser/capture.command,19,path_str,src/main/cli/browser/capture.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/capture.applescript"""
-src/main/cli/browser/capture.py,65,import,src/main/cli/browser/claude/api.py,Y,"from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's co"
-src/main/cli/browser/capture.py,49,path_str,src/main/cli/browser/capture.py,Y,SELF = 'src/main/cli/browser/capture.py'
-src/main/cli/browser/capture.py,275,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, issues/994); None where none."
+src/main/cli/browser/capture.py,64,import,src/main/cli/browser/claude/api.py,Y,"from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's co"
+src/main/cli/browser/capture.py,48,path_str,src/main/cli/browser/capture.py,Y,SELF = 'src/main/cli/browser/capture.py'
+src/main/cli/browser/capture.py,274,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, issues/994); None where none."
 src/main/cli/browser/capture.sh,14,comment,src/main/cli/browser/capture.sh,Y,#   src/main/cli/browser/capture.sh --provider claude
 src/main/cli/browser/capture.sh,15,comment,src/main/cli/browser/capture.sh,Y,#   src/main/cli/browser/capture.sh --provider claude --mechanism DOM
 src/main/cli/browser/capture.sh,16,comment,src/main/cli/browser/capture.sh,Y,#   src/main/cli/browser/capture.sh --provider claude --id <uuid>
@@ -825,7 +825,8 @@ src/main/cli/browser/capture.sh,18,comment,src/main/cli/browser/capture.sh,Y,#  
 src/main/cli/browser/capture.sh,26,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/browser/capture.sh,58,call,src/main/cli/browser/capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" \"
 src/main/cli/browser/claude/api.py,13,path_str,src/main/cli/browser/claude/api.py,Y,SELF = 'src/main/cli/browser/claude/api.py'
-src/main/cli/browser/status.py,10,path_str,src/main/cli/browser/status.py,Y,SELF = 'src/main/cli/browser/status.py'
+src/main/cli/browser/fetch.py,17,path_str,src/main/cli/browser/fetch.py,Y,SELF = 'src/main/cli/browser/fetch.py'
+src/main/cli/browser/status.py,11,path_str,src/main/cli/browser/status.py,Y,SELF = 'src/main/cli/browser/status.py'
 src/main/cli/cache/cache.json,13,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
 src/main/cli/cache/cache.py,10,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
 src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/sync.py,Y,src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
@@ -1157,9 +1158,9 @@ src/main/model/serve_markdown.py,17,path_str,src/main/model/serve_markdown.py,Y,
 src/main/model/serve_markdown.py,36,comment,src/main/cli/status/status.sh,Y,source shared by ensure_assets (fetch) and src/main/cli/status/status.sh (report).
 src/main/model/serve_markdown.py,30,comment,src/main/cli/status/status.sh,Y,# visible and src/main/cli/status/status.sh can report against the same source.
 src/main/page_declaration.py,20,path_str,src/main/page_declaration.py,Y,SELF = 'src/main/page_declaration.py'
-src/main/pipeline/chat-capture/audit.py,29,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py     [--input input] [--api data/output/markdown/claude/
-src/main/pipeline/chat-capture/audit.py,29,comment,src/main/pipeline/chat-capture/audit.py,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py     [--input input] [--api data/output/markdown/claude/
-src/main/pipeline/chat-capture/audit.py,42,path_str,src/main/pipeline/chat-capture/audit.py,Y,SELF = 'src/main/pipeline/chat-capture/audit.py'
+src/main/pipeline/chat-capture/audit.py,26,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py     [--input input] [--api data/output/markdown/claude/
+src/main/pipeline/chat-capture/audit.py,26,comment,src/main/pipeline/chat-capture/audit.py,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py     [--input input] [--api data/output/markdown/claude/
+src/main/pipeline/chat-capture/audit.py,38,path_str,src/main/pipeline/chat-capture/audit.py,Y,SELF = 'src/main/pipeline/chat-capture/audit.py'
 src/main/pipeline/chat-capture/claude/validate.sh,5,comment,src/main/pipeline/chat-capture/claude/validate.sh,Y,#   src/main/pipeline/chat-capture/claude/validate.sh --capture <path/to/uuid-directory>
 src/main/pipeline/chat-capture/claude/validate.sh,6,comment,src/main/pipeline/chat-capture/claude/validate.sh,Y,#   src/main/pipeline/chat-capture/claude/validate.sh --api-capture <path/to/API-capture-root>
 src/main/pipeline/chat-capture/claude/validate.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1691,6 +1692,8 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/browser/browser.json,Y,
 ,,,src/main/cli/browser/capture_all.applescript,Y,
 ,,,src/main/cli/browser/capture_one.applescript,Y,
+,,,src/main/cli/browser/fetch.json,Y,
+,,self_only,src/main/cli/browser/fetch.py,Y,
 ,,,src/main/cli/browser/gemini/dom.js,Y,
 ,,,src/main/cli/browser/promote.json,Y,
 ,,self_only,src/main/cli/browser/status.py,Y,

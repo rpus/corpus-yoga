@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
-status.py - bare `corpus-yoga browser`: the capture audit's offline pass, then the stage's
-units of the browser's captures, as one shape (issues/759). Reads; writes nothing.
+status.py - bare `corpus-yoga browser`: the capture audit's offline pass, then each account as
+last fetched against the captures (corpus-yoga browser fetch records it), then the stage's units
+of the browser's captures, as one shape (issues/759). Reads; writes nothing, sends nothing.
 """
 import sys
 from dataclasses import dataclass
@@ -12,35 +13,31 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))   # declared_parser, which both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-capture'))   # audit.py - the capture audit
 import tier  # noqa: E402 - the tiers, one home (issues/702)
 import corpus  # noqa: E402
 import facts  # noqa: E402
 import audit as capture_audit  # noqa: E402
-import send  # noqa: E402 - the live pass's Apple Events are the declaration's sends (issues/1022)
-from declared_parser import command_parser  # noqa: E402
 from library import migration_note  # noqa: E402 - on the path audit.py inserts: the artifact library's stated move (issues/421)
 
 
 @dataclass
 class Status(capture_audit.Audit):
-    """The audit's standing, then the staged units the browser captured, each by its facts."""
+    """The audit's standing, each account as last fetched against the captures, then the
+    staged units the browser captured, each by its facts."""
+    claude_account: capture_audit.Account | capture_audit.Unfetched | None = None
+    gemini_account: capture_audit.Account | capture_audit.Unfetched | None = None
     staged: dict[str, corpus.Staged] | None = None
 
 
 def main() -> int:
-    live = command_parser('browser').parse_args(sys.argv[1:]).live
     migration_note()
-    try:
-        shape, found = capture_audit.audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations',
-                                           live, bool(live))
-    except send.SendRefused as refused:
-        print(f'browser: {refused}', file=sys.stderr)
-        return 1
+    shape, found = capture_audit.audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')
+    accounts = {provider: capture_audit.account(provider, tier.TMP / 'browser' / 'fetch' / f'{provider}.json')
+                for provider in ('claude', 'gemini')}
     report = corpus.report_facts('browser')
-    facts.say(Status(shape.claude, shape.gemini, shape.claude_live, shape.gemini_live, report.staged))
+    facts.say(Status(shape.claude, shape.gemini, accounts['claude'], accounts['gemini'], report.staged))
     return 1 if found else 0
 
 

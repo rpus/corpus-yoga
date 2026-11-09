@@ -1,4 +1,4 @@
-run.py: code+schema 1900/1900
+run.py: code+schema 1906/1906
 
 
 check_schema_join: |
@@ -177,20 +177,20 @@ check_cli_surface: |
   ✓ effects.send_faces_agree
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (86/86)
-  ✓ structure.file_at_level_of_subject  (50/50)
+  ✓ structure.file_at_level_of_subject  (51/51)
   ✓ structure.cli_declaration_mirrors_the_api  (25/25)
-  ✓ structure.cli_declaration_validates  (79/79)
+  ✓ structure.cli_declaration_validates  (80/80)
   ✓ cli.every_form_listed  (24/24)
   ✓ cli.help_is_the_declaration  (25/25)
-  ✓ cli.prose_holds_no_pair  (78/78)
+  ✓ cli.prose_holds_no_pair  (79/79)
   ✓ cli.flag_not_axis_value  (23/23)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_is_the_nouns_entry  (76/76)
-  ✓ cli.verb_help_answered  (54/54)
+  ✓ cli.verb_help_is_the_nouns_entry  (77/77)
+  ✓ cli.verb_help_answered  (55/55)
   ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
@@ -247,7 +247,7 @@ check_step_imports: |
   ✓ imports.step_module_imports  (2/2)
 
 check_self_paths: |
-  ✓ structure.self_path_matches_address  (122/122)
+  ✓ structure.self_path_matches_address  (123/123)
 
 check_committed_tree: |
   ✓ structure.corpus_roots_ignored
@@ -479,12 +479,12 @@ stages:
     tier: code
     line: "154"
   check_cli_surface:
-    passes: 587
+    passes: 590
     failures: 0
     tier: code
     line: "157"
   check_cli_verb_help:
-    passes: 133
+    passes: 135
     failures: 0
     tier: code
     line: "191"
@@ -554,7 +554,7 @@ stages:
     tier: code
     line: "246"
   check_self_paths:
-    passes: 122
+    passes: 123
     failures: 0
     tier: code
     line: "249"
@@ -639,8 +639,8 @@ stages:
     tier: code
     line: "327"
 
-checks[code+schema]: 202 types, 1900/1900 invocations passing
-checks[code]: 149 types, 1163/1163 invocations passing
+checks[code+schema]: 202 types, 1906/1906 invocations passing
+checks[code]: 149 types, 1169/1169 invocations passing
 checks[schema]: 53 types, 737/737 invocations passing
 
-dev gate: PASS - code+schema 1900/1900 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1906/1906 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
