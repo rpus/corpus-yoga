@@ -17,7 +17,7 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
 ))
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
-    judged (issues/815, issues/830). Over a scratch fixture - two units the run began over, one validated
+    judged. Over a scratch fixture - two units the run began over, one validated
     green and one refused with its log, a third staged after it began - the record reduced
     from the extent and the scratch's verdicts validates against
     src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the
@@ -121,7 +121,7 @@ def check_rehearsal_record(run) -> None:
 @check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/pipeline'])
 def check_unit_companion(run) -> None:
     """The staged bulk export <X> is one unit, named by <X>, by the chat-export declaration
-    itself (issues/687): its member is data-<X>/, which promotion copies, and its record is
+    itself: its member is data-<X>/, which promotion copies, and its record is
     manifest-<X>.json, which stays in the stage. Either alone is the same unit, unpaired,
     naming what is absent. The fixture is synthetic - one export whole, one with its
     manifest alone, one with its payload alone."""
@@ -156,8 +156,7 @@ def check_unit_companion(run) -> None:
     'stage.states_are_told_apart',
 ))
 def check_unit_state(run) -> None:
-    """A staged unit is in one of seven states, and the stage's counts are of those states
-    (issues/687, issues/867): promotable, held already, invalid - a family gave its verdict against it -
+    """A staged unit is in one of seven states, and the stage's counts are of those states: promotable, held already, invalid - a family gave its verdict against it -
     would lose - its relation would cost the held copy something, which the promote, asked,
     refuses - unlicensed - valid at a version origin/main does not hold - incomplete, and
     unjudged, the state before any verdict, whose remedy is a rehearsal. No status line
@@ -259,8 +258,7 @@ def check_unit_state(run) -> None:
     'store.unit_names_its_kind',
 ))
 def check_store(run) -> None:
-    """A unit knows what it is called, and a unit another of its kind holds whole is found
-    (issues/736, issues/738): over a scratch root, a session whose log is a prefix of the same
+    """A unit knows what it is called, and a unit another of its kind holds whole is found: over a scratch root, a session whose log is a prefix of the same
     session's under another project is contained, a memory equal to another's is
     identical, and what differs is neither."""
     import tempfile
@@ -317,7 +315,7 @@ def check_store(run) -> None:
     'store.export_is_held_within_a_later_one',
 ))
 def check_export_atoms(run) -> None:
-    """An earlier export is held whole within a later one by its atoms (issues/743): over a
+    """An earlier export is held whole within a later one by its atoms: over a
     scratch root, an export whose conversations, memories and users are all among a later
     export's is contained, and one holding a message the later lacks is not; a memory state
     the deposits hold counts for nothing the export must still hold."""

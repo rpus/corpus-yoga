@@ -21,7 +21,7 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
 def check_site_lag(run) -> None:
     """The corpus page declares what it was rendered from per conversation - human turns,
     assistant turns, bytes - and the site status reads those declarations against the corpus
-    now (issues/1000): a conversation that grew is a lag, one that shrank in any metric is a
+    now: a conversation that grew is a lag, one that shrank in any metric is a
     regression said as a warning, one in the corpus and not on the page is absent, one on the
     page and not in the corpus is gone. Held over the one derivation in process, with planted
     declarations: the room's page and corpus are the usr gate's."""
@@ -102,13 +102,11 @@ def check_site_lag(run) -> None:
     'site.reads_the_served_branch',
 ))
 def check_site_reads_rpus_co(run) -> None:
-    """The site reads rpus.co as it stands (issues/1020): what publish would land is the publish
+    """The site reads rpus.co as it stands: what publish would land is the publish
     tree against the clone's fetched origin, never the clone's files as they last stood; the
     clone's position to that origin is said - behind, diverged - and publish brings it level by
     a fast-forward, refusing where it cannot. Held over planted clones of a local bare
-    repository, since the room's clone is the usr gate's. The live bug: home-room, 2026-11-07,
-    offered a publish of index.html and corpus-yoga.html that rpus.co already held, since its
-    clone had not fetched reading-room's push."""
+    repository, since the room's clone is the usr gate's."""
     import subprocess
     import tempfile
     library = SRC / 'main' / 'cli' / 'site' / 'landing.sh'
@@ -190,7 +188,7 @@ def check_site_reads_rpus_co(run) -> None:
     'server.now_names_the_stop_or_the_start',
 ))
 def check_server_standing(run) -> None:
-    """The server's standing is a function of two facts of the room (issues/960): the stop
+    """The server's standing is a function of two facts of the room: the stop
     while the daemon runs, the start while the corpus is rendered and the daemon is down,
     none otherwise - read from the status's own function, since the gate's room never
     runs the daemon and a rendered-output check would sample one state."""

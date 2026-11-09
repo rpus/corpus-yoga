@@ -27,8 +27,7 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
 ))
 def check_schema_layout(run) -> None:
     """A family's address under rsc/schema is its writer's under src/main, then the
-    provider's name where the family's instances are one provider's, then the family
-    (issues/632): strip the family, strip a segment that is a row of rsc/provider/providers.csv,
+    provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that is a row of rsc/provider/providers.csv,
     and what remains is a directory under src/main or nothing. Every pipeline's declared
     schema sits under rsc/schema/pipeline/<pipeline>, at exactly one address."""
     providers = set(provider.provider_names())
@@ -75,7 +74,7 @@ def check_schema_meta_validity(run) -> None:
     """Every house schema - each family's latest version -
     validates against the committed draft-04 meta-schema
     (rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them
-    declares, held as repo data (issues/572): a property of the committed artifacts."""
+    declares, held as repo data: a property of the committed artifacts."""
     import jsonschema
     meta_path = REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json'
     if not meta_path.is_file():
@@ -99,8 +98,8 @@ def check_schema_meta_validity(run) -> None:
 @check(tier='schema', says=('schema.single_version',), on=['rsc/schema'])
 def check_schema_single_version(run) -> None:
     """Every schema family holds exactly one version file - the latest is the schema
-    and the rest history (issues/557, issues/565): a mint renames the file in place, and a second
-    v*.json beside it is the copy-beside mint pull/558 retired, reappearing."""
+    and the rest history: a mint renames the file in place, and a second
+    v*.json beside it is a mint made as a copy beside its predecessor."""
     for schema_name, schema_dir in sorted(_schema_families().items()):
         versions = _sorted_versions(schema_dir)
         extra = [p.name for p in versions[:-1]]
@@ -182,9 +181,7 @@ def check_versioned_schema_diagnostics(run):
 ))
 def check_validate_verdict(run) -> None:
     """A verdict on a record whose discriminator no alternative admits names the union and
-    the declared set (issues/894), never an alternative chosen by the count of its faults. The
-    fixture is the live case of home-room's rehearsal 2026-10-15T110202Z: a record of a
-    type the union did not declare, judged a malformed frame-link."""
+    the declared set, never an alternative chosen by the count of its faults."""
     import importlib
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
@@ -241,7 +238,7 @@ def check_validate_verdict(run) -> None:
     'validation.verdict_is_record',
 ))
 def check_verdict_record(run) -> None:
-    """A verdict is read from its record, never from the log's text (issues/701): a red log whose
+    """A verdict is read from its record, never from the log's text: a red log whose
     inspection dumps a datum that carries the validator's own word must read red. The
     fixture is synthetic - a datum directory with one family, its latest version, a log
     that says 'Validation error' and then 'Valid!' inside the dumped instance, and beside
@@ -281,12 +278,10 @@ def check_verdict_record(run) -> None:
     'validation.fail_atom_names_the_fault',
 ))
 def check_failing_record(run) -> None:
-    """A failing stage's record names each refused datum by its id with the fault beneath
-    (issues/952): the tail keys atoms by their subject, datums refused for one fault share
+    """A failing stage's record names each refused datum by its id with the fault beneath: the tail keys atoms by their subject, datums refused for one fault share
     one key, and no line is a placeholder; a validation's FAIL atom carries the fault's
     path, rule, schema node and log, and no line of it is cut with an ellipsis or an
-    arrow. The live bug is reading-room's rehearsal 2026-10-21T141229Z, whose record read
-    `FAIL: <datum>: … toolUseResult: [{'type': 'text', 'text': '[\\n  {\\n    "uri": "…`."""
+    arrow."""
     import contextlib
     import importlib
     import io

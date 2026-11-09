@@ -49,7 +49,7 @@ def check_required_files(run):
     'structure.pipeline_skip_names_family',
 ))
 def check_pipeline_declarations(run) -> None:
-    """Membership is placement and facts are declared (issues/327): every subdirectory of
+    """Membership is placement and facts are declared: every subdirectory of
     src/main/pipeline/ carries a pipeline.json valid against pipeline.schema.json and
     implements run.sh — so a member missing either is a named failure here, and a stray
     run.sh elsewhere confers nothing."""
@@ -123,13 +123,12 @@ def check_pipeline_declarations(run) -> None:
 
 @check(tier='code', says=('imports.step_module_imports',))
 def check_step_imports(run) -> None:
-    """A step module that cannot import fails here, not at the first pipeline run
-    (issues/333): the run.sh steps exec these under python, so an unresolvable sys.path
+    """A step module that cannot import fails here, not at the first pipeline run: the run.sh steps exec these under python, so an unresolvable sys.path
     insert or import inside them is a commit-time defect the tiers' cache reads
     cannot see. Each import runs in a FRESH interpreter, because this process's
     own sys.path (pipeline/chat-export is already on it for the accumulate
-    check) resolves the very imports a dangling insert would strand — an
-    in-process import of the issues/333 defect passed. Both modules are
+    check) resolves the very imports a dangling insert would strand, so an
+    in-process import passes where the step's own interpreter fails. Both modules are
     __main__-guarded, so importing executes only their top level."""
     for name in ('project_markdown', 'compare_sources'):
         proc = subprocess.run(
@@ -146,10 +145,10 @@ def check_step_imports(run) -> None:
 
 @check(tier='code', says=('structure.self_path_matches_address',))
 def check_self_paths(run) -> None:
-    """Every SELF declaration names its own file's address (issues/357): the root
+    """Every SELF declaration names its own file's address: the root
     derivation searches for the declared path and fails loudly at import when it
     is stale — this check fails it at commit instead, for every declaring file,
-    executed or not — python, shell (issues/358) and applescript (issues/403) alike."""
+    executed or not — python, shell and applescript alike."""
     pat = re.compile(r"^SELF\s*=\s*'([^']+)'", re.M)
     pat_applescript = re.compile(r'^set SELF to "([^"]+)"', re.M)
     for f in sorted(list(SRC.rglob('*.py')) + list(SRC.rglob('*.sh'))
@@ -172,15 +171,13 @@ def check_self_paths(run) -> None:
     'structure.no_machine_facts_committed',
 ))
 def check_committed_tree(run) -> None:
-    """L2 held over every tracked file, not only the report run.py writes itself (issues/50
-    recorded the gap: three committed schemas carried a username and a home path that
-    1580 checks never read). Git carries machinery only, as two facts. The corpus's
+    """L2 held over every tracked file, not only the report the gate writes itself. Git carries machinery only, as two facts. The corpus's
     roots (data, tmp, ext) and the machine binding are ignored and track nothing, so a
     corpus datum or a machine fact is unrepresentable in a commit. And no tracked text
     names a macOS home path or its project-slug form, the two shapes that embed a
     username; /home/claude/ is the provider's container, a datum's path and no machine
     fact, so the shape is /Users/ alone. The declared machine names in
-    rsc/machine/machines.csv are vocabulary, not machine facts (issues/50's one exemption).
+    rsc/machine/machines.csv are vocabulary, not machine facts (the one exemption).
     Committed files only: code tier."""
     roots = ['data', 'tmp', 'ext', 'machine-name.txt']
     tracked = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached', '--'] + roots,
@@ -234,7 +231,7 @@ def check_committed_tree(run) -> None:
 
 @check(tier='code', says=('templates.teach_signature',), on=['.github'])
 def check_templates(run) -> None:
-    """Both templates teach the Signature line (issues/268), so a body raised through either
+    """Both templates teach the Signature line, so a body raised through either
     route — the web form or the copy-from-prototype --body-file — opens with the same
     triad the commit hook stamps. A bare-line match, not a substring one: the teaching
     prose itself mentions the phrase mid-sentence, backticked, which must not pass for
@@ -256,7 +253,7 @@ def check_templates(run) -> None:
 ))
 def check_xref(run):
     """The table is computed here, in-process; only render writes rsc/test/xref.csv
-    (issues/249's check/render/gate separation — a check computes, it never writes). `check`
+    (a check computes, it never writes). `check`
     stays xref.py's own writing verb for a standalone `corpus-yoga test xref`."""
     rows   = xref.build_table()
     counts = xref.count(rows)
@@ -295,12 +292,11 @@ def check_xref(run):
 ))
 def check_spelling(run) -> None:
     """Every spelling of a corpus-yoga command the sources and documents carry is one the
-    declarations hold (issues/885, G17): the noun, the verb and each flag, read by
+    declarations hold (G17): the noun, the verb and each flag, read by
     src/main/spell.py - the one API that spells a command from its declaration - over every
     string literal of src/main and src/test, every line of the shell, applescript and
     declaration files, and the live documents. A site that types a command the declarations
-    do not hold is the live bug: at 02e12eb9 src/main/corpus.py spelt `corpus-yoga <noun>
-    promote --all` for every capturing noun, and corpus-yoga export promote takes no --all.
+    do not hold fails here.
     The API itself refuses what is undeclared. A prescription in prose names a command,
     never a repository path."""
     import ast
@@ -382,7 +378,7 @@ def check_spelling(run) -> None:
 
 @check(tier='code', says=('tier.paths_from_contract',), on=['src/main'])
 def check_tier_contract(run) -> None:
-    """Every data or tmp path under src/main derives from the tier contract (issues/702):
+    """Every data or tmp path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
     path through the literal segment 'data' or 'tmp' from a root of its own - REPO,
     parents[3], $REPO_DIR - by hand - a rehearsal is

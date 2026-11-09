@@ -774,15 +774,15 @@ def check_cli_surface(run) -> None:
     'cli.verb_help_is_the_nouns_entry',
 ))
 def check_cli_verb_help(run) -> None:
-    """Every verb answers -h from its declaration (issues/474), and what it answers is the verb's
-    entry of the noun's help through the one printer (issues/973): `corpus-yoga <command> <verb> -h`
+    """Every verb answers -h from its declaration, and what it answers is the verb's
+    entry of the noun's help through the one printer: `corpus-yoga <command> <verb> -h`
     is invoked live, as the reader types it, and must print exactly the generated parser's
     own help and exit 0; and that help, in process, is the printer's render of the entry
     `corpus-yoga <command> -h` holds for the verb, one line a fact - never argparse's own
     prose, which says the verb in a second grammar and paints a terminal in colour since
-    python 3.14. Before parse_argv.sh, a verb-level -h landed in a bash verb's own argv -
-    an ENACTING verb could receive a flag-shaped token as its argument and start its chain
-    (tmp/logs/forge/flip/2026-08-13T083136Z.log, reading-room, is the fixture). Live and
+    python 3.14. A verb-level -h
+    never reaches a verb's own argv, so an enacting verb cannot take a flag-shaped token as
+    its argument and start its chain. Live and
     local: every parser exits on -h before any verb body runs, so nothing here reaches
     the network or an enacting step."""
     import argparse
@@ -854,12 +854,10 @@ def check_cli_verb_help(run) -> None:
 @check(tier='code', says=('cli.exclusive_class_parses',), on=['src/main/cli', 'src/declared_parser.py'])
 def check_cli_exclusive_classes(run) -> None:
     """Every declared 1/-class parses as promised, IN PROCESS on the generated
-    parser (issues/477): each member alone (with the verb's other required arguments
-    supplied) is accepted, and two members together are refused. The live bug
-    this ships against: a stray EMPTY required group minted per extra class
-    member (setdefault evaluating its group eagerly) refused every VALID
-    exclusive invocation — `corpus-yoga agent capture --all` — while bare invocations
-    kept refusing with the right words, so no help-based check could see it.
+    parser: each member alone (with the verb's other required arguments
+    supplied) is accepted, and two members together are refused. A valid
+    exclusive invocation is accepted as well as an invalid one refused, which no
+    help-based check can see.
     parse_args never dispatches anything: hermetic by construction."""
     from declared_parser import verb_parser
 
@@ -908,10 +906,10 @@ def check_cli_exclusive_classes(run) -> None:
     'effects.writers_disjoint',
 ))
 def check_effects(run):
-    """The rwx triad's first gate (issues/155, of the issues/29 ledger): every declared w prefix is
+    """The rwx triad's first gate: every declared w prefix is
     claimed by at most one COMMAND — exactly or by containment. Any verb carrying a
     step tag may nest inside `pipeline run`'s w (the pipeline writes through its
-    steps; issues/157 will bind the tag to the pipeline it names); verbs of one command
+    steps); verbs of one command
     share its workshop; every other containment is two hands on one file."""
     cli_root = CLI  # noqa: kept as a local name for the checks below
     claims = []
@@ -1055,12 +1053,10 @@ def check_effects(run):
     'status.now_is_gathered_from_the_body',
 ))
 def check_acts_said_once(run) -> None:
-    """What an act would do is said once (issues/1028): every acting verb declares its words,
+    """What an act would do is said once: every acting verb declares its words,
     `would`, in its own declaration, and a status names an act as one value - the command
     and what it acts on - whose words are read from there; a noun's now: is every act its
-    body names, gathered, never composed beside it. The live bug: reading-room, 2026-11-08,
-    `corpus-yoga site` said one publish as `would land`, `would copy, commit and push them`
-    and, under now:, `would publish`."""
+    body names, gathered, never composed beside it."""
     sys.path.insert(0, str(SRC / 'main'))
     import facts
     cli_root = SRC / 'main' / 'cli'
@@ -1099,11 +1095,10 @@ def check_acts_said_once(run) -> None:
 
 @check(tier='code', says=('verbs.status_is_the_dry_run',), on=['src/main/cli'])
 def check_status_is_the_dry_run(run) -> None:
-    """A verb that takes --apply has no dry rendering of its own (issues/881): its noun's status says
+    """A verb that takes --apply has no dry rendering of its own: its noun's status says
     what it would do, and the verb acts, so no declaration under src/main/cli carries the
-    flag. The seven that did - agent mount, agent demerge, agent install, forge sync,
-    migration sync, site publish, status sync - each rendered a dry run of their own when
-    bare, restating a section their noun's status says or should say."""
+    flag. A verb's own dry rendering would restate a
+    section its noun's status says."""
     own = sorted(str(p.relative_to(REPO_ROOT)) for p in CLI.glob('*/*.json')
                  if any(a.get('name') == '--apply' for a in json.loads(p.read_text()).get('args', [])))
     run('verbs: no declaration takes --apply, the noun\'s status being the dry run', not own,
@@ -1114,9 +1109,8 @@ def check_status_is_the_dry_run(run) -> None:
 @check(tier='code', says=('logs.no_verb_logs_for_itself',), on=['src/main/cli'])
 def check_record_is_the_launchers(run) -> None:
     """The record of an effective verb is the launcher's tee of the whole verb, and no verb
-    writes a log of its own (issues/708): no declaration under src/main/cli carries a `log` key -
-    `"log": "self"` was the exception that let eight verbs write their own, each in a header
-    shape of its own, with the verb's tail outside the record."""
+    writes a log of its own: no declaration under src/main/cli carries a `log` key, so every record has one
+    shape and holds the verb's tail."""
     own = sorted(str(p.relative_to(REPO_ROOT)) for p in CLI.glob('*/*.json') if 'log' in json.loads(p.read_text()))
     run('logs: no declaration under src/main/cli lets its verb log for itself', not own,
         None if not own else 'these declare a log of their own, which the launcher would not tee: ' + ', '.join(own),
@@ -1127,9 +1121,9 @@ def check_record_is_the_launchers(run) -> None:
 def check_record_names_read_once(run) -> None:
     """The launcher's stamp and record names, CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG, are read
     by the tier contract alone - tier.py's stamp_of and record_of, tier.sh's twins - and only
-    for the act the launcher dispatched (issues/912), so that a verb run inside another act cannot
+    for the act the launcher dispatched, so that a verb run inside another act cannot
     take the outer act's record or stamp as its own, and no verb writes into a record by
-    path. The case: the data gate's corpus tail appended into the merge's record."""
+    path."""
     faces = {REPO_ROOT / 'src' / 'main' / 'tier.py', REPO_ROOT / 'src' / 'main' / 'tier.sh'}
     names = r'CORPUS_YOGA_(STAMP|LOG)'
     readers = sorted(str(f.relative_to(REPO_ROOT)) for f in (REPO_ROOT / 'src').rglob('*')
@@ -1147,13 +1141,11 @@ def check_record_names_read_once(run) -> None:
     'reply.now_is_the_launchers',
 ))
 def check_reply(run) -> None:
-    """now: is the launcher's reply, never the verb's (issues/896, issues/947): where the launcher
+    """now: is the launcher's reply, never the verb's: where the launcher
     named the act it dispatched and the file to hand the effect through, the printer's report
     says no now:, hands up no steps of its own, and writes the effect there; where no launcher
     asked, or the effect is an inner verb's, the effect line is the last line and still no
-    now: is said. The live bug is reading-room's rehearsal log of 2026-10-14, five next:
-    blocks in one run. The reply itself is the bare status before the effect line
-    (issues/1016)."""
+    now: is said. The reply itself is the bare status before the effect line."""
     sys.path.insert(0, str(SRC / 'main'))
     import contextlib
     import importlib
@@ -1224,12 +1216,12 @@ def check_reply(run) -> None:
     'completions.sync_runs_the_install',
 ))
 def check_completions(run) -> None:
-    """What tab offers is read from the declarations when tab is pressed (issues/784): in a
+    """What tab offers is read from the declarations when tab is pressed: in a
     copy of the declared surface, a zsh that has pressed tab once is offered, at its next
     tab, a verb declared in between; where a declaration no longer parses, tab says
     why it offers nothing; and what tab does is itself read at each tab, since zsh keeps
-    the file it loads until the terminal closes (issues/620's mechanism). And the status says whether zsh is set up for this
-    copy (issues/521, issues/784), over a planted home: no lines, this copy's lines, another copy's,
+    the file it loads until the terminal closes. And the status says whether zsh is set up for this
+    copy, over a planted home: no lines, this copy's lines, another copy's,
     a copy that is gone, lines `install` would not write, and lines zsh does not load."""
     import shutil
     import subprocess
@@ -1347,13 +1339,12 @@ _corpus-yoga
     'walkthrough.walks_and_runs',
 ))
 def check_walkthrough(run) -> None:
-    """The walkthrough walks the room's state and its help, and runs a command it reaches
-    (issues/766, issues/770): driven by lines on stdin as a reader's keys drive it, it starts on the
+    """The walkthrough walks the room's state and its help, and runs a command it reaches: driven by lines on stdin as a reader's keys drive it, it starts on the
     top, which holds the commands, the machine report first, whose help stands beside its
     status and says what its declaration says; n reaches the pipeline noun, m descends, a
     status is read where the walk lands on it, v shows a value, b returns, and x on a key
     that is a command runs it and re-reads. Each step is a document the printer's reader
-    loads, and says the size and shape of what it stands on (issues/787), each under the key
+    loads, and says the size and shape of what it stands on, each under the key
     that would bring it - members for m, value for v, next for n - and a status that
     cannot be read as a FAIL, never as content; the mark before a step is the key that
     made it."""
@@ -1498,10 +1489,8 @@ def check_grammar_laws(run, cited: dict) -> None:
     enforcing something nobody wrote down.
 
     Backward: a law declaring itself `gated` must really be cited by a check that ran.
-    This is the direction that rots silently — the prose list this replaced said nine
-    things were held, and the law it did NOT mention (bare is status) was the one whose
-    violation became four incidents (issues/29). A law with no check is now a failing check,
-    not a discovery made during an outage.
+    This is the direction that rots silently: a law no check holds is a failing check
+    here, not a discovery made when it is broken.
 
     A law must declare a state at all: `gated`, `by construction` (the shape admits no
     violation — there is no second source to check), `unenforced (#N)` naming the issue that

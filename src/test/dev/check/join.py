@@ -46,11 +46,9 @@ def check_schema_join(run):
 @check(tier='schema', says=('model.join_family_grammar',), on=['rsc/schema', 'rsc/model'])
 def check_model_join_versions(run):
     """The versioned columns must use the de-versioned grammar — a family dir per
-    cell ('<pipeline>/<family>#/definitions/…'), never a vN.json pin. The old pinned
-    grammar churned every session/conv/api cell on each mint and its bare filenames
-    defeated search: a session row spelling 'v7.json#…' contains neither 'session'
-    nor its pipeline, which is how a 2026-07-10 grep for session references found
-    nothing while 37 rows sat there. check_schema_join resolves family dirs against
+    cell ('<pipeline>/<family>#/definitions/…'), never a vN.json pin. A pinned cell
+    would churn on every mint, and its bare filename names neither the family nor
+    its pipeline, so a search for the family's references would miss it. check_schema_join resolves family dirs against
     their latest version, so currency is enforced by resolution, not by rewriting."""
     join = RSC_MODEL / 'model_join.csv'
     if not join.exists():
@@ -72,7 +70,7 @@ def check_model_table(run) -> None:
     """rsc/model/model.json is the table of documented shared types - a name, its
     description, its occurrences by family - and rsc/model/model.schema.json is
     the row shape (draft-04) every reader of the table relies on: the table
-    validates against it, so a malformed entry fails by name (issues/591)."""
+    validates against it, so a malformed entry fails by name."""
     import jsonschema
     table, schema = RSC_MODEL / 'model.json', RSC_MODEL / 'model.schema.json'
     validator = jsonschema.Draft4Validator(json.loads(schema.read_text()))
@@ -93,10 +91,8 @@ def check_model_table(run) -> None:
 ))
 def check_model_occurrences(run):
     """model.json's occurrence paths obey the de-versioned family-dir grammar
-    model_join.csv earned (check_model_join_versions) and RESOLVE (issues/19):
-    each occurrences key is '<pipeline>/<family>' — the pinned grammar was drift
-    already in progress, v15 pins under a v17 corpus, and unlike model_join
-    nothing validated them — and each instance pointer must resolve against the
+    model_join.csv earned (check_model_join_versions) and RESOLVE:
+    each occurrences key is '<pipeline>/<family>' and each instance pointer must resolve against the
     family's LATEST version by walking the schema's structure. A mint that
     renames a documented field fails here, the model_join review prompt; one
     that keeps it costs nothing."""
@@ -138,8 +134,7 @@ def check_model_occurrences(run):
     'model.shared_type_disposed',
 ))
 def check_model_obligations(run) -> None:
-    """The blocking half of model.json's curate discipline (issues/19; the PR
-    pull/36 review, reading-room, directed by the user), BOTH directions of the one
+    """The blocking half of model.json's curate discipline, BOTH directions of the one
     grounding relation (model_curation.grounds — by containing-definition name,
     or by property trail for inline field types whose semantic name no schema
     definition can supply, e.g. UserUUID's account uuid):
@@ -149,14 +144,13 @@ def check_model_obligations(run) -> None:
       covered by a rejection in rsc/model/model_rejected.txt. One check per
       distinct shared type, so a regression names what it broke.
     - doc→edge: every documented type is grounded by >=1 obligating edge — no
-      orphan documentation (the review's gap: UserUUID passed the
-      one-directional gate on no recorded basis).
+      orphan documentation.
 
     Together: model.json documents exactly the shared types model_join asserts,
     minus rejections. GATES (schema tier): an edge is a human-asserted
     identity, and an undocumented asserted identity — or a documented type no
     edge asserts — is a defect, not a queue. The raw name scan is `corpus-yoga
-    model`'s FAIL pointed at model_join (issues/530), since a name_collision is a
+    model`'s FAIL pointed at model_join, since a name_collision is a
     false friend no scan can tell from a shared type."""
     queue = model_curation.edge_queue()
     for names, rows in sorted(model_curation.shared_types().items(),
@@ -176,8 +170,7 @@ def check_model_obligations(run) -> None:
 
 @check(tier='schema', says=('model.identity_holds',))
 def check_model_identity(run) -> None:
-    """Identity-class model_join edges hold at their families' latest versions
-    (issues/469, armed by pull/528's re-judgments): a one-sided mint that breaks an
+    """Identity-class model_join edges hold at their families' latest versions: a one-sided mint that breaks an
     identical/snake_cased edge reds the dev gate until the edge is re-judged
     or the identity restored. Hermetic — schemas only, no corpus."""
     violations = model_curation.identity_violations()

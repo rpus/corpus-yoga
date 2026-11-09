@@ -40,12 +40,11 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
     'status.value_holds_no_pair',
 ))
 def check_status_facts(run) -> None:
-    """Every noun's bare status is its facts as YAML (issues/753): run as the reader runs it, in
+    """Every noun's bare status is its facts as YAML: run as the reader runs it, in
     this checkout with sends refused, what it prints loads as one mapping - the lines are
     the data - and the usage line the CLI appends is one of its pairs. A key that stands
-    twice in one mapping is refused, where YAML's own reader keeps the last in silence
-    (issues/759), and a list holds only scalars: a dash means a bare value, and a collection of
-    named things is a mapping keyed by their names (issues/765). And a remedy the reader types names a command (issues/759): every Command a status
+    twice in one mapping is refused, where YAML's own reader keeps the last in silence, and a list holds only scalars: a dash means a bare value, and a collection of
+    named things is a mapping keyed by their names. And a remedy the reader types names a command: every Command a status
     constructs from a literal is a corpus-yoga command the CLI declares, with a verb it
     has, or a standard tool - read from the constructor's call sites, so a remedy a rare
     state alone would say is held before that state."""
@@ -482,7 +481,7 @@ def check_status_facts(run) -> None:
     'facts.wraps_only_for_a_terminal',
 ))
 def check_facts(run) -> None:
-    """A status's facts print as YAML a reader loads back (issues/740): a mapping's keys in order,
+    """A status's facts print as YAML a reader loads back: a mapping's keys in order,
     a list's items with a dash, a nested fact indented beneath its heading, and a string
     quoted exactly where YAML would read it as a number, a boolean, null, a time or a
     mapping - so that the lines are the data."""
@@ -613,7 +612,7 @@ def check_facts(run) -> None:
 ))
 def check_drafters(run) -> None:
     """A Signature is read by the grammar that writes it, and a message's first Signature
-    is its drafter (issues/631): the join of main's messages to the store's sessions rests on
+    is its drafter: the join of main's messages to the store's sessions rests on
     both, and neither needs a store to be shown."""
     sys.path.insert(0, str(SRC / 'main'))
     sys.path.insert(0, str(SRC / 'main' / 'cli' / 'agent'))
@@ -653,7 +652,7 @@ def check_drafters(run) -> None:
 
 @check(tier='code', says=('provider.names_declared', 'provider.registry_parses'), on=['rsc/provider', 'src'])
 def check_provider_registry(run) -> None:
-    """The provider registry (rsc/provider/providers.csv, issues/628) parses, and every
+    """The provider registry (rsc/provider/providers.csv) parses, and every
     provider src/ names - by a directory under the two browser trees or the agent command, or by a
     data/input/<provider>/chat/ or /code/ path in a script or declaration, the two
     modalities a provider has (data/input/github/ is the forge's, not a provider's) - is a row of it: the
@@ -689,10 +688,10 @@ def check_provider_registry(run) -> None:
     'forge.squash_read_back',
 ))
 def check_forge_aim(run) -> None:
-    """A PR's aim is one line per issue in the aim's one grammar (issues/884): the merge reads
+    """A PR's aim is one line per issue in the aim's one grammar: the merge reads
     the aimed set from it and refuses any other spelling, so that the set the flip
-    rewrites and the set the forge closes are one. The fixture is the live bug: pull/879's
-    body aimed at two issues in one line, the merge read one, and issues/801 stayed open."""
+    rewrites and the set the forge closes are one. A body aiming at two issues in one line is
+    refused, never read as aiming at one."""
     sys.path.insert(0, str(SRC / 'main' / 'cli' / 'forge'))
     import importlib
     try:

@@ -24,7 +24,7 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
 def check_grammar(run) -> None:
     """Every parser under src/gen/grammar/<project>/ (machine-local, gitignored) is
     present and, where the tool is present, what antlr4 generates from
-    rsc/rpus/grammar/<project>/ now (issues/597). Absence fails by name - the mcp checks
+    rsc/rpus/grammar/<project>/ now. Absence fails by name - the mcp checks
     need the parser, and corpus-yoga status sync generates it. The
     currency half needs the tool (antlr4 from antlr4-tools in the venv, java), whose
     first use fetches the tool jar, a send: CORPUS_YOGA_NO_SEND=1 skips that half and so does
@@ -54,7 +54,7 @@ def check_grammar(run) -> None:
     'reference.verbatim',
 ))
 def check_reference(run) -> None:
-    """Every upstream reference artefact under rsc/reference (issues/572, issues/587) is what its
+    """Every upstream reference artefact under rsc/reference is what its
     project's provenance.csv pins, hermetically: the committed bytes hash to the
     pinned SHA256; every lineage directory is declared and every declared lineage
     held; and every lineage's CHANGELOG.md carries a section per pin its rows name.
@@ -106,7 +106,7 @@ def check_reference(run) -> None:
     'mcp.lineages_parse',
 ))
 def check_mcp_factoring(run) -> None:
-    """The house MCP factoring (issues/562, issues/598) is a committed derivation: the latest
+    """The house MCP factoring is a committed derivation: the latest
     rsc/schema/mcp/mcpMessage version must be byte-identical to what
     corpus-yoga mcp sync generates from the committed schema.ts and the family's
     tables (mcp.factoring_current), and every definition of upstream's schema.json -
@@ -159,7 +159,7 @@ def check_mcp_factoring(run) -> None:
 @check(tier='schema', says=('mcp.reproducible',), on=['rsc/reference/mcp', 'src/main/mcp'])
 def check_mcp_reproducible(run) -> None:
     """The mcp snapshot's schema.json is what upstream's own generator makes of the
-    committed schema.ts (issues/576): src/main/mcp/reproduce.sh fetches upstream at the
+    committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
     pinned commit, runs its generator unchanged in a node container and diffs the
     result against the committed file. Two sends (a git fetch, a docker run), so
     CORPUS_YOGA_NO_SEND=1 skips it - and so does a machine whose docker daemon is not

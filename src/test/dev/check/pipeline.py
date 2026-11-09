@@ -24,11 +24,8 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
     'pipeline.every_provider_is_judged',
 ))
 def check_providers_judged(run) -> None:
-    """Every provider a pipeline captures for is judged by a family of that pipeline
-    (issues/965): a unit of the provider has at least one judge, so the rehearsal stands
-    before its promotion. The live bug at e44b82f3 on reading-room, 2026-10-22: chat-capture
-    declared claude/apiConversation alone, and every gemini unit read `judged: no family -
-    promoted on its relation alone`."""
+    """Every provider a pipeline captures for is judged by a family of that pipeline: a unit of the provider has at least one judge, so the rehearsal stands
+    before its promotion."""
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
     unjudged = []
@@ -47,11 +44,8 @@ def check_providers_judged(run) -> None:
 ))
 def check_declared_families_judge(run) -> None:
     """A unit is judged by the families its pipeline's declaration names for its kind, whatever
-    its measure (issues/1018): claude's memory, a mirror unit, by projectMemory; gemini's
-    ordering file, a mirror unit, by none. The live bug at fe5fd36f on reading-room, 2026-11-06:
-    the rehearsal of 2026-11-06T221808Z refused both staged memories at projectMemory v3 and
-    the stage judged each `no family of code-transport validates claude's`, since every
-    mirror unit was exempt from judging."""
+    its measure: claude's memory, a mirror unit, by projectMemory; gemini's
+    ordering file, a mirror unit, by none."""
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
@@ -153,13 +147,13 @@ def check_cache_io(run) -> None:
 @check(tier='code', says=('accumulate.trajectory_contract',), on=['src'])
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
-    the contract issues/22 unified it to and rsc/CALCULUS.md states: deposit iff
+    the contract rsc/CALCULUS.md states: deposit iff
     the content differs from the NEAREST EARLIER deposit, so the store records a
     trajectory, not a set. The design turns on cases a byte-set would get wrong —
     above all that a genuine A→B→A return deposits while a re-stamp of an unchanged
-    reading does not (the 196-twin bug). CALCULUS.md holds the sentence; this holds
+    reading does not. CALCULUS.md holds the sentence; this holds
     it to account. Deterministic, tempdir-only, committed code — code tier: the
-    guarantee is guarded in the repo, not only in a PR's prose (issues/22)."""
+    guarantee is guarded in the repo, not only in prose."""
     import tempfile
     import shutil
     d = Path(tempfile.mkdtemp())
@@ -197,7 +191,7 @@ def check_accumulate_contract(run) -> None:
 
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])
 def check_capture_prefix(run) -> None:
-    """A browser capture by id files its unit under the conversation's full uuid (issues/990): a
+    """A browser capture by id files its unit under the conversation's full uuid: a
     typed prefix of eight characters or more resolves to exactly one id of the listing, or
     to none, before any navigation - never typed into a URL the site cannot resolve, never
     used as a directory's name. Held over the resolver alone, in process: Safari is the
@@ -290,13 +284,10 @@ def check_capture_monotone(run) -> None:
     'markdown.turns_parse_in_sequence',
 ))
 def check_turn_count_one_home(run) -> None:
-    """A conversation's turn count has one home, the frontmatter the projection writes
-    (issues/1001): the projection counts the turns it renders by role, writes them as
+    """A conversation's turn count has one home, the frontmatter the projection writes: the projection counts the turns it renders by role, writes them as
     `human` and `assistant`, and refuses a render whose headings disagree; the page reads the
     counts from there; and a turn heading is one the projection wrote - its number the next
-    for its role - so a message quoting a rendered conversation's headings adds no turn.
-    The live bug: reading-room, 2026-10-31, two code sessions quoting rendered markdown
-    declared 1008 and 3449 turns while the page counted 1009 and 3452."""
+    for its role - so a message quoting a rendered conversation's headings adds no turn."""
     import importlib
     sys.path.insert(0, str(SRC / 'main'))
     sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'code-transport'))
