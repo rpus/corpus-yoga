@@ -34,7 +34,6 @@
     "placed {file}",
     "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)",
     "no effect; data/output/site/ already serves rsc/site/ as authored",
-    "{column} {old} to {new}",
     "{side} {n} words",
     "{side} {added} entered, {removed} left, {moved} counts moved",
     "entered {words}",
@@ -67,7 +66,10 @@
     "{measures} changed",
     "the corpus predates its turn counts by role",
     "columns added",
-    "columns removed"
+    "columns removed",
+    "{value} ({difference})",
+    "{value} (was {old})",
+    "{n} more"
   ],
   "target": "src/main/cli/site/site.sh",
   "calculus": "project",

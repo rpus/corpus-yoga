@@ -87,7 +87,8 @@ def check_site_lag(run) -> None:
     except Exception as error:   # noqa: BLE001 - the failure IS the finding
         facts_said = f'raised {type(error).__name__}: {error}'
     want = [('data-chats', 'added', 'gemini/chat (1 of 1)', 'dddddddd "d"'),
-            ('data-chats', 'turns changed', 'claude/chat (1 of 3)', 'aaaaaaaa "a"', 'human 1 to 2, assistant 1 to 2'),
+            ('data-chats', 'turns changed', 'claude/chat (1 of 3)', 'aaaaaaaa "a"', 'human', '2 (+1)'),
+            ('data-chats', 'turns changed', 'claude/chat (1 of 3)', 'aaaaaaaa "a"', 'assistant', '2 (+1)'),
             ('data-chats', 'changed in bytes alone', 'claude/chat', '2 of 3')]
     run('site: the page comparison says what is added, removed and changed by group, each count of its group\'s whole - the turns changed listed, the rest counted',
         facts_said == want, None if facts_said == want else f'the comparison said {facts_said!r}', check='site.page_comparison_lists_measure_changes')

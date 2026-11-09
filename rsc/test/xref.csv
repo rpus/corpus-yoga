@@ -996,8 +996,8 @@ src/main/cli/server/status.py,12,path_str,src/main/cli/server/status.py,Y,SELF =
 src/main/cli/site/landing.sh,4,comment,src/main/cli/site/site.sh,Y,# against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
 src/main/cli/site/landing.sh,67,comment,src/main/model/compare_pages.py,Y,"# removals), the corpus page in the page's own terms (src/main/model/compare_pages.py, issues/652),"
 src/main/cli/site/render.json,8,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
-src/main/cli/site/site.json,72,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
-src/main/cli/site/site.json,82,path_str,rsc/site,Y,"""rsc/site"","
+src/main/cli/site/site.json,74,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.json,84,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
 src/main/cli/site/site.sh,23,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -1460,13 +1460,13 @@ src/test/dev/check/schema.py,41,path_str,src/main,Y,"f'src/main/{""/"".join(part
 src/test/dev/check/site.py,13,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages"
 src/test/dev/check/site.py,13,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages"
 src/test/dev/check/site.py,13,path_str,src/main/model/compare_pages.py,Y,"@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages"
-src/test/dev/check/site.py,113,path_str,src/main/cli/site/landing.sh,Y,"'src/main/cli/site/landing.sh does not exist: the landing compares with the clone\'s files as they last stood',"
-src/test/dev/check/site.py,96,path_str,src/main/cli/site,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
-src/test/dev/check/site.py,96,path_str,src/main/enact.sh,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
-src/test/dev/check/site.py,96,path_str,src/main/send.sh,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
-src/test/dev/check/site.py,96,path_str,src/main/report.sh,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
-src/test/dev/check/site.py,185,path_str,src/main/cli/server/status.py,Y,"@check(tier='code', on=['src/main/cli/server/status.py', 'src/main/facts.py'], says=("
-src/test/dev/check/site.py,185,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli/server/status.py', 'src/main/facts.py'], says=("
+src/test/dev/check/site.py,114,path_str,src/main/cli/site/landing.sh,Y,"'src/main/cli/site/landing.sh does not exist: the landing compares with the clone\'s files as they last stood',"
+src/test/dev/check/site.py,97,path_str,src/main/cli/site,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
+src/test/dev/check/site.py,97,path_str,src/main/enact.sh,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
+src/test/dev/check/site.py,97,path_str,src/main/send.sh,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
+src/test/dev/check/site.py,97,path_str,src/main/report.sh,Y,"@check(tier='code', on=['src/main/cli/site', 'src/main/enact.sh', 'src/main/send.sh', 'src/main/report.sh'], says=("
+src/test/dev/check/site.py,186,path_str,src/main/cli/server/status.py,Y,"@check(tier='code', on=['src/main/cli/server/status.py', 'src/main/facts.py'], says=("
+src/test/dev/check/site.py,186,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli/server/status.py', 'src/main/facts.py'], says=("
 src/test/dev/check/site.py,32,path_str,src/main/page_declaration.py,Y,"'src/main/page_declaration.py is absent: nothing declares what the page was rendered from', check='site.lag_is_read_from"
 src/test/dev/check/surface.py,62,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/dev/check/surface.py,68,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan

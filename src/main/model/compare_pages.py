@@ -101,6 +101,15 @@ def named(name: str, keys: list, rows: dict) -> str:
     return ', '.join(label(name, k, rows[k]) for k in keys[:SHOWN]) + (', ...' if len(keys) > SHOWN else '')
 
 
+def change(old: dict, new: dict, column: str) -> str:
+    """What one column of a row became: its new value, with the signed difference where both
+    are numbers and with what it was otherwise - one fact, never a phrase joining the two."""
+    was, now = old.get(column), new.get(column)
+    if isinstance(was, int) and isinstance(now, int) and not isinstance(was, bool) and not isinstance(now, bool):
+        return facts.phrase('{value} ({difference})', value=now, difference=f'{now - was:+d}')
+    return facts.phrase('{value} (was {old})', value=value(new, column), old=value(old, column))
+
+
 def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dict) -> list[Fact]:
     """What changes in one table, by row identity, each count of its whole (issues/1028): the rows
     added and removed; the rows whose content measures changed, each listed with them; and
@@ -146,8 +155,9 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
         for key, of_group in (grouped(measured, b) if by else {'': measured}).items():
             under = (facts.phrase('{group} ({n} of {total})', group=key, n=len(of_group), total=whole(b, key)),) if by else ()
             for k in of_group:
-                out.append((name, part, *under, label(name, k, b[k]), ', '.join(
-                    facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c)) for c in measures if c in changed[k])))
+                for c in measures:
+                    if c in changed[k]:
+                        out.append((name, part, *under, label(name, k, b[k]), c, change(a[k], b[k], c)))
     rest = [k for k in changed if k not in measured]
     if rest and measures:
         part = facts.phrase('changed in {columns} alone', columns=', '.join(dict.fromkeys(c for k in rest for c in changed[k])))
@@ -156,9 +166,12 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
         for key, of_group in (grouped(rest, b) if by else {}).items():
             out.append((name, part, key, facts.phrase('{n} of {total}', n=len(of_group), total=whole(b, key))))
     elif rest:
-        out.append((name, facts.phrase('{part} ({n} of {total})', part=facts.phrase('changed'), n=len(rest), total=len(b)), ', '.join(
-            label(name, k, b[k]) + ' (' + ', '.join(facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c))
-                                                    for c in changed[k]) + ')' for k in rest[:SHOWN]) + (', ...' if len(rest) > SHOWN else '')))
+        part = facts.phrase('{part} ({n} of {total})', part=facts.phrase('changed'), n=len(rest), total=len(b))
+        for k in rest[:SHOWN]:
+            for c in changed[k]:
+                out.append((name, part, label(name, k, b[k]), c, change(a[k], b[k], c)))
+        if len(rest) > SHOWN:
+            out.append((name, part, facts.phrase('{n} more', n=len(rest) - SHOWN)))
     return out
 
 
