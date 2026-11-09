@@ -37,7 +37,6 @@
     "capture and projection differ from turn {first} of {n} - the projection is derived from the capture, so they cannot legitimately differ",
     "projected but no capture remains - the rendering has outlived the record it was derived from",
     "{kind} - {detail}",
-    "recaptures it",
     "listing fetch failed ({why})",
     "never captured",
     "{id} names {n} conversation(s) of the listing - a prefix names exactly one",

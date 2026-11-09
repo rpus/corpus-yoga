@@ -789,7 +789,7 @@ src/main/cli/README.md,105,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>
 src/main/cli/README.md,110,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
 src/main/cli/README.md,150,doc,src/main/cli/indexing/capture.sh,Y,`src/main/cli/indexing/capture.sh` — the same file that implements half of it.
 src/main/cli/README.md,168,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
-src/main/cli/agent/agent.json,50,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
+src/main/cli/agent/agent.json,49,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/cli/agent/agent.py,25,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, issues/636, issues/853), the address its units have under"
 src/main/cli/agent/agent.py,42,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
@@ -806,7 +806,8 @@ src/main/cli/agent/list-drafters.json,9,path_str,rsc/provider/providers.csv,Y,""
 src/main/cli/agent/mount.json,6,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/agent/transport.py,25,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
 src/main/cli/agent/transport.py,38,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
-src/main/cli/browser/browser.json,51,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
+src/main/cli/browser/account.py,21,path_str,src/main/cli/browser/account.py,Y,SELF = 'src/main/cli/browser/account.py'
+src/main/cli/browser/browser.json,50,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,30,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/browser/browser.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/browser/browser.sh,34,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
@@ -1158,9 +1159,11 @@ src/main/model/serve_markdown.py,17,path_str,src/main/model/serve_markdown.py,Y,
 src/main/model/serve_markdown.py,36,comment,src/main/cli/status/status.sh,Y,source shared by ensure_assets (fetch) and src/main/cli/status/status.sh (report).
 src/main/model/serve_markdown.py,30,comment,src/main/cli/status/status.sh,Y,# visible and src/main/cli/status/status.sh can report against the same source.
 src/main/page_declaration.py,20,path_str,src/main/page_declaration.py,Y,SELF = 'src/main/page_declaration.py'
-src/main/pipeline/chat-capture/audit.py,26,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py     [--input input] [--api data/output/markdown/claude/
-src/main/pipeline/chat-capture/audit.py,26,comment,src/main/pipeline/chat-capture/audit.py,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py     [--input input] [--api data/output/markdown/claude/
-src/main/pipeline/chat-capture/audit.py,38,path_str,src/main/pipeline/chat-capture/audit.py,Y,SELF = 'src/main/pipeline/chat-capture/audit.py'
+src/main/pipeline/chat-capture/audit.py,5,comment,src/main/cli/browser/account.py,Y,(src/main/cli/browser/account.py).
+src/main/pipeline/chat-capture/audit.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py
+src/main/pipeline/chat-capture/audit.py,14,comment,src/main/pipeline/chat-capture/audit.py,Y,src/run_python_script.sh src/main/pipeline/chat-capture/audit.py
+src/main/pipeline/chat-capture/audit.py,17,comment,src/main/tier.py,Y,"data/output/markdown - the checkout's, or a rehearsal's scratch (src/main/tier.py)."
+src/main/pipeline/chat-capture/audit.py,25,path_str,src/main/pipeline/chat-capture/audit.py,Y,SELF = 'src/main/pipeline/chat-capture/audit.py'
 src/main/pipeline/chat-capture/claude/validate.sh,5,comment,src/main/pipeline/chat-capture/claude/validate.sh,Y,#   src/main/pipeline/chat-capture/claude/validate.sh --capture <path/to/uuid-directory>
 src/main/pipeline/chat-capture/claude/validate.sh,6,comment,src/main/pipeline/chat-capture/claude/validate.sh,Y,#   src/main/pipeline/chat-capture/claude/validate.sh --api-capture <path/to/API-capture-root>
 src/main/pipeline/chat-capture/claude/validate.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1190,9 +1193,9 @@ src/main/pipeline/chat-capture/run.sh,50,call,src/main/pipeline/chat-capture/cla
 src/main/pipeline/chat-capture/run.sh,62,call,src/main/pipeline/chat-capture/claude/validate.sh,Y,"step_if ""$has_api"" ""where claude's API captures stand"" validate ""$SCRIPT_DIR/claude/validate.sh"" --api-capture ""$root"""
 src/main/pipeline/chat-capture/run.sh,70,call,src/main/pipeline/chat-capture/gemini/validate.sh,Y,"step_if ""$has_dom"" ""where gemini's DOM captures stand"" validate_gemini ""$SCRIPT_DIR/gemini/validate.sh"" --dom-capture ""$"
 src/main/pipeline/chat-capture/run.sh,72,call,src/main/pipeline/chat-capture/gemini/project_markdown.py,Y,"""$SCRIPT_DIR/gemini/project_markdown.py"" --dom-capture ""$dom_root"""
-src/main/pipeline/chat-capture/run.sh,77,call,src/main/pipeline/chat-capture/audit.py,Y,"""$SCRIPT_DIR/audit.py"" \"
-src/main/pipeline/chat-capture/run.sh,99,path_str,src/main/pipeline/chat-capture/pipeline.json,Y,"api_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" claude)"""
-src/main/pipeline/chat-capture/run.sh,100,path_str,src/main/pipeline/chat-capture/pipeline.json,Y,"dom_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" gemini)"""
+src/main/pipeline/chat-capture/run.sh,76,call,src/main/pipeline/chat-capture/audit.py,Y,"step_ok audit     ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit.py"""
+src/main/pipeline/chat-capture/run.sh,95,path_str,src/main/pipeline/chat-capture/pipeline.json,Y,"api_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" claude)"""
+src/main/pipeline/chat-capture/run.sh,96,path_str,src/main/pipeline/chat-capture/pipeline.json,Y,"dom_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" gemini)"""
 src/main/pipeline/chat-export/archive_components.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/archive_components.py       --chat-export data/input/claude/chat/
 src/main/pipeline/chat-export/archive_components.py,23,comment,src/main/pipeline/chat-export/archive_components.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/archive_components.py       --chat-export data/input/claude/chat/
 src/main/pipeline/chat-export/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-exp

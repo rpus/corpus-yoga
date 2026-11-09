@@ -1,36 +1,23 @@
 #!/usr/bin/env python
 """
-audit.py — list known/suspect problems across the chat-capture corpus.
+audit.py - "are the captures I have any good?", read from the captures alone. Whether the
+account has moved on since is corpus-yoga browser's, against the account as last fetched
+(src/main/cli/browser/account.py).
 
-The recapture workflow needs a staleness detector: after having (or extending) a
-conversation, the user recaptures it (Shortcut / --id); this tool says which
-captures need attention. Two independent questions, two modes:
-
-Filesystem audit (always) — "are the captures I have any good?"
   claude — nothing to check offline: the API capture is the record (DOM retired,
   issues/418, issues/431), and validate.sh already gates each capture against the schema.
   gemini — no API capture exists, so heuristics: a DOM capture with exactly
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
 
-Against the account as last fetched (account(), read by bare `corpus-yoga browser` from the
-record `corpus-yoga browser fetch` writes) — "which chats are new or have grown since their capture?"
-  claude — the account's list gives each chat's updated_at; compared against each captured
-  JSON's: new (never captured) and grown (updated since capture).
-  gemini — the list gives the chats; the end of each captured chat's last exchange, as it
-  rendered, is compared against the capture's last turns, alphanumeric-normalized so
-  markdown-vs-rendered differences wash out. A chat holds what it held, so a changed end is
-  a grown chat (rendering edge cases err toward recapture, e.g. a response ending in maths).
-
 Usage:
-  src/run_python_script.sh src/main/pipeline/chat-capture/audit.py \
-    [--input input] [--api data/output/markdown/claude/chat/conversations]
+  src/run_python_script.sh src/main/pipeline/chat-capture/audit.py
+
+The captures are read under the tiers' data/input and the projections under their
+data/output/markdown - the checkout's, or a rehearsal's scratch (src/main/tier.py).
 
 Exit status is non-zero iff anything actionable is found.
 """
-import argparse
-import json
-import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -65,32 +52,6 @@ class Gemini:
     corroboration: str = facts.phrase('none - no API capture exists, so nothing corroborates the record itself')
     placeholders: int | None = facts.named('with "[no capture" placeholder text', default=None)
     findings: dict[str, facts.Finding] | str = facts.phrase('nothing flagged')
-
-
-@dataclass
-class Moved:
-    """A chat new or grown since its capture, with the capture that acts on it."""
-    standing: str
-    remedy: facts.Command | facts.Would
-
-
-@dataclass
-class Account:
-    """One provider's account as last fetched, against the captures."""
-    fetched: str
-    chats_listed: int
-    new_since_capture: int
-    grown_since_capture: int
-    captured_but_no_longer_listed: int
-    ends_compared: int | None = None
-    chats: dict[str, Moved] | str = facts.named('chats', default='none')   # by chat
-
-
-@dataclass
-class Unfetched:
-    """An account no fetch has recorded, with the fetch that records it."""
-    standing: str
-    remedy: facts.Would
 
 
 @dataclass
@@ -171,82 +132,12 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             [f'{n} ({c[:8]})' for c, n in suspects])
 
 
-def alnum(s: str) -> str:
-    return re.sub(r'[^a-z0-9]', '', s.lower())
-
-
-CAPTURES = {'claude': ('claude', 'chat', 'API-capture'), 'gemini': ('gemini', 'chat', 'DOM-capture')}
-
-
-def captured(provider: str, root: Path | None = None) -> dict[str, Path]:
-    """Each captured chat of the provider, by its id, under the input root."""
-    where = (root or tier.DATA / 'input').joinpath(*CAPTURES[provider])
-    return {d.name: d for d in sorted(where.iterdir()) if d.is_dir()} if where.is_dir() else {}
-
-
-def moved(provider: str, findings: list[tuple[str, str, str]]) -> dict[str, Moved] | str:
-    """Each chat new or grown since its capture, with the command that acts on it - never a
-    bare id in a list that has left its provider behind."""
-    return {cid: Moved(facts.phrase('{kind} - {detail}', kind=kind, detail=detail), facts.Would(spell.line('browser', 'capture', provider=provider, id=cid), {cid: 1}))
-            for kind, cid, detail in findings} or 'none'
-
-
-def account(provider: str, record: Path, root: Path | None = None) -> Account | Unfetched:
-    """The provider's account as last fetched, against its captures; read, never sent."""
-    if not record.is_file():
-        return Unfetched(facts.phrase('unfetched - no fetch has recorded what the account holds'),
-                         facts.Would(spell.line('browser', 'fetch', provider=provider), {f'{provider} account': 1}))
-    held = json.loads(record.read_text())
-    chats = captured(provider, root)
-    found = []
-    ends = None
-    if provider == 'claude':
-        updated = held['updated']
-        listed = sorted(updated)
-        for cid in listed:
-            json_file = chats[cid] / f'{cid}.json' if cid in chats else None
-            was = json.loads(json_file.read_text()).get('updated_at', '') if json_file and json_file.is_file() else None
-            if cid not in chats:
-                found.append(('new', cid, facts.phrase('never captured')))
-            elif was is not None and updated[cid] > was:
-                found.append(('grown', cid, facts.phrase('captured {captured} < updated {updated}', captured=was, updated=updated[cid])))
-    else:
-        listed = held['listed']
-        found = [('new', cid, facts.phrase('never captured')) for cid in listed if cid not in chats]
-        ends = 0
-        for cid, end in sorted(held['ends'].items()):
-            mds = sorted(chats[cid].glob('*.md')) if cid in chats else []
-            if not mds:
-                continue
-            seq = turn_seq(mds[0].read_text())
-            # Two probes, either match = current. The HUMAN probe is the robust one (typed
-            # text renders literally); the agent probe can false-mismatch when a response
-            # ends in rendered maths/markup, whose glyphs alnum-normalize away.
-            probes = [alnum([b for r, b in seq if r == role][-1])[-120:] for role in ('H', 'A') if any(r == role for r, _ in seq)]
-            probes = [p for p in probes if p]
-            if not probes:
-                continue
-            ends += 1
-            if not any(p in end for p in probes):
-                found.append(('grown', cid, facts.phrase('"{name}" - rendered tail no longer matches the captured last turns', name=mds[0].stem)))
-    return Account(held['fetched'], len(listed), sum(1 for k, _, _ in found if k == 'new'), sum(1 for k, _, _ in found if k == 'grown'),
-                   len(set(chats) - set(listed)), ends, moved(provider, found))
-
-
 def main():
     # The one thing an unmigrated machine needs this face to say (issues/421): the
     # library's stated move — bare `corpus-yoga browser` is where a tester looks first.
     from library import migration_note
     migration_note()
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--input', default='input',
-                    help='input root, typed <provider>/<channel>/<capture> — the audit '
-                         'derives claude/chat/API-capture and gemini/chat/DOM-capture')
-    ap.add_argument('--api', default=str(tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'),
-                    help='dir of api-sourced markdown (project_markdown output)')
-    args = ap.parse_args()
-
-    shape, found = audit(Path(args.input), Path(args.api))
+    shape, found = audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')
     facts.say(shape)
     return 1 if found else 0
 
