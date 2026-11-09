@@ -93,6 +93,25 @@ step_label() {
   echo "$label$(plan_args "$@")"
 }
 
+# step_declaration <name> [args...]: the declaration a step runs under - where the step is a
+# corpus-yoga command, as step_label names it, that verb's (its first non-path argument that
+# names one) or the noun's, so that the sends its code runs are its own declaration's; else
+# the runner's own (issues/1022).
+step_declaration() {
+  local name="$1" arg; shift
+  if [[ ! -f "$STEPS_REPO/src/main/cli/$name/$name.json" ]]; then
+    echo "${CORPUS_YOGA_DECLARATION:-}"
+    return
+  fi
+  for arg in "$@"; do
+    if [[ "$arg" != */* && -f "$STEPS_REPO/src/main/cli/$name/$arg.json" ]]; then
+      echo "src/main/cli/$name/$arg.json"
+      return
+    fi
+  done
+  echo "src/main/cli/$name/$name.json"
+}
+
 # A gating step's non-zero exit stops a runner under errexit, and is recorded here for
 # the runner errexit cannot stop - a function run in a pipeline, as the corpus tail is -
 # so that steps_verdict returns it (issues/749).
@@ -100,7 +119,7 @@ STEPS_FAILED=''
 step_gated() {
   local name="$1"; shift
   local status=0
-  "$@" || status=$?
+  CORPUS_YOGA_DECLARATION="$(step_declaration "$name" "${@:2}")" "$@" || status=$?
   [[ "$status" -eq 0 ]] || STEPS_FAILED+="${STEPS_FAILED:+; }$(step_label "$name" "${@:2}") (status $status)"
   return "$status"
 }
@@ -131,14 +150,14 @@ steps_verdict() {
 step_ok() {
   local name="$1"; shift
   if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@") (informational; never gates)"; return 0; fi
-  "$@" || true
+  CORPUS_YOGA_DECLARATION="$(step_declaration "$name" "${@:2}")" "$@" || true
 }
 
 step_if_ok() {
   local guard="$1" note="$2" name="$3"; shift 3
   if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@") (only $note; informational; never gates)"; return 0; fi
   if [[ "$guard" != "1" ]]; then return 0; fi
-  "$@" || true
+  CORPUS_YOGA_DECLARATION="$(step_declaration "$name" "${@:2}")" "$@" || true
 }
 
 # latest_version_file <family-dir> — the family's latest vN.json by numeric order:
