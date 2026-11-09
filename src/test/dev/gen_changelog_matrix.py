@@ -28,7 +28,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 
-from run import PIPELINES, REPO_ROOT, RSC_SCHEMA  # noqa: E402
+from gate import PIPELINES, RSC_SCHEMA  # noqa: E402 - the gate's shared vocabulary
 from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
 from validation_audit import datum_dirs, sources  # noqa: E402 — the data gate's own enumeration (issues/535)
