@@ -22,11 +22,10 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-from markdown_projection import corpus_index, turn_seq  # noqa: E402 - the format authority, reading back what it wrote
+from markdown_projection import corpus_index, turn_counts, turns  # noqa: E402 - the format authority, reading back what it wrote
 
 METRICS = ('human', 'assistant', 'bytes')
 TABLE = re.compile(r'<script[^>]*id="data-chats"[^>]*>(.*?)</script>', re.S)
-TURN = re.compile(r'^## (?:Human|Claude|Gemini) [^\n]*<a id="([^"]+)"(?: data-at="([^"]+)")?></a>', re.M)
 UUID7 = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$')
 
 
@@ -35,7 +34,8 @@ def turn_instants(md: str) -> list[datetime]:
     projection wrote beside the anchor, else the creation instant a v7 uuid carries in its
     first 48 bits; a turn anchored by role and count alone, with no instant, says none."""
     out: list[datetime] = []
-    for anchor, at in TURN.findall(md):
+    for turn in turns(md):                  # the projection's turns, never a heading a message quotes (issues/1001)
+        anchor, at = turn.anchor or '', turn.at
         if at:
             out.append(datetime.strptime(at, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc))
         elif UUID7.match(anchor):
@@ -44,10 +44,9 @@ def turn_instants(md: str) -> list[datetime]:
 
 
 def declared_of(md: str) -> dict[str, int]:
-    """A rendered conversation's declaration: its turns by role, from the role headings the
-    projection wrote, and its bytes."""
-    roles = [role for role, _body in turn_seq(md)]
-    return {'human': roles.count('H'), 'assistant': roles.count('A'), 'bytes': len(md.encode())}
+    """A rendered conversation's declaration: its turns by role, from their one home, the
+    frontmatter the projection writes (issues/1001), and its bytes."""
+    return {**turn_counts(md), 'bytes': len(md.encode())}
 
 
 def corpus_declarations(md_root: Path) -> dict[str, dict[str, int]]:

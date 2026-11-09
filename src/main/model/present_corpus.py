@@ -142,11 +142,10 @@ def main() -> int:
             span_rows.append([n, a, b, count])
         m = re.search(r'^last_activity: (\S+)$', md[:400], flags=re.M)
         dormant = m.group(1) if m else (iso(max(times)) if times else '')
-        turns = list(turn_seq(md))
-        said = declared_of(md)                 # what the page declares of the conversation (issues/1000)
-        chats_rows.append([n, file_ord, title, dormant, cid, provider, channel, len(turns), said['human'], said['assistant'], said['bytes']])
+        said = declared_of(md)                 # what the page declares of the conversation (issues/1000), its turns from their one home (issues/1001)
+        chats_rows.append([n, file_ord, title, dormant, cid, provider, channel, said['human'], said['assistant'], said['bytes']])
 
-        for role, body in turns:
+        for role, body in turn_seq(md):
             ws = filtered(words_from(body))
             (human_words if role == 'H' else assistant_words).append(ws)
     human_words = [w for ws in human_words for w in ws]
@@ -156,7 +155,7 @@ def main() -> int:
           f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}) → {out_dir.relative_to(REPO)}')
 
     write_table(out_dir, 'data-chats',
-                {'columns': ['chat', 'ord', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns', 'human', 'assistant', 'bytes'],
+                {'columns': ['chat', 'ord', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'human', 'assistant', 'bytes'],
                  'rows': chats_rows}, html)
     write_table(out_dir, 'data-spans',
                 {'columns': ['chat', 'from', 'to', 'messages'], 'rows': span_rows}, html)

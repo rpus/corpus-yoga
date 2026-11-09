@@ -19,6 +19,7 @@ The per-message projection, in jq:
 """
 import json
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 SELF = 'src/main/markdown_projection.py'
@@ -209,20 +210,80 @@ def strip_frontmatter(md):
     return md
 
 
+TURN_HEADING = re.compile(r'^## (Human|Claude|Gemini) \((\d+)\)(?: <a id="([^"]+)"(?: data-at="([^"]+)")?></a>)?[ \t]*$', re.M)
+ROLES = ('human', 'assistant')   # the roles a turn count is kept by, as the frontmatter names them
+
+
+@dataclass(frozen=True)
+class Turn:
+    """One turn as the projection wrote it: its role's heading word, its number among that
+    role's turns, its anchor and instant where the heading carries them, and its body."""
+    role: str
+    n: int
+    anchor: str | None
+    at: str | None
+    body: str
+
+
+def turns(md):
+    """The turns of a rendered markdown, in order (issues/1001). A heading is one the projection
+    wrote when its number is the next for its role - human, or the assistant, Claude or
+    Gemini - so a message that quotes a rendered conversation's headings adds no turn. The
+    one reading of the format's turns: every count, split and anchor derives from it."""
+    count = {'H': 0, 'A': 0}
+    heads = []
+    for m in TURN_HEADING.finditer(md):
+        side = 'H' if m[1] == 'Human' else 'A'
+        if int(m[2]) == count[side] + 1:
+            count[side] += 1
+            heads.append(m)
+    return [Turn(m[1], int(m[2]), m[3], m[4], md[m.end():heads[k + 1].start() if k + 1 < len(heads) else len(md)])
+            for k, m in enumerate(heads)]
+
+
 def turn_seq(md):
-    """Ordered [(role, normalized_body)] — role 'H' (Human) or 'A' (Claude/Gemini) — parsed
-    from a rendered markdown string. The dual of render(): this file owns the markdown
-    format in both directions, so format changes (e.g. the heading anchors, which the
-    `[^\\n]*` split deliberately ignores) stay in lockstep. The trailing --- turn divider
-    is not part of the turn's content: an empty turn must normalize to ''."""
-    parts = re.split(r'^## (Human|Claude|Gemini) [^\n]*\n', md, flags=re.M)
+    """Ordered [(role, normalized_body)] - role 'H' (Human) or 'A' (Claude/Gemini) - of a
+    rendered markdown string, from turns(). The trailing --- turn divider is not part of the
+    turn's content: an empty turn must normalize to ''."""
     seq = []
-    for i in range(1, len(parts) - 1, 2):
-        role = 'H' if parts[i] == 'Human' else 'A'
-        body = re.sub(r'\s+', ' ', parts[i + 1]).strip()
+    for turn in turns(md):
+        body = re.sub(r'\s+', ' ', turn.body).strip()
         body = re.sub(r'\s*---$', '', body)
-        seq.append((role, body))
+        seq.append(('H' if turn.role == 'Human' else 'A', body))
     return seq
+
+
+def frontmatter(md) -> dict[str, str]:
+    """The leading YAML block's items, as written: {key: value}; empty where none stands."""
+    if not md.startswith('---\n'):
+        return {}
+    end = md.find('\n---\n', 4)
+    return dict(line.split(': ', 1) for line in md[4:end].splitlines() if ': ' in line) if end != -1 else {}
+
+
+def turn_counts(md) -> dict[str, int]:
+    """A rendered conversation's turns by role, from the one home the projection writes them
+    in, its frontmatter (issues/1001); KeyError where the render predates it."""
+    items = frontmatter(md)
+    return {role: int(items[role]) for role in ROLES}
+
+
+def counted(md) -> dict[str, int]:
+    """The turns a rendered markdown holds by role, as its headings say them - what the
+    projection counts as it writes, and what its frontmatter is held to."""
+    roles = [turn.role for turn in turns(md)]
+    return {'human': roles.count('Human'), 'assistant': len(roles) - roles.count('Human')}
+
+
+def disagreement(md) -> str | None:
+    """Why a render may not be written (issues/1001): its frontmatter's turn counts and its
+    headings disagree, or it declares none; None where they agree."""
+    try:
+        said = turn_counts(md)
+    except (KeyError, ValueError):
+        return 'its frontmatter declares no turn counts by role'
+    found = counted(md)
+    return None if said == found else f'its frontmatter declares {said} and its headings hold {found}'
 
 
 def turn_extent(md):
@@ -389,6 +450,17 @@ def deposit(out_dir, files, label, *, identity=None, because='its source departe
     shape, and the shape is the concept the renders share: derive, deposit,
     say what changed and why."""
     out_dir = Path(out_dir)
+    for name, md in list(files.items()):
+        # a render whose turn counts and headings disagree is refused where it is written (issues/1001):
+        # the file stands as it was, or is not written
+        why = disagreement(md)
+        if why is not None:
+            print(f'  REFUSED: {name}: {why} - the projection is left as it stands', file=file)
+            held = out_dir / name
+            if held.is_file():
+                files[name] = held.read_text()
+            else:
+                del files[name]
     w, u, renamed, pruned = reconcile_dir(out_dir, files, identity=identity)
     shown = out_dir.relative_to(REPO) if out_dir.resolve().is_relative_to(REPO) else out_dir
     tally = f'{w} written, {u} unchanged, '
