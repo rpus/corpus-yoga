@@ -40,20 +40,18 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts  # the one printer of a status's facts (issues/753)
+import send  # the declaration a dispatch hands its code (issues/1036)
+import spell
+from member import members
+from provider import signature  # the Signature triad, one home (issues/704)
 
 SELF = 'src/main/cli/cli.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import send  # noqa: E402 - the declaration a dispatch hands its code (issues/1036)
-import spell  # noqa: E402
-from member import members  # noqa: E402
-from provider import signature  # noqa: E402 - the Signature triad, one home (issues/704)
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery

@@ -20,17 +20,15 @@ and compare_captures.py reads the conversations through it.
 """
 import hashlib
 import json
-import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts  # the one face a sentence is said through (issues/909)
 
 SELF = 'src/main/pipeline/chat-export/atoms.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 - the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
 MEMORIES_DEPOSIT = 'data/output/memories'
 SUMMARIES_DEPOSIT = 'data/output/markdown/claude/chat/summaries'

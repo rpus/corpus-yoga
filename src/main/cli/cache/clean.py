@@ -25,21 +25,16 @@ Usage:
 import shutil
 import sys
 from pathlib import Path
+import cleaner  # the one loop every clean verb runs (issues/837)
+import tier  # the tiers, one home (issues/702)
+from declared_parser import verb_parser
+from cache_io import human, orphans, size_of
 
 SELF = 'src/main/cli/cache/clean.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
-import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
-import facts  # noqa: E402
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from declared_parser import verb_parser  # noqa: E402
-sys.path.insert(0, str(_file.parent))
-import cache as noun  # noqa: E402 - the status the cleaner relays
-from cache_io import human, orphans, size_of  # noqa: E402
 
 REPO = REPO_ROOT
 CACHE = tier.TMP / 'cache'

@@ -23,15 +23,13 @@ STDLIB-ONLY, like cli.py: the venv supplies the interpreter, never imports
 """
 import sys
 from pathlib import Path
+import cli  # the one reader of src/main/cli/
+from declared_parser import verb_parser  # the declaration's parser generator
 
 SELF = 'src/main/cli/parse_argv.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
-sys.path.insert(0, str(_root[0] / 'src'))
-sys.path.insert(0, str(_file.parent))
-import cli  # noqa: E402 — the one reader of src/main/cli/
-from declared_parser import verb_parser  # noqa: E402 — the declaration's parser generator
 
 
 def main() -> int:

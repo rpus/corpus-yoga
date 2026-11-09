@@ -22,17 +22,15 @@ import argparse
 import json
 import re
 import shutil
-import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from markdown_projection import REPO, ordered
 
 SELF = 'src/main/pipeline/chat-export/atomise_bulk.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import REPO, ordered
 CONV_SCHEMAS = REPO / 'rsc' / 'schema' / 'pipeline' / 'chat-export' / 'claude' / 'conversations'
 
 

@@ -25,16 +25,14 @@ import sqlite3
 import sys
 import tempfile
 from collections.abc import Iterator
-from datetime import datetime
 from pathlib import Path
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, project_key, relate, strings
 
 SELF = 'src/main/cli/agent/gemini/harness.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, project_key, relate, strings  # noqa: E402
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')

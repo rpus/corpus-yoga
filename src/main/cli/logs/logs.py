@@ -22,19 +22,17 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from declared_parser import command_parser
+import cleaner  # the one loop every clean verb runs (issues/837)
+import facts
+import spell
+import tier
 
 SELF = 'src/main/cli/logs/logs.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-from declared_parser import command_parser  # noqa: E402
-import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
-import facts  # noqa: E402
-import spell  # noqa: E402
-import tier  # noqa: E402
 
 LOGS = tier.TMP / 'logs'
 CLI = REPO / 'src' / 'main' / 'cli'

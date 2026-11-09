@@ -1,6 +1,5 @@
 """schema.py - the dev gate's checks of the schema families: layout, validity, versions, changelogs and verdict records."""
 import json
-import sys
 from pathlib import Path
 
 from gate import (
@@ -16,8 +15,8 @@ from gate import (
     _sorted_versions,
     check,
 )
-from latest import latest_file  # noqa: E402 - on the paths gate.py sets
-import provider  # noqa: E402 - on the paths gate.py sets
+from latest import latest_file
+import provider
 
 
 @check(tier='schema', on=['rsc/schema', 'src/main', 'rsc/provider'], says=(
@@ -183,7 +182,6 @@ def check_validate_verdict(run) -> None:
     the declared set, never an alternative chosen by the count of its faults."""
     import importlib
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     validate = importlib.import_module('validate')
     schema = {'$schema': 'http://json-schema.org/draft-04/schema#', 'type': 'array', 'items': {'$ref': '#/definitions/Record'},
               'definitions': {
@@ -243,7 +241,6 @@ def check_verdict_record(run) -> None:
     that says 'Validation error' and then 'Valid!' inside the dumped instance, and beside
     it the record that says invalid; a log with no record is no row."""
     import tempfile
-    sys.path.insert(0, str(SRC))
     from validation_matrix import rows_from_records
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -285,9 +282,7 @@ def check_failing_record(run) -> None:
     import importlib
     import io
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
-    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'pipeline'))
-    tail = importlib.import_module('tail')
+    tail = importlib.import_module('pipeline.tail')
     a, b = 'e2d2039d-b1e5-4691-99f9-f0629d13e243', '0a1b2c3d-0000-4000-8000-000000000000'
     rows = [('code-transport', f'FAIL: {a}: does not validate at latest v23'), ('code-transport', '  path: /11165/toolUseResult'),
             ('code-transport', '  log: v23.log'), ('code-transport', f'FAIL: {b}: does not validate at latest v23'),

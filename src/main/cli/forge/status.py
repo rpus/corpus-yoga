@@ -11,16 +11,15 @@ Reads; writes nothing.
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import corpus
+import facts
+import spell
 
 SELF = 'src/main/cli/forge/status.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import corpus  # noqa: E402
-import facts  # noqa: E402
-import spell  # noqa: E402
 
 REFUSING = {'settings': ('drift', 'unverified'), 'branches': ('unverified',), 'refs': ('unverified',),
             'checkout': ('wrong', 'unverified')}     # the states under which the merge refuses

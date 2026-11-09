@@ -40,7 +40,7 @@ main() {
   local stamp
   # the stage's word first (issues/996): each incomplete unit is said as passed over - the
   # janitor's, never a pipeline's input - and the whole units are judged
-  "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.pass_over())' "$REPO_ROOT/src/main"
+  "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; import corpus; sys.exit(corpus.pass_over())'
   # the rehearsal's stamp is the launcher's where it ran the verb (issues/708), so the record,
   # tmp/logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
   stamp="$(stamp_of pipeline rehearse)"

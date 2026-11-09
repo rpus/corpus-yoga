@@ -17,7 +17,6 @@ Usage:
 """
 
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -26,19 +25,16 @@ from model_curation import (JOIN_PATH_COLUMNS, documented, rejected, edge_queue,
                             orphan_entries, coverage_gaps, unrecorded_collisions,
                             shared_name_candidates, identity_violations, emptiness_violations,
                             worksheet_rows, accept_shared_name, reject_shared_name)
+import tier  # the tiers, one home (issues/702)
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+from declared_parser import command_parser
 
 SELF = 'src/main/model/model.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
-sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
-from declared_parser import command_parser  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]

@@ -126,6 +126,14 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from pathlib import Path
 from types import ModuleType
+import tier  # the tiers, one home (issues/702)
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+import corpus  # the stage report, and the type of a staged unit
+from machine import bound_machine
+from declared_parser import command_parser
+import provider as registry
+import transport
 
 SELF = 'src/main/cli/agent/agent.py'
 _file = Path(__file__).resolve()
@@ -133,17 +141,6 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-import corpus  # noqa: E402 - the stage report, and the type of a staged unit
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
-from machine import bound_machine  # noqa: E402
-from declared_parser import command_parser  # noqa: E402
-import provider as registry  # noqa: E402
-import transport  # noqa: E402
 
 if TYPE_CHECKING:                 # named for the status's shape; imported where it is used
     import drafters

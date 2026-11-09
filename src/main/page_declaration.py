@@ -12,17 +12,16 @@ shrink: a format, serialisation or schema change is speaking. Reads; writes noth
 """
 import json
 import re
-import sys
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
+from markdown_projection import corpus_index, turn_counts, turns  # the format authority, reading back what it wrote
 
 SELF = 'src/main/page_declaration.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-from markdown_projection import corpus_index, turn_counts, turns  # noqa: E402 - the format authority, reading back what it wrote
 
 METRICS = ('human', 'assistant', 'bytes')
 TABLE = re.compile(r'<script[^>]*id="data-chats"[^>]*>(.*?)</script>', re.S)

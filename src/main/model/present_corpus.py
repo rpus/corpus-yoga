@@ -33,8 +33,14 @@ import shutil
 import subprocess
 import sys
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts
+from markdown_projection import corpus_index, turn_seq  # the format authority owns the parsers
+from page_declaration import declared_of, turn_instants  # the one reading of what a conversation declares and when its turns were (issues/1000, issues/1007)
+from word_freq_literal import words_from, filtered, tables  # one tokenizer for both presenters
+from library import LIBRARY as DOWNLOADED_DIR  # the artifact library, one authority (issues/421)
 
 SELF = 'src/main/model/present_corpus.py'
 _file = Path(__file__).resolve()
@@ -47,16 +53,6 @@ TEMPLATE = REPO / 'rsc' / 'site' / 'index.template.html'
 CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-export'   # source-scoped helpers stay there (issues/407)
 MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
 
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
-import facts  # noqa: E402
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
-sys.path.insert(0, str(SCRIPT_DIR))
-from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
-from page_declaration import declared_of, turn_instants  # noqa: E402 - the one reading of what a conversation declares and when its turns were (issues/1000, issues/1007)
-from word_freq_literal import words_from, filtered, tables  # noqa: E402 — one tokenizer for both presenters
-from library import LIBRARY as DOWNLOADED_DIR  # noqa: E402 — the artifact library, one authority (issues/421)
 
 
 

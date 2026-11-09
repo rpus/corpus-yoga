@@ -14,20 +14,18 @@ reads, never sends.
 """
 import json
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts
+import spell
+from markdown_projection import turn_seq  # the format authority owns the parsers
 
 SELF = 'src/main/cli/browser/account.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 - the tiers, one home (issues/702)
-import facts  # noqa: E402
-import spell  # noqa: E402
-from markdown_projection import turn_seq  # noqa: E402 - the format authority owns the parsers
 
 RECORD = tier.TMP / 'browser' / 'fetch'   # <provider>.json, the account as last fetched
 

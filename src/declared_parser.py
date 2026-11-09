@@ -24,7 +24,6 @@ any venv exists.
 """
 import argparse
 import sys
-from pathlib import Path
 from typing import NoReturn
 
 
@@ -45,19 +44,16 @@ class DeclaredParser(argparse.ArgumentParser):
         self.command_arguments = command_arguments   # a subparser re-accepts the command's flags (issues/33)
 
     def _shape(self):
-        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
         from cli import help_shape
         return help_shape(*self.declared, command_arguments=self.command_arguments)
 
     def format_help(self) -> str:
         """The help as a capture reads it: one line a fact."""
-        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
         import facts
         return '\n'.join(facts.lines(facts.plain(self._shape()), facts.depth(), width=None)) + '\n'
 
     def print_help(self, file=None) -> None:
         """The help as the reader sees it: said as every status is, at the terminal's width."""
-        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
         import facts
         if file is None or file is sys.stdout:
             facts.say(self._shape())
@@ -71,8 +67,6 @@ class DeclaredParser(argparse.ArgumentParser):
         (an inner invocation, a step of another verb, hands nothing up: facts.handed_up holds
         the act to its own). A command's parser refuses leftover argv on the verb's behalf,
         so the act is the verb typed, read from argv."""
-        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
-        sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
         import facts
         from cli import refusal_shape, subcommands_of
         command, verb = self.declared
@@ -92,13 +86,11 @@ def _rows(command: str) -> list[dict]:
     """The command's declared rows — asked of cli, which is the one reader of
     src/main/cli/. Imported at CALL time so import order between the faces and
     cli can never cycle."""
-    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
     from cli import command_rows
     return command_rows(command)
 
 
 def _sends(command: str, verb: str) -> dict:
-    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
     from cli import sends_of
     return sends_of(command, verb)
 
@@ -121,7 +113,6 @@ VALUE_ARG_TYPES = {'<n>': int}
 
 
 def _path_arg_types() -> set:
-    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
     from cli import PATH_ARG_TYPES
     return PATH_ARG_TYPES
 
@@ -131,7 +122,6 @@ def _tier_path(declared: str) -> str:
     default naming data/ or tmp/ resolves to the stage's scratch when a rehearsal is named,
     the checkout's otherwise - never against the working directory, and never the
     checkout's from inside a rehearsal."""
-    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
     import tier
     return str(tier.path(declared))
 

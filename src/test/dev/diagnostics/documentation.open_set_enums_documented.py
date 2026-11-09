@@ -2,10 +2,8 @@
 """documentation.open_set_enums_documented — Likely open-set enums say so in their description."""
 import json
 import sys
-from pathlib import Path
+from schema_walk import schema_nodes
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # src/ - modules both tiers import
-from schema_walk import schema_nodes  # noqa: E402
 
 # Enum value sets that are genuinely closed (exhaustive by design).
 # Each entry is annotated with the schema version from which it applies.

@@ -1,4 +1,4 @@
-run.py: code+schema 1908/1908
+run.py: code+schema 1907/1907
 
 
 check_schema_join: |
@@ -178,7 +178,7 @@ check_cli_surface: |
   ✓ effects.sends_are_dispatched
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (86/86)
-  ✓ structure.file_at_level_of_subject  (51/51)
+  ✓ structure.file_at_level_of_subject  (47/47)
   ✓ structure.cli_declaration_mirrors_the_api  (25/25)
   ✓ structure.cli_declaration_validates  (80/80)
   ✓ cli.every_form_listed  (24/24)
@@ -244,11 +244,15 @@ check_pipeline_declarations: |
   ✓ structure.pipeline_mechanism_whole  (4/4)
   ✓ structure.pipeline_implements_run  (3/3)
 
+check_import_path: |
+  ✓ imports.path_declared_once
+  ✓ imports.at_the_top
+
 check_step_imports: |
   ✓ imports.step_module_imports  (2/2)
 
 check_self_paths: |
-  ✓ structure.self_path_matches_address  (124/124)
+  ✓ structure.self_path_matches_address  (125/125)
 
 check_committed_tree: |
   ✓ structure.corpus_roots_ignored
@@ -480,7 +484,7 @@ stages:
     tier: code
     line: "154"
   check_cli_surface:
-    passes: 591
+    passes: 587
     failures: 0
     tier: code
     line: "157"
@@ -549,99 +553,104 @@ stages:
     failures: 0
     tier: code
     line: "239"
-  check_step_imports:
+  check_import_path:
     passes: 2
     failures: 0
     tier: code
     line: "247"
-  check_self_paths:
-    passes: 124
+  check_step_imports:
+    passes: 2
     failures: 0
     tier: code
-    line: "250"
+    line: "251"
+  check_self_paths:
+    passes: 125
+    failures: 0
+    tier: code
+    line: "254"
   check_committed_tree:
     passes: 3
     failures: 0
     tier: code
-    line: "253"
+    line: "257"
   check_templates:
     passes: 2
     failures: 0
     tier: code
-    line: "258"
+    line: "262"
   check_xref:
     passes: 3
     failures: 0
     tier: code
-    line: "261"
+    line: "265"
   check_spelling:
     passes: 3
     failures: 0
     tier: code
-    line: "266"
+    line: "270"
   check_tier_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "271"
+    line: "275"
   check_rehearsal_record:
     passes: 2
     failures: 0
     tier: code
-    line: "274"
+    line: "278"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "278"
+    line: "282"
   check_unit_state:
     passes: 6
     failures: 0
     tier: code
-    line: "281"
+    line: "285"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "288"
+    line: "292"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "293"
+    line: "297"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "296"
+    line: "300"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "299"
+    line: "303"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "305"
+    line: "309"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "311"
+    line: "315"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "314"
+    line: "318"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "328"
+    line: "332"
 
-checks[code+schema]: 203 types, 1908/1908 invocations passing
-checks[code]: 150 types, 1171/1171 invocations passing
+checks[code+schema]: 205 types, 1907/1907 invocations passing
+checks[code]: 152 types, 1170/1170 invocations passing
 checks[schema]: 53 types, 737/737 invocations passing
 
-dev gate: PASS - code+schema 1908/1908 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1907/1907 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

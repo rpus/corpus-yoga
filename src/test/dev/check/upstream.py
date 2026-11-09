@@ -10,13 +10,13 @@ from gate import (
     REPO_ROOT,
     check,
 )
-from latest import lineages  # noqa: E402 - on the paths gate.py sets
-import send  # noqa: E402 - on the paths gate.py sets
-import tier  # noqa: E402 - on the paths gate.py sets
-import grammar as grammar_module  # noqa: E402 - on the paths gate.py sets
-import mcp_extraction  # noqa: E402 - on the paths gate.py sets
-import mcp_face  # noqa: E402 - on the paths gate.py sets
-import mcp_factoring  # noqa: E402 - on the paths gate.py sets
+from latest import lineages
+import send
+import tier
+import grammar as grammar_module
+import mcp_extraction
+import mcp_face
+import mcp_factoring
 
 
 def grammar_reading(project) -> dict | None:

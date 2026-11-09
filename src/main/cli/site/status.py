@@ -12,17 +12,16 @@ tab-separated. Reads; writes nothing but the clone's record of rpus.co, which si
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import facts
+import spell
+import tier
+import page_declaration as declared  # what the page declares, read back against the corpus (issues/1000)
 
 SELF = 'src/main/cli/site/status.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import facts  # noqa: E402
-import spell  # noqa: E402
-import tier  # noqa: E402
-import page_declaration as declared  # noqa: E402 - what the page declares, read back against the corpus (issues/1000)
 
 
 @dataclass

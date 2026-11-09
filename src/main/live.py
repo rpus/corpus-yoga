@@ -10,22 +10,19 @@ store, and the store's status is where the reading is said. Reads the live store
 tiers; writes nothing.
 """
 import importlib
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+import corpus
+import facts
+import spell
+import provider as registry
 
 SELF = 'src/main/live.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))   # the harness adapters: what a live store holds
-import corpus  # noqa: E402
-import facts  # noqa: E402
-import spell  # noqa: E402
-import provider as registry  # noqa: E402
 
 transport = importlib.import_module('transport')   # src/main/cli/agent/transport.py, by the path inserted above
 

@@ -7,10 +7,8 @@ single-typed is necessary but not sufficient — the type must be stated, not le
 """
 import json
 import sys
-from pathlib import Path
+from schema_walk import schema_nodes
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # src/ - modules both tiers import
-from schema_walk import schema_nodes  # noqa: E402
 
 
 def json_type(v):

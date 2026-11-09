@@ -9,16 +9,15 @@ stdlib-only, like cli.py.
 """
 import sys
 from pathlib import Path
+from cli import (  # one reader of the declaration, and it is cli
+    PATH_ARG_TYPES, commands, command_rows, root_flags, subcommands_of, _subcommand_desc,
+)
 
 SELF = 'src/main/cli/completions/offer.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'cli'))
-from cli import (  # noqa: E402 - one reader of the declaration, and it is cli
-    PATH_ARG_TYPES, commands, command_rows, root_flags, subcommands_of, _subcommand_desc,
-)
 
 
 def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:

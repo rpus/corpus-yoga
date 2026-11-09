@@ -17,22 +17,19 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from forge import aim  # the aim's one grammar
+from forge import should  # the issue's one grammar
+import facts
+import provider  # the Signature triad, derived once
+import tier
+from declared_parser import verb_parser
+import send  # every gh call below is a send the declaration names (issues/1022)
 
 SELF = 'src/main/cli/forge/raise.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'forge'))
-import aim  # noqa: E402 - the aim's one grammar
-import should  # noqa: E402 - the issue's one grammar
-import facts  # noqa: E402
-import provider  # noqa: E402 - the Signature triad, derived once
-import tier  # noqa: E402
-from declared_parser import verb_parser  # noqa: E402
-import send  # noqa: E402 - every gh call below is a send the declaration names (issues/1022)
 
 RECORD = tier.TMP / 'forge' / 'raise'
 FOOTER = ('Generated with', 'Co-Authored-By')

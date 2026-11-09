@@ -36,20 +36,18 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+from declared_parser import command_parser
+import mcp_factoring as factoring  # (sibling module)
+import mcp_face as face  # (sibling module)
 
 SELF = 'src/main/mcp/mcp.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-from declared_parser import command_parser  # noqa: E402
 
-import mcp_factoring as factoring  # noqa: E402  (sibling module)
-import mcp_face as face  # noqa: E402  (sibling module)
 
 
 def _target() -> Path:

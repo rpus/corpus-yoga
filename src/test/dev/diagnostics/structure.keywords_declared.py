@@ -2,10 +2,8 @@
 """structure.keywords_declared — Every key at a schema position is a keyword the dialect declares: draft-04's meta-schema, or JSON Reference's $ref."""
 import json
 import sys
-from pathlib import Path
+from schema_walk import schema_nodes, kind
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # src/ - modules both tiers import
-from schema_walk import schema_nodes, kind  # noqa: E402
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

@@ -20,7 +20,6 @@ frontier and coverage checks read subjects and recency from here).
 """
 import json
 import re
-import sys
 from pathlib import Path
 
 SELF = 'src/main/model/frontier.py'
@@ -28,10 +27,6 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))  # cache_io - the declared tmp/cache IO registry
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # vintage - the one export-ordering authority
-import cache_io  # noqa: E402
-from vintage import export_time  # noqa: E402
 
 PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'

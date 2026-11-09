@@ -34,18 +34,16 @@ import sys
 from dataclasses import dataclass
 import tempfile
 from pathlib import Path
+from declared_parser import command_parser
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+import send  # the tool fetches its jar on first use, a send the declaration names (issues/1022)
 
 SELF = 'src/main/grammar/grammar.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
-from declared_parser import command_parser  # noqa: E402
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-import send  # noqa: E402 - the tool fetches its jar on first use, a send the declaration names (issues/1022)
 
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
 GENERATED = REPO / 'src' / 'gen' / 'grammar'

@@ -32,19 +32,17 @@ import sys
 from dataclasses import dataclass
 import urllib.request
 from pathlib import Path
+from declared_parser import command_parser
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+import send  # every read of upstream is a send the declaration names (issues/1022)
+from latest import lineages
 
 SELF = 'src/main/reference/reference.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
-from declared_parser import command_parser  # noqa: E402
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-import send  # noqa: E402 - every read of upstream is a send the declaration names (issues/1022)
-from latest import lineages  # noqa: E402
 
 ROOT = REPO / 'rsc' / 'reference'
 COLUMNS = ('lineage', 'file', 'url', 'pin', 'sha256')

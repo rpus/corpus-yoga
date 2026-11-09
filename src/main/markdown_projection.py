@@ -2,10 +2,9 @@
 """
 markdown_projection.py — Shared primitives for projecting a Conversation to the lean
 markdownConversation shape and rendering it to markdown. Common code at the root of src/main/
-(like schema_*.py, validate*.py); the per-pipeline CLIs import it via the sys.path idiom,
-with the root derived from their own SELF declaration (issues/357):
+(like schema_*.py, validate*.py); src/main is one of the import roots pyrightconfig.json
+declares and src/run_python_script.sh sets, so the per-pipeline CLIs import it by name:
 
-    sys.path.insert(0, str(REPO / 'src' / 'main'))   # puts src/main/ on the path
     from markdown_projection import project, render, ...
 
 Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py

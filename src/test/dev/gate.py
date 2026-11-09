@@ -15,6 +15,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import cache_io  # the declared tmp/cache/ IO registry (check_cache_io)
+import cli  # the CLI table machinery (check_cli_surface)
+import tier  # the act's stamp, one reading (issues/912)
+from latest import latest_file  # the one reading of the latest
+from member import members  # the one reading of membership by placement
+
 # The gate compares rendered BYTES - argparse help against the generated
 # parser, run output against committed expectations - and color is context,
 # not content: python 3.14 colorizes argparse help by stream and environment,
@@ -50,8 +56,6 @@ SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 # itself, <stamp>.log, is the launcher's tee of the whole verb, and the stamp is the
 # launcher's where it ran the verb, so the pair share it. The committed surface names
 # only the stable directory — a stamp is machine-varying and may not enter it (L2).
-sys.path.insert(0, str(SRC / 'main'))  # tier: the act's stamp, one reading (issues/912)
-import tier  # noqa: E402
 _REPORT_STAMP = tier.stamp_of('test run')
 REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
 _twin = 2
@@ -66,29 +70,6 @@ CLI                      = SRC / 'main' / 'cli'
 PLAIN_PHRASE_REMEDY = ('a pair is a fact of its own beneath, or the phrase says it without the colon; an em dash is written '
                          "' - '; a hash is YAML's comment, a URL's fragment and a shell's, so an anchor is written as the forge's "
                          'path segment, issues/N or pull/N, and is never dropped')
-
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
-
-sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
-
-sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared machinery)
-# A CLI-native command lives in its own directory (issues/307), so its module sits beside
-# the declarations that name it: import it from there, not from the cluster root.
-sys.path.insert(0, str(CLI / 'cache'))
-sys.path.insert(0, str(CLI / 'completions'))
-import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
-import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
-sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
-from member import members  # noqa: E402  (src/main - the one reading of membership by placement)
-sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
-from latest import latest_file  # noqa: E402  (src/main - the one reading of the latest)
-
-sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-export'))  # the shared deposit rule (check_accumulate_contract)
-
-sys.path.insert(0, str(SRC / 'main' / 'cli' / 'indexing'))  # index curation machinery
-sys.path.insert(0, str(SRC / 'main' / 'model'))  # model.json disposal queue
-
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 

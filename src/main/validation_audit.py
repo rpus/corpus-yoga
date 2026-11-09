@@ -8,24 +8,19 @@ vets a commit's content and this verb vets the corpus, as `corpus-yoga pipeline
 audit` and as the corpus tail's step. A violated property is a FAIL: atom,
 counted by the run's stage table; the exit is 1 iff any FAIL was stated.
 """
-import json
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from validation_matrix import rows_from_records
+import cache_io
+import frontier
+import corpus  # the one selection of units (issues/687)
+import spell
 
 SELF = 'src/main/validation_audit.py'
 REPO = next(p for p in Path(__file__).resolve().parents if (p / SELF).is_file())
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-sys.path.insert(0, str(REPO / 'src'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'model'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
-from validation_matrix import rows_from_records  # noqa: E402
-import cache_io  # noqa: E402
-import frontier  # noqa: E402
-import corpus  # noqa: E402 — the one selection of units (issues/687)
-import spell  # noqa: E402
 
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
 

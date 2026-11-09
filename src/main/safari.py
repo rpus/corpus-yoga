@@ -8,19 +8,18 @@ import subprocess
 import sys
 import time
 
-import tier  # noqa: E402 - the act's stamp, one reading (issues/912)
+import tier  # the act's stamp, one reading (issues/912)
 from pathlib import Path
+from markdown_projection import turn_extent  # the format authority owns the parsers
+import enact  # the send bound
+import send  # every Apple Event below is a send the declaration names (issues/1022)
+from send import SendRefused  # noqa: F401 - its catchers import it from here
 
 SELF = 'src/main/safari.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-from markdown_projection import turn_extent  # noqa: E402 — the format authority owns the parsers
-import enact  # noqa: E402 - the send bound
-import send  # noqa: E402 - every Apple Event below is a send the declaration names (issues/1022)
-from send import SendRefused  # noqa: E402,F401 - its catchers import it from here
 
 
 DOWNLOADS        = Path.home() / 'Downloads'

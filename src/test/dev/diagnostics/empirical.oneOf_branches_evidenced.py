@@ -2,10 +2,8 @@
 """empirical.oneOf_branches_evidenced — No oneOf branch is annotated as unevidenced."""
 import json
 import sys
-from pathlib import Path
+from schema_walk import schema_nodes
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # src/ - modules both tiers import
-from schema_walk import schema_nodes  # noqa: E402
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

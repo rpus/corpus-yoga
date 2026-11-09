@@ -39,11 +39,6 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-
-SELF = 'src/test/dev/run.py'
-_file = Path(__file__).resolve()
-assert any(p / SELF == _file for p in _file.parents), f'{_file} is not at its declared address {SELF}'
-
 from gate import (
     write_check_logs,
     CHECKS,
@@ -57,12 +52,17 @@ from gate import (
     _machine_anchor,
     _read_committed_xref,
 )
-import facts  # noqa: E402 - on the paths gate.py sets
-import xref  # noqa: E402 - the gate's sibling, src/test/dev/xref.py
-from tier import GATE_CHECK  # noqa: E402 - on the paths gate.py sets
-import check  # noqa: E402
+import facts
+import xref  # the gate's sibling, src/test/dev/xref.py
+from tier import GATE_CHECK
+import check
 import pkgutil
 import importlib
+
+SELF = 'src/test/dev/run.py'
+_file = Path(__file__).resolve()
+assert any(p / SELF == _file for p in _file.parents), f'{_file} is not at its declared address {SELF}'
+
 for _found in sorted(m.name for m in pkgutil.iter_modules(check.__path__)):
     importlib.import_module(f'check.{_found}')   # each subject's checks declare themselves as they load
 

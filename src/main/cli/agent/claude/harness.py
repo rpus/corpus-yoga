@@ -10,23 +10,20 @@ log semantics per file; the memory folder is mirrored out on capture and merged
 in on install (agent.py's header states the calculus). install and demerge are
 this adapter's alone: they write into the harness-owned projects root.
 """
-import contextlib
 import hashlib
-import io
 import json
 import sys
 from collections import Counter
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, place_log, place_tree, relate, strings
 
 SELF = 'src/main/cli/agent/claude/harness.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, place_log, place_tree, relate, strings  # noqa: E402
 
 PROVIDER = 'claude'
 

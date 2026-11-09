@@ -67,18 +67,16 @@ reports) are defined in src/main/pipeline/chat-export/query_files.py and can be 
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from markdown_projection import slug
+from library import dir_for
 
 SELF = 'src/main/pipeline/chat-export/audit_files.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import slug
-from library import dir_for
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[3]

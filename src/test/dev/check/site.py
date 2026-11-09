@@ -8,8 +8,8 @@ from gate import (
     SRC,
     check,
 )
-import send  # noqa: E402 - on the paths gate.py sets
-import tier  # noqa: E402 - on the paths gate.py sets
+import send
+import tier
 
 
 @check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'], says=(
@@ -26,7 +26,6 @@ def check_site_lag(run) -> None:
     page and not in the corpus is gone. Held over the one derivation in process, with planted
     declarations: the room's page and corpus are the usr gate's."""
     import importlib
-    sys.path.insert(0, str(SRC / 'main'))
     try:
         declared = importlib.import_module('page_declaration')
     except ModuleNotFoundError:
@@ -64,7 +63,6 @@ def check_site_lag(run) -> None:
         check='site.turn_instant_is_read_from_the_heading')
     # The landing's page comparison says a column one page lacks, once, as the table's change -
     # never a crash the status reads as nothing to land, and never a change of every row.
-    sys.path.insert(0, str(SRC / 'main' / 'model'))
     compare_pages = importlib.import_module('compare_pages')
     old_table = {'columns': ['chat', 'uuid', 'name', 'turns'], 'rows': [[1, 'aaaa', 'a', 2]]}
     new_table = {'columns': ['chat', 'uuid', 'name', 'turns', 'human'], 'rows': [[1, 'aaaa', 'a', 2, 1]]}
@@ -195,7 +193,6 @@ def check_server_standing(run) -> None:
     none otherwise - read from the status's own function, since the gate's room never
     runs the daemon and a rendered-output check would sample one state."""
     import importlib.util
-    sys.path.insert(0, str(SRC / 'main'))
     spec = importlib.util.spec_from_file_location('server_status', SRC / 'main' / 'cli' / 'server' / 'status.py')
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
