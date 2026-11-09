@@ -1,4 +1,4 @@
-run.py: code+schema 1898/1898
+run.py: code+schema 1900/1900
 
 
 check_schema_join: |
@@ -173,6 +173,8 @@ check_cli_surface: |
   ✓ effects.send_switch_read_once
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
+  ✓ effects.sends_run
+  ✓ effects.send_faces_agree
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (86/86)
   ✓ structure.file_at_level_of_subject  (50/50)
@@ -477,7 +479,7 @@ stages:
     tier: code
     line: "154"
   check_cli_surface:
-    passes: 585
+    passes: 587
     failures: 0
     tier: code
     line: "157"
@@ -485,160 +487,160 @@ stages:
     passes: 133
     failures: 0
     tier: code
-    line: "189"
+    line: "191"
   check_cli_exclusive_classes:
     passes: 10
     failures: 0
     tier: code
-    line: "194"
+    line: "196"
   check_effects:
     passes: 3
     failures: 0
     tier: code
-    line: "197"
+    line: "199"
   check_acts_said_once:
     passes: 2
     failures: 0
     tier: code
-    line: "202"
+    line: "204"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "206"
+    line: "208"
   check_gate_logs:
     passes: 2
     failures: 0
     tier: code
-    line: "209"
+    line: "211"
   check_record_is_the_launchers:
     passes: 1
     failures: 0
     tier: code
-    line: "213"
+    line: "215"
   check_record_names_read_once:
     passes: 1
     failures: 0
     tier: code
-    line: "216"
+    line: "218"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "219"
+    line: "221"
   check_completions:
     passes: 10
     failures: 0
     tier: code
-    line: "223"
+    line: "225"
   check_walkthrough:
     passes: 1
     failures: 0
     tier: code
-    line: "230"
+    line: "232"
   check_required_files:
     passes: 9
     failures: 0
     tier: code
-    line: "233"
+    line: "235"
   check_pipeline_declarations:
     passes: 20
     failures: 0
     tier: code
-    line: "236"
+    line: "238"
   check_step_imports:
     passes: 2
     failures: 0
     tier: code
-    line: "244"
+    line: "246"
   check_self_paths:
     passes: 122
     failures: 0
     tier: code
-    line: "247"
+    line: "249"
   check_committed_tree:
     passes: 3
     failures: 0
     tier: code
-    line: "250"
+    line: "252"
   check_templates:
     passes: 2
     failures: 0
     tier: code
-    line: "255"
+    line: "257"
   check_xref:
     passes: 3
     failures: 0
     tier: code
-    line: "258"
+    line: "260"
   check_spelling:
     passes: 3
     failures: 0
     tier: code
-    line: "263"
+    line: "265"
   check_tier_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "268"
+    line: "270"
   check_rehearsal_record:
     passes: 2
     failures: 0
     tier: code
-    line: "271"
+    line: "273"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "275"
+    line: "277"
   check_unit_state:
     passes: 6
     failures: 0
     tier: code
-    line: "278"
+    line: "280"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "285"
+    line: "287"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "290"
+    line: "292"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "293"
+    line: "295"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "296"
+    line: "298"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "302"
+    line: "304"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "308"
+    line: "310"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "311"
+    line: "313"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "325"
+    line: "327"
 
-checks[code+schema]: 200 types, 1898/1898 invocations passing
-checks[code]: 147 types, 1161/1161 invocations passing
+checks[code+schema]: 202 types, 1900/1900 invocations passing
+checks[code]: 149 types, 1163/1163 invocations passing
 checks[schema]: 53 types, 737/737 invocations passing
 
-dev gate: PASS - code+schema 1898/1898 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1900/1900 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

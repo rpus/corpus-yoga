@@ -22,38 +22,71 @@
     }
   ],
   "sends": {
-    "gh pr view": [
-      "reads the PR's state, base and head before anything else, its body for the phrase to flip, and its title for the copy check",
-      "reads the merge commit after the squash, to converge this checkout on it",
-      "reads a merged parent's final head when finding a stacked branch's relocation point (issues/585)"
-    ],
-    "gh issue view": [
-      "reads each aimed issue's title (issues/479); a title that copies none of them refuses the merge before any enacting step",
-      "reads each aimed issue's state after the squash, for the report and the verdict (issues/735)"
-    ],
-    "gh api": [
-      "reads each aimed issue's open blockers (issues/482); a body that leaves one unaimed refuses the merge before any enacting step",
-      "reads the PR's closing references after the flip, through closing-issues.graphql (issues/884); where they are not the aimed set the body is restored and nothing merges",
-      "reads, for each base commit since the merge-base, the PR that introduced it (commits/<sha>/pulls) and that PR's force-push timeline (superseded-heads.graphql), to find the point a stacked branch relocates from and name the merged parent (issues/585) - only when the base had moved"
-    ],
-    "git fetch origin <base> <head>": [
-      "reads both refs to judge whether the base moved"
-    ],
-    "git push --force-with-lease": [
-      "WRITES the relocated head back to the PR, leased against the sha the merge read - only when the base had moved (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "gh pr edit --body-file": [
-      "WRITES the flipped body as the last edit before the squash, every aims-to-complete line becoming a closes line - and WRITES it back as found if the squash refuses (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "gh pr merge --squash": [
-      "WRITES the merge, pinned to the merge's own sha of the head every check saw - fetched or just pushed, never re-read from the eventually-consistent API (issues/488; refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "git push origin --delete": [
-      "corpus-yoga forge clean, sweeping the server branches this merge and its siblings left (refused loudly under CORPUS_YOGA_NO_SEND)"
-    ],
-    "git fetch origin": [
-      "reads the squash back so the base can fast-forward"
-    ]
+    "pr": {
+      "runs": "gh pr view",
+      "refused": "fails",
+      "does": [
+        "reads the PR's state, base and head before anything else, its body for the phrase to flip, and its title for the copy check",
+        "reads the merge commit after the squash, and a merged PR's final head for the relocation"
+      ]
+    },
+    "commit-pulls": {
+      "runs": "gh api",
+      "refused": "degrades",
+      "does": [
+        "reads the PR that introduced a base commit, for the relocation point"
+      ]
+    },
+    "closing": {
+      "runs": "gh api graphql -F owner={owner} -F repo={repo} -F query=@src/main/cli/forge/closing-issues.graphql",
+      "refused": "fails",
+      "does": [
+        "reads the PR's closing references back after the flip, refusing where they are not the aimed set (issues/884)"
+      ]
+    },
+    "fetch": {
+      "runs": "git fetch origin",
+      "refused": "fails",
+      "does": [
+        "reads both refs to judge whether the base moved",
+        "reads the squash back so the base can fast-forward"
+      ]
+    },
+    "lease": {
+      "runs": "git ls-remote origin",
+      "refused": "fails",
+      "does": [
+        "reads the head's sha on the forge, the lease the relocation's push is held to"
+      ]
+    },
+    "relocate": {
+      "runs": "git push",
+      "refused": "fails",
+      "does": [
+        "WRITES the relocated head back to the PR, leased against the sha the merge read - only when the base had moved"
+      ]
+    },
+    "edit": {
+      "runs": "gh pr edit",
+      "refused": "fails",
+      "does": [
+        "WRITES the flipped body as the last edit before the squash, every aims-to-complete line becoming a closes line - and WRITES it back as found if the squash is refused"
+      ]
+    },
+    "squash": {
+      "runs": "gh pr merge",
+      "refused": "fails",
+      "does": [
+        "WRITES the merge, pinned to the merge's own sha of the head every check saw - fetched or just pushed, never re-read from the eventually-consistent API"
+      ]
+    },
+    "delete": {
+      "runs": "git push origin --delete",
+      "refused": "fails",
+      "does": [
+        "WRITES the deletion of the server branches this merge and its siblings left, through forge clean's sweep"
+      ]
+    }
   },
   "r": [
     "machine-name.txt"

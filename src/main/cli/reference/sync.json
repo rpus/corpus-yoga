@@ -7,5 +7,21 @@
   ],
   "w": [
     "rsc/reference"
-  ]
+  ],
+  "sends": {
+    "github-api": {
+      "runs": "urllib.request.urlopen",
+      "refused": "fails",
+      "does": [
+        "lists the dated lineage directories upstream publishes, and reads the newest commit touching each fetched file - the pin"
+      ]
+    },
+    "upstream-raw": {
+      "runs": "urllib.request.urlopen",
+      "refused": "fails",
+      "does": [
+        "reads each missing or drifted file's bytes at its pinned URL, to hold it"
+      ]
+    }
+  }
 }

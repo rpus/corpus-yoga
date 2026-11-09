@@ -3,7 +3,6 @@ Shared Safari automation utilities for chat-capture scripts.
 Called by capture.py and audit.py — do not invoke directly.
 """
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -19,7 +18,9 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import turn_extent  # noqa: E402 — the format authority owns the parsers
-from send import SendRefused, assert_may_send  # noqa: E402,F401 — every outward call below passes through it
+import enact  # noqa: E402 - the send bound
+import send  # noqa: E402 - every Apple Event below is a send the declaration names (issues/1022)
+from send import SendRefused  # noqa: E402,F401 - its catchers import it from here
 
 
 DOWNLOADS        = Path.home() / 'Downloads'
@@ -44,21 +45,16 @@ FETCH_API_JSON_JS = """
 """
 
 
-# Every Apple Event is bounded (issues/414): osascript against a wedged, beach-balling
-# page blocks INDEFINITELY otherwise — below every python-level watchdog, which
-# is how one tiny hung conversation held a whole sweep hostage. Generous, because
-# a legitimate 'do JavaScript' on a heavy DOM can be slow; on expiry the call
-# fails loudly naming itself, and the sweep records that conversation and moves on.
-OSASCRIPT_TIMEOUT = 60
-
-
-def osascript(code, timeout=OSASCRIPT_TIMEOUT):
-    assert_may_send(f'osascript: {code[:60]}')
+# Every Apple Event is a send under the send bound (issues/414, issues/1022): osascript against a
+# wedged, beach-balling page blocks INDEFINITELY otherwise - below every python-level watchdog,
+# which is how one tiny hung conversation held a whole sweep hostage. On expiry the call fails
+# loudly naming itself, and the sweep records that conversation and moves on. `name` is the
+# send the act's declaration names the event by - `safari` for driving the browser.
+def osascript(code, name='safari'):
     try:
-        r = subprocess.run(['osascript', '-e', code], capture_output=True, text=True,
-                           timeout=timeout)
+        r = send.process(name, code, capture_output=True, text=True)
     except subprocess.TimeoutExpired:
-        print(f'FAIL: osascript did not answer within {timeout}s (Safari wedged?): '
+        print(f'FAIL: osascript did not answer within {enact.bound()}s (Safari wedged?): '
               f'{code[:80]}', file=sys.stderr)
         return ''
     return r.stdout.strip()
@@ -77,14 +73,8 @@ def safari_assert_js_allowed():
     """Fail fast if Safari rejects 'do JavaScript' via Apple Events. Without this,
     every injection silently evaluates to '' and discovery 'finds' 0 conversations —
     a hard setup failure disguised as an empty result."""
-    # A preflight is still a SEND — an Apple Event driving the browser — and this was
-    # the one direct osascript call in the module without the assert its siblings
-    # carry (the 2026-07-28 python census, pull/114).
-    assert_may_send('Safari do-JavaScript preflight')
-    r = subprocess.run(
-        ['osascript', '-e', 'tell application "Safari" to do JavaScript "1+1" in front document'],
-        capture_output=True, text=True,
-    )
+    r = send.process('safari', 'tell application "Safari" to do JavaScript "1+1" in front document',
+                     capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit(
             f'error: Safari blocked JavaScript from Apple Events: {r.stderr.strip()}\n'
@@ -93,8 +83,8 @@ def safari_assert_js_allowed():
         )
 
 
-def safari_navigate(url):
-    osascript(f'tell application "Safari" to set URL of front document to "{url}"')
+def safari_navigate(url, name='safari'):
+    osascript(f'tell application "Safari" to set URL of front document to "{url}"', name)
 
 
 def safari_open_work_tab():
@@ -120,30 +110,25 @@ def safari_close_work_tab(prev_index):
 
 
 def safari_run_js_file(js_path):
-    assert_may_send(f'inject {js_path}')
     code = (
         f'set jsCode to read POSIX file "{js_path}" as «class utf8»\n'
         'tell application "Safari" to do JavaScript jsCode in front document'
     )
     try:
-        subprocess.run(['osascript', '-e', code], capture_output=True,
-                       timeout=OSASCRIPT_TIMEOUT)
+        send.process('safari', code, capture_output=True)
     except subprocess.TimeoutExpired:
-        print(f'FAIL: scrape injection did not answer within {OSASCRIPT_TIMEOUT}s '
+        print(f'FAIL: scrape injection did not answer within {enact.bound()}s '
               f'(Safari wedged?): {js_path}', file=sys.stderr)
 
 
-def safari_eval_js(js_code):
+def safari_eval_js(js_code, name='safari'):
     """Evaluate a JS string in Safari's front document and return the result."""
-    assert_may_send(f'evaluate JS: {js_code[:60]}')
     escaped = js_code.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ')
     try:
-        r = subprocess.run(
-            ['osascript', '-e', f'tell application "Safari" to do JavaScript "{escaped}" in front document'],
-            capture_output=True, text=True, timeout=OSASCRIPT_TIMEOUT,
-        )
+        r = send.process(name, f'tell application "Safari" to do JavaScript "{escaped}" in front document',
+                         capture_output=True, text=True)
     except subprocess.TimeoutExpired:
-        print(f'FAIL: Safari did not answer within {OSASCRIPT_TIMEOUT}s (wedged page?): '
+        print(f'FAIL: Safari did not answer within {enact.bound()}s (wedged page?): '
               f'{js_code[:60]}', file=sys.stderr)
         return ''
     if r.returncode != 0:
@@ -152,10 +137,9 @@ def safari_eval_js(js_code):
 
 
 def safari_fetch_api_json(uuid, timeout=DOWNLOAD_TIMEOUT):
-    assert_may_send(f'fetch the API JSON of conversation {uuid}')
     escaped = FETCH_API_JSON_JS.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ')
     start = time.time()
-    osascript(f'tell application "Safari" to do JavaScript "{escaped}" in front document')
+    osascript(f'tell application "Safari" to do JavaScript "{escaped}" in front document', 'api-json')
     deadline = start + timeout
     while time.time() < deadline:
         for f in DOWNLOADS.glob(f'{uuid}.json'):
@@ -170,7 +154,6 @@ def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
     capture names, e.g. /api/<org>/files/<uuid>/document_pdf) in the front
     claude.ai page and download it as `filename`; returns the Downloads path,
     or None when the fetch produced nothing within the timeout."""
-    assert_may_send(f'fetch asset {url_path}')
     js = (
         "(async function() {"
         f"  const r = await fetch({json.dumps(url_path)}, {{credentials: 'include'}});"
@@ -183,7 +166,7 @@ def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
         "})();"
     )
     start = time.time()
-    safari_eval_js(js)
+    safari_eval_js(js, 'asset')
     deadline = start + timeout
     while time.time() < deadline:
         for f in DOWNLOADS.glob('*'):

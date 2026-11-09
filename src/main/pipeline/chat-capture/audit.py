@@ -13,7 +13,8 @@ Filesystem audit (always) — "are the captures I have any good?"
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
 
---live (drives Safari, in a work tab) — "which conversations have moved on?"
+The live pass (drives Safari, in a work tab; `corpus-yoga browser --live <provider>`, whose
+declaration names its sends) — "which conversations have moved on?"
   claude — ONE authenticated listing fetch returns every conversation's updated_at;
   compared against each captured JSON's updated_at: NEW (never captured) and
   PROGRESSED (updated since capture).
@@ -26,7 +27,7 @@ Filesystem audit (always) — "are the captures I have any good?"
 
 Usage:
   src/run_python_script.sh src/main/pipeline/chat-capture/audit.py \
-    [--input input] [--api data/output/markdown/claude/chat/conversations] [--live]
+    [--input input] [--api data/output/markdown/claude/chat/conversations]
 
 Exit status is non-zero iff anything actionable is found.
 """
@@ -50,7 +51,6 @@ import spell  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (issues/380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (issues/421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
-from safari import SendRefused   # --live sends; the refusal has to be catchable here
 
 # Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking one.
@@ -290,17 +290,9 @@ def main():
                          'derives claude/chat/API-capture and gemini/chat/DOM-capture')
     ap.add_argument('--api', default=str(tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'),
                     help='dir of api-sourced markdown (project_markdown output)')
-    ap.add_argument('--live', action='store_true',
-                    help='also drive Safari (work tab): claude listing updated_at check; '
-                         'gemini listing + rendered-tail checks')
-    ap.add_argument('--provider', choices=['claude', 'gemini'], default=None,
-                    help='restrict to one provider (default: every provider). The live pass '
-                         'costs wildly different amounts per provider — claude is one listing '
-                         'fetch, gemini navigates to every captured conversation in turn — so '
-                         'which to pay for is the reader\'s to choose')
     args = ap.parse_args()
 
-    shape, found = audit(Path(args.input), Path(args.api), args.provider, args.live)
+    shape, found = audit(Path(args.input), Path(args.api))
     facts.say(shape)
     return 1 if found else 0
 
@@ -314,14 +306,14 @@ def audit(root: Path, api: Path, provider: str | None = None, live: bool = False
     out = Audit()
 
     # one restriction, applied wherever the audit is partitioned by provider — the
-    # offline pass included, so `--provider claude` means the same thing throughout
+    # offline pass included, so `--live claude` means the same thing throughout
     def want(name):
         return provider in (None, name)
 
     if want('claude'):
         # the absence is the report: with DOM retired there is no second render to
         # reconcile the record against, and schema validation already ran per capture
-        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'), facts.phrase('--live compares it against the account'))
+        out.claude = Claude(facts.phrase('none - the API capture is the record (DOM retired)'), facts.phrase('corpus-yoga browser --live claude compares it against the account'))
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
@@ -350,9 +342,4 @@ def audit(root: Path, api: Path, provider: str | None = None, live: bool = False
 
 
 if __name__ == '__main__':
-    try:
-        sys.exit(main())
-    except SendRefused as e:
-        # --live is a send; the filesystem audit is not. Exit 3 says refused, not "failed".
-        print(e, file=sys.stderr)
-        sys.exit(3)
+    sys.exit(main())

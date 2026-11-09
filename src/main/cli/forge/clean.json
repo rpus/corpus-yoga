@@ -3,14 +3,12 @@
   "would": "would remove",
   "args": [],
   "sends": {
-    "git ls-remote --heads origin": [
-      "reads server branches to find a closed-unmerged PR's leftover"
-    ],
-    "gh api graphql": [
-      "reads a merged PR's force-push history to recognise a superseded former head"
-    ],
-    "git push origin --delete": [
-      "WRITES the deletion of a closed-unmerged PR's server branch - refused loudly under CORPUS_YOGA_NO_SEND, the branch then NOT removed"
-    ]
+    "delete": {
+      "runs": "git push origin --delete",
+      "refused": "fails",
+      "does": [
+        "WRITES the deletion of a closed-unmerged PR's server branch - refused, the branch is NOT removed"
+      ]
+    }
   }
 }

@@ -41,7 +41,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402
-from send import SendRefused, assert_may_send  # noqa: E402
+import send  # noqa: E402 - the one-use navigation is checked before anything is staged (issues/1022)
 from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,  # noqa: E402
                     safari_navigate, safari_open_work_tab)
 
@@ -142,7 +142,7 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
         return {entry: kind for entry in DOWNLOADS.iterdir() for pattern, kind in shapes.items() if pattern.match(entry.name)}
     before = {path: _inode(path) for path in candidates()}
     print(f'fetch: {url}')
-    safari_navigate(url)
+    safari_navigate(url, 'export-url')
     deadline = time.time() + ARRIVAL_TIMEOUT
     while time.time() < deadline:
         said = safari_eval_js('String(document.body.innerText).slice(0, 200)').replace('\n', ' | ')
@@ -207,8 +207,8 @@ def main(argv: list[str]) -> int:
         return 1
     if files:
         try:
-            assert_may_send('export_url fetches through the Safari session (export capture) - each URL is one-use')
-        except SendRefused as refused:
+            send.cleared('export-url')
+        except send.SendRefused as refused:
             print('export capture: NOT DONE - ' + facts.phrase('{refused}; nothing staged, no URL spent', refused=refused))
             return 1
         logged_out, prev_tab = front_session()

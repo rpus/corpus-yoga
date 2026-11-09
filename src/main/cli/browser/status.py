@@ -12,12 +12,15 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src'))   # declared_parser, which both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-capture'))   # audit.py - the capture audit
 import tier  # noqa: E402 - the tiers, one home (issues/702)
 import corpus  # noqa: E402
 import facts  # noqa: E402
 import audit as capture_audit  # noqa: E402
+import send  # noqa: E402 - the live pass's Apple Events are the declaration's sends (issues/1022)
+from declared_parser import command_parser  # noqa: E402
 from library import migration_note  # noqa: E402 - on the path audit.py inserts: the artifact library's stated move (issues/421)
 
 
@@ -28,8 +31,14 @@ class Status(capture_audit.Audit):
 
 
 def main() -> int:
+    live = command_parser('browser').parse_args(sys.argv[1:]).live
     migration_note()
-    shape, found = capture_audit.audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')
+    try:
+        shape, found = capture_audit.audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations',
+                                           live, bool(live))
+    except send.SendRefused as refused:
+        print(f'browser: {refused}', file=sys.stderr)
+        return 1
     report = corpus.report_facts('browser')
     facts.say(Status(shape.claude, shape.gemini, shape.claude_live, shape.gemini_live, report.staged))
     return 1 if found else 0

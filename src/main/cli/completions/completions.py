@@ -27,7 +27,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))   # src/main/, for send
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-from send import SendRefused, assert_may_send  # noqa: E402 — ~/.zshrc is outside the tree: a send (issues/29)
+import send  # noqa: E402 - ~/.zshrc is outside the tree, so its write is a send the declaration names (issues/29, issues/1022)
 from cli import REPO  # noqa: E402
 
 # The directory ~/.zshrc puts on zsh's fpath: it holds _corpus-yoga, the one file zsh loads.
@@ -158,11 +158,11 @@ def install_completion() -> int:
         print(f'{tilde(zshrc)}: ' + facts.phrase('the four lines stand as they should, and zsh does not load them'))
     else:
         try:
-            assert_may_send('write ~/.zshrc (completions install)')
-        except SendRefused as refused:
+            with send.within('zshrc'):
+                zshrc.write_text(text)
+        except send.SendRefused as refused:
             facts.report(None, f'completions install: NOT DONE - {refused}')
             return 1
-        zshrc.write_text(text)
         print(f'{tilde(zshrc)}: ' + facts.phrase('four lines {where}', where=where))
         for line in block():
             print(f'    {line}')
@@ -195,11 +195,11 @@ def uninstall_completion() -> int:
         facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('{zshrc} holds no corpus-yoga lines; nothing to remove', zshrc=tilde(zshrc)))
         return 0
     try:
-        assert_may_send('write ~/.zshrc (completions uninstall)')
-    except SendRefused as refused:
+        with send.within('zshrc'):
+            zshrc.write_text('\n'.join(kept) + '\n')
+    except send.SendRefused as refused:
         facts.report(None, f'completions uninstall: NOT DONE - {refused}')
         return 1
-    zshrc.write_text('\n'.join(kept) + '\n')
     facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched, and a new terminal no longer completes', n=removed_line_count, zshrc=tilde(zshrc)))
     return 0
 

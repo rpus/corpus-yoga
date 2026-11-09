@@ -28,11 +28,13 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 source "$REPO_ROOT/src/main/tier.sh"
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
-source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of CORPUS_YOGA_NO_SEND (issues/29)
+source "$REPO_ROOT/src/main/send.sh"   # a send run by its name (issues/29, issues/1022)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
 source "$REPO_ROOT/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
+# shellcheck source=src/main/enact.sh
+source "$REPO_ROOT/src/main/enact.sh"   # the faces a send runs through
 
 SHOW_ALL=0
 SYNC=0
@@ -495,10 +497,10 @@ sync() {
     echo "$a:"
     if [[ "$a" == "$own" ]]; then
       # Installing IS the work here: refuse loudly rather than half-fix the machine (issues/29).
-      assert_may_send "pip install from PyPI (corpus-yoga status sync)" || exit 1
+      send_cleared requirements || exit 1
       [[ -x "$CORPUS_YOGA_VENV/bin/python" ]] || python3 -m venv "$CORPUS_YOGA_VENV"
-      "$CORPUS_YOGA_VENV/bin/pip" install -q --upgrade pip
-      "$CORPUS_YOGA_VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
+      send labour pip-upgrade || exit 1
+      send labour requirements "$REPO_ROOT/src/requirements.txt" || exit 1
       echo "  venv: $(phrase "{version}, src/requirements.txt installed" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
     else
       # a declared invocation is `corpus-yoga <command> ...`, bare words: run this tree's

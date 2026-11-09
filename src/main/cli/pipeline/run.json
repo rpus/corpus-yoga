@@ -22,12 +22,20 @@
     }
   ],
   "sends": {
-    "pip install --upgrade pip": [
-      "reaches PyPI on every run to check for an upgrade; skipped with a note under CORPUS_YOGA_NO_SEND"
-    ],
-    "pip install -r src/requirements.txt": [
-      "reaches PyPI when the venv lacks packages; skipped under CORPUS_YOGA_NO_SEND, so a fresh venv then fails at first import, visibly"
-    ]
+    "pip-upgrade": {
+      "runs": "pip install --upgrade pip",
+      "refused": "degrades",
+      "does": [
+        "reaches PyPI on every run to check for an upgrade - refused, skipped with a note"
+      ]
+    },
+    "requirements": {
+      "runs": "pip install -q -r",
+      "refused": "degrades",
+      "does": [
+        "reaches PyPI when the venv lacks packages - refused, skipped, so a fresh venv then fails at first import, visibly"
+      ]
+    }
   },
   "r": [
     "data/input",

@@ -22,11 +22,15 @@
     }
   ],
   "sends": {
-    "curl https://api.anthropic.com/v1/messages": [
-      "PAID - POSTs the corpus for the semantic-concepts reading",
-      "PAID - POSTs it again for the chat-categories reading",
-      "--dry-run sends neither, and works under CORPUS_YOGA_NO_SEND (refused loudly otherwise)"
-    ]
+    "messages": {
+      "runs": "curl -sf https://api.anthropic.com/v1/messages",
+      "refused": "fails",
+      "does": [
+        "PAID - POSTs the corpus for the semantic-concepts reading",
+        "PAID - POSTs it again for the chat-categories reading",
+        "--dry-run sends neither, and works refused"
+      ]
+    }
   },
   "r": [
     "data/output/markdown",

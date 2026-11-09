@@ -55,11 +55,9 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402
-from enact import quote  # noqa: E402
-from send import SendRefused, assert_may_send  # noqa: E402
+import send  # noqa: E402 - every read below is a send the declaration names (issues/1022)
 
 STORE = tier.TMP_STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (issues/687)
-REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 
 LISTS = [
     ('issues_and_PRs.json', 'repos/{owner}/{repo}/issues?state=all&per_page=100'),
@@ -74,22 +72,18 @@ ROSTER = [name for name, _ in LISTS] + ['review_counts.json', 'reviews_by_PR.jso
 Captured = list | dict
 
 
-def gh_api(*args: str) -> str:
-    return quote('gh', 'api', *args)
-
-
 def fetch_list(endpoint: str) -> list:
-    pages = json.loads(gh_api('--paginate', '--slurp', endpoint))
+    pages = json.loads(send.run('quote', 'list', endpoint))
     return [record for page in pages for record in page]
 
 
-def fetch_map(endpoint: str, numbers: list[int], tolerate_refusal: bool) -> dict:
+def fetch_map(name: str, endpoint: str, numbers: list[int], tolerate_refusal: bool) -> dict:
     """{"n": [...]} for each number read - only those; the endpoint's refusal, where
     tolerated, is the empty list it stands for."""
     out = {}
     for n in numbers:
         try:
-            answer = json.loads(gh_api(endpoint.replace('<n>', str(n))))
+            answer = json.loads(send.run('quote', name, endpoint.replace('<n>', str(n))))
         except subprocess.CalledProcessError:
             if not tolerate_refusal:
                 raise
@@ -101,8 +95,7 @@ def fetch_map(endpoint: str, numbers: list[int], tolerate_refusal: bool) -> dict
 def fetch_review_counts() -> list:
     """Every pull's number and reviews.totalCount, one paginated GraphQL read
     (src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."""
-    pages = json.loads(gh_api('graphql', '--paginate', '--slurp', '-F', 'owner={owner}',
-                              '-F', 'repo={repo}', '-F', f'query=@{REVIEW_COUNTS}'))
+    pages = json.loads(send.run('quote', 'review-counts'))
     return [node for page in pages for node in page['data']['repository']['pullRequests']['nodes']]
 
 
@@ -114,10 +107,10 @@ def fetch() -> dict[str, Captured]:
     blocked = [i['number'] for i in got['issues_and_PRs.json'] if 'pull_request' not in i
                and (i.get('issue_dependencies_summary') or {}).get('total_blocked_by', 1)]
     got['reviews_by_PR.json'] = fetch_map(
-        'repos/{owner}/{repo}/pulls/<n>/reviews', reviewed, tolerate_refusal=False)
+        'reviews', 'repos/{owner}/{repo}/pulls/<n>/reviews', reviewed, tolerate_refusal=False)
     got['blocked_by_by_issue.json'] = fetch_map(
-        'repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by', blocked, tolerate_refusal=True)
-    got['repository.json'] = json.loads(gh_api('repos/{owner}/{repo}'))
+        'dependencies', 'repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by', blocked, tolerate_refusal=True)
+    got['repository.json'] = json.loads(send.run('quote', 'repository'))
     return got
 
 
@@ -138,9 +131,8 @@ def main(argv: list[str]) -> int:
     stamp = argv[0]
     os.chdir(REPO)  # gh resolves {owner}/{repo} from the checkout's remote
     try:
-        assert_may_send('gh api (forge capture)')
         got = fetch()
-    except SendRefused as refused:
+    except send.SendRefused as refused:
         facts.report(None, f'forge capture: NOT DONE - {refused}')
         return 1
     except subprocess.CalledProcessError:

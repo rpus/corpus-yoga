@@ -757,7 +757,9 @@ def check_forge_aim(run) -> None:
                 gh.write_text('#!/bin/bash\ncase "$1 $2" in "pr merge") exit 1 ;; "pr view") echo ' + state + ' ;; *) exit 1 ;; esac\n')
                 gh.chmod(0o755)
                 done = subprocess.run(['bash', '-c', 'source "$1"; squashed 1 deadbeef 1 0', '_', str(forge_sh)], capture_output=True, text=True,
-                                      env={**os.environ, 'PATH': f'{stub}:{os.environ["PATH"]}'}, cwd=REPO_ROOT)
+                                      env={**{k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND'},   # the stub forge is local
+                                           'PATH': f'{stub}:{os.environ["PATH"]}', 'CORPUS_YOGA_DECLARATION': 'src/main/cli/forge/merge.json'},
+                                      cwd=REPO_ROOT)
                 exits[state] = done.returncode
     run('forge: a squash whose reply is lost is read back from the forge - merged concludes, open refuses',
         has_step and exits.get('MERGED') == 0 and exits.get('OPEN') == 1,

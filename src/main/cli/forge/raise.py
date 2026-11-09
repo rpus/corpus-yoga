@@ -32,8 +32,7 @@ import facts  # noqa: E402
 import provider  # noqa: E402 - the Signature triad, derived once
 import tier  # noqa: E402
 from declared_parser import verb_parser  # noqa: E402
-from enact import quote  # noqa: E402
-from send import SendRefused, assert_may_send  # noqa: E402
+import send  # noqa: E402 - every gh call below is a send the declaration names (issues/1022)
 
 RECORD = tier.TMP / 'forge' / 'raise'
 FOOTER = ('Generated with', 'Co-Authored-By')
@@ -61,41 +60,41 @@ def drafted(path: Path) -> str:
 def kind(number: int) -> str:
     """Which of the forge's two kinds holds the number, 'issues' or 'pull': one sequence,
     two kinds, and a PR aims at, is blocked by, blocks or supersedes issues alone (issues/923)."""
-    return quote('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{number}', '--jq', 'if .pull_request then "pull" else "issues" end')
+    return send.run('quote', 'read', f'repos/{{owner}}/{{repo}}/issues/{number}', '--jq', 'if .pull_request then "pull" else "issues" end')
 
 
 def issue(number: int) -> tuple[str, str]:
-    state, title = quote('gh', 'issue', 'view', str(number), '--json', 'state,title',
-                         '--jq', '[.state, .title] | @tsv').split('\t', 1)
+    state, title = send.run('quote', 'issue', str(number), '--json', 'state,title',
+                            '--jq', '[.state, .title] | @tsv').split('\t', 1)
     return state, title
 
 
 def edges(number: int, direction: str) -> list[int]:
     """The issue's blocked_by edges in one direction: 'blocked_by', what it waits on;
     'blocking', what waits on it."""
-    rows = quote('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{number}/dependencies/{direction}',
-                 '--jq', '.[] | [.number, .state] | @tsv')
+    rows = send.run('quote', 'dependencies', f'repos/{{owner}}/{{repo}}/issues/{number}/dependencies/{direction}',
+                    '--jq', '.[] | [.number, .state] | @tsv')
     return [int(row.split('\t')[0]) for row in rows.splitlines() if row]
 
 
 def open_blockers(number: int) -> list[int]:
-    rows = quote('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{number}/dependencies/blocked_by',
-                 '--jq', '.[] | select(.state == "open") | .number')
+    rows = send.run('quote', 'dependencies', f'repos/{{owner}}/{{repo}}/issues/{number}/dependencies/blocked_by',
+                    '--jq', '.[] | select(.state == "open") | .number')
     return [int(row) for row in rows.split() if row]
 
 
 def node_id(number: int) -> str:
-    return quote('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{number}', '--jq', '.id')
+    return send.run('quote', 'read', f'repos/{{owner}}/{{repo}}/issues/{number}', '--jq', '.id')
 
 
 def wire(blocked: int, blocker: int) -> None:
     """blocked waits on blocker: one blocked_by edge, the forge's one relation."""
-    quote('gh', 'api', '-X', 'POST', f'repos/{{owner}}/{{repo}}/issues/{blocked}/dependencies/blocked_by',
-          '-F', f'issue_id={node_id(blocker)}')
+    send.run('quote', 'wire', f'repos/{{owner}}/{{repo}}/issues/{blocked}/dependencies/blocked_by',
+             '-F', f'issue_id={node_id(blocker)}')
 
 
 def default_branch() -> str:
-    return quote('gh', 'repo', 'view', '--json', 'defaultBranchRef', '--jq', '.defaultBranchRef.name')
+    return send.run('quote', 'default-branch')
 
 
 def record(stamp: str, body: str) -> Path:
@@ -152,8 +151,8 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
     base = default_branch()
     why = '## why\n\n' + '\n'.join(aim.line(number, titles[number]) for number in numbers)
     sent = record(stamp, f'{signature}\n\n{why}\n\n{text}\n')
-    url = quote('gh', 'pr', 'create', '--base', base, '--head', args.head,
-                '--title', titles[numbers[0]], '--body-file', str(sent))
+    url = send.run('quote', 'create-pr', '--base', base, '--head', args.head,
+                   '--title', titles[numbers[0]], '--body-file', str(sent))
     pr = number_of(url)
     outcomes = {'did raise': {f'pull/{pr}': url, 'head': args.head, 'base': base, 'title copies': f'issues/{numbers[0]}',
                               'aims to complete': {f'issues/{n}': titles[n] for n in numbers},
@@ -172,13 +171,13 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]
         if state != 'OPEN':
             raise Refused(f'issues/{number} is {state}; a relation is wired to an open issue')
     branch = default_branch()
-    sha, subject = quote('gh', 'api', f'repos/{{owner}}/{{repo}}/commits/{branch}',
-                         '--jq', '[.sha, (.commit.message | split("\\n")[0])] | @tsv').split('\t', 1)
+    sha, subject = send.run('quote', 'read', f'repos/{{owner}}/{{repo}}/commits/{branch}',
+                            '--jq', '[.sha, (.commit.message | split("\\n")[0])] | @tsv').split('\t', 1)
     date = stamp[:10]
     machine = signature.split('/', 1)[0]
     body = should.compose(signature, text, should.as_at(sha, subject, machine, date), supersedes)
     sent = record(stamp, body)
-    url = quote('gh', 'issue', 'create', '--title', args.title, '--body-file', str(sent))
+    url = send.run('quote', 'create-issue', '--title', args.title, '--body-file', str(sent))
     number = number_of(url)
     if supersedes:
         blocked_by = blocked_by + [n for n in edges(supersedes, 'blocked_by') if n not in blocked_by and n != number]
@@ -190,7 +189,7 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]
     if supersedes:
         note = (f'Signature: {signature}\n\nSuperseded by #{number} on the maintainer\'s word, {machine}, {date}, '
                 f'at {branch} @ {sha[:7]}; its relations are transferred to #{number}.')
-        quote('gh', 'issue', 'close', str(supersedes), '--reason', 'not planned', '--comment', note)
+        send.run('quote', 'close', str(supersedes), '--reason', 'not planned', '--comment', note)
     read_blocked_by = edges(number, 'blocked_by')
     read_blocks = edges(number, 'blocking')
     outcomes = {'did raise': {f'issues/{number}': url, 'title': args.title, 'as at': should.as_at(sha, subject, machine, date),
@@ -217,10 +216,9 @@ def main(argv: list[str]) -> int:
         signature = provider.signature()
         if signature.count('/') != 2:
             raise Refused(f'the Signature triad is not derivable here: {signature}; the session names no provider the registry declares')
-        assert_may_send('gh issue view, gh api, gh repo view and the raise\'s writes (forge raise)')
         face = raise_pr if args.kind == 'pr' else raise_issue
         outcomes, effect = face(args, f'Signature: {signature}', text, stamp)
-    except (Refused, SendRefused, ValueError) as why:
+    except (Refused, send.SendRefused, ValueError) as why:
         facts.report(None, f'forge raise: NOT DONE - {why}')
         return 1
     except subprocess.CalledProcessError:

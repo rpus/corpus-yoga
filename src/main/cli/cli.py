@@ -552,6 +552,9 @@ def dispatch(row: dict, rest: list[str]) -> int:
     if target.suffix == '.md':
         print(target.read_text(), end='')
         return 0
+    verb = rest[0] if rest and not rest[0].startswith('-') and (CLI / row['command'] / f'{rest[0]}.json').exists() else ''
+    declared = CLI / row['command'] / f'{verb}.json' if verb else _declaration(row['command'])
+    os.environ[tier.DECLARATION] = str(declared.relative_to(REPO))   # every dispatch, inner ones included: the sends a script may run are its own declaration's
     d = enacting(row, rest)
     line = command_line(target, rest)
     if d is None:

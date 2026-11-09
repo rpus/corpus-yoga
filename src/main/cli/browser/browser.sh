@@ -38,7 +38,7 @@ main() {
   case "${1-}" in
     capture) shift; parse_argv browser capture "$@" ;;
     promote) shift; parse_argv browser promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote browser "$@" ;;
-    '') exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/browser/status.py" ;;   # bare noun → status (read-only), never a capture
+    ''|--live) exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/browser/status.py" "$@" ;;   # bare noun → status, the live pass where asked; never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac

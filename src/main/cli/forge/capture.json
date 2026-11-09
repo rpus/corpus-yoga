@@ -3,24 +3,34 @@
   "would": "would deposit",
   "args": [],
   "sends": {
-    "gh api repos/{owner}/{repo}/issues": [
-      "reads every issue and pull request, and each issue's blocked_by edges"
-    ],
-    "gh api repos/{owner}/{repo}/pulls": [
-      "reads every pull request, its reviews and review comments"
-    ],
-    "gh api graphql": [
-      "reads every pull request's review count in one paginated query, so only reviewed pulls are read one by one"
-    ],
-    "gh api repos/{owner}/{repo}/issues/comments": [
-      "reads every issue comment"
-    ],
-    "gh api repos/{owner}/{repo}/labels": [
-      "reads the labels"
-    ],
-    "gh api repos/{owner}/{repo}": [
-      "reads the repository record"
-    ]
+    "list": {
+      "runs": "gh api --paginate --slurp",
+      "refused": "fails",
+      "does": [
+        "reads every issue and pull request, every pull request with its merge state, every issue comment, every review comment and the labels, each a paginated list"
+      ]
+    },
+    "review-counts": {
+      "runs": "gh api graphql --paginate --slurp -F owner={owner} -F repo={repo} -F query=@src/main/cli/forge/review-counts.graphql",
+      "refused": "fails",
+      "does": [
+        "reads every pull request's review count in one paginated query, so only reviewed pulls are read one by one"
+      ]
+    },
+    "reviews": {
+      "runs": "gh api",
+      "refused": "fails",
+      "does": [
+        "reads a reviewed pull request's reviews"
+      ]
+    },
+    "repository": {
+      "runs": "gh api repos/{owner}/{repo}",
+      "refused": "fails",
+      "does": [
+        "reads the repository record"
+      ]
+    }
   },
   "w": [
     "tmp/stage/input/github/forge/gh-CLI"
