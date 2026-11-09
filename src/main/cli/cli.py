@@ -507,7 +507,7 @@ def _log_enacting(row: dict, verb: str, d: dict, stamp: str, rest: list[str]) ->
     record. The log is a tee child the target's fds flow through - a sink beside the
     target, never a process between. stderr merges into the one stream, and python
     targets run unbuffered so an interrupt loses nothing."""
-    log_dir = tier.TMP / 'logs' / row['command'] / verb
+    log_dir = tier.LOGS / row['command'] / verb
     log_dir.mkdir(parents=True, exist_ok=True)
     log = log_dir / f'{stamp}.log'
     suffix = 2
@@ -564,7 +564,7 @@ def dispatch(row: dict, rest: list[str]) -> int:
     if os.environ.get(facts.ACT):          # an inner launcher: the record is its, the reply the outer's
         os.execv(line[0], [line[0].rsplit('/', 1)[-1], *line[1:]])
         return 1  # unreachable
-    effect_dir = tier.TMP / 'logs' / row['command'] / verb
+    effect_dir = tier.LOGS / row['command'] / verb
     effect_dir.mkdir(parents=True, exist_ok=True)
     effect = effect_dir / f'{stamp}.effect'
     os.environ[facts.ACT] = f"{row['command']} {verb}"    # the act, and the file it hands its effect through (issues/896)

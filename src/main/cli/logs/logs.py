@@ -63,8 +63,8 @@ def orphans() -> list[tuple[Path, str]]:
     """Each entry under tmp/logs that no current command or verb writes: a directory of a
     command with no declaration under src/main/cli, a verb's directory with no declaration
     beside its command's, a file where only a command's directory belongs, or a directory
-    beneath a verb's - a verb keeps files beside its record, never a directory (issues/708), so
-    the per-provider directories the browser capture once wrote are named here; with why."""
+    beneath a verb's that no record beside it names by its stamp - a verb keeps its artifacts beside
+    its record, by the record's stamp (issues/708); with why."""
     out: list[tuple[Path, str]] = []
     if not LOGS.is_dir():
         return out
@@ -84,7 +84,9 @@ def orphans() -> list[tuple[Path, str]]:
                 continue
             if verb.is_dir():
                 for entry in sorted(verb.iterdir()):
-                    if entry.is_dir():
+                    # a directory named by the stamp of a record beside it is that act's own, as its other
+                    # artifacts are - the gate run's checks and the acts they ran (issues/1030)
+                    if entry.is_dir() and not any((verb / f'{entry.name}{suffix}').is_file() for suffix in ('.log', '.report')):
                         out.append((entry, facts.phrase("a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, never a directory", command=command.name, verb=verb.name)))
     return out
 

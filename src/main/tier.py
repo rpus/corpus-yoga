@@ -35,6 +35,7 @@ REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
 ACT = 'CORPUS_YOGA_ACT'       # the launcher names the act it dispatched, `<command> <verb>` (issues/896)
 STAMP = 'CORPUS_YOGA_STAMP'   # the stamp of that act, so the act's own artifacts share it (issues/708)
 LOG = 'CORPUS_YOGA_LOG'       # and the record it tees the whole act into, tmp/logs/<command>/<verb>/<stamp>.log
+GATE_CHECK = 'CORPUS_YOGA_GATE_CHECK'   # the dev gate names the check whose acts it runs, `<gate run>/<check>` (issues/1030)
 
 
 def dispatched(act: str) -> bool:
@@ -59,6 +60,10 @@ def record_of(act: str) -> Path | None:
 DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else REPO
 DATA = DATA_ROOT / 'data'
 TMP = DATA_ROOT / 'tmp'
+# where acts are logged: the room's act history, or - while the dev gate names the check whose acts
+# it runs - beneath that check, under the gate run's own log, so what a room ran and what its gate
+# ran are told apart (issues/1030)
+LOGS = TMP / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else TMP / 'logs'
 
 
 def path(declared: str) -> Path:

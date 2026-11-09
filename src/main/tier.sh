@@ -18,6 +18,9 @@ TMP_STAGE_SCRATCH="$TIER_REPO/tmp/stage/scratch"
 if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TMP_STAGE_SCRATCH"; else DATA_ROOT="$TIER_REPO"; fi
 DATA_DIR="$DATA_ROOT/data"
 TMP_DIR="$DATA_ROOT/tmp"
+# where acts are logged: the room's history, or beneath the check the dev gate names (issues/1030)
+# shellcheck disable=SC2034  # the sourcing script's to use
+if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TMP_DIR/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$TMP_DIR/logs"; fi
 
 # stamp_of <command> <verb>: the act's stamp - the launcher's where it dispatched this act,
 # a fresh one otherwise. record_of <command> <verb>: the act's record, the launcher's tee,

@@ -1,5 +1,6 @@
 """surface.py - the dev gate's checks of the command surface: declarations, help, effects, replies, completions and the laws they cite."""
 import ast
+import importlib
 import json
 import os
 import re
@@ -1100,6 +1101,47 @@ def check_status_is_the_dry_run(run) -> None:
     run('verbs: no declaration takes --apply, the noun\'s status being the dry run', not own,
         None if not own else 'these take --apply and render a dry run of their own: ' + ', '.join(own),
         check='verbs.status_is_the_dry_run')
+
+
+@check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log'),
+       on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])
+def check_gate_logs(run) -> None:
+    """What a room ran and what its gate ran are told apart: an act run while the gate names a
+    check, `CORPUS_YOGA_GATE_CHECK` as `<gate run>/<check>`, is logged beneath that check, under
+    tmp/logs/test/run/<gate run>/<check>/, and the room's own act history gains nothing; and
+    each check's log, `<check>.log` under the gate run, opens on its verdict and holds its lines."""
+    import shutil
+    import tempfile
+    probe = f'probe-{os.getpid()}'
+    beneath = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / probe
+    room = REPO_ROOT / 'tmp' / 'logs' / 'store' / 'clean'
+    held = set(room.glob('*.log')) if room.is_dir() else set()
+    environment = {**os.environ, 'CORPUS_YOGA_GATE_CHECK': f'{probe}/check_probe', 'CORPUS_YOGA_NO_SEND': '1'}
+    environment.pop('CORPUS_YOGA_ACT', None)
+    environment.pop('CORPUS_YOGA_EFFECT', None)
+    try:
+        subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'store', 'clean', '--nonsense'], capture_output=True, text=True,
+                       cwd=REPO_ROOT, env=environment)
+        logged = sorted(p.relative_to(beneath).as_posix() for p in beneath.rglob('*.log')) if beneath.is_dir() else []
+        added = sorted(p.name for p in (set(room.glob('*.log')) if room.is_dir() else set()) - held)
+    finally:
+        shutil.rmtree(beneath, ignore_errors=True)
+        for name in [p for p in (set(room.glob('*.log')) if room.is_dir() else set()) - held]:
+            name.unlink()
+    ok = len(logged) == 1 and logged[0].startswith('check_probe/store/clean/') and not added
+    run("logs: an act the gate runs is logged beneath the check that ran it, never in the room's history", ok,
+        None if ok else f'logged beneath the check {logged}, and in the room\'s history {added}', check='logs.gate_acts_beneath_their_check')
+    gate = importlib.import_module('gate')
+    write = getattr(gate, 'write_check_logs', None)
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        if write is not None:
+            write(root, {'check_a': '\ncheck_a: |\n  ✓ one\n  ✗ two\n      why\n'})
+        said = (root / 'check_a.log').read_text().splitlines() if (root / 'check_a.log').is_file() else []
+    ok = said[:1] == ['check_a: FAIL - 1/2'] and '  ✗ two' in said
+    run("logs: each check's log under the gate run opens on its verdict and holds its lines", ok,
+        None if ok else ('src/test/dev/gate.py writes no check log' if write is None else f'the log read {said!r}'),
+        check='logs.each_check_has_its_log')
 
 
 @check(tier='code', says=('logs.no_verb_logs_for_itself',), on=['src/main/cli'])

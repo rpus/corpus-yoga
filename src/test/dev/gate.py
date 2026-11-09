@@ -392,6 +392,19 @@ class Declared:
 CHECKS: list[Declared] = []
 
 
+def write_check_logs(root: Path, chunks: dict[str, str]) -> None:
+    """Each check's log under the gate run's directory (issues/1030): `<check>.log`, opening on the
+    check's verdict - PASS or FAIL, then how many of its invocations passed of how many - and
+    holding its lines as the report holds them."""
+    root.mkdir(parents=True, exist_ok=True)
+    for name, chunk in chunks.items():
+        marks = [line.lstrip()[:1] for line in chunk.splitlines() if line.lstrip()[:1] in ('✓', '✗')]
+        passed = marks.count('✓')
+        verdict = 'PASS' if passed == len(marks) else 'FAIL'
+        (root / f'{name}.log').write_text(f'{name}: {verdict} - {passed}/{len(marks)}\n'
+                                           + '\n'.join(line for line in chunk.splitlines() if line.strip() and line.strip() != f'{name}: |') + '\n')
+
+
 def check(*, tier: str, says: tuple[str, ...], on: Any = None, after_all: bool = False):
     """Declare the function beneath as a check: one declaration, beside the function, that the
     runner's sections, replay subjects and expected names derive from."""
