@@ -65,7 +65,9 @@
     "{part} ({n} of {total})",
     "{group} ({n} of {total})",
     "{measures} changed",
-    "the corpus predates its turn counts by role"
+    "the corpus predates its turn counts by role",
+    "columns added",
+    "columns removed"
   ],
   "target": "src/main/cli/site/site.sh",
   "calculus": "project",

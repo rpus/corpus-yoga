@@ -1961,20 +1961,18 @@ def check_site_lag(run) -> None:
     run('site: a turn\'s instant is read from its heading, then from a v7 uuid', ok,
         None if ok else f'the instants read {got}, where the heading\'s and the v7 uuid\'s are {expected}',
         check='site.turn_instant_is_read_from_the_heading')
-    # The landing's page comparison survives a column one page lacks (issues/1000): a render that
-    # declares more than the published page did is a change of every row, said as such - never
-    # a crash the status reads as nothing to land.
+    # The landing's page comparison says a column one page lacks, once, as the table's change -
+    # never a crash the status reads as nothing to land, and never a change of every row.
     sys.path.insert(0, str(SRC / 'main' / 'model'))
     compare_pages = importlib.import_module('compare_pages')
     old_table = {'columns': ['chat', 'uuid', 'name', 'turns'], 'rows': [[1, 'aaaa', 'a', 2]]}
     new_table = {'columns': ['chat', 'uuid', 'name', 'turns', 'human'], 'rows': [[1, 'aaaa', 'a', 2, 1]]}
     try:
         said = compare_pages.compare_table('data-chats', old_table, new_table, {}, {})
-        said = said if isinstance(said, str) else ' '.join(' '.join(fact) for fact in said)
-        why = None if 'changed' in said and 'human' in said else f'the comparison said {said!r}'
+        why = None if said == [('data-chats', 'columns added', 'human')] else f'the comparison said {said!r}'
     except Exception as error:   # noqa: BLE001 - the failure IS the finding
         why = f'the comparison raised {type(error).__name__}: {error}'
-    run('site: the page comparison says a column one page lacks as a change', why is None, why,
+    run('site: the page comparison says a column one page lacks once, as the table\'s change', why is None, why,
         check='site.page_comparison_survives_a_new_column')
     # A row whose content measures changed is listed with them, and rows changed elsewhere alone
     # are counted (issues/1028): a change of turns can be held to expectation, a uniform change

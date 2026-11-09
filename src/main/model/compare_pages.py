@@ -84,11 +84,11 @@ def label(name: str, key: tuple, record: dict) -> str:
     return ' '.join(str(k) for k in key)
 
 
-def changed_columns(old: dict, new: dict, name: str) -> list[str]:
-    """The columns whose values differ between the two rows - a column one row lacks among
-    them, since a page that declares more than the other did has changed in that column."""
+def changed_columns(old: dict, new: dict, name: str, shared: set[str]) -> list[str]:
+    """The columns both pages carry whose values differ between the two rows. A column one
+    page lacks is the table's change, said once (issues/1028), never every row's."""
     skip = {'chat'}   # the ordinal is a position, never a change
-    return [c for c in dict.fromkeys([*old, *new]) if c not in skip and old.get(c) != new.get(c)]
+    return [c for c in dict.fromkeys([*old, *new]) if c in shared and c not in skip and old.get(c) != new.get(c)]
 
 
 def value(record: dict, column: str) -> str:
@@ -109,7 +109,8 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
     a, b = keyed(name, old, uuid_old), keyed(name, new, uuid_new)
     added = [k for k in b if k not in a]
     removed = [k for k in a if k not in b]
-    changed = {k: changed_columns(a[k], b[k], name) for k in b if k in a}
+    shared = set(old['columns']) & set(new['columns'])
+    changed = {k: changed_columns(a[k], b[k], name, shared) for k in b if k in a}
     changed = {k: cols for k, cols in changed.items() if cols}
     called, measures = MEASURES.get(name, ('', ()))
     by = GROUPS.get(name, ())
@@ -127,6 +128,10 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
         return sum(1 for record in rows.values() if group(record) == key)
 
     out: list[Fact] = []
+    for part, columns in ((facts.phrase('columns added'), [c for c in new['columns'] if c not in shared]),
+                          (facts.phrase('columns removed'), [c for c in old['columns'] if c not in shared])):
+        if columns:
+            out.append((name, part, ', '.join(columns)))
     for part, keys, rows in ((facts.phrase('added'), added, b), (facts.phrase('removed'), removed, a)):
         if not keys:
             continue
