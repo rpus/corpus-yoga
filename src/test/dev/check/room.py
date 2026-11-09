@@ -1,7 +1,6 @@
 """room.py - the dev gate's checks of the statuses: the facts printer, the room report, drafters, providers and the forge."""
 import ast
 import csv
-import io
 import json
 import os
 import re
@@ -9,19 +8,17 @@ import subprocess
 import sys
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     GATE_FILES,
     CLI,
     PLAIN_PHRASE_REMEDY,
     REPO_ROOT,
     SRC,
     check,
-    cli,
-    cli_offer,
-    facts,
-    members,
-    provider,
 )
+from member import members  # noqa: E402 - on the paths gate.py sets
+import cli  # noqa: E402 - on the paths gate.py sets
+import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
 
 
 @check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'], says=(

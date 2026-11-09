@@ -3,14 +3,14 @@ import csv
 import json
 import re
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     REPO_ROOT,
     RSC_MODEL,
     _admits_instance_pointer,
     _check_csv_pointers,
     check,
-    model_curation,
 )
+import model_curation  # noqa: E402 - on the paths gate.py sets
 
 
 @check(tier='schema', on=['rsc/schema', 'rsc/model'], says=(

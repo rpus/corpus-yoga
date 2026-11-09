@@ -1,12 +1,11 @@
 """tree.py - the dev gate's checks of the repository's own files, names and cross-references."""
-import ast
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     GATE_FILES,
     PIPELINES,
     PIPELINE_ROOT,
@@ -15,10 +14,10 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
     SRC,
     _PIPELINE_UNDECLARED,
     check,
-    members,
-    provider,
-    xref,
 )
+from member import members  # noqa: E402 - on the paths gate.py sets
+import provider  # noqa: E402 - on the paths gate.py sets
+import xref  # noqa: E402 - the gate's sibling, src/test/dev/xref.py
 
 
 @check(tier='code', says=('files.required_exists',), on='TREE')

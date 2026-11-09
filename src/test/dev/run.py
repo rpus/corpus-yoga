@@ -44,9 +44,8 @@ SELF = 'src/test/dev/run.py'
 _file = Path(__file__).resolve()
 assert any(p / SELF == _file for p in _file.parents), f'{_file} is not at its declared address {SELF}'
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     CHECKS,
-    GATE_FILES,
     REPORT,
     REPORT_REL,
     REPO_ROOT,
@@ -56,11 +55,9 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
     SRC_TEST_REPAIRS,
     _machine_anchor,
     _read_committed_xref,
-    facts,
-    members,
-    tier,
-    xref,
 )
+import facts  # noqa: E402 - on the paths gate.py sets
+import xref  # noqa: E402 - the gate's sibling, src/test/dev/xref.py
 import check  # noqa: E402
 import pkgutil
 import importlib

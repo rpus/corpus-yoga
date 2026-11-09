@@ -1,23 +1,19 @@
 """pipeline.py - the dev gate's checks of the pipelines: declarations, judges, caches, captures and the corpus format."""
 import io
-import shutil
-import subprocess
 import sys
-import time
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     PIPELINES,
     REPO_ROOT,
     SRC,
-    _accumulate,
     _cache_io_resolves,
-    cache_io,
     check,
-    cli,
-    provider,
-    turn_seq,
 )
+from markdown_projection import turn_seq  # noqa: E402 - on the paths gate.py sets
+import accumulate as _accumulate  # noqa: E402 - on the paths gate.py sets
+import cache_io  # noqa: E402 - on the paths gate.py sets
+import cli  # noqa: E402 - on the paths gate.py sets
 
 
 @check(tier='code', on=['src/main/corpus.py', 'src/main/pipeline'], says=(

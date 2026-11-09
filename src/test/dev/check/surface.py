@@ -1,31 +1,27 @@
 """surface.py - the dev gate's checks of the command surface: declarations, help, effects, replies, completions and the laws they cite."""
 import ast
-import io
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     GATE_FILES,
     CLI,
     PLAIN_PHRASE_REMEDY,
     REPO_ROOT,
-    SEND_SWITCH,
     SRC,
     check,
-    cli,
-    cli_completions,
-    cli_offer,
-    facts,
-    is_member,
-    members,
-    tier,
 )
+from member import is_member  # noqa: E402 - on the paths gate.py sets
+from member import members  # noqa: E402 - on the paths gate.py sets
+from send import SWITCH as SEND_SWITCH  # noqa: E402 - on the paths gate.py sets
+import cli  # noqa: E402 - on the paths gate.py sets
+import completions as cli_completions  # noqa: E402 - on the paths gate.py sets
+import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
 
 
 @check(tier='code', on=['src', 'rsc/CALCULUS.md', 'corpus-yoga.code-workspace'], says=(

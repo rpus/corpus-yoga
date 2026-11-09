@@ -1,10 +1,9 @@
 """schema.py - the dev gate's checks of the schema families: layout, validity, versions, changelogs and verdict records."""
-import io
 import json
 import sys
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     DIAGNOSTIC_NAMES,
     PIPELINES,
     REPO_ROOT,
@@ -16,9 +15,9 @@ from gate import (  # noqa: F401 - the gate's shared vocabulary
     _schema_families,
     _sorted_versions,
     check,
-    latest_file,
-    provider,
 )
+from latest import latest_file  # noqa: E402 - on the paths gate.py sets
+import provider  # noqa: E402 - on the paths gate.py sets
 
 
 @check(tier='schema', on=['rsc/schema', 'src/main', 'rsc/provider'], says=(

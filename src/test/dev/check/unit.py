@@ -1,10 +1,9 @@
 """unit.py - the dev gate's checks of the stage and the store: rehearsal records, units, states and atoms."""
-import hashlib
 import json
 import sys
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     REPO_ROOT,
     SRC,
     check,

@@ -5,17 +5,12 @@ names it reports and the paths it reads, beside its function in its subject's mo
 under src/test/dev/check/. The runner, src/test/dev/run.py, derives its sections, its
 replay subjects and its expected names from these declarations.
 """
-import ast
 import csv
-import hashlib
-import io
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -57,7 +52,6 @@ SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 # only the stable directory — a stamp is machine-varying and may not enter it (L2).
 sys.path.insert(0, str(SRC / 'main'))  # tier: the act's stamp, one reading (issues/912)
 import tier  # noqa: E402
-import facts  # noqa: E402 - the one printer: the report's stages as facts (issues/755)
 _REPORT_STAMP = tier.stamp_of('test run')
 REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
 _twin = 2
@@ -76,8 +70,6 @@ PLAIN_PHRASE_REMEDY = ('a pair is a fact of its own beneath, or the phrase says 
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
-from markdown_projection import turn_seq  # noqa: E402
-from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
 sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared machinery)
 # A CLI-native command lives in its own directory (issues/307), so its module sits beside
@@ -85,30 +77,18 @@ sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared m
 sys.path.insert(0, str(CLI / 'cache'))
 sys.path.insert(0, str(CLI / 'completions'))
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
-import completions as cli_completions  # noqa: E402 — and `corpus-yoga completions` here
-import offer as cli_offer  # noqa: E402 - what zsh evaluates when tab is pressed
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
-import mcp_factoring  # noqa: E402
-import mcp_extraction  # noqa: E402  (the schema.ts reader, through the generated parser)
-import mcp_face  # noqa: E402  (the consumer and producer faces, issues/605)
-import provider  # noqa: E402  (src/main - the provider registry, check_schema_layout)
-from member import is_member, members  # noqa: E402  (src/main - the one reading of membership by placement)
+from member import members  # noqa: E402  (src/main - the one reading of membership by placement)
 sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
-import grammar as grammar_module  # noqa: E402
-from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
-import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (issues/373)
+from latest import latest_file  # noqa: E402  (src/main - the one reading of the latest)
 
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-export'))  # the shared deposit rule (check_accumulate_contract)
-import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issues/22)
 
 sys.path.insert(0, str(SRC / 'main' / 'cli' / 'indexing'))  # index curation machinery
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # model.json disposal queue
-import model_curation  # noqa: E402 — the model.json disposal queue (issues/19)
 
-import xref  # the cross-reference table (check_xref) — a same-directory sibling, already
-             # on sys.path[0] when this script runs, so no path insert is needed
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 

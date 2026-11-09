@@ -6,16 +6,16 @@ import os
 import shutil
 import subprocess
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     REPO_ROOT,
     check,
-    grammar_module,
-    lineages,
-    may_send,
-    mcp_extraction,
-    mcp_face,
-    mcp_factoring,
 )
+from latest import lineages  # noqa: E402 - on the paths gate.py sets
+from send import may_send  # noqa: E402 - on the paths gate.py sets
+import grammar as grammar_module  # noqa: E402 - on the paths gate.py sets
+import mcp_extraction  # noqa: E402 - on the paths gate.py sets
+import mcp_face  # noqa: E402 - on the paths gate.py sets
+import mcp_factoring  # noqa: E402 - on the paths gate.py sets
 
 
 @check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=(

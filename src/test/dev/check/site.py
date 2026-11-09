@@ -1,14 +1,12 @@
 """site.py - the dev gate's checks of the site and the server: the page against the corpus and rpus.co, and the daemon."""
 import os
-import subprocess
 import sys
 from pathlib import Path
 
-from gate import (  # noqa: F401 - the gate's shared vocabulary
+from gate import (
     REPO_ROOT,
     SRC,
     check,
-    facts,
 )
 
 
