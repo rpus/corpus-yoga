@@ -1943,18 +1943,19 @@ def check_site_lag(run) -> None:
     # are counted (issues/1028): a change of turns can be held to expectation, a uniform change
     # of bytes is a format's - and every count has its denominator. The live case: reading-room,
     # 2026-11-08, 127 chats changed in bytes alone listed among any whose turns had changed.
-    columns = ['chat', 'uuid', 'name', 'turns', 'human', 'assistant', 'bytes']
-    old_chats = {'columns': columns, 'rows': [[1, 'aaaaaaaa', 'a', 2, 1, 1, 10], [2, 'bbbbbbbb', 'b', 2, 1, 1, 20], [3, 'cccccccc', 'c', 2, 1, 1, 30]]}
-    new_chats = {'columns': columns, 'rows': [[1, 'aaaaaaaa', 'a', 4, 2, 2, 12], [2, 'bbbbbbbb', 'b', 2, 1, 1, 25], [3, 'cccccccc', 'c', 2, 1, 1, 35],
-                                               [4, 'dddddddd', 'd', 2, 1, 1, 40]]}
+    columns = ['chat', 'uuid', 'name', 'provider', 'channel', 'turns', 'human', 'assistant', 'bytes']
+    old_chats = {'columns': columns, 'rows': [[1, 'aaaaaaaa', 'a', 'claude', 'chat', 2, 1, 1, 10], [2, 'bbbbbbbb', 'b', 'claude', 'chat', 2, 1, 1, 20],
+                                              [3, 'cccccccc', 'c', 'claude', 'chat', 2, 1, 1, 30]]}
+    new_chats = {'columns': columns, 'rows': [[1, 'aaaaaaaa', 'a', 'claude', 'chat', 4, 2, 2, 12], [2, 'bbbbbbbb', 'b', 'claude', 'chat', 2, 1, 1, 25],
+                                              [3, 'cccccccc', 'c', 'claude', 'chat', 2, 1, 1, 35], [4, 'dddddddd', 'd', 'gemini', 'chat', 2, 1, 1, 40]]}
     try:
         facts_said = compare_pages.compare_table('data-chats', old_chats, new_chats, {}, {})
     except Exception as error:   # noqa: BLE001 - the failure IS the finding
         facts_said = f'raised {type(error).__name__}: {error}'
     want = [('data-chats', 'added (1 of 4)', 'dddddddd "d"'),
             ('data-chats', 'human or assistant changed (1 of 4)', 'aaaaaaaa "a"', 'human 1 to 2, assistant 1 to 2'),
-            ('data-chats', 'changed in bytes alone', '2 of 4')]
-    run('site: the page comparison lists the rows whose content measures changed and counts the rest, each count of its whole',
+            ('data-chats', 'changed in bytes alone', 'claude/chat', '2 of 3')]
+    run('site: the page comparison lists the rows whose content measures changed and counts the rest by group, each count of its group\'s whole',
         facts_said == want, None if facts_said == want else f'the comparison said {facts_said!r}', check='site.page_comparison_lists_measure_changes')
 
 

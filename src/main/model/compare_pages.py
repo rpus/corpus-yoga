@@ -44,6 +44,12 @@ IDENTITY = {
 MEASURES = {
     'data-chats': ('human', 'assistant'),
 }
+# the columns a table's rows are grouped by when what changed elsewhere alone is counted, per
+# table (issues/1028): a format's change is one projection's, so it is counted of that group's
+# whole - all of one channel, or some of it - and a group with nothing changed is not said
+GROUPS = {
+    'data-chats': ('provider', 'channel'),
+}
 SHOWN = 4   # rows named per kind of change before ", ..."
 Fact = tuple[str, ...]   # the keys a fact stands under, then its value
 
@@ -118,8 +124,21 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
                 facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c)) for c in measures if c in changed[k])))
     rest = [k for k in changed if k not in measured]
     if rest and measures:
-        columns = ', '.join(dict.fromkeys(c for k in rest for c in changed[k]))
-        out.append((name, facts.phrase('changed in {columns} alone', columns=columns), facts.phrase('{n} of {total}', n=len(rest), total=len(b))))
+        part = facts.phrase('changed in {columns} alone', columns=', '.join(dict.fromkeys(c for k in rest for c in changed[k])))
+        by = GROUPS.get(name, ())
+
+        def group(record: dict) -> str:
+            return '/'.join(value(record, c) for c in by) if by else name
+
+        wholes: dict[str, int] = {}
+        for record in b.values():
+            wholes[group(record)] = wholes.get(group(record), 0) + 1
+        counts: dict[str, int] = {}
+        for k in rest:
+            counts[group(b[k])] = counts.get(group(b[k]), 0) + 1
+        for key, n in counts.items():
+            said = facts.phrase('{n} of {total}', n=n, total=wholes[key])
+            out.append((name, part, key, said) if by else (name, part, said))
     elif rest:
         out.append((name, facts.phrase('changed ({n} of {total})', n=len(rest), total=len(b)), ', '.join(
             label(name, k, b[k]) + ' (' + ', '.join(facts.phrase('{column} {old} to {new}', column=c, old=value(a[k], c), new=value(b[k], c))
