@@ -9,8 +9,10 @@ pointed at a fixture and a write at a temp tree, but redirecting where a capture
 not stop the call going out. So the only way to exercise a send path without performing it
 is to refuse it, which is what CORPUS_YOGA_NO_SEND=1 does.
 
-Every send is one entry of the declaration the launcher dispatched, which it names in
-tier.DECLARATION, or of its noun's, which the noun's verbs share: under `sends`, its name, what it `runs`, what refusal does to it - it
+Every send is one entry of the declaration the launcher dispatched, or of its noun's, which
+the noun's verbs share - read once, at dispatch, and handed to the running code in
+tier.DECLARATION (dispatched()), so that nothing the act does to the working tree changes
+which sends it may make (issues/1036): under `sends`, its name, what it `runs`, what refusal does to it - it
 `fails` where the send is the work, it `degrades` where it only enriches a report - and what
 it `does`, in words. A script runs a send by that name alone, so a name the declaration lacks
 cannot run, and the command has one home:
@@ -30,7 +32,6 @@ import contextlib
 import json
 import os
 import shlex
-import shutil
 import subprocess
 import sys
 import urllib.request
@@ -62,23 +63,24 @@ def refused() -> bool:
     return os.environ.get(SWITCH) == '1'
 
 
-def declaration() -> Path | None:
-    """The declaration the launcher dispatched, or None where no launcher named one."""
-    named = os.environ.get(tier.DECLARATION)
-    return REPO / named if named else None
+def dispatched(declaration: str) -> str:
+    """The declaration as the running code is handed it, the value of tier.DECLARATION: its
+    repo-relative address and its sends - the verb's own entries over its noun's, which every
+    verb of the noun shares - read now, once."""
+    path = REPO / declaration
+    sends: dict = {}
+    for held in (path.parent / f'{path.parent.name}.json', path):
+        if held.is_file():
+            sends.update(json.loads(held.read_text()).get('sends', {}))
+    return json.dumps({'declaration': declaration, 'sends': sends})
 
 
 def entry(name: str) -> dict:
-    """The send the dispatched declaration names `name` - the verb's own entry, else its
-    noun's, which every verb of the noun shares; Undeclared otherwise."""
-    path = declaration()
-    sends: dict = {}
-    if path and path.is_file():
-        noun = path.parent / f'{path.parent.name}.json'
-        for held in (noun, path):
-            sends.update(json.loads(held.read_text()).get('sends', {}))
+    """The send the dispatched declaration names `name`; Undeclared otherwise."""
+    handed = json.loads(os.environ.get(tier.DECLARATION) or '{}')
+    sends = handed.get('sends', {})
     if name not in sends:
-        raise Undeclared(f'{path.relative_to(REPO) if path else "no declaration"} declares no send {name}')
+        raise Undeclared(f'{handed.get("declaration", "no declaration")} declares no send {name}')
     return sends[name]
 
 
@@ -106,7 +108,8 @@ def _argv(declared: dict, args) -> list[str]:
     own - is preferred to one on PATH."""
     argv = shlex.split(declared['runs']) + list(args)
     beside = Path(sys.executable).parent / argv[0]
-    argv[0] = str(beside) if beside.is_file() else (shutil.which(argv[0]) or argv[0])
+    if beside.is_file():
+        argv[0] = str(beside)
     return argv
 
 

@@ -23,7 +23,7 @@ def grammar_reading(project) -> dict | None:
     """What antlr4 generates from the project now, run under the grammar noun's declaration,
     whose send the tool's first use is; None where the send is refused."""
     held = os.environ.get(tier.DECLARATION)
-    os.environ[tier.DECLARATION] = 'src/main/cli/grammar/grammar.json'
+    os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')
     try:
         return grammar_module.generated(project)
     except send.SendRefused:
@@ -191,7 +191,7 @@ def check_mcp_reproducible(run) -> None:
         # so the protection does not depend on any script the gate runs remembering it. The
         # script runs under the declaration whose sends it makes, and a refused send is a skip.
         env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-        env[tier.DECLARATION] = 'src/main/cli/mcp/reproduce.json'
+        env[tier.DECLARATION] = send.dispatched('src/main/cli/mcp/reproduce.json')
         proc = subprocess.run([str(script)], capture_output=True, text=True, cwd=REPO_ROOT, env=env)
         ok = proc.returncode in (0, send.REFUSED_STATUS)
         if not ok:

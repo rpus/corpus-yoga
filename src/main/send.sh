@@ -18,14 +18,23 @@
 
 SEND_REFUSED=75
 
-# _send_entry <name>: the declared command, a tab, and what refusal does to it - the verb's
-# own entry, else its noun's, which every verb of the noun shares.
-_send_entry() {
-  local declaration="${CORPUS_YOGA_DECLARATION:-}" root="${REPO_DIR:-$REPO_ROOT}" noun
-  noun="${declaration%/*}"
+# send_dispatched <declaration>: the declaration as the running code is handed it, the value of
+# CORPUS_YOGA_DECLARATION - its address and its sends, the verb's own entries over its noun's,
+# read now, once (issues/1036); send.py's dispatched() is its python face.
+send_dispatched() {
+  local root="${REPO_DIR:-${REPO_ROOT:-$STEPS_REPO}}" noun="${1%/*}"
   noun="$noun/${noun##*/}.json"
-  if [[ -z "$declaration" ]] || ! jq -ers --arg name "$1" '((.[0].sends // {}) + (.[1].sends // {}))[$name] | select(.) | [.runs, .refused] | @tsv' "$root/$noun" "$root/$declaration" 2>/dev/null; then
-    echo "error: ${declaration:-no declaration} declares no send $1" >&2
+  jq -cn --arg declaration "$1" --slurpfile noun <(cat "$root/$noun" 2>/dev/null || echo '{}') --slurpfile verb "$root/$1" \
+    '{declaration: $declaration, sends: (($noun[0].sends // {}) + ($verb[0].sends // {}))}'
+}
+
+# _send_entry <name>: the declared command, a tab, and what refusal does to it - from the sends
+# the running code was handed at dispatch, never from the tree as it stands.
+_send_entry() {
+  local handed="${CORPUS_YOGA_DECLARATION:-}"
+  [[ -n "$handed" ]] || handed='{}'
+  if ! jq -er --arg name "$1" '.sends[$name] | select(.) | [.runs, .refused] | @tsv' <<< "$handed" 2>/dev/null; then
+    echo "error: $(jq -r '.declaration // "no declaration"' <<< "$handed" 2>/dev/null || echo 'no declaration') declares no send $1" >&2
     return 2
   fi
 }

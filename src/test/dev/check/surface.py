@@ -21,6 +21,7 @@ from member import is_member  # noqa: E402 - on the paths gate.py sets
 from member import members  # noqa: E402 - on the paths gate.py sets
 from send import SWITCH as SEND_SWITCH  # noqa: E402 - on the paths gate.py sets
 import send as send_module  # noqa: E402 - on the paths gate.py sets
+import tier as tier_module  # noqa: E402 - on the paths gate.py sets
 import cli  # noqa: E402 - on the paths gate.py sets
 import completions as cli_completions  # noqa: E402 - on the paths gate.py sets
 import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
@@ -107,6 +108,7 @@ def sends_run_by_name() -> dict[str, str]:
     'effects.enact_faces_agree',
     'effects.send_switch_read_once',
     'effects.send_faces_agree',
+    'effects.sends_are_dispatched',
     'effects.sends_declared',
     'effects.sends_run',
     'naming.log_path_derives_from_command',
@@ -487,6 +489,22 @@ def check_cli_surface(run) -> None:
     run("send: the two faces exit a refused send's script with one status", agrees,
         None if agrees else f'src/main/send.sh SEND_REFUSED and src/main/send.py REFUSED_STATUS differ',
         check='effects.send_faces_agree')
+    # A running act's sends are the ones it was handed at dispatch (issues/1036): asked from a
+    # tree that holds no declaration at all - as a merge's checkout of an older base holds an
+    # older one - each runner still answers from what it was handed.
+    import tempfile
+    with tempfile.TemporaryDirectory() as bare:
+        handed = {**os.environ, tier_module.DECLARATION: send_module.dispatched('src/main/cli/forge/merge.json'), 'REPO_DIR': bare}
+        shell = subprocess.run(['bash', '-c', 'source "$1"; send_runs fetch', '_', str(REPO_ROOT / 'src' / 'main' / 'send.sh')],
+                               env=handed, cwd=bare, capture_output=True, text=True)
+        python = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import send; print(send.runs("fetch"))',
+                                 str(REPO_ROOT / 'src' / 'main')], env=handed, cwd=bare, capture_output=True, text=True)
+    answers = (shell.stdout.strip(), python.stdout.strip())
+    held = answers == ('git fetch origin', 'git fetch origin')
+    run("send: a running act's sends are the ones it was handed at dispatch, whatever the tree holds", held,
+        None if held else f'from a tree holding no declaration, the shell runner answered {answers[0] or shell.stderr.strip()[:120]!r} '
+                          f'and the python runner {answers[1] or python.stderr.strip()[-120:]!r}, where the dispatched merge.json runs git fetch origin',
+        check='effects.sends_are_dispatched')
 
     # Python is type-checked by pyright — Pylance's own engine — against
     # pyrightconfig.json, the ONE declaration of the import roots that the editor, this
