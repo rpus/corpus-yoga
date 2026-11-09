@@ -49,11 +49,13 @@ def render_session(conv):
     instants."""
     label = {'human': 'Human', 'assistant': conv['provider'].capitalize()}
     count = {'human': 0, 'assistant': 0}
+    roles = [m['role'] for m in conv['messages']]
     out = ['---',
            'source: code-session',
            f"project: {conv['project']}",
            f"uuid: {conv['session_id']}",
-           f"turns: {len(conv['messages'])}",
+           f"human: {roles.count('human')}",               # the turn count's one home, by role (issues/1001)
+           f"assistant: {roles.count('assistant')}",
            f"last_activity: {conv['last_activity']}",
            '---', '',
            f"# {conv['title'] or 'Session ' + conv['session_id'][:8]}", '',

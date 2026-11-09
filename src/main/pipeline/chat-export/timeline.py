@@ -47,9 +47,8 @@ def chats(order):
     # explicitly so the dashboard never has to guess provider from the id shape
     # (which a 36-char code-session uuid would fool). Consumers read columns by
     # name, so extra columns are invisible to the dashboard timeline itself.
-    return {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns'],
-            'rows': [[n, c['name'], _trim(c.get('updated_at')), c['uuid'], 'claude', 'chat',
-                      len(c['chat_messages'])]
+    return {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'provider', 'channel'],
+            'rows': [[n, c['name'], _trim(c.get('updated_at')), c['uuid'], 'claude', 'chat']
                      for n, _, c in order]}
 
 

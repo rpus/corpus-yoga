@@ -84,7 +84,8 @@ def _frontmatter(source, conv, lean, other_index, other_name, other_label):
     return {
         'source': source,
         'uuid': conv['uuid'],
-        'turns': len(lean['messages']),
+        'human': sum(1 for m in lean['messages'] if m['role'] == 'human'),          # the turn count's one home, by role (issues/1001)
+        'assistant': sum(1 for m in lean['messages'] if m['role'] == 'assistant'),
         'last_activity': (conv.get('updated_at') or '')[:19] + 'Z',
         'cross_checked_against': other_name or 'none',
         'currency': ('unchecked' if other_index is None

@@ -36,7 +36,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import md_validator, project_scrape, REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
+from markdown_projection import counted, md_validator, project_scrape, REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 
@@ -57,7 +57,8 @@ def anchored(md):
     # same lint pragma as render() emits, inserted after the title line (the scrapes in
     # data/input/ stay pristine; only this derived copy carries presentation dressing)
     first, _, rest = md.partition('\n')
-    return f'{first}\n\n{MD033_PRAGMA}\n\n{rest.lstrip()}'
+    said = counted(md)                                # the turn count's one home, by role (issues/1001)
+    return f"---\nsource: dom-capture\nhuman: {said['human']}\nassistant: {said['assistant']}\n---\n\n{first}\n\n{MD033_PRAGMA}\n\n{rest.lstrip()}"
 
 
 def main():

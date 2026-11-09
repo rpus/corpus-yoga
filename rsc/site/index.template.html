@@ -333,13 +333,12 @@
        channel:       chat / code (code sessions are claude-provided, code-channelled).
                       Emitted by both presenters: present_corpus from the corpus
                       directory, timeline as the constant chat
-       turns:         message count of the conversation — real for every source
-                      (present_corpus counts turn_seq, which parses all sources;
-                      timeline counts chat_messages), so gemini rows report it
-                      even though they carry no timeline spans -->
+       human, assistant: the conversation's turns by role, as its projection declares
+                      them in its frontmatter (issues/1001); a conversation's turns
+                      are their sum -->
   <!-- data-chats.json:begin -->
   <script id="data-chats" type="application/json">
-  {"columns":["chat","name","dormant_from","uuid","provider","channel","turns"],"rows":[]}
+  {"columns":["chat","name","dormant_from","uuid","provider","channel","human","assistant"],"rows":[]}
   </script>
   <!-- data-chats.json:end -->
 
@@ -639,7 +638,7 @@
         const label = document.createElement('div'); label.className = 'tl-label';
         label.textContent = '#' + (chat.ord ?? chat.chat) + ' ' + chat.name;
         const chatFiles   = filesMap[chat.chat];
-        label.title       = `${chat.turns ?? '?'} turns\n` + chat.name + '\n' +
+        label.title       = `${chat.human != null && chat.assistant != null ? chat.human + chat.assistant : '?'} turns\n` + chat.name + '\n' +
                              (chatFiles ? chatFiles.join('\n') : '(no files)');
 
         const track = document.createElement('div'); track.className = 'tl-track';

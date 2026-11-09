@@ -60,16 +60,13 @@ import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 import spell  # noqa: E402
 import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
-from markdown_projection import REPO
+from markdown_projection import turns, REPO
 from declared_parser import command_parser
 
 MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
 ACCEPTED_FILE = tier.DATA / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
 REJECTED_FILE = tier.DATA / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
 
-TURN_RE = re.compile(
-    r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
-    flags=re.M)
 
 # Show this many turn links per (headword, conversation) before folding the rest
 # into a "+N more" note — book indexes cite, they do not enumerate.
@@ -138,13 +135,8 @@ def term_regex(terms: list[str]) -> re.Pattern:
 
 def turns_of(md: str):
     """[(role_letter, n, anchor, body)] for one conversation's markdown."""
-    out = []
-    matches = list(TURN_RE.finditer(md))
-    for i, m in enumerate(matches):
-        end = matches[i + 1].start() if i + 1 < len(matches) else len(md)
-        role = 'H' if m['role'] == 'Human' else ('G' if m['role'] == 'Gemini' else 'A')
-        out.append((role, int(m['n']), m['anchor'], md[m.end():end]))
-    return out
+    return [('H' if turn.role == 'Human' else 'G' if turn.role == 'Gemini' else 'A', turn.n, turn.anchor, turn.body)
+            for turn in turns(md) if turn.anchor]   # the projection's turns, each with its anchor (issues/1001)
 
 
 def scan(markdown_root: Path):

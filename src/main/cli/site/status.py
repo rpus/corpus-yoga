@@ -37,7 +37,7 @@ class Site:
     sources: str
     pages: dict | str   # each stale page by its file, that all are current, or absent with the act that assembles them
     index: CorpusPage | facts.Finding = facts.named('index.html')
-    lags: dict[str, dict[str, str] | str] | str = facts.phrase('unread - no page and no corpus to compare')   # the page's declarations against the corpus (issues/1000)
+    lags: dict[str, dict[str, str] | str] | dict[str, str | facts.Would] | str = facts.phrase('unread - no page and no corpus to compare')   # the page's declarations against the corpus (issues/1000)
     deploy: str = ''
     fetch: str | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
     clone: str | facts.Finding | None = None   # where the clone stands to the branch rpus.co serves; a finding where publish refuses it
@@ -62,7 +62,13 @@ def read_lag(site: Site) -> bool:
     if page is None:
         site.lags = facts.phrase('unread - the page declares no counts; corpus-yoga site render declares them')
         return True
-    corpus = declared.corpus_declarations(md_root)
+    try:
+        corpus = declared.corpus_declarations(md_root)
+    except KeyError:
+        # a render before the turn counts' home (issues/1001): the run re-renders the corpus, the counts with it
+        site.lags = {'unread': facts.phrase('the corpus predates its turn counts by role'),
+                     'remedy': facts.Would(spell.line('pipeline', 'run'), {'data/output/markdown': 1})}
+        return False
     found = declared.lag(page, corpus)
     if not found:
         site.lags = facts.phrase('none - current with the corpus ({n} conversation(s))', n=len(corpus))

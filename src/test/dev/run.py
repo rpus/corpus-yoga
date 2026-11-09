@@ -1881,6 +1881,42 @@ def check_failing_record(run) -> None:
         None if ok else f'printed {said.getvalue()!r}; the record holds {sorted(record)}', check='validation.fail_atom_names_the_fault')
 
 
+def check_turn_count_one_home(run) -> None:
+    """A conversation's turn count has one home, the frontmatter the projection writes
+    (issues/1001): the projection counts the turns it renders by role, writes them as
+    `human` and `assistant`, and refuses a render whose headings disagree; the page reads the
+    counts from there; and a turn heading is one the projection wrote - its number the next
+    for its role - so a message quoting a rendered conversation's headings adds no turn.
+    The live bug: reading-room, 2026-10-31, two code sessions quoting rendered markdown
+    declared 1008 and 3449 turns while the page counted 1009 and 3452."""
+    import importlib
+    sys.path.insert(0, str(SRC / 'main'))
+    sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'code-transport'))
+    projection = importlib.import_module('markdown_projection')
+    declaration = importlib.import_module('page_declaration')
+    render_corpus = importlib.import_module('render_corpus')
+    quoted = 'the file reads:\n\n```\n## Human (1)\n\n## Claude (1) <a id="x"></a>\n```\n'
+    conv = {'provider': 'claude', 'project': 'p', 'session_id': '0a1b2c3d-0000-4000-8000-000000000000', 'title': 't',
+            'last_activity': '2026-11-09T00:00:00Z', 'harness': 'Claude Code',
+            'messages': [{'role': 'human', 'content': 'show me a rendered file', 'uuid': 'h1'},
+                         {'role': 'assistant', 'content': quoted, 'uuid': 'a1'},
+                         {'role': 'human', 'content': 'thanks', 'uuid': 'h2'}]}
+    try:
+        md = render_corpus.render_session(conv)
+        parsed = [role for role, _body in projection.turn_seq(md)]
+        said = declaration.declared_of(md)
+        head = md.split('\n---\n', 1)[0]
+    except Exception as error:   # noqa: BLE001 - the failure IS the finding
+        parsed, said, head = f'raised {type(error).__name__}: {error}', {}, ''
+    ok = parsed == ['H', 'A', 'H']
+    run('markdown: a turn heading is one the projection wrote - a quoted heading adds no turn', ok,
+        None if ok else f'the turns parsed as {parsed!r}, where the projection rendered H, A, H', check='markdown.turns_parse_in_sequence')
+    home = ('human: 2' in head.splitlines() and 'assistant: 1' in head.splitlines() and not any(l.startswith('turns:') for l in head.splitlines())
+            and said.get('human') == 2 and said.get('assistant') == 1)
+    run('markdown: the projection writes its turn counts by role, and the page reads them from there', home,
+        None if home else f'the frontmatter reads {head.splitlines()[1:]!r} and the page declares {said!r}', check='markdown.turn_count_in_frontmatter')
+
+
 def check_site_lag(run) -> None:
     """The corpus page declares what it was rendered from per conversation - human turns,
     assistant turns, bytes - and the site status reads those declarations against the corpus
@@ -1896,7 +1932,8 @@ def check_site_lag(run) -> None:
         run('site: the page lags where its declarations differ from the corpus', False,
             'src/main/page_declaration.py is absent: nothing declares what the page was rendered from', check='site.lag_is_read_from_declarations')
         return
-    md = '---\nuuid: aaaa\n---\n\n# t\n\n## Human x\n\nhello\n\n---\n\n## Claude y\n\nhi there\n\n---\n\n## Human z\n\nmore\n\n---\n'
+    md = ('---\nuuid: aaaa\nhuman: 2\nassistant: 1\n---\n\n# t\n\n## Human (1) <a id="h1"></a>\n\nhello\n\n---\n\n'
+          '## Claude (1) <a id="a1"></a>\n\nhi there\n\n---\n\n## Human (2) <a id="h2"></a>\n\nmore\n\n---\n')   # as a projection writes it (issues/1001)
     counts = declared.declared_of(md)
     ok = counts == {'human': 2, 'assistant': 1, 'bytes': len(md.encode())}
     run('site: a conversation declares its human turns, assistant turns and bytes', ok,
@@ -4380,6 +4417,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_validate_verdict': ['src/main/validate.py', 'src/test'],
     'check_providers_judged': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_spelling': ['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORKFLOW.md', '.github'],
+    'check_turn_count_one_home': ['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/pipeline', 'src/main/model'],
     'check_site_lag': ['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'],
     'check_acts_said_once': ['src/main/facts.py', 'src/main/cli'],
     'check_server_standing': ['src/main/cli/server/status.py', 'src/main/facts.py'],
@@ -4650,6 +4688,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_failing_record, tier='code')
         run_section(check_providers_judged, tier='code')
         run_section(check_declared_families_judge, tier='code')
+        run_section(check_turn_count_one_home, tier='code')
         run_section(check_site_lag, tier='code')
         run_section(check_acts_said_once, tier='code')
         run_section(check_server_standing, tier='code')
