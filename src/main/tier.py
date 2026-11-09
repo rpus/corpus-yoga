@@ -35,7 +35,7 @@ REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
 ACT = 'CORPUS_YOGA_ACT'       # the launcher names the act it dispatched, `<command> <verb>` (issues/896)
 STAMP = 'CORPUS_YOGA_STAMP'   # the stamp of that act, so the act's own artifacts share it (issues/708)
 LOG = 'CORPUS_YOGA_LOG'       # and the record it tees the whole act into, tmp/logs/<command>/<verb>/<stamp>.log
-DECLARATION = 'CORPUS_YOGA_DECLARATION'   # the declaration the launcher dispatched, repo-relative - whose sends a script may run (issues/1022)
+DECLARATION = 'CORPUS_YOGA_DECLARATION'   # the declaration the launcher dispatched, as send.dispatched hands it - whose sends a script may run (issues/1022, issues/1036)
 GATE_CHECK = 'CORPUS_YOGA_GATE_CHECK'   # the dev gate names the check whose acts it runs, `<gate run>/<check>` (issues/1030)
 
 

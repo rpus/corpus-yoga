@@ -29,6 +29,8 @@ SELF='src/main/steps.sh'
 _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STEPS_REPO="${_self_dir%/"${SELF%/*}"}"
 [[ "${STEPS_REPO}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/send.sh
+source "$STEPS_REPO/src/main/send.sh"   # send_dispatched - the declaration a step is handed
 
 # the step's argv minus anything path-shaped: the verbs and flags that are part of the
 # program, without the machine paths that would break plan determinism. Called with the
@@ -93,10 +95,10 @@ step_label() {
   echo "$label$(plan_args "$@")"
 }
 
-# step_declaration <name> [args...]: the declaration a step runs under - where the step is a
+# step_declaration <name> [args...]: the declaration a step is handed - where the step is a
 # corpus-yoga command, as step_label names it, that verb's (its first non-path argument that
 # names one) or the noun's, so that the sends its code runs are its own declaration's; else
-# the runner's own (issues/1022).
+# the runner's own (issues/1022, issues/1036).
 step_declaration() {
   local name="$1" arg; shift
   if [[ ! -f "$STEPS_REPO/src/main/cli/$name/$name.json" ]]; then
@@ -105,11 +107,11 @@ step_declaration() {
   fi
   for arg in "$@"; do
     if [[ "$arg" != */* && -f "$STEPS_REPO/src/main/cli/$name/$arg.json" ]]; then
-      echo "src/main/cli/$name/$arg.json"
+      send_dispatched "src/main/cli/$name/$arg.json"
       return
     fi
   done
-  echo "src/main/cli/$name/$name.json"
+  send_dispatched "src/main/cli/$name/$name.json"
 }
 
 # A gating step's non-zero exit stops a runner under errexit, and is recorded here for

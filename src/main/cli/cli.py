@@ -50,6 +50,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (issues/702)
 import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
+import send  # noqa: E402 - the declaration a dispatch hands its code (issues/1036)
 import spell  # noqa: E402
 from member import members  # noqa: E402
 from provider import signature  # noqa: E402 - the Signature triad, one home (issues/704)
@@ -554,7 +555,7 @@ def dispatch(row: dict, rest: list[str]) -> int:
         return 0
     verb = rest[0] if rest and not rest[0].startswith('-') and (CLI / row['command'] / f'{rest[0]}.json').exists() else ''
     declared = CLI / row['command'] / f'{verb}.json' if verb else _declaration(row['command'])
-    os.environ[tier.DECLARATION] = str(declared.relative_to(REPO))   # every dispatch, inner ones included: the sends a script may run are its own declaration's
+    os.environ[tier.DECLARATION] = send.dispatched(str(declared.relative_to(REPO)))   # every dispatch, inner ones included: the sends a script may run are its own declaration's, as they stood now
     d = enacting(row, rest)
     line = command_line(target, rest)
     if d is None:

@@ -18,6 +18,8 @@ from gate import (
 )
 from member import members  # noqa: E402 - on the paths gate.py sets
 import cli  # noqa: E402 - on the paths gate.py sets
+import send  # noqa: E402 - on the paths gate.py sets
+import tier  # noqa: E402 - on the paths gate.py sets
 import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
 
 
@@ -758,7 +760,7 @@ def check_forge_aim(run) -> None:
                 gh.chmod(0o755)
                 done = subprocess.run(['bash', '-c', 'source "$1"; squashed 1 deadbeef 1 0', '_', str(forge_sh)], capture_output=True, text=True,
                                       env={**{k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND'},   # the stub forge is local
-                                           'PATH': f'{stub}:{os.environ["PATH"]}', 'CORPUS_YOGA_DECLARATION': 'src/main/cli/forge/merge.json'},
+                                           'PATH': f'{stub}:{os.environ["PATH"]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},
                                       cwd=REPO_ROOT)
                 exits[state] = done.returncode
     run('forge: a squash whose reply is lost is read back from the forge - merged concludes, open refuses',
