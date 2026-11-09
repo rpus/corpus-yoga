@@ -576,7 +576,7 @@ def check_schema_validity(run) -> None:
                 run(f'{schema_name}: valid JSON + $schema: {v}', '$schema' in schema,
                     'Missing $schema field' if '$schema' not in schema else None, check='schema.valid_json_with_schema')
             except json.JSONDecodeError as e:
-                run(f'{schema_name}: valid JSON: {v}', False, str(e), check='schema.valid_json')
+                run(f'{schema_name}: valid JSON: {v}', False, str(e), check='schema.valid_json_with_schema')
 
 
 def check_schema_single_version(run) -> None:
@@ -3428,9 +3428,10 @@ def check_versioned_schema_diagnostics(run):
     results = _call_many(jobs)
     cursor = 0
     for schema_name, schema_dir, count in families:
+        run(f'{schema_name}: has versions', count is not None,
+            None if count is not None else f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files',
+            check='schema.has_versions')
         if count is None:
-            run(f'{schema_name}: no versions', False,
-                f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files', check='schema.has_versions')
             continue
         for (script, version), (passed, output) in zip(jobs[cursor:cursor + count],
                                                        results[cursor:cursor + count]):
@@ -3442,7 +3443,7 @@ def check_versioned_schema_diagnostics(run):
 def check_schema_join(run):
     join = RSC_MODEL / 'model_join.csv'
     if not join.exists():
-        run('schema model_join.csv exists', False, check='model.join_exists')
+        run('schema model_join.csv exists', False, check='model.join_pointers_valid')
         return
     kinds_table = RSC_MODEL / 'model_join_kinds.csv'
     declared_kinds = {r['kind'] for r in csv.DictReader(kinds_table.open())}
@@ -3653,13 +3654,13 @@ def check_mcp_factoring(run) -> None:
     target = mcp_factoring.latest_version(mcp_factoring.FAMILY_DIR)
     if not target:
         run('mcp: rsc/schema/mcp/mcpMessage has a version', False,
-            'corpus-yoga mcp sync derives v1.json', check='mcp.has_version')
+            'corpus-yoga mcp sync derives v1.json', check='mcp.factoring_current')
         return
     rel = target.relative_to(REPO_ROOT)
     try:
         wanted = mcp_factoring.current_text()
     except AssertionError as e:
-        run(f'mcp: {target.stem} derivable from the snapshot', False, str(e), check='mcp.derivable')
+        run(f'mcp: {target.stem} derivable from the snapshot', False, str(e), check='mcp.factoring_current')
         return
     have = target.read_text()
     run(f'mcp: {target.stem} current with the snapshot', have == wanted,
@@ -4024,7 +4025,7 @@ def check_schema_meta_validity(run) -> None:
     meta_path = REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json'
     if not meta_path.is_file():
         run('schema: the draft-04 meta-schema is committed', False,
-            f'{meta_path.relative_to(REPO_ROOT)} is absent', check='schema.meta_schema_present')
+            f'{meta_path.relative_to(REPO_ROOT)} is absent', check='schema.valid_against_meta_schema')
         return
     validator = jsonschema.Draft4Validator(json.loads(meta_path.read_text()))
     targets = [(f'{name}: {latest.stem}', latest)

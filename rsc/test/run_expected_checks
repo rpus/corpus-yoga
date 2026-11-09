@@ -143,6 +143,7 @@ report.says_what_the_nouns_say
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.family_mirrors_writer
+schema.has_versions
 schema.pipeline_schema_placed
 schema.single_version
 schema.valid_against_meta_schema
