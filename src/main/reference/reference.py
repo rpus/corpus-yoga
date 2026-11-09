@@ -147,7 +147,7 @@ class Project:
     lineages_held: list[str] | None = None
     pinned_files: int | None = None
     files_hashing_as_pinned: str | None = None
-    currency: str | None = None
+    currency: str | facts.Unsettled | None = None
     to_fetch: dict[str, str] | None = None   # by file: missing, or drifted from its pin
     remedy: facts.Command | facts.Would | None = None
 
@@ -174,7 +174,7 @@ def status() -> int:
             items, lines = _reading(project)
         except send.SendRefused:
             out[name] = Project(lineages_held=held, pinned_files=len(table),
-                                currency=facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe'))
+                                currency=facts.Unsettled(facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe'), 'reference'))
             continue
         listing = declaration(project).get('lineage_listing')
         upstream = sorted({i['lineage'] for i in items}) if listing else held
@@ -184,7 +184,7 @@ def status() -> int:
             item.to_fetch, item.remedy = lines, facts.Would(spell.line('reference', 'sync'), {name: len(lines)})
         out[name] = item
         stale += len(lines)
-    facts.say(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))
+    facts.say_standing(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))
     return 1 if stale else 0
 
 

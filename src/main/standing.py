@@ -1,11 +1,12 @@
 """
 standing.py - the room's standing, now:, folded once from every noun's own now: (issues/949).
-Store, forge, cache, logs, server, site and pipeline each say under now: what their own reading
-allows; this reads the seven once, together, and folds them - the one reading bare
+Every noun whose declaration says `standing` says under now: what its own reading allows and
+what it could not settle; this reads them once, together, and folds them - the one reading bare
 corpus-yoga status says as its now: (src/main/cli/status/report.py), which the launcher's
 reply says after every act (src/main/reply.py, issues/1016). No noun's status runs another,
 and a noun that could not be read is said under its command, so that the fold hides no noun.
 """
+import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -14,7 +15,9 @@ import enact
 import facts
 
 REPO = Path(__file__).resolve().parents[2]
-NOUNS = ('store', 'forge', 'cache', 'logs', 'server', 'site', 'pipeline')   # the nouns whose status ends on now:
+CLI = REPO / 'src' / 'main' / 'cli'
+# the nouns whose bare status ends on now:, as each declares `standing` (issues/1034)
+NOUNS = tuple(sorted(d.parent.name for d in CLI.glob('*/*.json') if d.stem == d.parent.name and json.loads(d.read_text()).get('standing')))
 _said: dict[str, object] = {}     # each noun's status, read once a process, however many spots are taken from it
 
 
@@ -50,12 +53,12 @@ def fold(nows: dict[str, object]) -> dict:
         if isinstance(now, dict):
             facts.merge(out, now, once=True)   # an act two nouns name over one unit is one act (issues/1028)
         elif isinstance(now, str) and now != facts.phrase('none - nothing to do'):
-            out[f'corpus-yoga {noun}'] = {'reports the noun': {now: 1}}
+            out[f'corpus-yoga {noun}'] = {facts.REPORTS: {now: 1}}
     return out
 
 
 def room_now() -> dict:
-    """The room's standing: the six nouns read once, together, and their now: folded."""
+    """The room's standing: the nouns read once, together, and their now: folded."""
     read_at_once(NOUNS)
     nows: dict[str, object] = {}
     for noun in NOUNS:

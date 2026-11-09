@@ -1,5 +1,6 @@
 {
   "summary": "the room's stage, tmp/stage - what is captured and not yet promoted, what the last rehearsal derived, and its record of what it saw and judged (bare is the tier's status, a report that names no act; clean its one janitor)",
+  "standing": true,
   "explanation": {
     "units": "each kind of staged unit, keyed by the selection that names it as a path in the input tree, tmp/stage/input (the same as data/input's) - the pipeline declaration's input with the provider filled in and its glob after it - with how many are staged and how many the rehearsal found valid, invalid, unlicensed or has not judged, how many are incomplete and how many no family judges; never summed across kinds, and nothing of the store or the live stores, which corpus-yoga store reads against the stage and names every act for - this status is a report and names none (issues/851)",
     "invalid": "what a family found invalid, keyed by the version file that found it so as a path in the schema tree, rsc/schema/pipeline - <pipeline>/<family>/<version>.json - then by the validator's reason with how many units carry it. What follows is a version owed, or the datum ruled out at the mint (rsc/schema/WORKFLOW.md). Each invalid unit's whole validator output is in tmp/stage/rehearsal.json under units, its address, verdicts, the family, and corpus-yoga pipeline rehearse remakes it",

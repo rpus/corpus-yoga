@@ -1,5 +1,6 @@
 {
   "summary": "the bulk export - a downloaded manifest and the payload captured from its one-use URLs, staged as a pair",
+  "standing": true,
   "phrase": [
     "data-<X>/ with manifest-<X>.json, its capture's record",
     "nothing held or staged",

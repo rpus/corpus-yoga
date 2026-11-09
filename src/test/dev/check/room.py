@@ -29,6 +29,7 @@ import offer as cli_offer
     'environment.names_carry_the_prefix',
     'phrase.each_is_said',
     'report.gives_no_verdict_on_itself',
+    'report.every_standing_noun_ends_on_now',
     'report.now_is_the_fold',
     'report.rows_are_keyed_by_subject',
     'report.says_what_the_nouns_say',
@@ -252,9 +253,13 @@ def check_status_facts(run) -> None:
     # The room's standing is the fold of every noun's own now: (issues/949), each gathered from that
     # noun's own body (issues/1028), with an act two nouns name over one unit taken once; and
     # the report's now: is that fold, then each act only the report's own rows name.
-    nouns_with_now = ('store', 'forge', 'cache', 'logs', 'server', 'site', 'pipeline')
-    own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
     import importlib
+    nouns_with_now = importlib.import_module('standing').NOUNS   # as each noun declares `standing` (issues/1034)
+    own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
+    nowless = sorted(noun for noun, now in own_now.items() if now is None)
+    run('report: every noun that declares standing ends its bare status on now:', not nowless,
+        None if not nowless else f'{", ".join(nowless)}: bare corpus-yoga <noun> says no now: - say the status through facts.say_standing',
+        check='report.every_standing_noun_ends_on_now')
     folded = importlib.import_module('standing').fold(own_now)
     own_rows = importlib.import_module('facts').now_of({key: value for key, value in whole.items() if key != 'now'})
     expected = {**folded, **{line: act for line, act in own_rows.items() if line not in folded}} or 'none - nothing to do'

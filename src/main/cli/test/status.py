@@ -100,7 +100,7 @@ def signature_hook() -> Hook:
 
 def main() -> int:
     run = (REPO / 'src' / 'test' / 'dev' / 'run.py').read_text()
-    facts.say(Status(Test(Checks(facts.phrase('{n} check sections', n=len(re.findall(r'^def check_', run, re.M)))), commit_hook(), signature_hook())))
+    facts.say_standing(Status(Test(Checks(facts.phrase('{n} check sections', n=len(re.findall(r'^def check_', run, re.M)))), commit_hook(), signature_hook())))
     return 0
 
 

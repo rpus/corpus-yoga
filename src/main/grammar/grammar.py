@@ -91,7 +91,7 @@ def held(project: Path) -> dict[str, str]:
 class Project:
     generated: str                # where the generated parsers lie, or that they are absent
     files: int | None = None
-    currency: str | None = None   # against the grammar they are generated from
+    currency: str | facts.Unsettled | None = None   # against the grammar they are generated from
     differing: list[str] | None = None
     remedy: facts.Command | facts.Would | None = None
 
@@ -126,7 +126,7 @@ def status() -> int:
         except send.SendRefused:
             want = None
         if want is None:
-            item.currency = facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the tool') if tool() else facts.phrase('UNVERIFIED - antlr4 not in the venv')
+            item.currency = facts.Unsettled(facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the tool') if tool() else facts.phrase('UNVERIFIED - antlr4 not in the venv'), 'grammar')
         else:
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
             if differing:
@@ -140,7 +140,7 @@ def status() -> int:
         address = orphan.relative_to(REPO).as_posix()
         projects_[address] = Project(facts.phrase('no - it holds no grammar, a .g4 at its top level - a leftover no sync generates from'),
                                      remedy=facts.Command(f'rm -r {address}', facts.phrase('removes it')))
-    facts.say(Status(projects_, facts.phrase('{n} project(s), {stale} absent or stale', n=len(projects()), stale=stale)))
+    facts.say_standing(Status(projects_, facts.phrase('{n} project(s), {stale} absent or stale', n=len(projects()), stale=stale)))
     return 1 if stale else 0
 
 

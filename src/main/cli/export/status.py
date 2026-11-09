@@ -36,10 +36,10 @@ def main() -> int:
     pairs = corpus.pairs_facts('export')
     report = corpus.report_facts('export')
     if not pairs.held and not pairs.staged:
-        facts.say(Status(facts.phrase('nothing held or staged'), report.staged, facts.Act(facts.phrase(
+        facts.say_standing(Status(facts.phrase('nothing held or staged'), report.staged, facts.Act(facts.phrase(
             'request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>'))))
         return 0
-    facts.say(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged, None))
+    facts.say_standing(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged, None))
     return 0
 
 

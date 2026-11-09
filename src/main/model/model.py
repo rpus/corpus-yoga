@@ -99,7 +99,7 @@ class Join:
     collisions: facts.Finding | None
     shared_names: str | None
     rows: dict[str, facts.Finding]
-    emptiness_edges: str
+    emptiness_edges: str | facts.Unsettled
 
     def facts(self) -> dict:
         found = self.collisions
@@ -147,7 +147,7 @@ def curation_report() -> tuple[Table, Join]:
                 facts.Act(facts.phrase('the always-null note is stale - re-judge the edge (rsc/model/model_join_kinds.csv names the kinds)')))
         emptiness = facts.phrase('checked against the corpus')
     else:
-        emptiness = facts.phrase('unchecked - no API-capture or chat-export corpus in this room')
+        emptiness = facts.Unsettled(facts.phrase('unchecked - no API-capture or chat-export corpus in this room'), 'model')
     return table, Join(collisions, None if shared else facts.phrase('every cross-family shared name disposed'), rows, emptiness)
 
 
@@ -226,7 +226,7 @@ def status() -> None:
     # the count is the fact; 52 derivable filenames were the mumble - the
     # names are exactly the schema tree's, and sync mints them all
     table, join = curation_report()
-    facts.say(Status(
+    facts.say_standing(Status(
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,

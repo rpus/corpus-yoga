@@ -129,7 +129,7 @@ def main() -> int:
     args = command_parser('migration').parse_args()
     if args.verb == 'sync':
         return sync()
-    facts.say(status_facts())
+    facts.say_standing(status_facts())
     return 0
 
 

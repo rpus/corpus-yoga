@@ -313,6 +313,18 @@ class Would:
 
 
 @dataclass(frozen=True)
+class Unsettled:
+    """A reading a status could not settle - unverified, unread or unknown, with why - said in
+    its body as its words, and lifted into now: under the noun that reports it (issues/1034),
+    as an act is: a reader is shown what stands unsettled, never only what to run."""
+    reading: str
+    noun: str
+
+    def said(self) -> str:
+        return self.reading
+
+
+@dataclass(frozen=True)
 class Acts:
     """Several acts named at one spot, said as one mapping by command."""
     acts: tuple[Would, ...]
@@ -357,12 +369,31 @@ def merge(into: dict, more: dict, once: bool = False) -> dict:
     return into
 
 
+REPORTS = 'reports the noun'   # beneath a noun's command in now:, what it reports and cannot settle
+
+
 def now_of(shape) -> dict:
-    """A status's now: - every act it names, gathered by command and merged (issues/1028), so
-    that no noun composes its now: beside its body. An act stands under a remedy: key as its
-    command, its declared words and what it acts on; a remedy in words, or a command that is
-    no corpus-yoga act, is no act of now:, and a nested now: is no act of the body."""
+    """A status's now: - every act it names, gathered by command and merged (issues/1028), and
+    every reading it could not settle, under the noun that reports it (issues/1034), so that no
+    noun composes its now: beside its body. An act stands under a remedy: key as its command, its
+    declared words and what it acts on; a remedy in words, or a command that is no corpus-yoga
+    act, is no act of now:, and a nested now: is no act of the body."""
     out: dict = {}
+
+    def unsettled(node) -> None:
+        if isinstance(node, Unsettled):
+            merge(out, {f'corpus-yoga {node.noun}': {REPORTS: {node.reading: 1}}}, once=True)
+        elif is_dataclass(node) and not isinstance(node, type):
+            for f in fields(node):
+                if f.name != 'now':
+                    unsettled(getattr(node, f.name))
+        elif isinstance(node, dict):
+            for key, value in node.items():
+                if key != 'now':
+                    unsettled(value)
+        elif isinstance(node, (list, tuple)):
+            for value in node:
+                unsettled(value)
 
     def walk(node) -> None:
         if isinstance(node, dict):
@@ -379,6 +410,7 @@ def now_of(shape) -> dict:
             for value in node:
                 walk(value)
 
+    unsettled(shape)
     walk(plain(shape))
     return out
 
@@ -439,6 +471,15 @@ def say(shape: DataclassInstance) -> None:
     """Print a status: its named shape, as YAML, at the depth. A status is said once, whole, so
     that its keys are the fields of one type."""
     print('\n'.join(lines(plain(shape), depth(), width=terminal_width())))
+
+
+def say_standing(shape: DataclassInstance) -> None:
+    """Print a noun's bare status, which ends on now: (issues/1034): its shape, then every act it
+    names and every reading it could not settle, gathered by now_of - or none."""
+    said = plain(shape)
+    assert isinstance(said, dict), 'a status is a mapping'
+    said['now'] = now_of(shape) or phrase('none - nothing to do')
+    print('\n'.join(lines(said, depth(), width=terminal_width())))
 
 
 ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (issues/896)

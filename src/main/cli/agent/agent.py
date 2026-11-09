@@ -439,7 +439,7 @@ def main() -> int:
         brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (issues/758)
         report = corpus.report_facts('agent')
         peers, merges = peers_and_merges()
-        facts.say(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
+        facts.say_standing(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
         return 0
     if args.verb == 'mount':
         return mount()

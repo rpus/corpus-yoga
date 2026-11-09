@@ -180,7 +180,7 @@ def status() -> int:
     if not target.exists():
         out.family = 'absent'
         out.mcp = facts.phrase('{family} absent - corpus-yoga mcp sync derives it', family=rel)
-        facts.say(out)
+        facts.say_standing(out)
         return 1
     have = target.read_text()
     bad = factoring.disagreements(json.loads(have), snap, factoring.additions(), factoring.generated().constants)
@@ -200,7 +200,7 @@ def status() -> int:
         family.remedy = facts.Would(spell.line('mcp', 'sync'), {rel.name: 1})
     out.family = family
     out.mcp = facts.phrase('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
-    facts.say(out)
+    facts.say_standing(out)
     return 0 if current and not bad else 1
 
 

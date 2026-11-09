@@ -180,7 +180,7 @@ def status(memories_output: Path, chat_export_cache: Path) -> int:
     n = len(list(memories_output.glob('*.json'))) if memories_output.is_dir() else 0
     states = memory_states(chat_export_cache)
     store = memories_output.relative_to(REPO) if memories_output.is_relative_to(REPO) else memories_output
-    facts.say(Status(Memories(n, store.as_posix(), len(states))))
+    facts.say_standing(Status(Memories(n, store.as_posix(), len(states))))
     return 0
 
 

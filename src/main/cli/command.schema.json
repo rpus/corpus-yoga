@@ -6,7 +6,8 @@
   "required": [
     "summary",
     "target",
-    "args"
+    "args",
+    "standing"
   ],
   "additionalProperties": false,
   "properties": {
@@ -139,6 +140,10 @@
         }
       },
       "description": "The outward calls this declaration makes (issues/29, issues/1022), keyed by name - a script runs a send by its name alone (src/main/send.py, src/main/send.sh), so a name the declaration lacks cannot run and the call has one home. A send has no scratch form: redirecting where the result lands does not stop the call going out, so CORPUS_YOGA_NO_SEND=1 refuses it."
+    },
+    "standing": {
+      "type": "boolean",
+      "description": "Whether the bare command is a status ending on now:, which the room's standing folds (src/main/standing.py, issues/1034) - false for a command whose bare form is no status: a document, a walk, or the room's own report."
     }
   }
 }

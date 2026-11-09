@@ -684,7 +684,7 @@ def main():
 
     # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
     # paid captures' standing (deposits + the paid layer's currency, issues/409)
-    facts.say(Status(status(accepted_path, rejected_path, MARKDOWN_DIR), captures()))
+    facts.say_standing(Status(status(accepted_path, rejected_path, MARKDOWN_DIR), captures()))
 
 
 if __name__ == '__main__':

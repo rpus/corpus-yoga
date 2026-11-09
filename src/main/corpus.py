@@ -1264,7 +1264,7 @@ def kind_of(unit: Unit) -> str:
 def stage_status() -> int:
     """Bare corpus-yoga stage: the tier's state, read-only, as facts (issues/741). Every effective
     stage verb ends by relaying it."""
-    facts.say(stage_facts())
+    facts.say_standing(stage_facts())
     return 0
 
 

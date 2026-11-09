@@ -208,7 +208,7 @@ def status(root: Path) -> int:
             rolling += (f.name == 'browser-capture.md')
             readings += (f.name != 'browser-capture.md')
     shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
-    facts.say(Status(Summaries(len(folders), readings, rolling, shown.as_posix()), _twins(root)[1]))
+    facts.say_standing(Status(Summaries(len(folders), readings, rolling, shown.as_posix()), _twins(root)[1]))
     return 0
 
 

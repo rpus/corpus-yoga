@@ -1,5 +1,6 @@
 {
   "summary": "the checks over this repo, and the hook that runs them",
+  "standing": true,
   "phrase": [
     "{n} check sections",
     "no - not a git clone, so no hook to install",

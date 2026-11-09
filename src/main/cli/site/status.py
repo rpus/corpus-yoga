@@ -36,9 +36,9 @@ class Site:
     sources: str
     pages: dict | str   # each stale page by its file, that all are current, or absent with the act that assembles them
     index: CorpusPage | facts.Finding = facts.named('index.html')
-    lags: dict[str, dict[str, str] | str] | dict[str, str | facts.Would] | str = facts.phrase('unread - no page and no corpus to compare')   # the page's declarations against the corpus (issues/1000)
+    lags: dict[str, dict[str, str] | str] | dict[str, str | facts.Would | facts.Unsettled] | str | facts.Unsettled = facts.Unsettled(facts.phrase('unread - no page and no corpus to compare'), 'site')   # the page's declarations against the corpus (issues/1000)
     deploy: str = ''
-    fetch: str | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
+    fetch: facts.Unsettled | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
     clone: str | facts.Finding | None = None   # where the clone stands to the branch rpus.co serves; a finding where publish refuses it
     publish: dict | str = facts.phrase('nothing to land - rpus.co holds the tree as assembled')   # what would land, under the act that lands it (issues/881, issues/1028)
 
@@ -59,13 +59,13 @@ def read_lag(site: Site) -> bool:
         return False
     page = declared.page_declarations(page_file.read_text())
     if page is None:
-        site.lags = facts.phrase('unread - the page declares no counts; corpus-yoga site render declares them')
+        site.lags = facts.Unsettled(facts.phrase('unread - the page declares no counts; corpus-yoga site render declares them'), 'site')
         return True
     try:
         corpus = declared.corpus_declarations(md_root)
     except KeyError:
         # a render before the turn counts' home (issues/1001): the run re-renders the corpus, the counts with it
-        site.lags = {'unread': facts.phrase('the corpus predates its turn counts by role'),
+        site.lags = {'unread': facts.Unsettled(facts.phrase('the corpus predates its turn counts by role'), 'site'),
                      'remedy': facts.Would(spell.line('pipeline', 'run'), {'data/output/markdown': 1})}
         return False
     found = declared.lag(page, corpus)
@@ -106,7 +106,7 @@ def main() -> int:
         at[row[-2]] = row[-1]
     site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,
                 deploy=next((row[1] for row in rows if row[0] == 'deploy'), ''))
-    site.fetch = next((row[1] for row in rows if row[0] == 'fetch'), None)
+    site.fetch = next((facts.Unsettled(row[1], 'site') for row in rows if row[0] == 'fetch'), None)
     position = next((row for row in rows if row[0] == 'clone'), None)
     refused = position is not None and len(position) >= 4      # a clone publish refuses: no served branch, another branch, diverged
     if position is not None:

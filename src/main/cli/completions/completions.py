@@ -260,7 +260,7 @@ def standing() -> Completions:
 
 
 def completion_status() -> int:
-    facts.say(Status(standing()))
+    facts.say_standing(Status(standing()))
     return 0
 
 

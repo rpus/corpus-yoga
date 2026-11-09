@@ -1,5 +1,6 @@
 {
   "summary": "code-agent sessions of every served provider - the census, the live mounts, and transport between machines",
+  "standing": true,
   "phrase": [
     "absent - no local {provider} rows",
     "none - the claude store is not mounted",
