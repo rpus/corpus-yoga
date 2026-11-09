@@ -17,14 +17,14 @@ from gate import (
     SRC,
     check,
 )
-from member import is_member  # noqa: E402 - on the paths gate.py sets
-from member import members  # noqa: E402 - on the paths gate.py sets
-from send import SWITCH as SEND_SWITCH  # noqa: E402 - on the paths gate.py sets
-import send as send_module  # noqa: E402 - on the paths gate.py sets
-import tier as tier_module  # noqa: E402 - on the paths gate.py sets
-import cli  # noqa: E402 - on the paths gate.py sets
-import completions as cli_completions  # noqa: E402 - on the paths gate.py sets
-import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
+from member import is_member
+from member import members
+from send import SWITCH as SEND_SWITCH
+import send as send_module
+import tier as tier_module
+import cli
+import completions as cli_completions
+import offer as cli_offer
 
 
 SEND_FACES = ('enact', 'labour', 'query', 'quote', 'quiet', 'attempt')
@@ -497,8 +497,8 @@ def check_cli_surface(run) -> None:
         handed = {**os.environ, tier_module.DECLARATION: send_module.dispatched('src/main/cli/forge/merge.json'), 'REPO_DIR': bare}
         shell = subprocess.run(['bash', '-c', 'source "$1"; send_runs fetch', '_', str(REPO_ROOT / 'src' / 'main' / 'send.sh')],
                                env=handed, cwd=bare, capture_output=True, text=True)
-        python = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import send; print(send.runs("fetch"))',
-                                 str(REPO_ROOT / 'src' / 'main')], env=handed, cwd=bare, capture_output=True, text=True)
+        python = subprocess.run([sys.executable, '-c', 'import send; print(send.runs("fetch"))'],
+                                env=handed, cwd=bare, capture_output=True, text=True)
     answers = (shell.stdout.strip(), python.stdout.strip())
     held = answers == ('git fetch origin', 'git fetch origin')
     run("send: a running act's sends are the ones it was handed at dispatch, whatever the tree holds", held,
@@ -861,7 +861,6 @@ def check_cli_verb_help(run) -> None:
     the network or an enacting step."""
     import argparse
     from declared_parser import command_parser, verb_parser
-    sys.path.insert(0, str(SRC / 'main'))
     import importlib
     facts = importlib.import_module('facts')
     env = {**os.environ, 'CORPUS_YOGA_NO_SEND': '1'}
@@ -1131,7 +1130,6 @@ def check_acts_said_once(run) -> None:
     `would`, in its own declaration, and a status names an act as one value - the command
     and what it acts on - whose words are read from there; a noun's now: is every act its
     body names, gathered, never composed beside it."""
-    sys.path.insert(0, str(SRC / 'main'))
     import facts
     cli_root = SRC / 'main' / 'cli'
     silent = []
@@ -1261,7 +1259,6 @@ def check_reply(run) -> None:
     says no now:, hands up no steps of its own, and writes the effect there; where no launcher
     asked, or the effect is an inner verb's, the effect line is the last line and still no
     now: is said. The reply itself is the bare status before the effect line."""
-    sys.path.insert(0, str(SRC / 'main'))
     import contextlib
     import importlib
     import io
@@ -1341,7 +1338,6 @@ def check_completions(run) -> None:
     import shutil
     import subprocess
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     import importlib
     facts = importlib.import_module('facts')
     zsh = shutil.which('zsh')
@@ -1364,6 +1360,8 @@ def check_completions(run) -> None:
             for module in sorted((SRC / 'main').glob('*.py')):
                 shutil.copy(module, copy / 'src' / 'main' / module.name)
             shutil.copy(SRC / 'run_python_script.sh', copy / 'src' / 'run_python_script.sh')
+            shutil.copy(SRC / 'import_roots.sh', copy / 'src' / 'import_roots.sh')
+            shutil.copy(REPO_ROOT / 'pyrightconfig.json', copy / 'pyrightconfig.json')   # the import roots the launcher sets
             shutil.copy(REPO_ROOT / 'corpus-yoga', copy / 'corpus-yoga')
             verbs = copy / 'src' / 'main' / 'cli' / 'completions'
             presses = f'''
@@ -1464,7 +1462,6 @@ def check_walkthrough(run) -> None:
     cannot be read as a FAIL, never as content; the mark before a step is the key that
     made it."""
     import subprocess
-    sys.path.insert(0, str(SRC / 'main'))
     import importlib
     facts = importlib.import_module('facts')
     target = CLI / 'walkthrough' / 'walkthrough.py'

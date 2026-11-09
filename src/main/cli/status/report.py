@@ -21,15 +21,14 @@ import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+import facts
+import standing
 
 SELF = 'src/main/cli/status/report.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import facts  # noqa: E402
-import standing  # noqa: E402
 
 
 @dataclass

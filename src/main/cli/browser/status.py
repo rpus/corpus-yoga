@@ -7,20 +7,18 @@ of the browser's captures, as one shape (issues/759). Reads; writes nothing, sen
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import corpus
+import facts
+import audit as capture_audit
+import account  # this file's sibling
+from library import migration_note
 
 SELF = 'src/main/cli/browser/status.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-capture'))   # audit.py - the capture audit
-import tier  # noqa: E402 - the tiers, one home (issues/702)
-import corpus  # noqa: E402
-import facts  # noqa: E402
-import audit as capture_audit  # noqa: E402
-import account  # noqa: E402 - this file's sibling
-from library import migration_note  # noqa: E402 - on the path audit.py inserts: the artifact library's stated move (issues/421)
 
 
 @dataclass

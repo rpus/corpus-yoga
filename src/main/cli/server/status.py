@@ -8,18 +8,17 @@ Reads; writes nothing.
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import re
+import subprocess
+import facts
+import spell
+import tier
 
 SELF = 'src/main/cli/server/status.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import re  # noqa: E402
-import subprocess  # noqa: E402
-import facts  # noqa: E402
-import spell  # noqa: E402
-import tier  # noqa: E402
 
 
 @dataclass

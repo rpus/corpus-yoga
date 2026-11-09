@@ -24,18 +24,15 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from declared_parser import command_parser
+import facts
+import spell
 
 SELF = 'src/main/cli/migration/migration.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-from declared_parser import command_parser  # noqa: E402
-import facts  # noqa: E402
-import spell  # noqa: E402
-import tier  # noqa: E402
 
 SCRIPTS = REPO / 'rsc' / 'migration'
 HALTED = facts.Act(facts.phrase('resolve by hand what it names'))

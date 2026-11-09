@@ -13,21 +13,18 @@ import json
 import sys
 import time
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts
+import send  # every Apple Event is the browser noun's declared safari send (issues/1022)
+import account
+from declared_parser import verb_parser
+from safari import PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js, safari_navigate, safari_open_work_tab
 
 SELF = 'src/main/cli/browser/fetch.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))   # declared_parser, which both tiers import
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))   # capture.py - the gemini listing
-import tier  # noqa: E402 - the tiers, one home (issues/702)
-import facts  # noqa: E402
-import send  # noqa: E402 - every Apple Event is the browser noun's declared safari send (issues/1022)
-import account  # noqa: E402 - on the path as this file's sibling
-from declared_parser import verb_parser  # noqa: E402
-from safari import PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js, safari_navigate, safari_open_work_tab  # noqa: E402
 
 
 # NB: no // comments in eval'd JS - safari_eval_js flattens newlines to spaces, so a line

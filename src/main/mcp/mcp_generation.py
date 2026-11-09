@@ -33,17 +33,15 @@ The reading, one rule per TypeScript form, each held by the witness:
 """
 
 import re
-import sys
 from pathlib import Path
+import mcp_extraction as extraction  # (sibling module)
+from mcp_extraction import TypeExpr
 
 SELF = 'src/main/mcp/mcp_generation.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import mcp_extraction as extraction  # noqa: E402  (sibling module)
-from mcp_extraction import TypeExpr  # noqa: E402
 
 PRIMITIVE_TYPE = {'string': 'string', 'boolean': 'boolean', 'null': 'null', 'number': 'integer'}
 TAG_BLOCKS = ('@example', '@includeCode', '@category', '@TJS-type', '@minimum', '@maximum', '@maxItems',

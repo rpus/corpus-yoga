@@ -44,6 +44,17 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts  # the one face a sentence is said through (issues/909)
+import spell
+from safari import (
+    osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
+    safari_open_work_tab, safari_close_work_tab, collect_md_and_log,
+    SendRefused,
+    PAGE_LOAD_WAIT,
+)
+from claude.api import fetch_api, complete_files  # (the claude mechanism: the API fetch and the record's completion)
+import provider as registry  # (rsc/provider/providers.csv - the one source of provider names)
 
 SELF = 'src/main/cli/browser/capture.py'
 _file = Path(__file__).resolve()
@@ -51,18 +62,6 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_DIR = _root[0]
 SCRIPT_DIR     = Path(__file__).resolve().parent
-sys.path.insert(0, str(REPO_DIR / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
-import spell  # noqa: E402
-from safari import (  # noqa: E402
-    osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
-    safari_open_work_tab, safari_close_work_tab, collect_md_and_log,
-    SendRefused,
-    PAGE_LOAD_WAIT,
-)
-from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's completion)
-import provider as registry  # noqa: E402  (rsc/provider/providers.csv - the one source of provider names)
 
 # ── channels (issues/413): the progress artifact carries the narrative, the terminal - and
 # the launcher's record, its tee (issues/708) - the anchor, one line per conversation, and the

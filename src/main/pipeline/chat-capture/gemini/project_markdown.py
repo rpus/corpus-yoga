@@ -28,15 +28,14 @@ import argparse
 import re
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from markdown_projection import counted, md_validator, project_scrape, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 SELF = 'src/main/pipeline/chat-capture/gemini/project_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import counted, md_validator, project_scrape, REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 

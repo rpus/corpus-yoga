@@ -10,7 +10,7 @@ from gate import (
     _check_csv_pointers,
     check,
 )
-import model_curation  # noqa: E402 - on the paths gate.py sets
+import model_curation
 
 
 @check(tier='schema', on=['rsc/schema', 'rsc/model'], says=(

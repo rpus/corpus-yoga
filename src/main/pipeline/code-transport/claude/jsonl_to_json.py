@@ -18,9 +18,8 @@ Usage:
 import json
 import sys
 from pathlib import Path
+from write_if_changed import write_if_changed as _write_if_changed
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # the pipeline's shared write
-from write_if_changed import write_if_changed as _write_if_changed  # noqa: E402
 
 
 def convert(src, dst):

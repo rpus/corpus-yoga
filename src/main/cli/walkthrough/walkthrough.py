@@ -50,19 +50,17 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+import facts
+import spell
+from cli import help_of  # help is the declaration, from its one reader
 
 SELF = 'src/main/cli/walkthrough/walkthrough.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import facts  # noqa: E402
-import spell  # noqa: E402
 
 CLI = REPO / 'src' / 'main' / 'cli'
-sys.path.insert(0, str(CLI))
-from cli import help_of  # noqa: E402 - help is the declaration, from its one reader
 REPORT = 'status'                              # the machine report: the first noun, and the one that runs before the venv
 REPORT_SCRIPT = './src/main/cli/status/status.sh'
 FIRST = (REPORT, 'stage', 'store')                    # the room's state, in the order a reader meets it

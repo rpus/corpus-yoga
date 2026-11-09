@@ -28,11 +28,10 @@ import csv
 import sqlite3
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[3]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
 CACHE_DIR    = tier.TMP / 'cache' / 'chat-export'
 
 QUERIES: list[tuple[str, str, str]] = [

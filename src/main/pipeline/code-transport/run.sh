@@ -63,7 +63,7 @@ parse_args() {
 # The registry is the venv python's to read (issues/478); the pipeline runs after the mint.
 providers() {
   local declared p
-  declared="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(provider.provider_names()))' "$REPO_DIR/src/main")"
+  declared="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; import provider; print("\n".join(provider.provider_names()))')"
   for p in $declared; do
     [[ -x "$SCRIPT_DIR/$p/list_sessions.sh" ]] && echo "$p"
   done

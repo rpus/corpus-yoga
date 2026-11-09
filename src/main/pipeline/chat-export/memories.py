@@ -42,19 +42,17 @@ from pathlib import Path
 
 from vintage import export_time
 from accumulate import accumulate  # the one deposit rule (issues/22)
+import facts  # the one printer of a status's facts (issues/753)
+from markdown_projection import deposit as deposit_files
+from declared_parser import command_parser
 
 SELF = 'src/main/pipeline/chat-export/memories.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
 # renamed on import: this file's own deposit() puts memory STATES into the
 # library; the shared one puts rendered FILES into a directory (pull/426)
-from markdown_projection import deposit as deposit_files  # noqa: E402
-from declared_parser import command_parser  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[3]

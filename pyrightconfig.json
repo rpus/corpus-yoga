@@ -12,6 +12,7 @@
     "src/main/cli/cache",
     "src/main/cli/indexing",
     "src/main/cli/completions",
+    "src/main/cli/agent",
     "src/main/pipeline/code-transport",
     "src/main/model",
     "src/main/mcp",

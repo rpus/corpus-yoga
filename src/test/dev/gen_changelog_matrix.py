@@ -20,21 +20,19 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from gate import (
+    PIPELINES,
+    RSC_SCHEMA,
+)
+from validation_matrix import HEADER, render_rows, write_matrix
+from validation_audit import datum_dirs, sources  # the data gate's own enumeration (issues/535)
 
 SELF = 'src/test/dev/gen_changelog_matrix.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 
-from gate import (
-    PIPELINES,
-    RSC_SCHEMA,
-)
-from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
-from validation_audit import datum_dirs, sources  # noqa: E402 — the data gate's own enumeration (issues/535)
 
 
 def main():

@@ -27,7 +27,7 @@ import json
 import sys
 from pathlib import Path
 
-from jsonl_to_json import _write_if_changed
+from write_if_changed import write_if_changed
 
 
 def turn_text(message):
@@ -82,7 +82,7 @@ def main() -> int:
     records = json.loads((session_dir / 'session.json').read_text())
     conv = project_session(records, session_dir.name, session_dir.parent.name)
     out = session_dir / 'conversation.json'
-    _write_if_changed(str(out), lambda dst: json.dump(conv, dst, indent=1, ensure_ascii=False))
+    write_if_changed(str(out), lambda dst: json.dump(conv, dst, indent=1, ensure_ascii=False))
     print(f'  conversation.json: {len(conv["messages"])} turn(s)'
           + (f", titled '{conv['title']}'" if conv['title'] else ', no ai-title'))
     return 0

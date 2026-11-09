@@ -29,7 +29,7 @@ import re
 import sys
 from pathlib import Path
 
-from jsonl_to_json import _write_if_changed
+from write_if_changed import write_if_changed
 
 ENTRY = re.compile(r'^- \[(?P<title>.*?)\]\((?P<file>[^)]+)\)(?:\s+—\s+(?P<hook>.*))?$')
 LINK = re.compile(r'\[\[([^\]|]+?)(?:\|[^\]]*)?\]\]')
@@ -107,7 +107,7 @@ def main() -> int:
     out = Path(sys.argv[2])
     doc = memory_to_json(memory_dir, memory_dir.parent.name)
     out.parent.mkdir(parents=True, exist_ok=True)
-    _write_if_changed(str(out), lambda dst: json.dump(doc, dst, indent=1, ensure_ascii=False))
+    write_if_changed(str(out), lambda dst: json.dump(doc, dst, indent=1, ensure_ascii=False))
     print(f'  memory.json: {len(doc["facts"])} fact(s), '
           f'{len(doc["index"]["entries"])} index entr(y/ies)')
     return 0

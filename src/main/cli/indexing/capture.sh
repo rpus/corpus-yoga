@@ -56,7 +56,6 @@ chat_list() {
   if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || has_conversations "$src"; }; then
     "$REPO_DIR/src/run_python_script.sh" -c "
 import sys
-sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
 for n, stem, title, cid in corpus_index('$src'):
     parts = stem.split('/')
@@ -205,7 +204,6 @@ coverage_of() {
   [[ -d "$conv" ]] || return 1
   "$REPO_DIR/src/run_python_script.sh" -c "
 import json, os, sys
-sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
 corpus = {cid for _, _, _, cid in corpus_index('$conv')}
 captured = ({r[0] for r in json.load(open('$cat')).get('rows', [])}
@@ -276,7 +274,7 @@ capture_dashboard() {
     # What the call bought, judged now (issues/644): the index's own scan says which concepts
     # anchor in a conversation turn and by which phrasings; the rest are named here, the
     # one place their spend is visible, and never reach the queue.
-    "$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import indexing; indexing.anchor_report(Path(sys.argv[2]), Path(sys.argv[3]))' "$SCRIPT_DIR" "$stage/inferred-semantic-concepts.json" "$conv"
+    "$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; import indexing; indexing.anchor_report(Path(sys.argv[1]), Path(sys.argv[2]))' "$stage/inferred-semantic-concepts.json" "$conv"
   fi
   if [[ "$want_categories" == 1 ]]; then
     capture_chat_categories "$conv" "$chats" "$categories" "$stage/inferred-chat-categories.json"

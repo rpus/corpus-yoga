@@ -13,15 +13,14 @@ import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
+import send  # a render lib's download is a send the declaration names (issues/29, issues/1022)
+import facts
 
 SELF = 'src/main/model/serve_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-import send  # noqa: E402 - a render lib's download is a send the declaration names (issues/29, issues/1022)
-import facts  # noqa: E402
 
 REPO_ROOT  = REPO
 STATIC_DIR = REPO_ROOT / 'ext' / 'lib' / 'serve_markdown'  # pinned foreign artifacts, by copy

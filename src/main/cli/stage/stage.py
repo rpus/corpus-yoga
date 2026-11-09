@@ -25,18 +25,16 @@ that gained a file while being emptied is emptied again.
 """
 import sys
 from pathlib import Path
+from declared_parser import command_parser
+import cleaner  # the one loop every clean verb runs (issues/837)
+import corpus
+import facts  # the one face a sentence is said through (issues/909)
 
 SELF = 'src/main/cli/stage/stage.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-from declared_parser import command_parser  # noqa: E402
-import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
-import corpus  # noqa: E402
-import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
 KINDS = corpus.JANITOR_KINDS   # each kind of entry, and its plural - one home, which the standing says too (issues/988)
 

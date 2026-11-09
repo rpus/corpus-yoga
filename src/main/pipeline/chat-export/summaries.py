@@ -43,20 +43,18 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+import facts  # the one printer of a status's facts (issues/753)
+from markdown_projection import REPO, find_api_json
+from declared_parser import command_parser
+from vintage import export_time  # the one export-ordering authority
+from accumulate import accumulate, nearest_earlier_deposit  # the one deposit rule
 
 SELF = 'src/main/pipeline/chat-export/summaries.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-from markdown_projection import REPO, find_api_json
 
-from declared_parser import command_parser  # noqa: E402
-from vintage import export_time  # noqa: E402 — the one export-ordering authority
-from accumulate import accumulate, nearest_earlier_deposit  # noqa: E402 — the one deposit rule
 
 # A summary folder holds <stamp>.md deposits beside two non-deposits: index.md
 # (the map) and browser-capture.md (rolling). Both are held out of the accumulate

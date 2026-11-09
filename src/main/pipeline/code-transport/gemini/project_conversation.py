@@ -24,13 +24,12 @@ import json
 import re
 import sys
 from pathlib import Path
+from write_if_changed import write_if_changed
 
 SELF = 'src/main/pipeline/code-transport/gemini/project_conversation.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
-sys.path.insert(0, str(_root[0] / 'src' / 'main' / 'pipeline' / 'code-transport'))
-from write_if_changed import write_if_changed  # noqa: E402
 
 USER_REQUEST = re.compile(r'<USER_REQUEST>\s*(.*?)\s*</USER_REQUEST>', re.S)
 

@@ -9,13 +9,11 @@ sections a shell on_failure used to assemble from jq and three scripts.
 
 import json
 import os
-import sys
 from pathlib import Path
+from markdown_projection import REPO
+from schema_occurrences import enumerate_instance_paths, find_instance_patterns
+from schema_path import follow_path, parse_instance_path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling helpers when imported from elsewhere
-from markdown_projection import REPO  # noqa: E402
-from schema_occurrences import enumerate_instance_paths, find_instance_patterns  # noqa: E402
-from schema_path import follow_path, parse_instance_path  # noqa: E402
 
 
 def _rel(path):

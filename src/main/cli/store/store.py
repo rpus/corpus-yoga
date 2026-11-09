@@ -40,19 +40,17 @@ and the verdict is the last line, DONE only when every entry went.
 """
 import sys
 from pathlib import Path
+from declared_parser import command_parser
+import cleaner  # the one loop every clean verb runs (issues/837)
+import corpus
+import facts
+import live  # the live stores: their addresses, which the duplicates reading keeps the newest of (issues/744), and their reading against both tiers (issues/851)
 
 SELF = 'src/main/cli/store/store.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-from declared_parser import command_parser  # noqa: E402
-import cleaner  # noqa: E402 - the one loop every clean verb runs (issues/837)
-import corpus  # noqa: E402
-import facts  # noqa: E402
-import live  # noqa: E402 - the live stores: their addresses, which the duplicates reading keeps the newest of (issues/744), and their reading against both tiers (issues/851)
 
 
 KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows', 'surplus file': 'surplus files'}   # each kind of entry, and its plural

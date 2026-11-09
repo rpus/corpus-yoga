@@ -1,4 +1,5 @@
 """tree.py - the dev gate's checks of the repository's own files, names and cross-references."""
+import ast
 import json
 import re
 import subprocess
@@ -15,9 +16,9 @@ from gate import (
     _PIPELINE_UNDECLARED,
     check,
 )
-from member import members  # noqa: E402 - on the paths gate.py sets
-import provider  # noqa: E402 - on the paths gate.py sets
-import xref  # noqa: E402 - the gate's sibling, src/test/dev/xref.py
+from member import members
+import provider
+import xref  # the gate's sibling, src/test/dev/xref.py
 
 
 @check(tier='code', says=('files.required_exists',), on='TREE')
@@ -120,19 +121,55 @@ def check_pipeline_declarations(run) -> None:
             check='structure.pipeline_implements_run')
 
 
+@check(tier='code', says=('imports.at_the_top', 'imports.path_declared_once'), on=['src', 'pyrightconfig.json'])
+def check_import_path(run) -> None:
+    """Python's import roots are pyrightconfig.json's, which src/run_python_script.sh sets for every
+    python it starts (issues/1038): no file under src edits sys.path - a module, or the python a
+    shell script passes to -c - and every module's imports stand before any other statement, so
+    that no import depends on code above it, and no lint marker excuses one."""
+    editing, late = [], []
+    for source in sorted(SRC.rglob('*')):
+        if not source.is_file() or source.relative_to(SRC).parts[0] == 'gen' or source.suffix not in ('.py', '.sh'):
+            continue
+        rel = str(source.relative_to(REPO_ROOT))
+        text = source.read_text()
+        if source.suffix == '.sh':
+            if re.search(r'\bsys\.path\.(insert|append)\(', text):
+                editing.append(rel)
+            continue
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        if any(isinstance(node, ast.Attribute) and node.attr == 'path' and isinstance(node.value, ast.Name) and node.value.id in ('sys', '_sys')
+               and isinstance(parent, ast.Attribute) and parent.attr in ('insert', 'append')
+               for parent in ast.walk(tree) for node in ast.iter_child_nodes(parent)):
+            editing.append(rel)
+        body = tree.body
+        first = next((i for i, node in enumerate(body) if not (isinstance(node, (ast.Import, ast.ImportFrom))
+                                                             or (i == 0 and isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)))), len(body))
+        after = [node.lineno for node in body[first:] if isinstance(node, (ast.Import, ast.ImportFrom))]
+        if after:
+            late.append(f'{rel}:{after[0]}')
+    run('imports: no file under src edits sys.path; the roots are pyrightconfig.json\'s, set by src/run_python_script.sh', not editing,
+        None if not editing else f'{", ".join(editing[:8])}{" ..." if len(editing) > 8 else ""} - declare the directory in pyrightconfig.json\'s extraPaths, '
+                                 f'or import a noun\'s own module through its noun, as forge.aim', check='imports.path_declared_once')
+    run('imports: every module\'s imports stand before any other statement', not late,
+        None if not late else f'{", ".join(late[:8])}{" ..." if len(late) > 8 else ""} - move the import above the first statement that is not one',
+        check='imports.at_the_top')
+
+
 @check(tier='code', says=('imports.step_module_imports',))
 def check_step_imports(run) -> None:
-    """A step module that cannot import fails here, not at the first pipeline run: the run.sh steps exec these under python, so an unresolvable sys.path
-    insert or import inside them is a commit-time defect the tiers' cache reads
-    cannot see. Each import runs in a FRESH interpreter, because this process's
-    own sys.path (pipeline/chat-export is already on it for the accumulate
-    check) resolves the very imports a dangling insert would strand, so an
-    in-process import passes where the step's own interpreter fails. Both modules are
+    """A step module that cannot import fails here, not at the first pipeline run: the run.sh steps exec these under python, so an unresolvable
+    import inside them is a commit-time defect the tiers' cache reads
+    cannot see. Each import runs in a FRESH interpreter, as the step's own does, so that
+    nothing this process has already imported stands in for what the step resolves. Both modules are
     __main__-guarded, so importing executes only their top level."""
     for name in ('project_markdown', 'compare_sources'):
         proc = subprocess.run(
             [sys.executable, '-c',
-             f"import sys; sys.path.insert(0, 'src/main/model'); import {name}"],
+             f"import {name}"],
             capture_output=True, text=True, cwd=REPO_ROOT)
         lines = (proc.stdout + proc.stderr).strip().splitlines()
         run(f'imports: {name}: the step module imports in a fresh interpreter',
@@ -300,7 +337,6 @@ def check_spelling(run) -> None:
     never a repository path."""
     import ast
     import importlib
-    sys.path.insert(0, str(SRC / 'main'))
     try:
         spell = importlib.import_module('spell')
     except ImportError:

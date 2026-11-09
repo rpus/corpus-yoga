@@ -10,14 +10,14 @@ import shutil
 import sys
 from pathlib import Path
 
+import tier  # the tiers, one home (issues/702)
+from safari import safari_fetch_api_json, safari_fetch_asset, process_chain
+
 SELF = 'src/main/cli/browser/claude/api.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_DIR = _root[0]
-sys.path.insert(0, str(REPO_DIR / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from safari import safari_fetch_api_json, safari_fetch_asset, process_chain  # noqa: E402
 
 
 def rel(path):
@@ -83,9 +83,8 @@ def _library():
     corpus dressing map, imported lazily so gemini sweeps never touch it."""
     global _LIBRARY
     if _LIBRARY is None:
-        sys.path.insert(0, str(REPO_DIR / 'src' / 'main' / 'pipeline' / 'chat-export'))
-        from library import dir_for, migration_note  # noqa: E402 — one authority (issues/421)
-        from markdown_projection import corpus_index  # noqa: E402
+        from library import dir_for, migration_note  # one authority (issues/421)
+        from markdown_projection import corpus_index
         migration_note()
         dressing = {}
         md_root = tier.DATA / 'output' / 'markdown'

@@ -48,20 +48,17 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+from markdown_projection import turns, REPO
+from declared_parser import command_parser
 
 SELF = 'src/main/cli/indexing/indexing.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-import corpus  # noqa: E402 - the room's to-do, which every act ends on (issues/876)
-from markdown_projection import turns, REPO
-from declared_parser import command_parser
 
 MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
 ACCEPTED_FILE = tier.DATA / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)

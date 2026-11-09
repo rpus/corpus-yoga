@@ -26,19 +26,15 @@ the committed version file, and the dev gate holds them derivable from it and
 valid draft-04 (mcp.faces_derivable).
 """
 
-import json
-import sys
 from pathlib import Path
+from schema_walk import rebuilt, schema_nodes
+import mcp_factoring as factoring  # (sibling module)
 
 SELF = 'src/main/mcp/mcp_face.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src'))
-from schema_walk import rebuilt, schema_nodes  # noqa: E402
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import mcp_factoring as factoring  # noqa: E402  (sibling module)
 
 FACES = ('consumer', 'producer')
 LAW = {

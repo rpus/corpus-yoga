@@ -6,15 +6,14 @@ then the stage's units of the export's captures, as one shape (issues/759). Read
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import corpus
+import facts
 
 SELF = 'src/main/cli/export/status.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import corpus  # noqa: E402
-import facts  # noqa: E402
 
 
 @dataclass

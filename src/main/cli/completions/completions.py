@@ -16,19 +16,16 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from declared_parser import command_parser
+import facts  # the one printer of a status's facts (issues/753)
+import send  # ~/.zshrc is outside the tree, so its write is a send the declaration names (issues/29, issues/1022)
+from cli import REPO
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 SELF = 'src/main/cli/completions/completions.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
-from declared_parser import command_parser  # noqa: E402
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))   # src/main/, for send
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import send  # noqa: E402 - ~/.zshrc is outside the tree, so its write is a send the declaration names (issues/29, issues/1022)
-from cli import REPO  # noqa: E402
 
 # The directory ~/.zshrc puts on zsh's fpath: it holds _corpus-yoga, the one file zsh loads.
 COMPLETION_HOME = REPO / 'src' / 'main' / 'cli' / 'completions'

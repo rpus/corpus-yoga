@@ -40,14 +40,13 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from markdown_projection import is_empty, ordered, load_convs, corpus_index
 
 SELF = 'src/main/model/rekey_chats.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-from markdown_projection import is_empty, ordered, load_convs, corpus_index
 
 
 def _order(conversations, legacy):

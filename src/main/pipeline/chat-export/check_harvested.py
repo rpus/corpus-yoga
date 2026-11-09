@@ -20,16 +20,15 @@ Example:
 import json
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from markdown_projection import slug
+from library import find as find_library_dir
 
 SELF = 'src/main/pipeline/chat-export/check_harvested.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import slug
-from library import find as find_library_dir
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 CACHE_DIR = tier.TMP / 'cache' / 'chat-export'

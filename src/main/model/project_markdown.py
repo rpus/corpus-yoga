@@ -22,19 +22,17 @@ import argparse
 import json
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from markdown_projection import (project, ordered, find_api_json, render,
+                                 md_validator, tree_problems, deposit, conv_id)
+from vintage import export_time  # the one export-ordering authority
 
 SELF = 'src/main/model/project_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import (REPO, project, ordered, find_api_json, render,
-                                 md_validator, tree_problems, deposit, conv_id)
 
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'chat-export'))
-from vintage import export_time  # noqa: E402 — the one export-ordering authority
 
 
 def _newest_batch_json():

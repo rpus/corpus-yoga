@@ -13,13 +13,12 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+from markdown_projection import project, project_scrape
 
 SELF = 'src/main/pipeline/chat-capture/lean.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
-sys.path.insert(0, str(_root[0] / 'src' / 'main'))
-from markdown_projection import project, project_scrape  # noqa: E402
 
 
 def main(argv: list[str]) -> int:

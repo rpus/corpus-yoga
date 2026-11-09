@@ -16,11 +16,11 @@ from gate import (
     SRC,
     check,
 )
-from member import members  # noqa: E402 - on the paths gate.py sets
-import cli  # noqa: E402 - on the paths gate.py sets
-import send  # noqa: E402 - on the paths gate.py sets
-import tier  # noqa: E402 - on the paths gate.py sets
-import offer as cli_offer  # noqa: E402 - on the paths gate.py sets
+from member import members
+import cli
+import send
+import tier
+import offer as cli_offer
 
 
 @check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'], says=(
@@ -48,7 +48,6 @@ def check_status_facts(run) -> None:
     has, or a standard tool - read from the constructor's call sites, so a remedy a rare
     state alone would say is held before that state."""
     import subprocess
-    sys.path.insert(0, str(SRC / 'main'))
     import importlib
     status_facts = importlib.import_module('facts')
     try:
@@ -256,7 +255,6 @@ def check_status_facts(run) -> None:
     nouns_with_now = ('store', 'forge', 'cache', 'logs', 'server', 'site', 'pipeline')
     own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
     import importlib
-    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
     folded = importlib.import_module('standing').fold(own_now)
     own_rows = importlib.import_module('facts').now_of({key: value for key, value in whole.items() if key != 'now'})
     expected = {**folded, **{line: act for line, act in own_rows.items() if line not in folded}} or 'none - nothing to do'
@@ -484,7 +482,6 @@ def check_facts(run) -> None:
     a list's items with a dash, a nested fact indented beneath its heading, and a string
     quoted exactly where YAML would read it as a number, a boolean, null, a time or a
     mapping - so that the lines are the data."""
-    sys.path.insert(0, str(SRC / 'main'))
     import importlib
     try:
         facts = importlib.import_module('facts')
@@ -577,7 +574,7 @@ def check_facts(run) -> None:
     import subprocess
     import termios
     said = 'a value long enough that a terminal forty columns wide cannot hold it on one line with its key'
-    program = (f'import sys; sys.path.insert(0, {str(SRC / "main")!r}); import facts; from dataclasses import dataclass\n'
+    program = (f'import facts; from dataclasses import dataclass\n'
                f'@dataclass\nclass Said:\n    said: str\nfacts.say(Said({said!r}))')
     quiet = {key: value for key, value in os.environ.items() if key not in ('COLUMNS', 'LINES')}
     master, slave = pty.openpty()
@@ -613,8 +610,6 @@ def check_drafters(run) -> None:
     """A Signature is read by the grammar that writes it, and a message's first Signature
     is its drafter: the join of main's messages to the store's sessions rests on
     both, and neither needs a store to be shown."""
-    sys.path.insert(0, str(SRC / 'main'))
-    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'agent'))
     import provider
     read = getattr(provider, 'read_signature', None)
     if read is None:
@@ -691,10 +686,9 @@ def check_forge_aim(run) -> None:
     the aimed set from it and refuses any other spelling, so that the set the flip
     rewrites and the set the forge closes are one. A body aiming at two issues in one line is
     refused, never read as aiming at one."""
-    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'forge'))
     import importlib
     try:
-        aim = importlib.import_module('aim')
+        aim = importlib.import_module('forge.aim')
     except ModuleNotFoundError:
         run('forge: a PR\'s aim is one line per issue in one grammar', False,
             'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue')
@@ -719,7 +713,7 @@ def check_forge_aim(run) -> None:
     # An issue is raised from its should and its relations (issues/887): a title that is not a
     # should, and a relation narrated in prose, are refused before any send.
     try:
-        should = importlib.import_module('should')
+        should = importlib.import_module('forge.should')
     except ModuleNotFoundError:
         run('forge: an issue\'s title is a should and its relations are wired, never narrated', False,
             'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_is_a_should_with_wired_relations')

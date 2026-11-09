@@ -30,22 +30,20 @@ workspace lands under one name in every provider's store.
 """
 from collections.abc import Iterator
 import importlib.util
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
+import tier  # the tiers, one home (issues/702)
+import provider as registry  # the live tier's root and the transport address (issues/853)
+import cleaner  # the count a verdict says a kind by (issues/857)
+import facts  # the one face a sentence is said through (issues/909)
+from append_only import Relation, growth, may_replace, relate
 
 SELF = 'src/main/cli/agent/transport.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import provider as registry  # noqa: E402 - the live tier's root and the transport address (issues/853)
-import cleaner  # noqa: E402 - the count a verdict says a kind by (issues/857)
-import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
-from append_only import Relation, growth, may_replace, relate  # noqa: E402
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
 # The three roots a unit's one address is read under, as the narration names them (issues/854):

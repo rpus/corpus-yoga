@@ -46,16 +46,15 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts
+import send  # every read below is a send the declaration names (issues/1022)
 
 SELF = 'src/main/cli/forge/capture.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402
-import send  # noqa: E402 - every read below is a send the declaration names (issues/1022)
 
 STORE = tier.TMP_STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (issues/687)
 

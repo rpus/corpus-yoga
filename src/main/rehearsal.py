@@ -32,18 +32,17 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Callable
+import facts
+import spell
+import provider
+import tier
+import validation_verdict as verdicts
 
 SELF = 'src/main/rehearsal.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import facts  # noqa: E402
-import spell  # noqa: E402
-import provider  # noqa: E402
-import tier  # noqa: E402
-import validation_verdict as verdicts  # noqa: E402
 
 RECORD = tier.TMP_STAGE_REHEARSAL
 SCHEMA = REPO / 'src' / 'main' / 'rehearsal.schema.json'

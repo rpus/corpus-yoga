@@ -25,6 +25,9 @@ parse_argv() {
   # `|| rc=$?` keeps a caller's set -e from killing the script at the substitution
   # itself. A refusal (rc 2) needs no relay: argparse wrote it to stderr, which
   # $(...) does not capture.
+  # shellcheck source=src/import_roots.sh
+  source "$PARSE_ARGV_REPO/src/import_roots.sh"
+  import_roots "$PARSE_ARGV_REPO" "$python"
   out="$("$python" "$PARSE_ARGV_REPO/src/main/cli/parse_argv.py" "$@")" || rc=$?
   # $(...) ate the face's trailing newline; printf '%s\n' restores exactly one,
   # so the courier's bytes equal the face's (cli.verb_help_answered holds this).

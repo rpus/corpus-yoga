@@ -1,6 +1,5 @@
 """pipeline.py - the dev gate's checks of the pipelines: declarations, judges, caches, captures and the corpus format."""
 import io
-import sys
 from pathlib import Path
 
 from gate import (
@@ -10,10 +9,10 @@ from gate import (
     _cache_io_resolves,
     check,
 )
-from markdown_projection import turn_seq  # noqa: E402 - on the paths gate.py sets
-import accumulate as _accumulate  # noqa: E402 - on the paths gate.py sets
-import cache_io  # noqa: E402 - on the paths gate.py sets
-import cli  # noqa: E402 - on the paths gate.py sets
+from markdown_projection import turn_seq
+import accumulate as _accumulate
+import cache_io
+import cli
 
 
 @check(tier='code', on=['src/main/corpus.py', 'src/main/pipeline'], says=(
@@ -22,7 +21,6 @@ import cli  # noqa: E402 - on the paths gate.py sets
 def check_providers_judged(run) -> None:
     """Every provider a pipeline captures for is judged by a family of that pipeline: a unit of the provider has at least one judge, so the rehearsal stands
     before its promotion."""
-    sys.path.insert(0, str(SRC / 'main'))
     import corpus
     unjudged = []
     for store in corpus.stores():
@@ -43,7 +41,6 @@ def check_declared_families_judge(run) -> None:
     its measure: claude's memory, a mirror unit, by projectMemory; gemini's
     ordering file, a mirror unit, by none."""
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     import corpus
     judged: dict[str, list[str]] = {}
     with tempfile.TemporaryDirectory() as scratch:
@@ -193,7 +190,6 @@ def check_capture_prefix(run) -> None:
     used as a directory's name. Held over the resolver alone, in process: Safari is the
     reader's, not the gate's."""
     import importlib
-    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'browser'))
     capture = importlib.import_module('capture')
     resolve = getattr(capture, 'resolve_id', None)
     if resolve is None:
@@ -223,7 +219,6 @@ def check_capture_monotone(run) -> None:
     import shutil
     import tempfile
     import time
-    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'cli' / 'browser'))
     import safari
     real_downloads = safari.DOWNLOADS
 
@@ -285,8 +280,6 @@ def check_turn_count_one_home(run) -> None:
     counts from there; and a turn heading is one the projection wrote - its number the next
     for its role - so a message quoting a rendered conversation's headings adds no turn."""
     import importlib
-    sys.path.insert(0, str(SRC / 'main'))
-    sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'code-transport'))
     projection = importlib.import_module('markdown_projection')
     declaration = importlib.import_module('page_declaration')
     render_corpus = importlib.import_module('render_corpus')

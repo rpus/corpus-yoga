@@ -104,6 +104,9 @@ _say() {
   local rows_file
   rows_file="$(mktemp "${TMPDIR:-/tmp}/status.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
+  # shellcheck source=src/import_roots.sh
+  source "$REPO_ROOT/src/import_roots.sh"
+  import_roots "$REPO_ROOT" "$python"
   CORPUS_YOGA_VENV="$CORPUS_YOGA_VENV" "$python" "$REPO_ROOT/src/main/cli/status/report.py" "$mode" "$rows_file" "$SHOW_ALL"
   rm -f "$rows_file"
 }
@@ -420,7 +423,7 @@ check_pipeline_inputs() {
     # provider, live store, the mount as provider.mount() derives it, and whether the agent
     # verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
     # each the rule's one home, none restated here.
-    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); sys.path.insert(0, sys.argv[2]); import provider, transport; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") + "\x1f" + ("served" if transport.adapter(r["provider"]) else "") for r in provider.providers()))' "$REPO_ROOT/src/main" "$REPO_ROOT/src/main/cli/agent")" || return 1
+    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; import provider, transport; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") + "\x1f" + ("served" if transport.adapter(r["provider"]) else "") for r in provider.providers()))')" || return 1
   else
     info providers "$(phrase "rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint")"
     p_rows=''

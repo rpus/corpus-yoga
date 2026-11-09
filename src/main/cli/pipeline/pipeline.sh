@@ -359,9 +359,9 @@ atom_table() {
       flush()
       for (r = 1; r <= n_rows; r++) print rows[r]
     }
-  ' "$LOG_FILE" 2>/dev/null | "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import facts
+  ' "$LOG_FILE" 2>/dev/null | "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; import facts
 rows = [line.split("\t") for line in sys.stdin.read().splitlines() if line]
-print("\n".join(facts.lines({"stages": {name: {"failures": int(fails), "line": int(at)} for name, fails, at in rows}}, facts.depth())))' "$REPO_ROOT/src/main" || true
+print("\n".join(facts.lines({"stages": {name: {"failures": int(fails), "line": int(at)} for name, fails, at in rows}}, facts.depth())))' || true
 }
 
 # A prep that exits non-zero states its atom like any stage (issues/547), in its own

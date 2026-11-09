@@ -35,6 +35,8 @@ from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import PurePath
 from typing import TYPE_CHECKING
 
+import tier  # the launcher's names, one home
+
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
 
@@ -438,8 +440,6 @@ def say(shape: DataclassInstance) -> None:
     that its keys are the fields of one type."""
     print('\n'.join(lines(plain(shape), depth(), width=terminal_width())))
 
-
-import tier  # noqa: E402 - the launcher's names, one home
 
 ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (issues/896)
 EFFECT = 'CORPUS_YOGA_EFFECT'    # and the file the act hands its effect up through

@@ -11,13 +11,12 @@ import csv
 import json
 import sys
 from pathlib import Path
+import facts  # the one face a sentence is said through (issues/909)
 
 SELF = 'src/main/cli/forge/reconcile.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
-sys.path.insert(0, str(_root[0] / 'src' / 'main'))
-import facts  # noqa: E402 - the one face a sentence is said through (issues/909)
 
 
 def norm(value) -> str:

@@ -33,14 +33,13 @@ import sys
 from pathlib import Path
 
 from cache_io import producers
+from declared_parser import verb_parser
 
 SELF = 'src/main/cli/cache/sync.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from declared_parser import verb_parser
 
 REPO = REPO_ROOT
 

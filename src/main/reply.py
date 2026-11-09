@@ -20,15 +20,14 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+import enact
+import facts
+import tier
 
 SELF = 'src/main/reply.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
-sys.path.insert(0, str(_root[0] / 'src' / 'main'))
-import enact  # noqa: E402
-import facts  # noqa: E402
-import tier  # noqa: E402
 
 REPO = _root[0]
 

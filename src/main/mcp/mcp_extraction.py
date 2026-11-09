@@ -29,11 +29,12 @@ never carried as text. The parser is generated on each machine (src/gen/grammar,
 gitignored); absent, every reading refuses with the remedy.
 """
 
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
 import importlib
+from antlr4 import CommonTokenStream, InputStream
+from antlr4.error.ErrorListener import ErrorListener
 
 SELF = 'src/main/mcp/mcp_extraction.py'
 _file = Path(__file__).resolve()
@@ -41,9 +42,6 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 GRAMMAR_PARSER = REPO / 'src' / 'gen' / 'grammar' / 'TypeScript'   # generated, gitignored - corpus-yoga grammar sync
-sys.path.insert(0, str(GRAMMAR_PARSER))
-from antlr4 import CommonTokenStream, InputStream  # noqa: E402
-from antlr4.error.ErrorListener import ErrorListener  # noqa: E402
 PARSER_REMEDY = (f'{GRAMMAR_PARSER.relative_to(REPO)} is absent - corpus-yoga grammar sync generates it from '
                  'rsc/rpus/grammar/TypeScript (corpus-yoga status sync does so with the rest)')
 

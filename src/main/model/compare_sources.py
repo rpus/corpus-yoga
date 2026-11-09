@@ -33,15 +33,14 @@ import difflib
 import json
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+from markdown_projection import project, find_api_json, render, turn_seq
 
 SELF = 'src/main/model/compare_sources.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-from markdown_projection import REPO, project, find_api_json, render, turn_seq
 
 
 def _transcript_and_summary(conv):

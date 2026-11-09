@@ -1,6 +1,5 @@
 """unit.py - the dev gate's checks of the stage and the store: rehearsal records, units, states and atoms."""
 import json
-import sys
 from pathlib import Path
 
 from gate import (
@@ -27,7 +26,6 @@ def check_rehearsal_record(run) -> None:
     judged at, or unlicensed where the record's version is ahead of main's, each said with
     the stamp."""
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     try:
         import rehearsal
     except ImportError:
@@ -125,7 +123,6 @@ def check_unit_companion(run) -> None:
     naming what is absent. The fixture is synthetic - one export whole, one with its
     manifest alone, one with its payload alone."""
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     import corpus
     store = next(s for s in corpus.stores() if s.pipeline == 'chat-export')
     with tempfile.TemporaryDirectory() as tmp:
@@ -161,7 +158,6 @@ def check_unit_state(run) -> None:
     unjudged, the state before any verdict, whose remedy is a rehearsal. No status line
     prescribes a removal: a unit that would lose is the reader's to reconcile, an incomplete
     one the janitor's; and no state of a status is refused, since a status asks for no act."""
-    sys.path.insert(0, str(SRC / 'main'))
     import corpus
     from append_only import Relation
     state = getattr(corpus, 'state', None)
@@ -261,7 +257,6 @@ def check_store(run) -> None:
     session's under another project is contained, a memory equal to another's is
     identical, and what differs is neither."""
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     import corpus
     twice = getattr(corpus, 'held_twice', None)
     if twice is None:
@@ -320,7 +315,6 @@ def check_export_atoms(run) -> None:
     the deposits hold counts for nothing the export must still hold."""
     import json as json_
     import tempfile
-    sys.path.insert(0, str(SRC / 'main'))
     import corpus
     if 'atoms' not in corpus.MEASURE:
         run('store: an export is held whole within a later one by its atoms', False,

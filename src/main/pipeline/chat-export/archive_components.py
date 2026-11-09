@@ -27,10 +27,9 @@ import argparse
 import shutil
 import sys
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(SCRIPT_DIR.parents[3] / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
 CACHE_DIR = tier.TMP / 'cache' / 'chat-export'
 
 COMPONENTS = ['memories.json', 'projects', 'users.json']

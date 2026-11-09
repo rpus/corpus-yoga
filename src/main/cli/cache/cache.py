@@ -19,15 +19,13 @@ import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+from cache_io import human, orphans, size_of  # the registry, and what it does not own (issues/865)
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
-sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-sys.path.insert(0, str(HERE))
-from cache_io import human, orphans, size_of  # noqa: E402 - the registry, and what it does not own (issues/865)
 VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
 USAGE = (__doc__ or '').strip()
 

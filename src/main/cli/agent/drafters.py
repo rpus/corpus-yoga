@@ -22,9 +22,13 @@ git and the store; writes nothing.
 """
 import re
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path
+import provider as registry
+import facts  # the one printer of a status's facts (issues/753)
+import spell
+import transport
+from machine import bound_machine
 
 SELF = 'src/main/cli/agent/drafters.py'
 _file = Path(__file__).resolve()
@@ -32,13 +36,6 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-import provider as registry  # noqa: E402
-import facts  # noqa: E402 - the one printer of a status's facts (issues/753)
-import spell  # noqa: E402
-import transport  # noqa: E402
-from machine import bound_machine  # noqa: E402
 
 REF = 'origin/main'
 WINDOW = 60     # the letters and digits of a message that the record is searched for, at a time

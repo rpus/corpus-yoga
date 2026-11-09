@@ -76,7 +76,6 @@ import argparse
 import hashlib
 import json
 import re
-import shlex
 import shutil
 import subprocess
 import sys
@@ -84,23 +83,20 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Callable
+from append_only import Relation
+from markdown_projection import turn_extent
+import cache_io
+import facts  # the one printer of a status's facts (issues/740)
+import provider as registry  # the provider registry, one home of a provider's id shape (issues/994)
+import spell
+import rehearsal  # the rehearsal record, one home (issues/815)
+import tier  # the tiers, one home (issues/702)
 
 SELF = 'src/main/corpus.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
-from append_only import Relation, may_replace  # noqa: E402
-from markdown_projection import turn_extent  # noqa: E402
-import cache_io  # noqa: E402
-import validation_verdict as verdicts  # noqa: E402
-import facts  # noqa: E402 - the one printer of a status's facts (issues/740)
-import provider as registry  # noqa: E402 - the provider registry, one home of a provider's id shape (issues/994)
-import spell  # noqa: E402
-import rehearsal  # noqa: E402 - the rehearsal record, one home (issues/815)
-import tier  # noqa: E402 — the tiers, one home (issues/702)
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)

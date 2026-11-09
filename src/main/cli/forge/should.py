@@ -9,14 +9,12 @@ a relation - blocked by, blocks, part of, supersedes, closes, sub-issue - is ref
 outside backticks, since the raise's arguments wire what the phrase only narrated.
 """
 import re
-import sys
 from pathlib import Path
+from forge import aim  # bare(), the one stripping of mentions
 
 SELF = 'src/main/cli/forge/should.py'
 _file = Path(__file__).resolve()
 assert [p for p in _file.parents if p / SELF == _file], f'{_file} is not at its declared address {SELF}'
-sys.path.insert(0, str(_file.parent))
-import aim  # noqa: E402 - bare(), the one stripping of mentions
 
 SECTIONS = ('## currently', '### as is', '## but, in future')
 WRITTEN = ('Signature:', '### as at')

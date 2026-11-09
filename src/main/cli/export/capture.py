@@ -32,18 +32,17 @@ import re
 import time
 import zipfile
 from pathlib import Path
+import tier  # the tiers, one home (issues/702)
+import facts
+import send  # the one-use navigation is checked before anything is staged (issues/1022)
+from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,
+                    safari_navigate, safari_open_work_tab)
 
 SELF = 'src/main/cli/export/capture.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-sys.path.insert(0, str(REPO / 'src' / 'main'))
-import tier  # noqa: E402 — the tiers, one home (issues/702)
-import facts  # noqa: E402
-import send  # noqa: E402 - the one-use navigation is checked before anything is staged (issues/1022)
-from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,  # noqa: E402
-                    safari_navigate, safari_open_work_tab)
 
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what each category's archive unpacks to in Downloads
 ARRIVAL_TIMEOUT = 300   # seconds a download may take to arrive and unpack; conversations.json is tens of MB

@@ -17,9 +17,8 @@ import os
 import re
 import sys
 from pathlib import Path
+import validation_verdict as verdict  # the record (issues/701)
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
-import validation_verdict as verdict  # noqa: E402 — the record (issues/701)
 
 PREAMBLE = """# validation matrix
 

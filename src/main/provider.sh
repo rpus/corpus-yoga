@@ -10,7 +10,7 @@
 # header attests only what the environment positively provides.
 provider_signature() {
   local repo="$1" triad
-  triad="$("$repo/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.signature())' "$repo/src/main" 2>/dev/null)" \
+  triad="$("$repo/src/run_python_script.sh" -c 'import sys; import provider; print(provider.signature())' 2>/dev/null)" \
     || triad="$(tr -cd 'A-Za-z0-9_-' < "$repo/machine-name.txt" 2>/dev/null)"
   echo "${triad:-unbound}"
 }
