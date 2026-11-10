@@ -36,7 +36,7 @@ optional member is a property absent from `required`, and the JSDoc comment beco
 
 ## reproducing it here
 
-`corpus-yoga mcp reproduce` (`src/main/mcp/reproduce.sh`) runs upstream's own
+`corpus-yoga mcp reproduce` (`src/main/derived/mcp/reproduce.sh`) runs upstream's own
 generator over the committed `schema.ts`, in a container, at the pinned commit, and
 diffs the result against the committed `schema.json`; its header states each
 step, its effects and how to read the output. It commits nothing of

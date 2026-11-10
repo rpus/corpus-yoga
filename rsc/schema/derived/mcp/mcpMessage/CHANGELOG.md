@@ -7,8 +7,8 @@ hand-edited: `corpus-yoga mcp derive` reads the newest lineage's `schema.ts` und
 `rsc/reference/mcp` (whose `provenance.csv` pins the lineage, commit and SHA256)
 through the parser generated from the house TypeScript grammar into the flat
 shape of every declaration, one stated rule per TypeScript form
-(`src/main/mcp/mcp_generation.py`), composes it over the extends clauses and tags
-it by the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two
+(`src/main/derived/mcp/mcp_generation.py`), composes it over the extends clauses and tags
+it by the categories `src/main/derived/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two
 tables faced under `tmp/cache/mcp/`), and applies the hand-written tables beside
 this file: `description.csv`, house text for the definitions schema.ts leaves
 without a JSDoc; `unreachable.csv`, the definitions no message carries (issues/588);
@@ -87,6 +87,10 @@ v4
 
 #### Refactored
 
+- The family description (v5, in place) names the family's files where they stand since
+  2026-11-10, `rsc/schema/derived/mcp/mcpMessage/`, beside its writer `src/main/derived/mcp`,
+  the tier that says the family is derived from upstream's schema (issues/1047). No
+  validation effect.
 - The family description (v5, in place) names the verb that derives it as it is named
   since 2026-11-10, `corpus-yoga mcp derive` (issues/1047). No validation effect.
 - The family description (v5, in place, regenerated identically by `corpus-yoga mcp sync`)

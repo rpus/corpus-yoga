@@ -30,7 +30,7 @@ from pathlib import Path
 from schema_walk import rebuilt, schema_nodes
 import mcp_factoring as factoring  # (sibling module)
 
-SELF = 'src/main/mcp/mcp_face.py'
+SELF = 'src/main/derived/mcp/mcp_face.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

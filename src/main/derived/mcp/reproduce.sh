@@ -35,7 +35,7 @@
 #
 # Usage:
 #   corpus-yoga mcp reproduce            # the diff if any, then the verdict; exit 0 iff identical
-#   src/main/mcp/reproduce.sh            # the same, run directly
+#   src/main/derived/mcp/reproduce.sh            # the same, run directly
 #
 # Effects (declared in src/main/cli/mcp/reproduce.json): a git fetch from upstream
 # and a docker run (image pull, npm registry) - both sends; the temporary directory is removed on exit; nothing under the repo
@@ -45,7 +45,7 @@
 
 set -euo pipefail
 
-SELF='src/main/mcp/reproduce.sh'
+SELF='src/main/derived/mcp/reproduce.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }

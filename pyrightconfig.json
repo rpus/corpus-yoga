@@ -16,7 +16,7 @@
     "src/main/pipeline/code-transport",
     "src/main/model",
     "src/main/metamodel",
-    "src/main/mcp",
+    "src/main/derived/mcp",
     "src/test/dev",
     "src/main/grammar",
     "src/gen/grammar/TypeScript"
