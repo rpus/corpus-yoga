@@ -19,7 +19,8 @@
     "{family} ({n} definitions)",
     "{minted} minted in place of {family} ({n} definitions) - write its {section} section in {changelog} (the commit gate holds schema.changelog_narrative)",
     "the derivations are current",
-    "a derivation failed; the line above names it"
+    "a derivation failed; the line above names it",
+    "{target} NOT derivable - {parser} is absent"
   ],
   "target": "src/main/mcp/mcp.py",
   "calculus": "project L1 L6",

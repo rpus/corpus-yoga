@@ -93,7 +93,7 @@ def live_sessions(mount: Path) -> list[Session]:
         if not transcript.is_file():
             continue
         out.append(Session(PROVIDER, session_id, _project(summary), brain,
-                           summary.get('title') or '(untitled)',
+                           lambda title=summary.get('title') or '(untitled)': title,
                            _size([_logs(brain) / t for t in TRANSCRIPTS] + [_database(mount, session_id)]),
                            transcript.stat().st_mtime))
     return out
@@ -108,7 +108,7 @@ def held_sessions(machine_dir: Path) -> list[Session]:
                 continue
             summary = json.loads(summary_file.read_text())
             transcript = _logs(s) / TRANSCRIPTS[0]
-            out.append(Session(PROVIDER, s.name, proj.name, s, summary.get('title') or '(untitled)',
+            out.append(Session(PROVIDER, s.name, proj.name, s, lambda title=summary.get('title') or '(untitled)': title,
                                _size([_logs(s) / t for t in TRANSCRIPTS] + [_database(s, s.name)]),
                                transcript.stat().st_mtime if transcript.is_file() else 0.0))
     return out

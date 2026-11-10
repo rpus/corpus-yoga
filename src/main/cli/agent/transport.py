@@ -28,7 +28,7 @@ transported to is data/input/<provider>/code/machine-transport/<machine>/<projec
 the project key being Claude Code's encoding of the workspace path, so one
 workspace lands under one name in every provider's store.
 """
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 import importlib.util
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -64,9 +64,13 @@ class Session:
     id: str        # the harness's own session id
     project: str   # the store's project key (see project_key)
     path: Path     # the session's record in the store it was read from
-    title: str
+    titled: Callable[[], str]   # how its title is read - from the whole record for some harnesses, so only when said (issues/1041)
     size: int      # bytes the record occupies
     mtime: float   # the record's last write
+
+    @property
+    def title(self) -> str:
+        return self.titled()
 
 
 def strings(value: object) -> Iterator[str]:

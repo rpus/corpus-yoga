@@ -20,6 +20,7 @@ A Signature naming a machine alone claims nothing of the drafter, and is counted
 it is. The brief face, on the bare noun, reads held alone: it opens no session. Reads
 git and the store; writes nothing.
 """
+import functools
 import re
 import subprocess
 from dataclasses import dataclass
@@ -101,13 +102,19 @@ def held(provider: str, session: str) -> list[transport.Session]:
     """The copies the store holds of a session named by its first eight characters, in
     any room's directory, the fullest first - a session moves with its workspace and is
     carried between rooms, so one session has several copies and the longest holds the rest."""
+    copies = [s for s in _held_all(provider) if s.id.startswith(session)]
+    return sorted(copies, key=lambda s: s.size, reverse=True)
+
+
+@functools.cache
+def _held_all(provider: str) -> tuple[transport.Session, ...]:
+    """Every session the provider's store holds, in every room's directory - listed once a
+    process, however many sessions are asked after (issues/1041)."""
     adapter = transport.adapter(provider)
     store = transport.store(provider)
     if adapter is None or not store.is_dir():
-        return []
-    copies = [s for room in sorted(p for p in store.iterdir() if p.is_dir())
-              for s in adapter.held_sessions(room) if s.id.startswith(session)]
-    return sorted(copies, key=lambda s: s.size, reverse=True)
+        return ()
+    return tuple(s for room in sorted(p for p in store.iterdir() if p.is_dir()) for s in adapter.held_sessions(room))
 
 
 def rooms_of(provider: str) -> list[str]:

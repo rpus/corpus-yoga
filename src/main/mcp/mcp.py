@@ -41,6 +41,7 @@ import spell
 from declared_parser import command_parser
 import mcp_factoring as factoring  # (sibling module)
 import mcp_face as face  # (sibling module)
+from mcp_extraction import GRAMMAR_PARSER
 
 SELF = 'src/main/mcp/mcp.py'
 _file = Path(__file__).resolve()
@@ -138,6 +139,23 @@ class Status:
                 'uncarried': self.uncarried, self.family_path: self.family, 'mcp': self.mcp}
 
 
+@dataclass
+class Underivable:
+    """The family's file where it cannot be derived: why, and where the parser is what it lacks,
+    the act that generates it (issues/1034)."""
+    mcp: facts.Finding
+
+
+def _underivable(target: Path, why) -> int:
+    parser = GRAMMAR_PARSER.relative_to(REPO)
+    facts.say_standing(Underivable(
+        facts.Finding(facts.phrase('{target} NOT derivable - {parser} is absent', target=target.relative_to(REPO), parser=parser),
+                      facts.Would(spell.line('grammar', 'sync'), {parser.name: 1}))
+        if not GRAMMAR_PARSER.is_dir() else
+        facts.Finding(facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=why))))
+    return 1
+
+
 def status() -> int:
     target = _target()
     rel = target.relative_to(REPO)
@@ -145,15 +163,13 @@ def status() -> int:
     try:
         shapes, declared = factoring.inputs()
     except AssertionError as e:                 # the parser absent, or schema.ts refused
-        print('mcp: ' + facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
-        return 1
+        return _underivable(target, e)
     try:
         wanted = factoring.rendered(factoring.factored(shapes, factoring.descriptions(), declared, factoring.provenance(), factoring.unreachable(),
                                                        factoring.categories(), factoring.layer_rule(), factoring.placements(factoring.provenance()['lineage']),
                                                        factoring.additions(), factoring.generated().constants))
     except AssertionError as e:
-        print('mcp: ' + facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=e))
-        return 1
+        return _underivable(target, e)
     ts = factoring.schema_ts().relative_to(REPO)
     cache = factoring.CACHE_DIR.relative_to(REPO)
     tagged = factoring.categories()
