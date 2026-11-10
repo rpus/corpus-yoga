@@ -50,7 +50,7 @@ def _sessions(root: Path) -> list[Session]:
     for proj in _projects(root):
         for f in sorted(proj.glob('*.jsonl')):
             st = f.stat()
-            out.append(Session(PROVIDER, f.stem, proj.name, f, _title(f), st.st_size, st.st_mtime))
+            out.append(Session(PROVIDER, f.stem, proj.name, f, lambda log=f: _title(log), st.st_size, st.st_mtime))
     return out
 
 

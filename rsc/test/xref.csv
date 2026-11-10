@@ -800,7 +800,7 @@ src/main/cli/agent/agent.py,389,comment,rsc/migration/636.sh,Y,creates them. A l
 src/main/cli/agent/agent.py,390,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
 src/main/cli/agent/claude/harness.py,22,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/drafters.py,7,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
-src/main/cli/agent/drafters.py,33,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
+src/main/cli/agent/drafters.py,34,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
 src/main/cli/agent/gemini/harness.py,19,comment,rsc/migration/856.sh,Y,rsc/migration/856.sh's to move. The
 src/main/cli/agent/gemini/harness.py,31,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
 src/main/cli/agent/list-drafters.json,9,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"""
