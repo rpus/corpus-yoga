@@ -4,11 +4,11 @@
   "args": [],
   "r": [
     "rsc/schema",
-    "rsc/model",
+    "rsc/metamodel",
     "data/input",
     "tmp/cache"
   ],
   "w": [
-    "tmp/cache/model"
+    "tmp/cache/metamodel"
   ]
 }

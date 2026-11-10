@@ -1,10 +1,10 @@
 {
-  "summary": "per-schema definition catalogues, candidates for model.json",
+  "summary": "per-schema definition catalogues, candidates for metamodel.json",
   "standing": true,
   "phrase": [
-    "corpus-yoga test run holds each as check_model_obligations",
-    "model_join row(s) {rows}",
-    "documented with no grounding model_join edge",
+    "corpus-yoga test run holds each as check_metamodel_obligations",
+    "join row(s) {rows}",
+    "documented with no grounding join edge",
     "occurrences omit data famil(y/ies) its edge asserts - {families}",
     "{n} definition name(s) appear in two or more schema families with no row recording whether the definitions are one shared type or mere namesakes",
     "no longer holds at latest - {cells}",
@@ -16,22 +16,22 @@
     "mints them",
     "accept adopts {relationship}",
     "no machine proposal - judge the kind by hand",
-    "{n} undisposed shared name(s) - dispose each with corpus-yoga model accept <name> or corpus-yoga model reject <name> --reason <why> (--all disposes the queue as read)",
-    "row {line} ({kind}) - {cells} - re-judge the kind in rsc/model/model_join.csv or restore the identity",
-    "row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/model/model_join.csv",
-    "the worksheet is absent or stale against the schemas - run corpus-yoga model derive, read it, then dispose",
-    "{name} is not in the queue - corpus-yoga model list-candidates names it",
+    "{n} undisposed shared name(s) - dispose each with corpus-yoga metamodel accept <name> or corpus-yoga metamodel reject <name> --reason <why> (--all disposes the queue as read)",
+    "row {line} ({kind}) - {cells} - re-judge the kind in rsc/metamodel/join.csv or restore the identity",
+    "row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/metamodel/join.csv",
+    "the worksheet is absent or stale against the schemas - run corpus-yoga metamodel derive, read it, then dispose",
+    "{name} is not in the queue - corpus-yoga metamodel list-candidates names it",
     "{verb} takes a <name> or --all, not both and not neither",
     "{written} catalogue(s) written, {removed} removed",
     "{n} shared name(s) {verb}ed"
   ],
-  "target": "src/main/model/model.py",
+  "target": "src/main/metamodel/metamodel.py",
   "calculus": "project",
   "args": [],
   "r": [
     "tmp/cache",
     "rsc/schema",
-    "rsc/model",
+    "rsc/metamodel",
     "data/input"
   ]
 }

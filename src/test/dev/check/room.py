@@ -23,7 +23,7 @@ import tier
 import offer as cli_offer
 
 
-@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'], says=(
+@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 'src/main/pipeline/chat-capture/audit.py'], says=(
     'cli.bare_suggests_and_runs_nothing',
     'cli.no_send_flag',
     'environment.names_carry_the_prefix',

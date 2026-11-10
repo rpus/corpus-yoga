@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 """
-gen_model_candidate.py — Generate a per-schema definition catalogue.
+catalogue.py — Generate a per-schema definition catalogue.
 
 For each definition in a JSON Schema file, records its description and every
 JSON Pointer path at which it is referenced. The output is a candidate for
-informing rsc/model/model.json — review it and curate rsc/model/model.json by hand.
+informing rsc/metamodel/metamodel.json — review it and curate rsc/metamodel/metamodel.json by hand.
 
 Usage:
-    python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
+    python src/main/metamodel/catalogue.py <schema-type> <schema-file>
 
 <schema-type> names the family - conversations, memories, session, apiConversation - and
 <schema-file> is that family's latest version under rsc/schema/pipeline/, the one file
 src/main/latest.py names for the directory; no version is named here, so a mint edits its
 family's directory and changelog alone (issues/986).
 
-Output: JSON to stdout. Redirect to tmp/cache/model/catalogue/<family's address>/<version>.json for review.
-Normally invoked via corpus-yoga model which handles all schemas automatically.
+Output: JSON to stdout. Redirect to tmp/cache/metamodel/catalogue/<family's address>/<version>.json for review.
+Normally invoked via corpus-yoga metamodel which handles all schemas automatically.
 """
 
 import json

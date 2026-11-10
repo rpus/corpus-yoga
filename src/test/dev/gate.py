@@ -46,7 +46,7 @@ CACHE                    = REPO_ROOT / 'tmp' / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
-RSC_MODEL                = RSC / 'model'
+RSC_METAMODEL            = RSC / 'metamodel'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
 SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 

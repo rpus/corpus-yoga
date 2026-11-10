@@ -432,6 +432,10 @@ def extract_markdown(f: Path, rows: list) -> None:
     except OSError:
         return
     in_frontmatter = False
+    # A changelog is a record, its entries frozen by intent (rsc/schema/WORKFLOW.md) and its dated
+    # amendments with them: a path one names is where a thing stood when it was written, so it is
+    # recorded as history, which a move never makes missing.
+    doc = 'history' if f.name == 'CHANGELOG.md' else 'doc'
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
         if i == 1 and stripped == '---':
@@ -454,23 +458,23 @@ def extract_markdown(f: Path, rows: list) -> None:
             if target.startswith('http') or target.startswith('#'):
                 continue
             if looks_like_repo_path(target):
-                emit(rows, f, i, 'doc', target, stripped)
+                emit(rows, f, i, doc, target, stripped)
         # Inline code `path`
         for match in re.finditer(r'`([^`]+)`', stripped):
             s = match.group(1)
             if looks_like_repo_path(s):
-                emit(rows, f, i, 'doc', s, stripped)
+                emit(rows, f, i, doc, s, stripped)
         # Explicit ./path.ext references (e.g. in fenced code blocks).
         # Negative lookbehind prevents matching the inner ./ in ./../foo.
         for match in DOTSLASH_TOKEN_RE.finditer(stripped):
             s = match.group()
             if looks_like_repo_path(s):
-                emit(rows, f, i, 'doc', s, stripped)
+                emit(rows, f, i, doc, s, stripped)
         # Bare path-like strings in code blocks / text (must not end with a hyphen)
         for match in re.finditer(rf'\b((?:{PREFIXES_RE})/[\w./\-]+)(?![\-])\b', stripped):
             s = match.group(1)
             if looks_like_repo_path(s):
-                emit(rows, f, i, 'doc', s, stripped)
+                emit(rows, f, i, doc, s, stripped)
 
 
 def extract_html(f: Path, rows: list) -> None:
@@ -588,8 +592,8 @@ class XrefCounts:
 def count(rows: list[list]) -> XrefCounts:
     """Pure: the table's row classes, tallied — the comparable shape both the
     gate's check_xref and the standalone `corpus-yoga test xref` report from."""
-    stale_file    = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' not in r[3])
-    stale_pointer = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' in r[3])
+    stale_file    = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' not in r[3] and r[2] != 'history')
+    stale_pointer = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' in r[3] and r[2] != 'history')
     self_only     = sum(1 for r in rows if not r[0] and r[2] == 'self_only')
     unreferenced  = sum(1 for r in rows if not r[0] and r[2] != 'self_only')
     live          = len(rows) - stale_file - stale_pointer - self_only - unreferenced

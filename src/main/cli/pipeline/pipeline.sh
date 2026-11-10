@@ -415,7 +415,7 @@ run_corpus_tail() {
   # writes nothing.
   step site "$REPO_ROOT/src/main/cli/site/site.sh" assemble
   step site "$REPO_ROOT/src/main/cli/site/site.sh" render
-  step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" derive
+  step metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py" derive
   # The data gate's own validation judgments (issues/535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
   # a run of one pipeline audits that pipeline: the audit takes the name (pull/545), and a
@@ -429,7 +429,7 @@ run_corpus_tail() {
   # reach the tail via hoisting. step_ok: informs, never gates.
   step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/indexing/indexing.py"
   step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
-  step_ok model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py"
+  step_ok metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py"
   # what the store no longer needs - its duplicates, surplus and orphaned shadows - is its
   # status's reading, carried by corpus-yoga status (issues/844); the run reads it no more.
   # run in a pipeline (main's tee), where errexit is silent: the gating steps' failures

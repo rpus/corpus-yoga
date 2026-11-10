@@ -7,7 +7,7 @@ project_markdown atomised out of the bulk array -- so this just projects each an
 
 Both formats carry the full edit/regeneration tree; project() reduces each to the active path
 (via the explicit current_leaf_message_uuid for a capture, the inferred latest-created leaf for the
-export). Identical output across two independent formats validates the projection and the model_join
+export). Identical output across two independent formats validates the projection and the join
 correspondence end-to-end.
 
 A TRANSCRIPT difference has three readings, told apart by the turn sequences (issues/535, the

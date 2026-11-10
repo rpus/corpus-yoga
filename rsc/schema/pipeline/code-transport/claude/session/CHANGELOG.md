@@ -36,6 +36,7 @@ None.
 
 #### Refactored
 
+- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, since 2026-11-10 (issues/1047). No validation effect.
 - `ModelId`: the description says the set is the corpus's known ids, shared with apiConversation, and no longer narrates where each was first observed.
 
 ## v27

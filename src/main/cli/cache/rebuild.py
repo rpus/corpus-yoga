@@ -47,7 +47,7 @@ REPO = REPO_ROOT
 def main() -> int:
     args = verb_parser('cache', 'rebuild').parse_args()  # generated from the declaration (issues/476)
 
-    # The registry stores canonical NAMES ('corpus-yoga model derive' — one referent, one
+    # The registry stores canonical NAMES ('corpus-yoga metamodel derive' — one referent, one
     # name, G14), and every printed line speaks the name too: './corpus-yoga' is no more
     # runnable for a reader than bare 'corpus-yoga' — one presumes cwd, the other PATH
     # (user ruling, pull/109). The './' spelling exists at exactly ONE point, the

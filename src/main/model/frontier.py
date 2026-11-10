@@ -14,7 +14,7 @@ capture's updated_at; code-transport the max record timestamp in the session
 .jsonl. Keys compare only within one pipeline, so mixed key types across
 pipelines are fine.
 
-Consumers: model.py (bare `corpus-yoga model` states each family's verdict, so the
+Consumers: metamodel.py (bare `corpus-yoga metamodel` states each family's verdict, so the
 usr gate's corpus tail says it - issues/373) and src/test/dev/run.py (the data-tier
 frontier and coverage checks read subjects and recency from here).
 """

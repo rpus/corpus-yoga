@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 """
-model.py — per-schema definition catalogues, candidates for rsc/model/model.json.
-Output: tmp/cache/model/catalogue/<family's address under rsc/schema>/v{N}.json for each
-versioned schema, keyed as rsc/model/model.json keys a family (issues/672), so two providers'
-families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
+metamodel.py — per-schema definition catalogues, candidates for rsc/metamodel/metamodel.json.
+Output: tmp/cache/metamodel/catalogue/<family's address under rsc/schema>/v{N}.json for each
+versioned schema, keyed as rsc/metamodel/metamodel.json keys a family (issues/672), so two providers'
+families of one name are two catalogues. rsc/metamodel/metamodel.json is hand-curated from these.
 
 `model` is a NOUN: the catalogues. A bare invocation shows their current state and
 writes nothing (so there is no `status` verb — the bare noun IS the status). Only
-the `sync` verb writes: it brings tmp/cache/model into agreement with the schemas, and
+the `sync` verb writes: it brings tmp/cache/metamodel into agreement with the schemas, and
 re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
-    corpus-yoga model         # status: which catalogues exist under tmp/cache/model/catalogue/
-    corpus-yoga model derive    # (re-)generate every catalogue to agree with the schemas, and
+    corpus-yoga metamodel         # status: which catalogues exist under tmp/cache/metamodel/catalogue/
+    corpus-yoga metamodel derive    # (re-)generate every catalogue to agree with the schemas, and
                               # remove each one no schema version derives
 """
 
@@ -20,8 +20,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from gen_model_candidate import generate
-from model_curation import (JOIN_PATH_COLUMNS, documented, rejected, edge_queue,
+from catalogue import generate
+from curation import (JOIN_PATH_COLUMNS, documented, rejected, edge_queue,
                             orphan_entries, coverage_gaps, unrecorded_collisions,
                             shared_name_candidates, identity_violations, emptiness_violations,
                             worksheet_rows, accept_shared_name, reject_shared_name)
@@ -30,7 +30,7 @@ import facts  # the one printer of a status's facts (issues/753)
 import spell
 from declared_parser import command_parser
 
-SELF = 'src/main/model/model.py'
+SELF = 'src/main/metamodel/metamodel.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -39,7 +39,7 @@ REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
-OUT_DIR    = tier.TMP / 'cache' / 'model'
+OUT_DIR    = tier.TMP / 'cache' / 'metamodel'
 
 
 def _sorted_versions(schema_dir: Path) -> list[Path]:
@@ -81,10 +81,10 @@ class Undisposed:
 
 @dataclass
 class Table:
-    """The disposal loop of rsc/model/model.json, in numbers, then each item it owes."""
+    """The disposal loop of rsc/metamodel/metamodel.json, in numbers, then each item it owes."""
     documented: int
     rejected: int
-    obligated: int = facts.named('obligated by model_join and undisposed')
+    obligated: int = facts.named('obligated by join and undisposed')
     documented_but_ungrounded: int = 0
     documented_incompletely: int = 0
     gates: str | None = None
@@ -95,7 +95,7 @@ class Table:
 
 @dataclass
 class Join:
-    """The standing of rsc/model/model_join.csv: the shared names' disposal, each row that no
+    """The standing of rsc/metamodel/join.csv: the shared names' disposal, each row that no
     longer holds, and whether the emptiness edges were checked against a corpus."""
     collisions: facts.Finding | None
     shared_names: str | None
@@ -109,51 +109,51 @@ class Join:
 
 
 def curation_report() -> tuple[Table, Join]:
-    """Both disposal loops, in numbers (issues/19; model_curation.py): the step
-    that used to read 'update model.json if needed' now reports whether it IS
-    needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
+    """Both disposal loops, in numbers (issues/19; curation.py): the step
+    that used to read 'update metamodel.json if needed' now reports whether it IS
+    needed. Loop 1 is leisurely (name collisions awaiting a join edge or a
     shrug — no gate pressure); loop 2 blocks (shared-type edges obligate
-    model.json, gated per type by `corpus-yoga test run`'s check_model_obligations)."""
+    metamodel.json, gated per type by `corpus-yoga test run`'s check_metamodel_obligations)."""
     queue = edge_queue()
     orphans = orphan_entries()
     gaps = coverage_gaps()
     table = Table(
         len(documented()), len(rejected()), len(queue), len(orphans), len(gaps),
-        gates=facts.phrase('corpus-yoga test run holds each as check_model_obligations') if queue or orphans or gaps else None,
+        gates=facts.phrase('corpus-yoga test run holds each as check_metamodel_obligations') if queue or orphans or gaps else None,
         undisposed={'/'.join(sorted(names)): Undisposed(
-            facts.phrase('model_join row(s) {rows}', rows=', '.join(map(str, rows))),
-            ['rsc/model/model.json', 'rsc/model/model_rejected.txt'])
+            facts.phrase('join row(s) {rows}', rows=', '.join(map(str, rows))),
+            ['rsc/metamodel/metamodel.json', 'rsc/metamodel/rejected.txt'])
             for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0]))} or 'none',
-        ungrounded={name: Undisposed(facts.phrase('documented with no grounding model_join edge'),
-                                     ['rsc/model/model_join.csv', 'rsc/model/model.json']) for name in orphans} or 'none',
+        ungrounded={name: Undisposed(facts.phrase('documented with no grounding join edge'),
+                                     ['rsc/metamodel/join.csv', 'rsc/metamodel/metamodel.json']) for name in orphans} or 'none',
         incomplete={name: Undisposed(facts.phrase('occurrences omit data famil(y/ies) its edge asserts - {families}', families=', '.join(fams)),
-                                     ['rsc/model/model.json']) for name, fams in sorted(gaps.items())} or 'none')
+                                     ['rsc/metamodel/metamodel.json']) for name, fams in sorted(gaps.items())} or 'none')
     shared = unrecorded_collisions()
     collisions = None
     if shared:
         collisions = facts.Finding(
             facts.phrase('{n} definition name(s) appear in two or more schema families with no row recording whether the definitions are one shared type or mere namesakes', n=len(shared)),
-            facts.Would(spell.line('model', 'list-candidates'), {'shared names': len(shared)}))
+            facts.Would(spell.line('metamodel', 'list-candidates'), {'shared names': len(shared)}))
     rows: dict[str, facts.Finding] = {}
     for line, kind, cells in identity_violations():
         rows[f'row {line} ({kind})'] = facts.Finding(
             facts.phrase('no longer holds at latest - {cells}', cells=cells),
-            facts.Would(spell.line('model', 'list-candidates'), {f'row {line}': 1}))
+            facts.Would(spell.line('metamodel', 'list-candidates'), {f'row {line}': 1}))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
                     tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             rows[f'row {line} ({kind})'] = facts.Finding(
                 facts.phrase('falsified by the corpus - {cell} carries a value in {datum}', cell=cell, datum=datum),
-                facts.Would(spell.line('model', 'list-candidates'), {f'row {line}': 1}))
+                facts.Would(spell.line('metamodel', 'list-candidates'), {f'row {line}': 1}))
         emptiness = facts.phrase('checked against the corpus')
     else:
-        emptiness = facts.Unsettled(facts.phrase('unchecked - no API-capture or chat-export corpus in this room'), 'model')
+        emptiness = facts.Unsettled(facts.phrase('unchecked - no API-capture or chat-export corpus in this room'), 'metamodel')
     return table, Join(collisions, None if shared else facts.phrase('every cross-family shared name disposed'), rows, emptiness)
 
 
 def derive() -> None:
-    """The verb: bring tmp/cache/model into agreement with the schemas by (re-)generating
+    """The verb: bring tmp/cache/metamodel into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
     written = removed = 0
     for name, schema, target in _catalogues():
@@ -172,14 +172,14 @@ def derive() -> None:
         if not any(directory.iterdir()):
             directory.rmdir()
     render_collision_worksheet()
-    # the findings are status's (bare corpus-yoga model): a sync writes, and what an act
+    # the findings are status's (bare corpus-yoga metamodel): a sync writes, and what an act
     # reports (issues/876, issues/896) is its effect line
     facts.report(None, 'model derive: DONE - ' + facts.phrase('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
 
 
 def render_collision_worksheet() -> None:
     """The leisurely queue as a worksheet (machine proposes, human disposes):
-    one pre-filled model_join row per undisposed SHARED NAME, the relationship
+    one pre-filled join row per undisposed SHARED NAME, the relationship
     cell blank except where structural equality makes 'identical' a mechanical
     proposal. Rendered by sync beside the catalogues it derives from."""
     import csv, io
@@ -196,7 +196,7 @@ def render_collision_worksheet() -> None:
         return   # content-keyed (issues/494): current means no write and nothing said
     path.write_bytes(buf.getvalue().encode())   # bytes: csv's CRLF must survive the compare
     proposed = sum(1 for r in rows if r['relationship'])
-    print(f'  ✓ tmp/cache/model/shared_name_candidates.csv ({len(rows)} undisposed, '
+    print(f'  ✓ tmp/cache/metamodel/shared_name_candidates.csv ({len(rows)} undisposed, '
           f'{proposed} with a machine proposal)')
 
 
@@ -210,15 +210,15 @@ class Catalogue:
 
 @dataclass
 class Status:
-    catalogue: Catalogue = facts.named('tmp/cache/model/catalogue')
-    table: Table = facts.named('rsc/model/model.json')
-    join: Join = facts.named('rsc/model/model_join.csv')
+    catalogue: Catalogue = facts.named('tmp/cache/metamodel/catalogue')
+    table: Table = facts.named('rsc/metamodel/metamodel.json')
+    join: Join = facts.named('rsc/metamodel/join.csv')
 
 
 def status() -> None:
     """The bare-noun default: show current state, write nothing. Reports which
-    catalogues tmp/cache/model/ already holds and which a `project` would still
-    mint, then the model.json disposal queue."""
+    catalogues tmp/cache/metamodel/ already holds and which a `project` would still
+    mint, then the metamodel.json disposal queue."""
     present, missing = [], []
     for _name, _schema, target in _catalogues():
         (present if target.exists() else missing).append(str(target.relative_to(CATALOGUE_DIR)))
@@ -231,7 +231,7 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  remedy=(facts.Would(spell.line('model', 'derive'), {'tmp/cache/model': len(missing) + len(underived)})
+                  remedy=(facts.Would(spell.line('metamodel', 'derive'), {'tmp/cache/metamodel': len(missing) + len(underived)})
                           if missing or underived else None)),
         table, join))
 
@@ -246,35 +246,35 @@ def list_candidates() -> None:
         verdict = (facts.phrase('accept adopts {relationship}', relationship=repr(row['relationship'])) if row['relationship']
                    else facts.phrase('no machine proposal - judge the kind by hand'))
         print(f"  {row['name']} ({row['families']}) - {verdict}")
-    print(facts.phrase('{n} undisposed shared name(s) - dispose each with corpus-yoga model accept <name> or corpus-yoga model reject <name> --reason <why> (--all disposes the queue as read)', n=len(rows)))
+    print(facts.phrase('{n} undisposed shared name(s) - dispose each with corpus-yoga metamodel accept <name> or corpus-yoga metamodel reject <name> --reason <why> (--all disposes the queue as read)', n=len(rows)))
     for line, kind, cells in identity_violations():
-        print('  falsified identity edge: ' + facts.phrase('row {line} ({kind}) - {cells} - re-judge the kind in rsc/model/model_join.csv or restore the identity', line=line, kind=kind, cells=cells))
+        print('  falsified identity edge: ' + facts.phrase('row {line} ({kind}) - {cells} - re-judge the kind in rsc/metamodel/join.csv or restore the identity', line=line, kind=kind, cells=cells))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
                     tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
-            print('  falsified emptiness edge: ' + facts.phrase('row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/model/model_join.csv', line=line, kind=kind, cell=cell, datum=datum))
+            print('  falsified emptiness edge: ' + facts.phrase('row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/metamodel/join.csv', line=line, kind=kind, cell=cell, datum=datum))
     else:
         print('  emptiness edges: ' + facts.phrase('unchecked - no API-capture or chat-export corpus in this room'))
 
 
 def _disposal_rows(parser, args):
     """The queue the disposal acts on: the worksheet as read, refused when it is
-    absent or moved since rendering - re-render with corpus-yoga model derive."""
+    absent or moved since rendering - re-render with corpus-yoga metamodel derive."""
     rows = worksheet_rows()
     if rows is None:
-        parser.error(facts.phrase('the worksheet is absent or stale against the schemas - run corpus-yoga model derive, read it, then dispose'))
+        parser.error(facts.phrase('the worksheet is absent or stale against the schemas - run corpus-yoga metamodel derive, read it, then dispose'))
         raise SystemExit(2)   # parser.error exits; stated for the type checker
     if args.all:
         return rows
     match = [r for r in rows if r['name'] == args.name]
     if not match:
-        parser.error(facts.phrase('{name} is not in the queue - corpus-yoga model list-candidates names it', name=args.name))
+        parser.error(facts.phrase('{name} is not in the queue - corpus-yoga metamodel list-candidates names it', name=args.name))
     return match
 
 
 def main():
-    parser = command_parser('model')  # generated from the declaration (issues/476)
+    parser = command_parser('metamodel')  # generated from the declaration (issues/476)
     args = parser.parse_args()
     if args.verb == 'derive':
         derive()

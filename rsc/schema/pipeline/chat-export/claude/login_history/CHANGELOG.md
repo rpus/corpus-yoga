@@ -12,6 +12,11 @@ amended in place: ../../model.json with the fragment `#/default/UserUUID` became
 model moved to `rsc/model/` and its table lost the `default` wrapper (issues/591). A
 description change is not a validation change: no new version.
 
+2026-11-10: the `UserUUID` cross-reference in v1's description fields was
+amended in place: `../../../../../model/model.json` became `../../../../../metamodel/metamodel.json` - the
+schemas' metamodel moved to `rsc/metamodel/` and took its name (issues/1047). A
+description change is not a validation change: no new version.
+
 ## v1
 
 Initial schema, minted 2026-08-24 with the manifest-era intake (issues/522): the

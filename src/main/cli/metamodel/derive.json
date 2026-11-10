@@ -4,10 +4,10 @@
   "args": [],
   "r": [
     "rsc/schema",
-    "rsc/model"
+    "rsc/metamodel"
   ],
   "w": [
-    "tmp/cache/model"
+    "tmp/cache/metamodel"
   ],
   "step": "corpus"
 }

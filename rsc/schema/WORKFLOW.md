@@ -1,7 +1,7 @@
 # Schema change workflow
 
 This document covers the end-to-end process for adding or changing a versioned schema.
-Follow it in order. Pre-commit will catch most omissions, but `model_join.csv` review
+Follow it in order. Pre-commit will catch most omissions, but `join.csv` review
 (step 4) is a manual judgement call that automation cannot enforce.
 
 A mint's data evidence - validation logs, observed values, the failing datum's
@@ -220,11 +220,11 @@ a new model id now fails loudly instead of sliding through a bare string). The
 distinction tells a reader whether upgrading re-classifies any existing data or
 only sharpens the frontier.
 
-### 4. Review model_join.csv  ← **do not skip**
+### 4. Review join.csv  ← **do not skip**
 
 Machines now hold part of this step: `identical`/`snake_cased` edges are re-verified
-structurally and falsified ones FAIL every `corpus-yoga model` / pipeline run, as do
-always-null claims the corpus has outgrown (`rsc/model/model_join_kinds.csv` states
+structurally and falsified ones FAIL every `corpus-yoga metamodel` / pipeline run, as do
+always-null claims the corpus has outgrown (`rsc/metamodel/join_kinds.csv` states
 each kind's claim class and who re-verifies it). What stays yours is what no scan can
 do: recognizing cross-NAME counterparts, judging relationships, and the coupling
 foresight of step 3 below.
@@ -235,7 +235,7 @@ proposed by the machine, judgment cells are proposed by the assistant, and the
 maintainer vets the proposals in the PR. A mint whose PR carries no join
 review is incomplete.
 
-Open `rsc/model/model_join.csv` and:
+Open `rsc/metamodel/join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
    to the repo root (`rsc/schema/pipeline/chat-export/claude/conversations#/definitions/…`,
@@ -248,7 +248,7 @@ Open `rsc/model/model_join.csv` and:
    version-pinned grammar churned dozens of cells per mint, and its bare
    `vN.json#…` session cells contained neither "session" nor a pipeline name —
    invisible to search, which is how a 2026-07-10 review declared the file a
-   no-op while 37 rows needed judgement. `check_model_join_versions` now rejects
+   no-op while 37 rows needed judgement. `check_metamodel_join_versions` now rejects
    any reintroduced pin.)
 
 2. **Update stale notes** — fields that were "always null in observed exports" or
@@ -260,7 +260,7 @@ Open `rsc/model/model_join.csv` and:
 
    The `approval_options`, `approval_key`, `mcp_server_url`, and `IntegrationName`
    fields appeared in *both* `conversations` (v8) and `apiConversation` (v2) and required
-   the same relaxation in the same upgrade cycle. This was visible in model_join.csv
+   the same relaxation in the same upgrade cycle. This was visible in join.csv
    *after the fact* — the goal is to catch it *before* committing only one side.
 
 4. **Add new rows** for any new definitions that have counterparts in other schemas.
@@ -271,7 +271,7 @@ Open `rsc/model/model_join.csv` and:
 
    ```bash
    src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-                            # check_model_join_versions: no version-pinned cells
+                            # check_metamodel_join_versions: no version-pinned cells
    ```
 
 ### 5. Check rsc/reference
@@ -296,7 +296,7 @@ sha256), and the reference declaration (`rsc/reference/mcp/reference.json`,
 `rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream
 publishes lineages as a listing (mcp's dated `schema/` directory), the listing URL
 and the files each lineage holds. Nothing here is a schema family: no datum
-validates against it, no house diagnostic runs over it, and `rsc/model/model_join.csv`
+validates against it, no house diagnostic runs over it, and `rsc/metamodel/join.csv`
 reaches it by the same family-dir grammar as any schema
 (`rsc/reference/mcp#/$defs/…`, resolved against the newest lineage).
 
@@ -359,45 +359,45 @@ schema.ts uses it, and a result union no message carries - a party's
 results where upstream declares no requests for the other party (issues/588) - stands
 unreachable, declared in `unreachable.csv`.
 
-### 6. Dispose the model.json obligations
+### 6. Dispose the metamodel.json obligations
 
-`rsc/model/model.json` is the hand-curated cross-family type reference - a table of
+`rsc/metamodel/metamodel.json` is the hand-curated cross-family type reference - a table of
 shared types (name, description, occurrences by family), validated by the dev gate
-against the row shape beside it, `rsc/model/model.schema.json` (`model.table_valid`,
+against the row shape beside it, `rsc/metamodel/metamodel.schema.json` (`model.table_valid`,
 issues/591) - under the `curate` disposal discipline (issues/19; rsc/CALCULUS.md) as TWO
-loops with different pressure, both computed by `src/main/model/model_curation.py`
+loops with different pressure, both computed by `src/main/metamodel/curation.py`
 from committed files only:
 
-- **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
+- **leisurely, advisory → `join.csv`**: the naive name scan (definition names in
   ≥2 families' latest versions) surfaces SHARED NAMES — the question, of which
-  `name_collision` (the false friend) is one possible answer — and `corpus-yoga model derive`
-  renders them pre-filled at `tmp/cache/model/shared_name_candidates.csv` (path cells
+  `name_collision` (the false friend) is one possible answer — and `corpus-yoga metamodel derive`
+  renders them pre-filled at `tmp/cache/metamodel/shared_name_candidates.csv` (path cells
   computed; `identical` proposed where the shapes are structurally equal, editable);
-  a human disposes each by pasting the row into `model_join.csv` with its
+  a human disposes each by pasting the row into `join.csv` with its
   `relationship` kind, so an "ignore" is a row too and zero means disposed. The kinds
-  are declared data — `rsc/model/model_join_kinds.csv`, each with its claim class —
+  are declared data — `rsc/metamodel/join_kinds.csv`, each with its claim class —
   and the gate holds every row to them (`model.join_kind_declared`). Anyone, anytime,
   no gate pressure on the disposals themselves.
-- **blocking, gated `model_join` ↔ `model.json`**: an edge whose kind asserts one shared
-  type (`identical`, `snake_cased`) obligates `model.json` — the type is DOCUMENTED
-  there or REJECTED with a reason in `rsc/model/model_rejected.txt` — and every
+- **blocking, gated `join` ↔ `metamodel.json`**: an edge whose kind asserts one shared
+  type (`identical`, `snake_cased`) obligates `metamodel.json` — the type is DOCUMENTED
+  there or REJECTED with a reason in `rsc/metamodel/rejected.txt` — and every
   documented type must be grounded by such an edge (no orphan documentation).
-  `check_model_obligations` gates both directions of the one grounding relation (by
+  `check_metamodel_obligations` gates both directions of the one grounding relation (by
   containing-definition name, or by property trail for inline field types like the
-  account uuid), so the invariant is an equality: model.json documents exactly the
-  shared types model_join asserts, minus rejections. An undocumented asserted identity —
+  account uuid), so the invariant is an equality: metamodel.json documents exactly the
+  shared types join asserts, minus rejections. An undocumented asserted identity —
   or a documented type no edge asserts — is a defect, not a queue.
 
 After schema changes:
 
 ```bash
-corpus-yoga model derive   # regenerate the per-schema catalogues (the review aid)
-corpus-yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
+corpus-yoga metamodel derive   # regenerate the per-schema catalogues (the review aid)
+corpus-yoga metamodel        # both loops in numbers: obligations (gating) and unrecorded collisions
 ```
 
 This step is falsifiable, not "if needed". Occurrence paths use the de-versioned
 family-dir grammar (`chat-export/conversations`, resolved against the family's latest
-version — `model_join.csv`'s grammar), and `check_model_occurrences` gates both the
+version — `join.csv`'s grammar), and `check_metamodel_occurrences` gates both the
 grammar and that every instance pointer still resolves — a mint that renames a
 documented field fails there, the review prompt.
 

@@ -164,20 +164,20 @@ per-corpus code.
   `data/output/indexing/rejected-semantic-concepts.txt` → `check_index_curation`); the schema
   WORKFLOW (a frontier failure proposes; a minted version narrated in its
   changelog disposes; the coverage and frontier gates report); and the
-  model.json reference (the name scan proposes collisions a human curates into
-  `rsc/model/model_join.csv` edges at leisure; an edge asserting one shared
+  metamodel.json reference (the name scan proposes collisions a human curates into
+  `rsc/metamodel/join.csv` edges at leisure; an edge asserting one shared
   type — `identical`, `snake_cased` — obligates: document in
-  `rsc/model/model.json` or reject into `rsc/model/model_rejected.txt` →
-  `check_model_obligations` gates BOTH directions of the grounding relation,
-  so model.json documents exactly what model_join asserts, minus rejections —
+  `rsc/metamodel/metamodel.json` or reject into `rsc/metamodel/rejected.txt` →
+  `check_metamodel_obligations` gates BOTH directions of the grounding relation,
+  so metamodel.json documents exactly what join asserts, minus rejections —
   no unmet obligation, no orphan documentation). Promoted from candidate to
   doctrine by the third instance (issues/19) — exactly the condition the
   candidate entry had set for itself. Two properties of the loop have since
-  met the same two-implementations bar (model.json, pull/36; indexing's
+  met the same two-implementations bar (metamodel.json, pull/36; indexing's
   zero-locator headwords, pull/37): the loop runs BOTH directions — every
   proposal disposed, and every disposal grounded, no orphan record — and its
   pressure follows the INPUT tier, not the instance: committed inputs gate
-  (model.json), machine-local inputs advise (indexing) — L2's determinism
+  (metamodel.json), machine-local inputs advise (indexing) — L2's determinism
   split, read as enforcement policy.
 
 - **validate** — datum × latest version → one verdict per datum, the machine-local

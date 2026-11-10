@@ -2,26 +2,26 @@ run.py: code+schema 1902/1902
 
 
 check_schema_join: |
-  ✓ model.join_kind_declared
-  ✓ model.join_pointers_valid
+  ✓ metamodel.join_kind_declared
+  ✓ metamodel.join_pointers_valid
 
-check_model_join_versions: |
-  ✓ model.join_family_grammar
+check_metamodel_join_versions: |
+  ✓ metamodel.join_family_grammar
 
-check_model_table: |
-  ✓ model.table_valid
+check_metamodel_table: |
+  ✓ metamodel.table_valid
 
-check_model_occurrences: |
-  ✓ model.occurrence_family_grammar
-  ✓ model.occurrence_pointers_resolve
-  ✓ model.occurrences_cover_edges
+check_metamodel_occurrences: |
+  ✓ metamodel.occurrence_family_grammar
+  ✓ metamodel.occurrence_pointers_resolve
+  ✓ metamodel.occurrences_cover_edges
 
-check_model_obligations: |
-  ✓ model.shared_type_disposed  (105/105)
-  ✓ model.documented_type_grounded  (101/101)
+check_metamodel_obligations: |
+  ✓ metamodel.shared_type_disposed  (105/105)
+  ✓ metamodel.documented_type_grounded  (101/101)
 
-check_model_identity: |
-  ✓ model.identity_holds
+check_metamodel_identity: |
+  ✓ metamodel.identity_holds
 
 check_providers_judged: |
   ✓ pipeline.every_provider_is_judged
@@ -340,27 +340,27 @@ stages:
     failures: 0
     tier: schema
     line: "4"
-  check_model_join_versions:
+  check_metamodel_join_versions:
     passes: 1
     failures: 0
     tier: schema
     line: "8"
-  check_model_table:
+  check_metamodel_table:
     passes: 1
     failures: 0
     tier: schema
     line: "11"
-  check_model_occurrences:
+  check_metamodel_occurrences:
     passes: 3
     failures: 0
     tier: schema
     line: "14"
-  check_model_obligations:
+  check_metamodel_obligations:
     passes: 206
     failures: 0
     tier: schema
     line: "19"
-  check_model_identity:
+  check_metamodel_identity:
     passes: 1
     failures: 0
     tier: schema

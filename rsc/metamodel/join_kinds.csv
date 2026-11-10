@@ -10,4 +10,4 @@ api_only,existence,"exists only in the API-capture capture family - judgment-ver
 name_collision,judgment,"the false-friend verdict on a SHARED NAME: the scan-level finding (one name in two or more families) is the question, and this kind is the answer that the sameness stops at the name - the note records how they differ"
 structurally_similar,judgment,"related shapes, neither identical nor subset - the note carries the relation"
 subset,judgment,"one side's values are a subset of the other's - related, not one type; a judgment call per edge"
-coupled_relaxation,judgment,"these fields have relaxed together across families; agreement is reviewed at mint (WORKFLOW's model_join review) - no mechanical baseline exists without version pins, which this table bans"
+coupled_relaxation,judgment,"these fields have relaxed together across families; agreement is reviewed at mint (WORKFLOW's join review) - no mechanical baseline exists without version pins, which this table bans"

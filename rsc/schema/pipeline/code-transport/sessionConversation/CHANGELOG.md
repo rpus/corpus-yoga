@@ -32,6 +32,7 @@ v1
 
 #### Refactored
 
+- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, since 2026-11-10 (issues/1047). No validation effect.
 - The family description names no one provider: what projects is each provider's own rule,
   stated in its `project_conversation.py`; claude's follows as before. The corpus root reads
   `data/output/markdown/<provider>/code/conversations/`. No validation effect.

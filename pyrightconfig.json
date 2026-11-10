@@ -15,6 +15,7 @@
     "src/main/cli/agent",
     "src/main/pipeline/code-transport",
     "src/main/model",
+    "src/main/metamodel",
     "src/main/mcp",
     "src/test/dev",
     "src/main/grammar",

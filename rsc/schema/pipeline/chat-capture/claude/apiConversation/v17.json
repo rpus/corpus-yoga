@@ -143,7 +143,7 @@
     },
     "ModelId": {
       "title": "ModelId",
-      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/model/model_join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
+      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/metamodel/join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
       "type": "string",
       "enum": [
         "claude-fable-5",

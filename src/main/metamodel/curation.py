@@ -1,26 +1,26 @@
 """
-model_curation.py — the model.json disposal loops' shared computation (issues/19).
+curation.py — the metamodel.json disposal loops' shared computation (issues/19).
 
-rsc/model/model.json is the hand-curated cross-family type reference, and its
+rsc/metamodel/metamodel.json is the hand-curated cross-family type reference, and its
 WORKFLOW step read "update if needed" — unfalsifiable: nothing reported that it
-WAS needed, which is how the reference held one entry while model_join.csv grew
+WAS needed, which is how the reference held one entry while join.csv grew
 to 144 correspondence rows. The discipline is TWO loops with different pressure
 (the pull/36 review, reading-room, directed by the user), both computed here from
 committed files only, so every number is identical on any clone:
 
-  1. leisurely, advisory → model_join. The naive name scan (definition names in
+  1. leisurely, advisory → join. The naive name scan (definition names in
      >=2 families' latest versions) surfaces collisions a human curates into a
-     model_join edge with a relationship kind, or ignores. No gate pressure, no
-     disposal record — model_join IS the disposal record, and a name_collision
+     join edge with a relationship kind, or ignores. No gate pressure, no
+     disposal record — join IS the disposal record, and a name_collision
      kind records a false friend (same name, NOT one type: ContentBlock).
-  2. blocking, gated model_join → model.json. An edge whose relationship kind
-     denotes ONE shared type (identical, snake_cased) obligates model.json:
+  2. blocking, gated join → metamodel.json. An edge whose relationship kind
+     denotes ONE shared type (identical, snake_cased) obligates metamodel.json:
      the type is DOCUMENTED there or REJECTED with a reason in
-     rsc/model/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
-     check_model_obligations (schema tier, gating) and by `corpus-yoga model`.
+     rsc/metamodel/rejected.txt. Reported per shared type by `corpus-yoga test run`'s
+     check_metamodel_obligations (schema tier, gating) and by `corpus-yoga metamodel`.
 
-model_join is a typed relation — a small linked-data graph over the schema
-corpus — and the model.json obligation is one consumer of certain predicates:
+join is a typed relation — a small linked-data graph over the schema
+corpus — and the metamodel.json obligation is one consumer of certain predicates:
 new relationship kinds join without touching the rule, and other consumers can
 key off other predicates later.
 """
@@ -32,16 +32,16 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 from latest import latest_file
 
-SELF = 'src/main/model/model_curation.py'
+SELF = 'src/main/metamodel/curation.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
-MODEL_DIR = REPO / 'rsc' / 'model'
-MODEL_JSON = MODEL_DIR / 'model.json'
-MODEL_JOIN = MODEL_DIR / 'model_join.csv'
-REJECTED = MODEL_DIR / 'model_rejected.txt'
+METAMODEL_DIR = REPO / 'rsc' / 'metamodel'
+METAMODEL_JSON = METAMODEL_DIR / 'metamodel.json'
+JOIN = METAMODEL_DIR / 'join.csv'
+REJECTED = METAMODEL_DIR / 'rejected.txt'
 
 JOIN_PATH_COLUMNS = ('conversations_path', 'claude_session_path', 'gemini_session_path', 'apiConversation_path', 'mcp_path')
 # The obligating predicates: kinds that assert ONE type shared across families
@@ -64,7 +64,7 @@ def latest_versions() -> dict:
 
 
 def _join_rows() -> list:
-    with MODEL_JOIN.open() as fh:
+    with JOIN.open() as fh:
         return list(csv.DictReader(fh))
 
 
@@ -78,18 +78,18 @@ def name_scan() -> dict:
     return {n: sorted(f) for n, f in sorted(by_name.items()) if len(f) > 1}
 
 
-KINDS_TABLE = MODEL_DIR / 'model_join_kinds.csv'
+KINDS_TABLE = METAMODEL_DIR / 'join_kinds.csv'
 
 
 def kinds() -> dict:
     """{kind: claim_class} from the declared vocabulary - the relationship
-    column's one authority (rsc/model/model_join_kinds.csv)."""
+    column's one authority (rsc/metamodel/join_kinds.csv)."""
     with KINDS_TABLE.open(newline='') as fh:
         return {r['kind']: r['claim_class'] for r in csv.DictReader(fh)}
 
 
 def undeclared_kinds() -> list:
-    """model_join rows whose relationship names no declared kind - each is a
+    """join rows whose relationship names no declared kind - each is a
     typo or a vocabulary gap, and either way the kinds table rules first."""
     declared = kinds()
     return [(i, row['relationship']) for i, row in enumerate(_join_rows(), 2)
@@ -104,7 +104,7 @@ def _definition_container(doc: dict) -> str:
 
 
 def _resolve(cell: str):
-    """A model_join cell's fragment resolved in its family's LATEST version -
+    """A join cell's fragment resolved in its family's LATEST version -
     the join's one grammar: any family dir relative to the repo root (a schema
     family under rsc/schema, a reference project under rsc/reference), resolved
     against its own latest version or lineage (src/main/latest.py). None when the
@@ -199,7 +199,7 @@ def identity_violations() -> list:
     return out
 
 
-# model_join's path columns, by the family each addresses — the prefill's map.
+# join's path columns, by the family each addresses — the prefill's map.
 # A collision touching a family outside these four still lists it in the
 # worksheet's families column; the row's path cells carry what the table can.
 COLUMN_FAMILY = {'conversations_path': 'pipeline/chat-export/claude/conversations',
@@ -217,7 +217,7 @@ def _family_key(cell_dir: str) -> str:
 
 
 def shared_name_candidates() -> list[dict]:
-    """The leisurely queue as pre-filled model_join rows - machine proposes,
+    """The leisurely queue as pre-filled join rows - machine proposes,
     human disposes: each undisposed SHARED NAME (the scan-level question)
     becomes a worksheet row with its path cells computed. The relationship
     cell is the human's verdict - name_collision being the false-friend
@@ -242,7 +242,7 @@ def shared_name_candidates() -> list[dict]:
     return rows
 
 
-WORKSHEET = tier.TMP / 'cache' / 'model' / 'shared_name_candidates.csv'
+WORKSHEET = tier.TMP / 'cache' / 'metamodel' / 'shared_name_candidates.csv'
 
 
 def worksheet_rows() -> list[dict] | None:
@@ -256,23 +256,23 @@ def worksheet_rows() -> list[dict] | None:
 
 
 def _append_join_row(row: dict, relationship: str, note: str) -> None:
-    """One disposal, one appended model_join.csv row - the worksheet's path
+    """One disposal, one appended join.csv row - the worksheet's path
     cells verbatim, the relationship and note the disposal's two fields."""
-    with MODEL_JOIN.open('a', newline='') as fh:
+    with JOIN.open('a', newline='') as fh:
         csv.writer(fh).writerow([row[c] for c in JOIN_PATH_COLUMNS] + [relationship, note])
 
 
 def accept_shared_name(row: dict, date: str) -> str:
-    """Adopt the machine proposal: the pre-filled row lands in model_join.csv
+    """Adopt the machine proposal: the pre-filled row lands in join.csv
     with its proposed kind. A row without a proposal (divergent shapes) is
     refused - that judgment is the curator's (or paid capture's, issues/471)."""
     if not row['relationship']:
         return (f"refused: {row['name']} carries no machine proposal - the shapes "
-                'diverge; judge the relationship kind by hand (rsc/model/model_join_kinds.csv)')
+                'diverge; judge the relationship kind by hand (rsc/metamodel/join_kinds.csv)')
     _append_join_row(row, row['relationship'],
                      f"adopted {date} from the worksheet's machine proposal: "
                      'structurally equal at latest')
-    return f"accepted: {row['name']} - {row['relationship']} row appended to {MODEL_JOIN.relative_to(REPO)}"
+    return f"accepted: {row['name']} - {row['relationship']} row appended to {JOIN.relative_to(REPO)}"
 
 
 def reject_shared_name(row: dict, reason: str, date: str) -> str:
@@ -280,14 +280,14 @@ def reject_shared_name(row: dict, reason: str, date: str) -> str:
     note - the rich-record twin of indexing's rejected-semantic-concepts.txt."""
     note = f'rejected {date}: {reason}' if reason else f'rejected {date}'
     _append_join_row(row, 'name_collision', note)
-    return f"rejected: {row['name']} - name_collision row appended to {MODEL_JOIN.relative_to(REPO)}"
+    return f"rejected: {row['name']} - name_collision row appended to {JOIN.relative_to(REPO)}"
 
 
 def occurrence_pointer(doc: dict, name: str):
     """An instance pointer to where definition `name` instantiates, derived by
     walking the schema from its root (properties -> key, items -> 0, $ref
     followed, oneOf/anyOf/allOf searched) to the first $ref of the definition -
-    generated, never hand-written, so model.json occurrences cannot be fiction.
+    generated, never hand-written, so metamodel.json occurrences cannot be fiction.
     None when the definition is unreachable from the root."""
     target = f'#/{_definition_container(doc)}/{name}'
     seen = set()
@@ -379,7 +379,7 @@ def _first_value_bearing(root: Path, required: set, field: str):
 
 
 def unrecorded_collisions() -> dict:
-    """Shared names no model_join path mentions - the leisurely loop's queue:
+    """Shared names no join path mentions - the leisurely loop's queue:
     each disposes as an edge whose relationship kind is the verdict
     (name_collision records the false friend)."""
     recorded = set()
@@ -435,8 +435,8 @@ def obligating_edges() -> list:
 
 
 def entries() -> dict:
-    """{documented name: {family: [instance trails]}} from model.json."""
-    doc = json.loads(MODEL_JSON.read_text())
+    """{documented name: {family: [instance trails]}} from metamodel.json."""
+    doc = json.loads(METAMODEL_JSON.read_text())
     return {name: {fam: [_instance_trail(p) for p in ptrs]
                    for fam, ptrs in e.get('occurrences', {}).items()}
             for name, e in doc.items()}
@@ -489,7 +489,7 @@ def orphan_entries() -> list:
     """doc→edge: documented types no obligating edge grounds — orphan
     documentation, the reverse direction (the pull/36 review's gap: UserUUID
     passed the one-directional gate on no recorded basis). With edge_queue
-    empty and this empty, model.json documents exactly what model_join
+    empty and this empty, metamodel.json documents exactly what join
     asserts, minus rejections."""
     edges = obligating_edges()
     return sorted(name for name, occ in entries().items()
@@ -499,7 +499,7 @@ def orphan_entries() -> list:
 def coverage_gaps() -> dict:
     """{documented name: sorted [data families a grounding edge asserts but the
     entry's occurrences omit]}. grounds() needs only ONE family to match, so a
-    type can ground with a dressing missing and still pass — and then model.json
+    type can ground with a dressing missing and still pass — and then metamodel.json
     answers "where does this type occur" incompletely, which is the non-foolproof
     grep the user named: the account uuid wears four dressings (account.uuid /
     account_uuid / uuid / creator.uuid), no substring search unifies them, so the
@@ -507,7 +507,7 @@ def coverage_gaps() -> dict:
     DATA families only — an occurrence is an instance pointer into a datum, and a
     reference project (rsc/reference/mcp) has no datum, so its correspondence lives
     in the edge, not here (latest_versions() covers rsc/schema only).
-    With edge_queue, orphan_entries, and this all empty, model.json is the
+    With edge_queue, orphan_entries, and this all empty, metamodel.json is the
     complete, foolproof type-occurrence index."""
     data_families = set(latest_versions())
     ents = entries()
@@ -522,8 +522,8 @@ def coverage_gaps() -> dict:
 
 
 def documented() -> set:
-    """Type names model.json documents (its keys)."""
-    return set(json.loads(MODEL_JSON.read_text()))
+    """Type names metamodel.json documents (its keys)."""
+    return set(json.loads(METAMODEL_JSON.read_text()))
 
 
 def rejected() -> set:

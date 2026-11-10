@@ -480,7 +480,7 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
 def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
     """Accepted headwords with ZERO corpus locators — the disposal record's
     orphan documentation, the reverse direction of the curate discipline (the
-    model.json precedent, pull/36: a curation record must be grounded both ways).
+    metamodel.json precedent, pull/36: a curation record must be grounded both ways).
     build() has always computed this — the located/total ratio in the sync
     line — but as an aggregate; a dead index entry (its concept left the
     corpus, or its aliases never matched) was a count, not a name. Same scan
