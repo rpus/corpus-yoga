@@ -870,7 +870,7 @@ src/main/cli/export/capture.py,9,comment,src/main/pipeline/chat-export/pipeline.
 src/main/cli/export/capture.py,25,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
 src/main/cli/export/capture.py,25,comment,src/main/cli/export/capture.py,Y,src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
 src/main/cli/export/capture.py,41,path_str,src/main/cli/export/capture.py,Y,SELF = 'src/main/cli/export/capture.py'
-src/main/cli/export/export.json,26,path_str,src/main/cli/export/export.sh,Y,"""target"": ""src/main/cli/export/export.sh"","
+src/main/cli/export/export.json,25,path_str,src/main/cli/export/export.sh,Y,"""target"": ""src/main/cli/export/export.sh"","
 src/main/cli/export/export.sh,15,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/export/status.py,12,path_str,src/main/cli/export/status.py,Y,SELF = 'src/main/cli/export/status.py'
 src/main/cli/forge/aim.py,22,path_str,src/main/cli/forge/aim.py,Y,SELF = 'src/main/cli/forge/aim.py'
@@ -920,7 +920,7 @@ src/main/cli/indexing/capture.sh,32,comment,src/main/enact.sh,Y,# shellcheck sou
 src/main/cli/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/indexing/capture.sh,37,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/indexing/capture.sh,113,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
-src/main/cli/indexing/indexing.json,47,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
+src/main/cli/indexing/indexing.json,45,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,57,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,328,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
@@ -934,8 +934,8 @@ src/main/cli/mcp/sync.json,7,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/
 src/main/cli/mcp/sync.json,10,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"","
 src/main/cli/memories/memories.json,15,path_str,src/main/pipeline/chat-export/memories.py,Y,"""target"": ""src/main/pipeline/chat-export/memories.py"","
 src/main/cli/memories/sync.json,8,path_str,rsc/naming/memory_deposit_vintages.csv,Y,"""rsc/naming/memory_deposit_vintages.csv"""
-src/main/cli/migration/migration.json,18,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
-src/main/cli/migration/migration.json,22,path_str,rsc/migration,Y,"""rsc/migration"","
+src/main/cli/migration/migration.json,17,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
+src/main/cli/migration/migration.json,21,path_str,rsc/migration,Y,"""rsc/migration"","
 src/main/cli/migration/migration.py,5,comment,rsc/migration/step.sh,Y,"rsc/migration/step.sh, and this noun says them and takes them."
 src/main/cli/migration/migration.py,31,path_str,src/main/cli/migration/migration.py,Y,SELF = 'src/main/cli/migration/migration.py'
 src/main/cli/migration/sync.json,6,path_str,rsc/migration,Y,"""rsc/migration"","
@@ -944,9 +944,9 @@ src/main/cli/model/accept.json,20,path_str,rsc/model,Y,"""rsc/model"","
 src/main/cli/model/accept.json,24,path_str,rsc/model/model_join.csv,Y,"""rsc/model/model_join.csv"","
 src/main/cli/model/list-candidates.json,6,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/list-candidates.json,7,path_str,rsc/model,Y,"""rsc/model"","
-src/main/cli/model/model.json,34,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
-src/main/cli/model/model.json,39,path_str,rsc/schema,Y,"""rsc/schema"","
-src/main/cli/model/model.json,40,path_str,rsc/model,Y,"""rsc/model"","
+src/main/cli/model/model.json,28,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
+src/main/cli/model/model.json,33,path_str,rsc/schema,Y,"""rsc/schema"","
+src/main/cli/model/model.json,34,path_str,rsc/model,Y,"""rsc/model"","
 src/main/cli/model/reject.json,26,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/reject.json,27,path_str,rsc/model,Y,"""rsc/model"","
 src/main/cli/model/reject.json,31,path_str,rsc/model/model_join.csv,Y,"""rsc/model/model_join.csv"","
@@ -1064,7 +1064,7 @@ src/main/cli/store/store.py,28,comment,src/main/live.py,Y,"(src/main/live.py), s
 src/main/cli/store/store.py,31,comment,src/main/standing.py,Y,"the other nouns' own (src/main/standing.py, issues/949). The stage's status is a report of its"
 src/main/cli/store/store.py,49,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
 src/main/cli/subcommand.schema.json,55,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
-src/main/cli/summaries/summaries.json,12,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
+src/main/cli/summaries/summaries.json,11,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/test/install-hook.json,6,path_str,rsc/test,Y,"""rsc/test"""
 src/main/cli/test/run.json,27,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/test/run.json,28,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
@@ -1140,9 +1140,14 @@ src/main/model/model.py,3,comment,rsc/model/model.json,Y,"model.py — per-schem
 src/main/model/model.py,5,comment,rsc/model/model.json,Y,"versioned schema, keyed as rsc/model/model.json keys a family (issues/672), so two providers'"
 src/main/model/model.py,6,comment,rsc/model/model.json,Y,families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
 src/main/model/model.py,33,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
-src/main/model/model.py,97,comment,rsc/model/model_join.csv,Y,"The standing of rsc/model/model_join.csv: the shared names' disposal, each row that no"
-src/main/model/model.py,213,path_str,rsc/model/model.json,Y,table: Table = facts.named('rsc/model/model.json')
-src/main/model/model.py,214,path_str,rsc/model/model_join.csv,Y,join: Join = facts.named('rsc/model/model_join.csv')
+src/main/model/model.py,98,comment,rsc/model/model_join.csv,Y,"The standing of rsc/model/model_join.csv: the shared names' disposal, each row that no"
+src/main/model/model.py,214,path_str,rsc/model/model.json,Y,table: Table = facts.named('rsc/model/model.json')
+src/main/model/model.py,215,path_str,rsc/model/model_join.csv,Y,join: Join = facts.named('rsc/model/model_join.csv')
+src/main/model/model.py,125,path_str,rsc/model/model.json,Y,"['rsc/model/model.json', 'rsc/model/model_rejected.txt'])"
+src/main/model/model.py,125,path_str,rsc/model/model_rejected.txt,Y,"['rsc/model/model.json', 'rsc/model/model_rejected.txt'])"
+src/main/model/model.py,128,path_str,rsc/model/model_join.csv,Y,"['rsc/model/model_join.csv', 'rsc/model/model.json']) for name in orphans} or 'none',"
+src/main/model/model.py,128,path_str,rsc/model/model.json,Y,"['rsc/model/model_join.csv', 'rsc/model/model.json']) for name in orphans} or 'none',"
+src/main/model/model.py,130,path_str,rsc/model/model.json,Y,"['rsc/model/model.json']) for name, fams in sorted(gaps.items())} or 'none')"
 src/main/model/model_curation.py,4,comment,rsc/model/model.json,Y,"rsc/model/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/model/model_rejected.txt,Y,rsc/model/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
 src/main/model/model_curation.py,35,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'

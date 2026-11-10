@@ -520,14 +520,14 @@ class Disposal:
 @dataclass
 class Orphans:
     accepted_headwords_with_zero_corpus_locators: list[str]
-    remedy: facts.Act
+    decided_in: str               # the reader's curation, which no verb makes
 
 
 @dataclass
 class Candidates:
     queue: str | None = None
     undisposed: list[str] | None = None
-    remedy: facts.Command | facts.Act | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -556,7 +556,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
         # a notice, never a failure (issues/675): the reader's curation, not a verb's, clears it
-        out.orphans = (Orphans(orphans, facts.Act(facts.phrase('fix the aliases, or remove the line and reject the concept with a reason')))
+        out.orphans = (Orphans(orphans, a_rel.as_posix())
                        if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
         out.candidates = Candidates(queue=facts.phrase('unknown - no concept capture on this machine'),
@@ -569,8 +569,8 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (issues/644).
-    out.candidates = (Candidates(undisposed=pending, remedy=facts.Act(facts.phrase(
-        """each is the reader's act - corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>"; corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each, and --all disposes it as read""")))
+    out.candidates = (Candidates(undisposed=pending, remedy=facts.Would(spell.line('indexing', 'list-candidates'),
+                                                                        {'tmp/cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
                       if pending else facts.phrase('none - fully disposed'))
     if unanchorable:
         out.unanchorable = Unanchorable([c for c, _ in unanchorable])

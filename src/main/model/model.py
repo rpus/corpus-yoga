@@ -73,9 +73,10 @@ def _underived() -> list[Path]:
 
 @dataclass
 class Undisposed:
-    """A shared type the curation owes a disposal: what stands of it, and the remedy."""
+    """A shared type the curation owes a disposal: what stands of it, and the file that holds
+    the disposal - a curation no verb makes."""
     standing: str
-    remedy: facts.Act
+    decided_in: list[str]
 
 
 @dataclass
@@ -121,30 +122,30 @@ def curation_report() -> tuple[Table, Join]:
         gates=facts.phrase('corpus-yoga test run holds each as check_model_obligations') if queue or orphans or gaps else None,
         undisposed={'/'.join(sorted(names)): Undisposed(
             facts.phrase('model_join row(s) {rows}', rows=', '.join(map(str, rows))),
-            facts.Act(facts.phrase('document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt')))
+            ['rsc/model/model.json', 'rsc/model/model_rejected.txt'])
             for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0]))} or 'none',
         ungrounded={name: Undisposed(facts.phrase('documented with no grounding model_join edge'),
-                                     facts.Act(facts.phrase('curate the asserting edge, or retire the entry'))) for name in orphans} or 'none',
+                                     ['rsc/model/model_join.csv', 'rsc/model/model.json']) for name in orphans} or 'none',
         incomplete={name: Undisposed(facts.phrase('occurrences omit data famil(y/ies) its edge asserts - {families}', families=', '.join(fams)),
-                                     facts.Act(facts.phrase('add the occurrence(s)'))) for name, fams in sorted(gaps.items())} or 'none')
+                                     ['rsc/model/model.json']) for name, fams in sorted(gaps.items())} or 'none')
     shared = unrecorded_collisions()
     collisions = None
     if shared:
         collisions = facts.Finding(
             facts.phrase('{n} definition name(s) appear in two or more schema families with no row recording whether the definitions are one shared type or mere namesakes', n=len(shared)),
-            facts.Act(facts.phrase('record a verdict by adding one model_join.csv row per name, its relationship column choosing a kind from rsc/model/model_join_kinds.csv (identical / subset / name_collision / ...); machine-checked proposals sit ready to paste in tmp/cache/model/shared_name_candidates.csv')))
+            facts.Would(spell.line('model', 'list-candidates'), {'shared names': len(shared)}))
     rows: dict[str, facts.Finding] = {}
     for line, kind, cells in identity_violations():
         rows[f'row {line} ({kind})'] = facts.Finding(
             facts.phrase('no longer holds at latest - {cells}', cells=cells),
-            facts.Act(facts.phrase('a one-sided mint falsified the edge - re-judge its relationship kind (rsc/model/model_join_kinds.csv) or restore the identity in the schemas')))
+            facts.Would(spell.line('model', 'list-candidates'), {f'row {line}': 1}))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
                     tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             rows[f'row {line} ({kind})'] = facts.Finding(
                 facts.phrase('falsified by the corpus - {cell} carries a value in {datum}', cell=cell, datum=datum),
-                facts.Act(facts.phrase('the always-null note is stale - re-judge the edge (rsc/model/model_join_kinds.csv names the kinds)')))
+                facts.Would(spell.line('model', 'list-candidates'), {f'row {line}': 1}))
         emptiness = facts.phrase('checked against the corpus')
     else:
         emptiness = facts.Unsettled(facts.phrase('unchecked - no API-capture or chat-export corpus in this room'), 'model')

@@ -138,8 +138,7 @@ def status() -> int:
         projects_[project.name] = item
     for orphan in orphans():
         address = orphan.relative_to(REPO).as_posix()
-        projects_[address] = Project(facts.phrase('no - it holds no grammar, a .g4 at its top level - a leftover no sync generates from'),
-                                     remedy=facts.Command(f'rm -r {address}', facts.phrase('removes it')))
+        projects_[address] = Project(facts.phrase('no - it holds no grammar, a .g4 at its top level - a leftover no sync generates from'))
     facts.say_standing(Status(projects_, facts.phrase('{n} project(s), {stale} absent or stale', n=len(projects()), stale=stale)))
     return 1 if stale else 0
 
