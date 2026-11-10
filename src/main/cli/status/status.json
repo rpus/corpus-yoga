@@ -59,8 +59,7 @@
     "corpus-yoga {noun} is unreadable - {error}",
     "unread - corpus-yoga {noun} did not answer within {bound} s",
     "unread - the venv is not minted",
-    "corpus-yoga {noun} says nothing at {pointer}",
-    "none - corpus-yoga status --show-all says what stands"
+    "corpus-yoga {noun} says nothing at {pointer}"
   ],
   "explanation": {
     "machine": {

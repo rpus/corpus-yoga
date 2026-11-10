@@ -571,18 +571,18 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                                               pipeline=unit.pipeline, provider=unit.provider), None
     record = rehearsal.read() if record is None else record
     if record is None:
-        return Judgement.UNJUDGED, facts.phrase('no rehearsal - corpus-yoga pipeline rehearse judges it'), None
+        return Judgement.UNJUDGED, facts.phrase('no rehearsal'), None
     if isinstance(record, str):
         return Judgement.UNJUDGED, record, None
     stamp = record['stamp']
     seen = record['units'].get(unit.address.as_posix())
     if seen is None:
-        return Judgement.UNSEEN, facts.phrase('unseen by rehearsal {stamp} - corpus-yoga pipeline rehearse judges it', stamp=stamp), None
+        return Judgement.UNSEEN, facts.phrase('unseen by rehearsal {stamp}', stamp=stamp), None
     own = own_digests(unit) if own is None else own
     if set(seen['digests']) != own:
-        return Judgement.CHANGED, facts.phrase('changed since rehearsal {stamp} - corpus-yoga pipeline rehearse judges it', stamp=stamp), None
+        return Judgement.CHANGED, facts.phrase('changed since rehearsal {stamp}', stamp=stamp), None
     if not seen['verdicts']:
-        return Judgement.UNJUDGED, facts.phrase('seen by rehearsal {stamp}, no verdict written - corpus-yoga pipeline rehearse judges it',
+        return Judgement.UNJUDGED, facts.phrase('seen by rehearsal {stamp}, no verdict written',
                                                   stamp=stamp), None
     converted = seen.get('source') in own
     main_digest = _main_schema_digest if main_digest is None else main_digest
@@ -590,13 +590,13 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
     for family, one in sorted(seen['verdicts'].items()):
         version = one['version']
         if one['datum_sha256'] not in own and not converted:
-            return Judgement.CHANGED, facts.phrase('the verdict at {family} is on other bytes than this staged unit - corpus-yoga pipeline rehearse judges it',
+            return Judgement.CHANGED, facts.phrase('the verdict at {family} is on other bytes than this staged unit',
                                                      family=family), None
         digest, main_version = main_digest(unit.pipeline, family)
         if digest is None or one['schema_sha256'] != digest:
             if main_version == version:
                 return Judgement.UNJUDGED, facts.phrase(
-                    'the verdict at {family} {version} is against a schema origin/main does not hold - corpus-yoga pipeline rehearse re-judges it',
+                    'the verdict at {family} {version} is against a schema origin/main does not hold',
                     family=family, version=version), None
             if digest is None and main_version is None:
                 # a family this checkout declares and origin/main does not hold at all (issues/965): the
@@ -606,7 +606,7 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                 return Judgement.UNLICENSED, facts.phrase('valid at {at} - {reason}', at=refusal.at, reason=refusal.reason), refusal
             if digest is None or version_number(version) < version_number(main_version or ''):
                 return Judgement.SUPERSEDED, facts.phrase(
-                    'judged at {family} {version}; origin/main holds {main_version} - corpus-yoga pipeline rehearse re-judges it',
+                    'judged at {family} {version}; origin/main holds {main_version}',
                     family=family, version=version, main_version=main_version), None
             refusal = Refusal(unit.pipeline, family, version, facts.phrase(
                 "a version of this checkout, which origin/main does not hold ({main_version} there) - the mint's merge licenses the promotion",
@@ -703,8 +703,8 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
 
 
 REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
-UNPAIRED = 'unpaired, its record or its payload absent; corpus-yoga stage clean removes it'
-INCOMPLETE = '{n} member(s) the record lists are not in the payload; corpus-yoga stage clean removes it'
+UNPAIRED = 'unpaired, its record or its payload absent'
+INCOMPLETE = '{n} member(s) the record lists are not in the payload'
 
 
 def incomplete() -> list[Unit]:
@@ -1145,7 +1145,7 @@ def stage_facts() -> StageStatus:
         scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
         orphans=stage_orphans(),
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
-                else facts.phrase('none - corpus-yoga pipeline rehearse makes one') if record is None else record),
+                else facts.phrase('none - no rehearsal has run') if record is None else record),
         rehearsal=(Orphan(human(size_of(BEFORE_815)),
                           facts.phrase('a directory of stamped rehearsals, the layout before the record was one file (issues/815) - {migration} removes it'
                                          if BEFORE_815.is_dir() else

@@ -3,7 +3,7 @@
   "standing": true,
   "phrase": [
     "unread - no page and no corpus to compare",
-    "unread - the page declares no counts; corpus-yoga site render declares them",
+    "unread - the page declares no counts",
     "none - current with the corpus ({n} conversation(s))",
     "WARN - regressed from {old} to {new}",
     "{old} to {new}",
@@ -19,7 +19,7 @@
     "differs from rsc/site/{file}",
     "the mount ext/mnt/site is present, rpus.co's clone",
     "ext/mnt/site is a dangling link to {target} - repoint it at the site repo's clone, or remove it",
-    "no ext/mnt/site mount on this machine - optional; corpus-yoga status shows the convention",
+    "no ext/mnt/site mount on this machine - optional",
     "new on rpus.co",
     "changed",
     "changed - the comparison failed; its output above says where",

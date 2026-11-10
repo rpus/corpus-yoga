@@ -1024,14 +1024,14 @@ src/main/cli/stage/stage.py,20,comment,src/main/cleaner.py,Y,"The janitor's face
 src/main/cli/stage/stage.py,33,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/status/report.py,12,comment,src/main/standing.py,Y,"room's standing folded once from every noun's own (src/main/standing.py, issues/949). Runs under"
 src/main/cli/status/report.py,27,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
-src/main/cli/status/status.json,96,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
-src/main/cli/status/status.json,108,path_str,rsc/machine,Y,"""rsc/machine"","
-src/main/cli/status/status.json,109,path_str,rsc/test,Y,"""rsc/test"","
-src/main/cli/status/status.json,115,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
-src/main/cli/status/status.json,116,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
-src/main/cli/status/status.json,117,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/status/status.json,118,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
-src/main/cli/status/status.json,119,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/status/status.json,95,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
+src/main/cli/status/status.json,107,path_str,rsc/machine,Y,"""rsc/machine"","
+src/main/cli/status/status.json,108,path_str,rsc/test,Y,"""rsc/test"","
+src/main/cli/status/status.json,114,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
+src/main/cli/status/status.json,115,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
+src/main/cli/status/status.json,116,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
+src/main/cli/status/status.json,117,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
+src/main/cli/status/status.json,118,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/status/status.sh,2,comment,src/main/cli/status/status.sh,Y,"# src/main/cli/status/status.sh — what this machine has, and what it still needs."
 src/main/cli/status/status.sh,16,comment,src/main/cli/status/status.sh,Y,#   src/main/cli/status/status.sh              # what still needs attention; a section with nothing to say is not shown
 src/main/cli/status/status.sh,17,comment,src/main/cli/status/status.sh,Y,"#   src/main/cli/status/status.sh --show-all   # the full report, what is satisfied included"
@@ -1109,7 +1109,7 @@ src/main/markdown_projection.py,11,comment,src/main/pipeline/chat-export/atomise
 src/main/markdown_projection.py,24,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
 src/main/mcp/mcp.py,29,comment,src/main/mcp/reproduce.sh,Y,"# schema.ts? - src/main/mcp/reproduce.sh, whose header states the run"
 src/main/mcp/mcp.py,45,path_str,src/main/mcp/mcp.py,Y,SELF = 'src/main/mcp/mcp.py'
-src/main/mcp/mcp.py,261,path_str,src/main/mcp/reproduce.sh,Y,script = str(REPO / 'src/main/mcp/reproduce.sh')
+src/main/mcp/mcp.py,263,path_str,src/main/mcp/reproduce.sh,Y,script = str(REPO / 'src/main/mcp/reproduce.sh')
 src/main/mcp/mcp.py,173,path_str,rsc/schema/mcp/mcpMessage/CHANGELOG.md,Y,"why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},"
 src/main/mcp/mcp_extraction.py,39,path_str,src/main/mcp/mcp_extraction.py,Y,SELF = 'src/main/mcp/mcp_extraction.py'
 src/main/mcp/mcp_face.py,24,comment,rsc/cache_io.csv,Y,"derivation's other faces (rsc/cache_io.csv), never committed: they are readings of"

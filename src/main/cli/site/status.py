@@ -59,7 +59,7 @@ def read_lag(site: Site) -> bool:
         return False
     page = declared.page_declarations(page_file.read_text())
     if page is None:
-        site.lags = facts.Unsettled(facts.phrase('unread - the page declares no counts; corpus-yoga site render declares them'), 'site')
+        site.lags = facts.Unsettled(facts.phrase('unread - the page declares no counts'), 'site')
         return True
     try:
         corpus = declared.corpus_declarations(md_root)
