@@ -36,7 +36,7 @@ import importlib
 from antlr4 import CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 
-SELF = 'src/main/derived/mcp/mcp_extraction.py'
+SELF = 'src/main/mcp/mcp_extraction.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

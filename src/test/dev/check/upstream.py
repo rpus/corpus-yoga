@@ -115,7 +115,7 @@ def check_reference(run) -> None:
                 check='reference.lineage_changelog')
 
 
-@check(tier='schema', on=['rsc/reference/mcp', 'rsc/schema/derived/mcp', 'src/main/derived/mcp', 'src/gen/grammar'], says=(
+@check(tier='schema', on=['rsc/reference/mcp', 'rsc/schema/derived/mcp', 'src/main/mcp', 'src/gen/grammar'], says=(
     'mcp.faces_derivable',
     'mcp.factoring_agrees',
     'mcp.factoring_current',
@@ -172,17 +172,17 @@ def check_mcp_factoring(run) -> None:
         run(f'mcp: {rel} parses through the house TypeScript grammar', detail is None, detail, check='mcp.lineages_parse')
 
 
-@check(tier='schema', says=('mcp.reproducible',), on=['rsc/reference/mcp', 'src/main/derived/mcp'])
+@check(tier='schema', says=('mcp.reproducible',), on=['rsc/reference/mcp', 'src/main/mcp'])
 def check_mcp_reproducible(run) -> None:
     """The mcp snapshot's schema.json is what upstream's own generator makes of the
-    committed schema.ts: src/main/derived/mcp/reproduce.sh fetches upstream at the
+    committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
     pinned commit, runs its generator unchanged in a node container and diffs the
     result against the committed file. Two sends (a git fetch, a docker run), so
     CORPUS_YOGA_NO_SEND=1 skips it - and so does a machine whose docker daemon is not
     reachable: the label is CONSTANT and the result passes when the run did not
     happen, as check_reference's currency probes do, so the committed report is
     byte-identical on a machine that cannot run it."""
-    script = REPO_ROOT / 'src' / 'main' / 'derived' / 'mcp' / 'reproduce.sh'
+    script = REPO_ROOT / 'src' / 'main' / 'mcp' / 'reproduce.sh'
     docker = shutil.which('docker')
     daemon = bool(docker) and subprocess.run([docker, 'info'], capture_output=True).returncode == 0
     ok, detail = True, None

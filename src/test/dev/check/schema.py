@@ -26,6 +26,8 @@ import provider
 def check_schema_layout(run) -> None:
     """A family's address under rsc/schema is its writer's under src/main, then the
     provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that is a row of rsc/provider/providers.csv,
+    strip a leading `derived` - a tier of the schema tree alone, marking a family derived from
+    upstream's schema rather than authored, whose writer is no tier of the code (issues/1047) -
     and what remains is a directory under src/main or nothing. Every pipeline's declared
     schema sits under rsc/schema/pipeline/<pipeline>, at exactly one address."""
     providers = set(provider.provider_names())
@@ -34,6 +36,8 @@ def check_schema_layout(run) -> None:
         parts = key.split('/')[:-1]
         if parts and parts[-1] in providers:
             parts = parts[:-1]
+        if parts[:1] == ['derived']:
+            parts = parts[1:]
         writer = SRC / 'main' / '/'.join(parts) if parts else SRC / 'main'
         run(f'{key}: address mirrors its writer', writer.is_dir(),
             None if writer.is_dir() else

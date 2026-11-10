@@ -26,7 +26,7 @@ Usage:
     corpus-yoga mcp derive         # (re-)derive rsc/schema/derived/mcp/mcpMessage/v*.json: the diff, then the
                                  # next version minted when anything differs - idempotent
     corpus-yoga mcp reproduce    # is the snapshot's schema.json what upstream's generator makes of its
-                                 # schema.ts? - src/main/derived/mcp/reproduce.sh, whose header states the run
+                                 # schema.ts? - src/main/mcp/reproduce.sh, whose header states the run
 """
 
 import difflib
@@ -43,7 +43,7 @@ import mcp_factoring as factoring  # (sibling module)
 import mcp_face as face  # (sibling module)
 from mcp_extraction import GRAMMAR_PARSER
 
-SELF = 'src/main/derived/mcp/mcp.py'
+SELF = 'src/main/mcp/mcp.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -276,7 +276,7 @@ def main():
                                            else 'NOT DONE - ' + facts.phrase('a derivation failed; the line above names it')))
         sys.exit(code)
     if args.verb == 'reproduce':
-        script = str(REPO / 'src/main/derived/mcp/reproduce.sh')
+        script = str(REPO / 'src/main/mcp/reproduce.sh')
         os.execv(script, [script])
     sys.exit(status())
 

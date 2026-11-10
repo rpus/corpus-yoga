@@ -22,7 +22,7 @@
     "a derivation failed; the line above names it",
     "{target} NOT derivable - {parser} is absent"
   ],
-  "target": "src/main/derived/mcp/mcp.py",
+  "target": "src/main/mcp/mcp.py",
   "calculus": "project L1 L6",
   "args": [],
   "r": [
