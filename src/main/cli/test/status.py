@@ -33,7 +33,7 @@ class Hook:
     installed, and the remedy where it does not. The home of the hooks' state (issues/778): the
     machine report and the forge say what this says."""
     installed: str
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
     @property
     def sound(self) -> bool:
@@ -100,7 +100,7 @@ def signature_hook() -> Hook:
 
 def main() -> int:
     run = (REPO / 'src' / 'test' / 'dev' / 'run.py').read_text()
-    facts.say(Status(Test(Checks(facts.phrase('{n} check sections', n=len(re.findall(r'^def check_', run, re.M)))), commit_hook(), signature_hook())))
+    facts.say_standing(Status(Test(Checks(facts.phrase('{n} check sections', n=len(re.findall(r'^def check_', run, re.M)))), commit_hook(), signature_hook())))
     return 0
 
 

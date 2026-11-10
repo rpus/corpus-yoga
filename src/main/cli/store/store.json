@@ -1,5 +1,6 @@
 {
   "summary": "shared storage, data/input, in the stage's terms - the units held, the duplicates, each surplus file inside a held unit, the stage against the store, and the live stores against the fuller of the staged and the held copy (bare is the status, the one that names what to run next, and writes nothing; clean its one janitor)",
+  "standing": true,
   "explanation": {
     "staged": "the stage against the store, by selection - how many are staged, promotable (judged valid and not held), held already (byte-equal to the held copy), would lose (their relation would cost the held copy something), unlicensed (valid at a version origin/main does not hold), or pending the stage's judgement",
     "would lose": "by selection, then by the relation under which the held copy would lose something, with how many units carry it; the reader reconciles the two. The promote, asked, refuses them; a status asks for nothing (issues/867)",

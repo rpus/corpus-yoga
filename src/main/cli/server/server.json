@@ -1,5 +1,6 @@
 {
   "summary": "serve the markdown corpus locally (LaTeX + turn deep links)",
+  "standing": true,
   "phrase": [
     "running (pid {pid})",
     "not running",

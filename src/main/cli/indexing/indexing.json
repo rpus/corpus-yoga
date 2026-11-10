@@ -1,5 +1,6 @@
 {
   "summary": "Curate and build the book index over data/output/indexing/ (bare is the status)",
+  "standing": true,
   "phrase": [
     "{n} candidate concept(s) written to {path}",
     "each anchors in the corpus by the aliases shown; dispose each with corpus-yoga indexing accept \"<concept>\" [alias ...] or reject \"<concept>\", or --all as read",
@@ -27,10 +28,8 @@
     "{n} unanchorable, named by list-candidates, not queued",
     "{captured} concept(s) captured, {disposed} already disposed; of the {new} new, {anchored} anchor in a conversation turn and will be queued",
     "{n} do not and will not be",
-    "fix the aliases, or remove the line and reject the concept with a reason",
     "none - every accepted headword has a corpus locator",
     "unknown - no concept capture on this machine",
-    "each is the reader's act - corpus-yoga indexing accept \"<term>\" or corpus-yoga indexing reject \"<concept>\" --reason \"<why>\"; corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each, and --all disposes it as read",
     "none - fully disposed",
     "not captured yet",
     "{n} rows",

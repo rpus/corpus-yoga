@@ -1,5 +1,6 @@
 {
   "summary": "the house factoring of the MCP schema, generated from upstream's schema.ts alone, its schema.json the witness (bare says whether it is current and flattens to the witness)",
+  "standing": true,
   "phrase": [
     "{target} NOT derivable - {why}",
     "faced under {cache}",
@@ -8,11 +9,11 @@
     "reads {house} here, {upstream} upstream",
     "extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow",
     "no message carries it, since {ts} declares no {request} - stands unreachable",
-    "{family} absent - corpus-yoga mcp sync derives it",
+    "{family} absent",
     "agrees",
     "{n} disagreement(s)",
     "consumer and producer faced under {cache}",
-    "consumer and producer NOT faced under {cache} - corpus-yoga mcp sync writes them",
+    "consumer and producer NOT faced under {cache}",
     "{n} line(s)",
     "{family} {standing}, {agreement} with the snapshot",
     "{family} ({n} definitions)",

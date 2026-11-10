@@ -34,7 +34,7 @@ RECORD = tier.TMP / 'browser' / 'fetch'   # <provider>.json, the account as last
 class Moved:
     """A chat new or grown since its capture, with the capture that acts on it."""
     standing: str
-    remedy: facts.Command | facts.Would
+    remedy: facts.Would
 
 
 @dataclass

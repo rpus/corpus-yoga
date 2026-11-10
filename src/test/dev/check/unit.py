@@ -99,7 +99,7 @@ def check_rehearsal_record(run) -> None:
                 (corpus.Judgement.UNSEEN, f'unseen by rehearsal {stamp}'),
                 (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),
                 (corpus.Judgement.NONE, 'no pipeline selects it'),
-                (corpus.Judgement.SUPERSEDED, 'judged at claude/apiConversation v1; origin/main holds v2 - corpus-yoga pipeline rehearse re-judges it'),
+                (corpus.Judgement.SUPERSEDED, 'judged at claude/apiConversation v1; origin/main holds v2'),
                 (corpus.Judgement.UNLICENSED, 'valid at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
     refusal = got[1][2]

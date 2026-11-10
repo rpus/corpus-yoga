@@ -17,10 +17,11 @@ prints under its name's words, or under the key `named` gives it; a field that i
 not printed; a shape whose keys are its data says so in a `facts` method. A collection is
 a mapping keyed by its members' names, each member's facts beneath its name, so that a
 dash means only a bare value with nothing to key it by, and the nesting alone says what
-belongs to what (issues/765). Two facts every status shares are types of their own: a remedy,
-the command a reader types (Command) or the reader's own act in words (Act), and a finding
-(Finding), the FAIL the usr gate's table counts. A Command prints as a pair, the line its
-key and what it does its value: what is typed is always a whole scalar. A noun written in shell hands its rows to
+belongs to what (issues/765). A status line is one of three (issues/1034): a fact, settled; an
+act (Would), a declared corpus-yoga verb with what it would act on, which now: lifts; or an
+unsettled reading (Unsettled), which now: lifts under the noun that reports it. No remedy is
+written in words or as a command no verb declares - there is no type to write one in. A
+finding (Finding) is the FAIL the usr gate's table counts. A noun written in shell hands its rows to
 a status module beside it, which types them: no shell builds facts.
 """
 from __future__ import annotations
@@ -280,25 +281,6 @@ def named(label: str, **kwargs):
 
 
 @dataclass(frozen=True)
-class Command:
-    """A remedy the reader types: a corpus-yoga command, or a standard tool's."""
-    line: str                     # the command as typed
-    does: str                     # what it does
-
-    def facts(self) -> dict:
-        return {self.line: self.does}
-
-
-@dataclass(frozen=True)
-class Act:
-    """A remedy that is the reader's own act, in words: nothing types it."""
-    words: str
-
-    def said(self) -> str:
-        return self.words
-
-
-@dataclass(frozen=True)
 class Would:
     """An act a status names (issues/1028): the command as typed, and what it would act on -
     each thing with how many, or with what changes in it beneath. What the act would do is
@@ -310,6 +292,18 @@ class Would:
 
     def facts(self) -> dict:
         return {self.line: {would_of(self.line): self.acts_on}}
+
+
+@dataclass(frozen=True)
+class Unsettled:
+    """A reading a status could not settle - unverified, unread or unknown, with why - said in
+    its body as its words, and lifted into now: under the noun that reports it (issues/1034),
+    as an act is: a reader is shown what stands unsettled, never only what to run."""
+    reading: str
+    noun: str
+
+    def said(self) -> str:
+        return self.reading
 
 
 @dataclass(frozen=True)
@@ -357,12 +351,31 @@ def merge(into: dict, more: dict, once: bool = False) -> dict:
     return into
 
 
+REPORTS = 'reports the noun'   # beneath a noun's command in now:, what it reports and cannot settle
+
+
 def now_of(shape) -> dict:
-    """A status's now: - every act it names, gathered by command and merged (issues/1028), so
-    that no noun composes its now: beside its body. An act stands under a remedy: key as its
-    command, its declared words and what it acts on; a remedy in words, or a command that is
-    no corpus-yoga act, is no act of now:, and a nested now: is no act of the body."""
+    """A status's now: - every act it names, gathered by command and merged (issues/1028), and
+    every reading it could not settle, under the noun that reports it (issues/1034), so that no
+    noun composes its now: beside its body. An act stands under a remedy: key as its command, its
+    declared words and what it acts on; a remedy in words, or a command that is no corpus-yoga
+    act, is no act of now:, and a nested now: is no act of the body."""
     out: dict = {}
+
+    def unsettled(node) -> None:
+        if isinstance(node, Unsettled):
+            merge(out, {f'corpus-yoga {node.noun}': {REPORTS: {node.reading: 1}}}, once=True)
+        elif is_dataclass(node) and not isinstance(node, type):
+            for f in fields(node):
+                if f.name != 'now':
+                    unsettled(getattr(node, f.name))
+        elif isinstance(node, dict):
+            for key, value in node.items():
+                if key != 'now':
+                    unsettled(value)
+        elif isinstance(node, (list, tuple)):
+            for value in node:
+                unsettled(value)
 
     def walk(node) -> None:
         if isinstance(node, dict):
@@ -379,6 +392,7 @@ def now_of(shape) -> dict:
             for value in node:
                 walk(value)
 
+    unsettled(shape)
     walk(plain(shape))
     return out
 
@@ -387,7 +401,7 @@ def now_of(shape) -> dict:
 class Finding:
     """What a status found wrong: the FAIL the usr gate's stage table counts, and its remedy."""
     FAIL: str
-    remedy: Command | Act | Would | None = None
+    remedy: Would | None = None
 
 
 def plain(shape):
@@ -439,6 +453,15 @@ def say(shape: DataclassInstance) -> None:
     """Print a status: its named shape, as YAML, at the depth. A status is said once, whole, so
     that its keys are the fields of one type."""
     print('\n'.join(lines(plain(shape), depth(), width=terminal_width())))
+
+
+def say_standing(shape: DataclassInstance) -> None:
+    """Print a noun's bare status, which ends on now: (issues/1034): its shape, then every act it
+    names and every reading it could not settle, gathered by now_of - or none."""
+    said = plain(shape)
+    assert isinstance(said, dict), 'a status is a mapping'
+    said['now'] = now_of(shape) or phrase('none - nothing to do')
+    print('\n'.join(lines(said, depth(), width=terminal_width())))
 
 
 ACT = tier.ACT                   # the launcher names the act it dispatched, `<command> <verb>` (issues/896)

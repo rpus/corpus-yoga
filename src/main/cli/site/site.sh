@@ -99,7 +99,7 @@ status() {
       # "no mount", and the one who least needs the convention; say what status says
       printf 'deploy\t%s\n' "$(phrase "ext/mnt/site is a dangling link to {target} - repoint it at the site repo's clone, or remove it" target="$(readlink "$REPO_DIR/ext/mnt/site")")"
     else
-      printf 'deploy\t%s\n' "$(phrase "no ext/mnt/site mount on this machine - optional; corpus-yoga status shows the convention")"
+      printf 'deploy\t%s\n' "$(phrase "no ext/mnt/site mount on this machine - optional")"
     fi
   } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/site/status.py"
 }

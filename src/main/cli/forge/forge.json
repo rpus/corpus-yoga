@@ -1,5 +1,6 @@
 {
   "summary": "the forge's merge settings, and the merge that obeys them",
+  "standing": true,
   "phrase": [
     "refuse-class drift - corpus-yoga forge merge refuses while it stands",
     "ready - no refuse-class drift",

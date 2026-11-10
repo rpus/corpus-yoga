@@ -35,7 +35,7 @@ def main() -> int:
     shape, found = capture_audit.audit(tier.DATA / 'input', tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')
     accounts = {provider: account.account(provider, account.RECORD / f'{provider}.json') for provider in ('claude', 'gemini')}
     report = corpus.report_facts('browser')
-    facts.say(Status(shape.claude, shape.gemini, accounts['claude'], accounts['gemini'], report.staged))
+    facts.say_standing(Status(shape.claude, shape.gemini, accounts['claude'], accounts['gemini'], report.staged))
     return 1 if found else 0
 
 

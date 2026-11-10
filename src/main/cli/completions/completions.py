@@ -204,7 +204,7 @@ def uninstall_completion() -> int:
 @dataclass
 class Completions:
     standing: str = facts.named('tab-completion')
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -260,7 +260,7 @@ def standing() -> Completions:
 
 
 def completion_status() -> int:
-    facts.say(Status(standing()))
+    facts.say_standing(Status(standing()))
     return 0
 
 

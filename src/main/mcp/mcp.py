@@ -97,7 +97,7 @@ class SchemaTs:
     category_tags: int
     declarations: int
     tables: str
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -119,7 +119,7 @@ class Family:
     faces: str = ''
     layers: dict[str, int] | None = None
     differs_by: str | None = None
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -130,7 +130,7 @@ class Status:
     overrides: dict[str, Ruling]
     uncarried: dict[str, Ruling]
     family_path: str
-    family: Family | str | None = None
+    family: Family | facts.Finding | None = None
     mcp: str | None = None        # the verdict
 
     def facts(self) -> dict:
@@ -178,9 +178,9 @@ def status() -> int:
                    for union, request in factoring.uncarried_results(shapes)},
         family_path=rel.as_posix())
     if not target.exists():
-        out.family = 'absent'
-        out.mcp = facts.phrase('{family} absent - corpus-yoga mcp sync derives it', family=rel)
-        facts.say(out)
+        out.family = facts.Finding(facts.phrase('{family} absent', family=rel), facts.Would(spell.line('mcp', 'sync'), {rel.name: 1}))
+        out.mcp = facts.phrase('{family} absent', family=rel)
+        facts.say_standing(out)
         return 1
     have = target.read_text()
     bad = factoring.disagreements(json.loads(have), snap, factoring.additions(), factoring.generated().constants)
@@ -191,8 +191,10 @@ def status() -> int:
                     facts.phrase('agrees') if not bad else facts.phrase('{n} disagreement(s)', n=len(bad)),
                     disagreements=bad[:5] or None,
                     faces=(facts.phrase('consumer and producer faced under {cache}', cache=cache) if face.current(json.loads(have))
-                           else facts.phrase('consumer and producer NOT faced under {cache} - corpus-yoga mcp sync writes them', cache=cache)),
+                           else facts.phrase('consumer and producer NOT faced under {cache}', cache=cache)),
                     layers=dict(factoring.partition(json.loads(wanted))))
+    if not face.current(json.loads(have)):
+        family.remedy = facts.Would(spell.line('mcp', 'sync'), {cache: 1})
     if not current:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
@@ -200,7 +202,7 @@ def status() -> int:
         family.remedy = facts.Would(spell.line('mcp', 'sync'), {rel.name: 1})
     out.family = family
     out.mcp = facts.phrase('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
-    facts.say(out)
+    facts.say_standing(out)
     return 0 if current and not bad else 1
 
 

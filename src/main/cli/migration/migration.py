@@ -35,7 +35,6 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 SCRIPTS = REPO / 'rsc' / 'migration'
-HALTED = facts.Act(facts.phrase('resolve by hand what it names'))
 
 
 @dataclass
@@ -43,7 +42,7 @@ class Script:
     """A script's state: how many steps it would take, or that it halted and what it said."""
     steps: str | None = None
     halted: str | None = None
-    remedy: facts.Command | facts.Act | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -74,7 +73,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
     for name, (code, lines) in seen.items():
         if code != 0:
             halted += 1
-            out[name] = Script(halted='; '.join(lines), remedy=HALTED)
+            out[name] = Script(halted='; '.join(lines))
         elif lines:
             pending += 1
             out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), remedy=facts.Would(spell.line('migration', 'sync'), {name: len(lines)}))
@@ -129,7 +128,7 @@ def main() -> int:
     args = command_parser('migration').parse_args()
     if args.verb == 'sync':
         return sync()
-    facts.say(status_facts())
+    facts.say_standing(status_facts())
     return 0
 
 

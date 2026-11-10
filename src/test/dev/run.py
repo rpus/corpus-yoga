@@ -105,8 +105,8 @@ def subject_hash(spec) -> str:
     if spec == 'TREE':
         rels = _tree_files()
     else:
-        rels = list(GATE_SOURCES)
-        for g in spec:
+        rels = []
+        for g in [*GATE_SOURCES, *spec]:   # the gate's own sources expanded as a subject's are, its check modules among them
             root = REPO_ROOT / g
             if root.is_file():
                 rels.append(g)

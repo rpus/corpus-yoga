@@ -1,5 +1,5 @@
 {
-  "help": "make this machine satisfy what the report names - the mint of the venv, and each remedy the report holds that is the repo's to run; what it would run is corpus-yoga status's report, and it writes outside the repo",
+  "help": "make this machine satisfy what the report names - the mint of the venv, and every remedy the report holds, each an act it runs - the corpus-yoga acts its x names, the tools it installs with brew, Docker started, a dangling ext/mnt/site removed; it writes outside the repo",
   "would": "would satisfy",
   "args": [],
   "sends": {
@@ -15,6 +15,13 @@
       "refused": "fails",
       "does": [
         "installs src/requirements.txt from PyPI into the venv where it lacks them"
+      ]
+    },
+    "brew": {
+      "runs": "brew install",
+      "refused": "fails",
+      "does": [
+        "installs each tool the report finds missing - jq, python, shellcheck, docker, openjdk, git - from Homebrew"
       ]
     }
   },
@@ -38,6 +45,8 @@
     "corpus-yoga agent mount",
     "corpus-yoga test install-hook",
     "corpus-yoga completions install",
-    "corpus-yoga migration sync"
+    "corpus-yoga migration sync",
+    "open -a Docker",
+    "rm ext/mnt/site"
   ]
 }

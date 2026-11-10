@@ -210,7 +210,7 @@ class Session:
 class Mount:
     """A live store this room does not mount: which rows cannot appear, and what makes them."""
     standing: str
-    remedy: facts.Command | facts.Would
+    remedy: facts.Would
 
 
 Sessions = dict[str, dict[str, dict[str, dict[str, Session]]]]   # by where - local, then each machine - provider, project and id
@@ -261,7 +261,7 @@ class Peer:
     """A peer machine's store held here, and what corpus-yoga agent install would write from it
     into this machine's live store (issues/881): the install's facts by outcome, read dry."""
     would_write: dict | str
-    remedy: facts.Command | facts.Would
+    remedy: facts.Would
 
 
 @dataclass
@@ -439,7 +439,7 @@ def main() -> int:
         brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (issues/758)
         report = corpus.report_facts('agent')
         peers, merges = peers_and_merges()
-        facts.say(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
+        facts.say_standing(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
         return 0
     if args.verb == 'mount':
         return mount()

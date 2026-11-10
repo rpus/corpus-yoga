@@ -164,8 +164,7 @@ def _twins(root: Path) -> tuple[int, facts.Finding | None]:
     if not twins:
         return 0, None
     return twins, facts.Finding(
-        facts.phrase('{n} twin deposit(s) in the summaries store - byte-identical to their nearest earlier sibling, which the deposit rule never writes', n=twins),
-        facts.Act(facts.phrase('investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its one-shot repair retired, and nothing in the current machinery can mint a twin')))
+        facts.phrase('{n} twin deposit(s) in the summaries store - byte-identical to their nearest earlier sibling, which the deposit rule never writes', n=twins))
 
 
 @dataclass
@@ -208,7 +207,7 @@ def status(root: Path) -> int:
             rolling += (f.name == 'browser-capture.md')
             readings += (f.name != 'browser-capture.md')
     shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
-    facts.say(Status(Summaries(len(folders), readings, rolling, shown.as_posix()), _twins(root)[1]))
+    facts.say_standing(Status(Summaries(len(folders), readings, rolling, shown.as_posix()), _twins(root)[1]))
     return 0
 
 
