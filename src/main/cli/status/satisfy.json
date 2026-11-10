@@ -41,11 +41,11 @@
     "rsc/provider"
   ],
   "x": [
-    "corpus-yoga grammar sync",
+    "corpus-yoga grammar generate",
     "corpus-yoga agent mount",
     "corpus-yoga test install-hook",
     "corpus-yoga completions install",
-    "corpus-yoga migration sync",
+    "corpus-yoga migration apply",
     "open -a Docker",
     "rm ext/mnt/site"
   ]

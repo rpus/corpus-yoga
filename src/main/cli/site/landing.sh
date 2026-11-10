@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# landing.sh - what corpus-yoga site publish would land on rpus.co, read against rpus.co as it
+# landing.sh - what corpus-yoga site sync would land on rpus.co, read against rpus.co as it
 # stands (issues/1020): the publish tree against the clone's origin as last fetched, never
 # against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
 # report.sh, send.sh and enact.sh; each function takes the clone, and the tree where it reads one.
@@ -40,13 +40,13 @@ clone_position() {
   local served off ahead behind
   served="$(clone_served "$1")"
   if [[ -z "$served" ]]; then
-    printf 'clone\t%s\t%s\t%s\n' "$(phrase "records no branch rpus.co serves (origin/HEAD) - corpus-yoga site publish refuses until it does")" \
+    printf 'clone\t%s\t%s\t%s\n' "$(phrase "records no branch rpus.co serves (origin/HEAD) - corpus-yoga site sync refuses until it does")" \
       "git -C ext/mnt/site remote set-head origin --auto" "$(phrase "records the remote's default branch")"
     return 0
   fi
   off="$(off_served "$1")"
   if [[ -n "$off" ]]; then
-    printf 'clone\t%s\t%s\t%s\n' "$(phrase "on {branch}, not {local}, the branch rpus.co serves as {served} - corpus-yoga site publish refuses until it stands on {local}" branch="$off" local="${served#*/}" served="$served")" \
+    printf 'clone\t%s\t%s\t%s\n' "$(phrase "on {branch}, not {local}, the branch rpus.co serves as {served} - corpus-yoga site sync refuses until it stands on {local}" branch="$off" local="${served#*/}" served="$served")" \
       "git -C ext/mnt/site switch ${served#*/}" "$(phrase "stands it on the branch rpus.co serves")"
     return 0
   fi
@@ -54,12 +54,12 @@ clone_position() {
   if (( ahead == 0 && behind == 0 )); then
     printf 'clone\t%s\n' "$(phrase "level with {origin}" origin="$served")"
   elif (( ahead == 0 )); then
-    printf 'clone\t%s\n' "$(phrase "behind {origin} by {n} commit(s) - the next corpus-yoga site publish brings it level" origin="$served" n="$behind")"
+    printf 'clone\t%s\n' "$(phrase "behind {origin} by {n} commit(s) - the next corpus-yoga site sync brings it level" origin="$served" n="$behind")"
   elif (( behind == 0 )); then
-    printf 'clone\t%s\n' "$(phrase "ahead of {origin} by {n} commit(s) - the next corpus-yoga site publish pushes them" origin="$served" n="$ahead")"
+    printf 'clone\t%s\n' "$(phrase "ahead of {origin} by {n} commit(s) - the next corpus-yoga site sync pushes them" origin="$served" n="$ahead")"
   else
     printf 'clone\t%s\t%s\t%s\n' \
-      "$(phrase "diverged from {origin} - {ahead} commit(s) here, {behind} there; corpus-yoga site publish refuses until they are reconciled" origin="$served" ahead="$ahead" behind="$behind")" \
+      "$(phrase "diverged from {origin} - {ahead} commit(s) here, {behind} there; corpus-yoga site sync refuses until they are reconciled" origin="$served" ahead="$ahead" behind="$behind")" \
       "git -C ext/mnt/site status" "$(phrase "shows where the clone and rpus.co part")"
   fi
 }

@@ -2,7 +2,7 @@
   "summary": "whether everything is well - what this machine lacks, and what any noun says needs doing; sync does what is the repo's to do",
   "standing": false,
   "phrase": [
-    "{word} is no word it takes; the words are --show-all, or sync",
+    "{word} is no word it takes; the words are --show-all, or satisfy",
     "no - no pipeline runs without it",
     "{version} - it mints the venv; everything else runs the venv's python (issues/478)",
     "no - nothing runs without it, the CLI included",
@@ -15,8 +15,8 @@
     "running ({version}) - answers on {socket} as {platform}",
     "no - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses",
     "antlr4-tools, java {version}",
-    "no - antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current",
-    "no - corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt",
+    "no - antlr4 has no runtime to run its tool on; corpus-yoga grammar generate refuses and corpus-yoga test run cannot hold the parsers current",
+    "no - corpus-yoga grammar generate refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt",
     "{version} (3.2+ suffices)",
     "{version}; CORPUS_YOGA_VENV= names another",
     "no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another",
@@ -27,7 +27,7 @@
     "not found (unexpected) - nothing can say what this machine is missing",
     "{got}/{total} ({detail})",
     "{got}/{total} - {remediation}; missing {missing}",
-    "corpus-yoga status sync, or automatically on the next corpus-yoga pipeline run",
+    "corpus-yoga status satisfy, or automatically on the next corpus-yoga pipeline run",
     "not verifiable read-only",
     "unavailable - ANTHROPIC_API_KEY is not set",
     "exported, and no code reads it - {name} is the name",
@@ -69,7 +69,7 @@
       "pyright": "corpus-yoga test run type-checks src/ against pyrightconfig.json with it",
       "shellcheck": "corpus-yoga test run lints every src/**/*.sh with it",
       "docker": "corpus-yoga test run reproduces the mcp snapshot through upstream's generator (mcp.reproducible); corpus-yoga mcp reproduce runs it alone",
-      "antlr4 and java": "corpus-yoga grammar sync generates the parsers with them, and corpus-yoga test run holds the parsers current (grammar.parser_current)",
+      "antlr4 and java": "corpus-yoga grammar generate generates the parsers with them, and corpus-yoga test run holds the parsers current (grammar.parser_current)",
       "bash": "3.2 suffices; the scripts avoid 4.x features"
     },
     "venv": "the one interpreter every .py target runs in; CORPUS_YOGA_VENV= names another",
@@ -80,7 +80,7 @@
       "the live store": "the directory the provider's harness writes its sessions to - ~/.claude/projects, ~/.gemini/antigravity - outside the repository, harness-owned, and expiring at the provider's will; corpus-yoga agent capture --provider <provider> copies it into the room's stage",
       "the mount": "ext/mnt/<provider>/code/machine-transport/<machine>, a link to the live store at the address its units have under tmp/stage/input and data/input, through which the census and the capture read it; corpus-yoga agent mount makes it, pointing where the provider registry says"
     },
-    "deploy": "ext/mnt/site is a link to a clone of the site repository, which corpus-yoga site publish pushes to; optional - only a deploying machine has it, and ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)",
+    "deploy": "ext/mnt/site is a link to a clone of the site repository, which corpus-yoga site sync pushes to; optional - only a deploying machine has it, and ln -s <site-repo-clone> ext/mnt/site makes it (rsc/site/README.md)",
     "migration": "corpus-yoga migration - the moves a rename owes this machine's local roots, each a guarded script under rsc/migration run once; its sync takes the pending steps",
     "optional modes": {
       "browser capture": "possible on macOS with osascript, Safari logged in to claude.ai and gemini.google.com; unavailable elsewhere, the other pipelines unaffected",

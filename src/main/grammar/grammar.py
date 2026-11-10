@@ -10,7 +10,7 @@ each machine from the committed grammar by a declared tool at a declared version
 (antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version).
 Every reader of a grammar runs from it: the mcp extraction reads schema.ts through
 src/gen/grammar/TypeScript, so the mcp verbs and the dev gate's mcp checks need it
-generated first - `corpus-yoga status sync` generates it with the
+generated first - `corpus-yoga status satisfy` generates it with the
 rest of what a machine needs.
 
 `grammar` is a NOUN: the generated parsers. A bare invocation reports whether each
@@ -26,7 +26,7 @@ through it (mcp.lineages_parse).
 
 Usage:
     corpus-yoga grammar          # status: is every parser generated, and what its grammar generates?
-    corpus-yoga grammar sync     # generate what is absent, regenerate what differs, remove what is no longer generated
+    corpus-yoga grammar generate     # generate what is absent, regenerate what differs, remove what is no longer generated
 """
 
 import shutil
@@ -71,7 +71,7 @@ def tool() -> str | None:
 def generated(project: Path) -> dict[str, str]:
     """{file name: text} of the Python-target files the tool generates from the
     project's grammars now."""
-    assert tool(), facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt')
+    assert tool(), facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status satisfy installs src/requirements.txt')
     with tempfile.TemporaryDirectory() as scratch:
         argv = ['-v', TOOL_VERSION, '-Dlanguage=Python3', '-no-listener', '-o', scratch, '-Xexact-output-dir']
         if (project / 'imports').is_dir():
@@ -118,7 +118,7 @@ def status() -> int:
             stale += 1
             projects_[project.name] = Project(
                 facts.phrase("no - {generated} is absent; the mcp extraction and corpus-yoga test run's mcp checks need it", generated=rel),
-                remedy=facts.Would(spell.line('grammar', 'sync'), {project.name: 1}))
+                remedy=facts.Would(spell.line('grammar', 'generate'), {project.name: 1}))
             continue
         item = Project(rel.as_posix(), files=len(have))
         try:
@@ -132,7 +132,7 @@ def status() -> int:
             if differing:
                 stale += 1
                 item.currency, item.differing = facts.phrase('STALE against {source}', source=source), differing
-                item.remedy = facts.Would(spell.line('grammar', 'sync'), {project.name: len(differing)})
+                item.remedy = facts.Would(spell.line('grammar', 'generate'), {project.name: len(differing)})
             else:
                 item.currency = facts.phrase('current with {source} (antlr4 {version})', source=source, version=TOOL_VERSION)
         projects_[project.name] = item
@@ -143,9 +143,9 @@ def status() -> int:
     return 1 if stale else 0
 
 
-def sync() -> int:
+def generate() -> int:
     if not tool():
-        facts.report(None, 'grammar sync: NOT DONE - ' + facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt'))
+        facts.report(None, 'grammar generate: NOT DONE - ' + facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status satisfy installs src/requirements.txt'))
         return 1
     written = removed = 0
     for project in projects():
@@ -164,7 +164,7 @@ def sync() -> int:
                 (out / name).unlink()
                 removed += 1
                 print(f'  ✓ {(out / name).relative_to(REPO)} ' + facts.phrase('removed - the grammar no longer generates it'))
-    facts.report(None, 'grammar sync: DONE - ' + facts.phrase('{written} file(s) written, {removed} removed', written=written, removed=removed))
+    facts.report(None, 'grammar generate: DONE - ' + facts.phrase('{written} file(s) written, {removed} removed', written=written, removed=removed))
     return 0
 
 
@@ -172,9 +172,9 @@ def main():
     parser = command_parser('grammar')
     args = parser.parse_args()
     try:
-        sys.exit(sync() if args.verb == 'sync' else status())
+        sys.exit(generate() if args.verb == 'generate' else status())
     except send.SendRefused as refused:
-        facts.report(None, f'grammar sync: NOT DONE - {refused}')
+        facts.report(None, f'grammar generate: NOT DONE - {refused}')
         sys.exit(1)
 
 

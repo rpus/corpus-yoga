@@ -10,5 +10,5 @@ meta-schema's own `id`), so the committed meta-schema is what
 declaration `src/schema_walk.py` derives every keyword's position from (issues/571).
 `provenance.csv` pins the file's URL, etag and SHA256; `reference.json` names
 upstream. No lineage listing: the drafts are not a dated series, so
-`corpus-yoga reference` probes the pinned rows only, and `corpus-yoga reference sync`
+`corpus-yoga reference` probes the pinned rows only, and `corpus-yoga reference pull`
 refetches a row whose bytes at its URL no longer hash as pinned.

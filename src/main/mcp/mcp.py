@@ -23,7 +23,7 @@ the commit gate by schema.changelog_narrative. Re-running is silence (L1). The w
 
 Usage:
     corpus-yoga mcp              # status: is rsc/schema/mcp/mcpMessage current with the snapshot?
-    corpus-yoga mcp sync         # (re-)derive rsc/schema/mcp/mcpMessage/v*.json: the diff, then the
+    corpus-yoga mcp derive         # (re-)derive rsc/schema/mcp/mcpMessage/v*.json: the diff, then the
                                  # next version minted when anything differs - idempotent
     corpus-yoga mcp reproduce    # is the snapshot's schema.json what upstream's generator makes of its
                                  # schema.ts? - src/main/mcp/reproduce.sh, whose header states the run
@@ -150,7 +150,7 @@ def _underivable(target: Path, why) -> int:
     parser = GRAMMAR_PARSER.relative_to(REPO)
     facts.say_standing(Underivable(
         facts.Finding(facts.phrase('{target} NOT derivable - {parser} is absent', target=target.relative_to(REPO), parser=parser),
-                      facts.Would(spell.line('grammar', 'sync'), {parser.name: 1}))
+                      facts.Would(spell.line('grammar', 'generate'), {parser.name: 1}))
         if not GRAMMAR_PARSER.is_dir() else
         facts.Finding(facts.phrase('{target} NOT derivable - {why}', target=target.relative_to(REPO), why=why))))
     return 1
@@ -183,7 +183,7 @@ def status() -> int:
                  sum(len(b) for b in declared.values()), len(declared),
                  sum(1 for t in tagged.values() if t), len(tagged),
                  tables=facts.phrase('faced under {cache}', cache=cache) if _tables_current(declared) else facts.phrase('NOT faced under {cache}', cache=cache),
-                 remedy=None if _tables_current(declared) else facts.Would(spell.line('mcp', 'sync'), {cache: 1})),
+                 remedy=None if _tables_current(declared) else facts.Would(spell.line('mcp', 'derive'), {cache: 1})),
         additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
             facts.phrase('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
             why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
@@ -194,7 +194,7 @@ def status() -> int:
                    for union, request in factoring.uncarried_results(shapes)},
         family_path=rel.as_posix())
     if not target.exists():
-        out.family = facts.Finding(facts.phrase('{family} absent', family=rel), facts.Would(spell.line('mcp', 'sync'), {rel.name: 1}))
+        out.family = facts.Finding(facts.phrase('{family} absent', family=rel), facts.Would(spell.line('mcp', 'derive'), {rel.name: 1}))
         out.mcp = facts.phrase('{family} absent', family=rel)
         facts.say_standing(out)
         return 1
@@ -210,19 +210,19 @@ def status() -> int:
                            else facts.phrase('consumer and producer NOT faced under {cache}', cache=cache)),
                     layers=dict(factoring.partition(json.loads(wanted))))
     if not face.current(json.loads(have)):
-        family.remedy = facts.Would(spell.line('mcp', 'sync'), {cache: 1})
+        family.remedy = facts.Would(spell.line('mcp', 'derive'), {cache: 1})
     if not current:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
         family.differs_by = facts.phrase('{n} line(s)', n=changed)
-        family.remedy = facts.Would(spell.line('mcp', 'sync'), {rel.name: 1})
+        family.remedy = facts.Would(spell.line('mcp', 'derive'), {rel.name: 1})
     out.family = family
     out.mcp = facts.phrase('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
     facts.say_standing(out)
     return 0 if current and not bad else 1
 
 
-def sync() -> int:
+def derive() -> int:
     target = _target()
     snapshot_path, snap = factoring.snapshot()
     try:
@@ -270,9 +270,9 @@ def sync() -> int:
 def main():
     parser = command_parser('mcp')  # generated from the declaration (issues/476)
     args = parser.parse_args()
-    if args.verb == 'sync':
-        code = sync()
-        facts.report(None, 'mcp sync: ' + ('DONE - ' + facts.phrase('the derivations are current') if code == 0
+    if args.verb == 'derive':
+        code = derive()
+        facts.report(None, 'mcp derive: ' + ('DONE - ' + facts.phrase('the derivations are current') if code == 0
                                            else 'NOT DONE - ' + facts.phrase('a derivation failed; the line above names it')))
         sys.exit(code)
     if args.verb == 'reproduce':

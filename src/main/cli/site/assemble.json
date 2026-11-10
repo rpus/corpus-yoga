@@ -1,0 +1,12 @@
+{
+  "help": "assemble data/output/site/ from rsc/site/ - every page copied beside index.html, a departed page pruned - idempotent; index.html stays render's",
+  "would": "would assemble",
+  "args": [],
+  "r": [
+    "rsc/site"
+  ],
+  "w": [
+    "data/output/site"
+  ],
+  "step": "corpus"
+}

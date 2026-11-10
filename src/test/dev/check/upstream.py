@@ -42,7 +42,7 @@ def check_grammar(run) -> None:
     """Every parser under src/gen/grammar/<project>/ (machine-local, gitignored) is
     present and, where the tool is present, what antlr4 generates from
     rsc/rpus/grammar/<project>/ now. Absence fails by name - the mcp checks
-    need the parser, and corpus-yoga status sync generates it. The
+    need the parser, and corpus-yoga status satisfy generates it. The
     currency half needs the tool (antlr4 from antlr4-tools in the venv, java), whose
     first use fetches the tool jar, a send: CORPUS_YOGA_NO_SEND=1 skips that half and so does
     a machine without the tool - the label is CONSTANT and the result passes on
@@ -52,13 +52,13 @@ def check_grammar(run) -> None:
         have = grammar_module.held(project)
         ok, detail = bool(have), None
         if not have:
-            detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
-                      f'rsc/rpus/grammar/{project.name} (corpus-yoga status sync does so with the rest)')
+            detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar generate generates it from '
+                      f'rsc/rpus/grammar/{project.name} (corpus-yoga status satisfy does so with the rest)')
         elif grammar_module.tool() and (want := grammar_reading(project)) is not None:
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
             ok = not differing
             detail = None if ok else (f'src/gen/grammar/{project.name}: {", ".join(differing)} differ from what '
-                                      f'antlr4 {grammar_module.TOOL_VERSION} generates - corpus-yoga grammar sync regenerates')
+                                      f'antlr4 {grammar_module.TOOL_VERSION} generates - corpus-yoga grammar generate regenerates')
         run(f'grammar: {project.name}: the parser is generated and what its grammar generates', ok, detail,
             check='grammar.parser_current')
 
@@ -75,7 +75,7 @@ def check_reference(run) -> None:
     pinned SHA256; every lineage directory is declared and every declared lineage
     held; and every lineage's CHANGELOG.md carries a section per pin its rows name.
     Currency against upstream is not held here - it is `corpus-yoga reference`'s
-    report, a send, and `corpus-yoga reference sync` is the fetch."""
+    report, a send, and `corpus-yoga reference pull` is the fetch."""
     root = REPO_ROOT / 'rsc' / 'reference'
     for project in sorted(p for p in root.iterdir() if p.is_dir()):
         name = project.name
@@ -93,7 +93,7 @@ def check_reference(run) -> None:
             None if not undeclared and not unheld else
             '; '.join([f'{project.relative_to(REPO_ROOT)}/{d} has no provenance.csv row' for d in undeclared]
                       + [f'provenance.csv names {d} but {project.relative_to(REPO_ROOT)}/{d}/schema.json is absent - '
-                         'corpus-yoga reference sync fetches it' for d in unheld]),
+                         'corpus-yoga reference pull fetches it' for d in unheld]),
             check='reference.lineage_declared')
         for row in rows:
             path = project / row['lineage'] / row['file']
@@ -101,7 +101,7 @@ def check_reference(run) -> None:
             local = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
             run(f'reference: {rel} verbatim (bytes hash to the pinned SHA256)', local == row['sha256'],
                 None if local == row['sha256'] else
-                (f'{rel} is absent - corpus-yoga reference sync fetches it' if local is None else
+                (f'{rel} is absent - corpus-yoga reference pull fetches it' if local is None else
                  f'{rel} hashes {local}, provenance.csv pins {row["sha256"]} - the committed file is not the pinned upstream file'),
                 check='reference.verbatim')
         for lineage in declared:
@@ -124,7 +124,7 @@ def check_reference(run) -> None:
 def check_mcp_factoring(run) -> None:
     """The house MCP factoring is a committed derivation: the latest
     rsc/schema/mcp/mcpMessage version must be byte-identical to what
-    corpus-yoga mcp sync generates from the committed schema.ts and the family's
+    corpus-yoga mcp derive generates from the committed schema.ts and the family's
     tables (mcp.factoring_current), and every definition of upstream's schema.json -
     the witness, never a source - must equal its house counterpart flattened and
     normalized, the declared additions set back (mcp.factoring_agrees); every held
@@ -132,7 +132,7 @@ def check_mcp_factoring(run) -> None:
     target = mcp_factoring.latest_version(mcp_factoring.FAMILY_DIR)
     if not target:
         run('mcp: rsc/schema/mcp/mcpMessage has a version', False,
-            'corpus-yoga mcp sync derives v1.json', check='mcp.factoring_current')
+            'corpus-yoga mcp derive derives v1.json', check='mcp.factoring_current')
         return
     rel = target.relative_to(REPO_ROOT)
     try:
@@ -143,7 +143,7 @@ def check_mcp_factoring(run) -> None:
     have = target.read_text()
     run(f'mcp: {target.stem} current with the snapshot', have == wanted,
         None if have == wanted else
-        f'{rel} differs from what schema.ts generates - corpus-yoga mcp sync prints the diff and mints the next version; write its changelog section and commit',
+        f'{rel} differs from what schema.ts generates - corpus-yoga mcp derive prints the diff and mints the next version; write its changelog section and commit',
         check='mcp.factoring_current')
     _, snap = mcp_factoring.snapshot()
     bad = mcp_factoring.disagreements(json.loads(have), snap, mcp_factoring.additions(), mcp_factoring.generated().constants)

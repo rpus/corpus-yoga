@@ -5,7 +5,7 @@ sync.py — rebuild tmp/cache/ by running its producers.
 tmp/cache/ is the workshop — rebuildable derivations. Its producer commands are
 DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,
 in registry-row order (no dedup — the row is the unit of the claim). Paired with clean, this is the reproduction the tmp/cache/
-contract promises: `corpus-yoga cache clean && corpus-yoga cache sync` gives a fresh tmp/cache/ from
+contract promises: `corpus-yoga cache clean && corpus-yoga cache rebuild` gives a fresh tmp/cache/ from
 data/input/ + data/output/ alone. The one fetched store, ext/lib/serve_markdown's render
 libraries (KaTeX + marked), lives outside tmp/cache/ and outside this registry:
 `corpus-yoga server ensure-assets` rebuilds it (offline it says NOT DONE and exits 1;
@@ -25,8 +25,8 @@ producer here and are never touched.
 STDLIB-ONLY.
 
 Usage:
-    corpus-yoga cache sync              # run every producer
-    corpus-yoga cache sync --dry-run    # print the producer commands; run nothing
+    corpus-yoga cache rebuild              # run every producer
+    corpus-yoga cache rebuild --dry-run    # print the producer commands; run nothing
 """
 import subprocess
 import sys
@@ -35,7 +35,7 @@ from pathlib import Path
 from cache_io import producers
 from declared_parser import verb_parser
 
-SELF = 'src/main/cli/cache/sync.py'
+SELF = 'src/main/cli/cache/rebuild.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -45,9 +45,9 @@ REPO = REPO_ROOT
 
 
 def main() -> int:
-    args = verb_parser('cache', 'sync').parse_args()  # generated from the declaration (issues/476)
+    args = verb_parser('cache', 'rebuild').parse_args()  # generated from the declaration (issues/476)
 
-    # The registry stores canonical NAMES ('corpus-yoga model sync' — one referent, one
+    # The registry stores canonical NAMES ('corpus-yoga model derive' — one referent, one
     # name, G14), and every printed line speaks the name too: './corpus-yoga' is no more
     # runnable for a reader than bare 'corpus-yoga' — one presumes cwd, the other PATH
     # (user ruling, pull/109). The './' spelling exists at exactly ONE point, the

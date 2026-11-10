@@ -3,7 +3,7 @@
 #
 # Usage:
 #   corpus-yoga forge                 # declared vs live
-#   corpus-yoga forge sync            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the bare status's
+#   corpus-yoga forge push            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the bare status's
 #   corpus-yoga forge raise pr <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (issues/884)
 #   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (issues/887)
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
@@ -89,7 +89,7 @@ superseding_force_push() {  # <pr-number> <tip>
 # open PR as PR \t number \t head branch, which status() names the merge of (issues/947). A KEPT row
 # whose keeping rests on evidence - commits the base or the merge does not hold - carries
 # the reader's act in words as its remedy, never a command, so that bare status says it
-# and status sync never runs it (issues/866).
+# and status satisfy never runs it (issues/866).
 branches() {
   if ! command -v gh &>/dev/null; then
     echo -e "UNVERIFIED\tlive\t$(phrase "gh not installed")"
@@ -353,7 +353,7 @@ clean() {
 }
 
 # The act (issues/881): what it would set is the bare status's, drift by drift; this sets each.
-sync() {
+push() {
   send_cleared patch || exit 1
   local rows drift=0 words
   rows="$(reconcile)"
@@ -362,21 +362,21 @@ sync() {
     drift=1
     echo "  did set: $key"
     read -ra words <<< "$remedy"   # the row's remedy ends on the field it sets, its flag before it
-    (cd "$REPO_DIR" && send enact patch "${words[@]: -2}" >/dev/null) || { echo "corpus-yoga forge sync: $(phrase "{key} failed - settings unchanged for it" key="$key")" >&2; exit 1; }
+    (cd "$REPO_DIR" && send enact patch "${words[@]: -2}" >/dev/null) || { echo "corpus-yoga forge push: $(phrase "{key} failed - settings unchanged for it" key="$key")" >&2; exit 1; }
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
-      effect "forge sync: NOT DONE - $(phrase "the live settings could not be read; nothing verified, nothing to agree")"
+      effect "forge push: NOT DONE - $(phrase "the live settings could not be read; nothing verified, nothing to agree")"
       return 1
     fi
-    effect "forge sync: DONE - $(phrase "no drift; the forge agrees with src/main/cli/forge/forge.csv")"
+    effect "forge push: DONE - $(phrase "no drift; the forge agrees with src/main/cli/forge/forge.csv")"
     return 0
   fi
   echo "after:"
   reconcile | while IFS=$'\t' read -r st key detail _; do
     [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
   done
-  effect "forge sync: DONE - $(phrase "did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv")"
+  effect "forge push: DONE - $(phrase "did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv")"
 }
 
 # The merge is the reviewer's one act (issues/483): every refusal (OPEN, an aims-to-
@@ -548,7 +548,7 @@ relocated() {  # <base> <head> <old-sha>
   # The worktree is a fresh tree: the machine-local parsers (src/gen, issues/597) are
   # generated there before the gate needs them, and the settle runs FROM there -
   # src/test/dev/run.sh gates the tree the current directory belongs to.
-  (cd "$wt" && labour "$wt/corpus-yoga" grammar sync) >&2 \
+  (cd "$wt" && labour "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
   (cd "$wt" && labour "$wt/src/test/dev/run.sh" --settle) >&2 \
     || { say "relocation halted - the settle run failed; a red check on the relocated head is a real failure" >&2; dispose; return 1; }
@@ -582,7 +582,7 @@ gate_worktree() {
   for root in "$REPO_DIR"/tmp/*/; do
     [[ -d "$root" && "$(basename "$root")" != forge ]] && ln -s "${root%/}" "$wt/tmp/$(basename "$root")"
   done
-  (cd "$wt" && quiet "$wt/corpus-yoga" grammar sync) >&2 \
+  (cd "$wt" && quiet "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the gate below will say what it lacks" >&2
   echo "$wt"
 }
@@ -829,7 +829,7 @@ capture() {
 
 case "${1-}" in
   '')        status --stage ;;
-  sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
+  push)      shift; parse_argv forge push "$@"; push "$@" ;;
   clean)     shift; parse_argv forge clean "$@"; clean "$@" ;;
   raise)     shift; parse_argv forge raise "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/raise.py" "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;

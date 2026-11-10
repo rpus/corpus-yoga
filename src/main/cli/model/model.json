@@ -19,7 +19,7 @@
     "{n} undisposed shared name(s) - dispose each with corpus-yoga model accept <name> or corpus-yoga model reject <name> --reason <why> (--all disposes the queue as read)",
     "row {line} ({kind}) - {cells} - re-judge the kind in rsc/model/model_join.csv or restore the identity",
     "row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/model/model_join.csv",
-    "the worksheet is absent or stale against the schemas - run corpus-yoga model sync, read it, then dispose",
+    "the worksheet is absent or stale against the schemas - run corpus-yoga model derive, read it, then dispose",
     "{name} is not in the queue - corpus-yoga model list-candidates names it",
     "{verb} takes a <name> or --all, not both and not neither",
     "{written} catalogue(s) written, {removed} removed",

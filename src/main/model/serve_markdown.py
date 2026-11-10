@@ -321,7 +321,7 @@ if __name__ == '__main__':
     args = p.parse_args()
 
     # The sync producer path: repopulate ext/lib/serve_markdown and stop. Best-effort
-    # so an offline `corpus-yoga cache sync` still exits clean — serve itself hard-requires the
+    # so an offline `corpus-yoga cache rebuild` still exits clean — serve itself hard-requires the
     # assets at startup (ensure_assets there is not caught), so a broken render can't
     # slip through; here we only warn and leave the subtree for the next online run.
     if args.ensure_assets:

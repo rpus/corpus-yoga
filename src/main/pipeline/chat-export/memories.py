@@ -192,19 +192,19 @@ def sync(chat_export_cache: Path, memories_output: Path, markdown: Path) -> int:
     states = memory_states(chat_export_cache)
     if not states:
         cache = Path(chat_export_cache)
-        facts.report(None, 'memories sync: DONE - ' + facts.phrase('no archived memory states under {cache}; nothing to accumulate',
+        facts.report(None, 'memories deposit: DONE - ' + facts.phrase('no archived memory states under {cache}; nothing to accumulate',
                                                                       cache=cache.relative_to(REPO) if cache.is_relative_to(REPO) else cache))
         return 0
     deposits, conflicts = deposit(states, memories_output)
     render(deposits, markdown)
-    facts.report(None, f'memories sync: {"NOT DONE" if conflicts else "DONE"} - ' + facts.phrase('{n} deposit(s)', n=len(deposits))
+    facts.report(None, f'memories deposit: {"NOT DONE" if conflicts else "DONE"} - ' + facts.phrase('{n} deposit(s)', n=len(deposits))
                  + ('; ' + facts.phrase('{n} CONFLICT(S), each left in place', n=conflicts) if conflicts else ''))
     return 1 if conflicts else 0
 
 
 def main():
     args = command_parser('memories').parse_args()  # whole surface declared (issues/476, issues/477)
-    if args.verb == 'sync':
+    if args.verb == 'deposit':
         return sync(Path(args.chat_export_cache), Path(args.memories_output), Path(args.markdown))
     # bare → status (read-only)
     return status(Path(args.memories_output), Path(args.chat_export_cache))

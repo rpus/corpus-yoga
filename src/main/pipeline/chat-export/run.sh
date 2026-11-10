@@ -109,7 +109,7 @@ run_tail() {
   # timeline renders to data/output/markdown/claude/chat/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
   step memories "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/memories.py" sync
+    "$SCRIPT_DIR/memories.py" deposit
   # summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
   # refresh in place), so every distinct reading deposits into
@@ -117,7 +117,7 @@ run_tail() {
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
   step summaries "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/summaries.py" sync
+    "$SCRIPT_DIR/summaries.py" deposit
   # compare_captures: the latest batch against the live-capture corpus per
   # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
   # conversations to recapture in place. Divergence is a fact, not an error. Whether an

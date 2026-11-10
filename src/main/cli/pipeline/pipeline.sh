@@ -10,7 +10,7 @@
 #                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
 #   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in tmp/stage
-#   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
+#   corpus-yoga pipeline render [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #
 # The pipeline LIST is derived, not declared: a pipeline is a subdirectory of
@@ -117,7 +117,7 @@ parse_args() {
 # the vN.log files beside it, so the summary agrees with the logs it summarises.
 sync_matrices() {
   parse_args "$@"
-  [[ -z "$item" ]] || { echo "corpus-yoga pipeline sync: $(phrase "takes a pipeline, not an item ({item})" item="$item")" >&2; exit 1; }
+  [[ -z "$item" ]] || { echo "corpus-yoga pipeline render: $(phrase "takes a pipeline, not an item ({item})" item="$item")" >&2; exit 1; }
   local p rc=0
   for p in $(pipelines); do
     should_run "$p" || continue
@@ -125,9 +125,9 @@ sync_matrices() {
       --pipeline "$p" --write || rc=1
   done
   if (( rc == 0 )); then
-    effect "pipeline sync: DONE - $(phrase "each datum's matrix.md re-rendered from its validation logs")"
+    effect "pipeline render: DONE - $(phrase "each datum's matrix.md re-rendered from its validation logs")"
   else
-    effect "pipeline sync: NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")"
+    effect "pipeline render: NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")"
   fi
   return $rc
 }
@@ -144,10 +144,10 @@ require_cmd() {
 }
 
 require_venv() {
-  # One creator (issues/478): status sync mints the venv; this run
+  # One creator (issues/478): status satisfy mints the venv; this run
   # requires it and names the mint rather than minting a second way.
   if [[ ! -f "$CORPUS_YOGA_VENV/bin/activate" ]]; then
-    echo "error: $(phrase "venv not found at {venv} - ./src/main/cli/status/status.sh sync mints it" venv="$CORPUS_YOGA_VENV")" >&2
+    echo "error: $(phrase "venv not found at {venv} - ./src/main/cli/status/status.sh satisfy mints it" venv="$CORPUS_YOGA_VENV")" >&2
     exit 1
   fi
 }
@@ -389,17 +389,17 @@ LOG_FILE="$RECORD"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
-# one pipeline's corpus; this folds the union). First member: indexing sync,
+# one pipeline's corpus; this folds the union). First member: indexing build,
 # whose locators span claude chat, code sessions, and gemini — and whose
 # staleness is invisible to a run that does not fold it — index.md goes on citing
 # whatever it cited when it was last built. Same command-backed step
-# discipline as the pipeline tails: the plan speaks `indexing sync`, and the
+# discipline as the pipeline tails: the plan speaks `indexing build`, and the
 # gate holds it to command AND verb (a declared step=corpus).
 #
 # Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
 # NECESSITY tests, with the input set split (issues/494): CLOSURE holds for the free
 # inputs this run itself produces, so every free derivation is refreshed here -
-# indexing sync, site render, model sync - and a paid input (the captures) enters
+# indexing build, site render, model derive - and a paid input (the captures) enters
 # the page as a declared vintage, never as a currency claim. Paid acts stay
 # out-of-run; indexing's status states their lag with the paid prescription.
 run_corpus_tail() {
@@ -409,13 +409,13 @@ run_corpus_tail() {
   # the line above it ("then once, over the whole corpus") already says the same thing.
   STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
-    "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
+    "$REPO_ROOT/src/main/cli/indexing/indexing.py" build
   # Free derivations refreshed before anything probes them (issues/494): the corpus
   # page and the model catalogues; both content-keyed, so an unchanged corpus
   # writes nothing.
-  step site "$REPO_ROOT/src/main/cli/site/site.sh" sync
+  step site "$REPO_ROOT/src/main/cli/site/site.sh" assemble
   step site "$REPO_ROOT/src/main/cli/site/site.sh" render
-  step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" sync
+  step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" derive
   # The data gate's own validation judgments (issues/535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
   # a run of one pipeline audits that pipeline: the audit takes the name (pull/545), and a
@@ -447,7 +447,7 @@ print_plan() {
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
   echo "corpus-yoga pipeline run${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
-  echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh sync mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
+  echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
   ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
   if should_run chat-capture; then
     "$REPO_ROOT/src/main/pipeline/chat-capture/run.sh" --plan | sed 's/^/  /'
@@ -490,7 +490,7 @@ main() {
 
 
   # the tooling is a section like the stages (issues/755): its lines beneath its key
-  section_open tooling "$(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh sync mints it); pip install src/requirements.txt" venv="$CORPUS_YOGA_VENV")"
+  section_open tooling "$(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="$CORPUS_YOGA_VENV")"
   ( require_cmd jq "$(phrase "brew install jq installs it")"; require_venv; install_deps ) 2>&1 | indented
   local tooling_rc=${PIPESTATUS[0]}
   (( tooling_rc == 0 )) || exit "$tooling_rc"
@@ -610,7 +610,7 @@ case "${1-}" in
   --names)   pipelines; exit 0 ;;
   run)       shift; parse_argv pipeline run "$@" ;;
   rehearse)  shift; parse_argv pipeline rehearse "$@"; exec "$REPO_ROOT/src/main/cli/pipeline/rehearse.sh" "$@" ;;
-  sync)      shift; parse_argv pipeline sync "$@"; sync_matrices "$@"; exit $? ;;
+  render)    shift; parse_argv pipeline render "$@"; sync_matrices "$@"; exit $? ;;
   audit)     shift; parse_argv pipeline audit "$@"; "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/validation_audit.py" "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   # The pipeline runners call this file's siblings with their own --<name> flag; a bare

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # rsc/migration/672.sh - a family's catalogue sits under tmp/cache/model/catalogue at the
 # family's address (issues/672); the flat directories keyed by a family's last segment, and the
-# versions no sync ever removed from them, are discarded. corpus-yoga model sync rebuilds.
+# versions no sync ever removed from them, are discarded. corpus-yoga model derive rebuilds.
 set -euo pipefail
 SELF='rsc/migration/672.sh'
 # shellcheck source=rsc/migration/step.sh

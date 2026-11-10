@@ -272,7 +272,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     (a cell naming `indexing candidates` read as clean after the verb became
     `list-candidates`), and `./corpus-yoga` is REJECTED, not tolerated — the cell is a
     name (one referent, one name, G14); the runnable `./` form is presentation,
-    derived by `cache sync` at execution (L5). Tolerating both spellings is how
+    derived by `cache rebuild` at execution (L5). Tolerating both spellings is how
     the old cells dodged the command branch and resolved as the launcher file's
     path. Tokens after the verb (a pipeline name, a flag) are arguments, not
     resolution targets."""

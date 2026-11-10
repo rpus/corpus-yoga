@@ -215,7 +215,7 @@ def main():
     args = command_parser('summaries').parse_args()  # whole surface declared (issues/476, issues/477)
 
     root = Path(args.summaries_output)
-    if args.verb != 'sync':
+    if args.verb != 'deposit':
         return status(root)
     stems = stems_by_uuid(Path(args.conversations_output))
     if not stems:
@@ -223,7 +223,7 @@ def main():
         # (or a corpus-less clone) — depositing under fallback names would file
         # readings wrongly and then hold them immutable. Skip, loudly.
         conversations = Path(args.conversations_output)
-        facts.report(None, 'summaries sync: DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run chat-capture makes',
+        facts.report(None, 'summaries deposit: DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run chat-capture makes',
                                                                        path=conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations))
         return 0
     readings = readings_by_uuid(Path(args.chat_export_cache))
@@ -294,7 +294,7 @@ def main():
     # the standing twin detector runs on every sync too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
-    facts.report(None, f'summaries sync: {"NOT DONE" if conflicts else "DONE"} - '
+    facts.report(None, f'summaries deposit: {"NOT DONE" if conflicts else "DONE"} - '
                  + facts.phrase('{deposited} reading(s) deposited, {unchanged} already held, {renamed} folder(s) renamed, under {root}',
                                   deposited=deposited, unchanged=unchanged, renamed=renamed, root=root.relative_to(REPO) if root.is_relative_to(REPO) else root)
                  + ('; ' + facts.phrase('{n} CONFLICT(S)', n=conflicts) if conflicts else ''))
@@ -304,5 +304,5 @@ def main():
 if __name__ == '__main__':
     # sys.exit, not a bare call: main()'s return IS the exit code, so a
     # CONFLICT can actually fail the run step (issues/22 — the bare call made
-    # `corpus-yoga summaries sync` a step that could never exit non-zero, against L8)
+    # `corpus-yoga summaries deposit` a step that could never exit non-zero, against L8)
     sys.exit(main())

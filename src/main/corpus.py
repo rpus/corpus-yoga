@@ -1017,7 +1017,7 @@ def human(n: float) -> str:
 
 
 BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before issues/815 left: stamped rehearsals, or the record before its extension
-MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes
+MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration apply takes
 
 
 def orphans() -> list[Path]:
@@ -1151,7 +1151,7 @@ def stage_facts() -> StageStatus:
                                          if BEFORE_815.is_dir() else
                                          'the record before its name carried its extension, which a record at its name supersedes (issues/815) - {migration} removes it',
                                          migration=MIGRATION_815),
-                          facts.Would(spell.line('migration', 'sync'), {BEFORE_815.relative_to(REPO).as_posix(): 1}))
+                          facts.Would(spell.line('migration', 'apply'), {BEFORE_815.relative_to(REPO).as_posix(): 1}))
                    if BEFORE_815.exists() else None)))
     kinds: dict[str, list[Judged]] = {}
     for row in rows:

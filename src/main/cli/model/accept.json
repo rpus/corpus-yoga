@@ -6,7 +6,7 @@
       "name": "--all",
       "type": "",
       "cardinality": "",
-      "help": "adopt every proposal-bearing row of the worksheet as read - refused if the worksheet moved since corpus-yoga model sync rendered it"
+      "help": "adopt every proposal-bearing row of the worksheet as read - refused if the worksheet moved since corpus-yoga model derive rendered it"
     },
     {
       "name": "name",

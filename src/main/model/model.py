@@ -12,7 +12,7 @@ re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
     corpus-yoga model         # status: which catalogues exist under tmp/cache/model/catalogue/
-    corpus-yoga model sync    # (re-)generate every catalogue to agree with the schemas, and
+    corpus-yoga model derive    # (re-)generate every catalogue to agree with the schemas, and
                               # remove each one no schema version derives
 """
 
@@ -152,7 +152,7 @@ def curation_report() -> tuple[Table, Join]:
     return table, Join(collisions, None if shared else facts.phrase('every cross-family shared name disposed'), rows, emptiness)
 
 
-def sync() -> None:
+def derive() -> None:
     """The verb: bring tmp/cache/model into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
     written = removed = 0
@@ -174,7 +174,7 @@ def sync() -> None:
     render_collision_worksheet()
     # the findings are status's (bare corpus-yoga model): a sync writes, and what an act
     # reports (issues/876, issues/896) is its effect line
-    facts.report(None, 'model sync: DONE - ' + facts.phrase('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
+    facts.report(None, 'model derive: DONE - ' + facts.phrase('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
 
 
 def render_collision_worksheet() -> None:
@@ -231,7 +231,7 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  remedy=(facts.Would(spell.line('model', 'sync'), {'tmp/cache/model': len(missing) + len(underived)})
+                  remedy=(facts.Would(spell.line('model', 'derive'), {'tmp/cache/model': len(missing) + len(underived)})
                           if missing or underived else None)),
         table, join))
 
@@ -260,10 +260,10 @@ def list_candidates() -> None:
 
 def _disposal_rows(parser, args):
     """The queue the disposal acts on: the worksheet as read, refused when it is
-    absent or moved since rendering - re-render with corpus-yoga model sync."""
+    absent or moved since rendering - re-render with corpus-yoga model derive."""
     rows = worksheet_rows()
     if rows is None:
-        parser.error(facts.phrase('the worksheet is absent or stale against the schemas - run corpus-yoga model sync, read it, then dispose'))
+        parser.error(facts.phrase('the worksheet is absent or stale against the schemas - run corpus-yoga model derive, read it, then dispose'))
         raise SystemExit(2)   # parser.error exits; stated for the type checker
     if args.all:
         return rows
@@ -276,8 +276,8 @@ def _disposal_rows(parser, args):
 def main():
     parser = command_parser('model')  # generated from the declaration (issues/476)
     args = parser.parse_args()
-    if args.verb == 'sync':
-        sync()
+    if args.verb == 'derive':
+        derive()
     elif args.verb == 'list-candidates':
         list_candidates()
     elif args.verb in ('accept', 'reject'):

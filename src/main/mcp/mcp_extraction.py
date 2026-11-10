@@ -6,7 +6,7 @@ schema.ts uses an exported type alias), the category tags (issues/595) and the e
 constants. Read at every sync from the committed rsc/reference/mcp/<lineage>/schema.ts
 through the parser generated from the house TypeScript grammar
 (rsc/rpus/grammar/TypeScript, generated under src/gen/grammar/TypeScript by
-`corpus-yoga grammar sync`); the tables the factoring derives from it are written
+`corpus-yoga grammar generate`); the tables the factoring derives from it are written
 under tmp/cache/mcp/ as the readable face of the derivation's inputs, and are never
 hand-written.
 
@@ -41,9 +41,9 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-GRAMMAR_PARSER = REPO / 'src' / 'gen' / 'grammar' / 'TypeScript'   # generated, gitignored - corpus-yoga grammar sync
-PARSER_REMEDY = (f'{GRAMMAR_PARSER.relative_to(REPO)} is absent - corpus-yoga grammar sync generates it from '
-                 'rsc/rpus/grammar/TypeScript (corpus-yoga status sync does so with the rest)')
+GRAMMAR_PARSER = REPO / 'src' / 'gen' / 'grammar' / 'TypeScript'   # generated, gitignored - corpus-yoga grammar generate
+PARSER_REMEDY = (f'{GRAMMAR_PARSER.relative_to(REPO)} is absent - corpus-yoga grammar generate generates it from '
+                 'rsc/rpus/grammar/TypeScript (corpus-yoga status satisfy does so with the rest)')
 
 PRIMITIVES = {'string', 'number', 'boolean', 'null', 'unknown', 'any'}
 

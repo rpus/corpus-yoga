@@ -5,8 +5,8 @@ migration.py (corpus-yoga migration) - the moves a rename owes this machine's lo
 rsc/migration/step.sh, and this noun says them and takes them.
 
     corpus-yoga migration                 # status: each script - how many steps it would take, none, or that it halted and on what
-    corpus-yoga migration sync            # each script with steps and how many: the dry run, the apply with the act elided
-    corpus-yoga migration sync            # run each of them, its own lines relayed as it takes its steps; the status says what it would take
+    corpus-yoga migration apply            # each script with steps and how many: the dry run, the apply with the act elided
+    corpus-yoga migration apply            # run each of them, its own lines relayed as it takes its steps; the status says what it would take
 
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
@@ -17,7 +17,7 @@ declaration of its moves, and prints them bare - so no status restates them. The
 names each script with steps and how many, runs each, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken.
-Its record, tmp/logs/migration/sync/<stamp>.log, is the launcher's tee of the whole verb,
+Its record, tmp/logs/migration/apply/<stamp>.log, is the launcher's tee of the whole verb,
 header included (issues/708); the declaration's x rows are what make the verb enacting.
 """
 import subprocess
@@ -76,7 +76,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
             out[name] = Script(halted='; '.join(lines))
         elif lines:
             pending += 1
-            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), remedy=facts.Would(spell.line('migration', 'sync'), {name: len(lines)}))
+            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), remedy=facts.Would(spell.line('migration', 'apply'), {name: len(lines)}))
         else:
             out[name] = facts.phrase('none pending')
     return Status(out, facts.phrase('{n} script(s) - {pending} with steps pending, {halted} halted', n=len(out), pending=pending, halted=halted))
@@ -84,7 +84,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
 
 class Log:
     """What the sync says, line by line. The record of the act is the launcher's tee of the
-    whole verb (issues/708), tmp/logs/migration/sync/<stamp>.log, header included; nothing is
+    whole verb (issues/708), tmp/logs/migration/apply/<stamp>.log, header included; nothing is
     written here."""
 
     def __init__(self, apply: bool) -> None:
@@ -94,7 +94,7 @@ class Log:
         print(line)
 
 
-def sync() -> int:
+def apply() -> int:
     """One list of the scripts with steps, each run after it is named (issues/881: what it would
     take is the bare status's). Then what an act reports (issues/801): now:, and the verdict as
     the last line."""
@@ -117,8 +117,8 @@ def sync() -> int:
     for name, words in halted.items():
         log.say(f'  {name}: ' + facts.phrase('halted - {words}', words=words))
     undone = failed + list(halted)
-    verdict = ('migration sync: NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
-               else 'migration sync: DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
+    verdict = ('migration apply: NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
+               else 'migration apply: DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
     for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (issues/896)
         log.say(line)
     return 1 if undone else 0
@@ -126,8 +126,8 @@ def sync() -> int:
 
 def main() -> int:
     args = command_parser('migration').parse_args()
-    if args.verb == 'sync':
-        return sync()
+    if args.verb == 'apply':
+        return apply()
     facts.say_standing(status_facts())
     return 0
 

@@ -5,7 +5,7 @@ The hand-written inputs for <https://rpus.co>. The tree that serves is
 `rpus.co/<path>`; nothing there is written by hand. Two verbs produce it, and
 each file here says by its name which verb reads it (issues/650):
 
-- **`<name>.html`** - a PAGE, complete as written. `corpus-yoga site sync`
+- **`<name>.html`** - a PAGE, complete as written. `corpus-yoga site assemble`
   copies it to `data/output/site/<name>.html`, byte for byte, and prunes a page
   whose source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at
   <https://rpus.co/corpus-yoga.html>.
@@ -15,13 +15,13 @@ each file here says by its name which verb reads it (issues/650):
   authored inline (a design decision, never filled). `corpus-yoga site render`
   (`present_corpus.py`, also the run's corpus-tail step) copies it, fills the
   slots from the corpus and writes `data/output/site/index.html`, its URL
-  position - the one file in the publish tree that `site sync` never touches.
+  position - the one file in the publish tree that `site assemble` never touches.
   The per-batch pages (`present.sh`) fill the same template and stay in the
   workshop under `tmp/cache/chat-export/<batch>/presentation/`. A finished page
   fetches nothing at runtime: this repo only ever projects the corpus as it
   stands in `data/input/`.
 
-Every `<name>.html` added here is published by the next `site sync`. Pages are
+Every `<name>.html` added here is published by the next `site assemble`. Pages are
 self-contained by construction (no external fonts, scripts, or images),
 light/dark via `prefers-color-scheme`, and honest about affordances: nothing
 renders as a link unless it resolves.
@@ -32,8 +32,8 @@ The site deploys from a separate private GitHub repo that Netlify watches; its
 root is the publish directory. Deploying is one verb:
 
 ```bash
-    corpus-yoga site publish          # dry: what would land, and the two acts
-    corpus-yoga site publish --apply  # copy into ext/mnt/site, commit, push
+    corpus-yoga site sync          # dry: what would land, and the two acts
+    corpus-yoga site sync --apply  # copy into ext/mnt/site, commit, push
 ```
 
 Netlify builds on push. The dry run states what changes in the corpus page in the

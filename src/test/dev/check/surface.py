@@ -248,7 +248,7 @@ def check_cli_surface(run) -> None:
         # command-level flag beside the verbs and completion offers it after
         # them, but summaries' four lived only on the command parser — argparse
         # hands a subparser everything after the verb token, so the advertised
-        # `corpus-yoga summaries sync --summaries-output …` died with `unrecognized
+        # `corpus-yoga summaries deposit --summaries-output …` died with `unrecognized
         # arguments`. The observable: an argparse verb's own --help lists every
         # flag that verb accepts, so each command-level flag must appear there
         # (declared_parser.command_parser re-accepts them on each verb). cli.py
@@ -906,7 +906,7 @@ def check_cli_verb_help(run) -> None:
     # verb through parse_argv, a python verb's own parser, a python command's subparser;
     # each refuses before any verb body runs.
     for words, message in ((['agent', 'capture'], 'one of the arguments --provider --all is required'),
-                           (['cache', 'sync', '--nonsense'], 'unrecognized arguments: --nonsense'),
+                           (['cache', 'rebuild', '--nonsense'], 'unrecognized arguments: --nonsense'),
                            (['store', 'clean', '--nonsense'], 'unrecognized arguments: --nonsense')):
         command, verb = words[0], words[1]
         proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, cwd=REPO_ROOT, env=env)
@@ -1275,7 +1275,7 @@ def check_reply(run) -> None:
                 with contextlib.redirect_stdout(outer):
                     facts.report(None, 'stage clean: DONE - did remove 1 duplicate')
                 with contextlib.redirect_stdout(inner):
-                    facts.report(None, 'indexing sync: DONE - written')
+                    facts.report(None, 'indexing build: DONE - written')
                 said = 'the printer says now: itself' if 'now:' in outer.getvalue() + inner.getvalue() else None
             except TypeError as error:
                 said = f'the printer takes the room\'s to-do from the verb: {error}'
@@ -1289,7 +1289,7 @@ def check_reply(run) -> None:
     handed_ok = (said is None and read == {'effect': 'stage clean: DONE - did remove 1 duplicate'} and outer.getvalue().strip() == '')
     run('reply: an act the launcher dispatched hands its effect up, nothing else, and says no now:', handed_ok,
         said or (None if handed_ok else f'handed {read!r}; printed {outer.getvalue()!r}'), check='reply.now_is_the_launchers')
-    inner_ok = said is None and inner.getvalue().strip() == 'indexing sync: DONE - written'
+    inner_ok = said is None and inner.getvalue().strip() == 'indexing build: DONE - written'
     run('reply: an inner verb ends on its effect line and says no now:', inner_ok,
         said or (None if inner_ok else f'printed {inner.getvalue()!r}'), check='reply.now_is_the_launchers')
     # the reply is the bare status before the effect line (issues/1016): what corpus-yoga status
@@ -1402,11 +1402,11 @@ _corpus-yoga
             None if followed else 'the fourth tab does not run what src/main/cli/completions/offer.zsh became: zsh keeps the file it loaded, '
             'so a change to it is followed only by a new terminal, and nothing says so', check='completions.follows_its_own_change')
 
-    declared = json.loads((CLI / 'status' / 'sync.json').read_text()).get('x', [])
+    declared = json.loads((CLI / 'status' / 'satisfy.json').read_text()).get('x', [])
     install = getattr(cli_completions, 'INSTALL', '')
     ran = bool(install) and install.removeprefix('./') in declared
     run('completions: the machine\'s sync runs the remedy the status names', ran,
-        None if ran else f'{install or "the status names no one remedy"}: not among what corpus-yoga status sync runs ({", ".join(declared)}) - a reader types it by hand',
+        None if ran else f'{install or "the status names no one remedy"}: not among what corpus-yoga status satisfy runs ({", ".join(declared)}) - a reader types it by hand',
         check='completions.sync_runs_the_install')
 
     if zsh is None:

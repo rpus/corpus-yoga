@@ -23,4 +23,4 @@ The disposal loop:
     corpus-yoga indexing list-candidates       (candidates = inferred − accepted − rejected − unanchorable,
                                                each with the aliases that anchor it in a turn)
     accept <term> [alias ...] / reject <concept>   (your judgement, one per concept; --all as read)
-    corpus-yoga indexing sync                  (the book index over durable turn anchors)
+    corpus-yoga indexing build                  (the book index over durable turn anchors)

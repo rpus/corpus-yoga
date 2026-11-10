@@ -13,7 +13,7 @@ steps of step.sh.
 - a step whose from is absent prints nothing: a second run does nothing.
 - a from and a to both present halt the script with the pair named; nothing here chooses.
 - `corpus-yoga migration` runs every script bare and says each one's steps, none, or
-  that it halted; `corpus-yoga migration sync --apply` takes the steps, and
+  that it halted; `corpus-yoga migration apply --apply` takes the steps, and
   `corpus-yoga status` carries that status.
 
 rsc/naming holds the grammars of names that arrive from outside the repository, which

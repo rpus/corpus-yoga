@@ -39,7 +39,7 @@ Usage (via corpus-yoga indexing):
   corpus-yoga indexing accept --all                       # accept the whole queue as read, aliases folded in
   corpus-yoga indexing reject [--reason <why>] <concept>  # reject a concept
   corpus-yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
-  corpus-yoga indexing sync                               # build data/output/markdown/index.md
+  corpus-yoga indexing build                               # build data/output/markdown/index.md
   corpus-yoga indexing capture [--conversations <path>]   # PAID: the model re-reads the corpus for
       [--only semantic-concepts|chat-categories]   #   the two index tables (see capture.sh);
       [--dry-run]                                  #   --dry-run: coverage preview, spends nothing
@@ -667,18 +667,18 @@ def main():
         pending_report(accepted_path, rejected_path)
         facts.report(None, 'indexing reject: DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{concept} rejected', concept=args.concept)))
         return
-    if args.verb == 'sync':
+    if args.verb == 'build':
         root = MARKDOWN_DIR
         # A machine with no corpus skips, stated (issues/406): every data-reading
         # sibling in the corpus tail names its absence; this step must not be
         # the one that presumes its input into existence and tracebacks.
         if not root.is_dir():
-            facts.report(None, 'indexing sync: DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
+            facts.report(None, 'indexing build: DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
             return
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)
-        facts.report(None, 'indexing sync: DONE - ' + facts.phrase('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
+        facts.report(None, 'indexing build: DONE - ' + facts.phrase('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
                                                                       summary=text.rstrip().rsplit(chr(10), 1)[-1]))
         return
 

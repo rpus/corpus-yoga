@@ -55,7 +55,7 @@ def check_status_facts(run) -> None:
         import yaml
     except ModuleNotFoundError:
         run('status: a YAML reader arbitrates the statuses', False,
-            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga status sync',
+            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga status satisfy',
             check='status.lines_load_as_yaml')
         return
 

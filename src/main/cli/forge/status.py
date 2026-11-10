@@ -93,7 +93,7 @@ def main() -> int:
         # state says what stands (issues/1034)
         remedy = facts.Would(said, {cells[2]: 1}) if said.startswith('corpus-yoga ') else None
         if section == 'settings' and state == 'drift':
-            remedy = facts.Would(spell.line('forge', 'sync'), {cells[2]: 1})   # the act; the status is its dry run (issues/881)
+            remedy = facts.Would(spell.line('forge', 'push'), {cells[2]: 1})   # the act; the status is its dry run (issues/881)
         if section in ('branches', 'refs') and state in ('deletable', 'server_deletable', 'stale'):
             remedy = facts.Would(spell.line('forge', 'clean'), {cells[2]: 1})   # the cleaner over what the status names (issues/871)
         by_section.setdefault(section, {})[cells[2]] = Row(facts.Unsettled(cells[3], 'forge') if state == 'unverified' else cells[3], state, remedy)

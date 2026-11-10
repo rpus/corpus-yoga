@@ -11,7 +11,7 @@ this tool is never required after a pipeline run. It remains useful to:
     renderer's format changes.
 
 Usage:
-    corpus-yoga pipeline sync <pipeline>        # this file, with --write, over that pipeline
+    corpus-yoga pipeline render <pipeline>        # this file, with --write, over that pipeline
 
 Where <pipeline> is any key from PIPELINES in run.py.
 """

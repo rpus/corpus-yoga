@@ -5,12 +5,12 @@ tier. Bare shows its state and writes nothing; the verbs do the work.
 
     corpus-yoga cache                    # status: the tmp/cache/ subtrees present, each orphan, and what to run next
     corpus-yoga cache clean              # remove the orphaned subtrees the status names (neither written nor read)
-    corpus-yoga cache sync [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
+    corpus-yoga cache rebuild [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
 
 Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
-src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
+src/main/cli/cache/rebuild.py — so the CLI table carries one `cache` command whose verbs
 are the two halves of the reproduction ritual: `corpus-yoga cache clean &&
-corpus-yoga cache sync` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
+corpus-yoga cache rebuild` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
 idempotent regenerator (L1); `clean` is the only destructive verb, and takes no flag
 (issues/865): what it would remove is what bare cache names under orphans: and now:.
 STDLIB-ONLY, like everything it routes to.
@@ -26,7 +26,7 @@ from cache_io import human, orphans, size_of  # the registry, and what it does n
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
-VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
+VERBS = {'clean': 'clean.py', 'rebuild': 'rebuild.py'}
 USAGE = (__doc__ or '').strip()
 
 

@@ -174,12 +174,12 @@ def audit_source(pipeline: str, source: Source) -> int:
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
             print(f'FAIL: {name}: matrix missing: {leaf(subject)} - {mfile.relative_to(REPO)}; '
-                  f'to regenerate: {spell.line("pipeline", "sync", pipeline)}')
+                  f'to regenerate: {spell.line("pipeline", "render", pipeline)}')
             fails += 1
             continue
         if parse_matrix_file(mfile) != {k: sym for k, (sym, _) in expected.items()}:
             print(f'FAIL: {name}: matrix stale: {leaf(subject)} - matrix.md disagrees with its '
-                  f'latest-version logs; to regenerate: {spell.line("pipeline", "sync", pipeline)}')
+                  f'latest-version logs; to regenerate: {spell.line("pipeline", "render", pipeline)}')
             fails += 1
             continue
         matrices[0] += 1

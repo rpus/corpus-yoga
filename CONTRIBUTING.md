@@ -21,7 +21,7 @@ the data gate, flip the body, squash pinned to the head every check saw, converg
 checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
 declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and
-`corpus-yoga forge sync`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
+`corpus-yoga forge push`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
 (which opens on the commit gate): the merge runs it at the head being merged in a detached
 worktree of its own under `tmp/forge/merge`, the head's code over this checkout's corpus
 reached by link, and halts on red with the worktree disposed of and one last word naming
@@ -34,7 +34,7 @@ captured session corpus. A hand-written `--body` discards them all.
 
 `./corpus-yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
 can see what the forge does to a merge without having to merge one to find out; and
-`./corpus-yoga forge sync` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 printing a `gh` command for someone to copy; what it would set is the bare `./corpus-yoga forge`'s
 to say, since the status is the dry run (issues/881). It writes outside the repo, to a server other people see.
 

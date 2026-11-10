@@ -5,7 +5,7 @@ the deploy mount, read as rows on stdin from site.sh, which holds what a page is
 `pages absent <standing>` where the publish tree is absent, `page <file> <standing>`, `index <title>` or `index ABSENT`,
 `deploy <words>`, `fetch <words>` where rpus.co could not be read as it stands, `clone <words>
 [<command> <what it does>]` where the clone stands to its origin (issues/1020), `land <file> <what
-changes>` for each file corpus-yoga site publish would land on rpus.co (issues/881) - the corpus
+changes>` for each file corpus-yoga site sync would land on rpus.co (issues/881) - the corpus
 page one row per line of its comparison, `<part>: <words>`, said as facts beneath the file -
 tab-separated. Reads; writes nothing but the clone's record of rpus.co, which site.sh fetches.
 """
@@ -112,13 +112,13 @@ def main() -> int:
     if position is not None:
         site.clone = facts.Finding(position[1]) if refused else position[1]
     if absent:
-        site.pages = {'state': standing, 'remedy': facts.Would(spell.line('site', 'sync'), {'data/output/site/': 1})}
+        site.pages = {'state': standing, 'remedy': facts.Would(spell.line('site', 'assemble'), {'data/output/site/': 1})}
     if read_lag(site) and isinstance(site.index, CorpusPage):
         site.index.remedy = facts.Would(spell.line('site', 'render'), {'index.html': 1})   # before the publish: what would land is the lag otherwise
     if land and not absent and not refused:
         # what would land, each file with what changes in it, under the act that lands it (issues/881,
         # issues/998); a clone the publish refuses has its finding instead
-        site.publish = {'remedy': facts.Would(spell.line('site', 'publish'), land)}
+        site.publish = {'remedy': facts.Would(spell.line('site', 'sync'), land)}
     elif land:
         site.publish = land
     elif site.deploy != facts.phrase("the mount ext/mnt/site is present, rpus.co's clone"):

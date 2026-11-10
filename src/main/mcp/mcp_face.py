@@ -20,7 +20,7 @@ it sends against the PRODUCER face.
   not name. Its law: every instance the producer face admits, the factoring admits
   (closing only restricts).
 
-Both are written under tmp/cache/mcp/ by `corpus-yoga mcp sync` beside the
+Both are written under tmp/cache/mcp/ by `corpus-yoga mcp derive` beside the
 derivation's other faces (rsc/cache_io.csv), never committed: they are readings of
 the committed version file, and the dev gate holds them derivable from it and
 valid draft-04 (mcp.faces_derivable).
@@ -80,7 +80,7 @@ def face(doc: dict, which: str) -> dict:
         'title': f'{title}{which.capitalize()}',
         'description': (f'The {which} face of {title} (issues/605): every definition flat - its allOf resolved into one '
                         f'object - and {"open, unknown members tolerated" if which == "consumer" else "closed, additionalProperties false on every object with members and no index signature"}; '
-                        f'its law: {LAW[which]}. Derived from the committed version file by corpus-yoga mcp sync, never hand-edited; '
+                        f'its law: {LAW[which]}. Derived from the committed version file by corpus-yoga mcp derive, never hand-edited; '
                         f'a party validates what it {"receives" if which == "consumer" else "sends"} against it.'),
         'allOf': doc['allOf'],
         'definitions': {name: factoring._ordered(body) for name, body in definitions.items()},

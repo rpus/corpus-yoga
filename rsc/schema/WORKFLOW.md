@@ -116,7 +116,7 @@ Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/v
 This is the ONE mint, for every family; what differs per family is where the new
 content comes from (a failing datum; for the house factoring, the reference
 snapshot of step 5), never a second procedure. An upstream reference project under
-`rsc/reference/` does not mint: `corpus-yoga reference sync` holds every lineage
+`rsc/reference/` does not mint: `corpus-yoga reference pull` holds every lineage
 upstream publishes, and a lineage's change is a section of its own changelog
 (step 5).
 
@@ -280,7 +280,7 @@ Open `rsc/model/model_join.csv` and:
 per upstream project and one directory per lineage upstream publishes, named as
 upstream names it (issues/587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
 the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
-`corpus-yoga mcp sync`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
+`corpus-yoga mcp derive`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
 and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
 into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
 `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
@@ -302,7 +302,7 @@ reaches it by the same family-dir grammar as any schema
 
 `corpus-yoga reference` is the currency check: per project, what upstream lists
 against what is held, and whether every held file's live bytes still hash as
-pinned - a send, UNVERIFIED under `CORPUS_YOGA_NO_SEND=1`. `corpus-yoga reference sync`
+pinned - a send, UNVERIFIED under `CORPUS_YOGA_NO_SEND=1`. `corpus-yoga reference pull`
 fetches every lineage not held and every file that drifted, and writes the
 provenance rows; the lineage's changelog section (`## <pin>`) is the hand act.
 `corpus-yoga test run` holds the hermetic residue (`check_reference`): the committed
@@ -312,7 +312,7 @@ pin has its changelog section (`reference.lineage_changelog`). Every house schem
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
 `rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a
-committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
+committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/mcp_factoring.py`)
 generates its latest version from upstream's `schema.ts` alone - every declaration
 read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
 shape upstream's generator would give it, one stated rule per TypeScript form
@@ -348,7 +348,7 @@ counterpart resolved and normalized, the declared additions set back
 (`mcp.lineages_parse`). Its history lives in
 `rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
 (issues/583): whenever the derivation differs from the latest version file - upstream
-moved, or the house rules did - `corpus-yoga mcp sync` prints the diff and writes the
+moved, or the house rules did - `corpus-yoga mcp derive` prints the diff and writes the
 next version in place of the current one, by plain file operations; a version of
 this family means that the derivation's output changed, and its changelog section
 is written by hand from that diff, owed at the commit gate by
@@ -370,7 +370,7 @@ from committed files only:
 
 - **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
   ≥2 families' latest versions) surfaces SHARED NAMES — the question, of which
-  `name_collision` (the false friend) is one possible answer — and `corpus-yoga model sync`
+  `name_collision` (the false friend) is one possible answer — and `corpus-yoga model derive`
   renders them pre-filled at `tmp/cache/model/shared_name_candidates.csv` (path cells
   computed; `identical` proposed where the shapes are structurally equal, editable);
   a human disposes each by pasting the row into `model_join.csv` with its
@@ -391,7 +391,7 @@ from committed files only:
 After schema changes:
 
 ```bash
-corpus-yoga model sync   # regenerate the per-schema catalogues (the review aid)
+corpus-yoga model derive   # regenerate the per-schema catalogues (the review aid)
 corpus-yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
 ```
 
