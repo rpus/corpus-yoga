@@ -42,7 +42,7 @@ class Script:
     """A script's state: how many steps it would take, or that it halted and what it said."""
     steps: str | None = None
     halted: str | None = None
-    remedy: facts.Command | facts.Act | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass

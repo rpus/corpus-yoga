@@ -22,7 +22,6 @@
     "no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another",
     "mints it and installs src/requirements.txt",
     "{bundle} - {roots} roots, pinned by {variable}; unpinned, the python reads {own}",
-    "lets the python read its own bundle",
     "{bundle} - {roots} roots",
     "unread - the ssl module of the python did not answer",
     "not found (unexpected) - nothing can say what this machine is missing",
@@ -32,15 +31,11 @@
     "not verifiable read-only",
     "unavailable - ANTHROPIC_API_KEY is not set",
     "exported, and no code reads it - {name} is the name",
-    "drops it from this shell",
     "exported, and corpus-yoga no longer reads it - CORPUS_YOGA_VENV names the venv; the default stands",
     "{legacy} - the binding moved to {binding} (2026-07-17)",
-    "migrates it",
     "{name}, undeclared in rsc/machine/machines.csv",
     "no - nothing here works without it",
     "no - the first commit refuses",
-    "names the committer",
-    "gives the address",
     "{count} held",
     "read by the venv's python - the rows follow the mint",
     "rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint",
@@ -59,7 +54,9 @@
     "corpus-yoga {noun} is unreadable - {error}",
     "unread - corpus-yoga {noun} did not answer within {bound} s",
     "unread - the venv is not minted",
-    "corpus-yoga {noun} says nothing at {pointer}"
+    "corpus-yoga {noun} says nothing at {pointer}",
+    "absent - {binding} holds a name rsc/machine/machines.csv declares",
+    "no - the first commit refuses; git config user.name and user.email hold it"
   ],
   "explanation": {
     "machine": {

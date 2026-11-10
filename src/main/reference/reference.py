@@ -149,7 +149,7 @@ class Project:
     files_hashing_as_pinned: str | None = None
     currency: str | facts.Unsettled | None = None
     to_fetch: dict[str, str] | None = None   # by file: missing, or drifted from its pin
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass

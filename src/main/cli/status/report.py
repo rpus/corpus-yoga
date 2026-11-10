@@ -22,6 +22,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 import facts
+import spell
 import standing
 
 SELF = 'src/main/cli/status/report.py'
@@ -135,7 +136,12 @@ def main() -> int:
         commands = {rest[i]: rest[i + 1] if i + 1 < len(rest) else '' for i in range(0, len(rest), 2) if rest[i]}
         for command, does in commands.items():
             # a corpus-yoga act is said in its declared words, on what the row is about (issues/1028)
-            act = facts.plain(facts.Would(command, {last.removesuffix(' (again)'): 1})) if _is_act(command) else None
+            # a corpus-yoga act is said in its declared words, on what the row is about; any other
+            # command is one status sync runs, and is said as its act (issues/1034) - but sync is
+            # handed the commands themselves
+            subject = last.removesuffix(' (again)')
+            act = (None if mode == 'remedies' else facts.plain(facts.Would(command, {subject: 1})) if _is_act(command)
+                   else facts.plain(facts.Would(spell.line('status', 'sync'), {above[0] if above else subject: 1})))
             said_as: dict = act if isinstance(act, dict) else {command: does}
             held = at.get('remedy')
             at['remedy'] = facts.merge(held if isinstance(held, dict) else {}, said_as)

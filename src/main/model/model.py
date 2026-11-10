@@ -205,7 +205,7 @@ class Catalogue:
     present: str                  # the catalogues the cache holds, of those the schema tree derives
     underived: str | None = None
     not_yet_projected: int | None = None
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass

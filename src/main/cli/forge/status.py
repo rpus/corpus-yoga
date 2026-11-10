@@ -23,7 +23,6 @@ REPO = _root[0]
 
 REFUSING = {'settings': ('drift', 'unverified'), 'branches': ('unverified',), 'refs': ('unverified',),
             'checkout': ('wrong', 'unverified')}     # the states under which the merge refuses
-TYPED = ('corpus-yoga ', 'git ', 'gh ', 'brew ')     # how a remedy the reader types begins; its does is the row's sixth cell
 
 
 @dataclass
@@ -33,7 +32,7 @@ class Row:
     a sentence joining the two (issues/871) - and where a remedy stands, its `remedy` beside it (issues/777)."""
     answer: str | facts.Unsettled
     state: str
-    remedy: facts.Command | facts.Act | facts.Would | None = None
+    remedy: facts.Would | None = None
 
     def facts(self) -> dict | str | facts.Unsettled:
         if self.state == 'ok' and self.remedy is None:
@@ -44,7 +43,7 @@ class Row:
 @dataclass
 class Section:
     rows: dict[str, Row]          # by what each probe is about
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
     def facts(self) -> dict:
         return {**self.rows, 'remedy': self.remedy}
@@ -90,9 +89,9 @@ def main() -> int:
         if state == 'pr':
             opens[cells[2]] = cells[3]
             continue
-        does = cells[5] if len(cells) > 5 else ''
-        remedy = (None if not said else facts.Would(said, {cells[2]: 1}) if said.startswith('corpus-yoga ')
-                  else facts.Command(said, does) if said.startswith(TYPED) else facts.Act(said))
+        # a corpus-yoga act is the row's remedy; a typed command or words are no act, and the row's
+        # state says what stands (issues/1034)
+        remedy = facts.Would(said, {cells[2]: 1}) if said.startswith('corpus-yoga ') else None
         if section == 'settings' and state == 'drift':
             remedy = facts.Would(spell.line('forge', 'sync'), {cells[2]: 1})   # the act; the status is its dry run (issues/881)
         if section in ('branches', 'refs') and state in ('deletable', 'server_deletable', 'stale'):

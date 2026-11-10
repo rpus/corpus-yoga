@@ -110,7 +110,7 @@ def main() -> int:
     position = next((row for row in rows if row[0] == 'clone'), None)
     refused = position is not None and len(position) >= 4      # a clone publish refuses: no served branch, another branch, diverged
     if position is not None:
-        site.clone = facts.Finding(position[1], facts.Command(position[2], position[3])) if refused else position[1]
+        site.clone = facts.Finding(position[1]) if refused else position[1]
     if absent:
         site.pages = {'state': standing, 'remedy': facts.Would(spell.line('site', 'sync'), {'data/output/site/': 1})}
     if read_lag(site) and isinstance(site.index, CorpusPage):

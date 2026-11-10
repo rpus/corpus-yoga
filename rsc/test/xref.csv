@@ -903,7 +903,7 @@ src/main/cli/forge/reconcile.py,5,comment,src/main/cli/forge/forge.csv,Y,"src/ma
 src/main/cli/forge/reconcile.py,16,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/forge/should.py,15,path_str,src/main/cli/forge/should.py,Y,SELF = 'src/main/cli/forge/should.py'
 src/main/cli/forge/status.py,18,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
-src/main/cli/forge/status.py,55,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
+src/main/cli/forge/status.py,54,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
 src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/grammar/grammar.json,23,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
@@ -1023,15 +1023,15 @@ src/main/cli/stage/stage.py,10,comment,src/main/rehearsal.py,Y,"the record, one 
 src/main/cli/stage/stage.py,20,comment,src/main/cleaner.py,Y,"The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (issues/837):"
 src/main/cli/stage/stage.py,33,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/status/report.py,12,comment,src/main/standing.py,Y,"room's standing folded once from every noun's own (src/main/standing.py, issues/949). Runs under"
-src/main/cli/status/report.py,27,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
-src/main/cli/status/status.json,95,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
-src/main/cli/status/status.json,107,path_str,rsc/machine,Y,"""rsc/machine"","
-src/main/cli/status/status.json,108,path_str,rsc/test,Y,"""rsc/test"","
-src/main/cli/status/status.json,114,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
-src/main/cli/status/status.json,115,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
-src/main/cli/status/status.json,116,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/status/status.json,117,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
-src/main/cli/status/status.json,118,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/status/report.py,28,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
+src/main/cli/status/status.json,92,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
+src/main/cli/status/status.json,104,path_str,rsc/machine,Y,"""rsc/machine"","
+src/main/cli/status/status.json,105,path_str,rsc/test,Y,"""rsc/test"","
+src/main/cli/status/status.json,111,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
+src/main/cli/status/status.json,112,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
+src/main/cli/status/status.json,113,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
+src/main/cli/status/status.json,114,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
+src/main/cli/status/status.json,115,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/status/status.sh,2,comment,src/main/cli/status/status.sh,Y,"# src/main/cli/status/status.sh — what this machine has, and what it still needs."
 src/main/cli/status/status.sh,16,comment,src/main/cli/status/status.sh,Y,#   src/main/cli/status/status.sh              # what still needs attention; a section with nothing to say is not shown
 src/main/cli/status/status.sh,17,comment,src/main/cli/status/status.sh,Y,"#   src/main/cli/status/status.sh --show-all   # the full report, what is satisfied included"
@@ -1045,13 +1045,13 @@ src/main/cli/status/status.sh,331,comment,rsc/machine/README.md,Y,"# The binding
 src/main/cli/status/status.sh,402,comment,src/main/corpus.py,Y,# counts it (src/main/corpus.py held): one count of one store (issues/771).
 src/main/cli/status/status.sh,417,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
 src/main/cli/status/status.sh,424,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
-src/main/cli/status/sync.json,23,path_str,rsc/machine,Y,"""rsc/machine"","
-src/main/cli/status/sync.json,24,path_str,rsc/test,Y,"""rsc/test"","
-src/main/cli/status/sync.json,30,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
-src/main/cli/status/sync.json,31,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
-src/main/cli/status/sync.json,32,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/status/sync.json,33,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
-src/main/cli/status/sync.json,34,path_str,rsc/provider,Y,"""rsc/provider"""
+src/main/cli/status/sync.json,30,path_str,rsc/machine,Y,"""rsc/machine"","
+src/main/cli/status/sync.json,31,path_str,rsc/test,Y,"""rsc/test"","
+src/main/cli/status/sync.json,37,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
+src/main/cli/status/sync.json,38,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
+src/main/cli/status/sync.json,39,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
+src/main/cli/status/sync.json,40,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
+src/main/cli/status/sync.json,41,path_str,rsc/provider,Y,"""rsc/provider"""
 src/main/cli/store/clean.json,10,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
 src/main/cli/store/clean.json,11,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
 src/main/cli/store/clean.json,12,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
@@ -1094,7 +1094,7 @@ src/main/corpus.py,211,comment,rsc/naming/export_archive_members.csv,Y,"capture 
 src/main/corpus.py,562,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
 src/main/enact.sh,34,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
-src/main/facts.py,493,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
+src/main/facts.py,475,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,42,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,116,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'

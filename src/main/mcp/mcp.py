@@ -97,7 +97,7 @@ class SchemaTs:
     category_tags: int
     declarations: int
     tables: str
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass
@@ -119,7 +119,7 @@ class Family:
     faces: str = ''
     layers: dict[str, int] | None = None
     differs_by: str | None = None
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass

@@ -33,7 +33,7 @@ class Hook:
     installed, and the remedy where it does not. The home of the hooks' state (issues/778): the
     machine report and the forge say what this says."""
     installed: str
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
     @property
     def sound(self) -> bool:

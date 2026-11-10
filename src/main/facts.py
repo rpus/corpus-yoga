@@ -17,10 +17,11 @@ prints under its name's words, or under the key `named` gives it; a field that i
 not printed; a shape whose keys are its data says so in a `facts` method. A collection is
 a mapping keyed by its members' names, each member's facts beneath its name, so that a
 dash means only a bare value with nothing to key it by, and the nesting alone says what
-belongs to what (issues/765). Two facts every status shares are types of their own: a remedy,
-the command a reader types (Command) or the reader's own act in words (Act), and a finding
-(Finding), the FAIL the usr gate's table counts. A Command prints as a pair, the line its
-key and what it does its value: what is typed is always a whole scalar. A noun written in shell hands its rows to
+belongs to what (issues/765). A status line is one of three (issues/1034): a fact, settled; an
+act (Would), a declared corpus-yoga verb with what it would act on, which now: lifts; or an
+unsettled reading (Unsettled), which now: lifts under the noun that reports it. No remedy is
+written in words or as a command no verb declares - there is no type to write one in. A
+finding (Finding) is the FAIL the usr gate's table counts. A noun written in shell hands its rows to
 a status module beside it, which types them: no shell builds facts.
 """
 from __future__ import annotations
@@ -280,25 +281,6 @@ def named(label: str, **kwargs):
 
 
 @dataclass(frozen=True)
-class Command:
-    """A remedy the reader types: a corpus-yoga command, or a standard tool's."""
-    line: str                     # the command as typed
-    does: str                     # what it does
-
-    def facts(self) -> dict:
-        return {self.line: self.does}
-
-
-@dataclass(frozen=True)
-class Act:
-    """A remedy that is the reader's own act, in words: nothing types it."""
-    words: str
-
-    def said(self) -> str:
-        return self.words
-
-
-@dataclass(frozen=True)
 class Would:
     """An act a status names (issues/1028): the command as typed, and what it would act on -
     each thing with how many, or with what changes in it beneath. What the act would do is
@@ -419,7 +401,7 @@ def now_of(shape) -> dict:
 class Finding:
     """What a status found wrong: the FAIL the usr gate's stage table counts, and its remedy."""
     FAIL: str
-    remedy: Command | Act | Would | None = None
+    remedy: Would | None = None
 
 
 def plain(shape):

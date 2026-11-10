@@ -93,7 +93,7 @@ class Project:
     files: int | None = None
     currency: str | facts.Unsettled | None = None   # against the grammar they are generated from
     differing: list[str] | None = None
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass

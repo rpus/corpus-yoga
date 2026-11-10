@@ -583,7 +583,7 @@ class Currency:
     conversations: int
     covered_by_the_captures: int
     lag: str | None = None
-    remedy: facts.Command | facts.Would | None = None
+    remedy: facts.Would | None = None
 
 
 @dataclass

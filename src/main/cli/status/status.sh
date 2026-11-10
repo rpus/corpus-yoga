@@ -224,7 +224,7 @@ variable = next((name for name in (paths.openssl_cafile_env, paths.openssl_capat
 print(paths.cafile or paths.capath or "", ssl.create_default_context().cert_store_stats()["x509_ca"], paths.openssl_cafile, variable, sep="\t")' 2>/dev/null)"
     IFS=$'\t' read -r bundle roots own variable <<< "$trust"
     if [[ -n "$variable" && "$bundle" != "$own" ]]; then
-      todo "$CORPUS_YOGA_VENV / trusts" "$(phrase '{bundle} - {roots} roots, pinned by {variable}; unpinned, the python reads {own}' bundle="${bundle/#$HOME/~}" roots="$roots" variable="$variable" own="${own/#$HOME/~}")" "unset $variable" "$(phrase 'lets the python read its own bundle')"
+      info "$CORPUS_YOGA_VENV / trusts" "$(phrase '{bundle} - {roots} roots, pinned by {variable}; unpinned, the python reads {own}' bundle="${bundle/#$HOME/~}" roots="$roots" variable="$variable" own="${own/#$HOME/~}")"
     elif [[ -n "$roots" ]]; then
       ok "$CORPUS_YOGA_VENV / trusts" "$(phrase '{bundle} - {roots} roots' bundle="${bundle/#$HOME/~}" roots="$roots")"
     else
@@ -320,7 +320,7 @@ check_environment() {
   local old
   for old in YOGA_NO_SEND YOGA_JOBS YOGA_GATE_TIMINGS; do
     [[ -n "${!old-}" ]] || continue
-    todo "environment / $old" "$(phrase 'exported, and no code reads it - {name} is the name' name="CORPUS_YOGA_${old#YOGA_}")" "unset $old" "$(phrase 'drops it from this shell')"
+    info "environment / $old" "$(phrase 'exported, and no code reads it - {name} is the name' name="CORPUS_YOGA_${old#YOGA_}")"
   done
   if [[ -n "${VENV-}" && -z "${CORPUS_YOGA_VENV-}" ]]; then
     info "environment / VENV" "$(phrase "exported, and corpus-yoga no longer reads it - CORPUS_YOGA_VENV names the venv; the default stands")"
@@ -348,12 +348,12 @@ check_machine() {
   local legacy="$REPO_ROOT/rsc"; legacy+="/machines/self.txt"
   if [[ -f "$legacy" ]]; then
     local lrel="${legacy#"$REPO_ROOT/"}"
-    todo "legacy binding / at" "$(phrase '{legacy} - the binding moved to {binding} (2026-07-17)' legacy="$lrel" binding="$rel")" "mv $lrel $rel && rmdir $(dirname "$lrel")" "$(phrase 'migrates it')"
+    info "legacy binding / at" "$(phrase '{legacy} - the binding moved to {binding} (2026-07-17)' legacy="$lrel" binding="$rel")"
   fi
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo "binding" "absent" "echo <declared-machine-name> > $rel" "$(phrase 'binds it, to a name rsc/machine/machines.csv declares')"
+    info "binding" "$(phrase 'absent - {binding} holds a name rsc/machine/machines.csv declares' binding="$rel")"
     declared="${declared% }"
     ok declared "${declared:-none}"
     return
@@ -393,7 +393,7 @@ check_git_identity() {
     elif [[ -n "$s1$s2" ]]; then scope=" (name: --$s1, email: --$s2)"; fi
     ok "identity / set" "$n <$e>$scope"
   else
-    todo "identity / set" "$(phrase 'no - the first commit refuses')" "git config --global user.name '<name>'" "$(phrase 'names the committer')" "git config --global user.email '<email>'" "$(phrase 'gives the address')"
+    info "identity / set" "$(phrase 'no - the first commit refuses; git config user.name and user.email hold it')"
   fi
 }
 
@@ -486,7 +486,7 @@ sync() {
   while IFS=$'\t' read -r command does where; do
     [[ -n "$command" ]] || continue
     echo "  - $where: $command - $does"
-    if [[ "$command" == "$own" ]] || grep -qxF -- "${command#./}" <<< "$declared"; then
+    if [[ "$command" == "$own" || "$command" == "brew install "* ]] || grep -qxF -- "${command#./}" <<< "$declared"; then
       grep -qxF -- "$command" <<< "$mine" || mine+="$command"$'\n'
     fi
   done <<< "$_remedies"
@@ -505,10 +505,17 @@ sync() {
       send labour pip-upgrade || exit 1
       send labour requirements "$REPO_ROOT/src/requirements.txt" || exit 1
       echo "  venv: $(phrase "{version}, src/requirements.txt installed" version="$("$CORPUS_YOGA_VENV/bin/python" --version 2>&1)")"
-    else
+    elif [[ "$a" == "brew install "* ]]; then
+      # shellcheck disable=SC2086   # the formula and its flags, as the row names them
+      send labour brew ${a#brew install } || exit 1
+    elif [[ "$a" == *corpus-yoga* ]]; then
       # a declared invocation is `corpus-yoga <command> ...`, bare words: run this tree's
       # shellcheck disable=SC2086
       "$REPO_ROOT/corpus-yoga" ${a#*corpus-yoga }
+    else
+      # a declared command of the machine's own, run where the report reads the tree
+      # shellcheck disable=SC2086
+      (cd "$REPO_ROOT" && labour $a)
     fi
   done <<< "$mine"
   echo
