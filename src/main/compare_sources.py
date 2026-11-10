@@ -22,7 +22,7 @@ different prose summaries -- that is summary drift, not a transcript difference,
 sets the exit status.
 
 Usage:
-  src/run_python_script.sh src/main/model/compare_sources.py \
+  src/run_python_script.sh src/main/compare_sources.py \
     --api-capture data/input/claude/chat/API-capture \
     --bulk-export data/input/claude/chat/bulk-export/<batch> [--diff]
 
@@ -36,7 +36,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 from markdown_projection import project, find_api_json, render, turn_seq
 
-SELF = 'src/main/model/compare_sources.py'
+SELF = 'src/main/compare_sources.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

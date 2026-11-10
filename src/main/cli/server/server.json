@@ -14,7 +14,7 @@
   "calculus": "project",
   "args": [],
   "r": [
-    "src/main/model/serve_assets.txt",
+    "src/main/cli/server/serve_assets.txt",
     "ext/lib/serve_markdown"
   ],
   "sends": {
@@ -22,7 +22,7 @@
       "runs": "urllib.request.urlopen",
       "refused": "fails",
       "does": [
-        "downloads each render lib src/main/model/serve_assets.txt names that is MISSING, so a warmed cache sends nothing - for ensure-assets, and for start on a fresh clone, which will not serve half-rendered"
+        "downloads each render lib src/main/cli/server/serve_assets.txt names that is MISSING, so a warmed cache sends nothing - for ensure-assets, and for start on a fresh clone, which will not serve half-rendered"
       ]
     }
   }

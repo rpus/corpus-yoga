@@ -32,9 +32,9 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 SRC="$REPO_DIR/rsc/site"
 OUT="$DATA_DIR/output/site"
-MODEL_DIR="$REPO_DIR/src/main/model"
-# shellcheck source=src/main/model/corpus_shape.sh
-source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
+MAIN_DIR="$REPO_DIR/src/main"
+# shellcheck source=src/main/corpus_shape.sh
+source "$MAIN_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 # shellcheck source=src/main/cli/site/landing.sh
 source "$SCRIPT_DIR/landing.sh"   # what publish would land, read against rpus.co as it stands (issues/1020)
 
@@ -105,7 +105,7 @@ status() {
 }
 
 render() {
-  exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
+  exec "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/present_corpus.py" "$@"
 }
 
 # The act (issues/881): what it would land is the bare status's; this copies, commits and pushes.

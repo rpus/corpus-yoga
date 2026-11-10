@@ -22,7 +22,7 @@ import json
 import re
 from pathlib import Path
 
-SELF = 'src/main/model/frontier.py'
+SELF = 'src/main/frontier.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

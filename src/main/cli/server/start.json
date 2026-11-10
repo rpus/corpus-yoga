@@ -24,7 +24,7 @@
   "r": [
     "data/output/markdown",
     "ext/lib/serve_markdown",
-    "src/main/model/serve_assets.txt"
+    "src/main/cli/server/serve_assets.txt"
   ],
   "w": [
     "ext/lib/serve_markdown"

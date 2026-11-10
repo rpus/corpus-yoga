@@ -81,7 +81,7 @@ run_one() {
   step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
   step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
-    "$REPO_DIR/src/main/model/project_markdown.py" --bulk-export "$batch"
+    "$REPO_DIR/src/main/project_markdown.py" --bulk-export "$batch"
   # compare_sources: the append-only invariant across export surfaces (issues/535, the
   # dev gate's former cross_sources check, spoken here once): a conversation in
   # both a bulk export and the live captures projects to identical turns, or the
@@ -90,7 +90,7 @@ run_one() {
   # shared prefix is a projection defect or corruption - both FAIL and gate.
   step_if "$have_captures" 'when live captures exist' \
        compare_sources    "$REPO_DIR/src/run_python_script.sh" \
-    "$REPO_DIR/src/main/model/compare_sources.py" \
+    "$REPO_DIR/src/main/compare_sources.py" \
     --api-capture "$API_CAPTURE" --bulk-export "$batch"
 }
 

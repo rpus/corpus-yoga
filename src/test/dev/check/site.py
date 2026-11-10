@@ -12,7 +12,7 @@ import send
 import tier
 
 
-@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'], says=(
+@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/compare_pages.py'], says=(
     'site.lag_is_read_from_declarations',
     'site.page_comparison_lists_measure_changes',
     'site.page_comparison_survives_a_new_column',

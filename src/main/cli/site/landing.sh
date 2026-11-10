@@ -66,7 +66,7 @@ clone_position() {
 
 # landing <clone> <tree>: the rows `land <file> <what changes>` - each new or changed file of the
 # tree against the branch rpus.co serves (deletions are not mirrored - the site repo curates its own
-# removals), the corpus page in the page's own terms (src/main/model/compare_pages.py, issues/652),
+# removals), the corpus page in the page's own terms (src/main/compare_pages.py, issues/652),
 # since a line diff of two renders misstates it; and the clone's own uncommitted files, which
 # the copy commits with it.
 landing() {
@@ -85,7 +85,7 @@ landing() {
         # nests beneath the file, never one sentence; a comparison that fails is said as a
         # change the comparison could not word, never read as nothing to land (issues/1000)
         local compared line
-        if compared="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/compare_pages.py" "$held" "$f")"; then
+        if compared="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/compare_pages.py" "$held" "$f")"; then
           # only what changes is said (issues/1028); a page whose bytes differ outside every table it
           # declares still changes, and says so
           [[ -n "$compared" ]] || compared="$(phrase "changed - outside every table the page declares")"

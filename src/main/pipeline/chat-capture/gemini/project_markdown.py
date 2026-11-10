@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-project_markdown.py - project gemini's scrape markdown into the presentation tree (the gemini counterpart of src/main/model/project_markdown.py)
+project_markdown.py - project gemini's scrape markdown into the presentation tree (the gemini counterpart of src/main/project_markdown.py)
 (data/output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:
 
     ## Human (3)   ->   ## Human (3) <a id="human-3"></a>

@@ -13,9 +13,9 @@ them, so json/<name>.json and markdown/<name>.md share a name. Nothing is skippe
 invalid/degenerate conversations are rendered honestly and flagged.
 
 Usage (output defaults per pipeline/batch; --out overrides):
-  src/run_python_script.sh src/main/model/project_markdown.py \
+  src/run_python_script.sh src/main/project_markdown.py \
     --api-capture data/input/claude/chat/API-capture              # -> data/output/markdown/claude/chat/conversations/
-  src/run_python_script.sh src/main/model/project_markdown.py \
+  src/run_python_script.sh src/main/project_markdown.py \
     --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> tmp/cache/chat-export/<batch>/markdown/
 """
 import argparse
@@ -27,7 +27,7 @@ from markdown_projection import (project, ordered, find_api_json, render,
                                  md_validator, tree_problems, deposit, conv_id)
 from vintage import export_time  # the one export-ordering authority
 
-SELF = 'src/main/model/project_markdown.py'
+SELF = 'src/main/project_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

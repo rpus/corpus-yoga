@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 import facts  # the one face a sentence is said through (issues/909)
 
-SELF = 'src/main/model/compare_pages.py'
+SELF = 'src/main/compare_pages.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

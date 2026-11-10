@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import send  # a render lib's download is a send the declaration names (issues/29, issues/1022)
 import facts
 
-SELF = 'src/main/model/serve_markdown.py'
+SELF = 'src/main/cli/server/serve_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

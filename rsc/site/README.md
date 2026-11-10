@@ -38,7 +38,7 @@ root is the publish directory. Deploying is one verb:
 
 Netlify builds on push. The dry run states what changes in the corpus page in the
 page's own terms, each data table compared by its identity column
-(`src/main/model/compare_pages.py`, issues/652), since a line diff of two renders
+(`src/main/compare_pages.py`, issues/652), since a line diff of two renders
 misstates the change. The copy lands new and changed files and mirrors no
 deletion: a page or directory that left the publish tree is removed from the
 site repo by hand. `ext/mnt/site` is the machine's hand-made symlink to the

@@ -42,7 +42,7 @@ from page_declaration import declared_of, turn_instants  # the one reading of wh
 from word_freq_literal import words_from, filtered, tables  # one tokenizer for both presenters
 from library import LIBRARY as DOWNLOADED_DIR  # the artifact library, one authority (issues/421)
 
-SELF = 'src/main/model/present_corpus.py'
+SELF = 'src/main/present_corpus.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

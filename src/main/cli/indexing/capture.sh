@@ -26,7 +26,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
-MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
+MAIN_DIR="$REPO_DIR/src/main"                         # the corpus shape and the rekey
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 # shellcheck source=src/main/enact.sh
@@ -34,8 +34,8 @@ source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # the paid read is a send the declaration names (issues/29, issues/1022)
 source "$REPO_DIR/src/main/cli/parse_argv.sh"   # -h and the refusal of undeclared argv, from the declaration (issues/474)
-# shellcheck source=src/main/model/corpus_shape.sh
-source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
+# shellcheck source=src/main/corpus_shape.sh
+source "$MAIN_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 
@@ -140,7 +140,7 @@ category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
 $chats" \
-    | "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/rekey_chats.py" --to-id --conversations "$conv" \
+    | "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/rekey_chats.py" --to-id --conversations "$conv" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_file"
 }

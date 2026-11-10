@@ -270,7 +270,7 @@ def check_capture_monotone(run) -> None:
         safari.DOWNLOADS = real_downloads
 
 
-@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/pipeline', 'src/main/model'], says=(
+@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/pipeline', 'src/main/project_markdown.py', 'src/main/compare_sources.py', 'src/main/frontier.py', 'src/main/present_corpus.py', 'src/main/rekey_chats.py', 'src/main/corpus_shape.sh', 'src/main/compare_pages.py'], says=(
     'markdown.turn_count_in_frontmatter',
     'markdown.turns_parse_in_sequence',
 ))

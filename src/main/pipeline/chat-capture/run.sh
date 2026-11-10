@@ -62,7 +62,7 @@ run_corpus() {
   step_if "$has_api" "where claude's API captures stand" validate "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
   # project_markdown: render api JSON -> markdown always (no DOM scrape needed)
   step_if "$has_api" "where claude's API captures stand" project_markdown "$REPO_DIR/src/run_python_script.sh" \
-    "$REPO_DIR/src/main/model/project_markdown.py" --api-capture "$root"
+    "$REPO_DIR/src/main/project_markdown.py" --api-capture "$root"
   # gemini: each scrape lifted and judged against the markdownConversation family, then
   # copied into the presentation tree beside claude's projections
   # (data/output/markdown/{claude,gemini}), anchoring each turn heading; a slug collision

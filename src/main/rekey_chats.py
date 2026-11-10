@@ -29,7 +29,7 @@ by one, and only the dropped 'chat 0' would hint at it. None survive on disk,
 but check the provenance before trusting the flag on an unfamiliar table.
 This is the migration recipe for an old ordinal-keyed inferred table:
 
-    src/main/model/rekey_chats.py --to-id --legacy-ordinals \\
+    src/main/rekey_chats.py --to-id --legacy-ordinals \\
         --conversations <batch>/conversations.json \\
         < tmp/cache/chat-export/<batch>/inferred/data-chat-categories.json
 
@@ -42,7 +42,7 @@ import sys
 from pathlib import Path
 from markdown_projection import is_empty, ordered, load_convs, corpus_index
 
-SELF = 'src/main/model/rekey_chats.py'
+SELF = 'src/main/rekey_chats.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

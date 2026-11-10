@@ -3,7 +3,7 @@
   "would": "would fetch",
   "args": [],
   "r": [
-    "src/main/model/serve_assets.txt"
+    "src/main/cli/server/serve_assets.txt"
   ],
   "w": [
     "ext/lib/serve_markdown"

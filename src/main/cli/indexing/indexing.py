@@ -603,7 +603,7 @@ class Status:
 def captures() -> Captures:
     """The paid captures' standing, and how far the paid layer lags the corpus (L9: the
     captures are paid, so no run step keeps them fresh). The corpus is counted by its
-    shape's one home, src/main/model/corpus_shape.sh."""
+    shape's one home, src/main/corpus_shape.sh."""
     import json
     import subprocess
     held_dir = tier.DATA / 'output' / 'indexing'
@@ -615,7 +615,7 @@ def captures() -> Captures:
     corpus = tier.DATA / 'output' / 'markdown'
     if not corpus.is_dir():
         return out                # L8: no corpus yet - nothing to be current against
-    shape = REPO_ROOT / 'src' / 'main' / 'model' / 'corpus_shape.sh'
+    shape = REPO_ROOT / 'src' / 'main' / 'corpus_shape.sh'
     counted = subprocess.run(['bash', '-c', 'source "$1"; count_conversations "$2"', 'count', str(shape), str(corpus)],
                              capture_output=True, text=True).stdout.strip()
     n, m = int(counted or 0), rows['inferred-chat-categories.json'] or 0

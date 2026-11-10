@@ -7,7 +7,7 @@ declares and src/run_python_script.sh sets, so the per-pipeline CLIs import it b
 
     from markdown_projection import project, render, ...
 
-Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py
+Consumers: project_markdown.py (renders markdown), compare_sources.py
 (project+render to compare), pipeline/chat-export/atomise_bulk.py (slug/assign_name
 to name the per-conversation pieces).
 
