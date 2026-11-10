@@ -878,8 +878,8 @@ src/main/cli/forge/capture.py,42,comment,src/run_python_script.sh,Y,src/run_pyth
 src/main/cli/forge/capture.py,42,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp>
 src/main/cli/forge/capture.py,53,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
 src/main/cli/forge/capture.py,96,comment,src/main/cli/forge/review-counts.graphql,Y,"(src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."
-src/main/cli/forge/forge.json,120,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
-src/main/cli/forge/forge.json,196,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge/forge.json,121,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
+src/main/cli/forge/forge.json,197,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   corpus-yoga forge sync            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the
 src/main/cli/forge/forge.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/forge/forge.sh,23,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -894,7 +894,7 @@ src/main/cli/forge/forge.sh,410,comment,src/main/cli/forge/superseded-heads.grap
 src/main/cli/forge/forge.sh,550,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
 src/main/cli/forge/forge.sh,609,comment,rsc/test/run.log,Y,"# rsc/test/run.log, evidence the merge leaves where the gate wrote it, and the refusal"
 src/main/cli/forge/forge.sh,619,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,811,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,821,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/raise.py,5,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,7,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,11,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
@@ -1450,9 +1450,9 @@ src/test/dev/check/room.py,684,path_str,src/main/cli/forge,Y,"@check(tier='code'
 src/test/dev/check/room.py,684,path_str,src/test,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
 src/test/dev/check/room.py,495,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
 src/test/dev/check/room.py,669,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/check/room.py,699,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
-src/test/dev/check/room.py,724,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
-src/test/dev/check/room.py,762,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,700,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
+src/test/dev/check/room.py,725,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
+src/test/dev/check/room.py,763,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
 src/test/dev/check/schema.py,28,comment,rsc/provider/providers.csv,Y,"provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that"
 src/test/dev/check/schema.py,74,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
 src/test/dev/check/schema.py,22,path_str,rsc/schema,Y,"@check(tier='schema', on=['rsc/schema', 'src/main', 'rsc/provider'], says=("
