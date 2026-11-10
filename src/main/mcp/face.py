@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp_face.py - the two faces of the mcp factoring (issues/605), derived from the factored
+face.py - the two faces of the mcp factoring (issues/605), derived from the factored
 schema by stated rules, on the pattern of the maintainer's Expander (AsConsumer,
 AsProducer): a party validates what it receives against the CONSUMER face and what
 it sends against the PRODUCER face.
@@ -28,9 +28,9 @@ valid draft-04 (mcp.faces_derivable).
 
 from pathlib import Path
 from schema_walk import rebuilt, schema_nodes
-import mcp_factoring as factoring  # (sibling module)
+import factoring  # (sibling module)
 
-SELF = 'src/main/mcp/mcp_face.py'
+SELF = 'src/main/mcp/face.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

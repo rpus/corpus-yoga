@@ -14,9 +14,9 @@ from latest import lineages
 import send
 import tier
 import grammar as grammar_module
-import mcp_extraction
-import mcp_face
-import mcp_factoring
+import extraction
+import face
+import factoring
 
 
 def grammar_reading(project) -> dict | None:
@@ -129,14 +129,14 @@ def check_mcp_factoring(run) -> None:
     the witness, never a source - must equal its house counterpart flattened and
     normalized, the declared additions set back (mcp.factoring_agrees); every held
     lineage's schema.ts must parse (mcp.lineages_parse)."""
-    target = mcp_factoring.latest_version(mcp_factoring.FAMILY_DIR)
+    target = factoring.latest_version(factoring.FAMILY_DIR)
     if not target:
         run('mcp: rsc/schema/derived/mcp/mcpMessage has a version', False,
             'corpus-yoga mcp derive derives v1.json', check='mcp.factoring_current')
         return
     rel = target.relative_to(REPO_ROOT)
     try:
-        wanted = mcp_factoring.current_text()
+        wanted = factoring.current_text()
     except AssertionError as e:
         run(f'mcp: {target.stem} derivable from the snapshot', False, str(e), check='mcp.factoring_current')
         return
@@ -145,29 +145,29 @@ def check_mcp_factoring(run) -> None:
         None if have == wanted else
         f'{rel} differs from what schema.ts generates - corpus-yoga mcp derive prints the diff and mints the next version; write its changelog section and commit',
         check='mcp.factoring_current')
-    _, snap = mcp_factoring.snapshot()
-    bad = mcp_factoring.disagreements(json.loads(have), snap, mcp_factoring.additions(), mcp_factoring.generated().constants)
+    _, snap = factoring.snapshot()
+    bad = factoring.disagreements(json.loads(have), snap, factoring.additions(), factoring.generated().constants)
     run(f'mcp: {target.stem} flattens to the snapshot', not bad,
         '\n    '.join(bad[:5]) if bad else None, check='mcp.factoring_agrees')
     import jsonschema
     meta = json.loads((REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json').read_text())
-    for which in mcp_face.FACES:
+    for which in face.FACES:
         detail = None
         try:
-            derived = mcp_face.face(json.loads(have), which)
+            derived = face.face(json.loads(have), which)
             errors = sorted(jsonschema.Draft4Validator(meta).iter_errors(derived), key=lambda e: list(e.path))
             if errors:
                 detail = f'{which} face: #/{"/".join(str(x) for x in errors[0].path)}: {errors[0].message[:160]}'
-        except (mcp_factoring.Conflict, AssertionError, KeyError) as e:
+        except (factoring.Conflict, AssertionError, KeyError) as e:
             detail = f'{which} face: cannot derive from {rel} ({e})'
         run(f'mcp: the {which} face derives from {target.stem} and is valid draft-04', detail is None, detail, check='mcp.faces_derivable')
-    for lineage in lineages(mcp_factoring.SNAPSHOT_DIR):
+    for lineage in lineages(factoring.SNAPSHOT_DIR):
         ts = lineage / 'schema.ts'
         rel = ts.relative_to(REPO_ROOT)
         detail = None
         try:
-            mcp_extraction.parsed(ts.read_text(), str(rel))
-        except (mcp_extraction.ParseRefused, mcp_extraction.ParserAbsent) as refused:
+            extraction.parsed(ts.read_text(), str(rel))
+        except (extraction.ParseRefused, extraction.ParserAbsent) as refused:
             detail = str(refused)
         run(f'mcp: {rel} parses through the house TypeScript grammar', detail is None, detail, check='mcp.lineages_parse')
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
-mcp_generation.py - the mcp schema generated from schema.ts alone (issues/598): every
+generation.py - the mcp schema generated from schema.ts alone (issues/598): every
 exported interface, alias and constant read through the house TypeScript grammar
-(mcp_extraction) and written as a draft-04 shape in the house dialect, the shape
+(extraction) and written as a draft-04 shape in the house dialect, the shape
 upstream's generator would flatten it to - so the factoring composes these over the
 declared bases as before, and upstream's schema.json stands as the witness the
-result must flatten to (mcp_factoring.disagreements), never as a source.
+result must flatten to (factoring.disagreements), never as a source.
 
 The reading, one rule per TypeScript form, each held by the witness:
 - a primitive: string, boolean, null as their JSON types; number as integer (the
@@ -34,10 +34,10 @@ The reading, one rule per TypeScript form, each held by the witness:
 
 import re
 from pathlib import Path
-import mcp_extraction as extraction  # (sibling module)
-from mcp_extraction import TypeExpr
+import extraction  # (sibling module)
+from extraction import TypeExpr
 
-SELF = 'src/main/mcp/mcp_generation.py'
+SELF = 'src/main/mcp/generation.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

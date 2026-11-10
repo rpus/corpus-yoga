@@ -87,6 +87,9 @@ v4
 
 #### Refactored
 
+- The family description (v5, in place) names the module that reads schema.ts as it is
+  named since 2026-11-10, `src/main/mcp/generation.py` - its directory names the noun,
+  so the file no longer repeats it (issues/1047). No validation effect.
 - The family description (v5, in place) names the family's files where they stand since
   2026-11-10, `rsc/schema/derived/mcp/mcpMessage/`, in the tier that says the family is
   derived from upstream's schema; its writer stays `src/main/mcp` (issues/1047). No

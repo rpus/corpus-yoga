@@ -312,12 +312,12 @@ pin has its changelog section (`reference.lineage_changelog`). Every house schem
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
 `rsc/schema/derived/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a
-committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/mcp_factoring.py`)
+committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/factoring.py`)
 generates its latest version from upstream's `schema.ts` alone - every declaration
 read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
 shape upstream's generator would give it, one stated rule per TypeScript form
-(`src/main/mcp/mcp_generation.py`), composed over the extends clauses and tagged by
-the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two tables
+(`src/main/mcp/generation.py`), composed over the extends clauses and tagged by
+the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two tables
 faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
 beside the version file: `rsc/schema/derived/mcp/mcpMessage/description.csv` (house
 text for the definitions schema.ts leaves without a JSDoc),
@@ -336,7 +336,7 @@ from the constant schema.ts exports). Every definition's description ends with i
 layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
 definition the rule cannot place, or an addition row that fits neither reading,
 refuses the derivation. The sync also writes the factoring's two faces under
-`tmp/cache/mcp/` (`src/main/mcp/mcp_face.py`, issues/605): the consumer face, every
+`tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every
 definition flat and open, which a party validates what it receives against, and
 the producer face, flat and closed, which it validates what it sends against -
 each holding its law by construction, and each held derivable and valid draft-04

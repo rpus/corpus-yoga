@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp_extraction.py - what the house factoring takes from upstream's schema.ts (issues/581,
+extraction.py - what the house factoring takes from upstream's schema.ts (issues/581,
 issues/597): the composition (which interface extends which), the alias sites (where
 schema.ts uses an exported type alias), the category tags (issues/595) and the exported
 constants. Read at every sync from the committed rsc/reference/mcp/<lineage>/schema.ts
@@ -36,7 +36,7 @@ import importlib
 from antlr4 import CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 
-SELF = 'src/main/mcp/mcp_extraction.py'
+SELF = 'src/main/mcp/extraction.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

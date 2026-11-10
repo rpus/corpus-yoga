@@ -2,16 +2,16 @@
 """
 mcp.py - the house factoring of the MCP schema, rsc/schema/derived/mcp/mcpMessage,
 generated from upstream's schema.ts alone (issues/598): read through the parser generated
-from the house TypeScript grammar (issues/597) by mcp_generation.py into the flat shape of
+from the house TypeScript grammar (issues/597) by generation.py into the flat shape of
 every declaration, composed over the extends clauses and tagged by the categories
-mcp_extraction.py reads (issues/581, issues/595); upstream's schema.json beside it is the witness
+extraction.py reads (issues/581, issues/595); upstream's schema.json beside it is the witness
 every definition must flatten to, never a source.
 
 `mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes
 nothing (the bare noun IS the status). Only `sync` writes: the two extracted
 tables and the two faces under tmp/cache/mcp/ (the readable faces of the
 derivation's inputs and of its output - the consumer and producer schemas of
-mcp_face.py, issues/605) and the
+face.py, issues/605) and the
 family's version file - and it MINTS (issues/583): when the derivation differs from the
 latest version file in any way, it prints the diff, writes the next version and
 removes the current one, by plain file operations (git sees a rename by
@@ -39,9 +39,9 @@ from pathlib import Path
 import facts  # the one printer of a status's facts (issues/753)
 import spell
 from declared_parser import command_parser
-import mcp_factoring as factoring  # (sibling module)
-import mcp_face as face  # (sibling module)
-from mcp_extraction import GRAMMAR_PARSER
+import factoring  # (sibling module)
+import face  # (sibling module)
+from extraction import GRAMMAR_PARSER
 
 SELF = 'src/main/mcp/mcp.py'
 _file = Path(__file__).resolve()
