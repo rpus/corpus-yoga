@@ -684,6 +684,7 @@ def check_provider_registry(run) -> None:
 @check(tier='code', on=['src/main/cli/forge', 'src/test'], says=(
     'forge.aim_one_line_per_issue',
     'forge.issue_is_a_should_with_wired_relations',
+    'forge.merge_names_its_issues',
     'forge.squash_read_back',
 ))
 def check_forge_aim(run) -> None:
@@ -762,6 +763,12 @@ def check_forge_aim(run) -> None:
                                            'PATH': f'{stub}:{os.environ["PATH"]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},
                                       cwd=REPO_ROOT)
                 exits[state] = done.returncode
+    # The merge's verdict names each aimed issue it closed, and each it did not, by its anchor (issues/1044)
+    said = subprocess.run(['bash', '-c', 'source "$1"; merged 7 0123abcd "issues/5 issues/6" "issues/8"', '_', str(forge_sh)],
+                          capture_output=True, text=True, cwd=REPO_ROOT).stdout.strip()
+    named = 'did close issues/5, issues/6; did NOT close issues/8' in said
+    run('forge: a merge\'s verdict names each issue it closed and each it did not', named,
+        None if named else f'merged 7 with issues/5 and issues/6 closed and issues/8 open says {said[:160]!r}', check='forge.merge_names_its_issues')
     run('forge: a squash whose reply is lost is read back from the forge - merged concludes, open refuses',
         has_step and exits.get('MERGED') == 0 and exits.get('OPEN') == 1,
         'forge.sh has no squashed step: the merge reads gh pr merge\'s exit alone' if not has_step

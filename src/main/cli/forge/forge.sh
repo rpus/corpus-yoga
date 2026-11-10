@@ -795,17 +795,27 @@ conclude() {
   fi
   # Each aimed issue's state after the squash, read from the forge (issues/735, issues/884): the
   # verdict counts what the forge closed, never what the body promised.
-  local closed=0 total=0 state issue_number
+  local closed=() open=() state issue_number
   narrate opening aimed
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
-    total=$((total + 1))
     opening "issues/$issue_number" 2
     state="$(cd "$REPO_DIR" && CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 4 )) send query issue "$issue_number" --json state --jq .state)" || state="unread"
-    [[ "$state" == CLOSED ]] && closed=$((closed + 1))
+    if [[ "$state" == CLOSED ]]; then closed+=("issues/$issue_number"); else open+=("issues/$issue_number"); fi
   done <<< "$aimed"
   export CORPUS_YOGA_NARRATION_DEPTH=$record_depth
-  effect "forge merge: DONE - $(phrase "pull/{pr} squashed as {landed}; did close {closed} of {total} aimed issue(s); this checkout converged on it" pr="$pr" landed="${landed:0:8}" closed="$closed" total="$total")"
+  effect "forge merge: DONE - $(merged "$pr" "${landed:0:8}" "${closed[*]-}" "${open[*]-}")"
+}
+
+# merged <pr> <squash> <closed issues> <issues left open>: the merge's verdict, naming each aimed
+# issue the forge closed and each it did not by its anchor (issues/1044), never only how many.
+merged() {
+  local did="${3// /, }" unclosed="${4// /, }"
+  if [[ -n "$unclosed" ]]; then
+    phrase "pull/{pr} squashed as {landed}; did close {closed}; did NOT close {open}; this checkout converged on it" pr="$1" landed="$2" closed="${did:-none}" open="$unclosed"
+  else
+    phrase "pull/{pr} squashed as {landed}; did close {closed}; this checkout converged on it" pr="$1" landed="$2" closed="${did:-none}"
+  fi
 }
 
 # The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
