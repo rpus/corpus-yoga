@@ -923,7 +923,7 @@ src/main/cli/agent/agent.py,79,comment,src/main/cli/agent/drafters.py,Y,corpus-y
 src/main/cli/agent/agent.py,138,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
 src/main/cli/agent/agent.py,388,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
 src/main/cli/agent/agent.py,389,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
-src/main/cli/agent/claude/harness.py,22,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
+src/main/cli/agent/claude/harness.py,23,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/drafters.py,7,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
 src/main/cli/agent/drafters.py,34,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
 src/main/cli/agent/gemini/harness.py,19,comment,rsc/migration/856.sh,Y,rsc/migration/856.sh's to move. The
@@ -1467,27 +1467,27 @@ src/test/dev/check/pipeline.py,273,path_str,src/main/present_corpus.py,Y,"@check
 src/test/dev/check/pipeline.py,273,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/pipeline.py,273,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/pipeline.py,273,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/room.py,659,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
-src/test/dev/check/room.py,676,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
-src/test/dev/check/room.py,676,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
-src/test/dev/check/room.py,676,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
+src/test/dev/check/room.py,661,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
+src/test/dev/check/room.py,678,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
+src/test/dev/check/room.py,678,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
+src/test/dev/check/room.py,678,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,26,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
 src/test/dev/check/room.py,26,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
 src/test/dev/check/room.py,26,path_str,src/main/metamodel/metamodel.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
 src/test/dev/check/room.py,26,path_str,src/main/browser/audit.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
-src/test/dev/check/room.py,515,path_str,src/main/facts.py,Y,"'src/main/facts.py prints and does not read: a reader of a status needs a YAML library', check='facts.reads_back_what_it"
-src/test/dev/check/room.py,484,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py'], says=("
-src/test/dev/check/room.py,627,path_str,src/main/provider.py,Y,"'src/main/provider.py writes the Signature and reads none: nothing joins a message to its session',"
-src/test/dev/check/room.py,615,path_str,src/main/provider.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
-src/test/dev/check/room.py,615,path_str,src/main/cli/agent/drafters.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
-src/test/dev/check/room.py,657,path_str,rsc/provider,Y,"@check(tier='code', says=('provider.names_declared', 'provider.registry_parses'), on=['rsc/provider', 'src'])"
-src/test/dev/check/room.py,689,path_str,src/main/cli/forge,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
-src/test/dev/check/room.py,689,path_str,src/test,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
-src/test/dev/check/room.py,500,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
-src/test/dev/check/room.py,674,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/check/room.py,705,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
-src/test/dev/check/room.py,730,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
-src/test/dev/check/room.py,768,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,517,path_str,src/main/facts.py,Y,"'src/main/facts.py prints and does not read: a reader of a status needs a YAML library', check='facts.reads_back_what_it"
+src/test/dev/check/room.py,486,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py'], says=("
+src/test/dev/check/room.py,629,path_str,src/main/provider.py,Y,"'src/main/provider.py writes the Signature and reads none: nothing joins a message to its session',"
+src/test/dev/check/room.py,617,path_str,src/main/provider.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
+src/test/dev/check/room.py,617,path_str,src/main/cli/agent/drafters.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
+src/test/dev/check/room.py,659,path_str,rsc/provider,Y,"@check(tier='code', says=('provider.names_declared', 'provider.registry_parses'), on=['rsc/provider', 'src'])"
+src/test/dev/check/room.py,691,path_str,src/main/cli/forge,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
+src/test/dev/check/room.py,691,path_str,src/test,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
+src/test/dev/check/room.py,502,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
+src/test/dev/check/room.py,676,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
+src/test/dev/check/room.py,707,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
+src/test/dev/check/room.py,732,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
+src/test/dev/check/room.py,770,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
 src/test/dev/check/schema.py,28,comment,rsc/provider/providers.csv,Y,"provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that"
 src/test/dev/check/schema.py,59,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"(rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON"
 src/test/dev/check/schema.py,103,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
@@ -1599,6 +1599,7 @@ src/test/dev/check/unit.py,256,path_str,src/main/agent,Y,"@check(tier='code', on
 src/test/dev/check/unit.py,327,path_str,src/main/corpus.py,Y,'src/main/corpus.py relates two exports by the bytes of their trees alone: no earlier export is ever read as held within
 src/test/dev/check/unit.py,314,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
 src/test/dev/check/unit.py,314,path_str,src/main/export/atoms.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
+src/test/dev/check/unit.py,353,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.memory_merge_judges_each_fact_alone',), on=['src/main/cli/agent'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/upstream.py,178,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the

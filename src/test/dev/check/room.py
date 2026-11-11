@@ -181,7 +181,9 @@ def check_status_facts(run) -> None:
                               env=env, cwd=REPO_ROOT, timeout=300)
         try:
             loaded = yaml.load(proc.stdout, Loader=Strict)
-            why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
+            said_wrong = [line for line in proc.stderr.splitlines() if line.strip()]
+            why = None if isinstance(loaded, dict) else (f'loads as {type(loaded).__name__}, not a mapping'
+                                                         + (f' - it exits {proc.returncode}, saying {said_wrong[-1][:200]}' if said_wrong else ''))
             if why is None and getattr(status_facts, 'load', None) is not None:
                 # the printer's own reader reads what the YAML reader reads (issues/766)
                 try:

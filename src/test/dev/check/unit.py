@@ -348,3 +348,54 @@ def check_export_atoms(run) -> None:
     expected = [('aaaaaaaa', 'bbbbbbbb', 'contained')]
     run('store: an export is held whole within a later one by its atoms', got == expected,
         None if got == expected else f'held twice read {got}', check='store.export_is_held_within_a_later_one')
+
+
+@check(tier='code', says=('agent.memory_merge_judges_each_fact_alone',), on=['src/main/cli/agent'])
+def check_memory_merge(run) -> None:
+    """Whether a peer's copy of a memory fact differs from the local copy is decided by that
+    pair alone, its links read by the facts they name: a copy that differs only in what one of
+    its links is dressed as is the same fact, kept. The fixture is synthetic: one fact that
+    differs, seven that link it in a chain, one the room lacks that links it, and one the peer
+    extends whose room copy links it already re-dressed, extended after the bytes the room
+    holds so that demerge's truncation undoes it; a second receipt of the same folder, once
+    installed, writes nothing (L1)."""
+    import tempfile
+    import transport
+    harness = transport.adapter('claude')
+    assert harness is not None, 'transport serves no claude adapter'
+    def address(stem: str) -> str:
+        return '/'.join(('p', 'memory', f'{stem}.md'))
+    with tempfile.TemporaryDirectory() as tmp:
+        sent, held = Path(tmp) / 'sent', Path(tmp) / 'held'
+        sent.mkdir()
+        held.mkdir()
+        (sent / 'a0.md').write_text('the fact, as the peer holds it\n')
+        (held / 'a0.md').write_text('the fact, as this room holds it\n')
+        for i in range(1, 8):
+            for root in (sent, held):
+                (root / f'a{i}.md').write_text(f'follows [[a{i - 1}]]\n')
+        (sent / 'b.md').write_text('new here, and follows [[a0]]\n')
+        (held / 'c.md').write_text('begun [[a0.peer]]\n')
+        (sent / 'c.md').write_text('begun [[a0]]\ngone on [[a0]]\n')
+        outcomes = []
+        log = transport.Log(transport.LIVE, 'did')
+        for _ in range(2):
+            log = transport.Log(transport.LIVE, 'did')
+            try:
+                harness.merge_memory(sent, held, True, 'peer', log, 'p')
+                outcomes.append({key: sorted(units) for key, units in log.by.items()})
+            except Exception as error:
+                outcomes.append(f'{type(error).__name__}: {error}')
+                break
+        wrote, kept = log.key('wrote'), log.key('kept')
+        chain = [address(f'a{i}') for i in range(1, 8)]
+        first = {wrote: [address('MEMORY'), address('a0'), address('b'), address('c')], kept: chain}
+        second = {kept: sorted([address('a0'), address('b'), address('c'), *chain])}
+        def text(name: str) -> str | None:
+            return (held / name).read_text() if (held / name).is_file() else None
+        written = (text('a0.peer.md'), text('b.md'), text('c.md'))
+        same = (outcomes == [first, second] and written == ('the fact, as the peer holds it\n', 'new here, and follows [[a0.peer]]\n',
+                                                            'begun [[a0.peer]]\ngone on [[a0.peer]]\n'))
+        run("agent: a peer's memory fact is judged against the room's copy alone, and a second receipt writes nothing", same,
+            None if same else f'the two receipts said {outcomes!r}; the twin, the new fact and the extended one hold {written!r}',
+            check='agent.memory_merge_judges_each_fact_alone')
