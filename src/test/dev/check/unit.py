@@ -505,3 +505,28 @@ def check_renamed_checkout(run) -> None:
     owed = said == {'MUST': {'corpus-yoga migration': {facts.REPORTS: {'FAIL: c and d both exist': 1}}}}
     run('migration: a halted script is owed - its FAIL under now: MUST, beneath the noun that reports it', owed,
         None if owed else f'now: says {said!r}', check='migration.renamed_checkout_moves_once')
+
+
+@check(tier='code', says=('agent.offers_only_effective_acts',), on=['src/main/cli/agent'])
+def check_agent_offers(run) -> None:
+    """The agent status offers an install only where its dry run would write something, and
+    never an undo of a merge: an act now: offers has an effect (issues/1058)."""
+    import importlib.util
+    import transport
+    spec = importlib.util.spec_from_file_location('agent_status', SRC / 'main' / 'cli' / 'agent' / 'agent.py')
+    assert spec is not None and spec.loader is not None
+    agent = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(agent)
+    offer = getattr(agent, 'install_act', None)
+    idle, busy = transport.Log(transport.LIVE, 'would'), transport.Log(transport.LIVE, 'would')
+    idle.say('kept', 'p/s.jsonl', {'identical': '1 bytes'}, 'session')
+    busy.say('wrote', 'p/s.jsonl', {'new': '1 bytes'}, 'session')
+    said = (offer('home-room', idle), offer('home-room', busy)) if callable(offer) else None
+    effective = said is not None and said[0] is None and said[1] is not None
+    run('agent: an install is offered only where its dry run would write something', effective,
+        None if effective else 'src/main/cli/agent/agent.py has no install_act(machine, log)' if said is None else f'offered {said!r}',
+        check='agent.offers_only_effective_acts')
+    merge = getattr(agent, 'Merge', None)
+    undone = merge is not None and any(f.name == 'act' for f in __import__('dataclasses').fields(merge))
+    run('agent: no undo of a merge is offered', not undone,
+        None if not undone else 'agent.Merge carries an act - corpus-yoga agent demerge stands in now:', check='agent.offers_only_effective_acts')
