@@ -82,7 +82,7 @@ ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}
 # without this exclusion every run would dirty the sections that read it
 CACHE_PREFIX = 'tmp/cache/test'
 SCHEMA = ['rsc/schema']
-MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections
+MODEL = ['rsc/metamodel']   # the cross-family model: the table, its schema, the join, its kinds, the rejections
 
 SUBJECTS: dict[str, list[str] | str] = {d.name: d.on for d in CHECKS if d.on is not None}   # each check's declared paths (issues/1023)
 

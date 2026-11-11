@@ -1,7 +1,7 @@
 # Schema change workflow
 
 This document covers the end-to-end process for adding or changing a versioned schema.
-Follow it in order. Pre-commit will catch most omissions, but `model_join.csv` review
+Follow it in order. Pre-commit will catch most omissions, but `join.csv` review
 (step 4) is a manual judgement call that automation cannot enforce.
 
 A mint's data evidence - validation logs, observed values, the failing datum's
@@ -32,6 +32,11 @@ exists in the family - when the schema change is:
 
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
+A change to annotations alone - the keywords the grammar
+`rsc/rpus/grammar/JSONSchema/draft04.g4` names in its `annotation` rule, `title` and
+`description` among them, the schemas `definitions` holds excepted - admits what the version
+admitted, and the promotion licence (`src/main/corpus.py`) holds a verdict at the reworded
+version as one at origin/main's; any other refactor licenses its verdicts only once it merges.
 
 That entry goes under the heading of **the latest version** - the one file the family
 holds; an edit to content that older versions also carried names them in prose. The
@@ -40,7 +45,7 @@ end of the file files the note under the *oldest* version instead: done wrongly 
 five families during the 2026-07-23 re-rooting, and caught only by checking placement
 afterwards. Some families pre-seed the section with `None.`; fill that rather than adding a
 second `#### Refactored` under the same version. The `RichLink.source` entry in
-`rsc/schema/pipeline/chat-export/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,
+`rsc/schema/export/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,
 in which versions, "No validation effect", and what was deliberately left untouched.
 
 If a new export or capture fails validation against the current latest version, that is the
@@ -101,12 +106,12 @@ the bulk export's whole array), a **singular** family validates *one unit*
 ### 1. Identify the failure
 
 ```bash
-src/main/pipeline/chat-capture/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
-src/main/pipeline/chat-export/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-src/main/pipeline/code-transport/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
+src/main/browser/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
+src/main/export/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+src/main/agent/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
-(code-transport converts each `.jsonl` before validating, so its runnable unit is the
+(agent converts each `.jsonl` before validating, so its runnable unit is the
 project run.sh; `validate.sh --session` takes the *tmp/cache/* session dir, not data/input/.)
 
 Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
@@ -116,7 +121,7 @@ Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/v
 This is the ONE mint, for every family; what differs per family is where the new
 content comes from (a failing datum; for the house factoring, the reference
 snapshot of step 5), never a second procedure. An upstream reference project under
-`rsc/reference/` does not mint: `corpus-yoga reference sync` holds every lineage
+`rsc/reference/` does not mint: `corpus-yoga reference pull` holds every lineage
 upstream publishes, and a lineage's change is a section of its own changelog
 (step 5).
 
@@ -153,7 +158,7 @@ A definition the root does not reach is declared, never tolerated:
 `structure.all_definitions_reachable` reads `unreachable.csv` (name, reason)
 beside the family's version file and fails on an undeclared unreachable
 definition, on a declared name the root reaches, and on a declared name that is
-no definition. `rsc/schema/pipeline/chat-export/claude/conversations/unreachable.csv` declares
+no definition. `rsc/schema/export/claude/conversations/unreachable.csv` declares
 the three API tool inputs no export has carried;
 `rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
 carries (issues/588).
@@ -163,9 +168,9 @@ carries (issues/588).
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/pipeline/chat-capture/run.sh   --input data/input/claude/chat/API-capture
-src/main/pipeline/chat-export/run.sh    --input data/input/claude/chat/bulk-export
-src/main/pipeline/code-transport/run.sh --input data/input/claude/code/machine-transport
+src/main/browser/run.sh   --input data/input/claude/chat/API-capture
+src/main/export/run.sh    --input data/input/claude/chat/bulk-export
+src/main/agent/run.sh --input data/input/claude/code/machine-transport
 ```
 
 A datum the latest version refuses is, from issues/687, a datum the room has staged and
@@ -220,11 +225,11 @@ a new model id now fails loudly instead of sliding through a bare string). The
 distinction tells a reader whether upgrading re-classifies any existing data or
 only sharpens the frontier.
 
-### 4. Review model_join.csv  ← **do not skip**
+### 4. Review join.csv  ← **do not skip**
 
 Machines now hold part of this step: `identical`/`snake_cased` edges are re-verified
-structurally and falsified ones FAIL every `corpus-yoga model` / pipeline run, as do
-always-null claims the corpus has outgrown (`rsc/model/model_join_kinds.csv` states
+structurally and falsified ones FAIL every `corpus-yoga metamodel` / pipeline run, as do
+always-null claims the corpus has outgrown (`rsc/metamodel/join_kinds.csv` states
 each kind's claim class and who re-verifies it). What stays yours is what no scan can
 do: recognizing cross-NAME counterparts, judging relationships, and the coupling
 foresight of step 3 below.
@@ -235,11 +240,11 @@ proposed by the machine, judgment cells are proposed by the assistant, and the
 maintainer vets the proposals in the PR. A mint whose PR carries no join
 review is incomplete.
 
-Open `rsc/model/model_join.csv` and:
+Open `rsc/metamodel/join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
-   to the repo root (`rsc/schema/pipeline/chat-export/claude/conversations#/definitions/…`,
-   `rsc/schema/pipeline/code-transport/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
+   to the repo root (`rsc/schema/export/claude/conversations#/definitions/…`,
+   `rsc/schema/agent/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
    each fragment spelling the container its family's latest file spells).
    `check_schema_join` resolves a schema family against its LATEST version and a
    reference project against its lineage (`src/main/latest.py`), so a mint costs this file
@@ -248,7 +253,7 @@ Open `rsc/model/model_join.csv` and:
    version-pinned grammar churned dozens of cells per mint, and its bare
    `vN.json#…` session cells contained neither "session" nor a pipeline name —
    invisible to search, which is how a 2026-07-10 review declared the file a
-   no-op while 37 rows needed judgement. `check_model_join_versions` now rejects
+   no-op while 37 rows needed judgement. `check_metamodel_join_versions` now rejects
    any reintroduced pin.)
 
 2. **Update stale notes** — fields that were "always null in observed exports" or
@@ -260,7 +265,7 @@ Open `rsc/model/model_join.csv` and:
 
    The `approval_options`, `approval_key`, `mcp_server_url`, and `IntegrationName`
    fields appeared in *both* `conversations` (v8) and `apiConversation` (v2) and required
-   the same relaxation in the same upgrade cycle. This was visible in model_join.csv
+   the same relaxation in the same upgrade cycle. This was visible in join.csv
    *after the fact* — the goal is to catch it *before* committing only one side.
 
 4. **Add new rows** for any new definitions that have counterparts in other schemas.
@@ -271,7 +276,7 @@ Open `rsc/model/model_join.csv` and:
 
    ```bash
    src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-                            # check_model_join_versions: no version-pinned cells
+                            # check_metamodel_join_versions: no version-pinned cells
    ```
 
 ### 5. Check rsc/reference
@@ -280,7 +285,7 @@ Open `rsc/model/model_join.csv` and:
 per upstream project and one directory per lineage upstream publishes, named as
 upstream names it (issues/587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
 the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
-`corpus-yoga mcp sync`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
+`corpus-yoga mcp derive`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
 and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
 into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
 `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
@@ -296,13 +301,13 @@ sha256), and the reference declaration (`rsc/reference/mcp/reference.json`,
 `rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream
 publishes lineages as a listing (mcp's dated `schema/` directory), the listing URL
 and the files each lineage holds. Nothing here is a schema family: no datum
-validates against it, no house diagnostic runs over it, and `rsc/model/model_join.csv`
+validates against it, no house diagnostic runs over it, and `rsc/metamodel/join.csv`
 reaches it by the same family-dir grammar as any schema
 (`rsc/reference/mcp#/$defs/…`, resolved against the newest lineage).
 
 `corpus-yoga reference` is the currency check: per project, what upstream lists
 against what is held, and whether every held file's live bytes still hash as
-pinned - a send, UNVERIFIED under `CORPUS_YOGA_NO_SEND=1`. `corpus-yoga reference sync`
+pinned - a send, UNVERIFIED under `CORPUS_YOGA_NO_SEND=1`. `corpus-yoga reference pull`
 fetches every lineage not held and every file that drifted, and writes the
 provenance rows; the lineage's changelog section (`## <pin>`) is the hand act.
 `corpus-yoga test run` holds the hermetic residue (`check_reference`): the committed
@@ -312,12 +317,12 @@ pin has its changelog section (`reference.lineage_changelog`). Every house schem
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
 `rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a
-committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
+committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/factoring.py`)
 generates its latest version from upstream's `schema.ts` alone - every declaration
 read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
 shape upstream's generator would give it, one stated rule per TypeScript form
-(`src/main/mcp/mcp_generation.py`), composed over the extends clauses and tagged by
-the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two tables
+(`src/main/mcp/generation.py`), composed over the extends clauses and tagged by
+the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two tables
 faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
 beside the version file: `rsc/schema/mcp/mcpMessage/description.csv` (house
 text for the definitions schema.ts leaves without a JSDoc),
@@ -336,7 +341,7 @@ from the constant schema.ts exports). Every definition's description ends with i
 layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
 definition the rule cannot place, or an addition row that fits neither reading,
 refuses the derivation. The sync also writes the factoring's two faces under
-`tmp/cache/mcp/` (`src/main/mcp/mcp_face.py`, issues/605): the consumer face, every
+`tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every
 definition flat and open, which a party validates what it receives against, and
 the producer face, flat and closed, which it validates what it sends against -
 each holding its law by construction, and each held derivable and valid draft-04
@@ -348,7 +353,7 @@ counterpart resolved and normalized, the declared additions set back
 (`mcp.lineages_parse`). Its history lives in
 `rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
 (issues/583): whenever the derivation differs from the latest version file - upstream
-moved, or the house rules did - `corpus-yoga mcp sync` prints the diff and writes the
+moved, or the house rules did - `corpus-yoga mcp derive` prints the diff and writes the
 next version in place of the current one, by plain file operations; a version of
 this family means that the derivation's output changed, and its changelog section
 is written by hand from that diff, owed at the commit gate by
@@ -359,45 +364,45 @@ schema.ts uses it, and a result union no message carries - a party's
 results where upstream declares no requests for the other party (issues/588) - stands
 unreachable, declared in `unreachable.csv`.
 
-### 6. Dispose the model.json obligations
+### 6. Dispose the metamodel.json obligations
 
-`rsc/model/model.json` is the hand-curated cross-family type reference - a table of
+`rsc/metamodel/metamodel.json` is the hand-curated cross-family type reference - a table of
 shared types (name, description, occurrences by family), validated by the dev gate
-against the row shape beside it, `rsc/model/model.schema.json` (`model.table_valid`,
+against the row shape beside it, `rsc/metamodel/metamodel.schema.json` (`model.table_valid`,
 issues/591) - under the `curate` disposal discipline (issues/19; rsc/CALCULUS.md) as TWO
-loops with different pressure, both computed by `src/main/model/model_curation.py`
+loops with different pressure, both computed by `src/main/metamodel/curation.py`
 from committed files only:
 
-- **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
+- **leisurely, advisory → `join.csv`**: the naive name scan (definition names in
   ≥2 families' latest versions) surfaces SHARED NAMES — the question, of which
-  `name_collision` (the false friend) is one possible answer — and `corpus-yoga model sync`
-  renders them pre-filled at `tmp/cache/model/shared_name_candidates.csv` (path cells
+  `name_collision` (the false friend) is one possible answer — and `corpus-yoga metamodel derive`
+  renders them pre-filled at `tmp/cache/metamodel/shared_name_candidates.csv` (path cells
   computed; `identical` proposed where the shapes are structurally equal, editable);
-  a human disposes each by pasting the row into `model_join.csv` with its
+  a human disposes each by pasting the row into `join.csv` with its
   `relationship` kind, so an "ignore" is a row too and zero means disposed. The kinds
-  are declared data — `rsc/model/model_join_kinds.csv`, each with its claim class —
+  are declared data — `rsc/metamodel/join_kinds.csv`, each with its claim class —
   and the gate holds every row to them (`model.join_kind_declared`). Anyone, anytime,
   no gate pressure on the disposals themselves.
-- **blocking, gated `model_join` ↔ `model.json`**: an edge whose kind asserts one shared
-  type (`identical`, `snake_cased`) obligates `model.json` — the type is DOCUMENTED
-  there or REJECTED with a reason in `rsc/model/model_rejected.txt` — and every
+- **blocking, gated `join` ↔ `metamodel.json`**: an edge whose kind asserts one shared
+  type (`identical`, `snake_cased`) obligates `metamodel.json` — the type is DOCUMENTED
+  there or REJECTED with a reason in `rsc/metamodel/rejected.txt` — and every
   documented type must be grounded by such an edge (no orphan documentation).
-  `check_model_obligations` gates both directions of the one grounding relation (by
+  `check_metamodel_obligations` gates both directions of the one grounding relation (by
   containing-definition name, or by property trail for inline field types like the
-  account uuid), so the invariant is an equality: model.json documents exactly the
-  shared types model_join asserts, minus rejections. An undocumented asserted identity —
+  account uuid), so the invariant is an equality: metamodel.json documents exactly the
+  shared types join asserts, minus rejections. An undocumented asserted identity —
   or a documented type no edge asserts — is a defect, not a queue.
 
 After schema changes:
 
 ```bash
-corpus-yoga model sync   # regenerate the per-schema catalogues (the review aid)
-corpus-yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
+corpus-yoga metamodel derive   # regenerate the per-schema catalogues (the review aid)
+corpus-yoga metamodel        # both loops in numbers: obligations (gating) and unrecorded collisions
 ```
 
 This step is falsifiable, not "if needed". Occurrence paths use the de-versioned
-family-dir grammar (`chat-export/conversations`, resolved against the family's latest
-version — `model_join.csv`'s grammar), and `check_model_occurrences` gates both the
+family-dir grammar (`export/conversations`, resolved against the family's latest
+version — `join.csv`'s grammar), and `check_metamodel_occurrences` gates both the
 grammar and that every instance pointer still resolves — a mint that renames a
 documented field fails there, the review prompt.
 

@@ -15,7 +15,7 @@ stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the scratch tiers, so
 it judges the staged units alone and writes the scratch and the record alone.
 
-UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipeline.json):
+UNIT - what a pipeline's declaration selects (src/main/<pipeline>/pipeline.json):
 under the declared input of each provider, every match of input_glob or extra_input_glob,
 cut to subject_depth, is one unit - a directory with everything under it, or a file with
 its declared companion (<stem> standing for the file's stem: claude's workspace <stem>/
@@ -73,6 +73,7 @@ break L6 as effects.writers_disjoint holds it. Each noun's bare status,
 bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 """
 import argparse
+import functools
 import hashlib
 import json
 import re
@@ -90,6 +91,7 @@ import facts  # the one printer of a status's facts (issues/740)
 import provider as registry  # the provider registry, one home of a provider's id shape (issues/994)
 import spell
 import rehearsal  # the rehearsal record, one home (issues/815)
+import schema_walk
 import tier  # the tiers, one home (issues/702)
 
 SELF = 'src/main/corpus.py'
@@ -101,7 +103,7 @@ REPO = _root[0]
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)
 STORE = tier.DATA / 'input'
-PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
+PIPELINE_ROOT = REPO / 'src' / 'main'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
 NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote
 
@@ -389,9 +391,9 @@ def _words_whole(staged, held, unit: Unit) -> str:
 
 
 def _export_atoms():
-    """The bulk export's measure, src/main/pipeline/chat-export/atoms.py, loaded where it lives (issues/743)."""
+    """The bulk export's measure, src/main/export/atoms.py, loaded where it lives (issues/743)."""
     import importlib.util
-    spec = importlib.util.spec_from_file_location('chat_export_atoms', PIPELINE_ROOT / 'chat-export' / 'atoms.py')
+    spec = importlib.util.spec_from_file_location('chat_export_atoms', PIPELINE_ROOT / 'export' / 'atoms.py')
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -447,17 +449,33 @@ def relation(unit: Unit) -> tuple[Relation, str]:
 
 # -- verdict -------------------------------------------------------------------------------
 
-SCHEMA_ROOT = 'rsc/schema/pipeline'   # <pipeline>/<family as the pipeline declares it>/<version>.json
+SCHEMA_ROOT = 'rsc/schema'   # <pipeline>/<family as the pipeline declares it>/<version>.json
 
 
 def family_dir(pipeline: str, family: str) -> str:
     return f'{SCHEMA_ROOT}/{pipeline}/{family}'
 
 
+@functools.cache
+def _main_addresses() -> dict[str, str]:
+    """Each family directory of this checkout that origin/main holds at another address, by
+    git's rename detection between origin/main and HEAD: {here: there}."""
+    out = subprocess.run(['git', '-C', str(REPO), 'diff', '-M', '--name-status', '--diff-filter=R', 'origin/main', 'HEAD', '--', SCHEMA_ROOT],
+                         capture_output=True, text=True).stdout
+    moved: dict[str, str] = {}
+    for line in out.splitlines():
+        parts = line.split('\t')
+        if len(parts) == 3:
+            moved.setdefault(parts[2].rsplit('/', 1)[0], parts[1].rsplit('/', 1)[0])
+    return moved
+
+
 def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str | None]:
-    """The digest of origin/main's latest version file of a family, and the version's name;
-    None and None where origin/main holds no version of the family at all."""
-    fam_dir = family_dir(pipeline, family)
+    """The restriction digest of origin/main's latest version file of a family, found where
+    origin/main holds it, and the version's name; None and None where origin/main holds no
+    version of the family at all."""
+    here = family_dir(pipeline, family)
+    fam_dir = _main_addresses().get(here, here)
     ls = subprocess.run(['git', '-C', str(REPO), 'ls-tree', '--name-only', 'origin/main', fam_dir + '/'],
                         capture_output=True, text=True).stdout.split()
     versions = sorted((v for v in ls if v.rsplit('/', 1)[-1].startswith('v') and v.endswith('.json')),
@@ -465,7 +483,17 @@ def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str | N
     if not versions:
         return None, None
     blob = subprocess.run(['git', '-C', str(REPO), 'show', f'origin/main:{versions[-1]}'], capture_output=True).stdout
-    return _digest(blob), versions[-1].rsplit('/', 1)[-1][:-5]
+    return schema_walk.restriction_digest(blob), versions[-1].rsplit('/', 1)[-1][:-5]
+
+
+def _judged_digest(pipeline: str, family: str, version: str, schema_sha256: str) -> str | None:
+    """The restriction digest of the version file a verdict was taken against, where this
+    checkout holds those bytes; None where it holds other bytes at that address, or none."""
+    path = REPO / family_dir(pipeline, family) / f'{version}.json'
+    if not path.is_file():
+        return None
+    data = path.read_bytes()
+    return schema_walk.restriction_digest(data) if _digest(data) == schema_sha256 else None
 
 
 def own_digests(unit: Unit) -> set[str]:
@@ -506,7 +534,7 @@ class Refusal:
     """A family's verdict against a unit: the pipeline, the family and version, the reason,
     and where the record holds them (issues/952) the fault's instance path, the rule it
     fails and the schema node. Its address is the version file's path under
-    rsc/schema/pipeline, the one home the first three have."""
+    rsc/schema, the one home the first three have."""
     pipeline: str
     family: str
     version: str
@@ -556,13 +584,17 @@ def family_of(unit: Unit, leaf: str) -> str:
 
 
 def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None = None,
-            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None
+            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None,
+            judged_digest: Callable[[str, str, str, str], str | None] | None = None
             ) -> tuple[Judgement, str, Refusal | None]:
     """What the pipelines have found of the staged unit at origin/main's versions, read
     from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where
     a family refused the unit, the refusal as data - the family, the version and the
     reason - from which the words derive. The record, the unit's own digests and
-    origin/main's schema digests are read where not given."""
+    origin/main's schema digests are read where not given. A verdict is origin/main's where
+    the version it was taken at and origin/main's latest admit alike - their restrictions
+    equal, wherever origin/main holds the family - so a version reworded or moved in place
+    keeps its verdicts."""
     if unit.pipeline is None:
         return Judgement.NONE, facts.phrase('no pipeline selects it - promoted on its relation alone'), None
     judges = judges_of(unit)
@@ -586,6 +618,7 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                                                   stamp=stamp), None
     converted = seen.get('source') in own
     main_digest = _main_schema_digest if main_digest is None else main_digest
+    judged_digest = _judged_digest if judged_digest is None else judged_digest
     words = []
     for family, one in sorted(seen['verdicts'].items()):
         version = one['version']
@@ -593,7 +626,12 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
             return Judgement.CHANGED, facts.phrase('the verdict at {family} is on other bytes than this staged unit',
                                                      family=family), None
         digest, main_version = main_digest(unit.pipeline, family)
-        if digest is None or one['schema_sha256'] != digest:
+        judged = judged_digest(unit.pipeline, family, version, one['schema_sha256'])
+        if judged is None:
+            return Judgement.UNJUDGED, facts.phrase(
+                'the verdict at {family} {version} is on a schema this checkout no longer holds - rehearse again',
+                family=family, version=version), None
+        if digest is None or judged != digest:
             if main_version == version:
                 return Judgement.UNJUDGED, facts.phrase(
                     'the verdict at {family} {version} is against a schema origin/main does not hold',
@@ -1017,7 +1055,7 @@ def human(n: float) -> str:
 
 
 BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before issues/815 left: stamped rehearsals, or the record before its extension
-MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration sync takes
+MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration apply takes
 
 
 def orphans() -> list[Path]:
@@ -1099,7 +1137,7 @@ class StageStatus:
     reads both, says what to run next."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
-    invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
+    invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema, then the reason: how many
     unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (issues/867)
 
 
@@ -1129,7 +1167,7 @@ def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (issues/741, issues/759, issues/822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
-    invalid by the version file that found it so - its path, relative to rsc/schema/pipeline,
+    invalid by the version file that found it so - its path, relative to rsc/schema,
     which the declaration's explanation names once - by the reason with how many carry it,
     then what is valid at a version origin/main does not hold, unlicensed there. What
     follows an invalid verdict and where its whole
@@ -1151,7 +1189,7 @@ def stage_facts() -> StageStatus:
                                          if BEFORE_815.is_dir() else
                                          'the record before its name carried its extension, which a record at its name supersedes (issues/815) - {migration} removes it',
                                          migration=MIGRATION_815),
-                          facts.Would(spell.line('migration', 'sync'), {BEFORE_815.relative_to(REPO).as_posix(): 1}))
+                          facts.Would(spell.line('migration', 'apply'), {BEFORE_815.relative_to(REPO).as_posix(): 1}))
                    if BEFORE_815.exists() else None)))
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
@@ -1497,7 +1535,7 @@ class Staged:
     words, and the rehearsal that saw it - the stage's facts, nothing of the store (issues/842)."""
     judged: str
     verdict: str | None = None
-    invalid: dict[str, str | dict[str, str]] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the fault - its path, rule and schema node, or the reason alone
+    invalid: dict[str, str | dict[str, str]] | None = None    # the version file that found it so, by its path under rsc/schema, and the fault - its path, rule and schema node, or the reason alone
     unlicensed: dict[str, str] | None = None    # valid at a version origin/main does not hold: that version file, by its path, and the reason
     rehearsal: str | None = None
     remedy: facts.Acts | None = None        # the workflow's acts on it, where one does (issues/1028)

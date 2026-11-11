@@ -1,0 +1,27 @@
+{
+  "help": "adopt a machine proposal - the pre-filled row lands in rsc/metamodel/join.csv with its proposed kind",
+  "would": "would adopt",
+  "args": [
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "",
+      "help": "adopt every proposal-bearing row of the worksheet as read - refused if the worksheet moved since corpus-yoga metamodel derive rendered it"
+    },
+    {
+      "name": "name",
+      "type": "<shared-name>",
+      "cardinality": "",
+      "help": "the shared definition name to adopt (or --all for the queue as read)"
+    }
+  ],
+  "r": [
+    "rsc/schema",
+    "rsc/metamodel",
+    "tmp/cache"
+  ],
+  "w": [
+    "rsc/metamodel/join.csv",
+    "tmp/cache/metamodel"
+  ]
+}

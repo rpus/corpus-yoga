@@ -5,7 +5,7 @@
 # the table; `corpus-yoga <command> --help` asks the target itself.
 #
 # Every python here runs in the venv (issues/478): the launcher refuses without it,
-# naming the mint — src/main/cli/status/status.sh sync --apply,
+# naming the mint — src/main/cli/status/status.sh satisfy --apply,
 # the one place the name python3 survives. cli.py stays stdlib-only, so the
 # surface never depends on what pip installed; the venv supplies the
 # interpreter, never imports.

@@ -15,7 +15,7 @@ import cache_io
 import cli
 
 
-@check(tier='code', on=['src/main/corpus.py', 'src/main/pipeline'], says=(
+@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=(
     'pipeline.every_provider_is_judged',
 ))
 def check_providers_judged(run) -> None:
@@ -45,13 +45,13 @@ def check_declared_families_judge(run) -> None:
     judged: dict[str, list[str]] = {}
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
-        code = next(s for s in corpus.stores() if s.pipeline == 'code-transport' and s.provider == 'claude')
+        code = next(s for s in corpus.stores() if s.pipeline == 'agent' and s.provider == 'claude')
         (root / code.input / 'room' / 'project' / 'memory').mkdir(parents=True)
         (root / code.input / 'room' / 'project' / 'memory' / 'MEMORY.md').write_text('# index\n')
         (root / code.input / 'room' / 'project' / 'session.jsonl').write_text('{}\n')
         for unit in corpus.select(root, code):
             judged[unit.kind] = corpus.judges_of(unit)
-        chat = next(s for s in corpus.stores() if s.pipeline == 'chat-capture' and s.provider == 'gemini')
+        chat = next(s for s in corpus.stores() if s.pipeline == 'browser' and s.provider == 'gemini')
         (root / chat.input).mkdir(parents=True)
         (root / chat.input / 'ordering.txt').write_text('a\n')
         for unit in corpus.select(root, chat):
@@ -71,8 +71,8 @@ def check_declared_families_judge(run) -> None:
             partial[name] = sorted(set(declared['schemas']) ^ named)
     run('pipeline: every family a pipeline declares judges some kind of its unit, and no other family does', not partial,
         None if not partial else f'declared and judging differ by {partial}', check='pipeline.families_are_total')
-    validate = SRC / 'main' / 'pipeline' / 'code-transport' / 'validate.sh'
-    schema_root = 'rsc/schema/pipeline/code-transport/'
+    validate = SRC / 'main' / 'agent' / 'validate.sh'
+    schema_root = 'rsc/schema/agent/'
     enumerated: dict[str, list[str]] = {}
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
@@ -86,9 +86,9 @@ def check_declared_families_judge(run) -> None:
                 schema = line.split('\t')[1]
                 families.append(schema.split(schema_root, 1)[1].rsplit('/', 1)[0])
             enumerated[f'{provider}/{kind}'] = families
-    declared_families = {f'{store.provider}/{g.kind}': list(g.families) for store in corpus.stores() if store.pipeline == 'code-transport' for g in store.globs}
+    declared_families = {f'{store.provider}/{g.kind}': list(g.families) for store in corpus.stores() if store.pipeline == 'agent' for g in store.globs}
     same = enumerated == declared_families
-    run('pipeline: the code-transport validate step validates each kind of unit against exactly its declared families', same,
+    run('pipeline: the agent validate step validates each kind of unit against exactly its declared families', same,
         None if same else f'the step enumerates {enumerated}, where the declaration names {declared_families}', check='pipeline.validate_step_judges_the_declared_families')
 
 
@@ -130,7 +130,7 @@ def check_cache_io(run) -> None:
             'READ but not WRITTEN — a tmp/cache/ dependency nothing produces; name its '
             'producer in written_by, or the tmp/cache/ contract breaks' if read_no_writer else None, check='cache_io.read_implies_writer')
         # Every producer/reader RESOLVES — a rename that strands one (how
-        # tmp/cache/chat-capture/markdown happened) fails here, not silently.
+        # tmp/cache/browser/markdown happened) fails here, not silently.
         unresolved = [e for e in r['written_by'] + r['read_by']
                       if not _cache_io_resolves(e, commands)]
         run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,
@@ -139,7 +139,7 @@ def check_cache_io(run) -> None:
 
 @check(tier='code', says=('accumulate.trajectory_contract',), on=['src'])
 def check_accumulate_contract(run) -> None:
-    """The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
+    """The shared accumulate operation (src/main/export/accumulate.py) obeys
     the contract rsc/CALCULUS.md states: deposit iff
     the content differs from the NEAREST EARLIER deposit, so the store records a
     trajectory, not a set. The design turns on cases a byte-set would get wrong —
@@ -270,7 +270,7 @@ def check_capture_monotone(run) -> None:
         safari.DOWNLOADS = real_downloads
 
 
-@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/pipeline', 'src/main/model'], says=(
+@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main/export', 'src/main/agent', 'src/main/project_markdown.py', 'src/main/compare_sources.py', 'src/main/frontier.py', 'src/main/present_corpus.py', 'src/main/rekey_chats.py', 'src/main/corpus_shape.sh', 'src/main/compare_pages.py'], says=(
     'markdown.turn_count_in_frontmatter',
     'markdown.turns_parse_in_sequence',
 ))

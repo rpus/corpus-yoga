@@ -1,0 +1,2492 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "session",
+  "description": "Schema for Claude Code CLI session transcripts, as produced at ~/.claude/projects/{project}/{session}.jsonl and converted to a JSON array (one object per line becomes one array element). The format is Claude Code's internal session log, distinct from the claude.ai export format (conversations.json). The core content block model (text, tool_use, tool_result, thinking) is shared with the Anthropic API; the session envelope (parentUuid, isSidechain, cwd, gitBranch, entrypoint, permissionMode, etc.) is Claude Code CLI-specific.",
+  "allOf": [
+    {
+      "$ref": "#/definitions/Session"
+    }
+  ],
+  "definitions": {
+    "Session": {
+      "title": "Session",
+      "description": "An ordered sequence of session records produced by one Claude Code CLI session, converted from .jsonl to a JSON array (one record per element).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Record"
+      }
+    },
+    "Record": {
+      "title": "Record",
+      "description": "One line of a .jsonl session file. Discriminated by the top-level type field.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UserTurn"
+        },
+        {
+          "$ref": "#/definitions/AssistantTurn"
+        },
+        {
+          "$ref": "#/definitions/AttachmentRecord"
+        },
+        {
+          "$ref": "#/definitions/SystemRecord"
+        },
+        {
+          "$ref": "#/definitions/QueueOperation"
+        },
+        {
+          "$ref": "#/definitions/PermissionModeRecord"
+        },
+        {
+          "$ref": "#/definitions/LastPromptRecord"
+        },
+        {
+          "$ref": "#/definitions/FileHistorySnapshot"
+        },
+        {
+          "$ref": "#/definitions/FileHistoryDelta"
+        },
+        {
+          "$ref": "#/definitions/AiTitleRecord"
+        },
+        {
+          "$ref": "#/definitions/ModeRecord"
+        },
+        {
+          "$ref": "#/definitions/PrLinkRecord"
+        },
+        {
+          "$ref": "#/definitions/FrameLinkRecord"
+        },
+        {
+          "$ref": "#/definitions/AtisLatchRecord"
+        },
+        {
+          "$ref": "#/definitions/BridgeSessionRecord"
+        },
+        {
+          "$ref": "#/definitions/ArtifactCommentMonitorRecord"
+        },
+        {
+          "$ref": "#/definitions/ArtifactAutoreactLedgerRecord"
+        },
+        {
+          "$ref": "#/definitions/CostStateRecord"
+        },
+        {
+          "$ref": "#/definitions/ToolsUsedRecord"
+        },
+        {
+          "$ref": "#/definitions/SessionOwnerRecord"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestShapeRecord"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestBlobRecord"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestRecord"
+        }
+      ]
+    },
+    "HasTypeDiscriminatorProperty": {
+      "title": "HasTypeDiscriminatorProperty",
+      "description": "Asserts that the type discriminator field is present and is a string.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "(discriminator)"
+        }
+      }
+    },
+    "UserTurn": {
+      "title": "UserTurn",
+      "description": "A user message turn. Contains the user's prompt content and optional metadata about how it was submitted.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TurnBase"
+        },
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UserTurnType"
+        }
+      ]
+    },
+    "AssistantTurn": {
+      "title": "AssistantTurn",
+      "description": "An assistant message turn. Contains the assistant's response content.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TurnBase"
+        },
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/AssistantTurnType"
+        }
+      ]
+    },
+    "AttachmentRecord": {
+      "title": "AttachmentRecord",
+      "description": "A file or data attachment submitted alongside a turn. Shares the turn envelope fields (uuid, sessionId, timestamp, etc.).",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TurnBase"
+        },
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/AttachmentRecordType"
+        }
+      ]
+    },
+    "SystemRecord": {
+      "title": "SystemRecord",
+      "description": "A system-generated event record. Shares the turn envelope. Discriminated further by the subtype field.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TurnBase"
+        },
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/SystemRecordType"
+        }
+      ]
+    },
+    "QueueOperation": {
+      "title": "QueueOperation",
+      "description": "A session lifecycle event recording when a session was added to or removed from the prompt queue. These records bracket the conversational turns.",
+      "type": "object",
+      "required": [
+        "type",
+        "operation",
+        "sessionId",
+        "timestamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "queue-operation"
+          ],
+          "description": "(discriminator)"
+        },
+        "operation": {
+          "$ref": "#/definitions/QueueOperationName"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "content": {
+          "description": "Optional payload. Observed as a plain string (the prompt text) on some enqueue records.",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Why the operation happened, on remove (2.1.263 onward). Observed value: \"absorbed_mid_turn\".",
+          "type": "string"
+        },
+        "commandUuid": {
+          "description": "The command the removed prompt belonged to (2.1.289 onward), on remove with reason absorbed_mid_turn. Observed with deliveryId on every such record of reading-room's session from 2026-10-06. Undeclared before v20.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "deliveryId": {
+          "description": "The delivery of the removed prompt (2.1.289 onward), beside commandUuid. Undeclared before v20.",
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "PermissionModeRecord": {
+      "title": "PermissionModeRecord",
+      "description": "Records the active permission mode at a point in the session.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "permissionMode"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "permission-mode"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "permissionMode": {
+          "description": "The permission mode in effect. Observed value: \"default\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "LastPromptRecord": {
+      "title": "LastPromptRecord",
+      "description": "Records the text and position of the most recent user prompt. Updated after each user turn.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "lastPrompt"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "last-prompt"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "lastPrompt": {
+          "description": "The text of the most recent user prompt.",
+          "type": "string"
+        },
+        "leafUuid": {
+          "description": "UUID of the most recent turn in the conversation at the time this record was written. Absent in some observed records.",
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "FileHistorySnapshot": {
+      "title": "FileHistorySnapshot",
+      "description": "A snapshot of file edit state, linking this session to the ~/.claude/file-history/ directory. Written when Claude edits a file (isSnapshotUpdate: false) or when an existing snapshot is updated (isSnapshotUpdate: true).",
+      "type": "object",
+      "required": [
+        "type",
+        "messageId",
+        "isSnapshotUpdate"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "file-history-snapshot"
+          ],
+          "description": "(discriminator)"
+        },
+        "messageId": {
+          "description": "UUID of the turn that triggered this snapshot.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "isSnapshotUpdate": {
+          "description": "False when this record introduces a new snapshot; true when updating an existing one.",
+          "type": "boolean"
+        },
+        "snapshot": {
+          "$ref": "#/definitions/FileHistorySnapshotPayload"
+        }
+      }
+    },
+    "FileHistoryDelta": {
+      "title": "FileHistoryDelta",
+      "description": "One tracked file's backup, recorded at edit time and linked to its owning FileHistorySnapshot \u2014 the per-file sibling the harness began writing alongside snapshots (first observed 2026-07-14: 10 records in one session, every snapshotMessageId resolving to a file-history-snapshot in the same log). All six fields present in every observed record, so all required; closed.",
+      "type": "object",
+      "required": [
+        "type",
+        "messageId",
+        "snapshotMessageId",
+        "trackingPath",
+        "backup",
+        "timestamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "file-history-delta"
+          ],
+          "description": "(discriminator)"
+        },
+        "messageId": {
+          "description": "UUID of the turn whose edit this delta records.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "snapshotMessageId": {
+          "description": "messageId of the owning file-history-snapshot record (resolves within the same session in all observed records).",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "trackingPath": {
+          "description": "Path of the edited file: relative to the session cwd for in-repo edits (example: \"src/main/model/serve_markdown.py\"); absolute when the file lives outside the cwd (observed 2026-07-21: a memory fact under ~/.claude/projects/, the record that also carries backup.realParentDir).",
+          "type": "string"
+        },
+        "backup": {
+          "$ref": "#/definitions/FileHistoryBackup"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      }
+    },
+    "AiTitleRecord": {
+      "title": "AiTitleRecord",
+      "description": "The current user-visible title of the session. Written repeatedly as a heartbeat throughout the session (observed ~299 times in a 4868-record session). Initially generated by Claude Code; updated when Claude Code retitles mid-session or when the user renames via the VS Code UI. All sources write the same record type with no distinguishing field. Last record wins \u2014 this is the currentSessionTitle.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "aiTitle"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ai-title"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "aiTitle": {
+          "description": "The current session title. Despite the field name, not exclusively AI-generated \u2014 also set by user rename in VS Code. Last-wins across all ai-title records in the session.",
+          "type": "string"
+        }
+      }
+    },
+    "ModeRecord": {
+      "title": "ModeRecord",
+      "description": "Records the interaction mode at a point in the session. Observed with type: \"mode\", mode: \"normal\". Written alongside other session lifecycle records.",
+      "type": "object",
+      "required": [
+        "type",
+        "mode",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "mode"
+          ],
+          "description": "(discriminator)"
+        },
+        "mode": {
+          "description": "The interaction mode. Observed value: \"normal\". Likely an open set.",
+          "type": "string"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "PrLinkRecord": {
+      "title": "PrLinkRecord",
+      "description": "Links the session to a GitHub pull request it created or updated. First observed 2026-07-05, when Claude Code raised this repo's own pull/1-pull/3 \u2014 the session outgrew its schema by acting on the repo that schemas it. Written repeatedly while the PR context is active (heartbeat-style, like ai-title: 59 records across 3 PRs observed in one session, each with a fresh timestamp). All six fields present in every observed record.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "prNumber",
+        "prUrl",
+        "prRepository",
+        "timestamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "pr-link"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "prNumber": {
+          "description": "The pull request number within prRepository.",
+          "type": "integer"
+        },
+        "prUrl": {
+          "description": "Canonical GitHub URL of the pull request. Example: \"https://github.com/rpus/claude-export-yoga/pull/1\".",
+          "type": "string"
+        },
+        "prRepository": {
+          "description": "The repository as \"owner/name\". Example: \"rpus/claude-export-yoga\".",
+          "type": "string"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        }
+      }
+    },
+    "FrameLinkRecord": {
+      "title": "FrameLinkRecord",
+      "description": "Links the session to a web Artifact it published, or counts the artifacts it has published. Two shapes under one type, both observed: the publish record (path, frameUrl, timestamp, and from v8 title), one per publish or redeploy, first observed 2026-07-07 in the session that composed the rpus.co/yoga landing page - the sibling of PrLinkRecord (v5); and from 2026-09-02 (observed reading-room, 336 records of one session) the count record, timestamp and artifactCount alone, written as the session's artifacts are counted. path and frameUrl travel together: the dependency below holds the pair; a record with neither a path nor an artifactCount has not been observed.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "timestamp"
+      ],
+      "additionalProperties": false,
+      "dependencies": {
+        "path": [
+          "frameUrl"
+        ],
+        "frameUrl": [
+          "path"
+        ]
+      },
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "frame-link"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "path": {
+          "description": "Absolute local path of the source file that was published \u2014 a machine-specific fact (both observed records name a scratchpad path that dies with its session host).",
+          "type": "string"
+        },
+        "frameUrl": {
+          "description": "The published Artifact URL. Stable across redeploys of the same artifact: both observed records carry the same URL, one per publish. Example: \"https://claude.ai/code/artifact/088fe0a6-194e-49c8-a664-e95f67c6bd4d\".",
+          "type": "string"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "title": {
+          "description": "The artifact's display title as published. Observed 2026-07-09 in the one record written since (an Artifact publish carrying an explicit page title); the two earlier records lack the field, so it is optional.",
+          "type": "string"
+        },
+        "artifactCount": {
+          "description": "How many artifacts the session had published when the record was written (from 2026-09-02, observed reading-room): the count record carries it alone, and a publish record may carry it beside the link. Observed value: 1.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "AtisLatchRecord": {
+      "title": "AtisLatchRecord",
+      "description": "A session-scoped lifecycle record of the ModeRecord family (type, one string, sessionId; no timestamp), written by Claude Code 2.1.234 and later. First observed 2026-08-19T09:53Z in reading-room session 5c631cf4 (70 records in the one session, none in home-room's store as of 2026-08-22). What the harness means by atis is not stated anywhere the corpus holds; every observed record carries the empty string. Closed to other keys, so the next key the harness adds fails loudly by name.",
+      "type": "object",
+      "required": [
+        "type",
+        "atis",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "atis-latch"
+          ],
+          "description": "(discriminator)"
+        },
+        "atis": {
+          "description": "The latched value. Observed only as the empty string; the set is open.",
+          "type": "string"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "BridgeSessionRecord": {
+      "title": "BridgeSessionRecord",
+      "description": "The VS Code bridge's binding of this session to a bridge session (Claude Code 2.1.263 onward, observed home-room 2026-09-15): written at the start of the log and again as the bridge resumes, carrying the bridge session id, the last sequence number the bridge had ingested, and the owning account and organisation. All five fields present on every observed record.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "sessionId",
+        "bridgeSessionId",
+        "lastSequenceNum",
+        "ownerAccountUuid",
+        "ownerOrganizationUuid"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "bridge-session"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "bridgeSessionId": {
+          "description": "The bridge session id, prefixed cse_. One value across every record of the observed session.",
+          "type": "string"
+        },
+        "lastSequenceNum": {
+          "description": "The last sequence number the bridge had ingested when the record was written: 0 at the start, rising through the session.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "ownerAccountUuid": {
+          "description": "The account that owns the bridge session.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "ownerOrganizationUuid": {
+          "description": "The organisation that owns the bridge session.",
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "ArtifactCommentMonitorRecord": {
+      "title": "ArtifactCommentMonitorRecord",
+      "description": "The harness's record of the artifacts this session watches for comments (Claude Code 2.1.258 onward, observed reading-room 2026-09-15): a versioned map from artifact uuid to its monitor entry, rewritten as the watch changes. All four fields present on every observed record.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "v",
+        "sessionId",
+        "artifacts"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "artifact-comment-monitor"
+          ],
+          "description": "(discriminator)"
+        },
+        "v": {
+          "description": "The record format's own version. Observed value: 1.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "artifacts": {
+          "description": "The watched artifacts, keyed by artifact uuid.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArtifactMonitorEntry"
+          }
+        }
+      }
+    },
+    "ArtifactAutoreactLedgerRecord": {
+      "title": "ArtifactAutoreactLedgerRecord",
+      "description": "The harness's ledger of automatic replies on the artifacts this session published (Claude Code 2.1.258 onward, observed reading-room 2026-09-15): a versioned map from artifact uuid to its ledger entry, with the owning account. All five fields present on every observed record.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "v",
+        "sessionId",
+        "accountUuid",
+        "artifacts"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "artifact-autoreact-ledger"
+          ],
+          "description": "(discriminator)"
+        },
+        "v": {
+          "description": "The record format's own version. Observed value: 1.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "accountUuid": {
+          "description": "The account that owns the ledger.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "artifacts": {
+          "description": "The ledgered artifacts, keyed by artifact uuid.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ArtifactLedgerEntry"
+          }
+        }
+      }
+    },
+    "CostStateRecord": {
+      "title": "CostStateRecord",
+      "description": "The session's running cost and effort totals, written by Claude Code 2.1.283 and later. Observed reading-room in session be12fa7c-664e-42b8-b6e3-60af1409c6f8: three records by 2026-09-28, their totals 0 and modelUsage empty, differing only in totalDuration, and two more on 2026-09-29 carrying the totals and the usage per model; undeclared before v18.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "totalCostUSD",
+        "totalAPIDuration",
+        "totalAPIDurationWithoutRetries",
+        "totalToolDuration",
+        "totalLinesAdded",
+        "totalLinesRemoved",
+        "totalDuration",
+        "startTime",
+        "modelUsage",
+        "hasUnknownModelCost"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "cost-state"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "totalCostUSD": {
+          "description": "The session's spend in US dollars. Observed 0, and 264.73448374999964 on 2026-09-29.",
+          "type": "number"
+        },
+        "totalAPIDuration": {
+          "description": "Milliseconds spent in API calls, retries included. Observed 0, and 15628591 on 2026-09-29.",
+          "type": "number"
+        },
+        "totalAPIDurationWithoutRetries": {
+          "description": "Milliseconds spent in API calls, retries excluded. Observed 0, and 15580187 on 2026-09-29.",
+          "type": "number"
+        },
+        "totalToolDuration": {
+          "description": "Milliseconds spent in tool calls. Observed 0, and 3269989 on 2026-09-29.",
+          "type": "number"
+        },
+        "totalLinesAdded": {
+          "description": "Lines added to files by the session. Observed 0, and 1157 on 2026-09-29.",
+          "type": "number"
+        },
+        "totalLinesRemoved": {
+          "description": "Lines removed from files by the session. Observed 0, and 8 on 2026-09-29.",
+          "type": "number"
+        },
+        "totalDuration": {
+          "description": "Milliseconds since startTime, a running total: 204177292, 204782434 and 204855016 in the three records of 2026-09-28, 447108308 and 447191547 in the two of 2026-09-29.",
+          "type": "number"
+        },
+        "startTime": {
+          "description": "The session's start as epoch milliseconds. Observed 1790244260497.",
+          "type": "number"
+        },
+        "modelUsage": {
+          "description": "Usage by model, keyed by ModelId. Empty in the three records of 2026-09-28; two members on 2026-09-29, claude-fable-5-1 and claude-haiku-4-5-20251001. The dialect types no key, so the key's type is stated here and held by no keyword, as the artifact maps' uuid keys are.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ModelUsage"
+          }
+        },
+        "hasUnknownModelCost": {
+          "description": "Whether a model's cost was unknown to the harness. Observed false.",
+          "type": "boolean"
+        }
+      }
+    },
+    "ToolsUsedRecord": {
+      "title": "ToolsUsedRecord",
+      "description": "The tools the session has used, by the names ToolUseBlock.name uses, written by Claude Code 2.1.311 or later. Observed once on reading-room in session e2d2039d-b1e5-4691-99f9-f0629d13e243, captured 2026-10-30: one record among 25,493, between two cost-state records, after the last record of 2.1.310 and before the first of 2.1.312; it carries no timestamp and no version of its own. Undeclared before v26.",
+      "type": "object",
+      "required": [
+        "type",
+        "tools",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tools-used"
+          ],
+          "description": "(discriminator)"
+        },
+        "tools": {
+          "description": "The tool names used, in the order the harness lists them; the words ToolUseBlock.name uses.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "SessionOwnerRecord": {
+      "title": "SessionOwnerRecord",
+      "description": "The account and the organisation a session belongs to, written by Claude Code 2.1.314 or later. Observed once on reading-room in session e2d2039d-b1e5-4691-99f9-f0629d13e243, captured 2026-11-06: one record among 30,130, between two cost-state records after the session's tools-used record, with no timestamp and no version of its own; the organisation uuid is the one the bulk export is named by. Undeclared before v27.",
+      "type": "object",
+      "required": [
+        "type",
+        "accountUuid",
+        "organizationUuid",
+        "sessionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "session-owner"
+          ],
+          "description": "(discriminator)"
+        },
+        "accountUuid": {
+          "$ref": "#/definitions/UuidV4",
+          "description": "The account the session was run under; the uuid a bulk export's account.uuid carries."
+        },
+        "organizationUuid": {
+          "$ref": "#/definitions/UuidV4",
+          "description": "The organisation the account belongs to; the uuid a bulk export's directory name opens with."
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "ApiRequestShapeRecord": {
+      "title": "ApiRequestShapeRecord",
+      "description": "A record of type api-request-shape, written by Claude Code 2.1.300 and later. Observed once in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, at 2026-10-15T10:15:23.861Z, the session's first record under 2.1.300: the system prompt's text blocks and the tool definitions, under a hash the api-request records of the same session name as their shapeHash. Read as the part of a request that is the same from one request to the next, written once - an inference from the hash and the references. All six keys present. Undeclared before v23.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "shapeHash",
+        "timestamp",
+        "version",
+        "shape"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-request-shape"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "shapeHash": {
+          "$ref": "#/definitions/HexDigest64"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "version": {
+          "description": "Claude Code version string that wrote this record. Observed value: \"2.1.300\". Likely an open set as new versions are released.",
+          "type": "string"
+        },
+        "shape": {
+          "$ref": "#/definitions/ApiRequestShape"
+        }
+      }
+    },
+    "ApiRequestBlobRecord": {
+      "title": "ApiRequestBlobRecord",
+      "description": "A record of type api-request-blob, written by Claude Code 2.1.300 and later. Observed 157 times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, each holding one message under a hash the api-request records of the same session name among their tail. Read as a message written once and referred to by hash - an inference from the hash and the references; 135 of the hashes the first api-request record's tail names have no blob in the file. All four keys present. Undeclared before v23.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "hash",
+        "message"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-request-blob"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "hash": {
+          "$ref": "#/definitions/HexDigest64"
+        },
+        "message": {
+          "$ref": "#/definitions/ApiRequestMessage"
+        }
+      }
+    },
+    "ApiRequestRecord": {
+      "title": "ApiRequestRecord",
+      "description": "A record of type api-request, written by Claude Code 2.1.300 and later. Observed 29 times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, one at each timestamp an assistant turn began: the request's parameters, the shape it uses by hash, and its messages by reference - base, the id of the api-request record before it, keep, a count, and tail, message hashes. Read as one API call recorded as its parameters plus what it reuses from the call before and what it adds - an inference from the names and from base equalling the previous record's id on every record but the first, which has no base. Twelve keys present on every record, base on all but the first. Undeclared before v23.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "id",
+        "timestamp",
+        "version",
+        "querySource",
+        "shapeHash",
+        "params",
+        "keep",
+        "tail",
+        "cacheControl",
+        "requestDigest"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api-request"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "id": {
+          "description": "This record's own id, which the next api-request record names as its base.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "version": {
+          "description": "Claude Code version string that wrote this record. Observed value: \"2.1.300\". Likely an open set as new versions are released.",
+          "type": "string"
+        },
+        "querySource": {
+          "description": "Observed value: \"sdk\". Likely an open set.",
+          "type": "string"
+        },
+        "shapeHash": {
+          "description": "The shapeHash of an api-request-shape record of the same session.",
+          "$ref": "#/definitions/HexDigest64"
+        },
+        "params": {
+          "$ref": "#/definitions/ApiRequestParams"
+        },
+        "base": {
+          "description": "The id of the api-request record before this one. Absent on the first record observed, present and equal to the previous record's id on the other 28.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "keep": {
+          "description": "A count. Observed 0 on the first record, then 286 and rising by the previous record's tail length; read as the number of messages kept from the base request - an inference.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "tail": {
+          "description": "Message hashes, each the hash of an api-request-blob record. Observed 286 on the first record, then 0 to 4; empty on one record of 29.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HexDigest64"
+          }
+        },
+        "cacheControl": {
+          "description": "Where cache control is set in the request, each a path and a value. Observed three per record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/CacheControlEntry"
+          }
+        },
+        "requestDigest": {
+          "$ref": "#/definitions/HexDigest64"
+        }
+      }
+    },
+    "TurnBase": {
+      "title": "TurnBase",
+      "description": "Fields shared by all turn-like records: user, assistant, attachment, and system. Carries the session envelope \u2014 context about the environment in which the turn occurred. No additionalProperties: false because this schema is used in allOf alongside subtype schemas that add further properties; in draft-4, additionalProperties on a base schema does not see properties defined in sibling allOf/oneOf schemas.",
+      "type": "object",
+      "required": [
+        "uuid",
+        "sessionId",
+        "timestamp",
+        "type",
+        "parentUuid",
+        "isSidechain",
+        "entrypoint",
+        "version",
+        "userType"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "(discriminator)"
+        },
+        "uuid": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "parentUuid": {
+          "description": "UUID of the parent turn, or null for the first turn in a session.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/UuidV4"
+            }
+          ]
+        },
+        "isSidechain": {
+          "description": "True when this turn belongs to a subagent conversation spawned by a parent session. Always false in observed exports \u2014 subagent sidechains may be stored separately.",
+          "type": "boolean"
+        },
+        "entrypoint": {
+          "$ref": "#/definitions/Entrypoint"
+        },
+        "version": {
+          "description": "Claude Code version string that wrote this record. Example: \"2.1.120\". Likely an open set as new versions are released.",
+          "type": "string"
+        },
+        "userType": {
+          "description": "User classification. Observed value: \"external\". Presumably \"internal\" exists for Anthropic employees.",
+          "type": "string"
+        },
+        "cwd": {
+          "description": "Absolute path of the working directory at the time of the turn.",
+          "type": "string"
+        },
+        "gitBranch": {
+          "description": "Current git branch name, if the working directory is a git repository.",
+          "type": "string"
+        },
+        "slug": {
+          "description": "Human-readable session name in kebab-case, e.g. \"keen-wandering-kite\". Generated once per session.",
+          "type": "string"
+        }
+      }
+    },
+    "UserTurnType": {
+      "title": "UserTurnType",
+      "description": "Discriminator constraint for UserTurn.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "user"
+          ],
+          "description": "(discriminator)"
+        },
+        "message": {
+          "$ref": "#/definitions/UserMessage"
+        },
+        "promptId": {
+          "description": "Identifier for this prompt submission.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "permissionMode": {
+          "description": "Permission level active for this turn. Observed value: \"default\". Likely an open set.",
+          "type": "string"
+        },
+        "isMeta": {
+          "description": "True for internal meta messages not shown to the user (e.g. context injections).",
+          "type": "boolean"
+        },
+        "isCompactSummary": {
+          "description": "True when this message is a compaction summary replacing earlier context.",
+          "type": "boolean"
+        },
+        "isVisibleInTranscriptOnly": {
+          "description": "True when this message is included in the local transcript but not sent to the API.",
+          "type": "boolean"
+        },
+        "toolUseResult": {
+          "description": "Present when this user turn is the result of a tool call fed back into the conversation. Observed as a plain string (e.g. rejection message), an object, or an array of text blocks - an MCP server's tools/call result content (rsc/reference/mcp#/$defs/CallToolResult, its content), as the result of mcp__claude-vscode__getDiagnostics was on reading-room, 2026-10-21.",
+          "type": [
+            "string",
+            "object",
+            "array"
+          ],
+          "items": {
+            "$ref": "#/definitions/TextBlock"
+          }
+        },
+        "sourceToolAssistantUUID": {
+          "description": "UUID of the assistant turn whose tool call this user turn responds to.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "origin": {
+          "$ref": "#/definitions/TurnOrigin"
+        },
+        "promptSource": {
+          "description": "The surface the prompt came through (2.1.263 onward). Observed values: \"sdk\", and \"system\" on a task notification (2.1.289 onward).",
+          "type": "string"
+        },
+        "classifierMetaLines": {
+          "description": "A JSON document as a string: the classifier's meta lines for the prompt (repository visibility among them), 2.1.263 onward.",
+          "type": "string"
+        },
+        "queueSkipAttachments": {
+          "description": "True when the queued prompt was submitted without its attachments (2.1.263 onward). Observed only true.",
+          "type": "boolean"
+        },
+        "toolDenialKind": {
+          "description": "Why a tool call was denied, on the user turn that carries the denial (harness 2.1.201 onward). Observed values: \"permission-rule\", \"user-rejected\". Likely an open set. Undeclared before v16.",
+          "type": "string"
+        },
+        "sourceToolUseID": {
+          "description": "The tool_use id this user turn answers (harness 2.1.201 onward). Undeclared before v16.",
+          "type": "string"
+        },
+        "mcpMeta": {
+          "description": "Metadata an MCP tool result carried (harness 2.1.201 onward); observed with one field, structuredContent. Undeclared before v16.",
+          "type": "object"
+        },
+        "interruptedByShutdown": {
+          "description": "True when the turn was interrupted by the harness shutting down (harness 2.1.216 onward). Observed only true. Undeclared before v16.",
+          "type": "boolean"
+        }
+      }
+    },
+    "AssistantTurnType": {
+      "title": "AssistantTurnType",
+      "description": "Discriminator constraint for AssistantTurn.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "assistant"
+          ],
+          "description": "(discriminator)"
+        },
+        "message": {
+          "$ref": "#/definitions/AssistantMessage"
+        },
+        "requestId": {
+          "description": "Anthropic API request ID for this turn.",
+          "type": "string"
+        },
+        "isApiErrorMessage": {
+          "description": "True when this record represents an API error rather than a successful response.",
+          "type": "boolean"
+        },
+        "apiErrorStatus": {
+          "description": "HTTP status code of the API error, if isApiErrorMessage is true.",
+          "type": "integer"
+        },
+        "error": {
+          "description": "Error details when isApiErrorMessage is true. Observed as a string error code (e.g. \"rate_limit\") or an object.",
+          "type": [
+            "string",
+            "object"
+          ]
+        },
+        "effort": {
+          "description": "The effort level the turn ran at (2.1.263 onward). Observed value: \"high\". Likely an open set.",
+          "type": "string"
+        },
+        "perTurnEffort": {
+          "description": "The effort level chosen for this turn alone (2.1.269 onward). Observed value: \"high\".",
+          "type": "string"
+        },
+        "apiBlockIndex": {
+          "description": "The index of this record's content block within the API response it was split from (2.1.263 onward): 0 upward.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "wireToolInputs": {
+          "$ref": "#/definitions/WireToolInputs"
+        },
+        "wireIngestContext": {
+          "$ref": "#/definitions/WireIngestContext"
+        },
+        "attributionSkill": {
+          "description": "The skill the turn is attributed to (harness 2.1.201 onward). Observed values: \"review\", \"code-review\", \"artifact-design\", \"schedule\". Undeclared before v16.",
+          "type": "string"
+        },
+        "attributionMcpServer": {
+          "description": "The MCP server the turn is attributed to (harness 2.1.201 onward). Undeclared before v16.",
+          "type": "string"
+        },
+        "attributionMcpTool": {
+          "description": "The MCP tool the turn is attributed to (harness 2.1.201 onward). Undeclared before v16.",
+          "type": "string"
+        },
+        "errorDetails": {
+          "description": "The API error as text, on an error record (harness 2.1.205 onward). Undeclared before v16.",
+          "type": "string"
+        },
+        "supersedesUuids": {
+          "description": "Uuids of assistant records this one supersedes (harness 2.1.220 onward). Undeclared before v16.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UuidV4"
+          }
+        },
+        "advisorModel": {
+          "description": "The model consulted as advisor for the turn (harness 2.1.283, observed reading-room from 2026-09-26T18:59:33Z on every completed assistant record and on no API-error record). Observed value: \"claude-fable-5-1\". Undeclared before v18.",
+          "$ref": "#/definitions/ModelId"
+        },
+        "serverClassifierRequest": {
+          "description": "The id of the server-side classifier request the turn was checked by (harness 2.1.283, observed reading-room from 2026-09-26T18:59:33Z beside advisorModel). Undeclared before v18.",
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
+    "AttachmentRecordType": {
+      "title": "AttachmentRecordType",
+      "description": "Discriminator constraint for AttachmentRecord.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "attachment"
+          ],
+          "description": "(discriminator)"
+        },
+        "attachment": {
+          "description": "The attachment payload. Observed as a JSON object (e.g. {type: deferred_tools_delta, addedNames: [...]}) or as a Python repr() string in older exports.",
+          "type": [
+            "string",
+            "object"
+          ]
+        },
+        "rendered": {
+          "description": "The attachment as rendered into the conversation (2.1.263 onward): one or two blocks observed.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RenderedBlock"
+          }
+        },
+        "renderedInHumanTurn": {
+          "description": "The attachment as rendered into the human turn rather than beside it (2.1.266 onward); the same shape as rendered.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RenderedBlock"
+          }
+        }
+      }
+    },
+    "SystemRecordType": {
+      "title": "SystemRecordType",
+      "description": "Discriminator constraint for SystemRecord.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "system"
+          ],
+          "description": "(discriminator)"
+        },
+        "subtype": {
+          "description": "System event subtype. Observed values: \"turn_duration\", \"compact_boundary\". Likely an open set.",
+          "type": "string"
+        },
+        "isMeta": {
+          "description": "True for meta system events.",
+          "type": "boolean"
+        },
+        "durationMs": {
+          "description": "Duration of the preceding turn in milliseconds. Present when subtype is \"turn_duration\".",
+          "type": "integer"
+        },
+        "messageCount": {
+          "description": "Number of messages in the context at the time of the event.",
+          "type": "integer"
+        },
+        "logicalParentUuid": {
+          "description": "UUID of the logical parent turn this system record is associated with.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "compactMetadata": {
+          "description": "Metadata from a compaction event, if applicable.",
+          "type": "object"
+        },
+        "level": {
+          "description": "Log level of the system event.",
+          "type": "string"
+        },
+        "content": {
+          "description": "Event content payload. Null for turn_duration subtype; a string description for compact_boundary (e.g. \"Conversation compacted\").",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "retryInMs": {
+          "description": "On an api_error event: the delay before the retry, in milliseconds - a number, observed integral and fractional (reading-room sessions from harness 2.1.156; undeclared before v15).",
+          "type": "number",
+          "minimum": 0
+        },
+        "retryAttempt": {
+          "description": "On an api_error event: which retry this is, 1 upward (undeclared before v15).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxRetries": {
+          "description": "On an api_error event: the retry budget (undeclared before v15).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "direction": {
+          "description": "On a model_refusal_fallback event (harness 2.1.204 onward): the direction of the fallback. Observed value: \"retry\". Undeclared before v16.",
+          "type": "string"
+        },
+        "trigger": {
+          "description": "On a model_refusal_fallback event: what triggered it. Observed value: \"refusal\". Undeclared before v16.",
+          "type": "string"
+        },
+        "scope": {
+          "description": "On a model_refusal_fallback event (harness 2.1.240 onward): the scope of the fallback. Observed value: \"session\". Undeclared before v16.",
+          "type": "string"
+        },
+        "originalModel": {
+          "description": "On a model_refusal_fallback event: the model that refused. Undeclared before v16.",
+          "$ref": "#/definitions/ModelId"
+        },
+        "fallbackModel": {
+          "description": "On a model_refusal_fallback event: the model the turn fell back to. Undeclared before v16.",
+          "$ref": "#/definitions/ModelId"
+        },
+        "apiRefusalCategory": {
+          "description": "On a model_refusal_fallback event: the refusal's category. Observed values: \"cyber\", \"reasoning_extraction\". Likely an open set. Undeclared before v16.",
+          "type": "string"
+        },
+        "apiRefusalExplanation": {
+          "description": "On a model_refusal_fallback event: the harness's explanation, or null where none was given (8 of 12 observed). Undeclared before v16.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "refusedUserMessageUuid": {
+          "description": "On a model_refusal_fallback event: the user turn that was refused. Undeclared before v16.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "retractedMessageUuids": {
+          "description": "On a model_refusal_fallback event: the assistant records retracted by the fallback. Undeclared before v16.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UuidV4"
+          }
+        }
+      }
+    },
+    "QueueOperationName": {
+      "title": "QueueOperationName",
+      "description": "The lifecycle operation performed on the session queue. enqueue: session added; dequeue: session removed; popAll: all pending sessions cleared; remove: specific session removed.",
+      "type": "string",
+      "enum": [
+        "enqueue",
+        "dequeue",
+        "popAll",
+        "remove"
+      ]
+    },
+    "UuidV4": {
+      "title": "UuidV4",
+      "description": "Standard UUID version 4 (randomly generated). Pattern: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where y is 8, 9, a, or b.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "Timestamp": {
+      "title": "Timestamp",
+      "description": "ISO 8601 UTC timestamp. Pattern: YYYY-MM-DDThh:mm:ss.sssZ. Example: \"2026-04-25T21:17:46.982Z\".",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$"
+    },
+    "FileHistorySnapshotPayload": {
+      "title": "FileHistorySnapshotPayload",
+      "description": "The snapshot payload. Present only when isSnapshotUpdate is true.",
+      "type": "object",
+      "required": [
+        "messageId",
+        "timestamp",
+        "trackedFileBackups"
+      ],
+      "properties": {
+        "messageId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "trackedFileBackups": {
+          "description": "Map of tracked file paths to their backup metadata. Structure not yet fully surveyed.",
+          "type": "object"
+        }
+      }
+    },
+    "FileHistoryBackup": {
+      "title": "FileHistoryBackup",
+      "description": "The backup a file-history-delta points at in ~/.claude/file-history/. The three core fields present in every observed record (n=73, 2026-07-22 survey); one record additionally carries realParentDir \u2014 an edit to a file OUTSIDE the session cwd (a memory fact under ~/.claude/projects/<project>/memory/), where trackingPath goes absolute and the backup names the file's real parent. Closed.",
+      "type": "object",
+      "required": [
+        "backupFileName",
+        "version",
+        "backupTime"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "backupFileName": {
+          "description": "Backup name in the file-history store, <16 hex>@v<version> \u2014 the suffix agrees with the version field in every observed record. Null when the tracked file did not exist before the edit, so there was nothing to back up (observed once: a file created new in the session). Example: \"1bd1552ca6beb94a@v1\".",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{16}@v[0-9]+$"
+        },
+        "version": {
+          "description": "Backup version ordinal, starting at 1. Only 1 observed so far.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "backupTime": {
+          "description": "When the backup was taken. Close to, but not always equal to, the record's own timestamp.",
+          "$ref": "#/definitions/Timestamp"
+        },
+        "realParentDir": {
+          "description": "Absolute directory of the tracked file when it lives outside the session cwd (observed once, 2026-07-21 reading-room: a memory fact edit; trackingPath was absolute and backupFileName null in the same record). Absent for ordinary in-repo edits.",
+          "type": "string",
+          "pattern": "^/"
+        }
+      }
+    },
+    "ArtifactMonitorEntry": {
+      "title": "ArtifactMonitorEntry",
+      "description": "One published artifact the session watches for comments, keyed in the monitor record by the artifact uuid (observed reading-room 2026-09-02 to 2026-09-15): the watch state, when it was written, and the artifact's title. All three present on every observed entry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "writtenAtMs",
+        "title"
+      ],
+      "properties": {
+        "state": {
+          "description": "The watch state. Observed value: \"armed\". Likely an open set.",
+          "type": "string"
+        },
+        "writtenAtMs": {
+          "description": "When the entry was written, milliseconds since the epoch.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "title": {
+          "description": "The artifact's title as published.",
+          "type": "string"
+        }
+      }
+    },
+    "ArtifactLedgerEntry": {
+      "title": "ArtifactLedgerEntry",
+      "description": "One published artifact's auto-reply ledger, keyed in the ledger record by the artifact uuid (observed reading-room 2026-09-02 to 2026-09-15, home-room to 2026-09-29): when it was saved, the high-water stamp of replies, whether it was ever baselined or ever had threads, the turn timestamps and threads seen, and once an interrupted flag. The six required keys are present on every observed entry; interrupted on one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "savedAt",
+        "stampHighWater",
+        "everBaselined",
+        "everHadThreads",
+        "turnTimestamps",
+        "threads"
+      ],
+      "properties": {
+        "savedAt": {
+          "description": "When the artifact was saved, milliseconds since the epoch.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "stampHighWater": {
+          "description": "The high-water stamp of replies handled: null while no reply has been handled on the artifact, then the timestamp of the latest one.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
+        },
+        "everBaselined": {
+          "description": "Whether the artifact was ever baselined. Observed only true.",
+          "type": "boolean"
+        },
+        "everHadThreads": {
+          "description": "Whether the artifact ever had comment threads. Observed only false.",
+          "type": "boolean"
+        },
+        "turnTimestamps": {
+          "description": "Timestamps of turns seen on the artifact. Observed only empty; the element form is unobserved.",
+          "type": "array"
+        },
+        "threads": {
+          "description": "Comment threads seen on the artifact. Observed only empty; the element form is unobserved.",
+          "type": "array"
+        },
+        "interrupted": {
+          "description": "Observed once: true, on the entry of home-room's session 41ff13e9 saved 2026-09-27T20:16:32Z (2.1.283), between turnTimestamps and threads, in the same millisecond as a user's interrupt of a tool use and two records before a task notification saying '1 artifact auto-reply subscription paused by the interrupt'; the entry saved after the user's next typed message carries no interrupted. Read, from that notification, as the watch's paused state - an inference. A plain interrupt under an armed watch on reading-room, 2026-10-07 (2.1.291), wrote no such entry, so what makes the harness write it is not known. Undeclared before v22.",
+          "type": "boolean"
+        }
+      }
+    },
+    "ModelUsage": {
+      "title": "ModelUsage",
+      "description": "One model's share of a session's usage, a member of a cost-state record's modelUsage. Observed reading-room 2026-09-29 in session be12fa7c-664e-42b8-b6e3-60af1409c6f8, two members in each of two records; undeclared before v19.",
+      "type": "object",
+      "required": [
+        "inputTokens",
+        "outputTokens",
+        "thinkingTokens",
+        "cacheReadInputTokens",
+        "cacheCreationInputTokens",
+        "webSearchRequests",
+        "costUSD"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "inputTokens": {
+          "description": "Input tokens sent to the model, uncached. Observed 33673 and 67130.",
+          "type": "integer"
+        },
+        "outputTokens": {
+          "description": "Output tokens the model wrote. Observed 880839 and 6572.",
+          "type": "integer"
+        },
+        "thinkingTokens": {
+          "description": "Tokens the model spent thinking. Observed 282189 and 0.",
+          "type": "integer"
+        },
+        "cacheReadInputTokens": {
+          "description": "Input tokens read from the prompt cache. Observed 484103095 and 0.",
+          "type": "integer"
+        },
+        "cacheCreationInputTokens": {
+          "description": "Input tokens written to the prompt cache. Observed 4961733 and 0.",
+          "type": "integer"
+        },
+        "cacheCreationEphemeral1hInputTokens": {
+          "description": "Input tokens written to the prompt cache under the one-hour lifetime, written by Claude Code 2.1.312 or later beside cacheCreationInputTokens, to which it and its five-minute sibling do not sum (582744 and 0 against 15705227). Observed on reading-room on 2026-10-30 in the last cost-state record of session e2d2039d-b1e5-4691-99f9-f0629d13e243, for one model of its two; undeclared before v26.",
+          "type": "integer"
+        },
+        "cacheCreationEphemeral5mInputTokens": {
+          "description": "Input tokens written to the prompt cache under the five-minute lifetime, written by Claude Code 2.1.312 or later beside cacheCreationInputTokens. Observed 0 in the same record as its one-hour sibling; undeclared before v26.",
+          "type": "integer"
+        },
+        "webSearchRequests": {
+          "description": "Web searches the model's turns made. Observed 0.",
+          "type": "integer"
+        },
+        "costUSD": {
+          "description": "The model's share of the session's spend in US dollars. Observed 264.63449374999965 and 0.09999.",
+          "type": "number"
+        }
+      }
+    },
+    "HexDigest64": {
+      "title": "HexDigest64",
+      "description": "A string of 64 lowercase hexadecimal characters. Pattern: ^[0-9a-f]{64}$. Observed as every shapeHash, hash, requestDigest and tail member of the api-request records of home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15; read as a SHA-256 digest, an inference from its length. Undeclared before v23.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ApiRequestShape": {
+      "title": "ApiRequestShape",
+      "description": "What an api-request-shape record holds: the system prompt as text blocks and the tool definitions. Observed once in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: three text blocks and fifteen tool definitions. Both keys present.",
+      "type": "object",
+      "required": [
+        "system",
+        "tools"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "description": "The system prompt's blocks. Observed: three text blocks.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/TextBlock"
+          }
+        },
+        "tools": {
+          "description": "The tool definitions the request carries. Observed: fifteen, fourteen with an input schema and one advisor tool naming a model.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ToolDefinition"
+          }
+        }
+      }
+    },
+    "ApiRequestMessage": {
+      "title": "ApiRequestMessage",
+      "description": "The message an api-request-blob record holds, in the API's shape: a role and content. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: 155 of 157 carry role and content alone; one system message carries output_config, one system message carries clear_at.",
+      "type": "object",
+      "required": [
+        "role",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "description": "(discriminator) Observed values: \"user\", \"assistant\", \"system\".",
+          "type": "string",
+          "enum": [
+            "user",
+            "assistant",
+            "system"
+          ]
+        },
+        "content": {
+          "$ref": "#/definitions/ApiRequestMessageContent"
+        },
+        "output_config": {
+          "description": "Observed once, on a system message.",
+          "$ref": "#/definitions/OutputConfig"
+        },
+        "clear_at": {
+          "description": "Observed once, on a system message, value \"next_user_message\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ApiRequestParams": {
+      "title": "ApiRequestParams",
+      "description": "The parameters of an api-request record. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15 with the same seven keys on every record, and no system, messages or tools among them.",
+      "type": "object",
+      "required": [
+        "model",
+        "betas",
+        "max_tokens",
+        "thinking",
+        "context_management",
+        "output_config"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "$ref": "#/definitions/ModelId"
+        },
+        "betas": {
+          "description": "Beta feature names. Observed: twenty on every record, each a name with a date suffix.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_tokens": {
+          "description": "Observed value: 64000.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "thinking": {
+          "$ref": "#/definitions/ThinkingParams"
+        },
+        "context_management": {
+          "$ref": "#/definitions/ContextManagementParams"
+        },
+        "safeguards": {
+          "description": "Observed: one safeguard per record. Absent on every api-request record written from 2026-10-26T10:10Z on reading-room, 53 of 1172 in session e2d2039d; present on every earlier one (v25).",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Safeguard"
+          }
+        },
+        "output_config": {
+          "$ref": "#/definitions/OutputConfig"
+        }
+      }
+    },
+    "CacheControlEntry": {
+      "title": "CacheControlEntry",
+      "description": "One cache control setting of an api-request record: where in the request, and what. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: three per record.",
+      "type": "object",
+      "required": [
+        "path",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "The position in the request, as keys and indices. Observed: [\"system\", <index>] and [\"messages\", <index>, \"content\", <index>].",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          }
+        },
+        "value": {
+          "$ref": "#/definitions/CacheControlValue"
+        }
+      }
+    },
+    "Entrypoint": {
+      "title": "Entrypoint",
+      "description": "The Claude Code surface that created this record. Observed values: \"cli\" (terminal), \"claude-vscode\" (VS Code extension). Likely an open set as new integrations are added.",
+      "type": "string",
+      "enum": [
+        "cli",
+        "claude-vscode"
+      ]
+    },
+    "UserMessage": {
+      "title": "UserMessage",
+      "description": "The message payload within a user turn. Uses role: user (API convention), unlike the claude.ai export which uses sender: human.",
+      "type": "object",
+      "required": [
+        "role",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "user"
+          ],
+          "description": "(discriminator)"
+        },
+        "content": {
+          "$ref": "#/definitions/MessageContent"
+        }
+      }
+    },
+    "TextBlock": {
+      "title": "TextBlock",
+      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text"
+          ],
+          "description": "(discriminator)"
+        },
+        "text": {
+          "description": "The text content.",
+          "type": "string"
+        }
+      }
+    },
+    "TurnOrigin": {
+      "title": "TurnOrigin",
+      "description": "Where a user turn came from (2.1.263 onward). Observed kinds: \"human\" and \"task-notification\" (a background task's completion delivered as a turn). Likely an open set.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "description": "The origin kind. Observed values: \"human\", \"task-notification\".",
+          "type": "string"
+        },
+        "producer": {
+          "description": "What produced a task-notification origin (2.1.289 onward). Observed value: \"session-task\", on every such turn of reading-room's session from 2026-10-05; earlier task notifications carry kind alone. Undeclared before v20.",
+          "type": "string"
+        },
+        "runId": {
+          "description": "The run a task-notification origin belongs to (2.1.294 onward). Observed value: \"0mv0upcup-38fcf3a9\", a string that is no uuid, on every such turn of reading-room's session e2d2039d from 2026-10-09T10:57:30Z, beside kind and producer; earlier task notifications carry no run. Undeclared before v21.",
+          "type": "string"
+        }
+      }
+    },
+    "AssistantMessage": {
+      "title": "AssistantMessage",
+      "description": "The message payload within an assistant turn. This is the full Anthropic API response object, not just {role, content}.",
+      "type": "object",
+      "required": [
+        "role",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "assistant"
+          ],
+          "description": "(discriminator)"
+        },
+        "content": {
+          "$ref": "#/definitions/MessageContent"
+        },
+        "model": {
+          "description": "Who authored this record: a real model id, or the not-a-model marker on harness-authored records.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/ModelId"
+            },
+            {
+              "$ref": "#/definitions/NotAModel"
+            }
+          ]
+        },
+        "id": {
+          "description": "Anthropic message ID.",
+          "type": "string"
+        },
+        "type": {
+          "description": "Always \"message\" in observed exports.",
+          "type": "string"
+        },
+        "stop_reason": {
+          "description": "Reason the model stopped generating. Null when streaming is incomplete.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "stop_sequence": {
+          "description": "The stop sequence that triggered stop. Null or empty string when none triggered.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "stop_details": {
+          "description": "Additional stop detail. Null on every record until 2026-08-22; a refusal writes an object naming its ground.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/StopDetails"
+            }
+          ]
+        },
+        "usage": {
+          "description": "Token usage breakdown including input, output, cache creation, and cache read counts.",
+          "type": "object"
+        },
+        "container": {
+          "description": "Container metadata. Always null in observed exports.",
+          "type": "null"
+        },
+        "context_management": {
+          "description": "Context management metadata. Null or an object (e.g. {applied_edits: [...]}) when context was managed during the turn.",
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "diagnostics": {
+          "description": "Diagnostic metadata from the API. Null or an object with cache_miss_reason and similar fields.",
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "input_transformations": {
+          "description": "What the API changed in the request before the turn ran (harness 2.1.283, observed reading-room from 2026-09-26T18:59:33Z on every completed assistant record). Undeclared before v18.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InputTransformation"
+          }
+        }
+      }
+    },
+    "WireToolInputs": {
+      "title": "WireToolInputs",
+      "description": "The tool inputs as sent on the wire, keyed by tool_use id (2.1.269 onward): each value is the tool's input object as the API received it.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "WireIngestContext": {
+      "title": "WireIngestContext",
+      "description": "The harness context recorded per tool call at ingest, keyed by tool_use id (2.1.270 onward). Observed with one field, the working directory.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "cwd": {
+            "description": "Absolute path of the working directory the tool call ran in.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ModelId": {
+      "title": "ModelId",
+      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/metamodel/join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
+      "type": "string",
+      "enum": [
+        "claude-fable-5",
+        "claude-fable-5-1",
+        "claude-haiku-4-5-20251001",
+        "claude-opus-4-6",
+        "claude-opus-4-7",
+        "claude-opus-4-8",
+        "claude-opus-5",
+        "claude-opus-5-5",
+        "claude-sonnet-4-6",
+        "claude-sonnet-5",
+        "claude-sonnet-5-5"
+      ]
+    },
+    "RenderedBlock": {
+      "title": "RenderedBlock",
+      "description": "One block of an attachment as rendered into the conversation (2.1.263 onward): the text the model saw for it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "description": "The rendered text: a string, or text blocks where the attachment is a queued command whose prompt is itself blocks.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TextBlock"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ToolDefinition": {
+      "title": "ToolDefinition",
+      "description": "One tool as a request declares it, observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15 in the api-request-shape record's tools and in a tool_addition block's tool. Three key sets observed: name, description, input_schema and eager_input_streaming (sixteen of seventeen); name, description, input_schema and defer_loading (one); name, type, model and defer_loading (one, the advisor tool). Only name is present on every one.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "The tool's name as the request names it. Observed: Claude Code's own tools in PascalCase, MCP tools as mcp__<server>__<tool>, and \"advisor\".",
+          "type": "string"
+        },
+        "description": {
+          "description": "The tool's description as the request carries it. Absent on the advisor tool.",
+          "type": "string"
+        },
+        "input_schema": {
+          "description": "The tool's input as a JSON Schema document of its own, left open here: its keys are the tool's, not the harness's. Absent on the advisor tool.",
+          "type": "object"
+        },
+        "eager_input_streaming": {
+          "description": "Observed only true, on thirteen of the shape record's tools and on every tool_addition block's tool.",
+          "type": "boolean"
+        },
+        "defer_loading": {
+          "description": "Observed only true, on two of the shape record's tools.",
+          "type": "boolean"
+        },
+        "type": {
+          "description": "A typed tool's kind. Observed value: \"advisor_20260301\", on the advisor tool alone. Likely an open set.",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model a typed tool names. Observed on the advisor tool alone.",
+          "$ref": "#/definitions/ModelId"
+        }
+      }
+    },
+    "ApiRequestMessageContent": {
+      "title": "ApiRequestMessageContent",
+      "description": "The content of a message an api-request-blob record holds: a plain string or an array of typed blocks. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: 66 strings, 91 arrays.",
+      "type": [
+        "string",
+        "array"
+      ],
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/ApiRequestContentBlock"
+      }
+    },
+    "OutputConfig": {
+      "title": "OutputConfig",
+      "description": "An output configuration, observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15 as every api-request record's params.output_config and once as a system message's output_config: the one key effort.",
+      "type": "object",
+      "required": [
+        "effort"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "effort": {
+          "description": "Observed value: \"high\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ThinkingParams": {
+      "title": "ThinkingParams",
+      "description": "The thinking parameter of an api-request record. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"adaptive\", display \"updates\", on every record.",
+      "type": "object",
+      "required": [
+        "type",
+        "display"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"adaptive\". Likely an open set.",
+          "type": "string"
+        },
+        "display": {
+          "description": "Observed value: \"updates\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ContextManagementParams": {
+      "title": "ContextManagementParams",
+      "description": "The context_management parameter of an api-request record. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: one edit on every record.",
+      "type": "object",
+      "required": [
+        "edits"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "edits": {
+          "description": "Observed: one edit per record.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ContextManagementEdit"
+          }
+        }
+      }
+    },
+    "Safeguard": {
+      "title": "Safeguard",
+      "description": "One safeguard of an api-request record's parameters. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"dangerous_tool_use\" with a classifier_context, on every record.",
+      "type": "object",
+      "required": [
+        "type",
+        "classifier_context"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"dangerous_tool_use\". Likely an open set.",
+          "type": "string"
+        },
+        "classifier_context": {
+          "description": "What the harness hands its classifier, left open at this mint: an object of about 55K bytes a record, nested seven deep, whose eighteen observed top-level keys are artifact_consent_holdback, artifacts, auto_mode, case_insensitive_paths, classify_all_shell, git_state, home_dir, is_remote_mode, live_cwd, permission_mode, platform, prior_turn_context, restricted, rule_roots, rules, trusted_directories, user_identity and v; its members are the harness's own and are undeclared until a reading needs them.",
+          "type": "object"
+        }
+      }
+    },
+    "CacheControlValue": {
+      "title": "CacheControlValue",
+      "description": "A cache control value. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"ephemeral\" and ttl \"1h\" on all 87, scope \"global\" on 29.",
+      "type": "object",
+      "required": [
+        "type",
+        "ttl"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"ephemeral\". Likely an open set.",
+          "type": "string"
+        },
+        "ttl": {
+          "description": "Observed value: \"1h\". Likely an open set.",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Observed value: \"global\", on the first system block's entry of each record. Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "MessageContent": {
+      "title": "MessageContent",
+      "description": "The content of a message. Either a plain string (simple text prompt) or an array of typed content blocks. The string form is observed for short user prompts; the array form is used when the message contains structured blocks (tool calls, thinking, etc.).",
+      "type": [
+        "string",
+        "array"
+      ],
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/ContentBlock"
+      }
+    },
+    "NotAModel": {
+      "title": "NotAModel",
+      "description": "The literal \"<synthetic>\" \u2014 the model field's value on harness-authored records where NO model spoke (semantically null): limit-death tombstones and other deterministic records rendered as agent speech. A marker, not a model id, kept as its own named type so nothing downstream can mistake it for one. Three such records in home-room's validated session logs (six counting its subagent transcripts), two in reading-room's census.",
+      "type": "string",
+      "enum": [
+        "<synthetic>"
+      ]
+    },
+    "StopDetails": {
+      "title": "StopDetails",
+      "description": "The harness's account of a non-content stop, observed once (reading-room session 5c631cf4, 2026-08-22): a refusal, with the category and explanation the harness printed, written as a first-class assistant message whose model is the not-a-model marker.",
+      "type": "object",
+      "required": [
+        "type",
+        "category",
+        "explanation",
+        "fallback_has_prefill_claim",
+        "recommended_model"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "The stop's kind. \"refusal\" in the observed record.",
+          "type": "string"
+        },
+        "category": {
+          "description": "The refusal's category. \"reasoning_extraction\" in the observed record.",
+          "type": "string"
+        },
+        "explanation": {
+          "description": "The harness's sentence naming the ground.",
+          "type": "string"
+        },
+        "fallback_has_prefill_claim": {
+          "description": "Whether a fallback claimed a prefill. False in the observed record.",
+          "type": "boolean"
+        },
+        "recommended_model": {
+          "description": "A model the harness recommends instead. Null in the observed record.",
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "InputTransformation": {
+      "title": "InputTransformation",
+      "description": "One change the API made to the request: the block at path was dropped for the reason given. Observed reading-room 2026-09-26 to 2026-09-28: 127 distinct paths of the form messages.N.content.0, reason \"prefix_binding_mismatch\" or \"model_binding_mismatch\", type \"thinking_dropped\" alone. Likely open sets.",
+      "type": "object",
+      "required": [
+        "path",
+        "reason",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "The request path of the block changed, e.g. \"messages.131.content.0\".",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Why. Observed values: \"prefix_binding_mismatch\", \"model_binding_mismatch\".",
+          "type": "string"
+        },
+        "type": {
+          "description": "What was done. Observed value: \"thinking_dropped\".",
+          "type": "string"
+        }
+      }
+    },
+    "ApiRequestContentBlock": {
+      "title": "ApiRequestContentBlock",
+      "description": "A block of a message an api-request-blob record holds. Discriminated by type: text, tool_use, tool_result, thinking, or tool_addition, the five observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15; a turn's ContentBlock also admits image, document and fallback, unobserved here.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TextBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/ThinkingBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolAdditionBlock"
+        }
+      ]
+    },
+    "ContextManagementEdit": {
+      "title": "ContextManagementEdit",
+      "description": "One context management edit. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"clear_thinking_20251015\", keep \"all\", on every record.",
+      "type": "object",
+      "required": [
+        "type",
+        "keep"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"clear_thinking_20251015\". Likely an open set.",
+          "type": "string"
+        },
+        "keep": {
+          "description": "Observed value: \"all\". Likely an open set.",
+          "type": "string"
+        }
+      }
+    },
+    "ContentBlock": {
+      "title": "ContentBlock",
+      "description": "A single content block within a message. Discriminated by type: text, tool_use, tool_result, thinking, image, document, or fallback.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TextBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/ThinkingBlock"
+        },
+        {
+          "$ref": "#/definitions/ImageBlock"
+        },
+        {
+          "$ref": "#/definitions/DocumentBlock"
+        },
+        {
+          "$ref": "#/definitions/FallbackBlock"
+        }
+      ]
+    },
+    "ToolUseBlock": {
+      "title": "ToolUseBlock",
+      "description": "A tool invocation block. Corresponds to MCP ToolUseContent (rsc/reference/mcp#/$defs/ToolUseContent); id, name, and input are identical. The CLI adds a caller field absent from MCP.",
+      "type": "object",
+      "required": [
+        "type",
+        "id",
+        "name",
+        "input"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tool_use"
+          ],
+          "description": "(discriminator)"
+        },
+        "id": {
+          "description": "Unique identifier for this tool invocation, referenced by the corresponding ToolResultBlock.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Tool name. Claude Code built-in tools use PascalCase (Bash, Read, Edit, Write, Agent). MCP-namespaced tools use the form integration:tool_name.",
+          "type": "string"
+        },
+        "input": {
+          "description": "Tool input parameters as a JSON object.",
+          "type": "object"
+        },
+        "caller": {
+          "description": "Component that invoked the tool, e.g. {type: direct}. CLI-specific; no MCP counterpart.",
+          "type": "object"
+        }
+      }
+    },
+    "ToolResultBlock": {
+      "title": "ToolResultBlock",
+      "description": "The result of a tool invocation. Corresponds to MCP ToolResultContent (rsc/reference/mcp#/$defs/ToolResultContent); tool_use_id/is_error are snake_cased equivalents of toolUseId/isError.",
+      "type": "object",
+      "required": [
+        "type",
+        "tool_use_id",
+        "content"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tool_result"
+          ],
+          "description": "(discriminator)"
+        },
+        "tool_use_id": {
+          "description": "The id of the corresponding ToolUseBlock. Snake_case equivalent of MCP ToolResultContent.toolUseId.",
+          "type": "string"
+        },
+        "content": {
+          "description": "The tool result content. Either a plain string (common case, may contain a persisted-output reference) or an array of content items (text blocks) for richer results.",
+          "type": [
+            "string",
+            "array"
+          ]
+        },
+        "is_error": {
+          "description": "True when the tool invocation failed. Snake_case equivalent of MCP ToolResultContent.isError.",
+          "type": "boolean"
+        }
+      }
+    },
+    "ThinkingBlock": {
+      "title": "ThinkingBlock",
+      "description": "An extended thinking block produced by Claude when reasoning is enabled. No MCP counterpart. Mirrors the ThinkingBlock in the claude.ai export schema (conversations/v5.json#/definitions/ThinkingBlock).",
+      "type": "object",
+      "required": [
+        "type",
+        "thinking"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "thinking"
+          ],
+          "description": "(discriminator)"
+        },
+        "thinking": {
+          "description": "The raw thinking text.",
+          "type": "string"
+        },
+        "signature": {
+          "description": "Cryptographic signature for thinking block integrity.",
+          "type": "string"
+        }
+      }
+    },
+    "ToolAdditionBlock": {
+      "title": "ToolAdditionBlock",
+      "description": "A block of type tool_addition, observed three times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, each in a system message of an api-request-blob record, each carrying one MCP tool's definition. Read as a tool declared after the request shape was written - an inference from its position. Both keys present.",
+      "type": "object",
+      "required": [
+        "type",
+        "tool"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tool_addition"
+          ],
+          "description": "(discriminator)"
+        },
+        "tool": {
+          "$ref": "#/definitions/ToolAddition"
+        }
+      }
+    },
+    "ImageBlock": {
+      "title": "ImageBlock",
+      "description": "An image content block. Observed when the user pastes or drags an image into the prompt. Corresponds to MCP ImageContent (rsc/reference/mcp#/$defs/ImageContent); the CLI format uses a nested source object rather than top-level data/mimeType fields.",
+      "type": "object",
+      "required": [
+        "type",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "image"
+          ],
+          "description": "(discriminator)"
+        },
+        "source": {
+          "description": "The image source. Observed with type: base64, media_type (e.g. image/png), and data (base64-encoded bytes).",
+          "type": "object"
+        }
+      }
+    },
+    "DocumentBlock": {
+      "title": "DocumentBlock",
+      "description": "A document content block. Observed when Claude Code passes a file as context to the model (e.g. via the Files API or context injection). Source has type 'text', media_type 'text/plain', and data containing the file contents as a plain text string. No MCP counterpart.",
+      "type": "object",
+      "required": [
+        "type",
+        "source",
+        "title"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "document"
+          ],
+          "description": "(discriminator)"
+        },
+        "source": {
+          "description": "The document source. Observed with type: text, media_type: text/plain, and data (the file contents as a plain text string). Source type and media_type may expand as other file types are supported.",
+          "type": "object",
+          "required": [
+            "type",
+            "media_type",
+            "data"
+          ],
+          "properties": {
+            "type": {
+              "description": "Source encoding type. Observed value: \"text\". Likely an open set.",
+              "type": "string"
+            },
+            "media_type": {
+              "description": "MIME type of the document content. Observed value: \"text/plain\". Likely an open set.",
+              "type": "string"
+            },
+            "data": {
+              "description": "The document contents as a string.",
+              "type": "string"
+            }
+          }
+        },
+        "title": {
+          "description": "The filename or display title of the document, e.g. \"conversations_list-2.json\".",
+          "type": "string"
+        }
+      }
+    },
+    "FallbackBlock": {
+      "title": "FallbackBlock",
+      "description": "Records an automatic model fallback within an assistant turn: the harness switched the model mid-response. Observed when Fable's safety layer refused a message (system record subtype 'model_refusal_fallback', trigger 'refusal', category 'cyber') and the harness retried on Opus, emitting this block from claude-fable-5 to claude-opus-4-8. Only the involuntary fallback TO a model is recorded; a user's voluntary switch back leaves no block, appearing only as the message model changing. No MCP counterpart.",
+      "type": "object",
+      "required": [
+        "type",
+        "from",
+        "to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "fallback"
+          ],
+          "description": "(discriminator)"
+        },
+        "from": {
+          "description": "The model the turn fell back from.",
+          "type": "object",
+          "required": [
+            "model"
+          ],
+          "properties": {
+            "model": {
+              "description": "Model identifier switched away from \u2014 always a real model: a fallback moves between models, never to the synthetic marker.",
+              "$ref": "#/definitions/ModelId"
+            }
+          }
+        },
+        "to": {
+          "description": "The model the turn fell back to.",
+          "type": "object",
+          "required": [
+            "model"
+          ],
+          "properties": {
+            "model": {
+              "description": "Model identifier switched to \u2014 always a real model: a fallback moves between models, never to the synthetic marker.",
+              "$ref": "#/definitions/ModelId"
+            }
+          }
+        }
+      }
+    },
+    "ToolAddition": {
+      "title": "ToolAddition",
+      "description": "What a tool_addition block carries: a kind and a tool definition. Observed three times in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, the kind always tool_definition.",
+      "type": "object",
+      "required": [
+        "type",
+        "definition"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"tool_definition\". Likely an open set.",
+          "type": "string"
+        },
+        "definition": {
+          "$ref": "#/definitions/ToolDefinition"
+        }
+      }
+    }
+  }
+}

@@ -21,7 +21,7 @@ are the provenance rows' and the pin is the URL's etag.
 
 Usage:
     corpus-yoga reference         # status: what upstream lists, what is held, what drifted
-    corpus-yoga reference sync    # fetch what is missing or drifted; write provenance.csv
+    corpus-yoga reference pull    # fetch what is missing or drifted; write provenance.csv
 """
 
 import csv
@@ -181,14 +181,14 @@ def status() -> int:
         item = Project(lineages_upstream=len(upstream), lineages_held=held,
                        files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
         if lines:
-            item.to_fetch, item.remedy = lines, facts.Would(spell.line('reference', 'sync'), {name: len(lines)})
+            item.to_fetch, item.remedy = lines, facts.Would(spell.line('reference', 'pull'), {name: len(lines)})
         out[name] = item
         stale += len(lines)
     facts.say_standing(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))
     return 1 if stale else 0
 
 
-def sync() -> int:
+def pull() -> int:
     for project in projects():
         items, lines = _reading(project)
         if not lines:
@@ -211,7 +211,7 @@ def sync() -> int:
         for lineage, pin in sorted(minted):
             print('  ' + facts.phrase('write the section {pin} in {changelog} (the dev gate holds reference.lineage_changelog)',
                                         pin=pin, changelog=(project / lineage / 'CHANGELOG.md').relative_to(REPO)))
-    facts.report(None, 'reference sync: DONE - ' + facts.phrase('each project holds what upstream publishes at its pin'))
+    facts.report(None, 'reference pull: DONE - ' + facts.phrase('each project holds what upstream publishes at its pin'))
     return 0
 
 
@@ -219,9 +219,9 @@ def main():
     parser = command_parser('reference')
     args = parser.parse_args()
     try:
-        sys.exit(sync() if args.verb == 'sync' else status())
+        sys.exit(pull() if args.verb == 'pull' else status())
     except send.SendRefused as refused:
-        facts.report(None, f'reference sync: NOT DONE - {refused}')
+        facts.report(None, f'reference pull: NOT DONE - {refused}')
         sys.exit(1)
 
 

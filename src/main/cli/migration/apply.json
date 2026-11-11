@@ -1,0 +1,18 @@
+{
+  "help": "take every pending step of every script under rsc/migration - each script with steps named with how many, run, its own lines relayed as it takes them - then the status re-read beneath and the verdict last",
+  "would": "would apply",
+  "args": [],
+  "r": [
+    "rsc/migration",
+    "data/input",
+    "data/output",
+    "tmp/cache",
+    "tmp/logs",
+    "tmp/stage",
+    "ext"
+  ],
+  "x": [
+    "rsc/migration/<issue>.sh --apply",
+    "git"
+  ]
+}

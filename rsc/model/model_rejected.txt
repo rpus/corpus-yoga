@@ -1,9 +1,0 @@
-# model.json disposal record (issues/19), indexing's rejected.txt vocabulary.
-# One shared-type name per line, optional trailing "# reason"; full-line
-# comments ignored. Rejecting ANY name of a shared type's set disposes that
-# type (a snake_cased pair is one type under two dressings). The obligations
-# come from model_join.csv edges whose relationship kind asserts one shared
-# type (identical, snake_cased); the queue — obligated minus documented minus
-# rejected — is reported by `corpus-yoga model` and gated per type by `corpus-yoga test run`'s
-# check_model_obligations.
-ToolName  # referenced only under a "not" constraint (a name is NOT a known ToolName there): no instance position instantiates it, so an occurrence pointer would be fiction - the sameness lives in its model_join row

@@ -17,9 +17,20 @@ declare is UNKNOWN - never descended, and reported by
 structure.keywords_declared. The one keyword outside the meta-schema is `$ref`, a
 value position: JSON Reference (draft-pbryan-zyp-json-ref-03), which draft-04
 defers to rather than declares.
+
+Every keyword has a role, declared by the maintainer's draft-04 grammar
+(rsc/rpus/grammar/JSONSchema/draft04.g4): a schema object's property is an `annotation`
+or a `restriction`, each rule's alternatives a property rule whose key is a token whose
+literal is the keyword. An annotation asserts nothing; one whose value holds schemas -
+`definitions` - holds what a `$ref` makes restrict. A schema's restrictions are the
+schema with every annotation that holds a plain value removed at every schema position,
+so two versions that differ only in those admit the same instances and have one
+restriction digest.
 """
 
+import hashlib
 import json
+import re
 from pathlib import Path
 
 SELF = 'src/schema_walk.py'
@@ -29,6 +40,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
+GRAMMAR = REPO / 'rsc/rpus/grammar/JSONSchema/draft04.g4'
 JSON_REFERENCE_KEYWORDS = {'$ref': ('value',)}     # JSON Reference, not the meta-schema's
 
 # position descriptors: ('schema',) | ('list', inner) | ('map', inner) | ('either', [inner, ...]) | ('value',)
@@ -143,3 +155,45 @@ def rebuilt(node: dict, child) -> dict:
         position = POSITIONS.get(key)
         out[key] = _rebuilt_at(position, value, child) if position else value
     return out
+
+
+def _rule(text: str, name: str) -> str:
+    """The body of the grammar's rule of that name, up to its terminating semicolon."""
+    found = re.search(rf'^{re.escape(name)}\s*:(.*?);', text, re.M | re.S)
+    assert found, f'{GRAMMAR.relative_to(REPO)} has no rule {name}'
+    return found.group(1)
+
+
+def roles() -> dict[str, str]:
+    """Each keyword the grammar's annotation and restriction rules name, by the rule: an
+    alternative is a property rule, its key a token, and the token's literal the keyword."""
+    text = GRAMMAR.read_text()
+    out: dict[str, str] = {}
+    for role in ('annotation', 'restriction'):
+        for alternative in re.findall(r'\w+', _rule(text, role)):
+            token = re.search(r'key\s*=\s*(\w+)', _rule(text, alternative))
+            assert token, f'{GRAMMAR.relative_to(REPO)}: {alternative} names no key'
+            literal = re.search(rf"^{token.group(1)}\s*:\s*'\"([^\"]+)\"'\s*;", text, re.M)
+            assert literal, f'{GRAMMAR.relative_to(REPO)}: {token.group(1)} is no quoted keyword'
+            assert literal.group(1) not in out, f'{GRAMMAR.relative_to(REPO)} gives {literal.group(1)} two roles'
+            out[literal.group(1)] = role
+    return out
+
+
+ANNOTATIONS = frozenset(k for k, role in roles().items() if role == 'annotation')
+
+
+def restrictions(schema):
+    """The schema with every annotation that holds a plain value removed at every schema
+    position: what it admits, and nothing it only says. An annotation that holds schemas
+    is kept, and its schemas are walked."""
+    if not isinstance(schema, dict):
+        return schema
+    return rebuilt({k: v for k, v in schema.items() if k not in ANNOTATIONS or POSITIONS.get(k, VALUE) != VALUE}, restrictions)
+
+
+def restriction_digest(data: bytes) -> str:
+    """The sha256 of a schema file's restrictions, keys sorted: equal for two versions that
+    differ in their annotations alone, or in their layout."""
+    canonical = json.dumps(restrictions(json.loads(data)), sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode()).hexdigest()

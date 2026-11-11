@@ -1,12 +1,27 @@
 {
-  "help": "assemble data/output/site/ from rsc/site/ - every page copied beside index.html, a departed page pruned - idempotent; index.html stays render's",
-  "would": "would assemble",
+  "help": "make rpus.co serve the publish tree - pull the ext/mnt/site clone level with rpus.co, copy data/output/site/ into it, commit there, push - a pull then a push; what it would land is corpus-yoga site's status",
+  "would": "would change",
   "args": [],
+  "sends": {
+    "level": {
+      "runs": "git pull --ff-only --quiet origin",
+      "refused": "degrades",
+      "does": [
+        "brings the ext/mnt/site clone level with the branch rpus.co serves by a fast-forward before the copy - refused, the landing is read as last fetched"
+      ]
+    },
+    "push": {
+      "runs": "git push origin",
+      "refused": "fails",
+      "does": [
+        "WRITES what rpus.co serves, from the ext/mnt/site clone"
+      ]
+    }
+  },
   "r": [
-    "rsc/site"
-  ],
-  "w": [
     "data/output/site"
   ],
-  "step": "corpus"
+  "w": [
+    "ext/mnt/site"
+  ]
 }

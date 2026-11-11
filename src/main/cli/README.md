@@ -37,7 +37,7 @@ cannot drift from the helptext, because there is one source, not two — nothing
 no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
 prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
-as a step of the named run pipeline (`chat-export`), or of `pipeline.sh`'s whole-corpus
+as a step of the named run pipeline (`export`), or of `pipeline.sh`'s whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
 input spans them all): the gate holds `src/main/cli/pipeline/pipeline.sh --plan` to
 invoking it by command AND verb, so the plan speaks the surface you would type and a step can
@@ -147,7 +147,7 @@ They are stated, followed, and reviewed by people.
   has not earned: `corpus-yoga indexing capture` prints an exact coverage join before spending and
   nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
   counted rows. Stated first, and for a long time only, as a parenthetical in
-  `src/main/cli/indexing/capture.sh` — the same file that implements half of it.
+  `src/main/indexing/capture.sh` — the same file that implements half of it.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
   INVOCATION FORMS, each becoming its own `form` in `corpus-yoga <command> -h` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
@@ -175,10 +175,10 @@ They are stated, followed, and reviewed by people.
 - **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
   what zsh evaluates when tab is pressed.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
-  verb.** `gated` `from L9` — never a per-batch one. The chat-export pipeline is a map over batches
+  verb.** `gated` `from L9` — never a per-batch one. The export pipeline is a map over batches
   (`run_one`) then a reduce over all of them (`run_tail`); the nouns live only in the
   reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`
-  and `summaries` are chat-export's `run_tail` steps and `store clean` the corpus tail's,
+  and `summaries` are export's `run_tail` steps and `store clean` the corpus tail's,
   and the plan must name each by command AND verb — a bare noun would silently be a status
   no-op under G2.
 - **G20 — What a command installs outside the repo is identified by a stable token, and

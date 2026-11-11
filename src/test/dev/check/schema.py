@@ -27,7 +27,7 @@ def check_schema_layout(run) -> None:
     """A family's address under rsc/schema is its writer's under src/main, then the
     provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that is a row of rsc/provider/providers.csv,
     and what remains is a directory under src/main or nothing. Every pipeline's declared
-    schema sits under rsc/schema/pipeline/<pipeline>, at exactly one address."""
+    schema sits under rsc/schema/<pipeline>, at exactly one address."""
     providers = set(provider.provider_names())
     families = _schema_families()
     for key, d in sorted(families.items()):
@@ -42,12 +42,41 @@ def check_schema_layout(run) -> None:
             check='schema.family_mirrors_writer')
     for name, pipeline in sorted(PIPELINES.items()):
         for schema in pipeline.schemas:
-            placed = f'pipeline/{name}/{schema}' in families
-            run(f'pipeline: {name}: {schema} sits under rsc/schema/pipeline/{name}', placed,
+            placed = f'{name}/{schema}' in families
+            run(f'pipeline: {name}: {schema} sits under rsc/schema/{name}', placed,
                 None if placed else
-                f'no family at rsc/schema/pipeline/{name}/{schema} - the pipeline declares a schema '
+                f'no family at rsc/schema/{name}/{schema} - the pipeline declares a schema '
                 f'that is not at its address',
                 check='schema.pipeline_schema_placed')
+
+
+@check(tier='schema', on=['rsc/rpus/grammar/JSONSchema', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=(
+    'schema.keyword_role_total',
+    'schema.restrictions_keep_names',
+))
+def check_keyword_roles(run) -> None:
+    """Every keyword draft-04's meta-schema declares has one role in the maintainer's grammar
+    (rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON
+    Reference, being a form of its own; and a schema's restrictions drop the annotations
+    that hold plain values, at schema positions alone, never a property named for one, a
+    value that spells one, nor the schemas `definitions` holds."""
+    import schema_walk
+    declared = schema_walk.roles()
+    missing = sorted(schema_walk.KEYWORDS - set(declared) - {'$ref'})
+    run("schema: every keyword of draft-04's meta-schema has one role in the grammar, annotation or restriction", not missing,
+        None if not missing else
+        f'rsc/rpus/grammar/JSONSchema/draft04.g4 gives {missing} neither role - name each in its annotation or restriction rule',
+        check='schema.keyword_role_total')
+    written = {'$schema': 'http://json-schema.org/draft-04/schema#', 'id': 'x', 'title': 'T', 'description': 'd', 'type': 'object',
+               'properties': {'description': {'type': 'string', 'description': 'x'}, 'title': {'enum': ['a'], 'default': 'a'}},
+               'definitions': {'D': {'description': 'q', 'oneOf': [{'type': 'null', 'title': 'n'}]}},
+               'enum': [{'description': 'kept'}]}
+    admits = {'type': 'object', 'properties': {'description': {'type': 'string'}, 'title': {'enum': ['a']}},
+              'definitions': {'D': {'oneOf': [{'type': 'null'}]}}, 'enum': [{'description': 'kept'}]}
+    got = schema_walk.restrictions(written)
+    run('schema: restrictions drop annotations at schema positions alone', got == admits,
+        None if got == admits else f'restrictions read {json.dumps(got, sort_keys=True)[:200]}',
+        check='schema.restrictions_keep_names')
 
 
 @check(tier='schema', says=('schema.valid_json_with_schema',), on=['rsc/schema'])
@@ -133,7 +162,7 @@ def check_schema_changelogs(run) -> None:
 @check(tier='schema', says=('schema.has_versions', *DIAGNOSTIC_NAMES), on=['rsc/schema'])
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-    schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
+    schema_skips    = {RSC_SCHEMA / p.name / family: skips
                        for p in PIPELINES.values() for family, skips in p.diagnostic_skip.items()}
 
     schema_dirs = _schema_families()
@@ -244,10 +273,10 @@ def check_verdict_record(run) -> None:
     from validation_matrix import rows_from_records
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        schema_root = root / 'rsc' / 'schema' / 'pipeline' / 'chat-capture'
+        schema_root = root / 'rsc' / 'schema' / 'browser'
         (schema_root / 'claude' / 'apiConversation').mkdir(parents=True)
         (schema_root / 'claude' / 'apiConversation' / 'v1.json').write_text('{}')
-        datum = root / 'tmp' / 'cache' / 'chat-capture' / 'claude' / 'datum'
+        datum = root / 'tmp' / 'cache' / 'browser' / 'claude' / 'datum'
         log_dir = datum / 'validation' / 'apiConversation'
         log_dir.mkdir(parents=True)
         (log_dir / 'v1.log').write_text('2026-09-27T00:00:00+00:00\n'
@@ -284,12 +313,12 @@ def check_failing_record(run) -> None:
     import tempfile
     tail = importlib.import_module('pipeline.tail')
     a, b = 'e2d2039d-b1e5-4691-99f9-f0629d13e243', '0a1b2c3d-0000-4000-8000-000000000000'
-    rows = [('code-transport', f'FAIL: {a}: does not validate at latest v23'), ('code-transport', '  path: /11165/toolUseResult'),
-            ('code-transport', '  log: v23.log'), ('code-transport', f'FAIL: {b}: does not validate at latest v23'),
-            ('code-transport', '  path: /11165/toolUseResult'), ('code-transport', '  log: v23.log'),
-            ('corpus', f'FAIL: {a}: code-transport/claude/session does not validate at latest v23 - a version is owed')]
-    want = {'code-transport': {f'{a}, {b}': {'does not validate at latest v23': {'path': '/11165/toolUseResult', 'log': 'v23.log'}}},
-            'corpus': {a: 'code-transport/claude/session does not validate at latest v23 - a version is owed'}}
+    rows = [('agent', f'FAIL: {a}: does not validate at latest v23'), ('agent', '  path: /11165/toolUseResult'),
+            ('agent', '  log: v23.log'), ('agent', f'FAIL: {b}: does not validate at latest v23'),
+            ('agent', '  path: /11165/toolUseResult'), ('agent', '  log: v23.log'),
+            ('corpus', f'FAIL: {a}: agent/claude/session does not validate at latest v23 - a version is owed')]
+    want = {'agent': {f'{a}, {b}': {'does not validate at latest v23': {'path': '/11165/toolUseResult', 'log': 'v23.log'}}},
+            'corpus': {a: 'agent/claude/session does not validate at latest v23 - a version is owed'}}
     got = tail.grouped(rows)
     run('pipeline: the failing record keys each refused datum by its id, one key for one fault, the fault beneath', got == want,
         None if got == want else f'grouped as {got!r}', check='pipeline.failing_is_keyed_by_datum')

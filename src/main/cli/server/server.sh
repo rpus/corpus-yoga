@@ -25,7 +25,7 @@ source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its
 # daemon outlives the act and writes beside it: one immutable artifact per start (issues/370),
 # stamped, colon-free, named <stamp>.daemon by the launcher's stamp, never as the record.
 LOG_FILE="$LOGS_DIR/server/start/$(stamp_of server start).daemon"
-PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdown.py")
+PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/server/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),
 # not every '# ' comment in the file

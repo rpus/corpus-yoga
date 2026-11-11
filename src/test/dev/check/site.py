@@ -12,7 +12,7 @@ import send
 import tier
 
 
-@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/model/compare_pages.py'], says=(
+@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/compare_pages.py'], says=(
     'site.lag_is_read_from_declarations',
     'site.page_comparison_lists_measure_changes',
     'site.page_comparison_survives_a_new_column',
@@ -120,7 +120,7 @@ def check_site_reads_rpus_co(run) -> None:
         # hook reaches these clones - under the commit hook GIT_INDEX_FILE names the index being
         # committed, and a planted clone's add and commit wrote into it (reading-room, 2026-11-08)
         environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND' and not k.startswith('GIT_')}
-        environment[tier.DECLARATION] = send.dispatched('src/main/cli/site/publish.json')   # the clone's sends are publish's, run against a planted origin
+        environment[tier.DECLARATION] = send.dispatched('src/main/cli/site/sync.json')   # the clone's sends are publish's, run against a planted origin
         environment.update({'GIT_AUTHOR_NAME': 'gate', 'GIT_AUTHOR_EMAIL': 'gate@localhost', 'GIT_COMMITTER_NAME': 'gate',
                             'GIT_COMMITTER_EMAIL': 'gate@localhost', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_CONFIG_NOSYSTEM': '1'})
         def git(*words, cwd=root):

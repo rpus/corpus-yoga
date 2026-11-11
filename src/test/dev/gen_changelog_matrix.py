@@ -11,7 +11,7 @@ this tool is never required after a pipeline run. It remains useful to:
     renderer's format changes.
 
 Usage:
-    corpus-yoga pipeline sync <pipeline>        # this file, with --write, over that pipeline
+    corpus-yoga pipeline render <pipeline>        # this file, with --write, over that pipeline
 
 Where <pipeline> is any key from PIPELINES in run.py.
 """
@@ -43,9 +43,9 @@ def main():
     args = p.parse_args()
 
     pipeline          = PIPELINES[args.pipeline]
-    schema_parent_dir = RSC_SCHEMA / 'pipeline' / args.pipeline
+    schema_parent_dir = RSC_SCHEMA / args.pipeline
 
-    facts = json.loads((REPO_ROOT / 'src' / 'main' / 'pipeline' / args.pipeline / 'pipeline.json').read_text())
+    facts = json.loads((REPO_ROOT / 'src' / 'main' / args.pipeline / 'pipeline.json').read_text())
     dirs = [d for source in sources(args.pipeline, facts)
             for d in datum_dirs(source.cache_root, pipeline.subject_depth)]
     if not dirs:

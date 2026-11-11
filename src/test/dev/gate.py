@@ -46,7 +46,7 @@ CACHE                    = REPO_ROOT / 'tmp' / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
-RSC_MODEL                = RSC / 'model'
+RSC_METAMODEL            = RSC / 'metamodel'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
 SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 
@@ -73,7 +73,7 @@ PLAIN_PHRASE_REMEDY = ('a pair is a fact of its own beneath, or the phrase says 
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
-PIPELINE_ROOT = SRC / 'main' / 'pipeline'
+PIPELINE_ROOT = SRC / 'main'   # where each pipeline's directory stands
 
 @dataclass
 class Pipeline:
@@ -89,7 +89,7 @@ class Pipeline:
     @property
     def changelog(self) -> Path:
         # The FIRST schema is the one whose CHANGELOG anchors the format history.
-        return RSC_SCHEMA / 'pipeline' / self.name / self.schemas[0] / 'CHANGELOG.md'
+        return RSC_SCHEMA / self.name / self.schemas[0] / 'CHANGELOG.md'
 
     @property
     def cache_output(self) -> Path:
@@ -115,16 +115,12 @@ def _load_pipeline(directory: Path) -> Pipeline:
     )
 
 
-# Membership is placement (issues/327): a pipeline is a subdirectory of src/main/pipeline/, and
-# its facts are its own pipeline.json — the same listing `corpus-yoga pipeline` serves, so the
-# gate's list and the CLI's cannot drift apart. A member without a declaration stays OUT
-# of the dict but IN _PIPELINE_UNDECLARED, so check_pipeline_declarations can name it
-# instead of the import dying on it.
-_PIPELINE_DIRS = members(PIPELINE_ROOT)
-_PIPELINE_UNDECLARED = [d.name for d in _PIPELINE_DIRS if not (d / 'pipeline.json').is_file()]
+# Membership is declaration (issues/1047): a pipeline is a directory under src/main holding
+# a pipeline.json, named for the noun whose input it reads, and its facts are that file - the
+# same listing `corpus-yoga pipeline` serves, so the gate's list and the CLI's cannot drift apart.
 PIPELINES: dict[str, Pipeline] = {
     d.name: _load_pipeline(d)
-    for d in _PIPELINE_DIRS if (d / 'pipeline.json').is_file()
+    for d in members(PIPELINE_ROOT) if (d / 'pipeline.json').is_file()
 }
 
 
@@ -272,7 +268,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     (a cell naming `indexing candidates` read as clean after the verb became
     `list-candidates`), and `./corpus-yoga` is REJECTED, not tolerated — the cell is a
     name (one referent, one name, G14); the runnable `./` form is presentation,
-    derived by `cache sync` at execution (L5). Tolerating both spellings is how
+    derived by `cache rebuild` at execution (L5). Tolerating both spellings is how
     the old cells dodged the command branch and resolved as the launcher file's
     path. Tokens after the verb (a pipeline name, a flag) are arguments, not
     resolution targets."""

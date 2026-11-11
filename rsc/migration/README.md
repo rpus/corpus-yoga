@@ -5,16 +5,10 @@ what lives under data/input, data/output, tmp/cache or ext/mnt renames nothing t
 those roots are laid out per room and no commit touches them - data/input the shared
 tier, which iCloud carries, so that one room's move reaches the others and their run of
 the same script finds nothing left to move. The script here named for the causing
-issue carries that move, as the move: `mv <from> <to>`, `rm <link>`, `rmdir
-<directory>` and, for rebuildable derivations only, `rm -r <directory>` lines over the
-steps of step.sh.
+issue carries that move, as the steps rsc/migration/step.sh declares.
 
-- bare, a script prints each step it would take and takes none; `--apply` takes them.
-- a step whose from is absent prints nothing: a second run does nothing.
-- a from and a to both present halt the script with the pair named; nothing here chooses.
-- `corpus-yoga migration` runs every script bare and says each one's steps, none, or
-  that it halted; `corpus-yoga migration sync --apply` takes the steps, and
-  `corpus-yoga status` carries that status.
+`corpus-yoga migration` says what each script would do, and its `now:` names the
+command that does it.
 
 rsc/naming holds the grammars of names that arrive from outside the repository, which
 code parses; a rename the repository caused is a script here, never a row there.

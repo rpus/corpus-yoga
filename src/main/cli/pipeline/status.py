@@ -22,12 +22,12 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-PIPELINES = REPO / 'src' / 'main' / 'pipeline'
+PIPELINE_ROOT = REPO / 'src' / 'main'
 
 
 @dataclass
 class Pipeline:
-    """A pipeline as its declaration (src/main/pipeline/<name>/pipeline.json) says it, and
+    """A pipeline as its declaration (src/main/<name>/pipeline.json) says it, and
     the steps its own plan names, in order."""
     input: str
     providers: list[str] | None
@@ -60,7 +60,7 @@ def owed_runs() -> dict[str, facts.Would]:
 def steps_of(name: str, prep: str | None) -> list[str]:
     """The steps the pipeline's plan names (`run.sh --plan`, the one authority on their
     order), the prep step pipeline.sh runs before them first."""
-    plan = subprocess.run([str(PIPELINES / name / 'run.sh'), '--plan'], capture_output=True, text=True, cwd=REPO).stdout
+    plan = subprocess.run([str(PIPELINE_ROOT / name / 'run.sh'), '--plan'], capture_output=True, text=True, cwd=REPO).stdout
     steps = [prep] if prep else []
     for line in plan.splitlines():
         if line.startswith('  ') and not line.rstrip().endswith(':'):
@@ -77,7 +77,7 @@ def one_or_each(by_provider: dict[str, str]):
 
 
 def pipeline(name: str, prep: str | None) -> Pipeline:
-    declared = json.loads((PIPELINES / name / 'pipeline.json').read_text())
+    declared = json.loads((PIPELINE_ROOT / name / 'pipeline.json').read_text())
     providers = declared.get('provider')
     if providers:
         unit = one_or_each({p: v['unit'] for p, v in providers.items()})

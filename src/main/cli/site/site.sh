@@ -3,17 +3,17 @@
 #
 # Usage:
 #   corpus-yoga site          # status: each artifact's presence and currency, and who produces it
-#   corpus-yoga site sync     # assemble the tree from rsc/site/ - every page copied beside index.html
-#   corpus-yoga site publish            # make rpus.co serve the tree: copy into ext/mnt/site, commit, push;
-#                                       # the dry run states what changes in the corpus page, table by table
+#   corpus-yoga site assemble # assemble the tree from rsc/site/ - every page copied beside index.html
+#   corpus-yoga site sync     # make rpus.co serve the tree: pull rpus.co, copy into ext/mnt/site, commit, push;
+#                             # the dry run states what changes in the corpus page, table by table
 #   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
-# The tree has two verbs with disjoint files: sync owns every page, a file
+# The tree has two verbs with disjoint files: assemble owns every page, a file
 # rsc/site/<name>.html copied to data/output/site/<name>.html as authored (issues/650);
 # render owns index.html at the root, the corpus page present_corpus.py writes
 # at its URL position (issues/409) from
 # rsc/site/index.template.html, the one file under rsc/site/ that is not a page.
-# sync never touches index.html; README.md documents the family.
+# assemble never touches index.html; README.md documents the family.
 
 set -euo pipefail
 SELF='src/main/cli/site/site.sh'
@@ -32,9 +32,9 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 SRC="$REPO_DIR/rsc/site"
 OUT="$DATA_DIR/output/site"
-MODEL_DIR="$REPO_DIR/src/main/model"
-# shellcheck source=src/main/model/corpus_shape.sh
-source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
+MAIN_DIR="$REPO_DIR/src/main"
+# shellcheck source=src/main/corpus_shape.sh
+source "$MAIN_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 # shellcheck source=src/main/cli/site/landing.sh
 source "$SCRIPT_DIR/landing.sh"   # what publish would land, read against rpus.co as it stands (issues/1020)
 
@@ -43,14 +43,14 @@ usage() {
 corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from rsc/site/
 
   corpus-yoga site          status: each artifact's presence and currency, and who produces it
-  corpus-yoga site sync     assemble the tree (every page copied beside index.html)
-  corpus-yoga site publish  copy the tree into ext/mnt/site, commit and push there (what it would land is the bare status's;
+  corpus-yoga site assemble assemble the tree (every page copied beside index.html)
+  corpus-yoga site sync     pull rpus.co, copy the tree into ext/mnt/site, commit and push there (what it would land is the bare status's;
                             the dry run states what changes in the corpus page, table by table)
   corpus-yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
 EOF
 }
 
-# every page: a .html at rsc/site/'s root other than the template - the sync set and
+# every page: a .html at rsc/site/'s root other than the template - the assembled set and
 # the status subjects, each published at the same name
 page_files() {  # <root>
   find "$1" -maxdepth 1 -type f -name '*.html' ! -name 'index.template.html' | sed "s|^$1/||" | sort
@@ -62,12 +62,12 @@ status() {
   {
     if [[ ! -d "$OUT" ]]; then
       # The pages are the rpus.co publish layer - deploy-side, optional; the
-      # quickstart teaches only the render. Prescribing sync here made every
+      # quickstart teaches only the render. Prescribing assemble here made every
       # pipeline run nag a verb the front door never taught.
       printf 'pages\tabsent\t%s\n' "$(phrase "absent - the rpus.co publish layer, optional")"
     else
       local f
-      # the run syncs before this probe (issues/494): a stale tree here is rsc/site/ edited
+      # the run assembles before this probe (issues/494): a stale tree here is rsc/site/ edited
       # outside a run
       while IFS= read -r f; do
         if [[ ! -f "$OUT/$f" ]]; then
@@ -105,18 +105,18 @@ status() {
 }
 
 render() {
-  exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
+  exec "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/present_corpus.py" "$@"
 }
 
 # The act (issues/881): what it would land is the bare status's; this copies, commits and pushes.
-publish() {
+sync() {
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
-    effect "site publish: NOT DONE - $(phrase "ext/mnt/site is not a git clone; corpus-yoga status reports the mount")"
+    effect "site sync: NOT DONE - $(phrase "ext/mnt/site is not a git clone; corpus-yoga status reports the mount")"
     return 1
   fi
   if [[ ! -d "$OUT" ]]; then
-    effect "site publish: NOT DONE - $(phrase "no publish tree at data/output/site/")"
+    effect "site sync: NOT DONE - $(phrase "no publish tree at data/output/site/")"
     return 1
   fi
   # the branch rpus.co serves, whatever the clone has checked out (issues/1026): a clone that
@@ -124,12 +124,12 @@ publish() {
   local served off
   served="$(clone_served "$mount")"
   if [[ -z "$served" ]]; then
-    effect "site publish: NOT DONE - $(phrase "the clone records no branch rpus.co serves - corpus-yoga site names the remedy")"
+    effect "site sync: NOT DONE - $(phrase "the clone records no branch rpus.co serves - corpus-yoga site names the remedy")"
     return 1
   fi
   off="$(off_served "$mount")"
   if [[ -n "$off" ]]; then
-    effect "site publish: NOT DONE - $(phrase "the clone stands on {branch}, not {local}, the branch rpus.co serves - corpus-yoga site names the switch" branch="$off" local="${served#*/}")"
+    effect "site sync: NOT DONE - $(phrase "the clone stands on {branch}, not {local}, the branch rpus.co serves - corpus-yoga site names the switch" branch="$off" local="${served#*/}")"
     return 1
   fi
   # rpus.co as it stands first (issues/1020): the clone brought level by a fast-forward, so that
@@ -138,13 +138,13 @@ publish() {
   local levelled=0
   level_clone "$mount" || levelled=$?
   if [[ "$levelled" -ne 0 && "$levelled" -ne "$SEND_REFUSED" ]]; then
-    effect "site publish: NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
+    effect "site sync: NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
     return 1
   fi
   local rows
   rows="$(landing "$mount" "$OUT")"
   if [[ -z "$rows" ]]; then
-    effect "site publish: DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
+    effect "site sync: DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
     return 0
   fi
   echo "did land:"
@@ -158,11 +158,11 @@ publish() {
     echo "  $(phrase "nothing to commit - the clone already held the tree")"
   fi
   (cd "$mount" && send enact push "HEAD:${served#*/}") || return 1
-  effect "site publish: DONE - $(phrase "rpus.co serves the publish tree on Netlify's next build")"
+  effect "site sync: DONE - $(phrase "rpus.co serves the publish tree on Netlify's next build")"
 }
 
 
-sync() {
+assemble() {
   mkdir -p "$OUT"
   local d f name eventful=0
   # reconcile: what left rsc/site/ leaves the publish tree with it (L7: this tree is
@@ -194,16 +194,16 @@ sync() {
     eventful=1
   done < <(page_files "$SRC")
   if [[ $eventful -eq 1 ]]; then
-    effect "site sync: DONE - $(phrase "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)")"
+    effect "site assemble: DONE - $(phrase "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)")"
   else
-    effect "site sync: DONE - $(phrase "no effect; data/output/site/ already serves rsc/site/ as authored")"
+    effect "site assemble: DONE - $(phrase "no effect; data/output/site/ already serves rsc/site/ as authored")"
   fi
 }
 
 case "${1:-}" in
   '')          status ;;
-  sync)        shift; parse_argv site sync "$@"; sync ;;
-  publish)   shift; parse_argv site publish "$@"; publish "$@" ;;
+  assemble)    shift; parse_argv site assemble "$@"; assemble ;;
+  sync)      shift; parse_argv site sync "$@"; sync "$@" ;;
   render)      shift; parse_argv site render "$@"; render "$@" ;;
   -h|--help)   usage ;;
   *)           echo "corpus-yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;

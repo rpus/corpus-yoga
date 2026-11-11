@@ -2,7 +2,7 @@
   "summary": "the parsers generated from the house grammars under rsc/rpus/grammar into src/gen/grammar, machine-local (bare says whether each is generated and current with its grammar)",
   "standing": true,
   "phrase": [
-    "antlr4 (antlr4-tools) is not in the venv - corpus-yoga status sync installs src/requirements.txt",
+    "antlr4 (antlr4-tools) is not in the venv - corpus-yoga status satisfy installs src/requirements.txt",
     "no - {generated} is absent; the mcp extraction and corpus-yoga test run's mcp checks need it",
     "UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the tool",
     "UNVERIFIED - antlr4 not in the venv",

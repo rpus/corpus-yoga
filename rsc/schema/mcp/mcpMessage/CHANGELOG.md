@@ -3,7 +3,7 @@
 This family is the HOUSE FACTORING of the Model Context Protocol schema (issues/562,
 issues/598): the composition upstream's generator flattens, stated once in draft-04,
 generated from upstream's `schema.ts` alone. It is a committed derivation, never
-hand-edited: `corpus-yoga mcp sync` reads the newest lineage's `schema.ts` under
+hand-edited: `corpus-yoga mcp derive` reads the newest lineage's `schema.ts` under
 `rsc/reference/mcp` (whose `provenance.csv` pins the lineage, commit and SHA256)
 through the parser generated from the house TypeScript grammar into the flat
 shape of every declaration, one stated rule per TypeScript form
@@ -87,6 +87,11 @@ v4
 
 #### Refactored
 
+- The family description (v5, in place) names the module that reads schema.ts as it is
+  named since 2026-11-10, `src/main/mcp/generation.py` - its directory names the noun,
+  so the file no longer repeats it (issues/1047). No validation effect.
+- The family description (v5, in place) names the verb that derives it as it is named
+  since 2026-11-10, `corpus-yoga mcp derive` (issues/1047). No validation effect.
 - The family description (v5, in place, regenerated identically by `corpus-yoga mcp sync`)
   names `addition.csv` at the family's address since 2026-09-16 (issues/632),
   `rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside

@@ -43,9 +43,9 @@
     "machine-name.txt"
   ],
   "w": [
-    "tmp/cache/chat-capture",
-    "tmp/cache/chat-export",
-    "tmp/cache/code-transport",
+    "tmp/cache/browser",
+    "tmp/cache/export",
+    "tmp/cache/agent",
     "data/output/markdown",
     "data/output/memories"
   ],

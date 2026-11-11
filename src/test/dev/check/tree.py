@@ -13,7 +13,6 @@ from gate import (
     REPO_ROOT,
     RSC,
     SRC,
-    _PIPELINE_UNDECLARED,
     check,
 )
 from member import members
@@ -27,11 +26,11 @@ def check_required_files(run):
     # asserting those same paths exist is tautological (it requires whatever is present); a missing
     # schema dir simply has no versions and is invisible to the family walks instead.
     required = [
-        *[PIPELINE_ROOT / name / 'validate.sh' for name in PIPELINES if name != 'chat-capture'],
-        PIPELINE_ROOT / 'chat-capture' / 'claude' / 'validate.sh',
+        *[PIPELINE_ROOT / name / 'validate.sh' for name in PIPELINES if name != 'browser'],
+        PIPELINE_ROOT / 'browser' / 'claude' / 'validate.sh',
         SRC  / 'main' / 'validate.py',
-        SRC  / 'main' / 'model' / 'gen_model_candidate.py',
-        SRC  / 'main' / 'model' / 'model.py',
+        SRC  / 'main' / 'metamodel' / 'catalogue.py',
+        SRC  / 'main' / 'metamodel' / 'metamodel.py',
         RSC  / 'test' / 'xref_expected_score',
         SRC  / 'test' / 'dev' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
@@ -49,18 +48,13 @@ def check_required_files(run):
     'structure.pipeline_skip_names_family',
 ))
 def check_pipeline_declarations(run) -> None:
-    """Membership is placement and facts are declared: every subdirectory of
-    src/main/pipeline/ carries a pipeline.json valid against pipeline.schema.json and
-    implements run.sh — so a member missing either is a named failure here, and a stray
-    run.sh elsewhere confers nothing."""
+    """Membership is declaration: every directory under src/main holding a pipeline.json
+    is a pipeline, its declaration valid against src/main/pipeline.schema.json, and
+    implements run.sh - a member missing it is a named failure here, and a run.sh with
+    no declaration beside it confers nothing."""
     import jsonschema
     schema = json.loads((PIPELINE_ROOT / 'pipeline.schema.json').read_text())
     validator = jsonschema.Draft4Validator(schema)
-    for name in _PIPELINE_UNDECLARED:
-        run(f'pipeline: {name}: declares itself in pipeline.json', False,
-            f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
-            f'declaration is invisible to every consumer of the listing',
-            check='structure.pipeline_declaration_validates')
     for name in PIPELINES:
         decl = PIPELINE_ROOT / name / 'pipeline.json'
         errors = sorted(validator.iter_errors(json.loads(decl.read_text())),
@@ -75,20 +69,22 @@ def check_pipeline_declarations(run) -> None:
             None if not undeclared else
             f'diagnostic_skip names {", ".join(undeclared)}, no entry of schemas - a skip licenses one declared family',
             check='structure.pipeline_skip_names_family')
-        # The name states the input (issues/667): the pipeline <channel>-<act> reads
-        # data/input/<provider>/<channel>/<qualifier>-<act>, of a declared provider.
+        # The name states the input (issues/1047, superseding issues/667's <channel>-<act>): the
+        # pipeline is named for the noun whose promote deposits what it reads, so its declared
+        # input, <provider> one it serves and <qualifier> any name, matches exactly the
+        # directories `corpus-yoga <name> promote` declares it writes, and covers every provider.
         declared = json.loads(decl.read_text()).get('input', '')
-        channel, _, act = name.partition('-')
-        parts = declared.split('/')
         served = PIPELINES[name].providers
-        stated = (len(parts) == 5 and parts[:2] == ['data', 'input']
-                  and (parts[2] in provider.provider_names() if not served else parts[2] == '<provider>')
-                  and parts[3] == channel and '-' in parts[4]
-                  and parts[4].rsplit('-', 1)[1] == act)
+        promote = SRC / 'main' / 'cli' / name / 'promote.json'
+        written = json.loads(promote.read_text()).get('w', []) if promote.is_file() else []
+        pattern = re.escape(declared).replace(re.escape('<provider>'), '(' + '|'.join(map(re.escape, served)) + ')').replace(re.escape('<qualifier>'), '[^/]+')
+        matched = [w for w in written if re.fullmatch(pattern, w)]
+        stated = (bool(written) and len(matched) == len(written)
+                  and all(any(w.split('/')[2] == p for w in written) for p in served))
         run(f'pipeline: {name}: name states its input', stated,
             None if stated else
-            f'{declared} is not data/input/<provider>/{channel}/<qualifier>-{act} of a declared provider - '
-            f'a pipeline is named <channel>-<act>, singular, for the directories it reads',
+            f'{declared} is not exactly what {promote.relative_to(REPO_ROOT)} declares it writes ({", ".join(written) or "nothing"}) - '
+            f'a pipeline is named for the noun whose promote deposits its input',
             check='structure.pipeline_name_states_input')
         # A provider the declaration names is a row of the registry with a mechanism
         # directory of its name beside the declaration, and the reverse (issues/635).
@@ -97,10 +93,10 @@ def check_pipeline_declarations(run) -> None:
             ok = p in served and p in placed
             run(f'pipeline: {name}: provider {p} is declared, registered and has its mechanism', ok,
                 None if ok else
-                (f'src/main/pipeline/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
+                (f'src/main/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
                  f'pipeline.json names provider {p}, which is '
                  + ('no row of rsc/provider/providers.csv' if p not in provider.provider_names()
-                    else f'without src/main/pipeline/{name}/{p}/')),
+                    else f'without src/main/{name}/{p}/')),
                 check='structure.pipeline_provider_served')
             # run.sh reaches a provider's mechanism by the provider's name ($provider/<file>),
             # so no reference names these files: what run.sh reaches that way is held here,
@@ -111,7 +107,7 @@ def check_pipeline_declarations(run) -> None:
             absent = [f for f in sorted(reached - optional) if ok and not (PIPELINE_ROOT / name / p / f).is_file()]
             run(f'pipeline: {name}: provider {p} holds its mechanism whole', not absent,
                 None if not absent else
-                f'src/main/pipeline/{name}/{p}/ lacks {", ".join(absent)} - run.sh calls each by the provider\'s name',
+                f'src/main/{name}/{p}/ lacks {", ".join(absent)} - run.sh calls each by the provider\'s name',
                 check='structure.pipeline_mechanism_whole')
         run_sh = PIPELINE_ROOT / name / 'run.sh'
         run(f'pipeline: {name}: implements run.sh', run_sh.is_file(),

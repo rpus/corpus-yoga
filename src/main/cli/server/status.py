@@ -23,7 +23,7 @@ REPO = _root[0]
 
 @dataclass
 class Assets:
-    """The markdown viewer's render assets against their manifest, src/main/model/serve_assets.txt."""
+    """The markdown viewer's render assets against their manifest, src/main/cli/server/serve_assets.txt."""
     present: str
     versions: list[str] | None = None
     absent: list[str] | str | None = None
@@ -55,7 +55,7 @@ def daemon_act(running: bool, rendered: bool) -> facts.Would | None:
 
 def main() -> int:
     found = subprocess.run(['pgrep', '-f', 'serve_markdown.py'], capture_output=True, text=True).stdout.split()
-    manifest = REPO / 'src' / 'main' / 'model' / 'serve_assets.txt'
+    manifest = REPO / 'src' / 'main' / 'cli' / 'server' / 'serve_assets.txt'
     assets = REPO / 'ext' / 'lib' / 'serve_markdown'
     lines = [line.split('#', 1)[0].strip() for line in manifest.read_text().splitlines()]
     wanted = [(line.split()[0], line) for line in lines if line]

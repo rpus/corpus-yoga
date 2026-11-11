@@ -90,7 +90,7 @@ def _is_act(command: str) -> bool:
 
 def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
     """Each remedy the report holds that the reader types: its command, what it does, and
-    where it stands. An act in words is no row here: status sync takes only commands."""
+    where it stands. An act in words is no row here: status satisfy takes only commands."""
     if not isinstance(node, dict):
         return []
     out = ([(command, next(iter(does)) if isinstance(does, dict) else does, where) for command, does in node['remedy'].items()]
@@ -137,11 +137,11 @@ def main() -> int:
         for command, does in commands.items():
             # a corpus-yoga act is said in its declared words, on what the row is about (issues/1028)
             # a corpus-yoga act is said in its declared words, on what the row is about; any other
-            # command is one status sync runs, and is said as its act (issues/1034) - but sync is
+            # command is one status satisfy runs, and is said as its act (issues/1034) - but sync is
             # handed the commands themselves
             subject = last.removesuffix(' (again)')
             act = (None if mode == 'remedies' else facts.plain(facts.Would(command, {subject: 1})) if _is_act(command)
-                   else facts.plain(facts.Would(spell.line('status', 'sync'), {above[0] if above else subject: 1})))
+                   else facts.plain(facts.Would(spell.line('status', 'satisfy'), {above[0] if above else subject: 1})))
             said_as: dict = act if isinstance(act, dict) else {command: does}
             held = at.get('remedy')
             at['remedy'] = facts.merge(held if isinstance(held, dict) else {}, said_as)
@@ -149,7 +149,7 @@ def main() -> int:
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
-    report = Report(sections if sections or whole else {'remedy': facts.phrase('none - nothing to do')})   # a status loads as one mapping: the empty case says its one fact
+    report = Report(sections)   # with no row to say, the report is its now: alone
     if venv.is_file():
         # every noun's own acts, then each act only the report's own rows name (issues/1028): a grafted
         # spot's act is its noun's, already in that noun's now:, and is not counted twice

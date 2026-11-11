@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Verify that data/input/claude/chat/bulk-export/ contains at least one bulk export.
+#
+# If no exports are found, prints a skip notice and exits zero — a missing bulk
+# export is not an error; the pipeline simply has nothing to do.
+# No network access, no writes, no interactive steps — a prerequisite check only.
+#
+# To bring in a bulk export:
+#   1. Log in to https://claude.ai
+#   2. Settings → Privacy → Export Data → Export (All)
+#   3. Download the manifest the emailed confirmation links
+#   4. corpus-yoga export capture --manifest <the manifest, where the download left it>
+#      then corpus-yoga pipeline rehearse, then corpus-yoga export promote (issues/687, issues/716)
+#
+# Usage:
+#   src/main/export/require_export.sh
+
+set -euo pipefail
+
+SELF='src/main/export/require_export.sh'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
+[[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
+      *) echo "Unknown argument: $1"; echo "Pass --help for more information."; exit 1 ;;
+    esac
+  done
+}
+
+check_exports() {
+  local ext_dir="$DATA_DIR/input/claude/chat/bulk-export"
+  for d in "$ext_dir"/data-*/; do
+    [[ -d "$d" ]] && return 0
+  done
+  echo "skipping export (no bulk export in data/input/claude/chat/bulk-export/ — download from https://claude.ai/settings/data-privacy-controls)"
+}
+
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
+  check_exports
+}
+
+main "$@"

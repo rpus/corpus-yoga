@@ -34,7 +34,7 @@
   },
   "r": [
     "data/output/markdown",
-    "rsc/schema/cli/indexing",
+    "rsc/schema/indexing",
     "rsc/site/index.template.html"
   ],
   "w": [

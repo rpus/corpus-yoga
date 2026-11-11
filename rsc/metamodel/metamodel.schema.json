@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "model",
+  "description": "Cross-family type reference: named types, their descriptions, and occurrence paths across all schemas. Occurrence keys use the de-versioned family-dir grammar (join.csv's): the family's address under rsc/schema, resolved against the family's latest version; values are instance JSON Pointers into a datum of that family. Curated under the two-loop disposal discipline of issues/19: the name scan feeds join.csv at leisure; a join edge asserting one shared type obligates an entry here or a rejection in rejected.txt, gated by check_metamodel_obligations; check_metamodel_occurrences holds these pointers to the schemas; the table rsc/metamodel/metamodel.json validates against this schema (check_metamodel_table).",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "required": [
+      "description",
+      "occurrences"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "description": {
+        "type": "string"
+      },
+      "occurrences": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
