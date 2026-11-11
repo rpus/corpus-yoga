@@ -85,6 +85,8 @@ def must(now) -> list[tuple[str, str, str]]:
     out: list[tuple[str, str, str]] = []
     for command, does in (now.get('MUST', {}) if isinstance(now, dict) else {}).items():
         for would, acts_on in does.items():
+            if would == facts.REPORTS:
+                continue   # a fault owed by hand: said, never run
             out.append((command, would, ', '.join(map(str, acts_on)) if isinstance(acts_on, dict) else str(acts_on)))
     return out
 

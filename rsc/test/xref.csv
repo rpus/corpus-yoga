@@ -1069,8 +1069,8 @@ src/main/cli/metamodel/reject.json,27,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/metamodel/reject.json,28,path_str,rsc/metamodel,Y,"""rsc/metamodel"","
 src/main/cli/metamodel/reject.json,32,path_str,rsc/metamodel/join.csv,Y,"""rsc/metamodel/join.csv"","
 src/main/cli/migration/apply.json,7,path_str,rsc/migration,Y,"""rsc/migration"","
-src/main/cli/migration/migration.json,17,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
-src/main/cli/migration/migration.json,21,path_str,rsc/migration,Y,"""rsc/migration"","
+src/main/cli/migration/migration.json,18,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
+src/main/cli/migration/migration.json,22,path_str,rsc/migration,Y,"""rsc/migration"","
 src/main/cli/migration/migration.py,5,comment,rsc/migration/step.sh,Y,"rsc/migration/step.sh, and this noun says them and takes them."
 src/main/cli/migration/migration.py,31,path_str,src/main/cli/migration/migration.py,Y,SELF = 'src/main/cli/migration/migration.py'
 src/main/cli/parse_argv.py,29,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
@@ -1309,7 +1309,7 @@ src/main/export/validate.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=sr
 src/main/export/validate.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/export/vintage.py,6,comment,rsc/naming/export_dir_vintages.csv,Y,"rsc/naming/export_dir_vintages.csv, one row per vintage, each a pattern with named groups"
 src/main/export/vintage.py,17,path_str,src/main/export/vintage.py,Y,SELF = 'src/main/export/vintage.py'
-src/main/facts.py,497,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
+src/main/facts.py,512,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
 src/main/frontier.py,8,comment,src/main/validation_audit.py,Y,"src/main/validation_audit.py), stated per datum from the latest version's log."
 src/main/frontier.py,12,comment,rsc/naming/export_dir_vintages.csv,Y,authority over rsc/naming/export_dir_vintages.csv); browser the
 src/main/frontier.py,18,comment,src/test/dev/run.py,Y,usr gate's corpus tail says it - issues/373) and src/test/dev/run.py (the data-tier
@@ -1610,18 +1610,19 @@ src/test/dev/check/unit.py,327,path_str,src/main/corpus.py,Y,'src/main/corpus.py
 src/test/dev/check/unit.py,314,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
 src/test/dev/check/unit.py,314,path_str,src/main/export/atoms.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
 src/test/dev/check/unit.py,353,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.memory_merge_judges_each_fact_alone',), on=['src/main/cli/agent'])"
-src/test/dev/check/unit.py,444,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
-src/test/dev/check/unit.py,444,path_str,rsc/migration/1058.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
-src/test/dev/check/unit.py,444,path_str,rsc/naming/checkout_paths.csv,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
-src/test/dev/check/unit.py,462,path_str,rsc/migration/1058.sh,Y,script = checkout / 'rsc/migration/1058.sh'
+src/test/dev/check/unit.py,451,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
+src/test/dev/check/unit.py,451,path_str,rsc/migration/1058.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
+src/test/dev/check/unit.py,451,path_str,rsc/naming/checkout_paths.csv,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
+src/test/dev/check/unit.py,469,path_str,rsc/migration/1058.sh,Y,script = checkout / 'rsc/migration/1058.sh'
 src/test/dev/check/unit.py,405,path_str,src/main/cli/agent,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
 src/test/dev/check/unit.py,405,path_str,rsc/naming/checkout_paths.csv,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
 src/test/dev/check/unit.py,405,path_str,rsc/migration/step.sh,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
 src/test/dev/check/unit.py,405,path_str,rsc/migration/1058.sh,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
-src/test/dev/check/unit.py,466,path_str,rsc/migration/1058.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1058.sh is absent')"
-src/test/dev/check/unit.py,453,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
+src/test/dev/check/unit.py,495,path_str,rsc/migration/1058.sh,Y,"said = facts.now_of(migration.status_facts({'rsc/migration/1058.sh': (1, ['mv a b', 'FAIL: c and d both exist'])}))"
+src/test/dev/check/unit.py,473,path_str,rsc/migration/1058.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1058.sh is absent')"
+src/test/dev/check/unit.py,460,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
 src/test/dev/check/upstream.py,178,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,26,path_str,src/main/cli/grammar/grammar.json,Y,os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')
 src/test/dev/check/upstream.py,38,path_str,rsc/rpus/grammar,Y,"@check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=("

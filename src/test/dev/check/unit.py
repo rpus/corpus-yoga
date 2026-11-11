@@ -437,6 +437,13 @@ def check_renamed_checkout(run) -> None:
         run("agent: a peer's project under a former path's key installs under the current key, and a capture reads the store's copy under a former key",
             same, None if same else f'installed {installed}; the capture staged {restaged}, saying {log.facts()}',
             check='agent.renamed_checkout_is_one_project')
+        unmoved = root / 'unmoved'
+        (unmoved / former[1]).mkdir(parents=True)
+        (unmoved / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
+        dry = harness.install_all(bundle, unmoved, False, 'peer')
+        kept = list(dry.by) == [dry.key('kept')]
+        run("agent: an install reads a live session still under a former path's key as the one the room holds, and would write nothing", kept,
+            None if kept else f'the install would say {dry.facts()}', check='agent.renamed_checkout_is_one_project')
 
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -479,3 +486,13 @@ def check_renamed_checkout(run) -> None:
         stops = halted.returncode == 1 and 'both exist' in halted.stderr and (projects / was[2] / 'memory' / 'MEMORY.md').is_file()
         run('migration: rsc/migration/1058.sh halts, bare, where a former key\'s entry and the current key\'s both stand', stops,
             None if stops else f'it exits {halted.returncode}, saying {halted.stdout!r} {halted.stderr!r}', check='migration.renamed_checkout_moves_once')
+    import facts
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('migration_status', SRC / 'main' / 'cli' / 'migration' / 'migration.py')
+    assert spec is not None and spec.loader is not None
+    migration = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(migration)
+    said = facts.now_of(migration.status_facts({'rsc/migration/1058.sh': (1, ['mv a b', 'FAIL: c and d both exist'])}))
+    owed = said == {'MUST': {'corpus-yoga migration': {facts.REPORTS: {'FAIL: c and d both exist': 1}}}}
+    run('migration: a halted script is owed - its FAIL under now: MUST, beneath the noun that reports it', owed,
+        None if owed else f'now: says {said!r}', check='migration.renamed_checkout_moves_once')

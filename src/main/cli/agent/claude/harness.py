@@ -502,14 +502,16 @@ def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: b
     returns whether it conflicted."""
     data = session.read_bytes()
     target = dest_proj / session.name
-    existing = target.read_bytes() if target.exists() else None
+    # a session the room holds still under a key a former path gave is the copy it holds (issues/1058)
+    held = next((d / session.name for d in (dest_proj.parent / k for k in keys_of(dest_proj.name)) if (d / session.name).exists()), target)
+    existing = held.read_bytes() if held.exists() else None
     relation = relate(data, existing)
     if apply and may_replace(relation):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
     which = outcome(relation)
     log.say(which, f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, STORE, LIVE), 'session')
-    placed = place_tree(bundle_proj / session.stem, dest_proj / session.stem, apply, STORE, LIVE)
+    placed = place_tree(bundle_proj / session.stem, held.parent / session.stem, apply, STORE, LIVE)
     if placed is not None:
         log.say(placed[0], f'{bundle_proj.name}/{session.stem}/', placed[1])
         return which == 'conflict' or placed[0] == 'conflict'

@@ -39,9 +39,10 @@ SCRIPTS = REPO / 'rsc' / 'migration'
 
 @dataclass
 class Script:
-    """A script's state: how many steps it would take, or that it halted and what it said."""
+    """A script's state: how many steps it would take, and where it halted, what it said there -
+    a fault the room owes by hand, since no step chooses between a from and a to (issues/1058)."""
     steps: str | None = None
-    halted: str | None = None
+    halted: facts.Owed | None = None
     act: facts.Would | None = None
 
 
@@ -73,7 +74,8 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
     for name, (code, lines) in seen.items():
         if code != 0:
             halted += 1
-            out[name] = Script(halted='; '.join(lines))
+            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines) - 1) if len(lines) > 1 else None,
+                               halted=facts.Owed(lines[-1] if lines else facts.phrase('it exits {code}', code=code), 'migration'))
         elif lines:
             pending += 1
             out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), act=facts.Would(spell.line('migration', 'apply'), {name: len(lines)}))
