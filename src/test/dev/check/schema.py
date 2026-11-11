@@ -50,25 +50,24 @@ def check_schema_layout(run) -> None:
                 check='schema.pipeline_schema_placed')
 
 
-@check(tier='schema', on=['rsc/schema/keyword.csv', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=(
+@check(tier='schema', on=['rsc/rpus/grammar/JSONSchema', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=(
     'schema.keyword_role_total',
     'schema.restrictions_keep_names',
 ))
 def check_keyword_roles(run) -> None:
-    """Every keyword of the dialect - draft-04's meta-schema and JSON Reference's $ref - has
-    one role in rsc/schema/keyword.csv, annotation or restriction; and a schema's
-    restrictions drop the annotations at schema positions alone, never a property named
-    for one nor a value that spells one."""
+    """Every keyword draft-04's meta-schema declares has one role in the maintainer's grammar
+    (rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON
+    Reference, being a form of its own; and a schema's restrictions drop the annotations
+    that hold plain values, at schema positions alone, never a property named for one, a
+    value that spells one, nor the schemas `definitions` holds."""
     import schema_walk
     declared = schema_walk.roles()
-    missing = sorted(schema_walk.KEYWORDS - set(declared))
-    stray = sorted(set(declared) - schema_walk.KEYWORDS)
-    unknown = sorted(k for k, role in declared.items() if role not in ('annotation', 'restriction'))
-    run('schema: every keyword of the dialect has one role, annotation or restriction', not (missing or stray or unknown),
-        None if not (missing or stray or unknown) else
-        f'rsc/schema/keyword.csv lacks {missing}, names {stray} the dialect does not, gives {unknown} no known role',
+    missing = sorted(schema_walk.KEYWORDS - set(declared) - {'$ref'})
+    run("schema: every keyword of draft-04's meta-schema has one role in the grammar, annotation or restriction", not missing,
+        None if not missing else
+        f'rsc/rpus/grammar/JSONSchema/draft04.g4 gives {missing} neither role - name each in its annotation or restriction rule',
         check='schema.keyword_role_total')
-    written = {'title': 'T', 'description': 'd', 'type': 'object',
+    written = {'$schema': 'http://json-schema.org/draft-04/schema#', 'id': 'x', 'title': 'T', 'description': 'd', 'type': 'object',
                'properties': {'description': {'type': 'string', 'description': 'x'}, 'title': {'enum': ['a'], 'default': 'a'}},
                'definitions': {'D': {'description': 'q', 'oneOf': [{'type': 'null', 'title': 'n'}]}},
                'enum': [{'description': 'kept'}]}
