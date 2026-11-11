@@ -1,4 +1,4 @@
-run.py: code+schema 1911/1911
+run.py: code+schema 1912/1912
 
 
 check_schema_join: |
@@ -309,7 +309,7 @@ check_memory_merge: |
 
 check_renamed_checkout: |
   ✓ agent.renamed_checkout_is_one_project  (2/2)
-  ✓ migration.renamed_checkout_moves_once  (3/3)
+  ✓ migration.renamed_checkout_moves_once  (4/4)
 
 check_grammar: |
   ✓ grammar.parser_current  (2/2)
@@ -643,7 +643,7 @@ stages:
     tier: code
     line: "307"
   check_renamed_checkout:
-    passes: 5
+    passes: 6
     failures: 0
     tier: code
     line: "310"
@@ -678,8 +678,8 @@ stages:
     tier: code
     line: "346"
 
-checks[code+schema]: 213 types, 1911/1911 invocations passing
-checks[code]: 158 types, 1172/1172 invocations passing
+checks[code+schema]: 213 types, 1912/1912 invocations passing
+checks[code]: 158 types, 1173/1173 invocations passing
 checks[schema]: 55 types, 739/739 invocations passing
 
-dev gate: PASS - code+schema 1911/1911 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1912/1912 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

@@ -20,14 +20,20 @@ case "${1-}" in
   *) echo "usage: $SELF [--apply]" >&2; exit 2 ;;
 esac
 
+# stands <path>: whether something stands at the path once the steps stated above are taken -
+# bare, what they would have removed, moved away or put there counted as done.
+stands() {
+  local path="$1" entry
+  for entry in ${ARRIVED[@]+"${ARRIVED[@]}"}; do [[ "$path" == "$entry" ]] && return 0; done
+  for entry in ${REMOVED[@]+"${REMOVED[@]}"} ${MOVED[@]+"${MOVED[@]}"}; do [[ "$path" == "$entry" ]] && return 1; done
+  [[ -e "$path" || -L "$path" ]]
+}
+
 # move <from> <to>: a file or directory at a former address to its current one.
 move() {
   local from="$1" to="$2"
-  [[ -e "$from" || -L "$from" ]] || return 0
-  local gone="" arrived=""
-  for gone in ${REMOVED[@]+"${REMOVED[@]}"}; do [[ "$to" == "$gone" ]] && break; gone=""; done
-  for arrived in ${ARRIVED[@]+"${ARRIVED[@]}"}; do [[ "$to" == "$arrived" ]] && break; arrived=""; done
-  if [[ -n "$arrived" ]] || { [[ -z "$gone" ]] && [[ -e "$to" || -L "$to" ]]; }; then
+  stands "$from" || return 0
+  if stands "$to"; then
     echo "FAIL: $from and $to both exist - resolve by hand, then run $SELF again" >&2
     exit 1
   fi
@@ -42,6 +48,17 @@ remove() {
   [[ -L "$link" ]] || return 0
   echo "rm $link"
   if (( APPLY )); then rm "$link"; else REMOVED+=("$link"); fi
+}
+
+# release <entry> <record>: a live file or directory the store holds byte for byte at record,
+# removed - the store's copy is the record, so nothing is lost; an entry the store does not
+# hold so is left for the steps after it.
+release() {
+  local entry="$1" record="$2"
+  stands "$entry" && [[ ! -L "$entry" ]] || return 0
+  diff -rq "$entry" "$record" >/dev/null 2>&1 || return 0
+  echo "rm -r $entry - $record holds it"
+  if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
 }
 
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,

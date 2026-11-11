@@ -484,8 +484,17 @@ def check_renamed_checkout(run) -> None:
         (projects / was[2] / 'memory' / 'MEMORY.md').write_text('an older index\n')
         halted = ran()
         stops = halted.returncode == 1 and 'both exist' in halted.stderr and (projects / was[2] / 'memory' / 'MEMORY.md').is_file()
-        run('migration: rsc/migration/1058.sh halts, bare, where a former key\'s entry and the current key\'s both stand', stops,
+        run('migration: rsc/migration/1058.sh halts, bare, where a former key\'s entry and the current key\'s both stand and the store holds no copy of it', stops,
             None if stops else f'it exits {halted.returncode}, saying {halted.stdout!r} {halted.stderr!r}', check='migration.renamed_checkout_moves_once')
+        record = checkout / 'data/input/claude/code/machine-transport/room' / was[2] / 'memory'
+        record.mkdir(parents=True)
+        (record / 'MEMORY.md').write_text('an older index\n')
+        bare_held, applied_held = ran(), ran('--apply')
+        released = (bare_held.returncode == 0 and applied_held.returncode == 0 and not (projects / was[2]).exists()
+                    and (record / 'MEMORY.md').is_file() and (projects / now / 'memory' / 'MEMORY.md').read_text() == 'the index\n')
+        run('migration: rsc/migration/1058.sh releases a former key\'s entry the store holds byte for byte where the current key\'s stands, and halts on none',
+            released, None if released else f'bare said {bare_held.stdout!r} {bare_held.stderr!r}; applied said {applied_held.stdout!r} {applied_held.stderr!r}',
+            check='migration.renamed_checkout_moves_once')
     import facts
     import importlib.util
     spec = importlib.util.spec_from_file_location('migration_status', SRC / 'main' / 'cli' / 'migration' / 'migration.py')
