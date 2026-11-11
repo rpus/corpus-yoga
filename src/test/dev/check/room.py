@@ -31,6 +31,7 @@ import offer as cli_offer
     'report.gives_no_verdict_on_itself',
     'report.every_standing_noun_ends_on_now',
     'report.now_is_the_fold',
+    'report.fail_is_the_findings',
     'report.rows_are_keyed_by_subject',
     'report.says_what_the_nouns_say',
     'status.lines_load_as_yaml',
@@ -276,6 +277,19 @@ def check_status_facts(run) -> None:
     run('report: its now: is the fold of every noun\'s own now:, with the MUST acts its own rows name', bool(same),
         None if same else f'the report says {str(whole.get("now"))[:160]} where the fold gives {str(folded)[:160]}', check='report.now_is_the_fold')
 
+    # The report's FAIL: is every finding the nouns' statuses hold, gathered under each noun's
+    # command (issues/1058): an error is a fact of its noun, said once more where the room is read,
+    # and never an entry of now:, whose every entry is a command.
+    gather = getattr(importlib.import_module('standing'), 'failing', None)
+    findings = {f'corpus-yoga {noun}': found for noun in nouns_with_now if gather is not None and (found := gather(said_by(noun))) is not None}
+    commands = all(str(line).removeprefix('./').startswith('corpus-yoga ') and isinstance(does, dict) and not any(key == 'reports the noun' for key in does)
+                   for line, does in room_now.get('MUST', {}).items())
+    same = gather is not None and whole.get('FAIL') == (findings or None) and commands
+    run('report: its FAIL: is every finding the nouns hold, and every entry of its now: MUST: is a command', same,
+        None if same else 'src/main/standing.py has no failing(said)' if gather is None
+        else f'the report says FAIL: {str(whole.get("FAIL"))[:160]} where the nouns hold {str(findings)[:160]}; MUST: holds {list(room_now.get("MUST", {}))}',
+        check='report.fail_is_the_findings')
+
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
         None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.room_round_trip_holds_no_pair')
@@ -417,8 +431,8 @@ def check_status_facts(run) -> None:
         loaded_empty = yaml.load(said_empty, Loader=Strict)
     except yaml.YAMLError as error:
         loaded_empty = f'does not load - {getattr(error, "problem", error)}'
-    alone = isinstance(loaded_empty, dict) and list(loaded_empty) == ['now']
-    run('status: the report of a room with no row to say loads as one mapping, its now: alone', alone,
+    alone = isinstance(loaded_empty, dict) and list(loaded_empty) in (['now'], ['FAIL', 'now'])   # the nouns' findings and standing are the room's, rows or none
+    run('status: the report of a room with no row to say loads as one mapping - its now:, after FAIL: where a noun holds a finding - and no section', alone,
         None if alone else f'it says {said_empty.strip()[:120]!r}',
         check='status.lines_load_as_yaml')
 

@@ -46,8 +46,9 @@ README.md,86,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema in
 README.md,86,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,86,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,86,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,87,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,87,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,87,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
+README.md,87,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
+README.md,87,doc,rsc/naming/checkout_paths.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
 README.md,88,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
 README.md,89,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
 README.md,90,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
@@ -583,6 +584,9 @@ rsc/metamodel/join.csv,276,path_str,rsc/schema/browser/claude/apiConversation#/d
 rsc/metamodel/join.csv,277,path_str,rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,Y,",rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,,,,cli_only,the account and the organisation a session "
 rsc/migration/1047.sh,2,comment,rsc/migration/1047.sh,Y,# rsc/migration/1047.sh - each pipeline is named for the noun whose promote deposits its
 rsc/migration/1047.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1058.sh,2,comment,rsc/migration/1058.sh,Y,# rsc/migration/1058.sh - a renamed checkout is one project in the room's live store
+rsc/migration/1058.sh,4,comment,rsc/naming/checkout_paths.csv,Y,"# rsc/naming/checkout_paths.csv declares the paths with ~ as this machine's home, is brought"
+rsc/migration/1058.sh,13,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/635.sh,2,comment,rsc/migration/635.sh,Y,# rsc/migration/635.sh - the agent cache holds a directory per provider (issues/635):
 rsc/migration/635.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/636.sh,2,comment,rsc/migration/636.sh,Y,# rsc/migration/636.sh - the live agent stores mount at ext/mnt/agent/<provider> (issues/636);
@@ -921,17 +925,21 @@ src/main/cli/agent/agent.py,25,comment,rsc/provider/providers.csv,Y,"(rsc/provid
 src/main/cli/agent/agent.py,42,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
 src/main/cli/agent/agent.py,79,comment,src/main/cli/agent/drafters.py,Y,corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
 src/main/cli/agent/agent.py,138,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,388,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
-src/main/cli/agent/agent.py,389,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
+src/main/cli/agent/agent.py,401,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
+src/main/cli/agent/agent.py,402,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
+src/main/cli/agent/capture.json,26,path_str,rsc/naming/checkout_paths.csv,Y,"""rsc/naming/checkout_paths.csv"","
 src/main/cli/agent/claude/harness.py,23,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
+src/main/cli/agent/demerge.json,7,path_str,rsc/naming/checkout_paths.csv,Y,"""rsc/naming/checkout_paths.csv"","
 src/main/cli/agent/drafters.py,7,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
 src/main/cli/agent/drafters.py,34,path_str,src/main/cli/agent/drafters.py,Y,SELF = 'src/main/cli/agent/drafters.py'
 src/main/cli/agent/gemini/harness.py,19,comment,rsc/migration/856.sh,Y,rsc/migration/856.sh's to move. The
 src/main/cli/agent/gemini/harness.py,31,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
+src/main/cli/agent/install.json,26,path_str,rsc/naming/checkout_paths.csv,Y,"""rsc/naming/checkout_paths.csv"","
 src/main/cli/agent/list-drafters.json,10,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"""
 src/main/cli/agent/mount.json,7,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/agent/transport.py,25,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
-src/main/cli/agent/transport.py,42,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
+src/main/cli/agent/transport.py,45,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
+src/main/cli/agent/transport.py,104,comment,rsc/naming/checkout_paths.csv,Y,"rsc/naming/checkout_paths.csv declares them, ~ read as this machine's home (issues/1058)."
 src/main/cli/browser/account.py,24,path_str,src/main/cli/browser/account.py,Y,SELF = 'src/main/cli/browser/account.py'
 src/main/cli/browser/browser.json,51,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,30,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1061,8 +1069,8 @@ src/main/cli/metamodel/reject.json,27,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/metamodel/reject.json,28,path_str,rsc/metamodel,Y,"""rsc/metamodel"","
 src/main/cli/metamodel/reject.json,32,path_str,rsc/metamodel/join.csv,Y,"""rsc/metamodel/join.csv"","
 src/main/cli/migration/apply.json,7,path_str,rsc/migration,Y,"""rsc/migration"","
-src/main/cli/migration/migration.json,17,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
-src/main/cli/migration/migration.json,21,path_str,rsc/migration,Y,"""rsc/migration"","
+src/main/cli/migration/migration.json,18,path_str,src/main/cli/migration/migration.py,Y,"""target"": ""src/main/cli/migration/migration.py"","
+src/main/cli/migration/migration.json,22,path_str,rsc/migration,Y,"""rsc/migration"","
 src/main/cli/migration/migration.py,5,comment,rsc/migration/step.sh,Y,"rsc/migration/step.sh, and this noun says them and takes them."
 src/main/cli/migration/migration.py,31,path_str,src/main/cli/migration/migration.py,Y,SELF = 'src/main/cli/migration/migration.py'
 src/main/cli/parse_argv.py,29,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
@@ -1138,8 +1146,8 @@ src/main/cli/stage/stage.py,8,comment,src/main/corpus.py,Y,"The tier (src/main/t
 src/main/cli/stage/stage.py,10,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815)."
 src/main/cli/stage/stage.py,20,comment,src/main/cleaner.py,Y,"The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (issues/837):"
 src/main/cli/stage/stage.py,33,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
-src/main/cli/status/report.py,12,comment,src/main/standing.py,Y,"(src/main/standing.py, issues/949) with the acts the rows name - every act under MAY or MUST, as"
-src/main/cli/status/report.py,29,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
+src/main/cli/status/report.py,13,comment,src/main/standing.py,Y,"(src/main/standing.py, issues/949) with the acts the rows name - every act under MAY or MUST, as"
+src/main/cli/status/report.py,30,path_str,src/main/cli/status/report.py,Y,SELF = 'src/main/cli/status/report.py'
 src/main/cli/status/satisfy.json,31,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/status/satisfy.json,32,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/status/satisfy.json,38,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -1301,7 +1309,7 @@ src/main/export/validate.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=sr
 src/main/export/validate.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/export/vintage.py,6,comment,rsc/naming/export_dir_vintages.csv,Y,"rsc/naming/export_dir_vintages.csv, one row per vintage, each a pattern with named groups"
 src/main/export/vintage.py,17,path_str,src/main/export/vintage.py,Y,SELF = 'src/main/export/vintage.py'
-src/main/facts.py,497,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
+src/main/facts.py,499,comment,src/main/reply.py,Y,"in the printer's lines, for src/main/reply.py."
 src/main/frontier.py,8,comment,src/main/validation_audit.py,Y,"src/main/validation_audit.py), stated per datum from the latest version's log."
 src/main/frontier.py,12,comment,rsc/naming/export_dir_vintages.csv,Y,authority over rsc/naming/export_dir_vintages.csv); browser the
 src/main/frontier.py,18,comment,src/test/dev/run.py,Y,usr gate's corpus tail says it - issues/373) and src/test/dev/run.py (the data-tier
@@ -1467,27 +1475,28 @@ src/test/dev/check/pipeline.py,273,path_str,src/main/present_corpus.py,Y,"@check
 src/test/dev/check/pipeline.py,273,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/pipeline.py,273,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/pipeline.py,273,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/room.py,661,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
-src/test/dev/check/room.py,678,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
-src/test/dev/check/room.py,678,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
-src/test/dev/check/room.py,678,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
+src/test/dev/check/room.py,675,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
+src/test/dev/check/room.py,692,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
+src/test/dev/check/room.py,692,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
+src/test/dev/check/room.py,692,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,26,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
 src/test/dev/check/room.py,26,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
 src/test/dev/check/room.py,26,path_str,src/main/metamodel/metamodel.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
 src/test/dev/check/room.py,26,path_str,src/main/browser/audit.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 's"
-src/test/dev/check/room.py,517,path_str,src/main/facts.py,Y,"'src/main/facts.py prints and does not read: a reader of a status needs a YAML library', check='facts.reads_back_what_it"
-src/test/dev/check/room.py,486,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py'], says=("
-src/test/dev/check/room.py,629,path_str,src/main/provider.py,Y,"'src/main/provider.py writes the Signature and reads none: nothing joins a message to its session',"
-src/test/dev/check/room.py,617,path_str,src/main/provider.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
-src/test/dev/check/room.py,617,path_str,src/main/cli/agent/drafters.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
-src/test/dev/check/room.py,659,path_str,rsc/provider,Y,"@check(tier='code', says=('provider.names_declared', 'provider.registry_parses'), on=['rsc/provider', 'src'])"
-src/test/dev/check/room.py,691,path_str,src/main/cli/forge,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
-src/test/dev/check/room.py,691,path_str,src/test,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
-src/test/dev/check/room.py,502,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
-src/test/dev/check/room.py,676,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/check/room.py,707,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
-src/test/dev/check/room.py,732,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
-src/test/dev/check/room.py,770,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,531,path_str,src/main/facts.py,Y,"'src/main/facts.py prints and does not read: a reader of a status needs a YAML library', check='facts.reads_back_what_it"
+src/test/dev/check/room.py,500,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py'], says=("
+src/test/dev/check/room.py,643,path_str,src/main/provider.py,Y,"'src/main/provider.py writes the Signature and reads none: nothing joins a message to its session',"
+src/test/dev/check/room.py,631,path_str,src/main/provider.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
+src/test/dev/check/room.py,631,path_str,src/main/cli/agent/drafters.py,Y,"@check(tier='code', on=['src/main/provider.py', 'src/main/cli/agent/drafters.py'], says=("
+src/test/dev/check/room.py,673,path_str,rsc/provider,Y,"@check(tier='code', says=('provider.names_declared', 'provider.registry_parses'), on=['rsc/provider', 'src'])"
+src/test/dev/check/room.py,705,path_str,src/main/cli/forge,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
+src/test/dev/check/room.py,705,path_str,src/test,Y,"@check(tier='code', on=['src/main/cli/forge', 'src/test'], says=("
+src/test/dev/check/room.py,289,path_str,src/main/standing.py,Y,None if same else 'src/main/standing.py has no failing(said)' if gather is None
+src/test/dev/check/room.py,516,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
+src/test/dev/check/room.py,690,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
+src/test/dev/check/room.py,721,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
+src/test/dev/check/room.py,746,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
+src/test/dev/check/room.py,784,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
 src/test/dev/check/schema.py,28,comment,rsc/provider/providers.csv,Y,"provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that"
 src/test/dev/check/schema.py,59,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"(rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON"
 src/test/dev/check/schema.py,103,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
@@ -1574,6 +1583,8 @@ src/test/dev/check/tree.py,110,path_str,src/main,Y,"f'src/main/{name}/{p}/ lacks
 src/test/dev/check/tree.py,96,path_str,src/main,Y,(f'src/main/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
 src/test/dev/check/tree.py,307,comment,src/main/latest.py,Y,"# number written elsewhere is a second home for the family's latest, which src/main/latest.py"
 src/test/dev/check/unit.py,21,comment,src/main/rehearsal.schema.json,Y,"src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the"
+src/test/dev/check/unit.py,407,comment,rsc/naming/checkout_paths.csv,Y,"A checkout's former paths, rsc/naming/checkout_paths.csv, name one project: an install"
+src/test/dev/check/unit.py,409,comment,rsc/migration/1058.sh,Y,"reads a session the store holds under a former key as the one it holds, and rsc/migration/1058.sh"
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1600,8 +1611,22 @@ src/test/dev/check/unit.py,327,path_str,src/main/corpus.py,Y,'src/main/corpus.py
 src/test/dev/check/unit.py,314,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
 src/test/dev/check/unit.py,314,path_str,src/main/export/atoms.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
 src/test/dev/check/unit.py,353,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.memory_merge_judges_each_fact_alone',), on=['src/main/cli/agent'])"
+src/test/dev/check/unit.py,451,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
+src/test/dev/check/unit.py,451,path_str,rsc/migration/1058.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
+src/test/dev/check/unit.py,451,path_str,rsc/naming/checkout_paths.csv,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):"
+src/test/dev/check/unit.py,469,path_str,rsc/migration/1058.sh,Y,script = checkout / 'rsc/migration/1058.sh'
+src/test/dev/check/unit.py,505,path_str,rsc/migration/1058.sh,Y,"halted_facts = migration.status_facts({'rsc/migration/1058.sh': (1, ['mv a b', 'FAIL: c and d both exist'])})"
+src/test/dev/check/unit.py,405,path_str,src/main/cli/agent,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
+src/test/dev/check/unit.py,405,path_str,rsc/naming/checkout_paths.csv,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
+src/test/dev/check/unit.py,405,path_str,rsc/migration/step.sh,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
+src/test/dev/check/unit.py,405,path_str,rsc/migration/1058.sh,Y,"on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])"
+src/test/dev/check/unit.py,513,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.offers_only_effective_acts',), on=['src/main/cli/agent'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
+src/test/dev/check/unit.py,530,path_str,src/main/cli/agent/agent.py,Y,"None if effective else 'src/main/cli/agent/agent.py has no install_act(machine, log)' if said is None else f'offered {sa"
+src/test/dev/check/unit.py,473,path_str,rsc/migration/1058.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1058.sh is absent')"
+src/test/dev/check/unit.py,507,path_str,rsc/migration/1058.sh,Y,finding = offered == {} and found == {'scripts': {'rsc/migration/1058.sh': {'halted': 'c and d both exist'}}}
+src/test/dev/check/unit.py,460,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
 src/test/dev/check/upstream.py,178,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,26,path_str,src/main/cli/grammar/grammar.json,Y,os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')
 src/test/dev/check/upstream.py,38,path_str,rsc/rpus/grammar,Y,"@check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=("

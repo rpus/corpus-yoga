@@ -1,0 +1,5 @@
+path,status,note
+~/dev/github/rpus/corpus-yoga,current,"the clone's folder since the repository was renamed rpus/corpus-yoga (issues/514); Claude Code keys the project by this path, as project_key encodes it"
+~/dev/github/rpus/yoga,former,"the clone's folder while the repository was named yoga; each room renamed it, and its project folder, by hand on 2026-08-23"
+~/dev/github/rpus/claude-export-yoga,former,"the clone's folder while the repository was named claude-export-yoga; its project folder holds the memory the later names link to"
+~/dev/Anthropic/claude-export-yoga,former,"the clone's first folder, before the repository moved to the rpus organisation"

@@ -4,6 +4,7 @@
   "phrase": [
     "{n} pending - the script run bare says them",
     "none pending",
+    "it exits {code}",
     "{n} script(s) - {pending} with steps pending, {halted} halted",
     "{n} step(s)",
     "halted - {words}",

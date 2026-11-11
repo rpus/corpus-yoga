@@ -58,6 +58,24 @@ def fold(nows: dict[str, object]) -> dict:
     return facts.ordered(out)
 
 
+def failing(said):
+    """What of a noun's status is a finding: each FAIL's words, under the keys that lead to it;
+    None where it holds none. A noun's now: holds acts, never a finding."""
+    if not isinstance(said, dict):
+        return None
+    if 'FAIL' in said:
+        return said['FAIL']
+    kept = {key: found for key, value in said.items() if key != 'now' and (found := failing(value)) is not None}
+    return kept or None
+
+
+def room_fail() -> dict:
+    """Every finding the nouns hold, each noun's under its command (issues/1058): the room's
+    FAIL:, gathered from the statuses the fold already read."""
+    read_at_once(NOUNS)
+    return {f'corpus-yoga {noun}': found for noun in NOUNS if (found := failing(said_by(noun))) is not None}
+
+
 def room_now() -> dict:
     """The room's standing: the nouns read once, together, and their now: folded."""
     read_at_once(NOUNS)

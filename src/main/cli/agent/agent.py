@@ -259,16 +259,25 @@ def list_agents() -> Census:
 @dataclass
 class Peer:
     """A peer machine's store held here, and what corpus-yoga agent install would write from it
-    into this machine's live store (issues/881): the install's facts by outcome, read dry."""
+    into this machine's live store (issues/881): the install's facts by outcome, read dry, and the
+    install where it would write something."""
     would_write: dict | str
-    act: facts.Would
+    act: facts.Would | None = None
 
 
 @dataclass
 class Merge:
-    """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (issues/881)."""
+    """A project's latest merge record in its memory (issues/881): a fact of the folder, never an
+    act to offer - an undo has no effect the room is owed (issues/1058)."""
     latest: str
-    act: facts.Would | None = None
+
+
+def install_act(machine: str, log: transport.Log) -> facts.Would | None:
+    """The install from a peer, where its dry run would write something; None where it would
+    write nothing, since an act now: offers has an effect (issues/1058)."""
+    if log.key('wrote') not in log.by:
+        return None
+    return facts.Would(spell.line('agent', 'install', **{'from': machine, 'all': True}), {machine: len(log.by[log.key('wrote')])})
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
@@ -285,10 +294,14 @@ def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
         if machine.name == registry.machine():
             continue
         log = adapter.install_all(machine, projects, False, machine.name)
-        peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'),
-                                   facts.Would(spell.line('agent', 'install', **{'from': machine.name, 'all': True}), {machine.name: 1}))
-    merges = {proj.name: Merge(label, facts.Would(spell.line('agent', 'demerge'), {proj.name: 1})) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
-              if (label := adapter.latest_merge(proj)) is not None}
+        peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'), install_act(machine.name, log))
+    merges: dict[str, Merge] = {}
+    held: set[Path] = set()   # each memory folder said once, under its project's current key (issues/1058)
+    for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
+        label, folder = adapter.latest_merge(proj), (proj / 'memory').resolve()
+        if label is not None and folder not in held:
+            held.add(folder)
+            merges[transport.current_key(proj.name)] = Merge(label)
     return peers or facts.phrase('none - no peer machine held'), merges or facts.phrase('none - no merge record')
 
 
@@ -457,7 +470,11 @@ def main() -> int:
         # every local project's memory, newest merge each, all-or-nothing per
         # project (a markerless folder demerges to silence)
         rc = 0
+        undone: set[Path] = set()   # a memory folder two project keys share is undone once (issues/1058)
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
+            if (folder := (proj / 'memory').resolve()) in undone:
+                continue
+            undone.add(folder)
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj) else 0)
         # what an act reports (issues/876, issues/896): the effect, handed up to the launcher's reply; what it would undo is the status's (issues/881)

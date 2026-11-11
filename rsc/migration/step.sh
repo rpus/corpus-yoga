@@ -11,23 +11,34 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 cd "$REPO_DIR" || exit 1
 
 APPLY=0
-MOVED=()
+MOVED=()     # bare: what the moves stated above would have taken away
+REMOVED=()   # bare: the links the removes stated above would have taken away
+ARRIVED=()   # bare: where the moves stated above would have put something
 case "${1-}" in
   --apply) APPLY=1 ;;
   '') ;;
   *) echo "usage: $SELF [--apply]" >&2; exit 2 ;;
 esac
 
+# stands <path>: whether something stands at the path once the steps stated above are taken -
+# bare, what they would have removed, moved away or put there counted as done.
+stands() {
+  local path="$1" entry
+  for entry in ${ARRIVED[@]+"${ARRIVED[@]}"}; do [[ "$path" == "$entry" ]] && return 0; done
+  for entry in ${REMOVED[@]+"${REMOVED[@]}"} ${MOVED[@]+"${MOVED[@]}"}; do [[ "$path" == "$entry" ]] && return 1; done
+  [[ -e "$path" || -L "$path" ]]
+}
+
 # move <from> <to>: a file or directory at a former address to its current one.
 move() {
   local from="$1" to="$2"
-  [[ -e "$from" || -L "$from" ]] || return 0
-  if [[ -e "$to" || -L "$to" ]]; then
+  stands "$from" || return 0
+  if stands "$to"; then
     echo "FAIL: $from and $to both exist - resolve by hand, then run $SELF again" >&2
     exit 1
   fi
   echo "mv $from $to"
-  if (( APPLY )); then mkdir -p "$(dirname "$to")" && mv "$from" "$to"; else MOVED+=("$from"); fi
+  if (( APPLY )); then mkdir -p "$(dirname "$to")" && mv "$from" "$to"; else MOVED+=("$from"); ARRIVED+=("$to"); fi
 }
 
 # remove <link>: a symlink at a retired address; a file or directory there is not a
@@ -36,7 +47,18 @@ remove() {
   local link="$1"
   [[ -L "$link" ]] || return 0
   echo "rm $link"
-  if (( APPLY )); then rm "$link"; fi
+  if (( APPLY )); then rm "$link"; else REMOVED+=("$link"); fi
+}
+
+# release <entry> <record>: a live file or directory the store holds byte for byte at record,
+# removed - the store's copy is the record, so nothing is lost; an entry the store does not
+# hold so is left for the steps after it.
+release() {
+  local entry="$1" record="$2"
+  stands "$entry" && [[ ! -L "$entry" ]] || return 0
+  diff -rq "$entry" "$record" >/dev/null 2>&1 || return 0
+  echo "rm -r $entry - $record holds it"
+  if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
 }
 
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,
@@ -55,16 +77,18 @@ discard() {
 
 # retire <directory>: a directory nothing writes any more, removed once empty - bare,
 # once the moves stated above it would have emptied it; a directory still holding
-# files is named and left.
+# files is named and left. Finder's .DS_Store is no file of it: Finder writes one into
+# any directory it shows, and rebuilds it.
 retire() {
   local dir="$1" entry moved
   [[ -d "$dir" && ! -L "$dir" ]] || return 0
   for entry in "$dir"/* "$dir"/.[!.]*; do
     [[ -e "$entry" || -L "$entry" ]] || continue
+    [[ "${entry##*/}" == .DS_Store ]] && continue
     for moved in ${MOVED[@]+"${MOVED[@]}"}; do [[ "$entry" == "$moved" ]] && continue 2; done
     echo "FAIL: $dir still holds $entry - move or remove it by hand, then run $SELF again" >&2
     exit 1
   done
   echo "rmdir $dir"
-  if (( APPLY )); then rmdir "$dir"; fi
+  if (( APPLY )); then rm -f "$dir/.DS_Store" && rmdir "$dir"; fi
 }

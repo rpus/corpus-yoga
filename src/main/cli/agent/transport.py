@@ -29,7 +29,10 @@ the project key being Claude Code's encoding of the workspace path, so one
 workspace lands under one name in every provider's store.
 """
 from collections.abc import Callable, Iterator
+import csv
+import functools
 import importlib.util
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
@@ -90,6 +93,35 @@ def project_key(workspace: str) -> str:
     [A-Za-z0-9] becomes '-' - so one workspace reads the same in every
     provider's store."""
     return ''.join(c if c.isalnum() else '-' for c in workspace)
+
+
+CHECKOUT_PATHS = REPO / 'rsc' / 'naming' / 'checkout_paths.csv'
+
+
+@functools.cache
+def _checkout_keys() -> tuple[str, tuple[str, ...]]:
+    """The project key of the checkout's current path, then those of its former paths, as
+    rsc/naming/checkout_paths.csv declares them, ~ read as this machine's home (issues/1058)."""
+    rows = list(csv.DictReader(CHECKOUT_PATHS.open()))
+    def key(path: str) -> str:
+        return project_key(os.path.expanduser(path))
+    current = [key(row['path']) for row in rows if row['status'] == 'current']
+    assert len(current) == 1, f'{CHECKOUT_PATHS.relative_to(REPO)} declares {len(current)} current paths, where one stands'
+    return current[0], tuple(key(row['path']) for row in rows if row['status'] == 'former')
+
+
+def current_key(key: str) -> str:
+    """The key a project is installed and said under: the checkout's current key for any
+    key a former path of the checkout gave, else the key itself."""
+    current, former = _checkout_keys()
+    return current if key in former else key
+
+
+def keys_of(key: str) -> list[str]:
+    """The keys a project's copies may stand under in a store: its own, then, for the
+    checkout's current key, each key a former path gave."""
+    current, former = _checkout_keys()
+    return [key, *former] if key == current else [key]
 
 
 def store(provider: str) -> Path:

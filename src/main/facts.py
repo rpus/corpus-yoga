@@ -410,7 +410,9 @@ def now_of(shape) -> dict:
 
 @dataclass(frozen=True)
 class Finding:
-    """What a status found wrong: the FAIL the usr gate's stage table counts, and the act on it."""
+    """What a status found wrong: the FAIL the usr gate's stage table counts and the room's
+    report gathers (standing.failing), and the act on it where a verb clears it. A finding is
+    a fact of its body, never an entry of now:, which holds acts alone (issues/1058)."""
     FAIL: str
     act: Would | None = None
 
