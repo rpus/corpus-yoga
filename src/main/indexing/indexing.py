@@ -527,7 +527,7 @@ class Orphans:
 class Candidates:
     queue: str | None = None
     undisposed: list[str] | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -538,7 +538,7 @@ class Unanchorable:
 @dataclass
 class Indexing:
     """The curation surface: the disposal record's counts, its orphans, the candidate queue
-    with the reader's acts as its remedy, and what the corpus cannot anchor."""
+    with the reader's acts on it, and what the corpus cannot anchor."""
     accepted: Disposal
     rejected: Disposal
     orphans: Orphans | str | None = None
@@ -560,16 +560,16 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
                        if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
         out.candidates = Candidates(queue=facts.phrase('unknown - no concept capture on this machine'),
-                                    remedy=facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': 1}))
+                                    act=facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': 1}))
         return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
-    # A nonzero queue is the reader's act awaiting, stated with its remedy as a notice
+    # A nonzero queue is the reader's act awaiting, stated with its act as a notice
     # the gate does not count (issues/675): no verb failed to produce it, and only the
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (issues/644).
-    out.candidates = (Candidates(undisposed=pending, remedy=facts.Would(spell.line('indexing', 'list-candidates'),
+    out.candidates = (Candidates(undisposed=pending, act=facts.Would(spell.line('indexing', 'list-candidates'),
                                                                         {'tmp/cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
                       if pending else facts.phrase('none - fully disposed'))
     if unanchorable:
@@ -583,7 +583,7 @@ class Currency:
     conversations: int
     covered_by_the_captures: int
     lag: str | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -624,7 +624,7 @@ def captures() -> Captures:
         out.corpus = Currency(n, m)
         if m < n:
             out.corpus.lag = facts.phrase('the paid layer lags the corpus')
-            out.corpus.remedy = facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': n - m})
+            out.corpus.act = facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': n - m})
     return out
 
 

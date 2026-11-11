@@ -34,7 +34,7 @@ RECORD = tier.TMP / 'browser' / 'fetch'   # <provider>.json, the account as last
 class Moved:
     """A chat new or grown since its capture, with the capture that acts on it."""
     standing: str
-    remedy: facts.Would
+    act: facts.Would
 
 
 @dataclass
@@ -53,7 +53,7 @@ class Account:
 class Unfetched:
     """An account no fetch has recorded, with the fetch that records it."""
     standing: str
-    remedy: facts.Would
+    act: facts.Would
 
 
 def alnum(s: str) -> str:

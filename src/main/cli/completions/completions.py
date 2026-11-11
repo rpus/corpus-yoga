@@ -204,7 +204,7 @@ def uninstall_completion() -> int:
 @dataclass
 class Completions:
     standing: str = facts.named('tab-completion')
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -229,13 +229,13 @@ def loads() -> bool | None:
     return (asked.stdout.strip().splitlines() or [''])[-1] == '1'
 
 
-# ./corpus-yoga in the remedy: the bare word is the alias the block binds to one copy,
-# and where a remedy is owed it is unbound or bound to another copy (issues/514).
+# ./corpus-yoga in the act: the bare word is the alias the block binds to one copy,
+# and where the install is owed it is unbound or bound to another copy (issues/514).
 INSTALL = './corpus-yoga completions install'
 
 
 def standing() -> Completions:
-    """Whether tab completes corpus-yoga in zsh from this copy, and the remedy where not."""
+    """Whether tab completes corpus-yoga in zsh from this copy, and the install where not."""
     zshrc = Path.home() / '.zshrc'
     found = blocks_of(zshrc.read_text().splitlines() if zshrc.exists() else [])
     loaded = loads()

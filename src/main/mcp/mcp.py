@@ -98,7 +98,7 @@ class SchemaTs:
     category_tags: int
     declarations: int
     tables: str
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -120,7 +120,7 @@ class Family:
     faces: str = ''
     layers: dict[str, int] | None = None
     differs_by: str | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -183,7 +183,7 @@ def status() -> int:
                  sum(len(b) for b in declared.values()), len(declared),
                  sum(1 for t in tagged.values() if t), len(tagged),
                  tables=facts.phrase('faced under {cache}', cache=cache) if _tables_current(declared) else facts.phrase('NOT faced under {cache}', cache=cache),
-                 remedy=None if _tables_current(declared) else facts.Would(spell.line('mcp', 'derive'), {cache: 1})),
+                 act=None if _tables_current(declared) else facts.Would(spell.line('mcp', 'derive'), {cache: 1})),
         additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
             facts.phrase('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
             why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
@@ -210,12 +210,12 @@ def status() -> int:
                            else facts.phrase('consumer and producer NOT faced under {cache}', cache=cache)),
                     layers=dict(factoring.partition(json.loads(wanted))))
     if not face.current(json.loads(have)):
-        family.remedy = facts.Would(spell.line('mcp', 'derive'), {cache: 1})
+        family.act = facts.Would(spell.line('mcp', 'derive'), {cache: 1})
     if not current:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
         family.differs_by = facts.phrase('{n} line(s)', n=changed)
-        family.remedy = facts.Would(spell.line('mcp', 'derive'), {rel.name: 1})
+        family.act = facts.Would(spell.line('mcp', 'derive'), {rel.name: 1})
     out.family = family
     out.mcp = facts.phrase('{family} {standing}, {agreement} with the snapshot', family=rel, standing='current' if current else 'STALE', agreement='agreeing' if not bad else 'disagreeing')
     facts.say_standing(out)

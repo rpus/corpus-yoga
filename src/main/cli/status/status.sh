@@ -467,9 +467,10 @@ check_pipeline_inputs() {
 
 # What the report says the room MUST run, and of it what is satisfy's own to run (issues/777,
 # issues/1050). The report is run for its rows; its MUST acts - the rows' commands as typed and
-# every noun's own - come back as data, and satisfy runs each whose command its declaration names (satisfy.json's `x`), and
-# the mint, which is satisfy itself. NOT a brew install (not ours to perform) and NOT the
-# machine binding (a decision, not a derivation): those are listed, each the reader's.
+# every noun's own - come back as data, and satisfy runs each corpus-yoga act among them, its
+# verb's own declaration having said MUST; each brew install, through its send; each command of
+# the machine's own its declaration names (satisfy.json's `x`); and the mint, which is satisfy
+# itself. Any other command is listed, the reader's.
 _must=""
 _held() { report >/dev/null; _must="$(_say must)"; }
 
@@ -486,7 +487,7 @@ satisfy() {
   while IFS=$'\t' read -r command does where; do
     [[ -n "$command" ]] || continue
     echo "  - $where: $command - $does"
-    if [[ "$command" == "$own" || "$command" == "brew install "* ]] || grep -qxF -- "${command#./}" <<< "$declared"; then
+    if [[ "$command" == "$own" || "$command" == "brew install "* || "${command#./}" == "corpus-yoga "* ]] || grep -qxF -- "$command" <<< "$declared"; then
       grep -qxF -- "$command" <<< "$mine" || mine+="$command"$'\n'
     fi
   done <<< "$_must"

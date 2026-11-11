@@ -210,7 +210,7 @@ class Session:
 class Mount:
     """A live store this room does not mount: which rows cannot appear, and what makes them."""
     standing: str
-    remedy: facts.Would
+    act: facts.Would
 
 
 Sessions = dict[str, dict[str, dict[str, dict[str, Session]]]]   # by where - local, then each machine - provider, project and id
@@ -261,14 +261,14 @@ class Peer:
     """A peer machine's store held here, and what corpus-yoga agent install would write from it
     into this machine's live store (issues/881): the install's facts by outcome, read dry."""
     would_write: dict | str
-    remedy: facts.Would
+    act: facts.Would
 
 
 @dataclass
 class Merge:
     """A project's latest merge record in its memory, which corpus-yoga agent demerge would undo (issues/881)."""
     latest: str
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:

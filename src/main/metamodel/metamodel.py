@@ -104,7 +104,7 @@ class Join:
 
     def facts(self) -> dict:
         found = self.collisions
-        return {'FAIL': found.FAIL if found is not None else None, 'remedy': found.remedy if found is not None else None,
+        return {'FAIL': found.FAIL if found is not None else None, 'act': found.act if found is not None else None,
                 'shared names': self.shared_names, **self.rows, 'emptiness edges': self.emptiness_edges}
 
 
@@ -205,7 +205,7 @@ class Catalogue:
     present: str                  # the catalogues the cache holds, of those the schema tree derives
     underived: str | None = None
     not_yet_projected: int | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -231,7 +231,7 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  remedy=(facts.Would(spell.line('metamodel', 'derive'), {'tmp/cache/metamodel': len(missing) + len(underived)})
+                  act=(facts.Would(spell.line('metamodel', 'derive'), {'tmp/cache/metamodel': len(missing) + len(underived)})
                           if missing or underived else None)),
         table, join))
 

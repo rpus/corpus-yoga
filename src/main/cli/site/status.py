@@ -27,7 +27,7 @@ REPO = _root[0]
 @dataclass
 class CorpusPage:
     title: str = facts.named('the corpus page')
-    remedy: facts.Would | None = None     # the render, while the page lags the corpus (issues/1000)
+    act: facts.Would | None = None     # the render, while the page lags the corpus (issues/1000)
 
 
 @dataclass
@@ -66,7 +66,7 @@ def read_lag(site: Site) -> bool:
     except KeyError:
         # a render before the turn counts' home (issues/1001): the run re-renders the corpus, the counts with it
         site.lags = {'unread': facts.Unsettled(facts.phrase('the corpus predates its turn counts by role'), 'site'),
-                     'remedy': facts.Would(spell.line('pipeline', 'run'), {'data/output/markdown': 1})}
+                     'act': facts.Would(spell.line('pipeline', 'run'), {'data/output/markdown': 1})}
         return False
     found = declared.lag(page, corpus)
     if not found:
@@ -112,13 +112,13 @@ def main() -> int:
     if position is not None:
         site.clone = facts.Finding(position[1]) if refused else position[1]
     if absent:
-        site.pages = {'state': standing, 'remedy': facts.Would(spell.line('site', 'assemble'), {'data/output/site/': 1})}
+        site.pages = {'state': standing, 'act': facts.Would(spell.line('site', 'assemble'), {'data/output/site/': 1})}
     if read_lag(site) and isinstance(site.index, CorpusPage):
-        site.index.remedy = facts.Would(spell.line('site', 'render'), {'index.html': 1})   # before the publish: what would land is the lag otherwise
+        site.index.act = facts.Would(spell.line('site', 'render'), {'index.html': 1})   # before the publish: what would land is the lag otherwise
     if land and not absent and not refused:
         # what would land, each file with what changes in it, under the act that lands it (issues/881,
         # issues/998); a clone the publish refuses has its finding instead
-        site.publish = {'remedy': facts.Would(spell.line('site', 'sync'), land)}
+        site.publish = {'act': facts.Would(spell.line('site', 'sync'), land)}
     elif land:
         site.publish = land
     elif site.deploy != facts.phrase("the mount ext/mnt/site is present, rpus.co's clone"):

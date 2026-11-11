@@ -29,24 +29,24 @@ REFUSING = {'settings': ('drift', 'unverified'), 'branches': ('unverified',), 'r
 class Row:
     """One probe's answer, under what it is about (issues/779): the answer alone where the probe is
     satisfied, the answer under the state's word where it is not - one fact a line, never
-    a sentence joining the two (issues/871) - and where a remedy stands, its `remedy` beside it (issues/777)."""
+    a sentence joining the two (issues/871) - and where an act stands, the act, which now: says (issues/1050)."""
     answer: str | facts.Unsettled
     state: str
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
     def facts(self) -> dict | str | facts.Unsettled:
-        if self.state == 'ok' and self.remedy is None:
+        if self.state == 'ok' and self.act is None:
             return self.answer
-        return {self.state: self.answer, **({'remedy': self.remedy} if self.remedy is not None else {})}
+        return {self.state: self.answer, **({'act': self.act} if self.act is not None else {})}
 
 
 @dataclass
 class Section:
     rows: dict[str, Row]          # by what each probe is about
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
     def facts(self) -> dict:
-        return {**self.rows, 'remedy': self.remedy}
+        return {**self.rows, 'act': self.act}
 
 
 @dataclass
@@ -89,24 +89,24 @@ def main() -> int:
         if state == 'pr':
             opens[cells[2]] = cells[3]
             continue
-        # a corpus-yoga act is the row's remedy; a typed command or words are no act, and the row's
+        # a corpus-yoga act is the row's act; a typed command or words are no act, and the row's
         # state says what stands (issues/1034)
-        remedy = facts.Would(said, {cells[2]: 1}) if said.startswith('corpus-yoga ') else None
+        act = facts.Would(said, {cells[2]: 1}) if said.startswith('corpus-yoga ') else None
         if section == 'settings' and state == 'drift':
-            remedy = facts.Would(spell.line('forge', 'push'), {cells[2]: 1})   # the act; the status is its dry run (issues/881)
+            act = facts.Would(spell.line('forge', 'push'), {cells[2]: 1})   # the act; the status is its dry run (issues/881)
         if section in ('branches', 'refs') and state in ('deletable', 'server_deletable', 'stale'):
-            remedy = facts.Would(spell.line('forge', 'clean'), {cells[2]: 1})   # the cleaner over what the status names (issues/871)
-        by_section.setdefault(section, {})[cells[2]] = Row(facts.Unsettled(cells[3], 'forge') if state == 'unverified' else cells[3], state, remedy)
+            act = facts.Would(spell.line('forge', 'clean'), {cells[2]: 1})   # the cleaner over what the status names (issues/871)
+        by_section.setdefault(section, {})[cells[2]] = Row(facts.Unsettled(cells[3], 'forge') if state == 'unverified' else cells[3], state, act)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
     # the commit hook's state is the test noun's to say (issues/777, issues/778): the gate row is its saying
     hook = _test_status().commit_hook()
-    by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.remedy),
+    by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.act),
                               **by_section.get('checkout', {})}
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
     # each open PR's merge over its head branch while no refuse-class drift stands (issues/947) -
     # the dry run is the status, and now: gathers it with every other act the body names (issues/1028)
-    pulls: dict[str, dict] = {f'pull/{number}': {'head': head, **({} if refused else {'remedy': facts.Would(spell.line('forge', 'merge', number), {head: 1})})}
+    pulls: dict[str, dict] = {f'pull/{number}': {'head': head, **({} if refused else {'act': facts.Would(spell.line('forge', 'merge', number), {head: 1})})}
                               for number, head in opens.items()}
     unread = any(row.state == 'unverified' for row in (branches or {}).values())
     out = Status(

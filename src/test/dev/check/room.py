@@ -355,7 +355,7 @@ def check_status_facts(run) -> None:
     # The pipeline noun says each pipeline by its declaration and each staged unit by its
     # facts (issues/800): under `pipelines:` the pipelines alone, each with its declared input and
     # the steps its plan names; under `staged:` a mapping of units, each a mapping of facts;
-    # the counts left to `corpus-yoga stage`; the commands under `remedy:`.
+    # the counts left to `corpus-yoga stage`; its acts under now: (issues/1050).
     pipeline_said = said_by('pipeline')
     declared_pipelines = sorted(d.name for d in (SRC / 'main').iterdir() if (d / 'pipeline.json').is_file())
     def planned(name: str) -> list[str]:
@@ -393,8 +393,6 @@ def check_status_facts(run) -> None:
             if not isinstance(unit, dict) or 'judged' not in unit:
                 why = f'the unit {address[:60]} is said as {str(unit)[:80]!r}, not by its facts'
                 break
-    if why is None and 'remedy' in pipeline_said:
-        why = 'a remedy stands at the top, beside no unit: one stands only beside the unit whose state is a fault'
     run('status: corpus-yoga pipeline says each pipeline by its declaration and each staged unit by its facts', why is None, why,
         check='status.pipeline_says_declarations_and_units')
     for noun in ('agent', 'browser', 'export'):
@@ -404,8 +402,8 @@ def check_status_facts(run) -> None:
         run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
             check='status.pipeline_says_declarations_and_units')
 
-    # The default report of a room with nothing to remedy is still one mapping (issues/807): the
-    # worktree the gate runs in always has remedies, so the empty case is made here.
+    # The default report of a room with no row to say is still one mapping (issues/807): the
+    # worktree the gate runs in always has rows, so the empty case is made here.
     import tempfile
     with tempfile.NamedTemporaryFile('w', suffix='.rows', delete=False) as empty:
         empty.write('x\tgraft\tnonesuch\t/nowhere\n')
@@ -423,7 +421,7 @@ def check_status_facts(run) -> None:
         check='status.lines_load_as_yaml')
 
     # The machine report gives no verdict on itself (issues/786): it ends at its last section,
-    # and what needs doing is read from its remedies.
+    # and what needs doing is read from its now:.
     verdict = whole.get('status')
     run('report: it gives no verdict on itself', bool(whole) and verdict is None,
         None if whole and verdict is None else f'the report ends `status: {str(verdict)[:120]}`' if whole else 'corpus-yoga status --show-all loads as nothing',

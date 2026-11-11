@@ -35,7 +35,7 @@ class Pipeline:
     measure: str | dict[str, str] | None
     schemas: list[str]
     steps: list[str]
-    remedy: facts.Would | None = None     # the run, for what it is owed one (issues/1005)
+    act: facts.Would | None = None     # the run, for what it is owed one (issues/1005)
 
 
 @dataclass
@@ -94,7 +94,7 @@ def main() -> int:
     report = corpus.report_facts(None)
     for name, run in owed_runs().items():
         if name in pipelines:
-            pipelines[name].remedy = run
+            pipelines[name].act = run
     out = Status(pipelines, report.staged)
     out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)

@@ -27,13 +27,13 @@ class Assets:
     present: str
     versions: list[str] | None = None
     absent: list[str] | str | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
 class Server:
     daemon: str = facts.named('serve_markdown daemon')
-    remedy: facts.Would | None = None     # the stop or the start the daemon's state allows (issues/960)
+    act: facts.Would | None = None     # the stop or the start the daemon's state allows (issues/960)
     render_assets: Assets | None = None
 
 
@@ -70,7 +70,7 @@ def main() -> int:
         facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
         (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
         facts.Would(spell.line('server', 'ensure-assets'), {'ext/lib/serve_markdown': len(missing)}) if missing else None)))
-    out.server.remedy = daemon_act(bool(found), rendered)
+    out.server.act = daemon_act(bool(found), rendered)
     out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)
     return 0

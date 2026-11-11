@@ -201,10 +201,10 @@ def brief() -> Brief | None:
     for provider in sorted({p for _m, p, _s in sessions}):
         named = sorted(k for k in sessions if k[1] == provider)
         absent = [k for k in named if not held(k[1], k[2])]
-        remedies = {'/'.join(k): _capture(*k) for k in absent}
+        captures = {'/'.join(k): _capture(*k) for k in absent}
         out.providers[provider] = Named(len(named), len(named) - len(absent), {
-            session: facts.Would(remedy, {session: 1}) if remedy.startswith('corpus-yoga ') else remedy
-            for session, remedy in remedies.items()} or None)
+            session: facts.Would(capture, {session: 1}) if capture.startswith('corpus-yoga ') else capture
+            for session, capture in captures.items()} or None)
     return out
 
 

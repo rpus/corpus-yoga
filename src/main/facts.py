@@ -410,9 +410,9 @@ def now_of(shape) -> dict:
 
 @dataclass(frozen=True)
 class Finding:
-    """What a status found wrong: the FAIL the usr gate's stage table counts, and its remedy."""
+    """What a status found wrong: the FAIL the usr gate's stage table counts, and the act on it."""
     FAIL: str
-    remedy: Would | None = None
+    act: Would | None = None
 
 
 def _kept(pairs) -> dict | None:

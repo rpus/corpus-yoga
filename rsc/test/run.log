@@ -210,7 +210,7 @@ check_effects: |
 
 check_acts_said_once: |
   ✓ cli.every_act_declares_its_would
-  ✓ cli.must_is_what_satisfy_runs
+  ✓ cli.satisfy_names_no_act
   ✓ status.now_is_gathered_from_the_body
 
 check_status_is_the_dry_run: |

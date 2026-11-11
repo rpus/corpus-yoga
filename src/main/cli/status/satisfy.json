@@ -1,5 +1,5 @@
 {
-  "help": "make this machine satisfy what the report names - the mint of the venv, and every act the report's now says the room MUST run (issues/1050) - the corpus-yoga acts its x names, the tools it installs with brew, Docker started, a dangling ext/mnt/site removed; it writes outside the repo",
+  "help": "make this machine satisfy what the report names - the mint of the venv, and every act the report's now says the room MUST run (issues/1050) - each corpus-yoga act whose own verb declares MUST, the tools it installs with brew, and the commands its x names, Docker started and a dangling ext/mnt/site removed; it writes outside the repo",
   "would": "would satisfy",
   "modality": "MUST",
   "args": [],
@@ -42,11 +42,6 @@
     "rsc/provider"
   ],
   "x": [
-    "corpus-yoga grammar generate",
-    "corpus-yoga agent mount",
-    "corpus-yoga test install-hook",
-    "corpus-yoga completions install",
-    "corpus-yoga migration apply",
     "open -a Docker",
     "rm ext/mnt/site"
   ]

@@ -11,7 +11,7 @@ rsc/migration/step.sh, and this noun says them and takes them.
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
 The status is those three states, read by running every script bare: a script with
-steps is said with how many and carries the sync as its remedy, a halted one with what it
+steps is said with how many and carries the apply as its act, a halted one with what it
 said and the reader's own act. The steps themselves are the script's to say - it is the
 declaration of its moves, and prints them bare - so no status restates them. The sync
 names each script with steps and how many, runs each, relays its lines as it
@@ -42,7 +42,7 @@ class Script:
     """A script's state: how many steps it would take, or that it halted and what it said."""
     steps: str | None = None
     halted: str | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -76,7 +76,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
             out[name] = Script(halted='; '.join(lines))
         elif lines:
             pending += 1
-            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), remedy=facts.Would(spell.line('migration', 'apply'), {name: len(lines)}))
+            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), act=facts.Would(spell.line('migration', 'apply'), {name: len(lines)}))
         else:
             out[name] = facts.phrase('none pending')
     return Status(out, facts.phrase('{n} script(s) - {pending} with steps pending, {halted} halted', n=len(out), pending=pending, halted=halted))
