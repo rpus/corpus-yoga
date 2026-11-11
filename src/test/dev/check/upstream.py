@@ -115,7 +115,7 @@ def check_reference(run) -> None:
                 check='reference.lineage_changelog')
 
 
-@check(tier='schema', on=['rsc/reference/mcp', 'rsc/schema/derived/mcp', 'src/main/mcp', 'src/gen/grammar'], says=(
+@check(tier='schema', on=['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'], says=(
     'mcp.faces_derivable',
     'mcp.factoring_agrees',
     'mcp.factoring_current',
@@ -123,7 +123,7 @@ def check_reference(run) -> None:
 ))
 def check_mcp_factoring(run) -> None:
     """The house MCP factoring is a committed derivation: the latest
-    rsc/schema/derived/mcp/mcpMessage version must be byte-identical to what
+    rsc/schema/mcp/mcpMessage version must be byte-identical to what
     corpus-yoga mcp derive generates from the committed schema.ts and the family's
     tables (mcp.factoring_current), and every definition of upstream's schema.json -
     the witness, never a source - must equal its house counterpart flattened and
@@ -131,7 +131,7 @@ def check_mcp_factoring(run) -> None:
     lineage's schema.ts must parse (mcp.lineages_parse)."""
     target = factoring.latest_version(factoring.FAMILY_DIR)
     if not target:
-        run('mcp: rsc/schema/derived/mcp/mcpMessage has a version', False,
+        run('mcp: rsc/schema/mcp/mcpMessage has a version', False,
             'corpus-yoga mcp derive derives v1.json', check='mcp.factoring_current')
         return
     rel = target.relative_to(REPO_ROOT)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 factoring.py - the house factoring of the MCP schema (issues/562, issues/598): generated from
-upstream's schema.ts alone, in draft-04, and written to rsc/schema/derived/mcp/mcpMessage;
+upstream's schema.ts alone, in draft-04, and written to rsc/schema/mcp/mcpMessage;
 upstream's schema.json stands as the witness the result must flatten to, never as a
 source.
 
@@ -95,7 +95,7 @@ REPO = _root[0]
 
 SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
-FAMILY_DIR   = REPO / 'rsc/schema/derived/mcp/mcpMessage'
+FAMILY_DIR   = REPO / 'rsc/schema/mcp/mcpMessage'
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
 LAYERS       = FAMILY_DIR / 'layer.csv'
 LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
@@ -852,11 +852,11 @@ def factored(flat_shapes: dict, described: dict, declared: dict, prov: dict,
             f"{prov['ts_url']}), read through the house TypeScript grammar by src/main/mcp/generation.py, one stated "
             "rule per TypeScript form; upstream's schema.json at that commit "
             f"(SHA256 {prov['sha256']}) is the witness every definition here must flatten to, up to the readings "
-            'rsc/schema/derived/mcp/mcpMessage/addition.csv declares (the null upstream drops from JSONValue, the protocol '
+            'rsc/schema/mcp/mcpMessage/addition.csv declares (the null upstream drops from JSONValue, the protocol '
             'version pinned on the _meta field that names it). Definitions schema.ts leaves without a JSDoc take their text from '
-            'rsc/schema/derived/mcp/mcpMessage/description.csv; the definitions no message carries are declared in '
-            'rsc/schema/derived/mcp/mcpMessage/unreachable.csv. Every description ends with the definition\'s layer - the '
-            "house's reading of the @category tag schema.ts carries, by rsc/schema/derived/mcp/mcpMessage/layer.csv (the layers, "
+            'rsc/schema/mcp/mcpMessage/description.csv; the definitions no message carries are declared in '
+            'rsc/schema/mcp/mcpMessage/unreachable.csv. Every description ends with the definition\'s layer - the '
+            "house's reading of the @category tag schema.ts carries, by rsc/schema/mcp/mcpMessage/layer.csv (the layers, "
             'each with its reading), category_layer.csv (category to layer) and placement.csv (what the tag and the '
             'composition cannot place) - so the schema reads '
             'by concern. One instance is one JSON-RPC message.'

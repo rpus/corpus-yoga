@@ -27,6 +27,6 @@
   "args": [],
   "r": [
     "rsc/reference/mcp",
-    "rsc/schema/derived/mcp"
+    "rsc/schema/mcp"
   ]
 }

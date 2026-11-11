@@ -155,7 +155,7 @@ beside the family's version file and fails on an undeclared unreachable
 definition, on a declared name the root reaches, and on a declared name that is
 no definition. `rsc/schema/export/claude/conversations/unreachable.csv` declares
 the three API tool inputs no export has carried;
-`rsc/schema/derived/mcp/mcpMessage/unreachable.csv` the result union no message
+`rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
 carries (issues/588).
 
 ### 3. Validate and register
@@ -311,7 +311,7 @@ declared and every declared lineage held (`reference.lineage_declared`), and eve
 pin has its changelog section (`reference.lineage_changelog`). Every house schema
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
-`rsc/schema/derived/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a
+`rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a
 committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/factoring.py`)
 generates its latest version from upstream's `schema.ts` alone - every declaration
 read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
@@ -319,17 +319,17 @@ shape upstream's generator would give it, one stated rule per TypeScript form
 (`src/main/mcp/generation.py`), composed over the extends clauses and tagged by
 the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two tables
 faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
-beside the version file: `rsc/schema/derived/mcp/mcpMessage/description.csv` (house
+beside the version file: `rsc/schema/mcp/mcpMessage/description.csv` (house
 text for the definitions schema.ts leaves without a JSDoc),
-`rsc/schema/derived/mcp/mcpMessage/unreachable.csv` (the definitions no message
+`rsc/schema/mcp/mcpMessage/unreachable.csv` (the definitions no message
 carries, which `structure.all_definitions_reachable` reads and the derivation
-refuses to disagree with), `rsc/schema/derived/mcp/mcpMessage/layer.csv` (the layers
+refuses to disagree with), `rsc/schema/mcp/mcpMessage/layer.csv` (the layers
 the protocol reads by, one row each with its reading - jsonrpc, session, resources,
 tools, prompts, content, agentic, tasks - the closed vocabulary; issues/595),
-`rsc/schema/derived/mcp/mcpMessage/category_layer.csv` (the house's reading of the
-`@category` tags into those layers), `rsc/schema/derived/mcp/mcpMessage/placement.csv`
+`rsc/schema/mcp/mcpMessage/category_layer.csv` (the house's reading of the
+`@category` tags into those layers), `rsc/schema/mcp/mcpMessage/placement.csv`
 (the definitions neither the tag nor the composition places, each with its reason)
-and `rsc/schema/derived/mcp/mcpMessage/addition.csv` (where the house reads differently
+and `rsc/schema/mcp/mcpMessage/addition.csv` (where the house reads differently
 from upstream at a JSON Pointer: the null upstream's generator drops from
 `JSONValue`, the protocol version pinned on the `_meta` field that names it, read
 from the constant schema.ts exports). Every definition's description ends with its
@@ -346,7 +346,7 @@ never a source: the dev gate holds the file byte-identical to the derivation
 counterpart resolved and normalized, the declared additions set back
 (`mcp.factoring_agrees`), and every held lineage's `schema.ts` parsed
 (`mcp.lineages_parse`). Its history lives in
-`rsc/schema/derived/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
+`rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
 (issues/583): whenever the derivation differs from the latest version file - upstream
 moved, or the house rules did - `corpus-yoga mcp derive` prints the diff and writes the
 next version in place of the current one, by plain file operations; a version of

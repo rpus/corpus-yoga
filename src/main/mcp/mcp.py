@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp.py - the house factoring of the MCP schema, rsc/schema/derived/mcp/mcpMessage,
+mcp.py - the house factoring of the MCP schema, rsc/schema/mcp/mcpMessage,
 generated from upstream's schema.ts alone (issues/598): read through the parser generated
 from the house TypeScript grammar (issues/597) by generation.py into the flat shape of
 every declaration, composed over the extends clauses and tagged by the categories
@@ -22,8 +22,8 @@ the commit gate by schema.changelog_narrative. Re-running is silence (L1). The w
 (mcp.factoring_current).
 
 Usage:
-    corpus-yoga mcp              # status: is rsc/schema/derived/mcp/mcpMessage current with the snapshot?
-    corpus-yoga mcp derive         # (re-)derive rsc/schema/derived/mcp/mcpMessage/v*.json: the diff, then the
+    corpus-yoga mcp              # status: is rsc/schema/mcp/mcpMessage current with the snapshot?
+    corpus-yoga mcp derive         # (re-)derive rsc/schema/mcp/mcpMessage/v*.json: the diff, then the
                                  # next version minted when anything differs - idempotent
     corpus-yoga mcp reproduce    # is the snapshot's schema.json what upstream's generator makes of its
                                  # schema.ts? - src/main/mcp/reproduce.sh, whose header states the run
@@ -186,7 +186,7 @@ def status() -> int:
                  remedy=None if _tables_current(declared) else facts.Would(spell.line('mcp', 'derive'), {cache: 1})),
         additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
             facts.phrase('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
-            why='rsc/schema/derived/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
+            why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
         overrides={name: Ruling(facts.phrase('extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow', base=base, ts=ts))
                    for name, base in factoring.overrides(shapes, declared)},
         uncarried={union: Ruling(facts.phrase('no message carries it, since {ts} declares no {request} - stands unreachable', ts=ts, request=request),
