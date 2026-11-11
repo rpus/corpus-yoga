@@ -66,8 +66,8 @@ def api_by_uuid(captures_dir):
 
 def bulk_by_uuid(batch_dir):
     """The bulk side, read from the per-conversation json/ pieces project_markdown atomised out of
-    the array (tmp/cache/chat-export/<batch>/json/) -- the 24 MB array itself is never re-read here."""
-    json_dir = tier.TMP / 'cache' / 'chat-export' / Path(batch_dir).name / 'json'
+    the array (tmp/cache/export/<batch>/json/) -- the 24 MB array itself is never re-read here."""
+    json_dir = tier.TMP / 'cache' / 'export' / Path(batch_dir).name / 'json'
     if not json_dir.is_dir():
         sys.exit(f"no atomised json/ at {json_dir}; "
                  f"run project_markdown.py --bulk-export {batch_dir} first")

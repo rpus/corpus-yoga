@@ -6,7 +6,7 @@ left it. This verb reads that file - its source, and no other capture (L10) -
 copies it into the stage, and fetches each listed zip from its export_url into
 the data-* directory sharing the manifest's own star: manifest-<X>.json beside
 data-<X>/, the prefix swapped and nothing else derived. The two are the one
-staged unit <X> (src/main/pipeline/chat-export/pipeline.json's companion):
+staged unit <X> (src/main/export/pipeline.json's companion):
 corpus-yoga export promote copies data-<X>/ into shared storage, and the
 manifest, the record of what was fetched, stays in the stage until
 corpus-yoga stage clean removes the unit. If the directory

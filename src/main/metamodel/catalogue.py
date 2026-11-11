@@ -10,7 +10,7 @@ Usage:
     python src/main/metamodel/catalogue.py <schema-type> <schema-file>
 
 <schema-type> names the family - conversations, memories, session, apiConversation - and
-<schema-file> is that family's latest version under rsc/schema/pipeline/, the one file
+<schema-file> is that family's latest version under rsc/schema/, the one file
 src/main/latest.py names for the directory; no version is named here, so a mint edits its
 family's directory and changelog alone (issues/986).
 

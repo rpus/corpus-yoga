@@ -140,7 +140,7 @@ def curation_report() -> tuple[Table, Join]:
             facts.phrase('no longer holds at latest - {cells}', cells=cells),
             facts.Would(spell.line('metamodel', 'list-candidates'), {f'row {line}': 1}))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                    tier.TMP / 'cache' / 'chat-export')
+                    tier.TMP / 'cache' / 'export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             rows[f'row {line} ({kind})'] = facts.Finding(
@@ -148,7 +148,7 @@ def curation_report() -> tuple[Table, Join]:
                 facts.Would(spell.line('metamodel', 'list-candidates'), {f'row {line}': 1}))
         emptiness = facts.phrase('checked against the corpus')
     else:
-        emptiness = facts.Unsettled(facts.phrase('unchecked - no API-capture or chat-export corpus in this room'), 'metamodel')
+        emptiness = facts.Unsettled(facts.phrase('unchecked - no API-capture or export corpus in this room'), 'metamodel')
     return table, Join(collisions, None if shared else facts.phrase('every cross-family shared name disposed'), rows, emptiness)
 
 
@@ -250,12 +250,12 @@ def list_candidates() -> None:
     for line, kind, cells in identity_violations():
         print('  falsified identity edge: ' + facts.phrase('row {line} ({kind}) - {cells} - re-judge the kind in rsc/metamodel/join.csv or restore the identity', line=line, kind=kind, cells=cells))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                    tier.TMP / 'cache' / 'chat-export')
+                    tier.TMP / 'cache' / 'export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print('  falsified emptiness edge: ' + facts.phrase('row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/metamodel/join.csv', line=line, kind=kind, cell=cell, datum=datum))
     else:
-        print('  emptiness edges: ' + facts.phrase('unchecked - no API-capture or chat-export corpus in this room'))
+        print('  emptiness edges: ' + facts.phrase('unchecked - no API-capture or export corpus in this room'))
 
 
 def _disposal_rows(parser, args):

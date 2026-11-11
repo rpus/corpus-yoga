@@ -74,7 +74,7 @@ class Ahead:
         stages it - the provider's, on the selection it is counted under (issues/1028)."""
         staged_by = None
         if self.state in ('new', 'grown', 'changed', 'diverged'):
-            key = corpus.selection_of('code-transport', self.provider, self.kind) or f'{self.provider} {self.kind}'
+            key = corpus.selection_of('agent', self.provider, self.kind) or f'{self.provider} {self.kind}'
             staged_by = facts.Would(spell.line('agent', 'capture', provider=self.provider), {key: 1})
         then = {'diverged': facts.phrase('a capture of it would be refused at promotion; the reader reconciles the two'),
                 'behind': facts.phrase('the {tier} copy holds more than the live store does', tier=self.tier)}.get(self.state)
@@ -169,7 +169,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             continue
         under = transport.store(name).relative_to(corpus.STORE) / room
         roots = {tier: root / under for tier, root in TIERS.items()}
-        declared = next(s for s in corpus.stores() if s.pipeline == 'code-transport' and s.provider == name)
+        declared = next(s for s in corpus.stores() if s.pipeline == 'agent' and s.provider == name)
         glob, measure, kind = declared.globs[0].pattern, declared.globs[0].measure, declared.globs[0].kind
         _value, leq, _words = corpus.MEASURE[measure]
         pattern = '/'.join(glob.split('/')[declared.depth:])   # the glob below the unit: what a session directory holds of it

@@ -414,7 +414,7 @@ check_pipeline_inputs() {
   # Each provider's live store, the harness's own, and the mount the census and capture
   # read it through (issues/628, issues/636).
   sec "live stores"
-  # Per declared provider (rsc/provider/providers.csv): the code-transport store this
+  # Per declared provider (rsc/provider/providers.csv): the agent store this
   # machine holds, and the live harness mount the census and capture read (issues/628),
   # ext/mnt/<provider>/code/machine-transport/<machine> (issues/636, issues/853).
   local p_name p_live p_mount p_served p_rows

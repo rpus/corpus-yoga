@@ -12,7 +12,7 @@
     "no archived memory states under {cache}; nothing to accumulate",
     "{n} CONFLICT(S), each left in place"
   ],
-  "target": "src/main/pipeline/chat-export/memories.py",
+  "target": "src/main/export/memories.py",
   "calculus": "accumulate normalise project L1 L4",
   "args": [
     {
@@ -20,7 +20,7 @@
       "type": "<dir>",
       "cardinality": "",
       "help": "atomised batch cache - the archived memory-state source",
-      "default": "tmp/cache/chat-export"
+      "default": "tmp/cache/export"
     },
     {
       "name": "--memories-output",

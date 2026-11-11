@@ -3,7 +3,7 @@
 present_corpus.py — render THE CORPUS dashboard: data/output/site/index.html.
 
 The batch presenter (present.sh) renders ONE EXPORT's presentation under
-tmp/cache/chat-export/<batch>/presentation — an export artifact, honestly filed under
+tmp/cache/export/<batch>/presentation — an export artifact, honestly filed under
 its export. This is the corpus one: the keys are corpus_index's 1..N ordinals
 over data/output/markdown (every source, claude first — the same numbers the book index,
 the NN- filenames, and rekey_chats speak), the two captured tables come from
@@ -50,7 +50,7 @@ REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE = REPO / 'rsc' / 'site' / 'index.template.html'
 # The library's address and migration note come from library.py, the one authority (issues/421)
-CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-export'   # source-scoped helpers stay there (issues/407)
+CHAT_PIPELINE = REPO / 'src' / 'main' / 'export'   # source-scoped helpers stay there (issues/407)
 MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
 
 

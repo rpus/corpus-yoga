@@ -202,10 +202,10 @@ def identity_violations() -> list:
 # join's path columns, by the family each addresses — the prefill's map.
 # A collision touching a family outside these four still lists it in the
 # worksheet's families column; the row's path cells carry what the table can.
-COLUMN_FAMILY = {'conversations_path': 'pipeline/chat-export/claude/conversations',
-                 'claude_session_path': 'pipeline/code-transport/claude/session',
-                 'gemini_session_path': 'pipeline/code-transport/gemini/session',
-                 'apiConversation_path': 'pipeline/chat-capture/claude/apiConversation',
+COLUMN_FAMILY = {'conversations_path': 'export/claude/conversations',
+                 'claude_session_path': 'agent/claude/session',
+                 'gemini_session_path': 'agent/gemini/session',
+                 'apiConversation_path': 'browser/claude/apiConversation',
                  'mcp_path': None}          # a reference project, never scanned for shared names
 SCHEMA_ROOT_PREFIX = 'rsc/schema/'
 
@@ -337,7 +337,7 @@ def emptiness_violations(repo: Path) -> list:
     first falsifying file per edge. Rooms without the relevant corpus skip,
     stated by the caller."""
     doc_roots = {'null_in_api': tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                 'null_in_export': tier.TMP / 'cache' / 'chat-export'}
+                 'null_in_export': tier.TMP / 'cache' / 'export'}
     emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
     out = []
     for i, row in enumerate(_join_rows(), 2):

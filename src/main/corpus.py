@@ -15,7 +15,7 @@ stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the scratch tiers, so
 it judges the staged units alone and writes the scratch and the record alone.
 
-UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipeline.json):
+UNIT - what a pipeline's declaration selects (src/main/<pipeline>/pipeline.json):
 under the declared input of each provider, every match of input_glob or extra_input_glob,
 cut to subject_depth, is one unit - a directory with everything under it, or a file with
 its declared companion (<stem> standing for the file's stem: claude's workspace <stem>/
@@ -101,7 +101,7 @@ REPO = _root[0]
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)
 STORE = tier.DATA / 'input'
-PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
+PIPELINE_ROOT = REPO / 'src' / 'main'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
 NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote
 
@@ -389,9 +389,9 @@ def _words_whole(staged, held, unit: Unit) -> str:
 
 
 def _export_atoms():
-    """The bulk export's measure, src/main/pipeline/chat-export/atoms.py, loaded where it lives (issues/743)."""
+    """The bulk export's measure, src/main/export/atoms.py, loaded where it lives (issues/743)."""
     import importlib.util
-    spec = importlib.util.spec_from_file_location('chat_export_atoms', PIPELINE_ROOT / 'chat-export' / 'atoms.py')
+    spec = importlib.util.spec_from_file_location('chat_export_atoms', PIPELINE_ROOT / 'export' / 'atoms.py')
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -447,7 +447,7 @@ def relation(unit: Unit) -> tuple[Relation, str]:
 
 # -- verdict -------------------------------------------------------------------------------
 
-SCHEMA_ROOT = 'rsc/schema/pipeline'   # <pipeline>/<family as the pipeline declares it>/<version>.json
+SCHEMA_ROOT = 'rsc/schema'   # <pipeline>/<family as the pipeline declares it>/<version>.json
 
 
 def family_dir(pipeline: str, family: str) -> str:
@@ -506,7 +506,7 @@ class Refusal:
     """A family's verdict against a unit: the pipeline, the family and version, the reason,
     and where the record holds them (issues/952) the fault's instance path, the rule it
     fails and the schema node. Its address is the version file's path under
-    rsc/schema/pipeline, the one home the first three have."""
+    rsc/schema, the one home the first three have."""
     pipeline: str
     family: str
     version: str
@@ -1099,7 +1099,7 @@ class StageStatus:
     reads both, says what to run next."""
     tmp_stage: StageTier | str = facts.named('tmp/stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
-    invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema/pipeline, then the reason: how many
+    invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema, then the reason: how many
     unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (issues/867)
 
 
@@ -1129,7 +1129,7 @@ def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (issues/741, issues/759, issues/822): the input's size, the scratch's,
     each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
-    invalid by the version file that found it so - its path, relative to rsc/schema/pipeline,
+    invalid by the version file that found it so - its path, relative to rsc/schema,
     which the declaration's explanation names once - by the reason with how many carry it,
     then what is valid at a version origin/main does not hold, unlicensed there. What
     follows an invalid verdict and where its whole
@@ -1497,7 +1497,7 @@ class Staged:
     words, and the rehearsal that saw it - the stage's facts, nothing of the store (issues/842)."""
     judged: str
     verdict: str | None = None
-    invalid: dict[str, str | dict[str, str]] | None = None    # the version file that found it so, by its path under rsc/schema/pipeline, and the fault - its path, rule and schema node, or the reason alone
+    invalid: dict[str, str | dict[str, str]] | None = None    # the version file that found it so, by its path under rsc/schema, and the fault - its path, rule and schema node, or the reason alone
     unlicensed: dict[str, str] | None = None    # valid at a version origin/main does not hold: that version file, by its path, and the reason
     rehearsal: str | None = None
     remedy: facts.Acts | None = None        # the workflow's acts on it, where one does (issues/1028)

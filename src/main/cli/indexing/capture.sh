@@ -25,7 +25,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
-PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
+PIPELINE="$REPO_DIR/src/main/export"   # the chat pipeline's helpers (timeline)
 MAIN_DIR="$REPO_DIR/src/main"                         # the corpus shape and the rekey
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)

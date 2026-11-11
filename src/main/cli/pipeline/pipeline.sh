@@ -13,10 +13,10 @@
 #   corpus-yoga pipeline render [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #
-# The pipeline LIST is derived, not declared: a pipeline is a subdirectory of
-# src/main/pipeline/, so adding one is adding a directory; the positional is
-# validated against what exists. Each directory's pipeline.json declares its facts
-# (schemas, input root, globs), typed by the pipeline.schema.json beside them.
+# The pipeline LIST is derived from the declarations: a pipeline is a directory under
+# src/main holding a pipeline.json, named for the noun whose input it reads; the
+# positional is validated against what exists. Each pipeline.json declares its facts
+# (schemas, input root, globs), typed by src/main/pipeline.schema.json.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
 # hand-made symlink); --plan names each pipeline's exact steps. After: corpus-yoga test run.
@@ -42,15 +42,13 @@ source "$REPO_ROOT/src/main/enact.sh"   # the faces a send runs through
 source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (issues/704)
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
 
-# The pipelines: the subdirectories of src/main/pipeline/. Membership is placement —
-# no run.sh sniff, so a member missing its run phase still LISTS here and fails the
-# gate's structure.pipeline_implements_run check, instead of silently leaving the list.
+# The pipelines: the directories under src/main holding a pipeline.json. Membership is
+# declaration - no run.sh sniff, so a member missing its run phase still LISTS here and
+# fails the gate's structure.pipeline_implements_run check, instead of silently leaving the list.
 pipelines() {
   local d
-  for d in "$REPO_ROOT"/src/main/pipeline/*/; do
-    [[ -d "$d" ]] || continue
-    # a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, issues/669)
-    [[ -n "$(find "$d" -type f -not -path '*/__pycache__/*' -print -quit)" ]] || continue
+  for d in "$REPO_ROOT"/src/main/*/; do
+    [[ -f "$d/pipeline.json" ]] || continue
     basename "$d"
   done
 }
@@ -58,7 +56,7 @@ pipelines() {
 # The declared input root, repo-relative: pipeline.json is the one committed authority
 # for this path — read here, never restated.
 input_of() {
-  jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json"
+  jq -r .input "$REPO_ROOT/src/main/$1/pipeline.json"
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
@@ -168,15 +166,15 @@ install_deps() {
 }
 
 # Which pipelines have a prep step, and what each is called. DECLARED, not globbed for a
-# shared filename: chat-export requires an input; chat-capture' is a CAPTURE, the
+# shared filename: export requires an input; browser' is a CAPTURE, the
 # `corpus-yoga browser` target, which a pipeline run must never perform, and the live
-# mount code-transport once linked here is the agent command's (corpus-yoga agent mount,
+# mount agent once linked here is the agent command's (corpus-yoga agent mount,
 # issues/636) - a pipeline reads the store, never the mount. Globbing one name listed a prep
-# phase for chat-capture that `run` has never executed, which is a status line
+# phase for browser that `run` has never executed, which is a status line
 # stating something untrue about what the command does.
 prep_step() {
   case "$1" in
-    chat-export) echo require_export.sh ;;
+    export) echo require_export.sh ;;
     *)            return 1 ;;
   esac
 }
@@ -187,7 +185,7 @@ prep_step() {
 prep_call() {
   local script
   script="$(prep_step "$1")" || return 1
-  echo "${script%.sh} $REPO_ROOT/src/main/pipeline/$1/$script"
+  echo "${script%.sh} $REPO_ROOT/src/main/$1/$script"
 }
 
 prep_pipeline() {
@@ -206,9 +204,9 @@ prep_pipeline() {
 
 run_pipeline() {
   local name="$1"; shift
-  section_open "$name" "src/main/pipeline/$name/run.sh --input $(input_of "$name")"
+  section_open "$name" "src/main/$name/run.sh --input $(input_of "$name")"
   local rc=0
-  "$REPO_ROOT/src/main/pipeline/$name/run.sh" --input "$@" 2>&1 | indented
+  "$REPO_ROOT/src/main/$name/run.sh" --input "$@" 2>&1 | indented
   rc=${PIPESTATUS[0]}
   echo ""
   return "$rc"
@@ -324,7 +322,7 @@ section_error_lines() {
 
 # The tail is a TABLE: one row per STAGE of the run — the tests, the three pipelines, each
 # prep, and the corpus reduce — counting the atoms that occurred inside it. A
-# stage is a phase of the RUN, not a paragraph of the log: `chat-capture` is what you
+# stage is a phase of the RUN, not a paragraph of the log: `browser` is what you
 # type after `corpus-yoga pipeline run` to do that stage alone, and the banner is merely how the
 # log marks where it began. Two facts about one
 # pipeline, on one line. A stage that exits non-zero without stating an atom is given
@@ -374,7 +372,7 @@ prep_pipeline_safe() {
       last="$(section_last_words "prep: $name")"
       atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="prep: $name" last="${last:-(no output)}")"
       case "$name" in
-        chat-export) atom "    $(phrase "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-export/require_export.sh --help)")" ;;
+        export) atom "    $(phrase "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/export/require_export.sh --help)")" ;;
       esac
     fi
   fi
@@ -449,16 +447,16 @@ print_plan() {
   echo "corpus-yoga pipeline run${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
   echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
   ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
-  if should_run chat-capture; then
-    "$REPO_ROOT/src/main/pipeline/chat-capture/run.sh" --plan | sed 's/^/  /'
+  if should_run browser; then
+    "$REPO_ROOT/src/main/browser/run.sh" --plan | sed 's/^/  /'
   fi
-  if should_run chat-export; then
+  if should_run export; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
-    ( plan=1; pair="$(prep_call chat-export)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
-    "$REPO_ROOT/src/main/pipeline/chat-export/run.sh" --plan | sed 's/^/  /'
+    ( plan=1; pair="$(prep_call export)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
+    "$REPO_ROOT/src/main/export/run.sh" --plan | sed 's/^/  /'
   fi
-  if should_run code-transport; then
-    "$REPO_ROOT/src/main/pipeline/code-transport/run.sh" --plan | sed 's/^/  /'
+  if should_run agent; then
+    "$REPO_ROOT/src/main/agent/run.sh" --plan | sed 's/^/  /'
   fi
   echo "  $(phrase "then once, over the whole corpus"):"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
@@ -500,7 +498,7 @@ main() {
   # root, so a fourth pipeline needs no edit here. The corpus tail is not run: it reduces
   # over everything, and this invocation is about one datum.
   if [[ -n "$item" ]]; then
-    "$REPO_ROOT/src/main/pipeline/$only/run.sh" --item "$item"
+    "$REPO_ROOT/src/main/$only/run.sh" --item "$item"
     return $?
   fi
 
@@ -531,17 +529,17 @@ main() {
 
   # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
   # path the wrapper passes and the path the pipeline documents cannot disagree.
-  if should_run chat-capture; then
-    run_pipeline_safe  chat-capture "$(tier_path "$(input_of chat-capture)")"
+  if should_run browser; then
+    run_pipeline_safe  browser "$(tier_path "$(input_of browser)")"
   fi
 
-  if should_run chat-export; then
-    prep_pipeline_safe chat-export
-    run_pipeline_safe  chat-export "$(tier_path "$(input_of chat-export)")"
+  if should_run export; then
+    prep_pipeline_safe export
+    run_pipeline_safe  export "$(tier_path "$(input_of export)")"
   fi
 
-  if should_run code-transport; then
-    run_pipeline_safe  code-transport "$(tier_path "$(input_of code-transport)")"
+  if should_run agent; then
+    run_pipeline_safe  agent "$(tier_path "$(input_of agent)")"
   fi
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a

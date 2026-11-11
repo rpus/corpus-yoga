@@ -32,13 +32,13 @@ HEADER = ['| Schema | Item | Version | Result | Bytes |',
 
 
 def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path | None:
-    """The one address of a family under a pipeline's schema root, rsc/schema/pipeline/<pipeline>
+    """The one address of a family under a pipeline's schema root, rsc/schema/<pipeline>
     (issues/632): directly, or at the provider's segment where the family's instances are one
-    provider's. A pipeline's declaration (src/main/pipeline/<pipeline>/pipeline.json,
+    provider's. A pipeline's declaration (src/main/<pipeline>/pipeline.json,
     `schemas`) names its families by address, and the one whose last segment is schema is
     the family; a family the declaration does not name is found by walking. None where
     neither gives exactly one."""
-    declaration = root.parents[3] / 'src' / 'main' / 'pipeline' / root.name / 'pipeline.json'
+    declaration = root.parents[2] / 'src' / 'main' / root.name / 'pipeline.json'
     declared = json.loads(declaration.read_text())['schemas'] if declaration.is_file() else []
     named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
     if len(named) > 1 and datum_dir is not None:
@@ -56,10 +56,10 @@ def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path |
 
 def family_root(schema_dir: Path) -> Path:
     """The schema root a family's matrix resolves its siblings against: for a pipeline's
-    family, rsc/schema/pipeline/<pipeline>, the directory directly under rsc/schema/pipeline
-    on its path; for any other family, its parent."""
+    family, rsc/schema/<pipeline>, the directory directly under rsc/schema on its path
+    that a pipeline's declaration names; for any other family, its parent."""
     for p in schema_dir.parents:
-        if p.parent.name == 'pipeline' and p.parent.parent.name == 'schema':
+        if p.parent.name == 'schema' and p.parent.parent.name == 'rsc' and (p.parents[2] / 'src' / 'main' / p.name / 'pipeline.json').is_file():
             return p
     return schema_dir.parent
 
@@ -87,7 +87,7 @@ def rows_from_records(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[st
     """(schema, item, latest version) → (✓/✗/?, bytes) from the LATEST version's verdict
     record under one datum's validation/ directory - the latest version is the schema, the
     rest is history (issues/557), so an older record left beside it is not a row. `item` is the
-    inner subject for nested layouts (chat-export projects), '' otherwise. This is the
+    inner subject for nested layouts (export projects), '' otherwise. This is the
     source of truth the datum's matrix.md renders."""
     rows: dict[tuple[str, str, str], tuple[str, int]] = {}
     vdir = datum_dir / 'validation'
@@ -144,7 +144,7 @@ def write_matrix(datum_dir: Path, schema_parent_dir: Path) -> Path | None:
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 3:
-        sys.exit(f'Usage: {sys.argv[0]} <datum_dir> <schema_root>   # rsc/schema/pipeline/<pipeline>')
+        sys.exit(f'Usage: {sys.argv[0]} <datum_dir> <schema_root>   # rsc/schema/<pipeline>')
     out = write_matrix(Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve())
     if out:
         print(f'  matrix: {out}')

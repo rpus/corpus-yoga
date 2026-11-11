@@ -23,7 +23,7 @@ import tier
 import offer as cli_offer
 
 
-@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 'src/main/pipeline/chat-capture/audit.py'], says=(
+@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 'src/main/browser/audit.py'], says=(
     'cli.bare_suggests_and_runs_nothing',
     'cli.no_send_flag',
     'environment.names_carry_the_prefix',
@@ -350,9 +350,9 @@ def check_status_facts(run) -> None:
     # the steps its plan names; under `staged:` a mapping of units, each a mapping of facts;
     # the counts left to `corpus-yoga stage`; the commands under `remedy:`.
     pipeline_said = said_by('pipeline')
-    declared_pipelines = sorted(d.name for d in (SRC / 'main' / 'pipeline').iterdir() if (d / 'pipeline.json').is_file())
+    declared_pipelines = sorted(d.name for d in (SRC / 'main').iterdir() if (d / 'pipeline.json').is_file())
     def planned(name: str) -> list[str]:
-        out = subprocess.run([str(SRC / 'main' / 'pipeline' / name / 'run.sh'), '--plan'], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
+        out = subprocess.run([str(SRC / 'main' / name / 'run.sh'), '--plan'], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
         steps: list[str] = []
         for line in out.splitlines():
             if line.startswith('  ') and not line.rstrip().endswith(':'):
@@ -367,7 +367,7 @@ def check_status_facts(run) -> None:
            if sorted(shown) != declared_pipelines else None)
     for name in declared_pipelines if why is None else []:
         each = shown[name]
-        declared = json.loads((SRC / 'main' / 'pipeline' / name / 'pipeline.json').read_text())
+        declared = json.loads((SRC / 'main' / name / 'pipeline.json').read_text())
         if not isinstance(each, dict):
             why = f'{name} is said as {str(each)[:80]!r}, not by its declaration'
         elif each.get('input') != declared['input']:
@@ -668,7 +668,7 @@ def check_provider_registry(run) -> None:
         run('provider: registry parses: rsc/provider/providers.csv', bool(declared),
             None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')
     named: dict[str, set[str]] = {}
-    for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):
+    for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):
         for d in members(REPO_ROOT / tree):
             named.setdefault(d.name, set()).add(f'{tree}/{d.name}/')
     for path in sorted((REPO_ROOT / 'src').rglob('*')):

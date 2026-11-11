@@ -147,7 +147,7 @@ def audit_source(pipeline: str, source: Source) -> int:
     latest version is the schema (issues/557): every datum validates at each family's latest, its
     matrix agrees with that log, and every input entry has validation output."""
     name, cache_root, depth = source.label, source.cache_root, source.store.depth
-    schema_parent = SCHEMA_ROOT / 'pipeline' / pipeline
+    schema_parent = SCHEMA_ROOT / pipeline
     fails = 0
     if not cache_root.is_dir() or not any(cache_root.iterdir()):
         print(f'{name}: no validation output in this room - nothing to audit')

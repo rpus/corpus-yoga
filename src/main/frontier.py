@@ -7,10 +7,10 @@ tmp/cache workshop (subject_dirs), and a family's versions in numeric order
 validates at its family's latest version - is the audit's (issues/557,
 src/main/validation_audit.py), stated per datum from the latest version's log.
 
-Recency is pipeline-specific because the corpora differ: chat-export orders
+Recency is pipeline-specific because the corpora differ: export orders
 by its export-dir name's vintage (vintage.py's export_time, the one ordering
-authority over rsc/naming/export_dir_vintages.csv); chat-capture the
-capture's updated_at; code-transport the max record timestamp in the session
+authority over rsc/naming/export_dir_vintages.csv); browser the
+capture's updated_at; agent the max record timestamp in the session
 .jsonl. Keys compare only within one pipeline, so mixed key types across
 pipelines are fine.
 
@@ -28,7 +28,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
+PIPELINE_ROOT = REPO / 'src' / 'main'
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
 
 
@@ -49,7 +49,7 @@ def subject_dirs(cache_root, depth):
 
 
 def pipelines():
-    """(name, facts) for every declared pipeline - membership is placement (issues/327)."""
+    """(name, facts) for every declared pipeline - a directory under src/main holding a pipeline.json."""
     for d in sorted(PIPELINE_ROOT.iterdir()):
         f = d / 'pipeline.json'
         if f.is_file():

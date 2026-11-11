@@ -15,7 +15,7 @@
     "checking for pip upgrade",
     "no prep step for {name}",
     "{section} exited non-zero without stating a finding - its last words are {last}",
-    "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-export/require_export.sh --help)",
+    "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/export/require_export.sh --help)",
     "the ordered plan (conditional steps annotated; nothing executed)",
     "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt",
     "then once, over the whole corpus",
@@ -31,9 +31,9 @@
     "failing stage(s) {names}"
   ],
   "explanation": {
-    "chat-capture": "validates each claude API capture and projects it to markdown; a gemini DOM capture's markdown is the terminal artifact and is not validated",
-    "chat-export": "validates, extracts, atomises and renders each bulk export",
-    "code-transport": "converts each session and validates it into tmp/cache/"
+    "browser": "validates each claude API capture and projects it to markdown; a gemini DOM capture's markdown is the terminal artifact and is not validated",
+    "export": "validates, extracts, atomises and renders each bulk export",
+    "agent": "converts each session and validates it into tmp/cache/"
   },
   "target": "src/main/cli/pipeline/pipeline.sh",
   "calculus": "atomise validate supersession accumulate project",

@@ -32,7 +32,7 @@ def check_schema_join(run):
         check='metamodel.join_kind_declared')
     fails: list[str] = []
     # One grammar, one base: every cell is a versioned family dir relative to the
-    # repo root ('rsc/schema/pipeline/chat-export/claude/conversations#…', 'rsc/reference/mcp#…'),
+    # repo root ('rsc/schema/export/claude/conversations#…', 'rsc/reference/mcp#…'),
     # resolved against its latest version or lineage (src/main/latest.py). No per-column
     # tribal knowledge to resolve a cell.
     _check_csv_pointers(join,

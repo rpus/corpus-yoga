@@ -10,7 +10,7 @@
     "no longer holds at latest - {cells}",
     "falsified by the corpus - {cell} carries a value in {datum}",
     "checked against the corpus",
-    "unchecked - no API-capture or chat-export corpus in this room",
+    "unchecked - no API-capture or export corpus in this room",
     "every cross-family shared name disposed",
     "{n} file(s) no schema version derives",
     "mints them",

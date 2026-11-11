@@ -3,11 +3,11 @@
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
   browser-capture  data/input/claude/chat/API-capture/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
-  bulk-export      tmp/cache/chat-export/<batch>/json/<name>.json                  (the atomised pieces;
+  bulk-export      tmp/cache/export/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
 The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
-validated against the markdownConversation family's latest version (rsc/schema/pipeline/chat-capture/markdownConversation). Splitting the bulk
+validated against the markdownConversation family's latest version (rsc/schema/browser/markdownConversation). Splitting the bulk
 array into the per-conversation json/ pieces is atomise_bulk.py's job; this tool only consumes
 them, so json/<name>.json and markdown/<name>.md share a name. Nothing is skipped:
 invalid/degenerate conversations are rendered honestly and flagged.
@@ -16,7 +16,7 @@ Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/project_markdown.py \
     --api-capture data/input/claude/chat/API-capture              # -> data/output/markdown/claude/chat/conversations/
   src/run_python_script.sh src/main/project_markdown.py \
-    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> tmp/cache/chat-export/<batch>/markdown/
+    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> tmp/cache/export/<batch>/markdown/
 """
 import argparse
 import json
@@ -38,7 +38,7 @@ REPO_ROOT = _root[0]
 def _newest_batch_json():
     """The newest ATOMISED export's json/ dir (by export_time, the one ordering
     authority), or None where no batch has been atomised."""
-    cache = tier.TMP / 'cache' / 'chat-export'
+    cache = tier.TMP / 'cache' / 'export'
     atomised = [d for d in cache.glob('data-*') if (d / 'json').is_dir()]
     if not atomised:
         return None
@@ -56,7 +56,7 @@ def _msg_index(convs):
 
 def _currency(mine, other, label):
     """One line of KNOWN staleness for the frontmatter, from message-uuid sets (the
-    calculus's atom-subset — the same per-conversation comparison the chat-export
+    calculus's atom-subset — the same per-conversation comparison the export
     run's compare_captures step reports corpus-wide). `other` is None when the conversation is absent
     from the other corpus; `label` names that corpus."""
     if other is None:
@@ -150,7 +150,7 @@ def main():
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
         # Provenance cross-checks the other way: against the capture corpus, when present.
         batch = Path(args.bulk_export)
-        json_dir = tier.TMP / 'cache' / 'chat-export' / batch.name / 'json'
+        json_dir = tier.TMP / 'cache' / 'export' / batch.name / 'json'
         if not json_dir.is_dir():
             sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
         captures = tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture'
@@ -166,7 +166,7 @@ def main():
                  for f in sorted(json_dir.glob('*.json'))
                  for c in (json.loads(f.read_text()),)
                  for lean in (project(c),))
-        out = Path(args.out) if args.out else tier.TMP / 'cache' / 'chat-export' / batch.name / 'markdown'
+        out = Path(args.out) if args.out else tier.TMP / 'cache' / 'export' / batch.name / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
     print(f"rendered {n_ok} conversations to {out} ({n_bad} invalid, {n_empty} empty)")

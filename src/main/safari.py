@@ -1,5 +1,5 @@
 """
-Shared Safari automation utilities for chat-capture scripts.
+Shared Safari automation utilities for browser scripts.
 Called by capture.py and audit.py — do not invoke directly.
 """
 import json

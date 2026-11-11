@@ -9,7 +9,7 @@ from gate import (
 )
 
 
-@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/pipeline', 'rsc/reference/JSONSchema'], says=(
+@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/browser', 'src/main/export', 'src/main/agent', 'rsc/reference/JSONSchema'], says=(
     'rehearsal.record_is_whole',
     'rehearsal.states_are_decidable',
 ))
@@ -39,9 +39,9 @@ def check_rehearsal_record(run) -> None:
     import jsonschema
     stamp, sha = '2026-10-08T000000Z', lambda c: c * 64
     schema_digest = sha('c')
-    def unit(name: str, pipeline: str | None = 'chat-capture') -> corpus.Unit:
+    def unit(name: str, pipeline: str | None = 'browser') -> corpus.Unit:
         address = Path('claude/chat/API-capture') / name
-        judges = next(s for s in corpus.stores() if s.pipeline == 'chat-capture' and s.provider == 'claude').globs[0].families if pipeline else ()
+        judges = next(s for s in corpus.stores() if s.pipeline == 'browser' and s.provider == 'claude').globs[0].families if pipeline else ()
         return corpus.Unit(address, [address], [], [], 'message-uuids', pipeline, 'claude' if pipeline else None, subject=(name,), families=judges)
     a, b, c, d, e = unit('a'), unit('b'), unit('c'), unit('d'), unit('e', None)
     digests = {'a': {sha('a')}, 'b': {sha('b')}, 'c': {sha('c')}, 'd': {sha('d')}}
@@ -103,7 +103,7 @@ def check_rehearsal_record(run) -> None:
                 (corpus.Judgement.UNLICENSED, 'valid at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
     refusal = got[1][2]
-    at = '/'.join(('chat-capture', 'claude/apiConversation', 'v1.json'))   # the fixture's version file under rsc/schema/pipeline, which no tree holds
+    at = '/'.join(('browser', 'claude/apiConversation', 'v1.json'))   # the fixture's version file under rsc/schema, which no tree holds
     if not wrong and (refusal is None or (refusal.path, refusal.reason) != (at, 'Validation error')):
         wrong = [(got[1], (corpus.Judgement.INVALID, f'a refusal as data - family, version, reason - where it is {refusal}'))]
     states = [corpus.state(a, corpus.Relation.ABSENT, j) for j in (corpus.Judgement.UNSEEN, corpus.Judgement.CHANGED, corpus.Judgement.SUPERSEDED, corpus.Judgement.NONE)]
@@ -115,16 +115,16 @@ def check_rehearsal_record(run) -> None:
         check='rehearsal.states_are_decidable')
 
 
-@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/pipeline'])
+@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'])
 def check_unit_companion(run) -> None:
-    """The staged bulk export <X> is one unit, named by <X>, by the chat-export declaration
+    """The staged bulk export <X> is one unit, named by <X>, by the export declaration
     itself: its member is data-<X>/, which promotion copies, and its record is
     manifest-<X>.json, which stays in the stage. Either alone is the same unit, unpaired,
     naming what is absent. The fixture is synthetic - one export whole, one with its
     manifest alone, one with its payload alone."""
     import tempfile
     import corpus
-    store = next(s for s in corpus.stores() if s.pipeline == 'chat-export')
+    store = next(s for s in corpus.stores() if s.pipeline == 'export')
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         base = root / store.input
@@ -167,8 +167,8 @@ def check_unit_state(run) -> None:
             'src/main/corpus.py derives no state: its counts hold back whatever is not promotable',
             check='stage.states_are_told_apart')
         return
-    whole = corpus.Unit(Path('a/b'), [Path('a/b')], [], [], 'prefix', 'chat-capture', 'claude')
-    lacking = corpus.Unit(Path('a/c'), [Path('a/c')], [], [], 'whole', 'chat-export', None, missing=['x.json'])
+    whole = corpus.Unit(Path('a/b'), [Path('a/b')], [], [], 'prefix', 'browser', 'claude')
+    lacking = corpus.Unit(Path('a/c'), [Path('a/c')], [], [], 'whole', 'export', None, missing=['x.json'])
     got = [state(lacking, Relation.ABSENT, judgement.UNJUDGED), state(whole, Relation.ABSENT, judgement.UNJUDGED),
            state(whole, Relation.EXTENDS, judgement.UNLICENSED), state(whole, Relation.DIVERGED, judgement.NONE),
            state(whole, Relation.ABSENT, judgement.VALID)]
@@ -184,7 +184,7 @@ def check_unit_state(run) -> None:
     # interrupted capture leaves exactly this, and it is the janitor's, never a rehearsal's
     # input - held over a planted root, since the room's stage may hold none.
     import tempfile
-    store = next(s for s in corpus.stores() if s.pipeline == 'chat-capture' and s.provider == 'claude')
+    store = next(s for s in corpus.stores() if s.pipeline == 'browser' and s.provider == 'claude')
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
         (root / store.input / 'empty').mkdir(parents=True)
@@ -247,7 +247,7 @@ def check_unit_state(run) -> None:
         check='stage.recapture_names_a_full_id')
 
 
-@check(tier='code', on=['src/main/corpus.py', 'src/main/pipeline'], says=(
+@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=(
     'store.held_twice_is_found',
     'store.surplus_is_found',
     'store.unit_names_its_kind',
@@ -305,7 +305,7 @@ def check_store(run) -> None:
         None if got == expected else f'surplus read {got}, where it is {expected}', check='store.surplus_is_found')
 
 
-@check(tier='code', on=['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'], says=(
+@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=(
     'store.export_is_held_within_a_later_one',
 ))
 def check_export_atoms(run) -> None:

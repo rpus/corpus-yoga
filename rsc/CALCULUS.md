@@ -77,13 +77,13 @@ per-corpus code.
   collision caveat — user simplification, 2026-07-08), fingerprints only where
   content is unbounded (project doc bodies).
   Envelope timestamps are excluded: supersession claims retained *data*, not byte
-  equality of snapshots. (`src/main/pipeline/chat-export/atoms.py` atomisers.)
+  equality of snapshots. (`src/main/export/atoms.py` atomisers.)
 
 - **supersession (⊑)** — per unit: `subset` / `ORPHANED` (unit absent later —
   unique data) / `DIVERGENT` (atoms missing later — unique data). Per product:
   the conjunction over components. Verdicts are **computed, never assumed** — no
   component's class is encoded into the verdict logic (the *unprejudiced
-  principle*; user-stated, 2026-07-05). (`src/main/pipeline/chat-export/atoms.py`, the export's measure; `src/main/corpus.py`'s one reading over every kind.)
+  principle*; user-stated, 2026-07-05). (`src/main/export/atoms.py`, the export's measure; `src/main/corpus.py`'s one reading over every kind.)
 
 - **merge / union** — per class, as tabled above. Identity-keyed sets union
   trivially because keys are global; the only genuine collisions (overlapping
@@ -100,7 +100,7 @@ per-corpus code.
   reading is a genuine return the history must keep (deposit) — position is the
   semantics, not a proxy. Accumulation is what converts a mutable document's
   batch-retention problem into a deletion licence. One operation, one
-  implementation: `accumulate()` in `src/main/pipeline/chat-export/accumulate.py`, called
+  implementation: `accumulate()` in `src/main/export/accumulate.py`, called
   by both the chat-memory library (`memories.py`) and the
   per-conversation summary store (`summaries.py`).
 
@@ -153,7 +153,7 @@ per-corpus code.
   `data/output/indexing/rejected-semantic-concepts.txt`), which is why they sit beside the model's readings in
   `data/output/`; the repo privileges no intelligence over another (user insight,
   2026-07-09; sharpened 2026-07-13).
-  (`corpus-yoga indexing capture`; `corpus-yoga indexing accept`/`reject`; the chat-capture
+  (`corpus-yoga indexing capture`; `corpus-yoga indexing accept`/`reject`; the browser
   scrape; `memories.py`.)
 
 - **curate** — the disposal loop: the machine proposes candidates as a derived

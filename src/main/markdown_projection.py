@@ -8,7 +8,7 @@ declares and src/run_python_script.sh sets, so the per-pipeline CLIs import it b
     from markdown_projection import project, render, ...
 
 Consumers: project_markdown.py (renders markdown), compare_sources.py
-(project+render to compare), pipeline/chat-export/atomise_bulk.py (slug/assign_name
+(project+render to compare), export/atomise_bulk.py (slug/assign_name
 to name the per-conversation pieces).
 
 The per-message projection, in jq:
@@ -26,7 +26,7 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-MD_SCHEMA = REPO / 'rsc' / 'schema' / 'pipeline' / 'chat-capture' / 'markdownConversation' / 'v5.json'
+MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser' / 'markdownConversation' / 'v5.json'
 
 
 def turn_text(msg):
