@@ -30,10 +30,10 @@ class Checks:
 @dataclass
 class Hook:
     """One of the two hooks `corpus-yoga test install-hook` installs: whether it stands as
-    installed, and the remedy where it does not. The home of the hooks' state (issues/778): the
+    installed, and the install where it does not. The home of the hooks' state (issues/778): the
     machine report and the forge say what this says."""
     installed: str
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
     @property
     def sound(self) -> bool:

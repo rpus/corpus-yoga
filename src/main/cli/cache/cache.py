@@ -40,7 +40,7 @@ class Orphan:
     """An entry under tmp/cache that no current step writes or reads, with the act that removes it."""
     size: str
     why: str = facts.phrase('no current step writes or reads it')
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -58,7 +58,7 @@ def status_facts() -> Status:
     """The bare-noun default as facts: the state, nothing written."""
     cache = tier.TMP / 'cache'
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
-    found = {rel: Orphan(human(size_of(p)), remedy=facts.Would(spell.line('cache', 'clean'), {rel: 1}))
+    found = {rel: Orphan(human(size_of(p)), act=facts.Would(spell.line('cache', 'clean'), {rel: 1}))
              for p in orphans(cache) for rel in (p.relative_to(REPO).as_posix(),)}
     out = Status(Tree(subs or 'none'), found,
                  facts.phrase('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found

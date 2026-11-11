@@ -1,6 +1,7 @@
 {
   "help": "deposit new distinct states and re-render - idempotent (the only write)",
   "would": "would deposit",
+  "modality": "MAY",
   "args": [],
   "step": "export",
   "r": [

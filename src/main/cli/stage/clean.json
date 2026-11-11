@@ -1,6 +1,7 @@
 {
   "help": "clear the stage of what it no longer needs - what the status names, so the verb takes no flag - every entry under tmp/stage that is neither the input, the scratch nor the rehearsal record, an orphan; every staged unit identical to the held one, a duplicate; and every unit whose record or payload is absent, incomplete. The scratch and the record are the rehearsal's to replace; a refused unit is evidence of another kind and stays",
   "would": "would remove",
+  "modality": "MAY",
   "args": [],
   "r": [
     "tmp/stage",

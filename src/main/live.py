@@ -80,7 +80,7 @@ class Ahead:
                 'behind': facts.phrase('the {tier} copy holds more than the live store does', tier=self.tier)}.get(self.state)
         return {'state': self.state, 'live': self.live, self.tier: self.copy or None,
                 'agree for': facts.phrase('{n} bytes', n=self.agree) if self.state == 'diverged' else None,
-                'then': then, 'link to': self.link or None, 'remedy': staged_by}
+                'then': then, 'link to': self.link or None, 'act': staged_by}
 
 
 @dataclass
@@ -88,7 +88,7 @@ class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
     state: str = 'absent'
     why: str = facts.phrase('no live store is read there')
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
@@ -213,7 +213,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
 def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[dict[str, Ahead | AbsentMount], int, int]:
     """The reading as facts: the absent mounts, by path, then each live thing that is not
     level with its copy, by what it is called; returns (the items, ahead, level)."""
-    items: dict[str, Ahead | AbsentMount] = {m: AbsentMount(remedy=facts.Would(spell.line('agent', 'mount'), {m: 1})) for m in absent}
+    items: dict[str, Ahead | AbsentMount] = {m: AbsentMount(act=facts.Would(spell.line('agent', 'mount'), {m: 1})) for m in absent}
     items.update({r.key: r for r in rows if r.state != 'level'})
     found = sum(1 for r in rows if r.state in ('new', 'grown', 'changed', 'diverged'))
     return items, found, sum(1 for r in rows if r.state == 'level')

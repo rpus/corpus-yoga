@@ -8,6 +8,10 @@
     "args"
   ],
   "additionalProperties": false,
+  "dependencies": {
+    "would": ["modality"],
+    "modality": ["would"]
+  },
   "properties": {
     "explanation": {
       "type": "object",
@@ -39,6 +43,10 @@
       "type": "string",
       "pattern": "^would [a-z]",
       "description": "What the verb would do, in the words every status says it in (issues/1028): a status names the act as the command and what it acts on, and reads these words from here - one home for them. An acting verb - one with w, x, sends or consumes - declares them."
+    },
+    "modality": {
+      "enum": ["MAY", "MUST"],
+      "description": "Whether the room must or may run the act, in RFC 2119's words (issues/1050): MUST where the room fails a property some check states until the act runs - every such verb one status satisfy runs - and MAY where the act waits on the reader's choice. A status says each act it names under now:, beneath its modality, and nowhere else. A verb that declares would declares this."
     },
     "step": {
       "type": "string",

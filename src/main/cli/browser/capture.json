@@ -1,6 +1,7 @@
 {
   "help": "capture browser-reachable chats via Safari into the room's stage, tmp/stage/input/ - corpus-yoga browser promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
   "would": "would capture",
+  "modality": "MAY",
   "args": [
     {
       "name": "--provider",

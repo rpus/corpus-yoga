@@ -93,7 +93,7 @@ class Project:
     files: int | None = None
     currency: str | facts.Unsettled | None = None   # against the grammar they are generated from
     differing: list[str] | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -118,7 +118,7 @@ def status() -> int:
             stale += 1
             projects_[project.name] = Project(
                 facts.phrase("no - {generated} is absent; the mcp extraction and corpus-yoga test run's mcp checks need it", generated=rel),
-                remedy=facts.Would(spell.line('grammar', 'generate'), {project.name: 1}))
+                act=facts.Would(spell.line('grammar', 'generate'), {project.name: 1}))
             continue
         item = Project(rel.as_posix(), files=len(have))
         try:
@@ -132,7 +132,7 @@ def status() -> int:
             if differing:
                 stale += 1
                 item.currency, item.differing = facts.phrase('STALE against {source}', source=source), differing
-                item.remedy = facts.Would(spell.line('grammar', 'generate'), {project.name: len(differing)})
+                item.act = facts.Would(spell.line('grammar', 'generate'), {project.name: len(differing)})
             else:
                 item.currency = facts.phrase('current with {source} (antlr4 {version})', source=source, version=TOOL_VERSION)
         projects_[project.name] = item

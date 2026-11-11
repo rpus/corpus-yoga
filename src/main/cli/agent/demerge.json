@@ -1,6 +1,7 @@
 {
   "help": "undo the latest installed merge (memory only, all-or-nothing per project)",
   "would": "would undo",
+  "modality": "MAY",
   "args": [],
   "r": [
     "ext/mnt/claude/code/machine-transport"

@@ -1,6 +1,7 @@
 {
   "help": "removes those four lines from ~/.zshrc",
   "would": "would remove",
+  "modality": "MAY",
   "args": [],
   "sends": {
     "zshrc": {

@@ -1,6 +1,7 @@
 {
   "help": "fetch the render libraries into ext/lib/serve_markdown (pinned foreign artifacts, by copy), then exit",
   "would": "would fetch",
+  "modality": "MAY",
   "args": [],
   "r": [
     "src/main/cli/server/serve_assets.txt"

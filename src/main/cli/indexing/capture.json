@@ -1,6 +1,7 @@
 {
   "help": "PAID - the model reads the corpus for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)",
   "would": "would read the corpus - PAID",
+  "modality": "MAY",
   "args": [
     {
       "name": "--conversations",

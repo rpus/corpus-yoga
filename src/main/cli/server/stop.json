@@ -1,6 +1,7 @@
 {
   "help": "stop the running server daemon",
   "would": "would stop",
+  "modality": "MAY",
   "args": [],
   "x": [
     "pkill"

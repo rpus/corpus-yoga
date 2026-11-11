@@ -1,6 +1,7 @@
 {
   "help": "reproduce the snapshot - fetch upstream at the pinned commit, run its own generator over the committed schema.ts in a node container, and diff the result against the committed schema.json - the diff if any, then one verdict",
   "would": "would reproduce",
+  "modality": "MAY",
   "args": [],
   "r": [
     "rsc/reference/mcp"

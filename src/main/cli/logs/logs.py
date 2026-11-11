@@ -101,7 +101,7 @@ class Orphan:
     logs: int
     size: str
     why: str
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass

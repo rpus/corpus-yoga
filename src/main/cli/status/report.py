@@ -3,17 +3,18 @@
 report.py - `corpus-yoga status`' report: the rows status.sh collects as its
 checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,
 tab-separated, in the file named - typed and said as one shape (issues/759). A row is keyed by
-what it is about (issues/771); its commands are columns of their own, `<command> <what it does>`
-in pairs, and stand under `remedy` beside it (issues/763, issues/777). A row `<section> graft <noun>
-<pointer>` is what that noun's own status says at that spot, loaded as the data it is
-(issues/777): whole in the full report, and otherwise what holds a remedy - or, with `standing`
-as a fifth column (issues/824), the spot's facts as they stand, since what the stage says to run
-next is no remedy and is still what the room needs doing. The report ends on now:, the
-room's standing folded once from every noun's own (src/main/standing.py, issues/949). Runs under
-the venv's python, or under python3 before the venv is minted, where no noun can be asked.
+what it is about (issues/771) and says the fact alone; its commands are columns of their own,
+`<command> <what it does>` in pairs, each an act said under now: (issues/1050). A row `<section>
+graft <noun> <pointer>` is what that noun's own status says at that spot, loaded as the data it is
+(issues/777): whole in the full report, and in the short one only with `standing` as a fifth column
+(issues/824) - the spot's facts as they stand - since every other spot's acts reach the report
+through now:. The report ends on now:, the room's standing folded once from every noun's own
+(src/main/standing.py, issues/949) with the acts the rows name - every act under MAY or MUST, as
+its verb declares. Runs under the venv's python, or under python3 before the venv is minted,
+where no noun can be asked.
 
 usage: report.py report <rows-file> <show-all: 0|1>
-       report.py remedies <rows-file> ...      # each remedy the report holds: command, what it does, where
+       report.py must <rows-file> ...          # each MUST act: command, what it does, where
 """
 from __future__ import annotations
 import os
@@ -36,8 +37,8 @@ REPO = _root[0]
 class Report:
     """The report: each section its subjects, each subject what stands of it (issues/763, issues/771). A
     subject `a / b` stands beneath `a`, so its last part names the property the value is of,
-    or is the thing itself by its address; the commands that act on a row stand under
-    `remedy` beside its last part, each with what it does. No key names a kind."""
+    or is the thing itself by its address. No key names a kind, and no act stands in a section:
+    every act is now:'s (issues/1050)."""
     sections: Mapping[str, object]
     now: dict | str = facts.phrase('unread - the venv is not minted')   # the room's standing, last (issues/949)
 
@@ -45,38 +46,28 @@ class Report:
         return {**{name: self.sections[name] for name in sorted(self.sections)}, 'now': self.now}   # one order, a reader's: alphabetical, the standing last
 
 
-def needing(node):
-    """What of a noun's facts needs acting on: each mapping that holds a remedy, whole, under
-    the keys that lead to it; None where nothing does."""
-    if not isinstance(node, dict):
-        return None
-    if 'remedy' in node:
-        return node
-    kept = {key: found for key, value in node.items() if (found := needing(value)) is not None}
-    return kept or None
-
-
 def grafted(noun: str, pointer: str, whole: bool, as_standing: bool = False):
-    """What the noun's own status says at the pointer: its facts, loaded. None where the
-    short report has nothing of it to show: what holds a remedy - a command the reader
-    types, or the reader's own act in words, which is shown and never run (issues/866) - or, for
-    a spot grafted as standing (issues/824), its facts as they stand - a mapping or a list, never
-    the sentence that says the spot is empty."""
+    """What the noun's own status says at the pointer: its facts, loaded, its now: left to the
+    room's, which folds every noun's (issues/1050). None where the short report has nothing of it
+    to show: every spot but one grafted as standing (issues/824), whose facts show as they stand -
+    a mapping or a list, never the sentence that says the spot is empty."""
+    if not whole and not as_standing:
+        return None
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
         return facts.phrase('unread - the venv is not minted') if whole else None
     at = standing.said_by(noun)
     if isinstance(at, str):
         return at
+    if isinstance(at, dict):
+        at = {key: value for key, value in at.items() if key != 'now'}
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
         if not isinstance(at, dict) or token not in at:
-            return facts.phrase('corpus-yoga {noun} says nothing at {pointer}', noun=noun, pointer=pointer) if whole else None   # a spot the noun has no occasion for: nothing to remedy
+            return facts.phrase('corpus-yoga {noun} says nothing at {pointer}', noun=noun, pointer=pointer) if whole else None   # a spot the noun has no occasion for
         at = at[token]
     if whole:
         return at
-    if as_standing:
-        return at if isinstance(at, (dict, list)) and at else None
-    return needing(at)
+    return at if isinstance(at, (dict, list)) and at else None
 
 
 def _is_act(command: str) -> bool:
@@ -88,23 +79,22 @@ def _is_act(command: str) -> bool:
     return True
 
 
-def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
-    """Each remedy the report holds that the reader types: its command, what it does, and
-    where it stands. An act in words is no row here: status satisfy takes only commands."""
-    if not isinstance(node, dict):
-        return []
-    out = ([(command, next(iter(does)) if isinstance(does, dict) else does, where) for command, does in node['remedy'].items()]
-           if isinstance(node.get('remedy'), dict) else [])
-    for key, value in node.items():
-        if key != 'remedy':
-            out += remedies(value, f'{where} / {key}' if where else str(key))
+def must(now) -> list[tuple[str, str, str]]:
+    """Each MUST act of a now:, as status satisfy is handed it: its command, what it does, and
+    what it acts on."""
+    out: list[tuple[str, str, str]] = []
+    for command, does in (now.get('MUST', {}) if isinstance(now, dict) else {}).items():
+        for would, acts_on in does.items():
+            out.append((command, would, ', '.join(map(str, acts_on)) if isinstance(acts_on, dict) else str(acts_on)))
     return out
 
 
 def main() -> int:
     mode, rows_file, show_all = (sys.argv[1:4] + ['', ''])[:3]
-    whole = show_all == '1' or mode == 'remedies'       # sync reads every remedy, whatever the report shows
+    whole = show_all == '1'
     sections: dict[str, dict] = {}
+    acts: list[facts.Would] = []
+    typed: list[tuple[str, str, str]] = []   # each command a row names, as the row names it: what satisfy runs of the rows
     rows = [line.split('\t') for line in Path(rows_file).read_text().splitlines() if line.strip()]
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if venv.is_file():
@@ -130,31 +120,31 @@ def main() -> int:
             if not isinstance(beneath, dict):         # a subject that held one value and now holds others: the value keeps its place by name
                 beneath = at[part] = {part: beneath}
             at = beneath
+        thing = last
         while last in at:                             # two rows of one subject: both are said
             last += ' (again)'
         at[last] = stands
-        commands = {rest[i]: rest[i + 1] if i + 1 < len(rest) else '' for i in range(0, len(rest), 2) if rest[i]}
-        for command, does in commands.items():
-            # a corpus-yoga act is said in its declared words, on what the row is about (issues/1028)
-            # a corpus-yoga act is said in its declared words, on what the row is about; any other
-            # command is one status satisfy runs, and is said as its act (issues/1034) - but sync is
-            # handed the commands themselves
-            subject = last.removesuffix(' (again)')
-            act = (None if mode == 'remedies' else facts.plain(facts.Would(command, {subject: 1})) if _is_act(command)
-                   else facts.plain(facts.Would(spell.line('status', 'satisfy'), {above[0] if above else subject: 1})))
-            said_as: dict = act if isinstance(act, dict) else {command: does}
-            held = at.get('remedy')
-            at['remedy'] = facts.merge(held if isinstance(held, dict) else {}, said_as)
-    if mode == 'remedies':
-        for command, does, where in remedies(sections):
+        for i in range(0, len(rest), 2):
+            command, does = rest[i], rest[i + 1] if i + 1 < len(rest) else ''
+            if not command:
+                continue
+            if not _is_act(command) or facts.Would(command, {}).modality == 'MUST':   # a row's act is satisfy's only as its verb declares
+                typed.append((command, does, f'{name} / {subject}'))
+            # a corpus-yoga act is said in its declared words, on what the row is about (issues/1028);
+            # any other command is one status satisfy runs, and is said as its act (issues/1034)
+            acts.append(facts.Would(command, {thing: 1}) if _is_act(command)
+                        else facts.Would(spell.line('status', 'satisfy'), {above[0] if above else thing: 1}))
+    own = facts.now_of(facts.Acts(tuple(acts)))
+    if mode == 'must':
+        # what satisfy runs: each command the rows name as typed, and every MUST act of the nouns
+        for command, does, where in typed + (must(standing.room_now()) if venv.is_file() else []):
             print(f'{command}\t{does}\t{where}')
         return 0
     report = Report(sections)   # with no row to say, the report is its now: alone
     if venv.is_file():
-        # every noun's own acts, then each act only the report's own rows name (issues/1028): a grafted
-        # spot's act is its noun's, already in that noun's now:, and is not counted twice
-        room = standing.room_now()
-        report.now = {**room, **{line: act for line, act in facts.now_of(sections).items() if line not in room}} or facts.phrase('none - nothing to do')
+        report.now = facts.ordered(facts.merge(standing.room_now(), own, once=True)) or facts.phrase('none - nothing to do')
+    elif own:
+        report.now = own
     facts.say(report)
     return 0
 

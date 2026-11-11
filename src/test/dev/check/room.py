@@ -181,7 +181,9 @@ def check_status_facts(run) -> None:
                               env=env, cwd=REPO_ROOT, timeout=300)
         try:
             loaded = yaml.load(proc.stdout, Loader=Strict)
-            why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
+            said_wrong = [line for line in proc.stderr.splitlines() if line.strip()]
+            why = None if isinstance(loaded, dict) else (f'loads as {type(loaded).__name__}, not a mapping'
+                                                         + (f' - it exits {proc.returncode}, saying {said_wrong[-1][:200]}' if said_wrong else ''))
             if why is None and getattr(status_facts, 'load', None) is not None:
                 # the printer's own reader reads what the YAML reader reads (issues/766)
                 try:
@@ -237,6 +239,8 @@ def check_status_facts(run) -> None:
               ('stage', 'invalid'), ('stage', 'unlicensed'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
+        if not spot and isinstance(own, dict):
+            own = {key: value for key, value in own.items() if key != 'now'}   # a noun's now: is the room's, folded (issues/1050)
         section = whole.get(f'corpus-yoga {noun}')
         last = spot[-1] if spot else ''
         said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
@@ -252,7 +256,8 @@ def check_status_facts(run) -> None:
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
     # The room's standing is the fold of every noun's own now: (issues/949), each gathered from that
     # noun's own body (issues/1028), with an act two nouns name over one unit taken once; and
-    # the report's now: is that fold, then each act only the report's own rows name.
+    # the report's now: is that fold with the acts its own rows name, which are MUST - a row
+    # names a fault (issues/1050).
     import importlib
     nouns_with_now = importlib.import_module('standing').NOUNS   # as each noun declares `standing` (issues/1034)
     own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
@@ -260,12 +265,16 @@ def check_status_facts(run) -> None:
     run('report: every noun that declares standing ends its bare status on now:', not nowless,
         None if not nowless else f'{", ".join(nowless)}: bare corpus-yoga <noun> says no now: - say the status through facts.say_standing',
         check='report.every_standing_noun_ends_on_now')
+    import copy
     folded = importlib.import_module('standing').fold(own_now)
-    own_rows = importlib.import_module('facts').now_of({key: value for key, value in whole.items() if key != 'now'})
-    expected = {**folded, **{line: act for line, act in own_rows.items() if line not in folded}} or 'none - nothing to do'
-    same = whole.get('now') == expected
-    run('report: its now: is the fold of every noun\'s own now:, then the acts only its own rows name', same,
-        None if same else f'the report says {str(whole.get("now"))[:120]} where the fold and its own rows give {str(expected)[:120]}', check='report.now_is_the_fold')
+    room_now = whole.get('now')
+    room_now = room_now if isinstance(room_now, dict) else {}
+    holds_fold = importlib.import_module('facts').merge(copy.deepcopy(room_now), folded, once=True) == room_now
+    may_is_fold = set(room_now.get('MAY', {})) == set(folded.get('MAY', {}))
+    in_order = list(room_now) == [m for m in ('MAY', 'MUST') if m in room_now]
+    same = holds_fold and may_is_fold and in_order and (room_now or whole.get('now') == 'none - nothing to do')
+    run('report: its now: is the fold of every noun\'s own now:, with the MUST acts its own rows name', bool(same),
+        None if same else f'the report says {str(whole.get("now"))[:160]} where the fold gives {str(folded)[:160]}', check='report.now_is_the_fold')
 
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
@@ -348,7 +357,7 @@ def check_status_facts(run) -> None:
     # The pipeline noun says each pipeline by its declaration and each staged unit by its
     # facts (issues/800): under `pipelines:` the pipelines alone, each with its declared input and
     # the steps its plan names; under `staged:` a mapping of units, each a mapping of facts;
-    # the counts left to `corpus-yoga stage`; the commands under `remedy:`.
+    # the counts left to `corpus-yoga stage`; its acts under now: (issues/1050).
     pipeline_said = said_by('pipeline')
     declared_pipelines = sorted(d.name for d in (SRC / 'main').iterdir() if (d / 'pipeline.json').is_file())
     def planned(name: str) -> list[str]:
@@ -386,8 +395,6 @@ def check_status_facts(run) -> None:
             if not isinstance(unit, dict) or 'judged' not in unit:
                 why = f'the unit {address[:60]} is said as {str(unit)[:80]!r}, not by its facts'
                 break
-    if why is None and 'remedy' in pipeline_said:
-        why = 'a remedy stands at the top, beside no unit: one stands only beside the unit whose state is a fault'
     run('status: corpus-yoga pipeline says each pipeline by its declaration and each staged unit by its facts', why is None, why,
         check='status.pipeline_says_declarations_and_units')
     for noun in ('agent', 'browser', 'export'):
@@ -397,8 +404,8 @@ def check_status_facts(run) -> None:
         run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
             check='status.pipeline_says_declarations_and_units')
 
-    # The default report of a room with nothing to remedy is still one mapping (issues/807): the
-    # worktree the gate runs in always has remedies, so the empty case is made here.
+    # The default report of a room with no row to say is still one mapping (issues/807): the
+    # worktree the gate runs in always has rows, so the empty case is made here.
     import tempfile
     with tempfile.NamedTemporaryFile('w', suffix='.rows', delete=False) as empty:
         empty.write('x\tgraft\tnonesuch\t/nowhere\n')
@@ -416,7 +423,7 @@ def check_status_facts(run) -> None:
         check='status.lines_load_as_yaml')
 
     # The machine report gives no verdict on itself (issues/786): it ends at its last section,
-    # and what needs doing is read from its remedies.
+    # and what needs doing is read from its now:.
     verdict = whole.get('status')
     run('report: it gives no verdict on itself', bool(whole) and verdict is None,
         None if whole and verdict is None else f'the report ends `status: {str(verdict)[:120]}`' if whole else 'corpus-yoga status --show-all loads as nothing',

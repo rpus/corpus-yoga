@@ -1,6 +1,7 @@
 {
   "help": "install a peer store's claude sessions into this machine's live Claude Code store - what it would write is corpus-yoga agent's status, per peer store held; the one adapter that vouches for a write into a live store",
   "would": "would write",
+  "modality": "MAY",
   "args": [
     {
       "name": "--id",

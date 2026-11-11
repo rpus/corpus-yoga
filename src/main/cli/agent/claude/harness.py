@@ -12,6 +12,7 @@ this adapter's alone: they write into the harness-owned projects root.
 """
 import hashlib
 import json
+import re
 import sys
 from collections import Counter
 from collections.abc import Iterator
@@ -149,7 +150,8 @@ def place_session(src: Path, dest: Path, apply: bool) -> tuple[Relation, str]:
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: Log, label: str) -> int:
     """Memory-folder merge — INSTALL only, where two agents actually meet
     (capture mirrors its own outbox instead; see mirror_memory). A leaf
-    file's NAME is dressing; the fact is the identity — so per leaf: absent →
+    file's NAME is dressing; the fact is the identity — so per leaf, judged against
+    its local copy alone with each link read as the fact it names: absent →
     copy (novelty); identical → skip; the incoming extends the local
     (byte-prefix) → superseded in place (an appendix); true divergence → BOTH
     kept, the incoming fact re-dressed as <stem>.<machine>.md — machine is the
@@ -171,27 +173,24 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
             text = text.replace(f'[[{old}]]', f'[[{new}]]')
         return text
 
+    def bare(text: str) -> str:
+        """The text with each link to a fact re-dressed for the sender said by the fact's own
+        name: a link names a fact, and the sender's suffix on it is no part of the fact."""
+        return re.sub(rf'\[\[([^\]]+)\.{re.escape(machine)}\]\]', r'[[\1]]', text)
+
+    def related(raw: str, have: str) -> str:
+        """How the incoming copy of a fact stands to the local one, read bare."""
+        incoming, held = bare(raw), bare(have)
+        return ('identical' if incoming == held else 'extends' if incoming.startswith(held)
+                else 'ahead' if held.startswith(incoming) else 'diverged')
+
     leaves = [(p.relative_to(src_dir), p.read_text())
               for p in sorted(src_dir.rglob('*'))
               if p.is_file() and p.name not in ('.DS_Store', 'MEMORY.md')]
-
-    # Settle the rename map by fixpoint BEFORE acting: a leaf is compared in its
-    # INSTALLED form (links already re-dressed), so a file that differs from its
-    # local copy only because a linked fact was re-dressed is identical, not
-    # diverged — which is what makes re-receiving the same bundle silence (L1).
-    renamed: dict[str, str] = {}
-    for _ in range(5):
-        next_map: dict[str, str] = {}
-        for rel, raw in leaves:
-            target = dest_dir / rel
-            if not target.exists():
-                continue
-            form, have = dressed(raw, renamed), target.read_text()
-            if form != have and not form.startswith(have) and not have.startswith(form):
-                next_map[target.stem] = f'{target.stem}.{machine}'
-        if next_map == renamed:
-            break
-        renamed = next_map
+    # each pair of copies judged alone, read bare, so that no fact's judgement waits on another's
+    # and a fact installed with its links re-dressed is received again as identical (L1)
+    relation = {rel: related(raw, (dest_dir / rel).read_text()) for rel, raw in leaves if (dest_dir / rel).exists()}
+    renamed = {rel.stem: f'{rel.stem}.{machine}' for rel, held in relation.items() if held == 'diverged'}
 
     acts: list[str] = []  # merge-marker act lines: the undo record
     for rel, raw in leaves:
@@ -205,18 +204,20 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
             acts.append(f'<!-- merge:act new {rel} sha={_sha(form)} len={len(form)} -->')
             continue
         have = target.read_text()
-        if have == form:
+        if relation[rel] == 'identical':
             said('kept', rel, {f'{STORE} and {LIVE} hold identical text': f'{len(have)} bytes'})
-        elif form.startswith(have):
+        elif relation[rel] == 'extends':
+            # the held text kept byte for byte and the incoming tail after it, so that demerge's truncation to the prior length undoes it
+            form = have + dressed(bare(raw)[len(bare(have)):], renamed)
             said('wrote', rel, {f'{STORE} extends {LIVE}': f'{len(have)} → {len(form)} bytes'})
             if apply:
                 target.write_text(form)
             acts.append(f'<!-- merge:act appendix {rel} prior={len(have)} '
                         f'post={len(form)} sha={_sha(form)} -->')
-        elif have.startswith(form):
+        elif relation[rel] == 'ahead':
             said('kept', rel, {f'{LIVE} is ahead of {STORE}': f'{len(have)} > {len(form)} bytes'})
         else:
-            twin = target.with_name(f'{renamed[target.stem]}{target.suffix}')
+            twin = target.with_name(f'{renamed[rel.stem]}{target.suffix}')
             twin_rel = rel.with_name(twin.name)
             if twin.exists() and twin.read_text() == form:
                 said('kept', rel, {f'{STORE} and {LIVE} diverged': f'the twin {twin.name} already holds it'})

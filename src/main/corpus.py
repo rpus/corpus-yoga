@@ -1070,7 +1070,7 @@ def orphans() -> list[Path]:
 class Orphan:
     size: str
     why: str
-    remedy: facts.Would
+    act: facts.Would
 
 
 @dataclass
@@ -1165,7 +1165,7 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
 
 def stage_facts() -> StageStatus:
     """Bare corpus-yoga stage as facts (issues/741, issues/759, issues/822): the input's size, the scratch's,
-    each orphan with the janitor as its remedy, the rehearsal record's anchor with the units
+    each orphan with the janitor as its act, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
     invalid by the version file that found it so - its path, relative to rsc/schema,
     which the declaration's explanation names once - by the reason with how many carry it,
@@ -1211,7 +1211,7 @@ class Promotion:
     would_lose: int | None
     unlicensed: int | None
     pending: int | None
-    remedy: facts.Acts | None = None   # the acts on this kind, in the workflow's order (issues/1028)
+    acts: facts.Acts | None = None   # the acts on this kind, in the workflow's order (issues/1028)
 
     @classmethod
     def of(cls, rows: list[Judged]) -> 'Promotion':
@@ -1404,7 +1404,7 @@ class Surplus:
     """A file inside a held unit that its measure does not read, which no capture wrote."""
     size: str
     beside: str                   # the file the measure reads
-    remedy: facts.Would
+    act: facts.Would
 
 
 @dataclass
@@ -1420,7 +1420,7 @@ class HeldTwice:
         return {'kind': d.unit.kind, 'size': self.size,
                 ('identical to' if d.how == 'identical' else 'contained by'): d.holder.address,
                 'holder size': self.holder_size, 'by': d.by,
-                'remedy': facts.Would(spell.line('store', 'clean'), {kind_of(d.unit): 1})}
+                'act': facts.Would(spell.line('store', 'clean'), {kind_of(d.unit): 1})}
 
 
 @dataclass
@@ -1487,7 +1487,7 @@ class Paired:
     record: str | None = None     # its capture's manifest
     standing: str | None = None   # a staged one: complete, incomplete or unpaired
     note: str | None = None
-    remedy: facts.Would | None = None
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -1518,13 +1518,13 @@ def pairs_facts(noun: str) -> Pairs:
             if unit.members and unit.record:
                 out.staged[unit.address.name] = Paired(standing=facts.phrase('incomplete - {present}, missing {missing}', present=present,
                                                                                missing=', '.join(unit.missing)),
-                                                       remedy=facts.Would(spell.line('stage', 'clean'), {unit.address.name: 1}))
+                                                       act=facts.Would(spell.line('stage', 'clean'), {unit.address.name: 1}))
                 continue
             item = Paired(standing=facts.phrase('unpaired - {present} with no {missing} beside it', present=present,
                                                   missing=', '.join(unit.missing)))
             if not unit.members and _declares(noun, 'capture', '--manifest'):
                 where = (STAGE / unit.record[0]).relative_to(REPO)
-                item.remedy = facts.Would(spell.line(noun, 'capture', manifest=str(where)), {unit.address.name: 1})
+                item.act = facts.Would(spell.line(noun, 'capture', manifest=str(where)), {unit.address.name: 1})
             out.staged[unit.address.name] = item
     return out
 
@@ -1538,7 +1538,7 @@ class Staged:
     invalid: dict[str, str | dict[str, str]] | None = None    # the version file that found it so, by its path under rsc/schema, and the fault - its path, rule and schema node, or the reason alone
     unlicensed: dict[str, str] | None = None    # valid at a version origin/main does not hold: that version file, by its path, and the reason
     rehearsal: str | None = None
-    remedy: facts.Acts | None = None        # the workflow's acts on it, where one does (issues/1028)
+    acts: facts.Acts | None = None        # the workflow's acts on it, where one does (issues/1028)
 
 
 @dataclass

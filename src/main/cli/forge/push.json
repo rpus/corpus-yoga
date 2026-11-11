@@ -1,13 +1,14 @@
 {
   "help": "make the forge settings agree with src/main/cli/forge/forge.csv - what it would set is corpus-yoga forge's status; it writes outside the repo",
   "would": "would push",
+  "modality": "MAY",
   "args": [],
   "sends": {
     "patch": {
       "runs": "gh api -X PATCH repos/{owner}/{repo}",
       "refused": "fails",
       "does": [
-        "WRITES settings others see, each drifted setting as its row's remedy names it"
+        "WRITES settings others see, each drifted setting as the forge's status names it"
       ]
     }
   }

@@ -11,7 +11,7 @@
     "took {taken} step(s) of {n} script(s)"
   ],
   "explanation": {
-    "scripts": "each script under rsc/migration, by its path - how many steps it would take, none pending, or that it halted and what it said; the steps themselves the script says when run bare, being the declaration of its moves; a script with steps carries the sync as its remedy, a halted one names a from and a to that both stand, which the reader resolves by hand",
+    "scripts": "each script under rsc/migration, by its path - how many steps it would take, none pending, or that it halted and what it said; the steps themselves the script says when run bare, being the declaration of its moves; corpus-yoga migration apply, in now, runs a script with steps; a halted one names a from and a to that both stand, which the reader resolves by hand",
     "migration": "the verdict - how many scripts, how many with steps pending, how many halted"
   },
   "target": "src/main/cli/migration/migration.py",

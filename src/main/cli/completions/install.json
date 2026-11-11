@@ -1,6 +1,7 @@
 {
   "help": "makes tab complete corpus-yoga in zsh, by adding four lines to ~/.zshrc - run by corpus-yoga status satisfy",
   "would": "would install - open a new terminal afterwards",
+  "modality": "MUST",
   "args": [],
   "sends": {
     "zshrc": {

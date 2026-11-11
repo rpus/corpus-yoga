@@ -19,7 +19,9 @@ a mapping keyed by its members' names, each member's facts beneath its name, so 
 dash means only a bare value with nothing to key it by, and the nesting alone says what
 belongs to what (issues/765). A status line is one of three (issues/1034): a fact, settled; an
 act (Would), a declared corpus-yoga verb with what it would act on, which now: lifts; or an
-unsettled reading (Unsettled), which now: lifts under the noun that reports it. No remedy is
+unsettled reading (Unsettled), which now: lifts under the noun that reports it. An act is said
+only in now:, under the modality its verb declares - MAY or MUST, in RFC 2119's words
+(issues/1050) - and never where it stands in the body, which says the fact alone. No act is
 written in words or as a command no verb declares - there is no type to write one in. A
 finding (Finding) is the FAIL the usr gate's table counts. A noun written in shell hands its rows to
 a status module beside it, which types them: no shell builds facts.
@@ -283,15 +285,19 @@ def named(label: str, **kwargs):
 @dataclass(frozen=True)
 class Would:
     """An act a status names (issues/1028): the command as typed, and what it would act on -
-    each thing with how many, or with what changes in it beneath. What the act would do is
-    the words its verb declares (`would`, src/main/cli/<noun>/<verb>.json), never the
-    caller's; a noun's now: is every act its body holds, gathered by now_of, so that an act
-    is said once, in one shape."""
+    each thing with how many, or with what changes in it beneath. What the act would do, and
+    whether the room must or may do it, are what its verb declares (`would` and `modality`,
+    src/main/cli/<noun>/<verb>.json), never the caller's; a noun's now: is every act its body
+    holds, gathered by now_of, so that an act is said once, in one shape, and only there."""
     line: str
     acts_on: dict
 
     def facts(self) -> dict:
         return {self.line: {would_of(self.line): self.acts_on}}
+
+    @property
+    def modality(self) -> str:
+        return declared_of(self.line)['modality']
 
 
 @dataclass(frozen=True)
@@ -318,21 +324,26 @@ class Acts:
         return out
 
 
-_WOULD: dict[str, str] = {}
+_DECLARED: dict[str, dict] = {}
 
 
-def would_of(line: str) -> str:
-    """What the command would do, in the words its verb declares: the verb named after the
-    noun, or the noun's own declaration where none is."""
+def declared_of(line: str) -> dict:
+    """The declaration of the verb the command runs: the verb named after the noun, or the
+    noun's own declaration where none is."""
     words = line.split()
     at = next(i for i, word in enumerate(words) if word.endswith('corpus-yoga'))
     noun = words[at + 1]
     verb = words[at + 2] if len(words) > at + 2 and not words[at + 2].startswith('-') else noun
     key = f'{noun} {verb}'
-    if key not in _WOULD:
+    if key not in _DECLARED:
         declared = Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli' / noun / f'{verb}.json'
-        _WOULD[key] = json.loads(declared.read_text())['would']
-    return _WOULD[key]
+        _DECLARED[key] = json.loads(declared.read_text())
+    return _DECLARED[key]
+
+
+def would_of(line: str) -> str:
+    """What the command would do, in the words its verb declares."""
+    return declared_of(line)['would']
 
 
 def merge(into: dict, more: dict, once: bool = False) -> dict:
@@ -352,62 +363,73 @@ def merge(into: dict, more: dict, once: bool = False) -> dict:
 
 
 REPORTS = 'reports the noun'   # beneath a noun's command in now:, what it reports and cannot settle
+MODALITY = ('MAY', 'MUST')     # RFC 2119's words, in the order now: says them (issues/1050)
+
+
+def ordered(now: dict) -> dict:
+    """A now: as said: MAY first, MUST last, a modality with no act not said."""
+    return {modality: now[modality] for modality in MODALITY if now.get(modality)}
 
 
 def now_of(shape) -> dict:
-    """A status's now: - every act it names, gathered by command and merged (issues/1028), and
-    every reading it could not settle, under the noun that reports it (issues/1034), so that no
-    noun composes its now: beside its body. An act stands under a remedy: key as its command, its
-    declared words and what it acts on; a remedy in words, or a command that is no corpus-yoga
-    act, is no act of now:, and a nested now: is no act of the body."""
+    """A status's now: - every act it names, gathered by command and merged (issues/1028) under
+    the modality its verb declares (issues/1050), and every reading it could not settle, under the
+    noun that reports it (issues/1034) and under MAY, since reading it again is the reader's
+    choice - so that no noun composes its now: beside its body. Gathered from the facts the
+    body says, so that a field its own `facts` leaves unsaid names no act; a nested now: is no
+    act of the body. Empty where the body names nothing."""
     out: dict = {}
 
-    def unsettled(node) -> None:
-        if isinstance(node, Unsettled):
-            merge(out, {f'corpus-yoga {node.noun}': {REPORTS: {node.reading: 1}}}, once=True)
+    def walk(node) -> None:
+        if isinstance(node, Would):
+            merge(out, {node.modality: node.facts()})
+        elif isinstance(node, Acts):
+            for act in node.acts:
+                walk(act)
+        elif isinstance(node, Unsettled):
+            merge(out, {'MAY': {f'corpus-yoga {node.noun}': {REPORTS: {node.reading: 1}}}}, once=True)
         elif is_dataclass(node) and not isinstance(node, type):
-            for f in fields(node):
-                if f.name != 'now':
-                    unsettled(getattr(node, f.name))
+            own = getattr(node, 'facts', None)
+            if callable(own):
+                walk(own())
+            else:
+                for f in fields(node):
+                    if f.name != 'now':
+                        walk(getattr(node, f.name))
         elif isinstance(node, dict):
             for key, value in node.items():
                 if key != 'now':
-                    unsettled(value)
+                    walk(value)
         elif isinstance(node, (list, tuple)):
             for value in node:
-                unsettled(value)
-
-    def walk(node) -> None:
-        if isinstance(node, dict):
-            for key, value in node.items():
-                if key == 'now':
-                    continue
-                if key == 'remedy' and isinstance(value, dict):
-                    for line, does in value.items():
-                        if isinstance(does, dict):
-                            merge(out, {line: does})
-                    continue
-                walk(value)
-        elif isinstance(node, list):
-            for value in node:
                 walk(value)
 
-    unsettled(shape)
-    walk(plain(shape))
-    return out
+    walk(shape)
+    return ordered(out)
 
 
 @dataclass(frozen=True)
 class Finding:
-    """What a status found wrong: the FAIL the usr gate's stage table counts, and its remedy."""
+    """What a status found wrong: the FAIL the usr gate's stage table counts, and the act on it."""
     FAIL: str
-    remedy: Would | None = None
+    act: Would | None = None
+
+
+def _kept(pairs) -> dict | None:
+    """The pairs said: each value plain, an act and None omitted - an act is said in now: only
+    (issues/1050) - and None where every pair held an act, so that a key that held only acts is
+    not said either."""
+    held = [(key, value) for key, value in pairs if value is not None]
+    out = {key: said for key, value in held if (said := plain(value)) is not None}
+    return None if held and not out else out
 
 
 def plain(shape):
     """The shape as the mappings, lists and scalars the printer prints: a dataclass its
-    fields in order under their keys, None omitted; one that says itself, its words; one
-    with a `facts` method, what that returns."""
+    fields in order under their keys, None and acts omitted; one that says itself, its words;
+    one with a `facts` method, what that returns; an act, None - it is said in now:."""
+    if isinstance(shape, (Would, Acts)):
+        return None
     if is_dataclass(shape) and not isinstance(shape, type):
         said = getattr(shape, 'said', None)
         if callable(said):
@@ -415,12 +437,12 @@ def plain(shape):
         own = getattr(shape, 'facts', None)
         if callable(own):
             return plain(own())
-        return {f.metadata.get('key', f.name.replace('_', ' ')): plain(getattr(shape, f.name))
-                for f in fields(shape) if getattr(shape, f.name) is not None}
+        return _kept((f.metadata.get('key', f.name.replace('_', ' ')), getattr(shape, f.name)) for f in fields(shape))
     if isinstance(shape, dict):
-        return {key: plain(value) for key, value in shape.items() if value is not None}
+        return _kept(shape.items())
     if isinstance(shape, (list, tuple)):
-        return [plain(item) for item in shape]
+        items = [said for item in shape if (said := plain(item)) is not None]
+        return None if shape and not items else items
     if isinstance(shape, PurePath):
         return shape.as_posix()
     return shape

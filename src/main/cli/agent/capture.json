@@ -1,6 +1,7 @@
 {
   "help": "mirror this machine's own sessions of every served provider into that provider's store dir (what a machine pushes to the shared store)",
   "would": "would capture",
+  "modality": "MAY",
   "args": [
     {
       "name": "--provider",

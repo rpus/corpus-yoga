@@ -1,6 +1,7 @@
 {
   "help": "deposit new distinct readings and re-render each folder index - idempotent (the only write)",
   "would": "would deposit",
+  "modality": "MAY",
   "args": [],
   "step": "export",
   "r": [

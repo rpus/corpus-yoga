@@ -1,6 +1,7 @@
 {
   "help": "(re-)generate every catalogue to agree with the schemas - idempotent",
   "would": "would derive",
+  "modality": "MAY",
   "args": [],
   "r": [
     "rsc/schema",

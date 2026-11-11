@@ -1,6 +1,7 @@
 {
   "help": "read, through Safari, which chats a provider's account holds and how far each has gone, and record it at tmp/browser/fetch/<provider>.json - so that a bare corpus-yoga browser says which chats are new or have grown since their capture without sending; claude's is one read of the chat list, gemini's opens every captured chat",
   "would": "would fetch",
+  "modality": "MAY",
   "args": [
     {
       "name": "--provider",
