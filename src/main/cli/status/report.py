@@ -149,7 +149,7 @@ def main() -> int:
         for command, does, where in remedies(sections):
             print(f'{command}\t{does}\t{where}')
         return 0
-    report = Report(sections if sections or whole else {'remedy': facts.phrase('none - nothing to do')})   # a status loads as one mapping: the empty case says its one fact
+    report = Report(sections)   # with no row to say, the report is its now: alone
     if venv.is_file():
         # every noun's own acts, then each act only the report's own rows name (issues/1028): a grafted
         # spot's act is its noun's, already in that noun's now:, and is not counted twice

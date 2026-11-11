@@ -410,9 +410,9 @@ def check_status_facts(run) -> None:
         loaded_empty = yaml.load(said_empty, Loader=Strict)
     except yaml.YAMLError as error:
         loaded_empty = f'does not load - {getattr(error, "problem", error)}'
-    run('status: the report of a room with nothing to remedy loads as one mapping that says so',
-        isinstance(loaded_empty, dict) and bool(loaded_empty) and 'remedy' in loaded_empty,
-        None if isinstance(loaded_empty, dict) and loaded_empty and 'remedy' in loaded_empty else f'it says {said_empty.strip()[:120]!r}',
+    alone = isinstance(loaded_empty, dict) and list(loaded_empty) == ['now']
+    run('status: the report of a room with no row to say loads as one mapping, its now: alone', alone,
+        None if alone else f'it says {said_empty.strip()[:120]!r}',
         check='status.lines_load_as_yaml')
 
     # The machine report gives no verdict on itself (issues/786): it ends at its last section,
