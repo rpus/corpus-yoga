@@ -11,7 +11,9 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 cd "$REPO_DIR" || exit 1
 
 APPLY=0
-MOVED=()
+MOVED=()     # bare: what the moves stated above would have taken away
+REMOVED=()   # bare: the links the removes stated above would have taken away
+ARRIVED=()   # bare: where the moves stated above would have put something
 case "${1-}" in
   --apply) APPLY=1 ;;
   '') ;;
@@ -22,12 +24,15 @@ esac
 move() {
   local from="$1" to="$2"
   [[ -e "$from" || -L "$from" ]] || return 0
-  if [[ -e "$to" || -L "$to" ]]; then
+  local gone="" arrived=""
+  for gone in ${REMOVED[@]+"${REMOVED[@]}"}; do [[ "$to" == "$gone" ]] && break; gone=""; done
+  for arrived in ${ARRIVED[@]+"${ARRIVED[@]}"}; do [[ "$to" == "$arrived" ]] && break; arrived=""; done
+  if [[ -n "$arrived" ]] || { [[ -z "$gone" ]] && [[ -e "$to" || -L "$to" ]]; }; then
     echo "FAIL: $from and $to both exist - resolve by hand, then run $SELF again" >&2
     exit 1
   fi
   echo "mv $from $to"
-  if (( APPLY )); then mkdir -p "$(dirname "$to")" && mv "$from" "$to"; else MOVED+=("$from"); fi
+  if (( APPLY )); then mkdir -p "$(dirname "$to")" && mv "$from" "$to"; else MOVED+=("$from"); ARRIVED+=("$to"); fi
 }
 
 # remove <link>: a symlink at a retired address; a file or directory there is not a
@@ -36,7 +41,7 @@ remove() {
   local link="$1"
   [[ -L "$link" ]] || return 0
   echo "rm $link"
-  if (( APPLY )); then rm "$link"; fi
+  if (( APPLY )); then rm "$link"; else REMOVED+=("$link"); fi
 }
 
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,
@@ -55,16 +60,18 @@ discard() {
 
 # retire <directory>: a directory nothing writes any more, removed once empty - bare,
 # once the moves stated above it would have emptied it; a directory still holding
-# files is named and left.
+# files is named and left. Finder's .DS_Store is no file of it: Finder writes one into
+# any directory it shows, and rebuilds it.
 retire() {
   local dir="$1" entry moved
   [[ -d "$dir" && ! -L "$dir" ]] || return 0
   for entry in "$dir"/* "$dir"/.[!.]*; do
     [[ -e "$entry" || -L "$entry" ]] || continue
+    [[ "${entry##*/}" == .DS_Store ]] && continue
     for moved in ${MOVED[@]+"${MOVED[@]}"}; do [[ "$entry" == "$moved" ]] && continue 2; done
     echo "FAIL: $dir still holds $entry - move or remove it by hand, then run $SELF again" >&2
     exit 1
   done
   echo "rmdir $dir"
-  if (( APPLY )); then rmdir "$dir"; fi
+  if (( APPLY )); then rm -f "$dir/.DS_Store" && rmdir "$dir"; fi
 }

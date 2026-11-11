@@ -23,6 +23,7 @@
     }
   ],
   "r": [
+    "rsc/naming/checkout_paths.csv",
     "data/input/claude/code/machine-transport"
   ],
   "w": [

@@ -4,6 +4,7 @@
   "modality": "MAY",
   "args": [],
   "r": [
+    "rsc/naming/checkout_paths.csv",
     "ext/mnt/claude/code/machine-transport"
   ],
   "w": [

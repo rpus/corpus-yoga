@@ -287,8 +287,14 @@ def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
         log = adapter.install_all(machine, projects, False, machine.name)
         peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'),
                                    facts.Would(spell.line('agent', 'install', **{'from': machine.name, 'all': True}), {machine.name: 1}))
-    merges = {proj.name: Merge(label, facts.Would(spell.line('agent', 'demerge'), {proj.name: 1})) for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir())
-              if (label := adapter.latest_merge(proj)) is not None}
+    merges: dict[str, Merge] = {}
+    held: set[Path] = set()   # each memory folder said once, under its project's current key (issues/1058)
+    for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
+        label, folder = adapter.latest_merge(proj), (proj / 'memory').resolve()
+        if label is not None and folder not in held:
+            held.add(folder)
+            key = transport.current_key(proj.name)
+            merges[key] = Merge(label, facts.Would(spell.line('agent', 'demerge'), {key: 1}))
     return peers or facts.phrase('none - no peer machine held'), merges or facts.phrase('none - no merge record')
 
 
@@ -457,7 +463,11 @@ def main() -> int:
         # every local project's memory, newest merge each, all-or-nothing per
         # project (a markerless folder demerges to silence)
         rc = 0
+        undone: set[Path] = set()   # a memory folder two project keys share is undone once (issues/1058)
         for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
+            if (folder := (proj / 'memory').resolve()) in undone:
+                continue
+            undone.add(folder)
             print(f'{proj.name}:')
             rc = max(rc, 1 if claude.demerge(proj) else 0)
         # what an act reports (issues/876, issues/896): the effect, handed up to the launcher's reply; what it would undo is the status's (issues/881)

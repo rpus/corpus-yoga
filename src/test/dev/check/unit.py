@@ -399,3 +399,83 @@ def check_memory_merge(run) -> None:
         run("agent: a peer's memory fact is judged against the room's copy alone, and a second receipt writes nothing", same,
             None if same else f'the two receipts said {outcomes!r}; the twin, the new fact and the extended one hold {written!r}',
             check='agent.memory_merge_judges_each_fact_alone')
+
+
+@check(tier='code', says=('agent.renamed_checkout_is_one_project', 'migration.renamed_checkout_moves_once'),
+       on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])
+def check_renamed_checkout(run) -> None:
+    """A checkout's former paths, rsc/naming/checkout_paths.csv, name one project: an install
+    writes a peer's project held under a former path's key under the current key, a capture
+    reads a session the store holds under a former key as the one it holds, and rsc/migration/1058.sh
+    brings a room's live store under the current key - bare, every step it would take and the
+    halt where an entry stands under both keys; applied, the steps; again, nothing (issues/1058).
+    The fixtures are synthetic: a peer's bundle and a store under temporary roots, and a
+    checkout, a live store and a home of their own for the migration."""
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    import transport
+    harness = transport.adapter('claude')
+    assert harness is not None, 'transport serves no claude adapter'
+    current, former = transport._checkout_keys()
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        bundle, live, outbox, held = root / 'bundle', root / 'live', root / 'outbox', root / 'held'
+        (bundle / former[0]).mkdir(parents=True)
+        (bundle / former[0] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
+        harness.install_all(bundle, live, True, 'peer')
+        installed = sorted(p.relative_to(live).as_posix() for p in live.rglob('*.jsonl'))
+        (held / former[1]).mkdir(parents=True)
+        (held / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
+        (live / current).mkdir(parents=True, exist_ok=True)
+        if not (live / current / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').exists():   # where an install put it elsewhere, the capture still reads one live copy
+            (live / current / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
+        log = harness.capture_all(live, outbox, held)
+        restaged = sorted(p.relative_to(outbox).as_posix() for p in outbox.rglob('*.jsonl')) if outbox.is_dir() else []
+        same = installed == [f'{current}/aaaaaaaa-0000-0000-0000-000000000000.jsonl'] and restaged == []
+        run("agent: a peer's project under a former path's key installs under the current key, and a capture reads the store's copy under a former key",
+            same, None if same else f'installed {installed}; the capture staged {restaged}, saying {log.facts()}',
+            check='agent.renamed_checkout_is_one_project')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        checkout, home = root / 'checkout', root / 'home'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        (checkout / 'machine-name.txt').write_text('room\n')
+        projects = home / 'projects'
+        mount = checkout / 'ext/mnt/claude/code/machine-transport'
+        mount.mkdir(parents=True)
+        (mount / 'room').symlink_to(projects)
+        keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]
+        now, *was = [''.join(c if c.isalnum() else '-' for c in str(home / k.removeprefix('~/'))) for k in keys]
+        (projects / was[1] / 'memory').mkdir(parents=True)
+        (projects / was[1] / 'memory' / 'MEMORY.md').write_text('the index\n')
+        (projects / was[1] / 'bbbbbbbb.jsonl').write_text('{}\n')
+        (projects / was[1] / '.DS_Store').write_text('')
+        (projects / now).mkdir(parents=True)
+        (projects / now / 'memory').symlink_to(projects / was[1] / 'memory')
+        (projects / now / 'cccccccc.jsonl').write_text('{}\n')
+        script = checkout / 'rsc/migration/1058.sh'
+        env = {**os.environ, 'HOME': str(home)}
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1058.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env=env, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        moved = sorted(p.relative_to(projects).as_posix() for p in projects.rglob('*') if not p.is_dir() or p.is_symlink())
+        settled = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 4 and applied.returncode == 0 and again.stdout == ''
+                   and moved == [f'{now}/bbbbbbbb.jsonl', f'{now}/cccccccc.jsonl', f'{now}/memory/MEMORY.md']
+                   and not (projects / now / 'memory').is_symlink())
+        run('migration: rsc/migration/1058.sh brings a former key\'s folder under the current key - bare the steps, applied the moves, again nothing',
+            settled, None if settled else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the live store holds {moved}', check='migration.renamed_checkout_moves_once')
+        (projects / was[2] / 'memory').mkdir(parents=True)
+        (projects / was[2] / 'memory' / 'MEMORY.md').write_text('an older index\n')
+        halted = ran()
+        stops = halted.returncode == 1 and 'both exist' in halted.stderr and (projects / was[2] / 'memory' / 'MEMORY.md').is_file()
+        run('migration: rsc/migration/1058.sh halts, bare, where a former key\'s entry and the current key\'s both stand', stops,
+            None if stops else f'it exits {halted.returncode}, saying {halted.stdout!r} {halted.stderr!r}', check='migration.renamed_checkout_moves_once')

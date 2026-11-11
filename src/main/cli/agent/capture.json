@@ -23,6 +23,7 @@
     }
   ],
   "r": [
+    "rsc/naming/checkout_paths.csv",
     "ext/mnt/claude/code/machine-transport",
     "ext/mnt/gemini/code/machine-transport",
     "data/input/claude/code/machine-transport",

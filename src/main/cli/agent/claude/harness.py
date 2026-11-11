@@ -18,7 +18,7 @@ from collections import Counter
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, outcome, place_log, place_tree, relate, strings
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
 
 SELF = 'src/main/cli/agent/claude/harness.py'
 _file = Path(__file__).resolve()
@@ -418,22 +418,26 @@ def mirror_memory(src_dir: Path, dest_dir: Path, held_dirs: list[Path] = []) -> 
 
 
 def memory_names(src_root: Path, proj: Path) -> list[str]:
-    """The project names whose live memory is the one directory proj's is - its own first,
-    then those a link joins to it, the names a repository rename leaves (issues/744)."""
+    """The project names a store may hold proj's memory under - its own first, then those a
+    link joins to it (issues/744), then the keys the checkout's former paths gave (issues/1058):
+    the names a repository rename leaves."""
     own = (proj / 'memory').resolve()
-    return [proj.name] + sorted(p.name for p in _projects(src_root)
-                                if p != proj and (p / 'memory').is_dir() and (p / 'memory').resolve() == own)
+    linked = sorted(p.name for p in _projects(src_root)
+                    if p != proj and (p / 'memory').is_dir() and (p / 'memory').resolve() == own)
+    return [proj.name, *linked, *(k for k in keys_of(proj.name)[1:] if k not in linked)]
 
 
-def _capture_session(src_proj: Path, dest_proj: Path, held_proj: Path, session: Path, log: Log) -> bool:
+def _capture_session(src_proj: Path, dest_proj: Path, held_projs: list[Path], session: Path, log: Log) -> bool:
     """Mirror one session (log + workspace) into its project dir in the stage, said into
     the log under its outcome by its address, <project>/<session> (issues/857). Where the stage
-    holds no copy, the held one under held_proj is the baseline (issues/850): a log the store
+    holds no copy, the held one under the first of held_projs - the project's own name, then
+    the names a rename left (issues/1058) - is the baseline (issues/850): a log the store
     holds identical or ahead is not staged and its workspace is not read, one that
     diverges from the held copy is a CONFLICT, as the promote would say, and one that
     extends it is written to the stage. Returns whether the session conflicted."""
     data = session.read_bytes()
-    staged_log, held_log = dest_proj / session.name, held_proj / session.name
+    staged_log = dest_proj / session.name
+    held_log = next((held / session.name for held in held_projs if (held / session.name).exists()), held_projs[0] / session.name)
     against_store = not staged_log.exists() and held_log.exists()
     existing = held_log.read_bytes() if against_store else staged_log.read_bytes() if staged_log.exists() else None
     relation = relate(data, existing)
@@ -470,7 +474,7 @@ def capture_move(src_proj: Path, outbox: Path, held: Path, session: Path) -> Log
     CONFLICT withholds the memory mirror, or the store would hold a memory
     that reflects history its own session component does not contain."""
     log = Log(STAGE)
-    conflicted = _capture_session(src_proj, outbox / src_proj.name, held / src_proj.name, session, log)
+    conflicted = _capture_session(src_proj, outbox / src_proj.name, [held / k for k in keys_of(src_proj.name)], session, log)
     _capture_memory(src_proj.parent, src_proj, outbox, held, conflicted, log)
     return log
 
@@ -488,7 +492,7 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> Log:
     for proj in _projects(src_root):
         conflicted = False
         for s in sorted(proj.glob('*.jsonl')):
-            conflicted = _capture_session(proj, outbox / proj.name, held / proj.name, s, log) or conflicted
+            conflicted = _capture_session(proj, outbox / proj.name, [held / k for k in keys_of(proj.name)], s, log) or conflicted
         _capture_memory(src_root, proj, outbox, held, conflicted, log)
     return log
 
@@ -518,17 +522,20 @@ def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log
     marker block, one demerge, per project). The same lattice safety as
     capture --all; what it would write is corpus-yoga agent's status (issues/881). This
     is the ONE deliberate writer of the harness-owned projects root - never
-    run by any pipeline, only by a user's explicit command."""
+    run by any pipeline, only by a user's explicit command. A project the peer holds
+    under a key a former path of the checkout gave is installed under the current key
+    (issues/1058), so that a rename leaves one project in every room."""
     log = Log(LIVE, 'did' if apply else 'would')
     for proj in sorted(d for d in bundle.glob('-Users-*') if d.is_dir()):
         conflicted = False
+        dest = dest_root / current_key(proj.name)
         for s in sorted(proj.glob('*.jsonl')):
-            conflicted = _install_session(proj, dest_root / proj.name, s, apply, log) or conflicted
+            conflicted = _install_session(proj, dest, s, apply, log) or conflicted
         if (proj / 'memory').is_dir():
             if conflicted:
                 log.say('kept', f'{proj.name}/memory/', {'withheld': 'a session of the project conflicted; the agent transports as a product'}, 'memory')
             else:
-                merge_memory(proj / 'memory', dest_root / proj.name / 'memory', apply, machine, log, proj.name)
+                merge_memory(proj / 'memory', dest / 'memory', apply, machine, log, proj.name)
     return log
 
 
