@@ -407,7 +407,7 @@ run_corpus_tail() {
   # the line above it ("then once, over the whole corpus") already says the same thing.
   STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
-    "$REPO_ROOT/src/main/cli/indexing/indexing.py" build
+    "$REPO_ROOT/src/main/indexing/indexing.py" build
   # Free derivations refreshed before anything probes them (issues/494): the corpus
   # page and the model catalogues; both content-keyed, so an unchanged corpus
   # writes nothing.
@@ -425,7 +425,7 @@ run_corpus_tail() {
   # the schema frontier's (issues/373: each family's newest datum against its latest
   # version, read from the validate steps' own logs) — probed here so the atoms
   # reach the tail via hoisting. step_ok: informs, never gates.
-  step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/indexing/indexing.py"
+  step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/indexing/indexing.py"
   step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
   step_ok metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py"
   # what the store no longer needs - its duplicates, surplus and orphaned shadows - is its

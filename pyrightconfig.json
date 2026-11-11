@@ -10,7 +10,7 @@
     "src/main/cli",
     "src/main/cli/browser",
     "src/main/cli/cache",
-    "src/main/cli/indexing",
+    "src/main/indexing",
     "src/main/cli/completions",
     "src/main/cli/agent",
     "src/main/agent",

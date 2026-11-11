@@ -42,7 +42,7 @@
     "skipped; no corpus at {root}, which corpus-yoga pipeline run projects",
     "{path} written; {summary}"
   ],
-  "target": "src/main/cli/indexing/indexing.py",
+  "target": "src/main/indexing/indexing.py",
   "calculus": "capture curate project",
   "args": [],
   "r": [

@@ -65,7 +65,7 @@ pyrightconfig.json,8,path_str,src/main/browser,Y,"""src/main/browser"","
 pyrightconfig.json,9,path_str,src/main/export,Y,"""src/main/export"","
 pyrightconfig.json,11,path_str,src/main/cli/browser,Y,"""src/main/cli/browser"","
 pyrightconfig.json,12,path_str,src/main/cli/cache,Y,"""src/main/cli/cache"","
-pyrightconfig.json,13,path_str,src/main/cli/indexing,Y,"""src/main/cli/indexing"","
+pyrightconfig.json,13,path_str,src/main/indexing,Y,"""src/main/indexing"","
 pyrightconfig.json,14,path_str,src/main/cli/completions,Y,"""src/main/cli/completions"","
 pyrightconfig.json,15,path_str,src/main/cli/agent,Y,"""src/main/cli/agent"","
 pyrightconfig.json,16,path_str,src/main/agent,Y,"""src/main/agent"","
@@ -717,13 +717,6 @@ rsc/schema/browser/markdownConversation/CHANGELOG.md,6,history,src/main/markdown
 rsc/schema/browser/markdownConversation/CHANGELOG.md,9,history,rsc/schema/WORKFLOW.md,Y,always did (see `rsc/schema/WORKFLOW.md`).
 rsc/schema/browser/markdownConversation/CHANGELOG.md,40,history,rsc/schema/pipeline/chat-capture/markdownConversation,N,"- The family's address: rsc/schema/pipeline/chat-capture/markdownConversation, a family"
 rsc/schema/browser/markdownConversation/CHANGELOG.md,117,history,rsc/schema,Y,"four-root migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation"
-rsc/schema/cli/indexing/chatCategories/CHANGELOG.md,6,history,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
-rsc/schema/cli/indexing/chatCategories/CHANGELOG.md,21,history,rsc/schema,Y,"- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-chat-categories.jso"
-rsc/schema/cli/indexing/chatCategories/CHANGELOG.md,25,history,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
-rsc/schema/cli/indexing/chatCategories/CHANGELOG.md,28,history,rsc/site/index.template.html,Y,"`rsc/site/index.template.html`, the template's name since issues/650 (2026-09-15); the"
-rsc/schema/cli/indexing/semanticConcepts/CHANGELOG.md,6,history,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
-rsc/schema/cli/indexing/semanticConcepts/CHANGELOG.md,29,history,rsc/schema,Y,"- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-semantic-concepts.j"
-rsc/schema/cli/indexing/semanticConcepts/CHANGELOG.md,33,history,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/export/claude/conversations/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/export/claude/conversations/CHANGELOG.md,9,history,rsc/schema/browser/claude/apiConversation,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser/claude/apiConversation/`](../../../browser
 rsc/schema/export/claude/conversations/CHANGELOG.md,10,history,rsc/schema/browser/claude/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser/claude/apiConversation/`](../../../browser/claude/apiConversatio
@@ -772,6 +765,13 @@ rsc/schema/export/claude/users/CHANGELOG.md,18,history,rsc/schema/export/claude,
 rsc/schema/export/claude/users/CHANGELOG.md,46,history,rsc/schema/pipeline/chat-export/claude/users,N,`rsc/schema/pipeline/chat-export/claude/users/`: `../../../../../model/model.json#/UserUUID`.
 rsc/schema/export/claude/users/CHANGELOG.md,46,history,model/model.json,N,`rsc/schema/pipeline/chat-export/claude/users/`: `../../../../../model/model.json#/UserUUID`.
 rsc/schema/export/claude/users/v2.json,19,path_str,rsc/metamodel/metamodel.json#/UserUUID,Y,"""description"": ""../../../../metamodel/metamodel.json#/UserUUID"","
+rsc/schema/indexing/chatCategories/CHANGELOG.md,6,history,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
+rsc/schema/indexing/chatCategories/CHANGELOG.md,21,history,rsc/schema,Y,"- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-chat-categories.jso"
+rsc/schema/indexing/chatCategories/CHANGELOG.md,25,history,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
+rsc/schema/indexing/chatCategories/CHANGELOG.md,28,history,rsc/site/index.template.html,Y,"`rsc/site/index.template.html`, the template's name since issues/650 (2026-09-15); the"
+rsc/schema/indexing/semanticConcepts/CHANGELOG.md,6,history,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
+rsc/schema/indexing/semanticConcepts/CHANGELOG.md,29,history,rsc/schema,Y,"- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-semantic-concepts.j"
+rsc/schema/indexing/semanticConcepts/CHANGELOG.md,33,history,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,10,history,src/main/mcp/mcp_generation.py,N,"(`src/main/mcp/mcp_generation.py`), composes it over the extends clauses and tags"
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,11,history,src/main/mcp/mcp_extraction.py,N,"it by the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two"
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,40,history,rsc/reference/mcp/2026-07-28/schema.ts,Y,Generated 2026-09-09 (reading-room) from `rsc/reference/mcp/2026-07-28/schema.ts`
@@ -908,7 +908,7 @@ src/main/cli/README.md,91,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws(
 src/main/cli/README.md,92,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
 src/main/cli/README.md,105,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 src/main/cli/README.md,110,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-src/main/cli/README.md,150,doc,src/main/cli/indexing/capture.sh,Y,`src/main/cli/indexing/capture.sh` — the same file that implements half of it.
+src/main/cli/README.md,150,doc,src/main/indexing/capture.sh,Y,`src/main/indexing/capture.sh` — the same file that implements half of it.
 src/main/cli/README.md,168,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 src/main/cli/agent/agent.json,50,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
@@ -1030,21 +1030,9 @@ src/main/cli/grammar/generate.json,10,path_str,src/gen/grammar,Y,"""src/gen/gram
 src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/grammar/grammar.json,23,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
-src/main/cli/indexing/capture.json,37,path_str,rsc/schema/cli/indexing,Y,"""rsc/schema/cli/indexing"","
+src/main/cli/indexing/capture.json,37,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
 src/main/cli/indexing/capture.json,38,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
-src/main/cli/indexing/capture.sh,12,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
-src/main/cli/indexing/capture.sh,17,comment,rsc/site/index.template.html,Y,# palette is authored in rsc/site/index.template.html; the capture schemas live under
-src/main/cli/indexing/capture.sh,26,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
-src/main/cli/indexing/capture.sh,30,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
-src/main/cli/indexing/capture.sh,32,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
-src/main/cli/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
-src/main/cli/indexing/capture.sh,113,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
-src/main/cli/indexing/indexing.json,45,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
-src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
-src/main/cli/indexing/indexing.py,57,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
-src/main/cli/indexing/indexing.py,328,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-src/main/cli/indexing/indexing.py,606,comment,src/main/corpus_shape.sh,Y,"shape's one home, src/main/corpus_shape.sh."
+src/main/cli/indexing/indexing.json,45,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
 src/main/cli/logs/logs.json,18,path_str,src/main/cli/logs/logs.py,Y,"""target"": ""src/main/cli/logs/logs.py"","
 src/main/cli/logs/logs.py,9,comment,src/main/cli/cli.py,Y,The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
 src/main/cli/logs/logs.py,18,comment,src/main/cleaner.py,Y,runs (src/main/cleaner.py). A current command's logs are never the cleaner's: a log is the
@@ -1097,8 +1085,8 @@ src/main/cli/pipeline/render.json,14,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/pipeline/status.py,19,path_str,src/main/cli/pipeline/status.py,Y,SELF = 'src/main/cli/pipeline/status.py'
 src/main/cli/pipeline/tail.py,10,comment,src/main/cli/pipeline/pipeline.sh,Y,"stdin: one row per line, `<stage>\t<line>`, as src/main/cli/pipeline/pipeline.sh reads them"
 src/main/cli/pipeline/tail.py,18,path_str,src/main/cli/pipeline/tail.py,Y,SELF = 'src/main/cli/pipeline/tail.py'
-src/main/cli/readings.md,11,doc,rsc/schema/cli/indexing/semanticConcepts,Y,- `inferred-semantic-concepts.json` — `rsc/schema/cli/indexing/semanticConcepts/` (latest
-src/main/cli/readings.md,14,doc,rsc/schema/cli/indexing/chatCategories,Y,- `inferred-chat-categories.json` — `rsc/schema/cli/indexing/chatCategories/`; id-keyed so
+src/main/cli/readings.md,11,doc,rsc/schema/indexing/semanticConcepts,Y,- `inferred-semantic-concepts.json` — `rsc/schema/indexing/semanticConcepts/` (latest
+src/main/cli/readings.md,14,doc,rsc/schema/indexing/chatCategories,Y,- `inferred-chat-categories.json` — `rsc/schema/indexing/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.template.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
 src/main/cli/reference/pull.json,6,path_str,rsc/reference,Y,"""rsc/reference"""
 src/main/cli/reference/pull.json,9,path_str,rsc/reference,Y,"""rsc/reference"""
@@ -1316,6 +1304,18 @@ src/main/frontier.py,25,path_str,src/main/frontier.py,Y,SELF = 'src/main/frontie
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,42,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,116,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
+src/main/indexing/capture.sh,12,comment,src/main/indexing/capture.sh,Y,#   src/main/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
+src/main/indexing/capture.sh,17,comment,rsc/site/index.template.html,Y,# palette is authored in rsc/site/index.template.html; the capture schemas live under
+src/main/indexing/capture.sh,26,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
+src/main/indexing/capture.sh,30,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
+src/main/indexing/capture.sh,32,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
+src/main/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
+src/main/indexing/capture.sh,113,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
+src/main/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
+src/main/indexing/indexing.py,57,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
+src/main/indexing/indexing.py,328,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
+src/main/indexing/indexing.py,606,comment,src/main/corpus_shape.sh,Y,"shape's one home, src/main/corpus_shape.sh."
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
@@ -1713,10 +1713,6 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/browser/claude/apiConversation/v17.json,Y,
 ,,,rsc/schema/browser/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser/markdownConversation/v5.json,Y,
-,,,rsc/schema/cli/indexing/chatCategories/CHANGELOG.md,Y,
-,,,rsc/schema/cli/indexing/chatCategories/v1.json,Y,
-,,,rsc/schema/cli/indexing/semanticConcepts/CHANGELOG.md,Y,
-,,,rsc/schema/cli/indexing/semanticConcepts/v2.json,Y,
 ,,,rsc/schema/export/claude/conversations/v24.json,Y,
 ,,,rsc/schema/export/claude/login_history/CHANGELOG.md,Y,
 ,,,rsc/schema/export/claude/login_history/v1.json,Y,
@@ -1728,6 +1724,10 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/export/claude/projects/v3.json,Y,
 ,,,rsc/schema/export/claude/users/CHANGELOG.md,Y,
 ,,,rsc/schema/export/claude/users/v2.json,Y,
+,,,rsc/schema/indexing/chatCategories/CHANGELOG.md,Y,
+,,,rsc/schema/indexing/chatCategories/v1.json,Y,
+,,,rsc/schema/indexing/semanticConcepts/CHANGELOG.md,Y,
+,,,rsc/schema/indexing/semanticConcepts/v2.json,Y,
 ,,,rsc/schema/mcp/mcpMessage/v5.json,Y,
 ,,self_only,src/main/agent/claude/list_sessions.sh,Y,
 ,,self_only,src/main/agent/claude/memory_to_json.py,Y,

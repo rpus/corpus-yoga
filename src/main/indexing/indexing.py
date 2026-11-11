@@ -54,7 +54,7 @@ import spell
 from markdown_projection import turns, REPO
 from declared_parser import command_parser
 
-SELF = 'src/main/cli/indexing/indexing.py'
+SELF = 'src/main/indexing/indexing.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
