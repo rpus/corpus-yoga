@@ -1123,13 +1123,16 @@ def check_effects(run):
 
 @check(tier='code', on=['src/main/facts.py', 'src/main/cli'], says=(
     'cli.every_act_declares_its_would',
+    'cli.must_is_what_satisfy_runs',
     'status.now_is_gathered_from_the_body',
 ))
 def check_acts_said_once(run) -> None:
     """What an act would do is said once: every acting verb declares its words,
-    `would`, in its own declaration, and a status names an act as one value - the command
-    and what it acts on - whose words are read from there; a noun's now: is every act its
-    body names, gathered, never composed beside it."""
+    `would`, and its modality in its own declaration, and a status names an act as one value -
+    the command and what it acts on - whose words are read from there; a noun's now: is every
+    act its body names, gathered under its modality, never composed beside it, and the body
+    says the fact alone (issues/1050). A MUST act is one status satisfy runs: the verbs that
+    declare MUST are the corpus-yoga acts satisfy's x names."""
     import facts
     cli_root = SRC / 'main' / 'cli'
     silent = []
@@ -1143,6 +1146,15 @@ def check_acts_said_once(run) -> None:
             silent.append(f'{declaration.parent.name} {declaration.stem}')
     run('cli: every acting verb declares what it would do, in its own declaration', not silent,
         None if not silent else f'{len(silent)} acting verb(s) declare no would - {", ".join(silent[:6])}', check='cli.every_act_declares_its_would')
+    satisfy = cli_root / 'status' / 'satisfy.json'
+    runs = {line.split(' ', 1)[1] for line in json.loads(satisfy.read_text()).get('x', []) if line.startswith('corpus-yoga ')}
+    must = {f'{d.parent.name} {d.stem}' for d in cli_root.glob('*/*.json')
+            if d != satisfy and d.stem != d.parent.name and json.loads(d.read_text()).get('modality') == 'MUST'}
+    unrun, unowed = sorted(must - runs), sorted(runs - must)
+    run('cli: the verbs that declare MUST are the corpus-yoga acts status satisfy runs', not unrun and not unowed,
+        None if not unrun and not unowed else '; '.join(
+            ([f'MUST and not in satisfy.json x - {", ".join(unrun)}'] if unrun else [])
+            + ([f'in satisfy.json x and not MUST - {", ".join(unowed)}'] if unowed else [])), check='cli.must_is_what_satisfy_runs')
     would, now_of = getattr(facts, 'Would', None), getattr(facts, 'now_of', None)
     if would is None or now_of is None:
         run("status: a noun's now: is every act its body names, gathered", False,
@@ -1158,9 +1170,9 @@ def check_acts_said_once(run) -> None:
                 [{'remedy': would('corpus-yoga logs clean', {other: 1})}, {'b': {'remedy': would('corpus-yoga logs clean', {one: 1})}}],
                 {'corpus-yoga logs clean': {'would remove': {'tmp/logs/site/elsewhere': 1}}})
     gathered = now_of(body)
-    said = facts.plain({'remedy': would('corpus-yoga logs clean', {one: 1})})
-    want = {'corpus-yoga logs clean': {'would remove': {one: 2, other: 1}}}
-    same = gathered == want and said == {'remedy': {'corpus-yoga logs clean': {'would remove': {one: 1}}}}
+    said = facts.plain({'orphan': 'a fact', 'remedy': would('corpus-yoga logs clean', {one: 1}), 'only acts': {'remedy': would('corpus-yoga logs clean', {one: 1})}})
+    want = {'MAY': {'corpus-yoga logs clean': {'would remove': {one: 2, other: 1}}}}
+    same = gathered == want and said == {'orphan': 'a fact'}
     run("status: a noun's now: is every act its body names, gathered", same,
         None if same else f'gathered {gathered!r} and said {said!r}', check='status.now_is_gathered_from_the_body')
 
@@ -1437,13 +1449,15 @@ _corpus-yoga
             asked = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'completions'], capture_output=True, text=True, cwd=REPO_ROOT,
                                    env={**away, 'HOME': str(home), 'CORPUS_YOGA_VENV': sys.prefix, 'CORPUS_YOGA_NO_SEND': '1'}, timeout=120)
         try:
-            said = facts.load(asked.stdout).get('completions', {})
+            loaded = facts.load(asked.stdout)
+            said, now = loaded.get('completions', {}), loaded.get('now')
         except (ValueError, AttributeError):
-            said = {}
+            said, now = {}, None
         said = said if isinstance(said, dict) else {}
-        same = said.get('tab-completion') == expected and ('remedy' in said) == owed and len(said) == 1 + owed
-        run(f'completions: the status over {case} says one thing, and a remedy where one is owed', same,
-            None if same else f'expected tab-completion: {expected} {"with" if owed else "without"} a remedy; corpus-yoga completions says '
+        must = now.get('MUST', {}) if isinstance(now, dict) else {}
+        same = said.get('tab-completion') == expected and any(line.endswith('corpus-yoga completions install') for line in must) == owed and len(said) == 1
+        run(f'completions: the status over {case} says one thing, and its install under now: MUST where one is owed', same,
+            None if same else f'expected tab-completion: {expected} {"with" if owed else "without"} the install owed; corpus-yoga completions says '
             f'{str(said)[:200] if said else "nothing readable - " + (asked.stderr.strip() or asked.stdout.strip())[:200]}',
             check='completions.status_says_one_thing')
 

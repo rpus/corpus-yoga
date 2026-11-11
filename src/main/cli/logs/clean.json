@@ -1,6 +1,7 @@
 {
   "help": "remove the orphaned log directories the status names - those of a command that no longer exists, or of a verb its command no longer declares; the verb takes no flag, and prints what it will remove, what it did remove, what to run next, and the verdict",
   "would": "would remove",
+  "modality": "MAY",
   "args": [],
   "r": [
     "tmp/logs",

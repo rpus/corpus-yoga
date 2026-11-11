@@ -304,8 +304,7 @@ class Status:
     def facts(self) -> dict:
         brief = self.drafters
         if brief is None:                 # no machine binding: the drafters cannot be read against one (issues/758)
-            unbound = {'binding': 'absent', 'remedy': {'echo <declared-machine-name> > machine-name.txt':
-                                                       facts.phrase('binds it, to a name rsc/machine/machines.csv declares')}}
+            unbound = {'binding': facts.phrase('absent - echo <declared-machine-name> > machine-name.txt binds it, to a name rsc/machine/machines.csv declares')}
             return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'install': self.install, 'merges': self.merges}
         return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged,
                 'install': self.install, 'merges': self.merges}

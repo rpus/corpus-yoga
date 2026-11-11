@@ -1,6 +1,7 @@
 {
   "help": "point .git/hooks/pre-commit at src/test/dev/run.sh - idempotent, and repairs a link left dangling by a rename",
   "would": "would point",
+  "modality": "MUST",
   "args": [],
   "r": [
     "rsc/test"

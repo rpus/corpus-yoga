@@ -1,6 +1,7 @@
 {
   "help": "make rpus.co serve the publish tree - pull the ext/mnt/site clone level with rpus.co, copy data/output/site/ into it, commit there, push - a pull then a push; what it would land is corpus-yoga site's status",
   "would": "would change",
+  "modality": "MAY",
   "args": [],
   "sends": {
     "level": {

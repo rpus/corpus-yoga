@@ -1,6 +1,7 @@
 {
   "help": "derive tmp/cache/indexing/candidate-semantic-concepts.txt (the candidates of undisposed concepts, each with the aliases that anchor it in a conversation turn; a concept no turn phrases is named, not queued)",
   "would": "would derive",
+  "modality": "MAY",
   "args": [
     {
       "name": "--top",

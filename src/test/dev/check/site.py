@@ -200,10 +200,10 @@ def check_server_standing(run) -> None:
     spec.loader.exec_module(module)
     daemon_act = getattr(module, 'daemon_act', None)
     facts = sys.modules.get('facts') or __import__('facts')
-    said = {case: (facts.now_of({'remedy': daemon_act(*case)}) or 'none - nothing to do') for case in ((True, True), (True, False), (False, True), (False, False))} if daemon_act else {}
-    want = {(True, True): {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}},
-            (True, False): {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}},
-            (False, True): {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}},
+    said = {case: (facts.now_of({'daemon': daemon_act(*case)}) or 'none - nothing to do') for case in ((True, True), (True, False), (False, True), (False, False))} if daemon_act else {}
+    want = {(True, True): {'MAY': {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}},
+            (True, False): {'MAY': {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}},
+            (False, True): {'MAY': {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}}},
             (False, False): 'none - nothing to do'}
     run("server: its now: names the stop while the daemon runs, the start while the corpus is rendered and the daemon is down, none otherwise",
         said == want, None if said == want else ('status.py declares no daemon_act(running, rendered)' if not daemon_act else f'said {said!r}'),

@@ -45,16 +45,17 @@ def said_by(noun: str):
 
 
 def fold(nows: dict[str, object]) -> dict:
-    """The fold of the nouns' now: blocks, each given by its noun: every command of a block
-    under its own command; a noun whose now: is a sentence other than none, or whose
-    status could not be read, under its command. Empty where every noun says none."""
+    """The fold of the nouns' now: blocks, each given by its noun, into one of the same shape
+    (issues/1050): every act of a block under its modality and its own command; a noun whose
+    now: is a sentence other than none, or whose status could not be read, under MAY and its
+    command. Empty where every noun says none."""
     out: dict = {}
     for noun, now in nows.items():
         if isinstance(now, dict):
             facts.merge(out, now, once=True)   # an act two nouns name over one unit is one act (issues/1028)
         elif isinstance(now, str) and now != facts.phrase('none - nothing to do'):
-            out[f'corpus-yoga {noun}'] = {facts.REPORTS: {now: 1}}
-    return out
+            facts.merge(out, {'MAY': {f'corpus-yoga {noun}': {facts.REPORTS: {now: 1}}}}, once=True)
+    return facts.ordered(out)
 
 
 def room_now() -> dict:

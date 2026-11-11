@@ -4,9 +4,9 @@
 # The BARE noun is strictly read-only: no directories created, no symlinks, no venv, no
 # installs. Safe as the first command on a fresh clone, which is the whole point of it.
 #
-# `satisfy` is the effecting verb, and prints the remedies the report holds rather than the
-# report. What it would run is the report's (issues/881); it writes outside the repo, and it runs only what is
-# the repo's to run: the mint of its venv, and each remedy its declaration names - the
+# `satisfy` is the effecting verb, and prints the acts the report's now says the room MUST run
+# rather than the report (issues/1050). What it would run is the report's (issues/881); it writes outside the repo, and it runs only what is
+# the repo's to run: the mint of its venv, and each act its declaration names - the
 # parsers, the live stores' mounts, the hooks. A brew install is not ours to perform; the
 # machine binding is a decision, not a derivation.
 #
@@ -69,8 +69,8 @@ parse_args() {
 #   graft <section> <noun> <pointer> [standing]              # what a noun's own status says there (issues/777)
 # What a noun's status says is taken from that status, never probed a second way: a graft
 # row names the noun and the spot of its facts, and report.py loads them - whole in the
-# full report, and otherwise what holds a remedy, or the spot as it stands where the row
-# says standing (issues/824): the stage's next steps remedy nothing and are still to be done.
+# full report, and otherwise only where the row says standing (issues/824), the spot as it
+# stands: every other spot's acts reach the report through now:, the fold of every noun's own.
 _hdr=""
 _rows=()
 sec()    { _hdr="$1"; }
@@ -87,8 +87,8 @@ todo()   { _row todo "$@"; }
 bad()    { _row missing "$@"; }
 graft()  { _rows+=("corpus-yoga $1"$'\t'"graft"$'\t'"$1"$'\t'"$2"$'\t'"${3-}"); }   # <noun> <pointer> [standing]: the section is the command, its content what stands at the pointer
 
-# The rows said through report.py: the report (`report`), or the remedies it
-# holds as rows of their own - command \t what it does \t where it stands (`remedies`).
+# The rows said through report.py: the report (`report`), or the acts it says the room MUST
+# run, as rows of their own - command \t what it does \t where it stands (`must`).
 # Under the venv's python where it exists, under python3 before the venv is minted, and as
 # the bare rows where neither runs (a row above says so).
 _say() {
@@ -112,7 +112,7 @@ _say() {
 }
 # The satisfy, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
-sync_remedy() {
+satisfy_line() {
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then spell status satisfy
   else echo "./src/main/cli/status/status.sh satisfy"; fi
 }
@@ -155,7 +155,7 @@ check_tools() {
   if [[ -n "$pyright_bin" ]]; then
     ok pyright "$("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')"
   else
-    todo "pyright / installed" "$(phrase 'no - corpus-yoga test run skips its type check; it is in src/requirements.txt')" "$(sync_remedy)" "$(phrase 'installs the requirements')"
+    todo "pyright / installed" "$(phrase 'no - corpus-yoga test run skips its type check; it is in src/requirements.txt')" "$(satisfy_line)" "$(phrase 'installs the requirements')"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
@@ -205,7 +205,7 @@ print(d.get("Version", ""), d.get("Platform", {}).get("Name", ""), sep="\t")' 2>
       todo "java / installed" "$(phrase 'no - antlr4 has no runtime to run its tool on; corpus-yoga grammar generate refuses and corpus-yoga test run cannot hold the parsers current')" "brew install openjdk" "$(phrase 'installs it')"
     fi
   else
-    todo "antlr4 / installed" "$(phrase 'no - corpus-yoga grammar generate refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt')" "$(sync_remedy)" "$(phrase 'installs the requirements')"
+    todo "antlr4 / installed" "$(phrase 'no - corpus-yoga grammar generate refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt')" "$(satisfy_line)" "$(phrase 'installs the requirements')"
   fi
   ok bash "$(phrase "{version} (3.2+ suffices)" version="$BASH_VERSION")"
 }
@@ -231,7 +231,7 @@ print(paths.cafile or paths.capath or "", ssl.create_default_context().cert_stor
       info "$CORPUS_YOGA_VENV / trusts" "$(phrase 'unread - the ssl module of the python did not answer')"
     fi
   else
-    todo "$CORPUS_YOGA_VENV / minted" "$(phrase 'no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another')" "$(sync_remedy)" "$(phrase 'mints it and installs src/requirements.txt')"
+    todo "$CORPUS_YOGA_VENV / minted" "$(phrase 'no - nothing python runs, corpus-yoga included (issues/478); CORPUS_YOGA_VENV= names another')" "$(satisfy_line)" "$(phrase 'mints it and installs src/requirements.txt')"
   fi
 }
 
@@ -465,21 +465,21 @@ check_pipeline_inputs() {
   fi
 }
 
-# What the report holds to act on, and of it what is satisfy's own to run (issues/777). The report
-# is run for its rows; its remedies - the checks' and the grafted nouns' alike - come back
-# as data, and satisfy runs each whose command its declaration names (satisfy.json's `x`), and
+# What the report says the room MUST run, and of it what is satisfy's own to run (issues/777,
+# issues/1050). The report is run for its rows; its MUST acts - the rows' commands as typed and
+# every noun's own - come back as data, and satisfy runs each whose command its declaration names (satisfy.json's `x`), and
 # the mint, which is satisfy itself. NOT a brew install (not ours to perform) and NOT the
 # machine binding (a decision, not a derivation): those are listed, each the reader's.
-_remedies=""
-_held() { report >/dev/null; _remedies="$(_say remedies)"; }
+_must=""
+_held() { report >/dev/null; _must="$(_say must)"; }
 
 satisfy() {
   local command does where declared own mine="" a
-  own="$(sync_remedy)"
+  own="$(satisfy_line)"
   declared="$(jq -r '.x[]' "$REPO_ROOT/src/main/cli/status/satisfy.json")"
   _held
   echo "corpus-yoga status satisfy - $(phrase "what this machine still needs"):"
-  if [[ -z "$_remedies" ]]; then
+  if [[ -z "$_must" ]]; then
     effect "status satisfy: DONE - $(phrase "nothing; every prerequisite is satisfied")"
     return 0
   fi
@@ -489,7 +489,7 @@ satisfy() {
     if [[ "$command" == "$own" || "$command" == "brew install "* ]] || grep -qxF -- "${command#./}" <<< "$declared"; then
       grep -qxF -- "$command" <<< "$mine" || mine+="$command"$'\n'
     fi
-  done <<< "$_remedies"
+  done <<< "$_must"
   echo
   if [[ -z "$mine" ]]; then
     effect "status satisfy: DONE - $(phrase "none of these is mine to run; each is the reader's")"
@@ -521,8 +521,8 @@ satisfy() {
   echo
   echo "$(phrase "what remains - re-derived, not assumed"):"
   _held
-  if [[ -z "$_remedies" ]]; then echo "  $(phrase "nothing")"; else
-    while IFS=$'\t' read -r command does where; do [[ -z "$command" ]] || echo "  - $where: $command - $does"; done <<< "$_remedies"
+  if [[ -z "$_must" ]]; then echo "  $(phrase "nothing")"; else
+    while IFS=$'\t' read -r command does where; do [[ -z "$command" ]] || echo "  - $where: $command - $does"; done <<< "$_must"
   fi
   effect "status satisfy: DONE - $(phrase "ran the {n} named; what remains is above, each the reader's" n="$(grep -c . <<< "$mine")")"
 }

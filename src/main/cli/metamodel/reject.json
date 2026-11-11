@@ -1,6 +1,7 @@
 {
   "help": "record a false friend - a name_collision row lands in rsc/metamodel/join.csv with the reason as its note",
   "would": "would record",
+  "modality": "MAY",
   "args": [
     {
       "name": "--all",

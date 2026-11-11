@@ -7,7 +7,7 @@
     "nothing - the store holds no session of it",
     "none - no peer machine held",
     "none - no merge record",
-    "binds it, to a name rsc/machine/machines.csv declares",
+    "absent - echo <declared-machine-name> > machine-name.txt binds it, to a name rsc/machine/machines.csv declares",
     "on {machine}, {capture}",
     "{machine} is no room of the store - resume the session on a room, then {capture}",
     "corpus-yoga agent list-drafters, each message against its drafter's record",

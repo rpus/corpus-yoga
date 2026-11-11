@@ -237,6 +237,8 @@ def check_status_facts(run) -> None:
               ('stage', 'invalid'), ('stage', 'unlicensed'), ('grammar',), ('migration',)]
     for noun, *spot in grafts:
         own = at(said_by(noun), *spot)
+        if not spot and isinstance(own, dict):
+            own = {key: value for key, value in own.items() if key != 'now'}   # a noun's now: is the room's, folded (issues/1050)
         section = whole.get(f'corpus-yoga {noun}')
         last = spot[-1] if spot else ''
         said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
@@ -252,7 +254,8 @@ def check_status_facts(run) -> None:
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
     # The room's standing is the fold of every noun's own now: (issues/949), each gathered from that
     # noun's own body (issues/1028), with an act two nouns name over one unit taken once; and
-    # the report's now: is that fold, then each act only the report's own rows name.
+    # the report's now: is that fold with the acts its own rows name, which are MUST - a row
+    # names a fault (issues/1050).
     import importlib
     nouns_with_now = importlib.import_module('standing').NOUNS   # as each noun declares `standing` (issues/1034)
     own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
@@ -260,12 +263,16 @@ def check_status_facts(run) -> None:
     run('report: every noun that declares standing ends its bare status on now:', not nowless,
         None if not nowless else f'{", ".join(nowless)}: bare corpus-yoga <noun> says no now: - say the status through facts.say_standing',
         check='report.every_standing_noun_ends_on_now')
+    import copy
     folded = importlib.import_module('standing').fold(own_now)
-    own_rows = importlib.import_module('facts').now_of({key: value for key, value in whole.items() if key != 'now'})
-    expected = {**folded, **{line: act for line, act in own_rows.items() if line not in folded}} or 'none - nothing to do'
-    same = whole.get('now') == expected
-    run('report: its now: is the fold of every noun\'s own now:, then the acts only its own rows name', same,
-        None if same else f'the report says {str(whole.get("now"))[:120]} where the fold and its own rows give {str(expected)[:120]}', check='report.now_is_the_fold')
+    room_now = whole.get('now')
+    room_now = room_now if isinstance(room_now, dict) else {}
+    holds_fold = importlib.import_module('facts').merge(copy.deepcopy(room_now), folded, once=True) == room_now
+    may_is_fold = set(room_now.get('MAY', {})) == set(folded.get('MAY', {}))
+    in_order = list(room_now) == [m for m in ('MAY', 'MUST') if m in room_now]
+    same = holds_fold and may_is_fold and in_order and (room_now or whole.get('now') == 'none - nothing to do')
+    run('report: its now: is the fold of every noun\'s own now:, with the MUST acts its own rows name', bool(same),
+        None if same else f'the report says {str(whole.get("now"))[:160]} where the fold gives {str(folded)[:160]}', check='report.now_is_the_fold')
 
     paired = pair_in_a_value(whole)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,

@@ -1,6 +1,7 @@
 {
   "help": "fetch every lineage upstream lists that is not held and every held file whose bytes drifted, and write provenance.csv; the lineage's changelog section is the hand act (refused loudly under CORPUS_YOGA_NO_SEND)",
   "would": "would pull",
+  "modality": "MAY",
   "args": [],
   "r": [
     "rsc/reference"

@@ -1,6 +1,7 @@
 {
   "help": "the check suite over src/ and rsc/ - code and schema, the same on any clone; the corpus is the data gate's (corpus-yoga pipeline run) (also what the pre-commit hook runs); the checks of what arrives from outside run the grammar's tool and, when a docker daemon is reachable, the mcp reproduction, each under its own verb's declared sends, which CORPUS_YOGA_NO_SEND=1 refuses without failing the run",
   "would": "would check",
+  "modality": "MAY",
   "args": [
     {
       "name": "--fix",

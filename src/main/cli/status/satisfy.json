@@ -1,6 +1,7 @@
 {
-  "help": "make this machine satisfy what the report names - the mint of the venv, and every remedy the report holds, each an act it runs - the corpus-yoga acts its x names, the tools it installs with brew, Docker started, a dangling ext/mnt/site removed; it writes outside the repo",
+  "help": "make this machine satisfy what the report names - the mint of the venv, and every act the report's now says the room MUST run (issues/1050) - the corpus-yoga acts its x names, the tools it installs with brew, Docker started, a dangling ext/mnt/site removed; it writes outside the repo",
   "would": "would satisfy",
+  "modality": "MUST",
   "args": [],
   "sends": {
     "pip-upgrade": {

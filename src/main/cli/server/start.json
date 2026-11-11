@@ -1,6 +1,7 @@
 {
   "help": "start the markdown server (LaTeX rendering + turn deep links)",
   "would": "would serve",
+  "modality": "MAY",
   "args": [
     {
       "name": "--markdown",
