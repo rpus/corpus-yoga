@@ -111,7 +111,7 @@ def _checkout_keys() -> tuple[str, tuple[str, ...]]:
 
 
 def current_key(key: str) -> str:
-    """The key a project is installed and said under: the checkout's current key for any
+    """The key a project is written and said under: the checkout's current key for any
     key a former path of the checkout gave, else the key itself."""
     current, former = _checkout_keys()
     return current if key in former else key
@@ -190,7 +190,7 @@ class Log:
     writes - every unit it touched by its address, and beneath the unit the relation that
     decided it. A unit appears once, under the one thing that happened to it; the verdict
     counts each outcome by kind."""
-    dest: str                        # the root the act writes: STAGE for a capture, LIVE for an install
+    dest: str                        # the root the act writes: STAGE for a capture, LIVE for a pull
     tense: str = 'did'               # did, or would for a dry run
     by: dict[str, dict[str, object]] = field(default_factory=dict)      # outcome → address → the unit's facts
     counted: dict[tuple[str, str], int] = field(default_factory=dict)  # (outcome, kind) → how many

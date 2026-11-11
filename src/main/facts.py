@@ -282,6 +282,20 @@ def named(label: str, **kwargs):
     return field(metadata={'key': label}, **kwargs)
 
 
+def found(acts_on) -> bool:
+    """Whether a dry run found something to act on: a count above nothing, or a mapping
+    holding one."""
+    if isinstance(acts_on, dict):
+        return any(found(value) for value in acts_on.values())
+    return bool(acts_on)
+
+
+def would(line: str, acts_on: dict) -> Would | None:
+    """The act of a command over what its dry run found (issues/1064), or none where it found
+    nothing - so that a status offers no act with nothing to do."""
+    return Would(line, acts_on) if found(acts_on) else None
+
+
 @dataclass(frozen=True)
 class Would:
     """An act a status names (issues/1028): the command as typed, and what it would act on -
@@ -291,6 +305,10 @@ class Would:
     holds, gathered by now_of, so that an act is said once, in one shape, and only there."""
     line: str
     acts_on: dict
+
+    def __post_init__(self) -> None:
+        # an act over nothing is no act: one is built of what a dry run found (issues/1064)
+        assert found(self.acts_on), f'{self.line} is named over nothing - facts.would gives no act where a dry run found nothing'
 
     def facts(self) -> dict:
         return {self.line: {would_of(self.line): self.acts_on}}

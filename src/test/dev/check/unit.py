@@ -357,8 +357,8 @@ def check_memory_merge(run) -> None:
     its links is dressed as is the same fact, kept. The fixture is synthetic: one fact that
     differs, seven that link it in a chain, one the room lacks that links it, and one the peer
     extends whose room copy links it already re-dressed, extended after the bytes the room
-    holds so that demerge's truncation undoes it; a second receipt of the same folder, once
-    installed, writes nothing (L1)."""
+    holds; the peer's index line for the new fact joins the room's index, and the merge leaves
+    no record of itself in it (issues/1063); a second receipt of the same folder writes nothing (L1)."""
     import tempfile
     import transport
     harness = transport.adapter('claude')
@@ -377,6 +377,8 @@ def check_memory_merge(run) -> None:
         (sent / 'b.md').write_text('new here, and follows [[a0]]\n')
         (held / 'c.md').write_text('begun [[a0.peer]]\n')
         (sent / 'c.md').write_text('begun [[a0]]\ngone on [[a0]]\n')
+        (held / 'MEMORY.md').write_text('- [the fact](a0.md)\n')
+        (sent / 'MEMORY.md').write_text('- [the fact](a0.md)\n- [new here](b.md)\n')
         outcomes = []
         log = transport.Log(transport.LIVE, 'did')
         for _ in range(2):
@@ -390,14 +392,15 @@ def check_memory_merge(run) -> None:
         wrote, kept = log.key('wrote'), log.key('kept')
         chain = [address(f'a{i}') for i in range(1, 8)]
         first = {wrote: [address('MEMORY'), address('a0'), address('b'), address('c')], kept: chain}
-        second = {kept: sorted([address('a0'), address('b'), address('c'), *chain])}
+        second = {kept: sorted([address('MEMORY'), address('a0'), address('b'), address('c'), *chain])}
         def text(name: str) -> str | None:
             return (held / name).read_text() if (held / name).is_file() else None
-        written = (text('a0.peer.md'), text('b.md'), text('c.md'))
+        written = (text('a0.peer.md'), text('b.md'), text('c.md'), text('MEMORY.md'))
         same = (outcomes == [first, second] and written == ('the fact, as the peer holds it\n', 'new here, and follows [[a0.peer]]\n',
-                                                            'begun [[a0.peer]]\ngone on [[a0.peer]]\n'))
+                                                            'begun [[a0.peer]]\ngone on [[a0.peer]]\n',
+                                                            '- [the fact](a0.md)\n- [the fact](a0.peer.md)\n- [new here](b.md)\n'))
         run("agent: a peer's memory fact is judged against the room's copy alone, and a second receipt writes nothing", same,
-            None if same else f'the two receipts said {outcomes!r}; the twin, the new fact and the extended one hold {written!r}',
+            None if same else f'the two receipts said {outcomes!r}; the twin, the new fact, the extended one and the index hold {written!r}',
             check='agent.memory_merge_judges_each_fact_alone')
 
 
@@ -424,7 +427,7 @@ def check_renamed_checkout(run) -> None:
         bundle, live, outbox, held = root / 'bundle', root / 'live', root / 'outbox', root / 'held'
         (bundle / former[0]).mkdir(parents=True)
         (bundle / former[0] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
-        harness.install_all(bundle, live, True, 'peer')
+        harness.pull_all(bundle, live, True, 'peer')
         installed = sorted(p.relative_to(live).as_posix() for p in live.rglob('*.jsonl'))
         (held / former[1]).mkdir(parents=True)
         (held / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
@@ -440,7 +443,7 @@ def check_renamed_checkout(run) -> None:
         unmoved = root / 'unmoved'
         (unmoved / former[1]).mkdir(parents=True)
         (unmoved / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
-        dry = harness.install_all(bundle, unmoved, False, 'peer')
+        dry = harness.pull_all(bundle, unmoved, False, 'peer')
         kept = list(dry.by) == [dry.key('kept')]
         run("agent: an install reads a live session still under a former path's key as the one the room holds, and would write nothing", kept,
             None if kept else f'the install would say {dry.facts()}', check='agent.renamed_checkout_is_one_project')
@@ -510,26 +513,71 @@ def check_renamed_checkout(run) -> None:
         check='migration.renamed_checkout_moves_once')
 
 
-@check(tier='code', says=('agent.offers_only_effective_acts',), on=['src/main/cli/agent'])
-def check_agent_offers(run) -> None:
-    """The agent status offers an install only where its dry run would write something, and
-    never an undo of a merge: an act now: offers has an effect (issues/1058)."""
+@check(tier='code', says=('agent.offers_only_effective_acts', 'status.an_act_has_something_to_act_on', 'migration.merge_records_are_stripped'),
+       on=['src/main/cli/agent', 'src/main/facts.py', 'rsc/migration'])
+def check_effective_acts(run) -> None:
+    """An act a status offers has something to act on (issues/1064): facts.would gives the act of
+    what a dry run found, and none where it found nothing, and no act stands over nothing. The
+    agent's pull from a peer (issues/1062) is offered so, from its dry run; the agent declares no
+    undo, and rsc/migration/1063.sh strips the merge records a room's memory index holds, its
+    index lines kept (issues/1063)."""
     import importlib.util
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    import facts
     import transport
+    would = getattr(facts, 'would', None)
+    orphan = '/'.join(('tmp', 'logs', 'site', 'one'))
+    built = (would('corpus-yoga logs clean', {}), would('corpus-yoga logs clean', {orphan: 2})) if callable(would) else None
+    try:
+        facts.Would('corpus-yoga logs clean', {})
+        empty = 'an act over nothing was built'
+    except (AssertionError, ValueError):
+        empty = None
+    effective = built is not None and built[0] is None and built[1] == facts.Would('corpus-yoga logs clean', {orphan: 2}) and empty is None
+    run('status: an act is built of what a dry run found, and none stands over nothing', effective,
+        None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empty}',
+        check='status.an_act_has_something_to_act_on')
     spec = importlib.util.spec_from_file_location('agent_status', SRC / 'main' / 'cli' / 'agent' / 'agent.py')
     assert spec is not None and spec.loader is not None
     agent = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(agent)
-    offer = getattr(agent, 'install_act', None)
+    offer = getattr(agent, 'pull_act', None)
     idle, busy = transport.Log(transport.LIVE, 'would'), transport.Log(transport.LIVE, 'would')
     idle.say('kept', 'p/s.jsonl', {'identical': '1 bytes'}, 'session')
     busy.say('wrote', 'p/s.jsonl', {'new': '1 bytes'}, 'session')
     said = (offer('home-room', idle), offer('home-room', busy)) if callable(offer) else None
-    effective = said is not None and said[0] is None and said[1] is not None
-    run('agent: an install is offered only where its dry run would write something', effective,
-        None if effective else 'src/main/cli/agent/agent.py has no install_act(machine, log)' if said is None else f'offered {said!r}',
-        check='agent.offers_only_effective_acts')
-    merge = getattr(agent, 'Merge', None)
-    undone = merge is not None and any(f.name == 'act' for f in __import__('dataclasses').fields(merge))
-    run('agent: no undo of a merge is offered', not undone,
-        None if not undone else 'agent.Merge carries an act - corpus-yoga agent demerge stands in now:', check='agent.offers_only_effective_acts')
+    verbs = sorted(d.stem for d in (SRC / 'main' / 'cli' / 'agent').glob('*.json') if d.stem != 'agent')
+    pulled = (said is not None and said[0] is None and isinstance(said[1], facts.Would) and said[1].line == 'corpus-yoga agent pull --all --from home-room'
+              and 'pull' in verbs and 'install' not in verbs and 'demerge' not in verbs)
+    run('agent: a pull from a peer is offered only where its dry run would write something, and the agent declares no install and no undo', pulled,
+        None if pulled else f'src/main/cli/agent/agent.py has no pull_act(machine, log); the agent declares {verbs}' if said is None
+        else f'offered {said!r}; the agent declares {verbs}', check='agent.offers_only_effective_acts')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout, projects = Path(tmp) / 'checkout', Path(tmp) / 'projects'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1063.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        (checkout / 'machine-name.txt').write_text('room\n')
+        mount = checkout / 'ext/mnt/claude/code/machine-transport'
+        mount.mkdir(parents=True)
+        (mount / 'room').symlink_to(projects)
+        index = projects / '-p' / 'memory' / 'MEMORY.md'
+        index.parent.mkdir(parents=True)
+        index.write_text('- [mine](mine.md)\n<!-- merge:begin 2026-11-11T151001Z from=peer -->\n- [theirs](theirs.md)\n'
+                         '<!-- merge:act new theirs.md sha=0 len=1 -->\n<!-- merge:end -->\n')
+        script = checkout / 'rsc/migration/1063.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        stripped = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 1 and applied.returncode == 0 and again.stdout == ''
+                    and index.read_text() == '- [mine](mine.md)\n- [theirs](theirs.md)\n')
+        run("migration: rsc/migration/1063.sh strips the merge records a memory index holds, its index lines kept - bare the step, applied, again nothing",
+            stripped, None if stripped else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the index holds {index.read_text()!r}', check='migration.merge_records_are_stripped')

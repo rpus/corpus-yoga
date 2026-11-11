@@ -131,7 +131,7 @@ def main() -> int:
             command, does = rest[i], rest[i + 1] if i + 1 < len(rest) else ''
             if not command:
                 continue
-            if not _is_act(command) or facts.Would(command, {}).modality == 'MUST':   # a row's act is satisfy's only as its verb declares
+            if not _is_act(command) or facts.declared_of(command)['modality'] == 'MUST':   # a row's act is satisfy's only as its verb declares
                 typed.append((command, does, f'{name} / {subject}'))
             # a corpus-yoga act is said in its declared words, on what the row is about (issues/1028);
             # any other command is one status satisfy runs, and is said as its act (issues/1034)
