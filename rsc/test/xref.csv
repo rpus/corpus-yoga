@@ -602,7 +602,8 @@ rsc/migration/853.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/m
 rsc/migration/856.sh,2,comment,rsc/migration/856.sh,Y,# rsc/migration/856.sh - a held gemini unit holds the live store's files at their own
 rsc/migration/856.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
-rsc/migration/README.md,19,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
+rsc/migration/README.md,8,doc,rsc/migration/step.sh,Y,"issue carries that move, as the steps rsc/migration/step.sh declares."
+rsc/migration/README.md,13,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
 rsc/migration/step.sh,2,comment,rsc/migration/step.sh,Y,"# rsc/migration/step.sh - the steps a migration script is made of, sourced by each"
 rsc/provider/README.md,14,doc,rsc/test/prepare-commit-msg-hook.sh,Y,hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
 rsc/provider/README.md,18,doc,src/main/provider.py,Y,capture keys its mechanisms by declared names; `src/main/provider.py` is the
@@ -784,7 +785,7 @@ rsc/schema/mcp/mcpMessage/CHANGELOG.md,91,history,src/main/mcp/generation.py,Y,"
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,97,history,rsc/schema/mcp/mcpMessage,Y,"`rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
 rsc/site/README.md,10,doc,rsc/site/corpus-yoga.html,Y,"whose source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at"
-rsc/site/README.md,41,doc,src/main/compare_pages.py,Y,"(`src/main/compare_pages.py`, issues/652), since a line diff of two renders"
+rsc/site/README.md,37,doc,src/main/compare_pages.py,Y,"(`src/main/compare_pages.py`, issues/652), since a line diff of two renders"
 rsc/test/prepare-commit-msg-hook.sh,12,comment,rsc/provider/providers.csv,Y,"#            (rsc/provider/providers.csv) - the outer corpus identity coordinate, so a"
 rsc/test/prepare-commit-msg-hook.sh,29,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 rsc/test/prepare-commit-msg-hook.sh,38,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"

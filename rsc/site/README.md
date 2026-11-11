@@ -29,12 +29,8 @@ renders as a link unless it resolves.
 ## Deploying (Netlify via the private site repo)
 
 The site deploys from a separate private GitHub repo that Netlify watches; its
-root is the publish directory. Deploying is one verb:
-
-```bash
-    corpus-yoga site sync          # dry: what would land, and the two acts
-    corpus-yoga site sync --apply  # copy into ext/mnt/site, commit, push
-```
+root is the publish directory. `corpus-yoga site` says what a deploy would land, and
+its `now:` names the command that lands it.
 
 Netlify builds on push. The dry run states what changes in the corpus page in the
 page's own terms, each data table compared by its identity column
