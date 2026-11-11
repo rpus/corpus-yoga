@@ -581,7 +581,9 @@ rsc/metamodel/join.csv,275,path_str,rsc/schema/browser/claude/apiConversation#/d
 rsc/metamodel/join.csv,276,path_str,rsc/schema/export/claude/conversations#/definitions/ToolResultImage,Y,"rsc/schema/export/claude/conversations#/definitions/ToolResultImage,,,rsc/schema/browser/claude/apiConversation#/definit"
 rsc/metamodel/join.csv,276,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ApiToolResultImage,Y,"rsc/schema/export/claude/conversations#/definitions/ToolResultImage,,,rsc/schema/browser/claude/apiConversation#/definit"
 rsc/metamodel/join.csv,277,path_str,rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,Y,",rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,,,,cli_only,the account and the organisation a session "
-rsc/migration/635.sh,2,comment,rsc/migration/635.sh,Y,# rsc/migration/635.sh - the code-transport cache holds a directory per provider (issues/635):
+rsc/migration/1047.sh,2,comment,rsc/migration/1047.sh,Y,# rsc/migration/1047.sh - each pipeline is named for the noun whose promote deposits its
+rsc/migration/1047.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/635.sh,2,comment,rsc/migration/635.sh,Y,# rsc/migration/635.sh - the agent cache holds a directory per provider (issues/635):
 rsc/migration/635.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/636.sh,2,comment,rsc/migration/636.sh,Y,# rsc/migration/636.sh - the live agent stores mount at ext/mnt/agent/<provider> (issues/636);
 rsc/migration/636.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
@@ -1674,6 +1676,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
+,,self_only,rsc/migration/1047.sh,Y,
 ,,self_only,rsc/migration/635.sh,Y,
 ,,self_only,rsc/migration/655.sh,Y,
 ,,self_only,rsc/migration/667.sh,Y,
