@@ -501,10 +501,13 @@ def check_renamed_checkout(run) -> None:
     assert spec is not None and spec.loader is not None
     migration = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(migration)
-    said = facts.now_of(migration.status_facts({'rsc/migration/1058.sh': (1, ['mv a b', 'FAIL: c and d both exist'])}))
-    owed = said == {'MUST': {'corpus-yoga migration': {facts.REPORTS: {'FAIL: c and d both exist': 1}}}}
-    run('migration: a halted script is owed - its FAIL under now: MUST, beneath the noun that reports it', owed,
-        None if owed else f'now: says {said!r}', check='migration.renamed_checkout_moves_once')
+    import standing
+    halted_facts = migration.status_facts({'rsc/migration/1058.sh': (1, ['mv a b', 'FAIL: c and d both exist'])})
+    offered, found = facts.now_of(halted_facts), getattr(standing, 'failing', lambda said: None)(facts.plain(halted_facts))
+    finding = offered == {} and found == {'scripts': {'rsc/migration/1058.sh': {'halted': 'c and d both exist'}}}
+    run('migration: a halted script is a finding - its FAIL a fact the room gathers, and no entry of now:, which holds acts alone', finding,
+        None if finding else f'now: says {offered!r}; the findings gathered are {found!r}',
+        check='migration.renamed_checkout_moves_once')
 
 
 @check(tier='code', says=('agent.offers_only_effective_acts',), on=['src/main/cli/agent'])

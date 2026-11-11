@@ -8,7 +8,8 @@ what it is about (issues/771) and says the fact alone; its commands are columns 
 graft <noun> <pointer>` is what that noun's own status says at that spot, loaded as the data it is
 (issues/777): whole in the full report, and in the short one only with `standing` as a fifth column
 (issues/824) - the spot's facts as they stand - since every other spot's acts reach the report
-through now:. The report ends on now:, the room's standing folded once from every noun's own
+through now:. Before it stands FAIL:, every finding the nouns' statuses hold, by noun, where any
+does (issues/1058). The report ends on now:, the room's standing folded once from every noun's own
 (src/main/standing.py, issues/949) with the acts the rows name - every act under MAY or MUST, as
 its verb declares. Runs under the venv's python, or under python3 before the venv is minted,
 where no noun can be asked.
@@ -40,10 +41,12 @@ class Report:
     or is the thing itself by its address. No key names a kind, and no act stands in a section:
     every act is now:'s (issues/1050)."""
     sections: Mapping[str, object]
+    FAIL: dict | None = None    # every finding the nouns hold, by noun (issues/1058); not said where none does
     now: dict | str = facts.phrase('unread - the venv is not minted')   # the room's standing, last (issues/949)
 
     def facts(self) -> dict:
-        return {**{name: self.sections[name] for name in sorted(self.sections)}, 'now': self.now}   # one order, a reader's: alphabetical, the standing last
+        # one order, a reader's: alphabetical, then what is wrong, the standing last
+        return {**{name: self.sections[name] for name in sorted(self.sections)}, 'FAIL': self.FAIL, 'now': self.now}
 
 
 def grafted(noun: str, pointer: str, whole: bool, as_standing: bool = False):
@@ -85,8 +88,6 @@ def must(now) -> list[tuple[str, str, str]]:
     out: list[tuple[str, str, str]] = []
     for command, does in (now.get('MUST', {}) if isinstance(now, dict) else {}).items():
         for would, acts_on in does.items():
-            if would == facts.REPORTS:
-                continue   # a fault owed by hand: said, never run
             out.append((command, would, ', '.join(map(str, acts_on)) if isinstance(acts_on, dict) else str(acts_on)))
     return out
 
@@ -144,6 +145,7 @@ def main() -> int:
         return 0
     report = Report(sections)   # with no row to say, the report is its now: alone
     if venv.is_file():
+        report.FAIL = standing.room_fail() or None
         report.now = facts.ordered(facts.merge(standing.room_now(), own, once=True)) or facts.phrase('none - nothing to do')
     elif own:
         report.now = own

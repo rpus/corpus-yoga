@@ -313,19 +313,6 @@ class Unsettled:
 
 
 @dataclass(frozen=True)
-class Owed:
-    """A fault the room must clear by hand - no verb clears it - said in its body as its words,
-    and lifted into now: under MUST beneath the noun that reports it (issues/1058), as an
-    unsettled reading is under MAY: a reader is shown what the room owes, though there is no
-    command to run."""
-    reading: str
-    noun: str
-
-    def said(self) -> str:
-        return self.reading
-
-
-@dataclass(frozen=True)
 class Acts:
     """Several acts named at one spot, said as one mapping by command."""
     acts: tuple[Would, ...]
@@ -388,7 +375,7 @@ def now_of(shape) -> dict:
     """A status's now: - every act it names, gathered by command and merged (issues/1028) under
     the modality its verb declares (issues/1050), and every reading it could not settle, under the
     noun that reports it (issues/1034) and under MAY, since reading it again is the reader's
-    choice, and every fault the room owes by hand (Owed) beneath its noun under MUST - so that no noun composes its now: beside its body. Gathered from the facts the
+    choice - so that no noun composes its now: beside its body. Gathered from the facts the
     body says, so that a field its own `facts` leaves unsaid names no act; a nested now: is no
     act of the body. Empty where the body names nothing."""
     out: dict = {}
@@ -401,8 +388,6 @@ def now_of(shape) -> dict:
                 walk(act)
         elif isinstance(node, Unsettled):
             merge(out, {'MAY': {f'corpus-yoga {node.noun}': {REPORTS: {node.reading: 1}}}}, once=True)
-        elif isinstance(node, Owed):
-            merge(out, {'MUST': {f'corpus-yoga {node.noun}': {REPORTS: {node.reading: 1}}}}, once=True)
         elif is_dataclass(node) and not isinstance(node, type):
             own = getattr(node, 'facts', None)
             if callable(own):
@@ -425,7 +410,9 @@ def now_of(shape) -> dict:
 
 @dataclass(frozen=True)
 class Finding:
-    """What a status found wrong: the FAIL the usr gate's stage table counts, and the act on it."""
+    """What a status found wrong: the FAIL the usr gate's stage table counts and the room's
+    report gathers (standing.failing), and the act on it where a verb clears it. A finding is
+    a fact of its body, never an entry of now:, which holds acts alone (issues/1058)."""
     FAIL: str
     act: Would | None = None
 
