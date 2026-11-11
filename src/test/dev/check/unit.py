@@ -88,11 +88,15 @@ def check_rehearsal_record(run) -> None:
             None if not failed else '; '.join(f'{what}: {str(detail)[:160]}' for what, detail in failed[:3]),
             check='rehearsal.record_is_whole')
         main = lambda pipeline, family: (schema_digest, 'v1')   # noqa: E731
-        got = [corpus.verdict(a, record, digests['a'], main), corpus.verdict(b, record, digests['b'], main),
-               corpus.verdict(a, record, {sha('f')}, main), corpus.verdict(c, record, digests['c'], main),
-               corpus.verdict(d, record, digests['d'], main), corpus.verdict(e, record, set(), main),
-               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('d'), 'v2')),   # origin/main has moved past the record
-               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('d'), 'v0'))]   # the record is a branch's mint ahead of main
+        judged = lambda pipeline, family, version, schema_sha256: schema_sha256   # noqa: E731
+        got = [corpus.verdict(a, record, digests['a'], main, judged), corpus.verdict(b, record, digests['b'], main, judged),
+               corpus.verdict(a, record, {sha('f')}, main, judged), corpus.verdict(c, record, digests['c'], main, judged),
+               corpus.verdict(d, record, digests['d'], main, judged), corpus.verdict(e, record, set(), main, judged),
+               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('d'), 'v2'), judged),   # origin/main has moved past the record
+               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('d'), 'v0'), judged),   # the record is a branch's mint ahead of main
+               corpus.verdict(a, record, digests['a'], lambda pipeline, family: (sha('e'), 'v1'),
+                              lambda pipeline, family, version, schema_sha256: sha('e')),   # reworded or moved here, admitting what main's admits
+               corpus.verdict(a, record, digests['a'], main, lambda pipeline, family, version, schema_sha256: None)]   # changed here since the rehearsal
     expected = [(corpus.Judgement.VALID, f'validates at claude/apiConversation v1 (origin/main; rehearsal {stamp})'),
                 (corpus.Judgement.INVALID, 'invalid at claude/apiConversation v1 - Validation error - a version is owed'),
                 (corpus.Judgement.CHANGED, f'changed since rehearsal {stamp}'),
@@ -100,7 +104,9 @@ def check_rehearsal_record(run) -> None:
                 (corpus.Judgement.UNJUDGED, f'seen by rehearsal {stamp}, no verdict written'),
                 (corpus.Judgement.NONE, 'no pipeline selects it'),
                 (corpus.Judgement.SUPERSEDED, 'judged at claude/apiConversation v1; origin/main holds v2'),
-                (corpus.Judgement.UNLICENSED, 'valid at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)')]
+                (corpus.Judgement.UNLICENSED, 'valid at claude/apiConversation v1 - a version of this checkout, which origin/main does not hold (v0 there)'),
+                (corpus.Judgement.VALID, f'validates at claude/apiConversation v1 (origin/main; rehearsal {stamp})'),
+                (corpus.Judgement.UNJUDGED, 'the verdict at claude/apiConversation v1 is on a schema this checkout no longer holds - rehearse again')]
     wrong = [(g, e) for g, e in zip(got, expected) if g[0] is not e[0] or not g[1].startswith(e[1])]
     refusal = got[1][2]
     at = '/'.join(('browser', 'claude/apiConversation', 'v1.json'))   # the fixture's version file under rsc/schema, which no tree holds

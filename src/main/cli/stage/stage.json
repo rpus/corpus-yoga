@@ -15,6 +15,7 @@
     "seen by rehearsal {stamp}, no verdict written",
     "the verdict at {family} is on other bytes than this staged unit",
     "the verdict at {family} {version} is against a schema origin/main does not hold",
+    "the verdict at {family} {version} is on a schema this checkout no longer holds - rehearse again",
     "judged at {family} {version}; origin/main holds {main_version}",
     "a version of this checkout, which origin/main does not hold ({main_version} there) - the mint's merge licenses the promotion",
     "a family of this checkout, which origin/main does not hold - the mint's merge licenses the promotion",

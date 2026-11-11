@@ -17,8 +17,16 @@ declare is UNKNOWN - never descended, and reported by
 structure.keywords_declared. The one keyword outside the meta-schema is `$ref`, a
 value position: JSON Reference (draft-pbryan-zyp-json-ref-03), which draft-04
 defers to rather than declares.
+
+Every keyword has a role, declared in rsc/schema/keyword.csv: an `annotation` never
+changes what a schema admits - draft-04's metadata keywords, `title`, `description` and
+`default` - and a `restriction` may. A schema's restrictions are the schema with every
+annotation removed at every schema position, so two versions that differ only in their
+annotations admit the same instances and have one restriction digest.
 """
 
+import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -29,6 +37,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
+KEYWORD_ROLES = REPO / 'rsc/schema/keyword.csv'
 JSON_REFERENCE_KEYWORDS = {'$ref': ('value',)}     # JSON Reference, not the meta-schema's
 
 # position descriptors: ('schema',) | ('list', inner) | ('map', inner) | ('either', [inner, ...]) | ('value',)
@@ -143,3 +152,27 @@ def rebuilt(node: dict, child) -> dict:
         position = POSITIONS.get(key)
         out[key] = _rebuilt_at(position, value, child) if position else value
     return out
+
+
+def roles() -> dict[str, str]:
+    """Each keyword of the dialect by its declared role, annotation or restriction."""
+    with KEYWORD_ROLES.open(newline='') as f:
+        return {row['keyword']: row['role'] for row in csv.DictReader(f)}
+
+
+ANNOTATIONS = frozenset(k for k, role in roles().items() if role == 'annotation')
+
+
+def restrictions(schema):
+    """The schema with every annotation removed at every schema position: what it admits,
+    and nothing it only says."""
+    if not isinstance(schema, dict):
+        return schema
+    return rebuilt({k: v for k, v in schema.items() if k not in ANNOTATIONS}, restrictions)
+
+
+def restriction_digest(data: bytes) -> str:
+    """The sha256 of a schema file's restrictions, keys sorted: equal for two versions that
+    differ in their annotations alone, or in their layout."""
+    canonical = json.dumps(restrictions(json.loads(data)), sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode()).hexdigest()

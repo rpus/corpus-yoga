@@ -73,6 +73,7 @@ break L6 as effects.writers_disjoint holds it. Each noun's bare status,
 bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 """
 import argparse
+import functools
 import hashlib
 import json
 import re
@@ -90,6 +91,7 @@ import facts  # the one printer of a status's facts (issues/740)
 import provider as registry  # the provider registry, one home of a provider's id shape (issues/994)
 import spell
 import rehearsal  # the rehearsal record, one home (issues/815)
+import schema_walk
 import tier  # the tiers, one home (issues/702)
 
 SELF = 'src/main/corpus.py'
@@ -454,10 +456,26 @@ def family_dir(pipeline: str, family: str) -> str:
     return f'{SCHEMA_ROOT}/{pipeline}/{family}'
 
 
+@functools.cache
+def _main_addresses() -> dict[str, str]:
+    """Each family directory of this checkout that origin/main holds at another address, by
+    git's rename detection between origin/main and HEAD: {here: there}."""
+    out = subprocess.run(['git', '-C', str(REPO), 'diff', '-M', '--name-status', '--diff-filter=R', 'origin/main', 'HEAD', '--', SCHEMA_ROOT],
+                         capture_output=True, text=True).stdout
+    moved: dict[str, str] = {}
+    for line in out.splitlines():
+        parts = line.split('\t')
+        if len(parts) == 3:
+            moved.setdefault(parts[2].rsplit('/', 1)[0], parts[1].rsplit('/', 1)[0])
+    return moved
+
+
 def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str | None]:
-    """The digest of origin/main's latest version file of a family, and the version's name;
-    None and None where origin/main holds no version of the family at all."""
-    fam_dir = family_dir(pipeline, family)
+    """The restriction digest of origin/main's latest version file of a family, found where
+    origin/main holds it, and the version's name; None and None where origin/main holds no
+    version of the family at all."""
+    here = family_dir(pipeline, family)
+    fam_dir = _main_addresses().get(here, here)
     ls = subprocess.run(['git', '-C', str(REPO), 'ls-tree', '--name-only', 'origin/main', fam_dir + '/'],
                         capture_output=True, text=True).stdout.split()
     versions = sorted((v for v in ls if v.rsplit('/', 1)[-1].startswith('v') and v.endswith('.json')),
@@ -465,7 +483,17 @@ def _main_schema_digest(pipeline: str, family: str) -> tuple[str | None, str | N
     if not versions:
         return None, None
     blob = subprocess.run(['git', '-C', str(REPO), 'show', f'origin/main:{versions[-1]}'], capture_output=True).stdout
-    return _digest(blob), versions[-1].rsplit('/', 1)[-1][:-5]
+    return schema_walk.restriction_digest(blob), versions[-1].rsplit('/', 1)[-1][:-5]
+
+
+def _judged_digest(pipeline: str, family: str, version: str, schema_sha256: str) -> str | None:
+    """The restriction digest of the version file a verdict was taken against, where this
+    checkout holds those bytes; None where it holds other bytes at that address, or none."""
+    path = REPO / family_dir(pipeline, family) / f'{version}.json'
+    if not path.is_file():
+        return None
+    data = path.read_bytes()
+    return schema_walk.restriction_digest(data) if _digest(data) == schema_sha256 else None
 
 
 def own_digests(unit: Unit) -> set[str]:
@@ -556,13 +584,17 @@ def family_of(unit: Unit, leaf: str) -> str:
 
 
 def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None = None,
-            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None
+            main_digest: Callable[[str, str], tuple[str | None, str | None]] | None = None,
+            judged_digest: Callable[[str, str, str, str], str | None] | None = None
             ) -> tuple[Judgement, str, Refusal | None]:
     """What the pipelines have found of the staged unit at origin/main's versions, read
     from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where
     a family refused the unit, the refusal as data - the family, the version and the
     reason - from which the words derive. The record, the unit's own digests and
-    origin/main's schema digests are read where not given."""
+    origin/main's schema digests are read where not given. A verdict is origin/main's where
+    the version it was taken at and origin/main's latest admit alike - their restrictions
+    equal, wherever origin/main holds the family - so a version reworded or moved in place
+    keeps its verdicts."""
     if unit.pipeline is None:
         return Judgement.NONE, facts.phrase('no pipeline selects it - promoted on its relation alone'), None
     judges = judges_of(unit)
@@ -586,6 +618,7 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                                                   stamp=stamp), None
     converted = seen.get('source') in own
     main_digest = _main_schema_digest if main_digest is None else main_digest
+    judged_digest = _judged_digest if judged_digest is None else judged_digest
     words = []
     for family, one in sorted(seen['verdicts'].items()):
         version = one['version']
@@ -593,7 +626,12 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
             return Judgement.CHANGED, facts.phrase('the verdict at {family} is on other bytes than this staged unit',
                                                      family=family), None
         digest, main_version = main_digest(unit.pipeline, family)
-        if digest is None or one['schema_sha256'] != digest:
+        judged = judged_digest(unit.pipeline, family, version, one['schema_sha256'])
+        if judged is None:
+            return Judgement.UNJUDGED, facts.phrase(
+                'the verdict at {family} {version} is on a schema this checkout no longer holds - rehearse again',
+                family=family, version=version), None
+        if digest is None or judged != digest:
             if main_version == version:
                 return Judgement.UNJUDGED, facts.phrase(
                     'the verdict at {family} {version} is against a schema origin/main does not hold',

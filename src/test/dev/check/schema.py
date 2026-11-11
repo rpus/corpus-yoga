@@ -50,6 +50,36 @@ def check_schema_layout(run) -> None:
                 check='schema.pipeline_schema_placed')
 
 
+@check(tier='schema', on=['rsc/schema/keyword.csv', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=(
+    'schema.keyword_role_total',
+    'schema.restrictions_keep_names',
+))
+def check_keyword_roles(run) -> None:
+    """Every keyword of the dialect - draft-04's meta-schema and JSON Reference's $ref - has
+    one role in rsc/schema/keyword.csv, annotation or restriction; and a schema's
+    restrictions drop the annotations at schema positions alone, never a property named
+    for one nor a value that spells one."""
+    import schema_walk
+    declared = schema_walk.roles()
+    missing = sorted(schema_walk.KEYWORDS - set(declared))
+    stray = sorted(set(declared) - schema_walk.KEYWORDS)
+    unknown = sorted(k for k, role in declared.items() if role not in ('annotation', 'restriction'))
+    run('schema: every keyword of the dialect has one role, annotation or restriction', not (missing or stray or unknown),
+        None if not (missing or stray or unknown) else
+        f'rsc/schema/keyword.csv lacks {missing}, names {stray} the dialect does not, gives {unknown} no known role',
+        check='schema.keyword_role_total')
+    written = {'title': 'T', 'description': 'd', 'type': 'object',
+               'properties': {'description': {'type': 'string', 'description': 'x'}, 'title': {'enum': ['a'], 'default': 'a'}},
+               'definitions': {'D': {'description': 'q', 'oneOf': [{'type': 'null', 'title': 'n'}]}},
+               'enum': [{'description': 'kept'}]}
+    admits = {'type': 'object', 'properties': {'description': {'type': 'string'}, 'title': {'enum': ['a']}},
+              'definitions': {'D': {'oneOf': [{'type': 'null'}]}}, 'enum': [{'description': 'kept'}]}
+    got = schema_walk.restrictions(written)
+    run('schema: restrictions drop annotations at schema positions alone', got == admits,
+        None if got == admits else f'restrictions read {json.dumps(got, sort_keys=True)[:200]}',
+        check='schema.restrictions_keep_names')
+
+
 @check(tier='schema', says=('schema.valid_json_with_schema',), on=['rsc/schema'])
 def check_schema_validity(run) -> None:
     """Every version of every schema family parses and declares $schema — a property

@@ -632,67 +632,69 @@ rsc/reference/mcp/README.md,19,doc,rsc/schema/mcp/mcpMessage,Y,"`rsc/schema/mcp/
 rsc/reference/mcp/generate.md,39,doc,src/main/mcp/reproduce.sh,Y,`corpus-yoga mcp reproduce` (`src/main/mcp/reproduce.sh`) runs upstream's own
 rsc/rpus/documenter.json,2,$schema,rsc/rpus/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/rpus/documenter.json,2,path_str,rsc/rpus/documenter.json,Y,"""$schema"": ""./documenter.json"","
-rsc/schema/WORKFLOW.md,43,doc,rsc/schema/export/claude/conversations/CHANGELOG.md,Y,"`rsc/schema/export/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,"
-rsc/schema/WORKFLOW.md,104,doc,src/main/browser/claude/validate.sh,Y,src/main/browser/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
-rsc/schema/WORKFLOW.md,105,doc,src/main/export/validate.sh,Y,src/main/export/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-rsc/schema/WORKFLOW.md,106,doc,src/main/agent/run.sh,Y,src/main/agent/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
-rsc/schema/WORKFLOW.md,119,doc,rsc/reference,Y,`rsc/reference/` does not mint: `corpus-yoga reference pull` holds every lineage
-rsc/schema/WORKFLOW.md,124,doc,rsc/schema,Y,git mv rsc/schema/<family>/vN.json rsc/schema/<family>/v{N+1}.json
-rsc/schema/WORKFLOW.md,133,doc,rsc/schema,Y,git diff -M HEAD -- rsc/schema/<family>/
-rsc/schema/WORKFLOW.md,143,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
-rsc/schema/WORKFLOW.md,143,doc,src/test/dev/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
-rsc/schema/WORKFLOW.md,143,doc,rsc/schema,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
-rsc/schema/WORKFLOW.md,149,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,156,doc,rsc/schema/export/claude/conversations/unreachable.csv,Y,no definition. `rsc/schema/export/claude/conversations/unreachable.csv` declares
-rsc/schema/WORKFLOW.md,158,doc,rsc/schema/mcp/mcpMessage/unreachable.csv,Y,`rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
-rsc/schema/WORKFLOW.md,166,doc,src/main/browser/run.sh,Y,src/main/browser/run.sh   --input data/input/claude/chat/API-capture
-rsc/schema/WORKFLOW.md,167,doc,src/main/export/run.sh,Y,src/main/export/run.sh    --input data/input/claude/chat/bulk-export
-rsc/schema/WORKFLOW.md,168,doc,src/main/agent/run.sh,Y,src/main/agent/run.sh --input data/input/claude/code/machine-transport
-rsc/schema/WORKFLOW.md,175,doc,src/main/tier.py,Y,(src/main/tier.py) and records what it saw and judged as tmp/stage/rehearsal.json
-rsc/schema/WORKFLOW.md,176,doc,src/main/rehearsal.py,Y,"(src/main/rehearsal.py), so the run above is that one over the staged units."
-rsc/schema/WORKFLOW.md,182,doc,src/validation_matrix.py,Y,"the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never"
-rsc/schema/WORKFLOW.md,189,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,189,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,195,doc,src/main/validation_audit.py,Y,"(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -"
-rsc/schema/WORKFLOW.md,227,doc,rsc/metamodel/join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/metamodel/join_kinds.csv` states
-rsc/schema/WORKFLOW.md,238,doc,rsc/metamodel/join.csv,Y,Open `rsc/metamodel/join.csv` and:
-rsc/schema/WORKFLOW.md,241,doc,rsc/schema/export/claude/conversations,Y,"to the repo root (`rsc/schema/export/claude/conversations#/definitions/…`,"
-rsc/schema/WORKFLOW.md,242,doc,rsc/schema/agent/claude/session,Y,"`rsc/schema/agent/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -"
-rsc/schema/WORKFLOW.md,245,doc,src/main/latest.py,Y,"reference project against its lineage (`src/main/latest.py`), so a mint costs this file"
-rsc/schema/WORKFLOW.md,273,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,277,doc,rsc/reference,Y,### 5. Check rsc/reference
-rsc/schema/WORKFLOW.md,279,doc,rsc/reference,Y,"`rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory"
-rsc/schema/WORKFLOW.md,285,doc,rsc/reference/mcp/generate.md,Y,into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
-rsc/schema/WORKFLOW.md,286,doc,rsc/reference/JSONSchema/draft-04,Y,"`rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect"
-rsc/schema/WORKFLOW.md,287,doc,src/schema_walk.py,Y,"every house schema declares, and the declaration `src/schema_walk.py` derives every"
-rsc/schema/WORKFLOW.md,293,doc,rsc/reference/mcp/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
-rsc/schema/WORKFLOW.md,293,doc,rsc/reference/JSONSchema/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
-rsc/schema/WORKFLOW.md,295,doc,rsc/reference/mcp/reference.json,Y,"sha256), and the reference declaration (`rsc/reference/mcp/reference.json`,"
-rsc/schema/WORKFLOW.md,296,doc,rsc/reference/JSONSchema/reference.json,Y,"`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream"
-rsc/schema/WORKFLOW.md,299,doc,rsc/metamodel/join.csv,Y,"validates against it, no house diagnostic runs over it, and `rsc/metamodel/join.csv`"
-rsc/schema/WORKFLOW.md,314,doc,rsc/schema/mcp/mcpMessage,Y,"`rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a"
-rsc/schema/WORKFLOW.md,315,doc,src/main/mcp/factoring.py,Y,committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/factoring.py`)
-rsc/schema/WORKFLOW.md,317,doc,rsc/rpus/grammar/TypeScript,Y,read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
-rsc/schema/WORKFLOW.md,319,doc,src/main/mcp/generation.py,Y,"(`src/main/mcp/generation.py`), composed over the extends clauses and tagged by"
-rsc/schema/WORKFLOW.md,320,doc,src/main/mcp/extraction.py,Y,"the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two tables"
-rsc/schema/WORKFLOW.md,321,doc,rsc/cache_io.csv,Y,"faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables"
-rsc/schema/WORKFLOW.md,322,doc,rsc/schema/mcp/mcpMessage/description.csv,Y,beside the version file: `rsc/schema/mcp/mcpMessage/description.csv` (house
-rsc/schema/WORKFLOW.md,324,doc,rsc/schema/mcp/mcpMessage/unreachable.csv,Y,`rsc/schema/mcp/mcpMessage/unreachable.csv` (the definitions no message
-rsc/schema/WORKFLOW.md,326,doc,rsc/schema/mcp/mcpMessage/layer.csv,Y,"refuses to disagree with), `rsc/schema/mcp/mcpMessage/layer.csv` (the layers"
-rsc/schema/WORKFLOW.md,329,doc,rsc/schema/mcp/mcpMessage/category_layer.csv,Y,`rsc/schema/mcp/mcpMessage/category_layer.csv` (the house's reading of the
-rsc/schema/WORKFLOW.md,330,doc,rsc/schema/mcp/mcpMessage/placement.csv,Y,"`@category` tags into those layers), `rsc/schema/mcp/mcpMessage/placement.csv`"
-rsc/schema/WORKFLOW.md,332,doc,rsc/schema/mcp/mcpMessage/addition.csv,Y,and `rsc/schema/mcp/mcpMessage/addition.csv` (where the house reads differently
-rsc/schema/WORKFLOW.md,339,doc,src/main/mcp/face.py,Y,"`tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every"
-rsc/schema/WORKFLOW.md,349,doc,rsc/schema/mcp/mcpMessage/CHANGELOG.md,Y,"`rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's"
-rsc/schema/WORKFLOW.md,364,doc,rsc/metamodel/metamodel.json,Y,`rsc/metamodel/metamodel.json` is the hand-curated cross-family type reference - a table of
-rsc/schema/WORKFLOW.md,366,doc,rsc/metamodel/metamodel.schema.json,Y,"against the row shape beside it, `rsc/metamodel/metamodel.schema.json` (`model.table_valid`,"
-rsc/schema/WORKFLOW.md,367,doc,rsc/CALCULUS.md,Y,issues/591) - under the `curate` disposal discipline (issues/19; rsc/CALCULUS.md) as TWO
-rsc/schema/WORKFLOW.md,368,doc,src/main/metamodel/curation.py,Y,"loops with different pressure, both computed by `src/main/metamodel/curation.py`"
-rsc/schema/WORKFLOW.md,378,doc,rsc/metamodel/join_kinds.csv,Y,"are declared data — `rsc/metamodel/join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,383,doc,rsc/metamodel/rejected.txt,Y,there or REJECTED with a reason in `rsc/metamodel/rejected.txt` — and every
-rsc/schema/WORKFLOW.md,407,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,408,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,415,doc,src/test/dev/check,Y,`src/test/dev/check/`. Adding a schema version multiplies invocations of existing checks and
+rsc/schema/WORKFLOW.md,35,doc,rsc/schema/keyword.csv,Y,"A change to annotations alone - the keywords `rsc/schema/keyword.csv` gives that role,"
+rsc/schema/WORKFLOW.md,37,doc,src/main/corpus.py,Y,licence (`src/main/corpus.py`) holds a verdict at the reworded version as one at origin/main's;
+rsc/schema/WORKFLOW.md,47,doc,rsc/schema/export/claude/conversations/CHANGELOG.md,Y,"`rsc/schema/export/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,"
+rsc/schema/WORKFLOW.md,108,doc,src/main/browser/claude/validate.sh,Y,src/main/browser/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
+rsc/schema/WORKFLOW.md,109,doc,src/main/export/validate.sh,Y,src/main/export/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+rsc/schema/WORKFLOW.md,110,doc,src/main/agent/run.sh,Y,src/main/agent/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
+rsc/schema/WORKFLOW.md,123,doc,rsc/reference,Y,`rsc/reference/` does not mint: `corpus-yoga reference pull` holds every lineage
+rsc/schema/WORKFLOW.md,128,doc,rsc/schema,Y,git mv rsc/schema/<family>/vN.json rsc/schema/<family>/v{N+1}.json
+rsc/schema/WORKFLOW.md,137,doc,rsc/schema,Y,git diff -M HEAD -- rsc/schema/<family>/
+rsc/schema/WORKFLOW.md,147,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
+rsc/schema/WORKFLOW.md,147,doc,src/test/dev/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
+rsc/schema/WORKFLOW.md,147,doc,rsc/schema,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
+rsc/schema/WORKFLOW.md,153,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+rsc/schema/WORKFLOW.md,160,doc,rsc/schema/export/claude/conversations/unreachable.csv,Y,no definition. `rsc/schema/export/claude/conversations/unreachable.csv` declares
+rsc/schema/WORKFLOW.md,162,doc,rsc/schema/mcp/mcpMessage/unreachable.csv,Y,`rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
+rsc/schema/WORKFLOW.md,170,doc,src/main/browser/run.sh,Y,src/main/browser/run.sh   --input data/input/claude/chat/API-capture
+rsc/schema/WORKFLOW.md,171,doc,src/main/export/run.sh,Y,src/main/export/run.sh    --input data/input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,172,doc,src/main/agent/run.sh,Y,src/main/agent/run.sh --input data/input/claude/code/machine-transport
+rsc/schema/WORKFLOW.md,179,doc,src/main/tier.py,Y,(src/main/tier.py) and records what it saw and judged as tmp/stage/rehearsal.json
+rsc/schema/WORKFLOW.md,180,doc,src/main/rehearsal.py,Y,"(src/main/rehearsal.py), so the run above is that one over the staged units."
+rsc/schema/WORKFLOW.md,186,doc,src/validation_matrix.py,Y,"the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never"
+rsc/schema/WORKFLOW.md,193,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,193,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,199,doc,src/main/validation_audit.py,Y,"(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -"
+rsc/schema/WORKFLOW.md,231,doc,rsc/metamodel/join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/metamodel/join_kinds.csv` states
+rsc/schema/WORKFLOW.md,242,doc,rsc/metamodel/join.csv,Y,Open `rsc/metamodel/join.csv` and:
+rsc/schema/WORKFLOW.md,245,doc,rsc/schema/export/claude/conversations,Y,"to the repo root (`rsc/schema/export/claude/conversations#/definitions/…`,"
+rsc/schema/WORKFLOW.md,246,doc,rsc/schema/agent/claude/session,Y,"`rsc/schema/agent/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -"
+rsc/schema/WORKFLOW.md,249,doc,src/main/latest.py,Y,"reference project against its lineage (`src/main/latest.py`), so a mint costs this file"
+rsc/schema/WORKFLOW.md,277,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,281,doc,rsc/reference,Y,### 5. Check rsc/reference
+rsc/schema/WORKFLOW.md,283,doc,rsc/reference,Y,"`rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory"
+rsc/schema/WORKFLOW.md,289,doc,rsc/reference/mcp/generate.md,Y,into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
+rsc/schema/WORKFLOW.md,290,doc,rsc/reference/JSONSchema/draft-04,Y,"`rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect"
+rsc/schema/WORKFLOW.md,291,doc,src/schema_walk.py,Y,"every house schema declares, and the declaration `src/schema_walk.py` derives every"
+rsc/schema/WORKFLOW.md,297,doc,rsc/reference/mcp/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
+rsc/schema/WORKFLOW.md,297,doc,rsc/reference/JSONSchema/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
+rsc/schema/WORKFLOW.md,299,doc,rsc/reference/mcp/reference.json,Y,"sha256), and the reference declaration (`rsc/reference/mcp/reference.json`,"
+rsc/schema/WORKFLOW.md,300,doc,rsc/reference/JSONSchema/reference.json,Y,"`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream"
+rsc/schema/WORKFLOW.md,303,doc,rsc/metamodel/join.csv,Y,"validates against it, no house diagnostic runs over it, and `rsc/metamodel/join.csv`"
+rsc/schema/WORKFLOW.md,318,doc,rsc/schema/mcp/mcpMessage,Y,"`rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (issues/562, issues/598), a"
+rsc/schema/WORKFLOW.md,319,doc,src/main/mcp/factoring.py,Y,committed derivation: `corpus-yoga mcp derive` (`src/main/mcp/factoring.py`)
+rsc/schema/WORKFLOW.md,321,doc,rsc/rpus/grammar/TypeScript,Y,read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
+rsc/schema/WORKFLOW.md,323,doc,src/main/mcp/generation.py,Y,"(`src/main/mcp/generation.py`), composed over the extends clauses and tagged by"
+rsc/schema/WORKFLOW.md,324,doc,src/main/mcp/extraction.py,Y,"the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two tables"
+rsc/schema/WORKFLOW.md,325,doc,rsc/cache_io.csv,Y,"faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables"
+rsc/schema/WORKFLOW.md,326,doc,rsc/schema/mcp/mcpMessage/description.csv,Y,beside the version file: `rsc/schema/mcp/mcpMessage/description.csv` (house
+rsc/schema/WORKFLOW.md,328,doc,rsc/schema/mcp/mcpMessage/unreachable.csv,Y,`rsc/schema/mcp/mcpMessage/unreachable.csv` (the definitions no message
+rsc/schema/WORKFLOW.md,330,doc,rsc/schema/mcp/mcpMessage/layer.csv,Y,"refuses to disagree with), `rsc/schema/mcp/mcpMessage/layer.csv` (the layers"
+rsc/schema/WORKFLOW.md,333,doc,rsc/schema/mcp/mcpMessage/category_layer.csv,Y,`rsc/schema/mcp/mcpMessage/category_layer.csv` (the house's reading of the
+rsc/schema/WORKFLOW.md,334,doc,rsc/schema/mcp/mcpMessage/placement.csv,Y,"`@category` tags into those layers), `rsc/schema/mcp/mcpMessage/placement.csv`"
+rsc/schema/WORKFLOW.md,336,doc,rsc/schema/mcp/mcpMessage/addition.csv,Y,and `rsc/schema/mcp/mcpMessage/addition.csv` (where the house reads differently
+rsc/schema/WORKFLOW.md,343,doc,src/main/mcp/face.py,Y,"`tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every"
+rsc/schema/WORKFLOW.md,353,doc,rsc/schema/mcp/mcpMessage/CHANGELOG.md,Y,"`rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's"
+rsc/schema/WORKFLOW.md,368,doc,rsc/metamodel/metamodel.json,Y,`rsc/metamodel/metamodel.json` is the hand-curated cross-family type reference - a table of
+rsc/schema/WORKFLOW.md,370,doc,rsc/metamodel/metamodel.schema.json,Y,"against the row shape beside it, `rsc/metamodel/metamodel.schema.json` (`model.table_valid`,"
+rsc/schema/WORKFLOW.md,371,doc,rsc/CALCULUS.md,Y,issues/591) - under the `curate` disposal discipline (issues/19; rsc/CALCULUS.md) as TWO
+rsc/schema/WORKFLOW.md,372,doc,src/main/metamodel/curation.py,Y,"loops with different pressure, both computed by `src/main/metamodel/curation.py`"
+rsc/schema/WORKFLOW.md,382,doc,rsc/metamodel/join_kinds.csv,Y,"are declared data — `rsc/metamodel/join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,387,doc,rsc/metamodel/rejected.txt,Y,there or REJECTED with a reason in `rsc/metamodel/rejected.txt` — and every
+rsc/schema/WORKFLOW.md,411,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,412,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,419,doc,src/test/dev/check,Y,`src/test/dev/check/`. Adding a schema version multiplies invocations of existing checks and
 rsc/schema/agent/claude/projectMemory/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/agent/claude/projectMemory/CHANGELOG.md,70,history,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/agent/claude/session/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
@@ -1128,8 +1130,8 @@ src/main/cli/site/site.sh,39,call,src/main/cli/site/landing.sh,Y,"source ""$SCRI
 src/main/cli/site/status.py,20,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
 src/main/cli/site/status.py,107,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/stage/clean.json,8,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/stage/stage.json,46,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
-src/main/cli/stage/stage.json,52,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
+src/main/cli/stage/stage.json,47,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
+src/main/cli/stage/stage.json,53,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.py,8,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,8,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch"
 src/main/cli/stage/stage.py,10,comment,src/main/rehearsal.py,Y,"the record, one file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815)."
@@ -1204,11 +1206,11 @@ src/main/corpus.py,14,comment,src/main/cli/pipeline/rehearse.sh,Y,(src/main/cli/
 src/main/corpus.py,28,comment,src/main/validation_audit.py,Y,"audit's subjects (src/main/validation_audit.py) and the datum's cache address,"
 src/main/corpus.py,33,comment,src/main/append_only.py,Y,"RELATION - the five relations of src/main/append_only.py, derived once from an order:"
 src/main/corpus.py,49,comment,src/main/validation_verdict.py,Y,"at the unit's cache address (src/main/validation_verdict.py, issues/701), at the family's latest"
-src/main/corpus.py,95,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
-src/main/corpus.py,450,path_str,rsc/schema,Y,SCHEMA_ROOT = 'rsc/schema'   # <pipeline>/<family as the pipeline declares it>/<version>.json
-src/main/corpus.py,1020,path_str,rsc/migration/815.sh,Y,"MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration apply takes"
-src/main/corpus.py,211,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
-src/main/corpus.py,562,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
+src/main/corpus.py,97,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
+src/main/corpus.py,452,path_str,rsc/schema,Y,SCHEMA_ROOT = 'rsc/schema'   # <pipeline>/<family as the pipeline declares it>/<version>.json
+src/main/corpus.py,1058,path_str,rsc/migration/815.sh,Y,"MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration apply takes"
+src/main/corpus.py,213,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
+src/main/corpus.py,591,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
 src/main/enact.sh,34,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
 src/main/export/archive_components.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/archive_components.py       --chat-export data/input/claude/chat/bulk-export/<b
@@ -1424,8 +1426,10 @@ src/main/validation_audit.py,134,comment,src/main/corpus.py,Y,pipeline's root. T
 src/run_python_script.sh,6,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/run_python_script.sh,13,comment,src/import_roots.sh,Y,# shellcheck source=src/import_roots.sh
 src/schema_walk.py,5,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,(rsc/reference/JSONSchema/draft-04/schema.json) rather than restated (issues/571).
-src/schema_walk.py,25,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
-src/schema_walk.py,31,path_str,rsc/reference/JSONSchema/draft-04/schema.json,Y,META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
+src/schema_walk.py,21,comment,rsc/schema/keyword.csv,Y,"Every keyword has a role, declared in rsc/schema/keyword.csv: an `annotation` never"
+src/schema_walk.py,33,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
+src/schema_walk.py,39,path_str,rsc/reference/JSONSchema/draft-04/schema.json,Y,META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
+src/schema_walk.py,40,path_str,rsc/schema/keyword.csv,Y,KEYWORD_ROLES = REPO / 'rsc/schema/keyword.csv'
 src/test/dev/check/join.py,70,comment,rsc/metamodel/metamodel.json,Y,"rsc/metamodel/metamodel.json is the table of documented shared types - a name, its"
 src/test/dev/check/join.py,71,comment,rsc/metamodel/metamodel.schema.json,Y,"description, its occurrences by family - and rsc/metamodel/metamodel.schema.json is"
 src/test/dev/check/join.py,144,comment,rsc/metamodel/rejected.txt,Y,covered by a rejection in rsc/metamodel/rejected.txt. One check per
@@ -1484,26 +1488,31 @@ src/test/dev/check/room.py,700,path_str,src/main/cli/forge,Y,"'src/main/cli/forg
 src/test/dev/check/room.py,725,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
 src/test/dev/check/room.py,763,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
 src/test/dev/check/schema.py,28,comment,rsc/provider/providers.csv,Y,"provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that"
-src/test/dev/check/schema.py,74,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
+src/test/dev/check/schema.py,59,comment,rsc/schema/keyword.csv,Y,"one role in rsc/schema/keyword.csv, annotation or restriction; and a schema's"
+src/test/dev/check/schema.py,104,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
 src/test/dev/check/schema.py,22,path_str,rsc/schema,Y,"@check(tier='schema', on=['rsc/schema', 'src/main', 'rsc/provider'], says=("
 src/test/dev/check/schema.py,22,path_str,src/main,Y,"@check(tier='schema', on=['rsc/schema', 'src/main', 'rsc/provider'], says=("
 src/test/dev/check/schema.py,22,path_str,rsc/provider,Y,"@check(tier='schema', on=['rsc/schema', 'src/main', 'rsc/provider'], says=("
-src/test/dev/check/schema.py,53,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.valid_json_with_schema',), on=['rsc/schema'])"
-src/test/dev/check/schema.py,68,path_str,rsc/schema,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/reference/JSONSchema'], says=("
-src/test/dev/check/schema.py,68,path_str,rsc/reference/JSONSchema,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/reference/JSONSchema'], says=("
-src/test/dev/check/schema.py,96,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.single_version',), on=['rsc/schema'])"
-src/test/dev/check/schema.py,111,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.changelog_narrative', 'schema.changelog_no_todo'), on=['rsc/schema'])"
-src/test/dev/check/schema.py,133,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.has_versions', *DIAGNOSTIC_NAMES), on=['rsc/schema'])"
-src/test/dev/check/schema.py,177,path_str,src/main/validate.py,Y,"@check(tier='code', on=['src/main/validate.py', 'src/test'], says=("
-src/test/dev/check/schema.py,177,path_str,src/test,Y,"@check(tier='code', on=['src/main/validate.py', 'src/test'], says=("
-src/test/dev/check/schema.py,234,path_str,src/validation_matrix.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
-src/test/dev/check/schema.py,234,path_str,src/main/validation_verdict.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
-src/test/dev/check/schema.py,234,path_str,src/main/validate_versions.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
-src/test/dev/check/schema.py,234,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
-src/test/dev/check/schema.py,272,path_str,src/main/cli/pipeline/tail.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
-src/test/dev/check/schema.py,272,path_str,src/main/validate_versions.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
-src/test/dev/check/schema.py,272,path_str,src/main/validate.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
-src/test/dev/check/schema.py,272,path_str,src/main/validation_verdict.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
+src/test/dev/check/schema.py,53,path_str,rsc/schema/keyword.csv,Y,"@check(tier='schema', on=['rsc/schema/keyword.csv', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=("
+src/test/dev/check/schema.py,53,path_str,rsc/reference/JSONSchema,Y,"@check(tier='schema', on=['rsc/schema/keyword.csv', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=("
+src/test/dev/check/schema.py,53,path_str,src/schema_walk.py,Y,"@check(tier='schema', on=['rsc/schema/keyword.csv', 'rsc/reference/JSONSchema', 'src/schema_walk.py'], says=("
+src/test/dev/check/schema.py,83,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.valid_json_with_schema',), on=['rsc/schema'])"
+src/test/dev/check/schema.py,98,path_str,rsc/schema,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/reference/JSONSchema'], says=("
+src/test/dev/check/schema.py,98,path_str,rsc/reference/JSONSchema,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/reference/JSONSchema'], says=("
+src/test/dev/check/schema.py,126,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.single_version',), on=['rsc/schema'])"
+src/test/dev/check/schema.py,141,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.changelog_narrative', 'schema.changelog_no_todo'), on=['rsc/schema'])"
+src/test/dev/check/schema.py,163,path_str,rsc/schema,Y,"@check(tier='schema', says=('schema.has_versions', *DIAGNOSTIC_NAMES), on=['rsc/schema'])"
+src/test/dev/check/schema.py,207,path_str,src/main/validate.py,Y,"@check(tier='code', on=['src/main/validate.py', 'src/test'], says=("
+src/test/dev/check/schema.py,207,path_str,src/test,Y,"@check(tier='code', on=['src/main/validate.py', 'src/test'], says=("
+src/test/dev/check/schema.py,264,path_str,src/validation_matrix.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
+src/test/dev/check/schema.py,264,path_str,src/main/validation_verdict.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
+src/test/dev/check/schema.py,264,path_str,src/main/validate_versions.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
+src/test/dev/check/schema.py,264,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', '"
+src/test/dev/check/schema.py,302,path_str,src/main/cli/pipeline/tail.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
+src/test/dev/check/schema.py,302,path_str,src/main/validate_versions.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
+src/test/dev/check/schema.py,302,path_str,src/main/validate.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
+src/test/dev/check/schema.py,302,path_str,src/main/validation_verdict.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
+src/test/dev/check/schema.py,69,path_str,rsc/schema/keyword.csv,Y,"f'rsc/schema/keyword.csv lacks {missing}, names {stray} the dialect does not, gives {unknown} no known role',"
 src/test/dev/check/schema.py,40,path_str,src/main,Y,"f'src/main/{""/"".join(parts)} is no directory - the family sits where no code writes against it; '"
 src/test/dev/check/site.py,15,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/compare_pages.py'],"
 src/test/dev/check/site.py,15,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/compare_pages.py'],"
@@ -1572,25 +1581,25 @@ src/test/dev/check/unit.py,12,path_str,src/main/browser,Y,"@check(tier='code', o
 src/test/dev/check/unit.py,12,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,rsc/reference/JSONSchema,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
-src/test/dev/check/unit.py,118,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
-src/test/dev/check/unit.py,118,path_str,src/main/browser,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
-src/test/dev/check/unit.py,118,path_str,src/main/export,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
-src/test/dev/check/unit.py,118,path_str,src/main/agent,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
-src/test/dev/check/unit.py,167,path_str,src/main/corpus.py,Y,"'src/main/corpus.py derives no state: its counts hold back whatever is not promotable',"
-src/test/dev/check/unit.py,147,path_str,src/main/validation_audit.py,Y,"@check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=("
-src/test/dev/check/unit.py,147,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=("
-src/test/dev/check/unit.py,147,path_str,src/main/append_only.py,Y,"@check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=("
-src/test/dev/check/unit.py,264,path_str,src/main/corpus.py,Y,'src/main/corpus.py relates a staged unit to the held one of its address and nothing else: '
-src/test/dev/check/unit.py,290,path_str,src/main/corpus.py,Y,"'src/main/corpus.py finds no file inside a held unit that no capture wrote', check='store.surplus_is_found')"
-src/test/dev/check/unit.py,250,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/unit.py,250,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/unit.py,250,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/unit.py,250,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/unit.py,321,path_str,src/main/corpus.py,Y,'src/main/corpus.py relates two exports by the bytes of their trees alone: no earlier export is ever read as held within
-src/test/dev/check/unit.py,308,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
-src/test/dev/check/unit.py,308,path_str,src/main/export/atoms.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
+src/test/dev/check/unit.py,124,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
+src/test/dev/check/unit.py,124,path_str,src/main/browser,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
+src/test/dev/check/unit.py,124,path_str,src/main/export,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
+src/test/dev/check/unit.py,124,path_str,src/main/agent,Y,"@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export',"
+src/test/dev/check/unit.py,173,path_str,src/main/corpus.py,Y,"'src/main/corpus.py derives no state: its counts hold back whatever is not promotable',"
+src/test/dev/check/unit.py,153,path_str,src/main/validation_audit.py,Y,"@check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=("
+src/test/dev/check/unit.py,153,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=("
+src/test/dev/check/unit.py,153,path_str,src/main/append_only.py,Y,"@check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=("
+src/test/dev/check/unit.py,270,path_str,src/main/corpus.py,Y,'src/main/corpus.py relates a staged unit to the held one of its address and nothing else: '
+src/test/dev/check/unit.py,296,path_str,src/main/corpus.py,Y,"'src/main/corpus.py finds no file inside a held unit that no capture wrote', check='store.surplus_is_found')"
+src/test/dev/check/unit.py,256,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/unit.py,256,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/unit.py,256,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/unit.py,256,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/unit.py,327,path_str,src/main/corpus.py,Y,'src/main/corpus.py relates two exports by the bytes of their trees alone: no earlier export is ever read as held within
+src/test/dev/check/unit.py,314,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
+src/test/dev/check/unit.py,314,path_str,src/main/export/atoms.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=("
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
-src/test/dev/check/unit.py,182,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
+src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/upstream.py,178,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,26,path_str,src/main/cli/grammar/grammar.json,Y,os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')
 src/test/dev/check/upstream.py,38,path_str,rsc/rpus/grammar,Y,"@check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=("

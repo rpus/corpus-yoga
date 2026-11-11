@@ -32,6 +32,10 @@ exists in the family - when the schema change is:
 
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
+A change to annotations alone - the keywords `rsc/schema/keyword.csv` gives that role,
+`title`, `description` and `default` - admits what the version admitted, and the promotion
+licence (`src/main/corpus.py`) holds a verdict at the reworded version as one at origin/main's;
+any other refactor licenses its verdicts only once it merges.
 
 That entry goes under the heading of **the latest version** - the one file the family
 holds; an edit to content that older versions also carried names them in prose. The
