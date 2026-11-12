@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.no_dangling_refs — Every $ref target exists in definitions."""
 import json
 import sys

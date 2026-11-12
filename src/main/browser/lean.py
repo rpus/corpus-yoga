@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 lean.py - lift one capture into the markdownConversation shape (issues/965): a claude capture's
 apiConversation JSON through markdown_projection.project, a gemini DOM scrape's markdown

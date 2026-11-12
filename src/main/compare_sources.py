@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 compare_sources.py — Cross-source consistency check. The same conversation projected from the
 live API capture (apiConversation) and from the bulk export should render to identical markdown.

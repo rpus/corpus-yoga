@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 cache.py — the `corpus-yoga cache` dispatcher. `cache` is a NOUN: the rebuildable tmp/cache/
 tier. Bare shows its state and writes nothing; the verbs do the work.

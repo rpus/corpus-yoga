@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair composition.base_schemas_closed — add additionalProperties:false to all ...Base schemas."""
 import json
 import sys

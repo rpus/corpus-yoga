@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """naming.title_matches_key — Every definition's title matches its key."""
 import json
 import sys

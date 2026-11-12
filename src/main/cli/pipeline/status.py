@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 status.py - bare `corpus-yoga pipeline`: each pipeline by its declaration and the steps its
 plan names, read as rows on stdin from pipeline.sh (`pipeline <name> <prep step or ->`,

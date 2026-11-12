@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 project_conversation.py — project one converted session (session.json) to its
 conversation form, conversation.json, the sessionConversation datum

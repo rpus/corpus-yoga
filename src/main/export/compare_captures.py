@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 compare_captures.py - the latest bulk export against the API captures, per conversation:
 a step of the export run's tail, informational, never a command.

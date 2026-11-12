@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Add the export name as a tooltip (title attribute) to the engagement timeline heading.
 

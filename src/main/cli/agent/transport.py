@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 transport.py - the transport contract every provider's harness adapter keeps,
 and the append-only placement the adapters share (issues/633).

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.bfs_order — Definitions are in breadth-first referential encounter order."""
 import json
 import sys

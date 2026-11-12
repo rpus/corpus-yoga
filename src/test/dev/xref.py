@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 xref.py — the cross-reference table of the repo. `xref` is a NOUN: the table. A bare
 invocation shows its status (the committed table's tallies) and writes nothing; the

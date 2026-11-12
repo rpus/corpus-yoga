@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 clean.py - remove the ORPHANED tmp/cache/ entries bare corpus-yoga cache names: paths the
 machinery neither writes nor reads (src/main/cli/cache/cache_io.py `orphans`).

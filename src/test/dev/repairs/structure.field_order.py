@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair structure.field_order — Reorder keys so title, description come first.
 
 Usage: python src/test/dev/repairs/structure.field_order.py <schema>

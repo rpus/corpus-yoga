@@ -62,19 +62,19 @@ run_one() {
   local have_captures="0"
   if [[ -d "$API_CAPTURE" ]]; then have_captures="1"; fi
 
-  step validate           "$SCRIPT_DIR/validate.sh" --chat-export "$batch"
+  step validate           "$SCRIPT_DIR/validate.sh" --export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
   # users) verbatim into tmp/cache/<batch>/ — the cache dir is then the complete record of
   # the four-component snapshot
   step archive_components "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
-  step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
-  step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
+    "$SCRIPT_DIR/archive_components.py" --export "$batch"
+  step extract_files      "$SCRIPT_DIR/extract_files.sh" --export "$batch"
+  step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --export "$batch"
   # inference is not per-batch: the dashboard's captures are the durable
   # single-source data/output/indexing/ (refreshed deliberately by `corpus-yoga indexing
   # capture`), which present reads. Nothing paid runs on every export.
-  step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
-  step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"
+  step present            "$SCRIPT_DIR/present.sh" --export "$batch"
+  step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
   # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces
   # (validated vs the Conversation definition); project_markdown renders them to
   # markdown/, beside this batch's validation/ output.

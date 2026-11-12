@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 frontier.py - the corpus's shape as the data gate reads it: the pipelines and
 their declared facts (pipelines()), each pipeline's subject dirs under its

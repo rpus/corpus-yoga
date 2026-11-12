@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair structure.required_subset_of_properties — Remove required entries absent from properties.
 
 Usage: python src/test/dev/repairs/structure.required_subset_of_properties.py <schema>

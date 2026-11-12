@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair structure.enum_refines_explicit_type — Insert the explicit "type" each enum refines.
 
 For every enum subschema lacking "type", infer the (single) type from its values and insert a

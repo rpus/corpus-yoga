@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 memories.py — accumulate every distinct chat-memory state into the
 durable library, and project the accumulated timeline to markdown.
@@ -29,7 +28,7 @@ export.
 
 Usage (wired into src/main/cli/pipeline/pipeline.sh after the per-batch stages):
     src/run_python_script.sh src/main/export/memories.py \
-      [--chat-export-cache tmp/cache/export] [--memories-output data/output/memories] \
+      [--export-cache tmp/cache/export] [--memories-output data/output/memories] \
       [--markdown data/output/markdown/claude/chat/memories]
 """
 import csv
@@ -173,25 +172,25 @@ class Status:
     memories: Memories
 
 
-def status(memories_output: Path, chat_export_cache: Path) -> int:
+def status(memories_output: Path, export_cache: Path) -> int:
     """The bare-noun default: show current state, write nothing. Reports how many
     deposits the store already holds and how many memory states sit in the cache
     awaiting a sync."""
     n = len(list(memories_output.glob('*.json'))) if memories_output.is_dir() else 0
-    states = memory_states(chat_export_cache)
+    states = memory_states(export_cache)
     store = memories_output.relative_to(REPO) if memories_output.is_relative_to(REPO) else memories_output
     facts.say_standing(Status(Memories(n, store.as_posix(), len(states))))
     return 0
 
 
-def sync(chat_export_cache: Path, memories_output: Path, markdown: Path) -> int:
+def sync(export_cache: Path, memories_output: Path, markdown: Path) -> int:
     """The verb: deposit every distinct chat-memory state verbatim into the durable
     store (content-deduplicated against the nearest earlier deposit; deposits are
     immutable and outlive their batches), then render the diffable markdown timeline.
     Free, local, idempotent (L1) — the only path here that writes."""
-    states = memory_states(chat_export_cache)
+    states = memory_states(export_cache)
     if not states:
-        cache = Path(chat_export_cache)
+        cache = Path(export_cache)
         facts.report(None, 'memories deposit: DONE - ' + facts.phrase('no archived memory states under {cache}; nothing to accumulate',
                                                                       cache=cache.relative_to(REPO) if cache.is_relative_to(REPO) else cache))
         return 0
@@ -205,9 +204,9 @@ def sync(chat_export_cache: Path, memories_output: Path, markdown: Path) -> int:
 def main():
     args = command_parser('memories').parse_args()  # whole surface declared (issues/476, issues/477)
     if args.verb == 'deposit':
-        return sync(Path(args.chat_export_cache), Path(args.memories_output), Path(args.markdown))
+        return sync(Path(args.export_cache), Path(args.memories_output), Path(args.markdown))
     # bare → status (read-only)
-    return status(Path(args.memories_output), Path(args.chat_export_cache))
+    return status(Path(args.memories_output), Path(args.export_cache))
 
 
 if __name__ == '__main__':

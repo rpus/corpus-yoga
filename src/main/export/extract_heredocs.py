@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 extract_heredocs.py
 
@@ -20,8 +19,8 @@ resolved via library.py); files new to the library are copied there and named in
 in this run's log (the delta is information, not a second copy).
 
 Usage:
-    python extract_heredocs.py --chat-export <path-to-export>
-    python extract_heredocs.py --chat-export <path> --out-dir <override-output-dir>
+    python extract_heredocs.py --export <path-to-export>
+    python extract_heredocs.py --export <path> --out-dir <override-output-dir>
 """
 
 import argparse
@@ -197,7 +196,7 @@ def main():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('--chat-export', required=True)
+    parser.add_argument('--export', dest='chat_export', required=True)
     parser.add_argument('--out-dir',  default=None)
     args = parser.parse_args()
 

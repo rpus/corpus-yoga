@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair naming.title_matches_key — Set every definition's title to match its key.
 
 Usage: python src/test/dev/repairs/naming.title_matches_key.py <schema>

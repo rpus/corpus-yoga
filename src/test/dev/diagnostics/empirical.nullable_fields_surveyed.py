@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """empirical.nullable_fields_surveyed — All oneOf-with-null constructs are named definitions with descriptions."""
 import json
 import sys

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair documentation.every_definition_has_title_and_description — Add stub title/description.
 
 Usage: python src/test/dev/repairs/documentation.every_definition_has_title_and_description.py <schema>

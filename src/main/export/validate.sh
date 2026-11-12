@@ -9,7 +9,7 @@
 # the log directory derive from.
 #
 # Usage:
-#   src/main/export/validate.sh --chat-export <path/to/data-directory>
+#   src/main/export/validate.sh --export <path/to/data-directory>
 
 set -euo pipefail
 
@@ -96,16 +96,16 @@ parse_args() {
   chat_export=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --chat-export) chat_export="$2"; shift 2 ;;
+      --export) chat_export="$2"; shift 2 ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --chat-export <path>"
+        echo "Usage: $0 --export <path>"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
   if [[ -z "$chat_export" ]]; then
-    echo "Usage: $0 --chat-export <path/to/data-directory>"
+    echo "Usage: $0 --export <path/to/data-directory>"
     echo "Pass --help for more information."
     exit 1
   fi

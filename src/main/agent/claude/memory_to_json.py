@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 memory_to_json.py — JSONify one project's memory/ directory into memory.json,
 the projectMemory datum (rsc/schema/agent/claude/projectMemory).

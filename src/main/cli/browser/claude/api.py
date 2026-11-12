@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 api.py - the claude mechanism of the browser capture: a conversation's JSON fetched
 from the claude.ai API through Safari, and the conversation's record completed with

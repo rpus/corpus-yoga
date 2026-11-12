@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """reply.py - the launcher's reply to the reader (issues/896, issues/947, issues/951, issues/1016): the
 bare status - what corpus-yoga status says, as it says it: what stands in the room's way,
 then now:, the room's standing - and then the act's effect line, the last line of every

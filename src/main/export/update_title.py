@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Update the HTML <title> to reflect the conversation corpus date range and count.
 

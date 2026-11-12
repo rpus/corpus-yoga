@@ -3,8 +3,8 @@
 # (tmp/cache/export/<batch>/presentation — an export artifact, honestly filed).
 # The corpus page render is src/main/present_corpus.py (corpus-yoga site render).
 # Run from the repo root, e.g.:
-#   src/main/export/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
-#   src/main/export/present.sh --chat-exports data/input/claude/chat/bulk-export
+#   src/main/export/present.sh --export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
+#   src/main/export/present.sh --exports data/input/claude/chat/bulk-export
 
 set -euo pipefail
 
@@ -209,18 +209,18 @@ parse_args() {
   chat_exports=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --chat-export)  chat_export="$2";  shift 2 ;;
-      --chat-exports) chat_exports="$2"; shift 2 ;;
+      --export)  chat_export="$2";  shift 2 ;;
+      --exports) chat_exports="$2"; shift 2 ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
+        echo "Usage: $0 --export <path> | --exports <path>"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
   if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
-    echo "Usage: $0 --chat-export <path/to/data-directory>"
-    echo "       $0 --chat-exports <path/to/chat-exports>"
+    echo "Usage: $0 --export <path/to/data-directory>"
+    echo "       $0 --exports <path/to/chat-exports>"
     echo "Pass --help for more information."
     exit 1
   fi

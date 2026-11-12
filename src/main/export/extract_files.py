@@ -17,8 +17,8 @@ between batches, uuids don't); files new to the library are copied there and nam
 individually in this run's log (the delta is information, not a second copy).
 
 Usage:
-    python extract_files.py --chat-export <path-to-export>
-    python extract_files.py --chat-export <path> --out-dir <override-output-dir>
+    python extract_files.py --export <path-to-export>
+    python extract_files.py --export <path> --out-dir <override-output-dir>
 """
 
 import argparse
@@ -166,7 +166,7 @@ def main():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('--chat-export', required=True)
+    parser.add_argument('--export', dest='chat_export', required=True)
     parser.add_argument('--out-dir',  default=None)
     args = parser.parse_args()
 

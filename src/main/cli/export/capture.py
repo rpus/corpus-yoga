@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """capture.py (corpus-yoga export capture) - stage a manifest and the payload it lists.
 
 The emailed link downloads the manifest; --manifest names it wherever the download

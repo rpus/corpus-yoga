@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """capture.py (corpus-yoga forge capture) - deposit the forge's ledger as a record like every other.
 
 The deposit is one stamped directory, data/input/github/forge/gh-CLI/<stamp>/, holding

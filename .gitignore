@@ -6,7 +6,7 @@
 # is a real dir), so no slash on any: without one a rule ignores a directory AND
 # a symlink, and stops depending on the shape a root happens to have on whoever's
 # disk. tmp/ knowingly reuses the name of the retired swap space: it is now a
-# real root (cache/ + logs/), disposable as ever.
+# real root (cache/, logs/, stage/, forge/, reference/), disposable as ever.
 /data
 /tmp
 /ext

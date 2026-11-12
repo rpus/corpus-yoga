@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 status.py - `corpus-yoga forge`'s standing report: the declared settings against the live
 forge, the branches the forge knows, the tracking refs it has dropped, this checkout's gate

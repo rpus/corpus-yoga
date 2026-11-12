@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 validation_matrix.py — render a datum's machine-local validation matrix from its verdicts.
 

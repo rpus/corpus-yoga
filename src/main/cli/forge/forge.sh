@@ -582,7 +582,7 @@ gate_worktree() {
   for root in "$REPO_DIR"/tmp/*/; do
     [[ -d "$root" && "$(basename "$root")" != forge ]] && ln -s "${root%/}" "$wt/tmp/$(basename "$root")"
   done
-  (cd "$wt" && quiet "$wt/corpus-yoga" grammar generate) >&2 \
+  (cd "$wt" && PYTHONDONTWRITEBYTECODE=1 quiet "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the gate below will say what it lacks" >&2
   echo "$wt"
 }
@@ -693,10 +693,10 @@ merge_chain() {
   set +e
   # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
   # the one full account of what the gate ran, and the terminal is no record
-  # the gate runs without the checkout's bytecode prefix, so its python keeps its bytecode in the
-  # gate's own worktree, disposed of with it: under the checkout's prefix it would outlive its
-  # sources as an orphan of the cache (issues/1052)
-  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) env -u PYTHONPYCACHEPREFIX "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
+  # the gate's python writes no bytecode (issues/1069): the gate's worktree reaches the checkout's
+  # tmp/cache by link and lives for this one run, so what it wrote there would outlive its
+  # sources as an orphan of the cache
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) PYTHONDONTWRITEBYTECODE=1 "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
   set -e
   stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 timeline.py — emit the presentation's conversation-keyed tables from a bulk export's
 conversations.json, plus the numbered chat list for inference. Every table's `chat` value comes

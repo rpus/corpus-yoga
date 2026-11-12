@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 rekey_chats.py — swap a table's chat-identity column between ordinal and id.
 

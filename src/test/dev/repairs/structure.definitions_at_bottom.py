@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair structure.definitions_at_bottom — Move definitions to last key.
 
 Usage: python src/test/dev/repairs/structure.definitions_at_bottom.py <schema>

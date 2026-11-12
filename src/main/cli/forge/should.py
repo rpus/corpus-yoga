@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """should.py - the one grammar of an issue as the forge raises it (issues/887): a title that is a
 should, a body in .github/ISSUE_TEMPLATE.md's sections, and relations that are wired, never
 narrated.

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 status.py - bare `corpus-yoga server`: whether the markdown daemon runs, the render assets
 present against their manifest (issues/759), and under now: the stop while the daemon runs,

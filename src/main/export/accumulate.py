@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 accumulate.py — the CALCULUS `accumulate` operation, once.
 

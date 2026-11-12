@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.keywords_declared — Every key at a schema position is a keyword the dialect declares: draft-04's meta-schema, or JSON Reference's $ref."""
 import json
 import sys

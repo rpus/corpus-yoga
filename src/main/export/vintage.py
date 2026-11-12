@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 vintage.py - a bulk export's name read by its vintage, the one export-ordering authority.
 

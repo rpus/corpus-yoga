@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 harness.py - the Claude Code adapter (issues/633): the live store is the projects
 root, <project>/<session>.jsonl beside <project>/<session-uuid>/ (the eponymous

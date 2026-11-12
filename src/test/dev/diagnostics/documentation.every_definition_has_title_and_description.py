@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """documentation.every_definition_has_title_and_description — Every definition has title and description."""
 import json
 import sys

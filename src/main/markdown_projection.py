@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 markdown_projection.py — Shared primitives for projecting a Conversation to the lean
 markdownConversation shape and rendering it to markdown. Common code at the root of src/main/

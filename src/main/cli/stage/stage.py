@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its noun.
 

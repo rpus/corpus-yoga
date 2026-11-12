@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 face.py - the two faces of the mcp factoring (issues/605), derived from the factored
 schema by stated rules, on the pattern of the maintainer's Expander (AsConsumer,

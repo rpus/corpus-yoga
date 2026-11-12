@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 summaries.py — deposit every distinct conversation summary durably.
 
@@ -33,7 +32,7 @@ re-running is silence on disk.
 
 Usage (bare = status, the verb writes — the memories shape):
   src/run_python_script.sh src/main/export/summaries.py [sync] \\
-      [--chat-export-cache tmp/cache/export] [--api-capture data/input/claude/chat/API-capture] \\
+      [--export-cache tmp/cache/export] [--api-capture data/input/claude/chat/API-capture] \\
       [--conversations-output data/output/markdown/claude/chat/conversations] \\
       [--summaries-output data/output/markdown/claude/chat/summaries]
 """
@@ -226,7 +225,7 @@ def main():
         facts.report(None, 'summaries deposit: DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run browser makes',
                                                                        path=conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations))
         return 0
-    readings = readings_by_uuid(Path(args.chat_export_cache))
+    readings = readings_by_uuid(Path(args.export_cache))
     captured = capture_summaries(Path(args.api_capture))
 
     # existing folders by their index's uuid — the rename key across renumberings
@@ -248,7 +247,7 @@ def main():
             # conversations' uuids, so first-substring-wins files a batch of
             # readings under whichever conversation quoted a uuid first —
             # visible only once an upstream failure empties the stems map)
-            stem = title = next((f.stem for b in sorted(Path(args.chat_export_cache).glob('data-*'),
+            stem = title = next((f.stem for b in sorted(Path(args.export_cache).glob('data-*'),
                                                         key=lambda d: d.name, reverse=True)
                                  for f in (b / 'json').glob('*.json')
                                  if json.loads(f.read_text()).get('uuid') == u), u[:8])

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:

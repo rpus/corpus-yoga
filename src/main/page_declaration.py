@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 page_declaration.py - what the corpus page declares of each conversation, and the lag between those
 declarations and the corpus now (issues/1000). One derivation, three readers: the render

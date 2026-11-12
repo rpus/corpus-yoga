@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.required_subset_of_properties — Every required field is listed in properties."""
 import json
 import sys

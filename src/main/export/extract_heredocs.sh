@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   src/main/export/extract_heredocs.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
-#   src/main/export/extract_heredocs.sh --chat-exports data/input/claude/chat/bulk-export
+#   src/main/export/extract_heredocs.sh --export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
+#   src/main/export/extract_heredocs.sh --exports data/input/claude/chat/bulk-export
 
 set -euo pipefail
 
@@ -20,7 +20,7 @@ run_one() {
   mkdir -p "$(dirname "$log_path")"
   # the step's output is its log; a failure's last words are relayed to the run, so that a
   # step that stated its finding is never reported as having stated none (issues/722)
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1 \
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --export "$d" > "$log_path" 2>&1 \
     || { echo "FAIL: extract_heredocs: $(tail -1 "$log_path")"; return 1; }
 }
 
@@ -29,18 +29,18 @@ parse_args() {
   chat_exports=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --chat-export)  chat_export="$2";  shift 2 ;;
-      --chat-exports) chat_exports="$2"; shift 2 ;;
+      --export)  chat_export="$2";  shift 2 ;;
+      --exports) chat_exports="$2"; shift 2 ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
+        echo "Usage: $0 --export <path> | --exports <path>"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
   if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
-    echo "Usage: $0 --chat-export <path/to/data-directory>"
-    echo "       $0 --chat-exports <path/to/chat-exports>"
+    echo "Usage: $0 --export <path/to/data-directory>"
+    echo "       $0 --exports <path/to/chat-exports>"
     echo "Pass --help for more information."
     exit 1
   fi

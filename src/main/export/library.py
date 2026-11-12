@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 library.py — uuid-keyed resolution of the durable artifact library.
 
