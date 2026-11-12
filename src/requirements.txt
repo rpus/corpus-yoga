@@ -1,6 +1,6 @@
-jsonschema==4.26.0
-referencing==0.37.0
-pyright==1.1.409
+jsonschema
+referencing
+pyright
 antlr4-python3-runtime==4.13.2
-antlr4-tools==0.2.2
-PyYAML==6.0.3
+antlr4-tools
+PyYAML

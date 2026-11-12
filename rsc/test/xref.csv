@@ -1656,22 +1656,22 @@ src/test/dev/check/unit.py,661,path_str,src/main/cli/agent,Y,"on=['src/main/cli/
 src/test/dev/check/unit.py,661,path_str,src/main/tier.sh,Y,"on=['src/main/cli/agent', 'src/main/tier.sh', 'src/main/cli/cache', 'rsc/cache_io.csv', 'src'])"
 src/test/dev/check/unit.py,661,path_str,src/main/cli/cache,Y,"on=['src/main/cli/agent', 'src/main/tier.sh', 'src/main/cli/cache', 'rsc/cache_io.csv', 'src'])"
 src/test/dev/check/unit.py,661,path_str,rsc/cache_io.csv,Y,"on=['src/main/cli/agent', 'src/main/tier.sh', 'src/main/cli/cache', 'rsc/cache_io.csv', 'src'])"
-src/test/dev/check/unit.py,766,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):"
-src/test/dev/check/unit.py,766,path_str,rsc/migration/1069.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):"
-src/test/dev/check/unit.py,775,path_str,rsc/migration/1069.sh,Y,script = checkout / 'rsc/migration/1069.sh'
+src/test/dev/check/unit.py,768,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):"
+src/test/dev/check/unit.py,768,path_str,rsc/migration/1069.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):"
+src/test/dev/check/unit.py,777,path_str,rsc/migration/1069.sh,Y,script = checkout / 'rsc/migration/1069.sh'
 src/test/dev/check/unit.py,730,path_str,rsc/migration,Y,"on=['src', 'rsc/migration', 'pyrightconfig.json'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,541,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
 src/test/dev/check/unit.py,701,path_str,src/main/cli/agent/agent.py,Y,"same, None if same else 'src/main/cli/agent/agent.py has no tally(sized) and summary(log, bundle)' if counted is None or"
-src/test/dev/check/unit.py,756,path_str,src/main/latest.py,Y,None if declared else 'src/main/latest.py has no reference_file(directory)' if not callable(read) else f'it resolves {po
-src/test/dev/check/unit.py,796,path_str,src/requirements.txt,Y,"None if not loose else f'src/requirements.txt leaves unpinned: {"", "".join(loose)}', check='requirements.each_is_pinned')"
+src/test/dev/check/unit.py,758,path_str,src/main/latest.py,Y,None if declared else 'src/main/latest.py has no reference_file(directory)' if not callable(read) else f'it resolves {po
+src/test/dev/check/unit.py,800,path_str,src/requirements.txt,Y,"None if ruled else f'src/requirements.txt pins {"", "".join(pinned) or ""nothing""}, where only antlr4-python3-runtime is pi"
 src/test/dev/check/unit.py,476,path_str,rsc/migration/1058.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1058.sh is absent')"
 src/test/dev/check/unit.py,510,path_str,rsc/migration/1058.sh,Y,finding = offered == {} and found == {'scripts': {'rsc/migration/1058.sh': {'halted': 'c and d both exist'}}}
 src/test/dev/check/unit.py,556,path_str,src/main/cli/agent/agent.py,Y,"None if pulled else f'src/main/cli/agent/agent.py has no pull_act(machine, log); the agent declares {verbs}' if said is "
 src/test/dev/check/unit.py,582,path_str,rsc/migration/1063.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')"
 src/test/dev/check/unit.py,631,path_str,rsc/migration/1052.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')"
-src/test/dev/check/unit.py,778,path_str,rsc/migration/1069.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')"
+src/test/dev/check/unit.py,780,path_str,rsc/migration/1069.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')"
 src/test/dev/check/unit.py,463,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
 src/test/dev/check/upstream.py,179,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,211,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"

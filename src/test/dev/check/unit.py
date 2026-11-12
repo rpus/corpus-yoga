@@ -726,14 +726,16 @@ def check_screen_and_scratch(run) -> None:
 
 
 @check(tier='code', says=('command.a_moved_verb_is_a_fault', 'reference.pointer_reads_the_declared_lineage', 'migration.raise_bodies_stand_with_the_record',
-                          'python.a_shebang_is_executable', 'requirements.each_is_pinned'),
+                          'python.a_shebang_is_executable', 'requirements.only_the_parser_runtime_is_pinned'),
        on=['src', 'rsc/migration', 'pyrightconfig.json'])
 def check_sweep(run) -> None:
     """What the reading of 2026-11-12 found (issues/1069), held: a word after a declared noun that
     is another noun's verb is a spelling fault; a pointer into a reference project resolves
     against the lineage its derivation declares; a raise keeps its body beside the act's record,
     and rsc/migration/1069.sh moves a room's bodies there; a python file with a shebang is
-    executable; and every requirement is pinned. The migration's fixture is synthetic."""
+    executable; and no requirement is pinned but the antlr runtime, which the generated parsers
+    are generated for - every other takes the latest release, and its fixes with it. The
+    migration's fixture is synthetic."""
     import importlib
     import importlib.util
     import os
@@ -791,6 +793,9 @@ def check_sweep(run) -> None:
     run('python: a python file that opens with a shebang is executable', not idle,
         None if not idle else f'{len(idle)} file(s) open with a shebang and are not executable - {", ".join(idle[:5])}', check='python.a_shebang_is_executable')
 
-    loose = [line.strip() for line in (SRC / 'requirements.txt').read_text().splitlines() if line.strip() and not line.startswith('#') and '==' not in line]
-    run('requirements: every requirement is pinned', not loose,
-        None if not loose else f'src/requirements.txt leaves unpinned: {", ".join(loose)}', check='requirements.each_is_pinned')
+    required = [line.strip() for line in (SRC / 'requirements.txt').read_text().splitlines() if line.strip() and not line.startswith('#')]
+    pinned = sorted(line.split('==')[0] for line in required if '==' in line)
+    ruled = pinned == ['antlr4-python3-runtime']
+    run('requirements: no requirement is pinned but the antlr runtime the parsers are generated for', ruled,
+        None if ruled else f'src/requirements.txt pins {", ".join(pinned) or "nothing"}, where only antlr4-python3-runtime is pinned - every other takes the latest release',
+        check='requirements.only_the_parser_runtime_is_pinned')

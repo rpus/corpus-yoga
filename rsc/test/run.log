@@ -332,7 +332,7 @@ check_sweep: |
   ✓ reference.pointer_reads_the_declared_lineage
   ✓ migration.raise_bodies_stand_with_the_record
   ✓ python.a_shebang_is_executable
-  ✓ requirements.each_is_pinned
+  ✓ requirements.only_the_parser_runtime_is_pinned
 
 check_grammar: |
   ✓ grammar.parser_current  (2/2)
