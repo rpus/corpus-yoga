@@ -1,0 +1,32 @@
+{
+  "help": "pull a peer room's claude sessions and memory from the store into this machine's live Claude Code store, the peer rooms being its remotes - what it would write is corpus-yoga agent's status, per peer store held; the one adapter that vouches for a write into a live store",
+  "would": "would write",
+  "modality": "MAY",
+  "args": [
+    {
+      "name": "--id",
+      "type": "<uuid-prefix>",
+      "cardinality": "1/agent-pull-1",
+      "help": "uuid(8) prefix of the agent to pull - identity is never guessed"
+    },
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "1/agent-pull-1",
+      "help": "pull every session the peer transported"
+    },
+    {
+      "name": "--from",
+      "type": "<machine|dir>",
+      "cardinality": "1",
+      "help": "the peer store to pull from - a machine name (bare token) or a directory (./dir or a path)"
+    }
+  ],
+  "r": [
+    "rsc/naming/checkout_paths.csv",
+    "data/input/claude/code/machine-transport"
+  ],
+  "w": [
+    "ext/mnt/claude/code/machine-transport"
+  ]
+}

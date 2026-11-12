@@ -6,7 +6,6 @@
     "none - the claude store is not mounted",
     "nothing - the store holds no session of it",
     "none - no peer machine held",
-    "none - no merge record",
     "absent - echo <declared-machine-name> > machine-name.txt binds it, to a name rsc/machine/machines.csv declares",
     "on {machine}, {capture}",
     "{machine} is no room of the store - resume the session on a room, then {capture}",
@@ -43,8 +42,6 @@
     "exists and is not the link to {live} - not touched; remove it by hand",
     "did create {created}, present {present}",
     "a link at another target is not touched",
-    "did undo the latest merge of each project above",
-    "a conflict left one in place",
     "nothing to transport"
   ],
   "target": "src/main/cli/agent/agent.py",

@@ -61,6 +61,17 @@ release() {
   if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
 }
 
+# strip <file> <prefix>: the lines of a file that begin with the prefix, removed; every
+# other line kept as it stands.
+strip() {
+  local file="$1" prefix="$2" n
+  [[ -f "$file" ]] || return 0
+  n="$(awk -v p="$prefix" 'index($0, p) == 1 { n++ } END { print n + 0 }' "$file")"
+  (( n > 0 )) || return 0
+  echo "strip $n line(s) beginning $prefix from $file"
+  if (( APPLY )); then awk -v p="$prefix" 'index($0, p) != 1' "$file" > "$file.stripped" && mv "$file.stripped" "$file"; fi
+}
+
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,
 # removed with what it holds; only under tmp/cache, where every file is a derivation some
 # verb rewrites, or what the rehearsal layout before issues/815 left under tmp/stage - a stamped

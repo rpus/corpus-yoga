@@ -7,16 +7,14 @@ and <project>/memory/; the store keeps the same shape under
 <machine>/<project>/. The session log is append-only, so a copy supersedes an
 existing one iff the existing bytes are a prefix of it; the workspace moves with
 log semantics per file; the memory folder is mirrored out on capture and merged
-in on install (agent.py's header states the calculus). install and demerge are
-this adapter's alone: they write into the harness-owned projects root.
+in on pull (agent.py's header states the calculus). pull is
+this adapter's alone: it writes into the harness-owned projects root.
 """
-import hashlib
 import json
 import re
 import sys
 from collections import Counter
 from collections.abc import Iterator
-from datetime import datetime, timezone
 from pathlib import Path
 from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
 
@@ -117,16 +115,6 @@ def model_rows(mount: Path) -> list[tuple[str, str, str, int]]:
     return rows
 
 
-def _sha(text: str) -> str:
-    return hashlib.sha256(text.encode()).hexdigest()[:16]
-
-
-def _sha_lines(text: str) -> str:
-    """Line-canonical hash (trailing-newline-insensitive) — used where the
-    hashed content is reconstructed from splitlines at demerge time."""
-    return _sha('\n'.join(text.splitlines()))
-
-
 def pick_session(root: Path, uuid8: str) -> Path:
     """The session to move, by IDENTITY: the --id uuid prefix must match
     exactly one .jsonl across the root's projects (root is a projects root or
@@ -148,7 +136,7 @@ def place_session(src: Path, dest: Path, apply: bool) -> tuple[Relation, str]:
 
 
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: Log, label: str) -> int:
-    """Memory-folder merge — INSTALL only, where two agents actually meet
+    """Memory-folder merge — on pull only, where two agents actually meet
     (capture mirrors its own outbox instead; see mirror_memory). A leaf
     file's NAME is dressing; the fact is the identity — so per leaf, judged against
     its local copy alone with each link read as the fact it names: absent →
@@ -157,9 +145,10 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
     kept, the incoming fact re-dressed as <stem>.<machine>.md — machine is the
     sender's ADDRESS under data/input/claude/code/machine-transport, sender-declared — with its [[links]]
     following (nothing lost, nothing silently overwritten, nothing blocking —
-    reconciliation stays a human act, recorded in-folder). MEMORY.md is the
+    reconciliation stays a human act). MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
-    facts rewritten to their new names. Each leaf is said into the log under
+    facts rewritten to their new names, and the merge leaves no record of itself in it
+    (issues/1063): it only adds, so there is nothing to undo that removing a fact does not. Each leaf is said into the log under
     its outcome by its address, label/memory/<leaf> (issues/857). Returns the conflict count."""
     conflicts = 0
     if not src_dir.is_dir():
@@ -188,11 +177,10 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
               for p in sorted(src_dir.rglob('*'))
               if p.is_file() and p.name not in ('.DS_Store', 'MEMORY.md')]
     # each pair of copies judged alone, read bare, so that no fact's judgement waits on another's
-    # and a fact installed with its links re-dressed is received again as identical (L1)
+    # and a fact written with its links re-dressed is received again as identical (L1)
     relation = {rel: related(raw, (dest_dir / rel).read_text()) for rel, raw in leaves if (dest_dir / rel).exists()}
     renamed = {rel.stem: f'{rel.stem}.{machine}' for rel, held in relation.items() if held == 'diverged'}
 
-    acts: list[str] = []  # merge-marker act lines: the undo record
     for rel, raw in leaves:
         target = dest_dir / rel
         form = dressed(raw, renamed)
@@ -201,34 +189,29 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
             if apply:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(form)
-            acts.append(f'<!-- merge:act new {rel} sha={_sha(form)} len={len(form)} -->')
             continue
         have = target.read_text()
         if relation[rel] == 'identical':
             said('kept', rel, {f'{STORE} and {LIVE} hold identical text': f'{len(have)} bytes'})
         elif relation[rel] == 'extends':
-            # the held text kept byte for byte and the incoming tail after it, so that demerge's truncation to the prior length undoes it
+            # the held text kept byte for byte, the incoming tail after it
             form = have + dressed(bare(raw)[len(bare(have)):], renamed)
             said('wrote', rel, {f'{STORE} extends {LIVE}': f'{len(have)} → {len(form)} bytes'})
             if apply:
                 target.write_text(form)
-            acts.append(f'<!-- merge:act appendix {rel} prior={len(have)} '
-                        f'post={len(form)} sha={_sha(form)} -->')
         elif relation[rel] == 'ahead':
             said('kept', rel, {f'{LIVE} is ahead of {STORE}': f'{len(have)} > {len(form)} bytes'})
         else:
             twin = target.with_name(f'{renamed[rel.stem]}{target.suffix}')
-            twin_rel = rel.with_name(twin.name)
             if twin.exists() and twin.read_text() == form:
                 said('kept', rel, {f'{STORE} and {LIVE} diverged': f'the twin {twin.name} already holds it'})
             elif twin.exists():
                 said('conflict', rel, {f'{STORE} and {LIVE} diverged': f'and the twin {twin.name} differs - left in place'})
                 conflicts += 1
             else:
-                said('wrote', rel, {f'{STORE} and {LIVE} diverged': f'both kept - installed as {twin.name}'})
+                said('wrote', rel, {f'{STORE} and {LIVE} diverged': f'both kept - written as {twin.name}'})
                 if apply:
                     twin.write_text(form)
-                acts.append(f'<!-- merge:act new {twin_rel} sha={_sha(form)} len={len(form)} -->')
     # MEMORY.md: the index unions by novelty-append, re-dressed lines rewritten
     src_index = src_dir / 'MEMORY.md'
     dest_index = dest_dir / 'MEMORY.md'
@@ -237,9 +220,8 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
     which = 'kept'
     if src_index.exists():
         have_lines = dest_index.read_text().splitlines() if dest_index.exists() else []
-        # A merge record is a fact about ITS OWN folder and never travels: the
-        # source's marker machinery is dropped; the plain index lines inside its
-        # blocks (real entries) union like any others.
+        # a store that holds an index from before issues/1063 holds merge records in it: they
+        # are no index lines, and the index lines inside them union like any others
         src_lines = [l for l in src_index.read_text().splitlines()
                      if not l.lstrip().startswith('<!-- merge:')]
         for line in src_lines:
@@ -254,123 +236,17 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
             if apply:
                 dest_dir.mkdir(parents=True, exist_ok=True)
                 dest_index.write_text(filtered)
-            acts.append(f'<!-- merge:act index-new sha={_sha_lines(filtered)} -->')
-            novel = []  # the whole index arrived; no separate union lines
         elif novel:
-            index['index unioned'] = f'{len(novel)} line(s) appended inside the merge marker'
+            index['index unioned'] = f'{len(novel)} line(s) appended'
             which = 'wrote'
+            if apply:
+                cur = dest_index.read_text()
+                dest_index.write_text(cur + ('' if cur.endswith('\n') or not cur else '\n') + '\n'.join(novel) + '\n')
         else:
             index['index already covers it'] = f'{len(have_lines)} line(s)'
-    # the merge marker: begin/end comments wrapping the unioned lines, then the
-    # acts — MEMORY.md carries the record that makes this merge demergeable
-    if acts or novel:
-        stamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H%M%SZ')
-        block = [f'<!-- merge:begin {stamp} from={machine} -->', *novel, *acts, '<!-- merge:end -->']
-        index['merge marker'] = f'{len(acts)} act(s); corpus-yoga agent demerge undoes them'
-        which = 'wrote'
-        if apply:
-            cur = dest_index.read_text() if dest_index.exists() else ''
-            if cur and not cur.endswith('\n'):
-                cur += '\n'
-            dest_index.write_text(cur + '\n'.join(block) + '\n')
     if index:
         said(which, 'MEMORY.md', index)
     return conflicts
-
-
-def latest_merge(proj_dir: Path) -> str | None:
-    """The label of the latest merge record in the project's memory, which demerge would
-    undo (issues/881); None where no record stands."""
-    idx = proj_dir / 'memory' / 'MEMORY.md'
-    if not idx.exists():
-        return None
-    begins = [l for l in idx.read_text().splitlines() if l.startswith('<!-- merge:begin ')]
-    return begins[-1].removeprefix('<!-- merge:begin ').removesuffix(' -->') if begins else None
-
-
-def demerge(proj_dir: Path) -> int:
-    """Undo the LATEST merge recorded in MEMORY.md, exactly and all-or-nothing:
-    delete the recorded additions (novelties, twins), truncate the recorded
-    appendices to their pre-merge lengths, drop the marker block (with the
-    unioned index lines inside it). Every act is verified against its recorded
-    hash first — anything edited since the merge is a CONFLICT and NOTHING is
-    undone (L6): the record licenses the undo (L3), and a stale record licenses
-    nothing. Repeated demerges peel the record stack newest-first (L1: a folder
-    with no markers demerges to silence). Session .jsonl files are visit
-    residue this never touches — transport the visitor home, then remove its
-    session deliberately."""
-    mem = proj_dir / 'memory'
-    idx = mem / 'MEMORY.md'
-    if not idx.exists():
-        print('no MEMORY.md — nothing to demerge')
-        return 0
-    lines = idx.read_text().splitlines()
-    begins = [i for i, l in enumerate(lines) if l.startswith('<!-- merge:begin ')]
-    if not begins:
-        print('no merge markers in MEMORY.md — nothing to demerge')
-        return 0
-    b = begins[-1]
-    e = next((i for i in range(b + 1, len(lines)) if lines[i] == '<!-- merge:end -->'), None)
-    if e is None:
-        sys.exit('error: unterminated merge block in MEMORY.md — repair by hand')
-    print(f'demerge (latest of {len(begins)} record(s)): '
-          + lines[b].removeprefix('<!-- merge:begin ').removesuffix(' -->'))
-    remaining = lines[:b] + lines[e + 1:]
-    conflicts = 0
-    index_new = False
-    ops: list[tuple[str, Path, int]] = []
-    for l in lines[b + 1:e]:
-        if not l.startswith('<!-- merge:act '):
-            continue
-        parts = l.removeprefix('<!-- merge:act ').removesuffix(' -->').split()
-        kind = parts[0]
-        kv = dict(p.split('=', 1) for p in parts[1:] if '=' in p)
-        if kind == 'new':
-            rel, f = parts[1], mem / parts[1]
-            if not f.exists():
-                print(f'  {rel}: already gone — no-op')
-            elif _sha(f.read_text()) != kv['sha']:
-                print(f'  {rel}: ✗ CONFLICT: edited since the merge — refusing')
-                conflicts += 1
-            else:
-                print(f'  {rel}: remove')
-                ops.append(('rm', f, 0))
-        elif kind == 'appendix':
-            rel, f = parts[1], mem / parts[1]
-            prior, post = int(kv['prior']), int(kv['post'])
-            cur = f.read_text() if f.exists() else None
-            if cur is not None and len(cur) == post and _sha(cur) == kv['sha']:
-                print(f'  {rel}: truncate to pre-merge length ({post} → {prior})')
-                ops.append(('trunc', f, prior))
-            elif cur is not None and len(cur) > post and _sha(cur[:post]) == kv['sha']:
-                print(f'  {rel}: ✗ CONFLICT: appended to since the merge — refusing')
-                conflicts += 1
-            else:
-                print(f'  {rel}: ✗ CONFLICT: '
-                      + ('missing' if cur is None else 'edited since the merge') + ' — refusing')
-                conflicts += 1
-        elif kind == 'index-new':
-            if _sha('\n'.join(remaining)) != kv['sha']:
-                print('  MEMORY.md: ✗ CONFLICT: index edited since the merge — refusing')
-                conflicts += 1
-            else:
-                print('  MEMORY.md: remove (the whole index arrived with this merge)')
-                index_new = True
-    if conflicts:
-        print(f'{conflicts} conflict(s) — NOTHING undone (all-or-nothing; reconcile by hand, or accept the merge)')
-        return conflicts
-    for kind, f, n in ops:
-        if kind == 'rm':
-            f.unlink()
-        else:
-            f.write_text(f.read_text()[:n])
-    if index_new:
-        idx.unlink()
-    else:
-        idx.write_text('\n'.join(remaining) + ('\n' if remaining else ''))
-    print('note: session .jsonl files and their eponymous workspace dirs are '
-          'visit residue demerge does not touch')
-    return 0
 
 
 def mirror_memory(src_dir: Path, dest_dir: Path, held_dirs: list[Path] = []) -> tuple[str, dict[str, str]] | None:
@@ -378,7 +254,7 @@ def mirror_memory(src_dir: Path, dest_dir: Path, held_dirs: list[Path] = []) -> 
     so the memory folder is MIRRORED, not merged: the outbox is a faithful
     projection of the agent's current aggregate (new files added, changed ones
     updated in place, absentees removed). Every merge subtlety stays in
-    install, where two agents meet. Where the outbox holds no copy, the held
+    pull, where two agents meet. Where the outbox holds no copy, the held
     ones are the baseline (issues/850): a memory the store holds identical under any
     of held_dirs - the project's own name, or a name whose live memory is the
     same directory - is not mirrored again. Returns (outcome, facts), or None
@@ -497,7 +373,7 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> Log:
     return log
 
 
-def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, log: Log) -> bool:
+def _pull_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, log: Log) -> bool:
     """One held session into the projects root, said under its outcome by its address;
     returns whether it conflicted."""
     data = session.read_bytes()
@@ -518,21 +394,20 @@ def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: b
     return which == 'conflict'
 
 
-def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log:
+def pull_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log:
     """git pull --all from one peer: every session in every project the machine
-    transported (and each project's memory, merged once per project - one
-    marker block, one demerge, per project). The same lattice safety as
+    transported (and each project's memory, merged once per project). The same lattice safety as
     capture --all; what it would write is corpus-yoga agent's status (issues/881). This
     is the ONE deliberate writer of the harness-owned projects root - never
     run by any pipeline, only by a user's explicit command. A project the peer holds
-    under a key a former path of the checkout gave is installed under the current key
+    under a key a former path of the checkout gave is written under the current key
     (issues/1058), so that a rename leaves one project in every room."""
     log = Log(LIVE, 'did' if apply else 'would')
     for proj in sorted(d for d in bundle.glob('-Users-*') if d.is_dir()):
         conflicted = False
         dest = dest_root / current_key(proj.name)
         for s in sorted(proj.glob('*.jsonl')):
-            conflicted = _install_session(proj, dest, s, apply, log) or conflicted
+            conflicted = _pull_session(proj, dest, s, apply, log) or conflicted
         if (proj / 'memory').is_dir():
             if conflicted:
                 log.say('kept', f'{proj.name}/memory/', {'withheld': 'a session of the project conflicted; the agent transports as a product'}, 'memory')
@@ -541,11 +416,11 @@ def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log
     return log
 
 
-def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> Log:
+def pull_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> Log:
     log = Log(LIVE, 'did' if apply else 'would')
-    conflicted = _install_session(bundle_proj, dest_root / bundle_proj.name, session, apply, log)
+    conflicted = _pull_session(bundle_proj, dest_root / current_key(bundle_proj.name), session, apply, log)
     if conflicted:
         log.say('kept', f'{bundle_proj.name}/memory/', {'withheld': 'the session conflicted; the agent transports as a product'}, 'memory')
     else:
-        merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine, log, bundle_proj.name)
+        merge_memory(bundle_proj / 'memory', dest_root / current_key(bundle_proj.name) / 'memory', apply, machine, log, bundle_proj.name)
     return log

@@ -231,8 +231,7 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  act=(facts.Would(spell.line('metamodel', 'derive'), {'tmp/cache/metamodel': len(missing) + len(underived)})
-                          if missing or underived else None)),
+                  act=facts.would(spell.line('metamodel', 'derive'), {'tmp/cache/metamodel': len(missing) + len(underived)})),
         table, join))
 
 

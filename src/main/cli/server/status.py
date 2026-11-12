@@ -69,7 +69,7 @@ def main() -> int:
     out = Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), render_assets=Assets(
         facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
         (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
-        facts.Would(spell.line('server', 'ensure-assets'), {'ext/lib/serve_markdown': len(missing)}) if missing else None)))
+        facts.would(spell.line('server', 'ensure-assets'), {'ext/lib/serve_markdown': len(missing)}))))
     out.server.act = daemon_act(bool(found), rendered)
     out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)

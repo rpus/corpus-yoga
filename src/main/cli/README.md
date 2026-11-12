@@ -132,7 +132,7 @@ They are stated, followed, and reviewed by people.
   deposit, a surface outside the repo — are declared effects (issues/29), not senses of the
   verb; `list-<noun>` enumerates and reports that collection; `clean` destroys; `run`
   only processes what `data/input/` already holds; `present` renders, free;
-  `install` places a peer store's sessions into this machine's live session store — named from the repo's vantage (capture acquires IN from the foreign mount; install emits OUT to it, the same meaning `completions install` already carries), machine-local by nature; `demerge` undoes the move.
+  `pull` brings a peer room's sessions from the store into this machine's live session store, the peer rooms being its remotes, machine-local by nature.
 - **G2 — Bare is status: free, local, and read-only.** `unenforced (issues/47, issues/52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,

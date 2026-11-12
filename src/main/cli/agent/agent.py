@@ -9,7 +9,7 @@ with each component's class semantics enforced — and capture is that operation
 pointed homeward: live projects root → the store. A session is append-only, so a copy supersedes an
 existing one iff the existing bytes are a PREFIX of it; anything else is a
 loud CONFLICT. A memory folder is a set of one-fact-per-file documents whose
-NAMES are dressing (the fact is the identity) plus one index: on install a
+NAMES are dressing (the fact is the identity) plus one index: on pull a
 novel leaf copies in, an identical one skips, one the incoming EXTENDS is
 superseded in place (an appendix), and true divergence keeps BOTH — the
 incoming fact re-dressed as <stem>.<machine>.md with its [[links]] following —
@@ -39,13 +39,13 @@ database and the summaries row (the gemini adapter's header states it).
 Provenance is spatial and sender-declared: capture takes no destination - it
 mirrors every session of every served provider into that provider's store
 under <own machine>/, the machine read from the rooted machine-name.txt
-binding, which rsc/machine/machines.csv must declare - and install --from
+binding, which rsc/machine/machines.csv must declare - and pull --from
 names the peer machine whose sessions to merge, the twin-dressing and marker
 label coming from that ADDRESS rather than the receiver's assertion. An
 outbox is single-writer by construction, so capture MIRRORS each project's
 memory (updated in place, absentees removed); every merge subtlety lives in
-install, where two agents actually meet. The doctrine: capture is the one
-READER of a live store - sweep early, sweep often; install is the one WRITER
+pull, where two agents actually meet. The doctrine: capture is the one
+READER of a live store - sweep early, sweep often; pull is the one WRITER
 of it, only ever by a user's explicit verb, never a pipeline's, and serves
 claude alone: writing into Antigravity's databases is no transport this verb
 vouches for. The pipelines source from the store, which the repo owns and the
@@ -57,22 +57,16 @@ prefix, so the latest copy IS the whole history and place_log's prefix check
 is a fast-forward gate — no commit chain needed, a dumb file store suffices.
 Each machine's dir is a single-writer branch (a machine pushes only its own ref);
 capture is a fast-forward-only push ('destination is ahead' is the refused
-stale force-push); install is fetch-plus-merge, dry-run first; two machines
+stale force-push); pull is fetch-plus-merge, the status its dry run; two machines
 extending the same session are diverged branches, refused until a human
 merges. And memory/ is the actual REPOSITORY of the pair — the component
-where real merges happen: the marker block in MEMORY.md is the merge commit
-(it records what came in and licenses demerge, the exact revert), diverged
-facts persist as machine-dressed twin branches, and the index unions like a
-tree merge. The session is history; the memory is the repo.
+where real merges happen: diverged facts persist as machine-dressed twin
+branches, and the index unions like a tree merge. The session is history; the
+memory is the repo.
 
-Installed merges are DETECTABLE and INVERTIBLE: an install that changes the
-memory writes a marker block into MEMORY.md — begin/end comments wrapping the
-unioned index lines, plus one act line per file action with content hash and
-lengths — and `demerge` undoes the LATEST block exactly (delete the additions,
-truncate the appendices, drop the block), all-or-nothing, refusing loudly if
-anything was edited since the merge: the record licenses the undo (L3). This
-is what makes safe VISITS possible — an agent installed while the host is away
-extracts by transporting itself home, and the host demerges the residue.
+A pull's merge only adds (issues/1063) - a new fact, a longer copy's tail, a
+diverged copy beside the local one, an index line - so it writes no record of
+itself and has no undo: removing a fact is removing its file.
 
     corpus-yoga agent
     corpus-yoga agent list-models
@@ -80,33 +74,31 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent mount
     corpus-yoga agent capture --provider <provider> --id <uuid-prefix>
     corpus-yoga agent capture --provider <provider>
-    corpus-yoga agent install   --id <uuid-prefix> --from <machine|dir>
+    corpus-yoga agent pull --id <uuid-prefix> --from <machine|dir>
     corpus-yoga agent capture --all
-    corpus-yoga agent install   --all --from <machine|dir>
-    corpus-yoga agent demerge
+    corpus-yoga agent pull --all --from <machine|dir>
 
 capture takes --provider <name> (every session of one provider), --provider
 <name> --id <uuid-prefix> (one of them, by uuid prefix, exactly one) or --all;
-install takes --id or --all: a NAMED agent, a named provider's totality,
+pull takes --id or --all: a NAMED agent, a named provider's totality,
 or the named TOTALITY — git push --all /
 pull --all, safe because each per-session placement independently lands on
 the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
-component moves ONCE either way (mirrored out; merged in under a single
-marker block, so `install --all --from <machine>` is still one demerge). What is never
-accepted is an INFERENCE: no recency guessing, no automatic choice. What install
+component moves ONCE either way (mirrored out; merged in). What is never
+accepted is an INFERENCE: no recency guessing, no automatic choice. What pull
 would write is the agent noun's status, per peer store held (issues/881), totality or
 not.
 
 The endpoint asymmetry is the model, not an accident: capture takes NO
 destination — it pushes this machine's own ref, the only legal one
-(single-writer branches). install must NAME its source ref:
+(single-writer branches). pull must NAME its source ref:
 a peer machine under claude's store, or a directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a machine, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
 
 capture writes to the store immediately (it is not precious).
-install and demerge write into this machine's projects root — harness-owned state —
-and the agent noun's status says what each would write before it is asked. Exit 1
+pull writes into this machine's projects root — harness-owned state —
+and the agent noun's status says what it would write before it is asked. Exit 1
 on any CONFLICT.
 
 Field note (2026-07-07, first scripted teleport): a received agent that does
@@ -182,7 +174,7 @@ def own_outbox(provider: str) -> Path | None:
 
 
 def peer_bundle(name: str) -> Path:
-    """A source for install: a MACHINE NAME or a DIRECTORY, distinguished by shape,
+    """A source for pull: a MACHINE NAME or a DIRECTORY, distinguished by shape,
     never by lookup — machines are names (bare tokens, resolved under claude's store,
     loud error if absent), places are paths (anything containing '/' or starting
     '~'; a scratch dir beside you is spelled ./like-this). A bare token never
@@ -258,51 +250,38 @@ def list_agents() -> Census:
 
 @dataclass
 class Peer:
-    """A peer machine's store held here, and what corpus-yoga agent install would write from it
-    into this machine's live store (issues/881): the install's facts by outcome, read dry, and the
-    install where it would write something."""
-    would_write: dict | str
+    """A peer machine's store held here, said as what corpus-yoga agent pull would do from it
+    (issues/881): its dry run's outcomes, each directly under the peer's name, and the pull where
+    it would write something."""
+    outcomes: dict
     act: facts.Would | None = None
 
-
-@dataclass
-class Merge:
-    """A project's latest merge record in its memory (issues/881): a fact of the folder, never an
-    act to offer - an undo has no effect the room is owed (issues/1058)."""
-    latest: str
+    def facts(self) -> dict:
+        return {**self.outcomes, 'act': self.act}
 
 
-def install_act(machine: str, log: transport.Log) -> facts.Would | None:
-    """The install from a peer, where its dry run would write something; None where it would
-    write nothing, since an act now: offers has an effect (issues/1058)."""
-    if log.key('wrote') not in log.by:
-        return None
-    return facts.Would(spell.line('agent', 'install', **{'from': machine, 'all': True}), {machine: len(log.by[log.key('wrote')])})
+def pull_act(machine: str, log: transport.Log) -> facts.Would | None:
+    """The pull from a peer, of what its dry run would write (issues/1064): none where it
+    would write nothing."""
+    return facts.would(spell.line('agent', 'pull', **{'from': machine, 'all': True}), {machine: len(log.by.get(log.key('wrote'), {}))})
 
 
-def peers_and_merges() -> tuple[dict[str, Peer] | str, dict[str, Merge] | str]:
-    """What the two writes into the live store would do, read dry (issues/881): per peer machine
-    held under claude's store, the install of all its sessions; per project, the latest
-    merge record. The verbs act; the status says what they would do."""
+def peers() -> dict[str, Peer | str] | str:
+    """What a pull into the live store would write, read dry (issues/881): per peer machine held
+    under claude's store, the pull of all its sessions. The verb acts; the status says what it
+    would do."""
     row = registry.provider('claude')
     projects, adapter = registry.mount(row), transport.adapter('claude')
     if projects is None or adapter is None or not projects.is_dir():
-        return facts.phrase('none - the claude store is not mounted'), facts.phrase('none - the claude store is not mounted')
-    peers: dict[str, Peer] = {}
+        return facts.phrase('none - the claude store is not mounted')
+    held: dict[str, Peer | str] = {}
     store = transport.store('claude')
     for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
         if machine.name == registry.machine():
             continue
-        log = adapter.install_all(machine, projects, False, machine.name)
-        peers[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'), install_act(machine.name, log))
-    merges: dict[str, Merge] = {}
-    held: set[Path] = set()   # each memory folder said once, under its project's current key (issues/1058)
-    for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
-        label, folder = adapter.latest_merge(proj), (proj / 'memory').resolve()
-        if label is not None and folder not in held:
-            held.add(folder)
-            merges[transport.current_key(proj.name)] = Merge(label)
-    return peers or facts.phrase('none - no peer machine held'), merges or facts.phrase('none - no merge record')
+        log = adapter.pull_all(machine, projects, False, machine.name)
+        held[machine.name] = Peer(log.facts(), pull_act(machine.name, log)) if log.facts() else facts.phrase('nothing - the store holds no session of it')
+    return held or facts.phrase('none - no peer machine held')
 
 
 @dataclass
@@ -311,16 +290,15 @@ class Status:
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
-    install: dict[str, Peer] | str = 'none'               # per peer store held, what install would write (issues/881)
-    merges: dict[str, Merge] | str = 'none'               # per project, what demerge would undo (issues/881)
+    pull: dict[str, Peer | str] | str = 'none'         # per peer store held, what pull would write (issues/881)
 
     def facts(self) -> dict:
         brief = self.drafters
         if brief is None:                 # no machine binding: the drafters cannot be read against one (issues/758)
             unbound = {'binding': facts.phrase('absent - echo <declared-machine-name> > machine-name.txt binds it, to a name rsc/machine/machines.csv declares')}
-            return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'install': self.install, 'merges': self.merges}
+            return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'pull': self.pull}
         return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged,
-                'install': self.install, 'merges': self.merges}
+                'pull': self.pull}
 
 
 def model_census() -> int:
@@ -383,8 +361,8 @@ def capture(uuid8: str | None, provider: str | None) -> int:
     return sum(log.conflicts for log in logs)
 
 def _claude() -> tuple[Path, ModuleType]:
-    """install and demerge write into Claude Code's projects root: the one
-    adapter that vouches for a write into a live store."""
+    """pull writes into Claude Code's projects root: the one adapter that vouches for a
+    write into a live store."""
     row = registry.provider('claude')
     mount_path, adapter = registry.mount(row), transport.adapter('claude')
     assert mount_path is not None and adapter is not None
@@ -439,7 +417,7 @@ def main() -> int:
     # exclusivity is the declared 1/-class, enforced at parse — bare noun stays
     # the census: subparsers are not required.
     args = command_parser('agent', overrides={
-        'install': {'--from': {'dest': 'source'}},
+        'pull': {'--from': {'dest': 'source'}},
     }).parse_args()
 
     if args.verb is None:
@@ -450,8 +428,7 @@ def main() -> int:
         import machine
         brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (issues/758)
         report = corpus.report_facts('agent')
-        peers, merges = peers_and_merges()
-        facts.say_standing(Status(census.sessions, census.mounts, brief, report.staged, peers, merges))
+        facts.say_standing(Status(census.sessions, census.mounts, brief, report.staged, peers()))
         return 0
     if args.verb == 'mount':
         return mount()
@@ -466,36 +443,20 @@ def main() -> int:
         return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id))
 
     projects, claude = _claude()
-    if args.verb == 'demerge':
-        # every local project's memory, newest merge each, all-or-nothing per
-        # project (a markerless folder demerges to silence)
-        rc = 0
-        undone: set[Path] = set()   # a memory folder two project keys share is undone once (issues/1058)
-        for proj in sorted(d for d in projects.glob('-Users-*') if d.is_dir()):
-            if (folder := (proj / 'memory').resolve()) in undone:
-                continue
-            undone.add(folder)
-            print(f'{proj.name}:')
-            rc = max(rc, 1 if claude.demerge(proj) else 0)
-        # what an act reports (issues/876, issues/896): the effect, handed up to the launcher's reply; what it would undo is the status's (issues/881)
-        facts.report(None, f'agent demerge: {"NOT DONE" if rc else "DONE"} - ' + facts.phrase('did undo the latest merge of each project above')
-                     + ('; ' + facts.phrase('a conflict left one in place') if rc else ''))
-        return rc
-
     bundle = peer_bundle(args.source)
     # the twin-dressing and marker label: the source's ADDRESS — the origin machine's
     # name as it stands under claude's store (or the directory's own name for a path)
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
-        log = claude.install_all(bundle, projects, True, machine)
+        log = claude.pull_all(bundle, projects, True, machine)
     else:
         session = claude.pick_session(bundle, args.id)
-        log = claude.install_move(session.parent, projects, session, True, machine)
+        log = claude.pull_move(session.parent, projects, session, True, machine)
     # the log is facts nested by outcome under the bundle's address (issues/857), then the one
-    # effect; what an install would write is corpus-yoga agent's status (issues/881)
+    # effect; what an pull would write is corpus-yoga agent's status (issues/881)
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):
                               log.facts() or f'nothing - the bundle holds no session'}
-    facts.report(out, transport.verdict('agent install', [log]))
+    facts.report(out, transport.verdict('agent pull', [log]))
     return 1 if log.conflicts else 0
 
 
