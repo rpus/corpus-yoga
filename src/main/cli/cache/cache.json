@@ -4,6 +4,7 @@
   "phrase": [
     "no current step writes or reads it",
     "bytecode whose source no longer stands",
+    "scratch whose run is gone",
     "{n} subtree(s) present",
     "{n} subtree(s) present, {orphans} orphan(s)",
     "{verb} is no verb it takes - {verbs} (bare is the status; corpus-yoga cache <verb> -h says its flags)"

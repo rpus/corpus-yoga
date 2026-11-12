@@ -50,7 +50,7 @@ jq_literal() { jq '{
 # format_table: reads JSON from stdin, writes aligned table JSON to stdout.
 format_table() {
   local tmp
-  tmp=$(mktemp)
+  tmp=$(scratch_file export-present)
   cat > "$tmp"
   "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" "$tmp"
   rm -f "$tmp"
@@ -63,7 +63,7 @@ format_table() {
 inject() {
   local file="$1" key="$2" json="$3"
   local tmp
-  tmp=$(mktemp)
+  tmp=$(scratch_file export-present)
   printf '%s' "$json" > "$tmp"
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/inject.py" "$file" "$key" "$tmp"
   rm -f "$tmp"

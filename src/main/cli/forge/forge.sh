@@ -686,7 +686,7 @@ merge_chain() {
   # The run reaches the terminal once, through the launcher's tee that keeps this record
   # whole (issues/954); the verdict file is read for the failing stages.
   local gate_rc=0 verdict stages
-  verdict="$(mktemp)"
+  verdict="$(scratch_file forge-merge)"
   narrate opening "pipeline run"
   # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
   # the run's status is read from the pipeline, never let veto the line.

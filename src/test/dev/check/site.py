@@ -148,7 +148,7 @@ def check_site_reads_rpus_co(run) -> None:
         tree.mkdir()
         (tree / 'page.html').write_text('two')
         def said(function, *arguments):
-            script = (f'REPO_DIR={str(REPO_ROOT)!r}; source "$REPO_DIR/src/main/report.sh"; source "$REPO_DIR/src/main/send.sh"; '
+            script = (f'REPO_DIR={str(REPO_ROOT)!r}; source "$REPO_DIR/src/main/tier.sh"; source "$REPO_DIR/src/main/report.sh"; source "$REPO_DIR/src/main/send.sh"; '
                       f'source "$REPO_DIR/src/main/enact.sh"; source "$REPO_DIR/src/main/cli/site/landing.sh"; {function} "$@"')
             done = subprocess.run(['bash', '-c', script, 'landing', *map(str, arguments)], env=environment, capture_output=True, text=True)
             return done.returncode, [line.split('\t') for line in done.stdout.splitlines() if line]

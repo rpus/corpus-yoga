@@ -22,6 +22,17 @@ TMP_DIR="$DATA_ROOT/tmp"
 # shellcheck disable=SC2034  # the sourcing script's to use
 if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TMP_DIR/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$TMP_DIR/logs"; fi
 
+# scratch_file <name>, scratch_dir <name>: a disposable file or directory a run keeps only
+# while it runs (issues/906), made under tmp/cache/scratch and named <name>.<pid>.<random> - the
+# pid the run's own, so that corpus-yoga cache names what a run that died left there. No script
+# calls mktemp but through these: nothing disposable is written outside the tree.
+scratch_file() {
+  mkdir -p "$TMP_DIR/cache/scratch" && mktemp "$TMP_DIR/cache/scratch/$1.$$.XXXXXX"
+}
+scratch_dir() {
+  mkdir -p "$TMP_DIR/cache/scratch" && mktemp -d "$TMP_DIR/cache/scratch/$1.$$.XXXXXX"
+}
+
 # stamp_of <command> <verb>: the act's stamp - the launcher's where it dispatched this act,
 # a fresh one otherwise. record_of <command> <verb>: the act's record, the launcher's tee,
 # where the launcher dispatched this act, nothing otherwise; no verb writes into it (issues/912).

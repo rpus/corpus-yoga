@@ -627,7 +627,7 @@ if [[ -n "$plan" ]]; then print_plan; exit 0; fi
 if [[ -n "$LOG_FILE" ]]; then
   main "$@"
 else
-  LOG_FILE="$(mktemp -t corpus-yoga-pipeline-run)"
+  LOG_FILE="$(scratch_file pipeline-run)"
   # `set -o pipefail` makes the pipeline's status the first non-zero in it, so main's
   # verdict survives the tee rather than being replaced by tee's own success.
   rc=0

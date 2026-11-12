@@ -70,6 +70,7 @@ itself and has no undo: removing a fact is removing its file.
 
     corpus-yoga agent
     corpus-yoga agent list-models
+    corpus-yoga agent list-sessions           # each session, where the bare status counts them
     corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
     corpus-yoga agent mount
     corpus-yoga agent capture --provider <provider> --id <uuid-prefix>
@@ -122,6 +123,7 @@ import tier  # the tiers, one home (issues/702)
 import facts  # the one printer of a status's facts (issues/753)
 import spell
 import corpus  # the stage report, and the type of a staged unit
+from cache_io import human, size_of  # a size as a reader reads it
 from machine import bound_machine
 from declared_parser import command_parser
 import provider as registry
@@ -206,12 +208,30 @@ class Mount:
 
 
 Sessions = dict[str, dict[str, dict[str, dict[str, Session]]]]   # by where - local, then each machine - provider, project and id
+Counts = dict[str, dict[str, str]]                               # by where and provider: how many sessions, and their size
 
 
 @dataclass
 class Census:
-    sessions: Sessions | str
+    sessions: Sessions | str                  # each session, the listing corpus-yoga agent list-sessions says
     mounts: dict[str, Mount] | None = None    # by path
+    counts: Counts | str = 'none'             # what the bare status says of them (issues/1004)
+
+
+@dataclass
+class Listing:
+    """corpus-yoga agent list-sessions: every session, by where it is, its provider and project."""
+    sessions: Sessions | str
+
+
+def tally(sized: list[tuple[str, str, int]]) -> Counts:
+    """The sessions counted by where they are and their provider, each count with the size it
+    holds, in the order given - what a reader of the room needs of the census (issues/1004)."""
+    held: dict[str, dict[str, list[int]]] = {}
+    for where, provider, size in sized:
+        held.setdefault(where, {}).setdefault(provider, []).append(size)
+    return {where: {provider: facts.phrase('{n} session(s), {size}', n=len(sizes), size=human(sum(sizes))) for provider, sizes in providers.items()}
+            for where, providers in held.items()}
 
 
 def list_agents() -> Census:
@@ -239,13 +259,15 @@ def list_agents() -> Census:
     # and last write - the local store first, then each machine's held copies
     where_order = ['local'] + sorted({w for _s, w in rows if w != 'local'})
     sessions: Sessions = {}
+    sized: list[tuple[str, str, int]] = []
     for where in where_order:
         for s, w in rows:
             if w == where:
                 t = datetime.fromtimestamp(s.mtime).strftime('%Y-%m-%d %H:%M')
                 sessions.setdefault(where, {}).setdefault(s.provider, {}).setdefault(s.project, {})[s.id[:8]] = Session(
                     s.title, f'{s.size / 1e6:.1f}M', t)
-    return Census(sessions or 'none', absent or None)
+                sized.append((where, s.provider, s.size))
+    return Census(sessions or 'none', absent or None, tally(sized) or 'none')
 
 
 @dataclass
@@ -258,6 +280,27 @@ class Peer:
 
     def facts(self) -> dict:
         return {**self.outcomes, 'act': self.act}
+
+
+KINDS = ('sessions', 'workspaces', 'memory facts')   # what a pull moves, as its log addresses them
+
+
+def summary(log: transport.Log, bundle: Path) -> dict:
+    """A pull's dry run as the status says it (issues/1004): what it would write and what conflicts,
+    each unit by its address, since a reader acts on those; what it would leave counted by
+    kind, each count with the size the peer's store holds of it."""
+    out: dict = {}
+    for outcome in log.facts():
+        units = log.by[outcome]
+        if outcome != log.key('kept'):
+            out[outcome] = units
+            continue
+        held: dict[str, list[int]] = {}
+        for address in units:
+            kind = KINDS[2] if '/memory/' in address else KINDS[1] if address.endswith('/') else KINDS[0]
+            held.setdefault(kind, []).append(size_of(bundle / address) if (bundle / address).exists() else 0)
+        out[outcome] = {kind: facts.phrase('{n}, {size}', n=len(held[kind]), size=human(sum(held[kind]))) for kind in KINDS if kind in held}
+    return out
 
 
 def pull_act(machine: str, log: transport.Log) -> facts.Would | None:
@@ -280,13 +323,13 @@ def peers() -> dict[str, Peer | str] | str:
         if machine.name == registry.machine():
             continue
         log = adapter.pull_all(machine, projects, False, machine.name)
-        held[machine.name] = Peer(log.facts(), pull_act(machine.name, log)) if log.facts() else facts.phrase('nothing - the store holds no session of it')
+        held[machine.name] = Peer(summary(log, machine), pull_act(machine.name, log)) if log.facts() else facts.phrase('nothing - the store holds no session of it')
     return held or facts.phrase('none - no peer machine held')
 
 
 @dataclass
 class Status:
-    sessions: Sessions | str
+    sessions: Counts | str                                # by where and provider; corpus-yoga agent list-sessions lists each
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
@@ -428,12 +471,15 @@ def main() -> int:
         import machine
         brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (issues/758)
         report = corpus.report_facts('agent')
-        facts.say_standing(Status(census.sessions, census.mounts, brief, report.staged, peers()))
+        facts.say_standing(Status(census.counts, census.mounts, brief, report.staged, peers()))
         return 0
     if args.verb == 'mount':
         return mount()
     if args.verb == 'list-models':
         return model_census()
+    if args.verb == 'list-sessions':
+        facts.say(Listing(list_agents().sessions))
+        return 0
     if args.verb == 'list-drafters':
         import drafters
         return drafters.report()

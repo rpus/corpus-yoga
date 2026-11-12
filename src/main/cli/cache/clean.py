@@ -28,7 +28,7 @@ from pathlib import Path
 import cleaner  # the one loop every clean verb runs (issues/837)
 import tier  # the tiers, one home (issues/702)
 from declared_parser import verb_parser
-from cache_io import BYTECODE, human, orphans, size_of, stale_bytecode
+from cache_io import BYTECODE, SCRATCH, dead_scratch, human, orphans, size_of, stale_bytecode
 
 SELF = 'src/main/cli/cache/clean.py'
 _file = Path(__file__).resolve()
@@ -61,7 +61,11 @@ def entries() -> list[cleaner.Entry]:
         cleaner.Entry('orphan', p.relative_to(REPO).as_posix(),
                       {'orphan': 'bytecode whose source no longer stands', 'size': human(size_of(p))},
                       lambda p=p: _dispose(p), p.relative_to(REPO).as_posix())
-        for p in stale_bytecode(REPO / BYTECODE)]
+        for p in stale_bytecode(REPO / BYTECODE)] + [
+        cleaner.Entry('orphan', p.relative_to(REPO).as_posix(),
+                      {'orphan': 'scratch whose run is gone', 'size': human(size_of(p))},
+                      lambda p=p: _dispose(p), p.relative_to(REPO).as_posix())
+        for p in dead_scratch(tier.TMP / Path(SCRATCH).relative_to('tmp'))]
 
 
 def main() -> int:
