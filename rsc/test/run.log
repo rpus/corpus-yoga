@@ -1,4 +1,4 @@
-run.py: code+schema 1912/1912
+run.py: code+schema 1913/1913
 
 
 check_schema_join: |
@@ -314,7 +314,7 @@ check_renamed_checkout: |
 
 check_effective_acts: |
   ✓ status.an_act_has_something_to_act_on
-  ✓ agent.offers_only_effective_acts
+  ✓ agent.offers_only_effective_acts  (2/2)
   ✓ migration.merge_records_are_stripped
 
 check_grammar: |
@@ -654,7 +654,7 @@ stages:
     tier: code
     line: "311"
   check_effective_acts:
-    passes: 3
+    passes: 4
     failures: 0
     tier: code
     line: "315"
@@ -689,8 +689,8 @@ stages:
     tier: code
     line: "352"
 
-checks[code+schema]: 217 types, 1912/1912 invocations passing
-checks[code]: 162 types, 1173/1173 invocations passing
+checks[code+schema]: 217 types, 1913/1913 invocations passing
+checks[code]: 162 types, 1174/1174 invocations passing
 checks[schema]: 55 types, 739/739 invocations passing
 
-dev gate: PASS - code+schema 1912/1912 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1913/1913 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

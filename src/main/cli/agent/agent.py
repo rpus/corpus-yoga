@@ -250,11 +250,14 @@ def list_agents() -> Census:
 
 @dataclass
 class Peer:
-    """A peer machine's store held here, and what corpus-yoga agent pull would write from it
-    into this machine's live store (issues/881): the pull's facts by outcome, read dry, and the
-    pull where it would write something."""
-    would_write: dict | str
+    """A peer machine's store held here, said as what corpus-yoga agent pull would do from it
+    (issues/881): its dry run's outcomes, each directly under the peer's name, and the pull where
+    it would write something."""
+    outcomes: dict
     act: facts.Would | None = None
+
+    def facts(self) -> dict:
+        return {**self.outcomes, 'act': self.act}
 
 
 def pull_act(machine: str, log: transport.Log) -> facts.Would | None:
@@ -263,7 +266,7 @@ def pull_act(machine: str, log: transport.Log) -> facts.Would | None:
     return facts.would(spell.line('agent', 'pull', **{'from': machine, 'all': True}), {machine: len(log.by.get(log.key('wrote'), {}))})
 
 
-def peers() -> dict[str, Peer] | str:
+def peers() -> dict[str, Peer | str] | str:
     """What a pull into the live store would write, read dry (issues/881): per peer machine held
     under claude's store, the pull of all its sessions. The verb acts; the status says what it
     would do."""
@@ -271,13 +274,13 @@ def peers() -> dict[str, Peer] | str:
     projects, adapter = registry.mount(row), transport.adapter('claude')
     if projects is None or adapter is None or not projects.is_dir():
         return facts.phrase('none - the claude store is not mounted')
-    held: dict[str, Peer] = {}
+    held: dict[str, Peer | str] = {}
     store = transport.store('claude')
     for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
         if machine.name == registry.machine():
             continue
         log = adapter.pull_all(machine, projects, False, machine.name)
-        held[machine.name] = Peer(log.facts() or facts.phrase('nothing - the store holds no session of it'), pull_act(machine.name, log))
+        held[machine.name] = Peer(log.facts(), pull_act(machine.name, log)) if log.facts() else facts.phrase('nothing - the store holds no session of it')
     return held or facts.phrase('none - no peer machine held')
 
 
@@ -287,7 +290,7 @@ class Status:
     mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
-    pull: dict[str, Peer] | str = 'none'               # per peer store held, what pull would write (issues/881)
+    pull: dict[str, Peer | str] | str = 'none'         # per peer store held, what pull would write (issues/881)
 
     def facts(self) -> dict:
         brief = self.drafters

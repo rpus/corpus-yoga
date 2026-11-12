@@ -556,6 +556,12 @@ def check_effective_acts(run) -> None:
         None if pulled else f'src/main/cli/agent/agent.py has no pull_act(machine, log); the agent declares {verbs}' if said is None
         else f'offered {said!r}; the agent declares {verbs}', check='agent.offers_only_effective_acts')
 
+    peer = getattr(agent, 'Peer', None)
+    shown = facts.plain(peer(busy.facts(), said[1])) if peer is not None and said is not None else None
+    direct = shown == facts.plain(busy.facts())
+    run("agent: a peer's pull is said as its dry run's outcomes, directly under the peer's name", direct,
+        None if direct else f'the peer is said as {shown!r}, where the dry run says {facts.plain(busy.facts())!r}', check='agent.offers_only_effective_acts')
+
     with tempfile.TemporaryDirectory() as tmp:
         checkout, projects = Path(tmp) / 'checkout', Path(tmp) / 'projects'
         for part in ('rsc/migration/step.sh', 'rsc/migration/1063.sh'):
