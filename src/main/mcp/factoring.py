@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 factoring.py - the house factoring of the MCP schema (issues/562, issues/598): generated from
-upstream's schema.ts alone, in draft-04, and written to rsc/schema/mcp/mcpMessage;
+upstream's schema.ts alone, in draft-04, and written to rsc/schema/mcp/<lineage>/mcpMessage;
 upstream's schema.json stands as the witness the result must flatten to, never as a
 source.
 
@@ -83,7 +83,6 @@ import re
 from pathlib import Path
 from schema_walk import schema_nodes, rebuilt  # (positions derived from the meta-schema, issues/571)
 import tier  # the tiers, one home (issues/702)
-from latest import latest_file
 import extraction  # (sibling module)
 import generation  # (sibling module)
 
@@ -93,16 +92,26 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
+DECLARED     = json.loads((REPO / 'src/main/mcp/derivation.json').read_text())   # what the derivation reads, needs and writes (issues/1053)
+LINEAGE      = DECLARED['lineage']
+
+
+def _declared(path: str) -> Path:
+    return REPO / path.replace('<lineage>', LINEAGE)
+
+
+SOURCE       = _declared(DECLARED['reads'])
+WITNESS      = _declared(DECLARED['witness'])
+SNAPSHOT_DIR = WITNESS.parent.parent
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
-FAMILY_DIR   = REPO / 'rsc/schema/mcp/mcpMessage'
+FAMILY_DIR   = _declared(DECLARED['writes'][0])
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
 LAYERS       = FAMILY_DIR / 'layer.csv'
 LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
 PLACEMENT    = FAMILY_DIR / 'placement.csv'
 UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
 ADDITION     = FAMILY_DIR / 'addition.csv'
-CACHE_DIR    = tier.TMP / 'cache' / 'mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
+CACHE_DIR    = tier.TMP / Path(DECLARED['writes'][1]).relative_to('tmp')   # the extracted tables' readable face (rsc/cache_io.csv)
 COMPOSITION  = CACHE_DIR / 'composition.csv'
 CATEGORIES   = CACHE_DIR / 'category.csv'
 FAMILY       = 'mcpMessage'
@@ -187,18 +196,15 @@ def latest_version(family_dir: Path):
 
 
 def snapshot() -> tuple[Path, dict]:
-    path = latest_file(SNAPSHOT_DIR)
-    assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no lineage'
-    return path, json.loads(path.read_text())
+    assert WITNESS.is_file(), f'{WITNESS.relative_to(REPO)} is absent - src/main/mcp/derivation.json declares it the witness'
+    return WITNESS, json.loads(WITNESS.read_text())
 
 
 def provenance() -> dict:
     """The snapshot's pinned URL, upstream commit and SHA256, and the schema.ts
     beside it - the rows of the reference project's provenance.csv for the
     lineage held (issues/572)."""
-    path = latest_file(SNAPSHOT_DIR)
-    assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no lineage'
-    lineage = path.parent.name
+    lineage = LINEAGE
     rows = {r['file']: r for r in _rows(PROVENANCE) if r['lineage'] == lineage}
     assert 'schema.json' in rows, f'{PROVENANCE.relative_to(REPO)} pins no schema.json for {lineage}'
     json_row = rows['schema.json']
@@ -216,10 +222,9 @@ def _rows(path: Path) -> list[dict]:
 
 
 def schema_ts() -> Path:
-    """The committed schema.ts beside the snapshot."""
-    path = snapshot()[0].with_name('schema.ts')
-    assert path.is_file(), f'{path.relative_to(REPO)} absent - the lineage holds schema.json and schema.ts'
-    return path
+    """The committed schema.ts the derivation declares it reads."""
+    assert SOURCE.is_file(), f'{SOURCE.relative_to(REPO)} absent - src/main/mcp/derivation.json declares it the source'
+    return SOURCE
 
 
 def declarations():
@@ -852,11 +857,11 @@ def factored(flat_shapes: dict, described: dict, declared: dict, prov: dict,
             f"{prov['ts_url']}), read through the house TypeScript grammar by src/main/mcp/generation.py, one stated "
             "rule per TypeScript form; upstream's schema.json at that commit "
             f"(SHA256 {prov['sha256']}) is the witness every definition here must flatten to, up to the readings "
-            'rsc/schema/mcp/mcpMessage/addition.csv declares (the null upstream drops from JSONValue, the protocol '
+            'addition.csv beside this file declares (the null upstream drops from JSONValue, the protocol '
             'version pinned on the _meta field that names it). Definitions schema.ts leaves without a JSDoc take their text from '
-            'rsc/schema/mcp/mcpMessage/description.csv; the definitions no message carries are declared in '
-            'rsc/schema/mcp/mcpMessage/unreachable.csv. Every description ends with the definition\'s layer - the '
-            "house's reading of the @category tag schema.ts carries, by rsc/schema/mcp/mcpMessage/layer.csv (the layers, "
+            'description.csv; the definitions no message carries are declared in '
+            'unreachable.csv. Every description ends with the definition\'s layer - the '
+            "house's reading of the @category tag schema.ts carries, by layer.csv (the layers, "
             'each with its reading), category_layer.csv (category to layer) and placement.csv (what the tag and the '
             'composition cannot place) - so the schema reads '
             'by concern. One instance is one JSON-RPC message.'

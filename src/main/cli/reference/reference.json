@@ -1,33 +1,19 @@
 {
-  "summary": "the upstream reference artefacts under rsc/reference, every lineage upstream publishes (bare says what upstream lists, what is held, what drifted)",
+  "summary": "the upstream reference artefacts under rsc/reference, every lineage upstream publishes (bare says what is held, and what the last fetch found differing upstream)",
   "standing": true,
   "phrase": [
-    "UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe",
-    "{n} project(s), {stale} file(s) to fetch",
-    "{state}, {bytes} bytes, pin {pin}",
-    "write the section {pin} in {changelog} (the dev gate holds reference.lineage_changelog)",
-    "each project holds what upstream publishes at its pin"
+    "unfetched - no fetch has recorded what upstream holds",
+    "as fetched, {n} file(s) differ from what is held",
+    "as fetched, every file is held as pinned",
+    "{n} project(s), {differing} file(s) differing from upstream as fetched, {unfetched} unfetched",
+    "{n} file(s) of {project} as upstream publishes them",
+    "did record what upstream publishes; corpus-yoga reference says what differs from what is held"
   ],
   "target": "src/main/reference/reference.py",
   "calculus": "L9",
   "args": [],
   "r": [
-    "rsc/reference"
-  ],
-  "sends": {
-    "github-api": {
-      "runs": "urllib.request.urlopen",
-      "refused": "degrades",
-      "does": [
-        "lists the dated lineage directories a project's reference.json names, and reads the newest commit touching each fetched file - the pin - from GitHub's contents and commits API; refused, the currency is unverified"
-      ]
-    },
-    "upstream-raw": {
-      "runs": "urllib.request.urlopen",
-      "refused": "degrades",
-      "does": [
-        "reads every wanted file's live bytes at its pinned URL and hashes them against provenance.csv - the currency check; refused, the currency is unverified"
-      ]
-    }
-  }
+    "rsc/reference",
+    "tmp/reference/fetch"
+  ]
 }

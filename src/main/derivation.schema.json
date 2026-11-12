@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Derivation",
+  "description": "A derivation's own declaration: src/main/<noun>/derivation.json (issues/1053). A derivation is a process whose two ends are files of the repository - it reads an upstream reference at one lineage and writes a schema family at that lineage's address - so the dev gate arbitrates it, where a pipeline, whose ends are the room's data, is arbitrated by the usr gate. Each path is repo-relative, with <lineage> standing for the declared lineage, so the lineage is said once.",
+  "type": "object",
+  "required": [
+    "lineage",
+    "reads",
+    "needs",
+    "writes",
+    "witness",
+    "arbiter"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "lineage": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "The upstream lineage the derivation reads, as the reference names its directory: one of the lineages held under the reference project. The derivation takes it from here, never from which lineage is newest."
+    },
+    "reads": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The file the derivation is generated from, alone."
+    },
+    "needs": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What must stand for the derivation to run and is no input of its own: the generated parser its source is read through."
+    },
+    "writes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "What the derivation writes: first the schema family, at the lineage's address, then what it caches under tmp."
+    },
+    "witness": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The upstream file the family must agree with and is never generated from."
+    },
+    "arbiter": {
+      "enum": [
+        "corpus-yoga test run",
+        "corpus-yoga pipeline run"
+      ],
+      "description": "The gate that arbitrates the process: the dev gate where both ends are committed files, the usr gate where they are the room's data."
+    }
+  }
+}

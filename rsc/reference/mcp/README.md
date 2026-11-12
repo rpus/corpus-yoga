@@ -6,17 +6,22 @@ upstream lists, named as upstream names it, each holding `schema.json` and
 `schema.ts` and its own `CHANGELOG.md` (one section per pin, the first stating the
 change from the lineage before - issues/587). `provenance.csv` pins every file's URL,
 upstream commit and SHA256; `reference.json` names upstream, the lineage listing
-(the dated `schema/` directory) and the files held per lineage. `corpus-yoga reference`
-reports what upstream lists against what is held and whether the held bytes still
-hash as pinned; `corpus-yoga reference pull` fetches what is missing or drifted and
-writes the provenance rows - the changelog section is the hand act. The dev gate
+(the dated `schema/` directory) and the files held per lineage. `corpus-yoga reference
+fetch` records what upstream publishes under `tmp/reference/fetch/mcp/`, each
+lineage's files with `fetched.csv` beside them in `provenance.csv`'s columns, and
+writes nothing here; `corpus-yoga reference` reads that record and says each file
+missing here or drifted from its pin, and `corpus-yoga mcp` judges upstream's
+`schema.json` as fetched against the committed version. What a fetch brings reaches
+this directory as a commit, never by a verb: the fetched files and their
+`fetched.csv` rows copied in, the changelog section written by hand, and the
+family re-derived (`src/main/mcp/derivation.json` names the lineage). The dev gate
 holds every file verbatim to its pin, every lineage directory declared, and every
 pin's changelog section present (`check_reference`); currency against upstream is
-the verb's report, never the gate's.
+the fetch's record, never the gate's.
 
 The latest lineage is what the house reads: `corpus-yoga mcp derive` extracts its
 `schema.ts`'s extends clauses and type aliases (issues/581) and derives
-`rsc/schema/mcp/mcpMessage` from it, and `corpus-yoga mcp reproduce` witnesses
+`rsc/schema/mcp/2026-07-28/mcpMessage` from it, and `corpus-yoga mcp reproduce` witnesses
 that upstream's generator turns its `schema.ts` into its `schema.json` - the newest
 lineage only; the earlier lineages' files are held at their pins unwitnessed
 (`generate.md` states the generation and how the two files' names correspond). No data is validated against any lineage

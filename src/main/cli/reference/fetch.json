@@ -1,0 +1,28 @@
+{
+  "help": "record what upstream publishes of every project - each lineage's files, under tmp/reference/fetch/<project>/<lineage>/, with fetched.csv beside them naming each file's pin and hash - so that a bare corpus-yoga reference says what differs from what is held without sending; writes nothing under rsc/reference (refused loudly under CORPUS_YOGA_NO_SEND)",
+  "would": "would fetch",
+  "modality": "MAY",
+  "args": [],
+  "r": [
+    "rsc/reference"
+  ],
+  "w": [
+    "tmp/reference/fetch"
+  ],
+  "sends": {
+    "github-api": {
+      "runs": "urllib.request.urlopen",
+      "refused": "fails",
+      "does": [
+        "lists the dated lineage directories upstream publishes, and reads the newest commit touching each fetched file - the pin"
+      ]
+    },
+    "upstream-raw": {
+      "runs": "urllib.request.urlopen",
+      "refused": "fails",
+      "does": [
+        "reads each file upstream publishes at its URL, to record its bytes and hash"
+      ]
+    }
+  }
+}

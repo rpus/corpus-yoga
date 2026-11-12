@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp.py - the house factoring of the MCP schema, rsc/schema/mcp/mcpMessage,
+mcp.py - the house factoring of the MCP schema, rsc/schema/mcp/<lineage>/mcpMessage,
 generated from upstream's schema.ts alone (issues/598): read through the parser generated
 from the house TypeScript grammar (issues/597) by generation.py into the flat shape of
 every declaration, composed over the extends clauses and tagged by the categories
@@ -22,8 +22,8 @@ the commit gate by schema.changelog_narrative. Re-running is silence (L1). The w
 (mcp.factoring_current).
 
 Usage:
-    corpus-yoga mcp              # status: is rsc/schema/mcp/mcpMessage current with the snapshot?
-    corpus-yoga mcp derive         # (re-)derive rsc/schema/mcp/mcpMessage/v*.json: the diff, then the
+    corpus-yoga mcp              # status: is rsc/schema/mcp/<lineage>/mcpMessage current with the snapshot?
+    corpus-yoga mcp derive         # (re-)derive rsc/schema/mcp/<lineage>/mcpMessage/v*.json: the diff, then the
                                  # next version minted when anything differs - idempotent
     corpus-yoga mcp reproduce    # is the snapshot's schema.json what upstream's generator makes of its
                                  # schema.ts? - src/main/mcp/reproduce.sh, whose header states the run
@@ -38,6 +38,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import facts  # the one printer of a status's facts (issues/753)
 import spell
+import tier  # the tiers, one home (issues/702)
 from declared_parser import command_parser
 import factoring  # (sibling module)
 import face  # (sibling module)
@@ -120,7 +121,22 @@ class Family:
     faces: str = ''
     layers: dict[str, int] | None = None
     differs_by: str | None = None
+    upstream_as_fetched: str | facts.Finding | None = None   # the last fetch's witness, where it is no longer the committed one (issues/1054)
     act: facts.Would | None = None
+
+
+FETCHED = tier.TMP / 'reference' / 'fetch' / factoring.SNAPSHOT_DIR.name / factoring.LINEAGE / factoring.WITNESS.name   # what corpus-yoga reference fetch recorded
+
+
+def as_fetched(have: dict, path: Path) -> str | facts.Finding:
+    """The committed version judged against upstream's schema.json as the last fetch recorded it
+    (issues/1054), as it is against the committed witness: agreeing - upstream moved and the
+    derivation holds, so only the pin is behind - or a finding, the version no longer what
+    upstream publishes, which a revision of the reference and the family remedies, by a PR."""
+    bad = factoring.disagreements(have, json.loads(path.read_text()), factoring.additions(), factoring.generated().constants)
+    if not bad:
+        return facts.phrase('differs from the pinned witness, and the version still agrees with it - the pin is behind')
+    return facts.Finding(facts.phrase('{n} definition(s) no longer agree with upstream as fetched - {first}', n=len(bad), first=bad[0]))
 
 
 @dataclass
@@ -186,7 +202,7 @@ def status() -> int:
                  act=None if _tables_current(declared) else facts.Would(spell.line('mcp', 'derive'), {cache: 1})),
         additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
             facts.phrase('reads {house} here, {upstream} upstream', house=row['house'] or 'nothing', upstream=row['upstream'] or 'nothing'),
-            why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
+            why='rsc/schema/mcp/<lineage>/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
         overrides={name: Ruling(facts.phrase('extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow', base=base, ts=ts))
                    for name, base in factoring.overrides(shapes, declared)},
         uncarried={union: Ruling(facts.phrase('no message carries it, since {ts} declares no {request} - stands unreachable', ts=ts, request=request),
@@ -211,6 +227,8 @@ def status() -> int:
                     layers=dict(factoring.partition(json.loads(wanted))))
     if not face.current(json.loads(have)):
         family.act = facts.Would(spell.line('mcp', 'derive'), {cache: 1})
+    if FETCHED.is_file() and FETCHED.read_bytes() != snapshot_path.read_bytes():
+        family.upstream_as_fetched = as_fetched(json.loads(have), FETCHED)
     if not current:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
