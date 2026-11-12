@@ -49,6 +49,8 @@ SELF='src/main/mcp/reproduce.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"   # scratch_dir (issues/906)
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
 # shellcheck source=src/main/enact.sh
@@ -72,7 +74,7 @@ UPSTREAM="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["up
 
 echo "reproduce: $UPSTREAM @ $PIN, lineage $LINEAGE"
 
-WORK="$(mktemp -d)"
+WORK="$(scratch_dir mcp-reproduce)"
 trap 'rm -rf "$WORK"' EXIT
 # A git hook exports GIT_DIR, GIT_INDEX_FILE and their kin, which would aim every git
 # command below at the repository being committed rather than at the clone in $WORK.

@@ -25,6 +25,9 @@
 
 # Sourced file: SELF and _self_dir here overwrite the sourcing script's —
 # safe only because every sourcer's own guard has already run by its source line.
+# shellcheck source=src/main/tier.sh
+source "${BASH_SOURCE[0]%/*}/tier.sh"   # scratch_dir, for the dispatcher (issues/906)
+
 SELF='src/main/steps.sh'
 _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STEPS_REPO="${_self_dir%/"${SELF%/*}"}"
@@ -192,7 +195,7 @@ CORPUS_YOGA_JOBS="${CORPUS_YOGA_JOBS:-$( (sysctl -n hw.ncpu || nproc || echo 4) 
 # dispatch_done; one that streams uses dispatch_emit.
 dispatch() {
   local fn="$1"; shift
-  DISPATCH_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dispatch.XXXXXX")"
+  DISPATCH_DIR="$(scratch_dir dispatch)"
   DISPATCH_N=0
   mkfifo "$DISPATCH_DIR/token"
   exec 9<>"$DISPATCH_DIR/token"

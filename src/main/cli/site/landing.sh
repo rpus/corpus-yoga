@@ -2,7 +2,7 @@
 # landing.sh - what corpus-yoga site sync would land on rpus.co, read against rpus.co as it
 # stands (issues/1020): the publish tree against the clone's origin as last fetched, never
 # against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
-# report.sh, send.sh and enact.sh; each function takes the clone, and the tree where it reads one.
+# tier.sh, report.sh, send.sh and enact.sh; each function takes the clone, and the tree where it reads one.
 
 # clone_served <clone>: the branch rpus.co serves, the remote's default as the clone records it
 # (origin/HEAD), whatever branch the clone has checked out (issues/1026); nothing where it records none.
@@ -74,7 +74,7 @@ landing() {
   [[ -d "$clone/.git" && -d "$tree" ]] || return 0
   origin="$(clone_served "$clone")"
   [[ -n "$origin" ]] || origin=HEAD
-  held="$(mktemp "${TMPDIR:-/tmp}/landing.XXXXXX")"
+  held="$(scratch_file site-landing)"
   while IFS= read -r f; do
     rel="${f#"$tree"/}"
     if ! git -C "$clone" show "$origin:$rel" > "$held" 2>/dev/null; then

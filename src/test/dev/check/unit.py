@@ -655,3 +655,71 @@ def check_bytecode(run) -> None:
     run('cache: bytecode whose source no longer stands is an orphan - a file where its directory stands, the directory where it does not', named,
         None if named else f'named {found}, where the stale are {wanted}',
         check='cache.stale_bytecode_is_named')
+
+
+@check(tier='code', says=('agent.status_counts_by_kind', 'scratch.stands_under_tmp_cache', 'cache.dead_scratch_is_named'),
+       on=['src/main/cli/agent', 'src/main/tier.sh', 'src/main/cli/cache', 'rsc/cache_io.csv', 'src'])
+def check_screen_and_scratch(run) -> None:
+    """The agent status counts what it holds by kind and names only what a reader acts on
+    (issues/1004): sessions by room and provider, a pull's kept units by kind with their size, the
+    units it would write by name - the per-session listing a verb of its own, list-sessions.
+    A disposable file a script keeps stands under tmp/cache/scratch, named with the pid of the
+    run that keeps it, through the tier's scratch_file and scratch_dir alone (issues/906), and the
+    cache names an entry there whose run is gone. The fixtures are synthetic."""
+    import importlib.util
+    import os
+    import subprocess
+    import sys
+    import tempfile
+    import cache_io
+    import transport
+    spec = importlib.util.spec_from_file_location('agent_status', SRC / 'main' / 'cli' / 'agent' / 'agent.py')
+    assert spec is not None and spec.loader is not None
+    agent = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(agent)
+    tally, summary = getattr(agent, 'tally', None), getattr(agent, 'summary', None)
+    verbs = sorted(d.stem for d in (SRC / 'main' / 'cli' / 'agent').glob('*.json') if d.stem != 'agent')
+    counted = tally([('local', 'claude', 1_500_000), ('local', 'claude', 500_000), ('home-room', 'claude', 2_000_000)]) if callable(tally) else None
+    with tempfile.TemporaryDirectory() as tmp:
+        bundle = Path(tmp)
+        (bundle / 'p' / 's').mkdir(parents=True)
+        (bundle / 'p' / 'memory').mkdir()
+        (bundle / 'p' / 's.jsonl').write_text('x' * 10)
+        (bundle / 'p' / 's' / 'f').write_text('x' * 5)
+        (bundle / 'p' / 'memory' / 'a.md').write_text('x' * 3)
+        log = transport.Log(transport.LIVE, 'would')
+        for address in ('p/s.jsonl', 'p/s/', '/'.join(('p', 'memory', 'a.md'))):
+            log.say('kept', address, {'identical': 'bytes'})
+        log.say('wrote', 'p/t.jsonl', {'new': '9 bytes'})
+        said = summary(log, bundle) if callable(summary) else None
+    human = cache_io.human
+    wanted = {log.key('wrote'): {'p/t.jsonl': {'new': '9 bytes'}},
+              log.key('kept'): {'sessions': f'1, {human(10)}', 'workspaces': f'1, {human(5)}', 'memory facts': f'1, {human(3)}'}}
+    same = (counted == {'local': {'claude': f'2 session(s), {human(2_000_000)}'}, 'home-room': {'claude': f'1 session(s), {human(2_000_000)}'}}
+            and said == wanted and 'list-sessions' in verbs)
+    run('agent: the status counts sessions by room and provider and a pull\'s kept units by kind, names what a pull would write, and list-sessions lists each session',
+        same, None if same else 'src/main/cli/agent/agent.py has no tally(sized) and summary(log, bundle)' if counted is None or said is None
+        else f'sessions counted as {counted!r}; the pull said as {said!r}; the agent declares {verbs}', check='agent.status_counts_by_kind')
+
+    loose = sorted(f'{path.relative_to(REPO_ROOT)}:{number}' for path in SRC.rglob('*.sh') if path.name != 'tier.sh'
+                   for number, line in enumerate(path.read_text().splitlines(), 1) if 'mktemp' in line and not line.lstrip().startswith('#'))
+    with tempfile.TemporaryDirectory() as tmp:
+        made = subprocess.run(['bash', '-c', f'source "{SRC}/main/tier.sh"; TMP_DIR="{tmp}"; f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]'],
+                              capture_output=True, text=True, timeout=30)
+        lines = made.stdout.split()
+        placed = (made.returncode == 0 and len(lines) == 3 and all(line.startswith(f'{tmp}/cache/scratch/probe.{lines[2]}.') for line in lines[:2]))
+    kept = not loose and placed
+    run('scratch: a disposable file a script keeps stands under tmp/cache/scratch, named with its run\'s pid, through the tier\'s scratch_file and scratch_dir alone',
+        kept, None if kept else f'mktemp is called at {", ".join(loose)}' if loose else f'the tier made {made.stdout!r} {made.stderr.strip()[:160]!r}',
+        check='scratch.stands_under_tmp_cache')
+
+    gone = subprocess.run([sys.executable, '-c', 'import os; print(os.getpid())'], capture_output=True, text=True, timeout=30).stdout.strip()
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / f'live.{os.getpid()}.aaaaaa').write_text('')
+        (root / f'left.{gone}.bbbbbb').write_text('')
+        (root / 'unnamed').write_text('')
+        found = sorted(p.name for p in cache_io.dead_scratch(root))
+    named = found == [f'left.{gone}.bbbbbb', 'unnamed']
+    run('cache: a scratch entry whose run is gone is an orphan, and one whose run lives is not', named,
+        None if named else f'named {found}', check='cache.dead_scratch_is_named')

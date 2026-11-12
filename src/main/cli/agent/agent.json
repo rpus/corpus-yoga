@@ -5,6 +5,8 @@
     "absent - no local {provider} rows",
     "none - the claude store is not mounted",
     "nothing - the store holds no session of it",
+    "{n} session(s), {size}",
+    "{n}, {size}",
     "none - no peer machine held",
     "absent - echo <declared-machine-name> > machine-name.txt binds it, to a name rsc/machine/machines.csv declares",
     "on {machine}, {capture}",

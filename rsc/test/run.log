@@ -1,4 +1,4 @@
-run.py: code+schema 1921/1921
+run.py: code+schema 1930/1930
 
 
 check_schema_join: |
@@ -34,8 +34,8 @@ check_declared_families_judge: |
 check_cache_io: |
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (9/9)
-  ✓ cache_io.paths_resolve  (9/9)
+  ✓ cache_io.read_implies_writer  (10/10)
+  ✓ cache_io.paths_resolve  (10/10)
 
 check_accumulate_contract: |
   ✓ accumulate.trajectory_contract
@@ -187,18 +187,18 @@ check_cli_surface: |
   ✓ output.plan_lines_name_their_target  (86/86)
   ✓ structure.file_at_level_of_subject  (47/47)
   ✓ structure.cli_declaration_mirrors_the_api  (25/25)
-  ✓ structure.cli_declaration_validates  (79/79)
+  ✓ structure.cli_declaration_validates  (80/80)
   ✓ cli.every_form_listed  (24/24)
   ✓ cli.help_is_the_declaration  (25/25)
-  ✓ cli.prose_holds_no_pair  (78/78)
+  ✓ cli.prose_holds_no_pair  (79/79)
   ✓ cli.flag_not_axis_value  (23/23)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_is_the_nouns_entry  (76/76)
-  ✓ cli.verb_help_answered  (54/54)
+  ✓ cli.verb_help_is_the_nouns_entry  (77/77)
+  ✓ cli.verb_help_answered  (55/55)
   ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
@@ -322,6 +322,11 @@ check_bytecode: |
   ✓ migration.bytecode_leaves_src
   ✓ cache.stale_bytecode_is_named
 
+check_screen_and_scratch: |
+  ✓ agent.status_counts_by_kind
+  ✓ scratch.stands_under_tmp_cache
+  ✓ cache.dead_scratch_is_named
+
 check_grammar: |
   ✓ grammar.parser_current  (2/2)
 
@@ -404,7 +409,7 @@ stages:
     tier: code
     line: "29"
   check_cache_io:
-    passes: 20
+    passes: 22
     failures: 0
     tier: code
     line: "34"
@@ -519,12 +524,12 @@ stages:
     tier: code
     line: "161"
   check_cli_surface:
-    passes: 585
+    passes: 587
     failures: 0
     tier: code
     line: "164"
   check_cli_verb_help:
-    passes: 133
+    passes: 135
     failures: 0
     tier: code
     line: "199"
@@ -673,44 +678,49 @@ stages:
     failures: 0
     tier: code
     line: "320"
+  check_screen_and_scratch:
+    passes: 3
+    failures: 0
+    tier: code
+    line: "325"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "325"
+    line: "330"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "328"
+    line: "333"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "334"
+    line: "339"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "340"
+    line: "345"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "343"
+    line: "348"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "348"
+    line: "353"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "362"
+    line: "367"
 
-checks[code+schema]: 223 types, 1921/1921 invocations passing
-checks[code]: 165 types, 1179/1179 invocations passing
+checks[code+schema]: 226 types, 1930/1930 invocations passing
+checks[code]: 168 types, 1188/1188 invocations passing
 checks[schema]: 58 types, 742/742 invocations passing
 
-dev gate: PASS - code+schema 1921/1921 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1930/1930 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

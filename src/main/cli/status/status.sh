@@ -102,7 +102,7 @@ _say() {
     return 0
   fi
   local rows_file
-  rows_file="$(mktemp "${TMPDIR:-/tmp}/status.XXXXXX")"
+  rows_file="$(scratch_file status)"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
   # shellcheck source=src/import_roots.sh
   source "$REPO_ROOT/src/import_roots.sh"

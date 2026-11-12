@@ -20,6 +20,7 @@ you can cd to or rm. Three consumers share it:
 STDLIB-ONLY.
 """
 import csv
+import os
 from pathlib import Path
 
 SELF = 'src/main/cli/cache/cache_io.py'
@@ -100,6 +101,27 @@ def producers() -> list[str]:
     for r in rows():
         cmds.extend(r['written_by'])
     return cmds
+
+
+SCRATCH = 'tmp/cache/scratch'   # where a script keeps what it needs only while it runs (src/main/tier.sh, issues/906)
+
+
+def dead_scratch(root: Path) -> list[Path]:
+    """The scratch entries whose run is gone (issues/906): an entry is named <name>.<pid>.<random>
+    by the run that keeps it, so one whose pid no process holds - or that carries none - was
+    left by a run that died before removing it."""
+    def lives(entry: Path) -> bool:
+        parts = entry.name.split('.')
+        if len(parts) < 3 or not parts[-2].isdigit():
+            return False
+        try:
+            os.kill(int(parts[-2]), 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        return True
+    return [entry for entry in sorted(root.iterdir()) if not lives(entry)] if root.is_dir() else []
 
 
 BYTECODE = 'tmp/cache/python'   # where every python the launcher starts keeps its bytecode (src/import_roots.sh, issues/1052)
