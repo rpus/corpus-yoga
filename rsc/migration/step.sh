@@ -76,11 +76,12 @@ strip() {
 # removed with what it holds; only under tmp/cache, where every file is a derivation some
 # verb rewrites, or what the rehearsal layout before issues/815 left under tmp/stage - a stamped
 # rehearsal under tmp/stage/rehearsal/, or the record under that name before its extension
-# - which corpus-yoga pipeline rehearse remakes under tmp/stage/scratch and tmp/stage/rehearsal.json.
+# - which corpus-yoga pipeline rehearse remakes under tmp/stage/scratch and tmp/stage/rehearsal.json,
+# or a __pycache__ under src, the bytecode python rebuilds under tmp/cache/python (issues/1052).
 discard() {
   local entry="$1"
-  [[ "$entry" == tmp/cache/* || "$entry" == tmp/stage/rehearsal || "$entry" == tmp/stage/rehearsal/* ]] \
-    || { echo "FAIL: discard $entry - only an entry under tmp/cache or tmp/stage/rehearsal is discarded" >&2; exit 1; }
+  [[ "$entry" == tmp/cache/* || "$entry" == tmp/stage/rehearsal || "$entry" == tmp/stage/rehearsal/* || "$entry" == src/__pycache__ || "$entry" == src/*/__pycache__ ]] \
+    || { echo "FAIL: discard $entry - only an entry under tmp/cache or tmp/stage/rehearsal, or a __pycache__ under src, is discarded" >&2; exit 1; }
   [[ -e "$entry" && ! -L "$entry" ]] || return 0
   echo "rm -r $entry"
   if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
@@ -101,5 +102,5 @@ retire() {
     exit 1
   done
   echo "rmdir $dir"
-  if (( APPLY )); then rm -f "$dir/.DS_Store" && rmdir "$dir"; fi
+  if (( APPLY )); then rm -f "$dir/.DS_Store" && rmdir "$dir"; else MOVED+=("$dir"); fi
 }

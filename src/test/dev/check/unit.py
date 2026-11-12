@@ -587,3 +587,71 @@ def check_effective_acts(run) -> None:
         run("migration: rsc/migration/1063.sh strips the merge records a memory index holds, its index lines kept - bare the step, applied, again nothing",
             stripped, None if stripped else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
             f'again said {again.stdout!r}; the index holds {index.read_text()!r}', check='migration.merge_records_are_stripped')
+
+
+@check(tier='code', says=('python.bytecode_stands_under_tmp_cache', 'migration.bytecode_leaves_src', 'cache.stale_bytecode_is_named'),
+       on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_io.csv'])
+def check_bytecode(run) -> None:
+    """Python's bytecode stands under tmp/cache/python, never beside the sources (issues/1052): every
+    python the launcher starts is given that prefix; rsc/migration/1052.sh discards the bytecode
+    a room's src already holds and retires each directory that held nothing else; and bytecode
+    under the prefix whose source no longer stands is an orphan the cache names. The fixtures are
+    synthetic: a checkout with a src of its own, and a prefix under a temporary root."""
+    import os
+    import shutil
+    import subprocess
+    import sys
+    import tempfile
+    import cache_io
+    asked = subprocess.run([str(REPO_ROOT / 'src' / 'run_python_script.sh'), '-c', 'import sys; print(sys.pycache_prefix)'],
+                           capture_output=True, text=True, cwd=REPO_ROOT, env={**os.environ, 'CORPUS_YOGA_VENV': sys.prefix}, timeout=60)
+    prefix = (REPO_ROOT / 'tmp' / 'cache' / 'python').as_posix()
+    given = asked.stdout.strip() == prefix
+    run('python: every python the launcher starts keeps its bytecode under tmp/cache/python', given,
+        None if given else f'sys.pycache_prefix is {asked.stdout.strip() or asked.stderr.strip()[:120]!r}, where the prefix is {prefix}',
+        check='python.bytecode_stands_under_tmp_cache')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1052.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        def under_src(*parts: str) -> str:
+            return '/'.join(('src', *parts))
+        for held in (under_src('__pycache__', 'top.cpython-314.pyc'),
+                     under_src('main', 'kept', '__pycache__', 'kept.cpython-314.pyc'), under_src('main', 'kept', 'kept.py'),
+                     under_src('main', 'gone', '__pycache__', 'gone.cpython-314.pyc'),
+                     under_src('main', 'gone', 'deeper', '__pycache__', 'deeper.cpython-314.pyc'), under_src('gen', 'made', 'made.txt')):
+            (checkout / held).parent.mkdir(parents=True, exist_ok=True)
+            (checkout / held).write_text('')
+        script = checkout / 'rsc/migration/1052.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        left = sorted(p.relative_to(checkout).as_posix() for p in (checkout / 'src').rglob('*'))
+        cleared = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 6 and applied.returncode == 0 and again.stdout == ''
+                   and left == [under_src('gen'), under_src('gen', 'made'), under_src('gen', 'made', 'made.txt'),
+                                under_src('main'), under_src('main', 'kept'), under_src('main', 'kept', 'kept.py')])
+        run("migration: rsc/migration/1052.sh discards the bytecode under src and retires each directory that held nothing else - bare the steps, applied, again nothing",
+            cleared, None if cleared else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; src holds {left}', check='migration.bytecode_leaves_src')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        source, under = Path(tmp).resolve() / 'source', Path(tmp).resolve() / 'prefix'
+        source.mkdir()
+        (source / 'kept.py').write_text('')
+        mirror = under / source.relative_to(source.anchor)
+        mirror.mkdir(parents=True)
+        for name in ('kept.cpython-314.pyc', 'gone.cpython-314.pyc'):
+            (mirror / name).write_text('')
+        (under / 'nowhere' / 'left').mkdir(parents=True)
+        (under / 'nowhere' / 'left' / 'x.cpython-314.pyc').write_text('')
+        found = sorted(p.relative_to(under).as_posix() for p in cache_io.stale_bytecode(under))
+    wanted = sorted([(mirror / 'gone.cpython-314.pyc').relative_to(under).as_posix(), 'nowhere'])
+    named = found == wanted
+    run('cache: bytecode whose source no longer stands is an orphan - a file where its directory stands, the directory where it does not', named,
+        None if named else f'named {found}, where the stale are {wanted}',
+        check='cache.stale_bytecode_is_named')

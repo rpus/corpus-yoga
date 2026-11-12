@@ -29,6 +29,9 @@ for word in "$@"; do
 done
 set -- ${words[@]+"${words[@]}"}
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
+# shellcheck source=src/import_roots.sh
+source "$SCRIPT_DIR/src/import_roots.sh"
+python_cache "$SCRIPT_DIR"   # the walk before the mint runs python too
 if [[ -f "$CORPUS_YOGA_VENV/bin/python" ]]; then
   set -- "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
 elif [[ "${1-}" == walkthrough ]] && command -v python3 >/dev/null; then
