@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import subprocess
+from pathlib import Path
 
 from gate import (
     REPO_ROOT,
@@ -74,8 +75,8 @@ def check_reference(run) -> None:
     project's provenance.csv pins, hermetically: the committed bytes hash to the
     pinned SHA256; every lineage directory is declared and every declared lineage
     held; and every lineage's CHANGELOG.md carries a section per pin its rows name.
-    Currency against upstream is not held here - it is `corpus-yoga reference`'s
-    report, a send, and `corpus-yoga reference pull` is the fetch."""
+    Currency against upstream is not held here - `corpus-yoga reference fetch` records
+    what upstream publishes, and `corpus-yoga reference` reads that record."""
     root = REPO_ROOT / 'rsc' / 'reference'
     for project in sorted(p for p in root.iterdir() if p.is_dir()):
         name = project.name
@@ -93,7 +94,7 @@ def check_reference(run) -> None:
             None if not undeclared and not unheld else
             '; '.join([f'{project.relative_to(REPO_ROOT)}/{d} has no provenance.csv row' for d in undeclared]
                       + [f'provenance.csv names {d} but {project.relative_to(REPO_ROOT)}/{d}/schema.json is absent - '
-                         'corpus-yoga reference pull fetches it' for d in unheld]),
+                         'corpus-yoga reference fetch records it under tmp/reference/fetch, and a commit copies it in' for d in unheld]),
             check='reference.lineage_declared')
         for row in rows:
             path = project / row['lineage'] / row['file']
@@ -101,7 +102,7 @@ def check_reference(run) -> None:
             local = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
             run(f'reference: {rel} verbatim (bytes hash to the pinned SHA256)', local == row['sha256'],
                 None if local == row['sha256'] else
-                (f'{rel} is absent - corpus-yoga reference pull fetches it' if local is None else
+                (f'{rel} is absent - corpus-yoga reference fetch records it under tmp/reference/fetch, and a commit copies it in' if local is None else
                  f'{rel} hashes {local}, provenance.csv pins {row["sha256"]} - the committed file is not the pinned upstream file'),
                 check='reference.verbatim')
         for lineage in declared:
@@ -123,7 +124,7 @@ def check_reference(run) -> None:
 ))
 def check_mcp_factoring(run) -> None:
     """The house MCP factoring is a committed derivation: the latest
-    rsc/schema/mcp/mcpMessage version must be byte-identical to what
+    rsc/schema/mcp/<lineage>/mcpMessage version must be byte-identical to what
     corpus-yoga mcp derive generates from the committed schema.ts and the family's
     tables (mcp.factoring_current), and every definition of upstream's schema.json -
     the witness, never a source - must equal its house counterpart flattened and
@@ -131,7 +132,7 @@ def check_mcp_factoring(run) -> None:
     lineage's schema.ts must parse (mcp.lineages_parse)."""
     target = factoring.latest_version(factoring.FAMILY_DIR)
     if not target:
-        run('mcp: rsc/schema/mcp/mcpMessage has a version', False,
+        run('mcp: rsc/schema/mcp/<lineage>/mcpMessage has a version', False,
             'corpus-yoga mcp derive derives v1.json', check='mcp.factoring_current')
         return
     rel = target.relative_to(REPO_ROOT)
@@ -199,3 +200,94 @@ def check_mcp_reproducible(run) -> None:
             detail = '\n    '.join(lines[-12:])
     run("mcp: schema.json reproduces from schema.ts through upstream's generator", ok, detail,
         check='mcp.reproducible')
+
+
+@check(tier='schema', on=['rsc/reference', 'rsc/schema/mcp', 'src/main/mcp', 'src/main/reference', 'src/main/cli/reference', 'src/main/derivation.schema.json'], says=(
+    'mcp.derivation_declared',
+    'mcp.upstream_as_fetched_is_judged',
+    'reference.status_reads_its_fetch',
+))
+def check_upstream_chain(run) -> None:
+    """The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it
+    reads, the parser it needs, the family and cache it writes, its witness and its arbiter
+    (issues/1053) - and the family stands at the lineage's address, its latest changelog section
+    naming the upstream commit (issues/1055). Upstream reaches a room by `corpus-yoga reference
+    fetch`, into tmp/reference/fetch; the reference's status reads that record and sends nothing,
+    and the mcp status judges upstream's schema.json as fetched against the committed version
+    (issues/1054). The fixtures are synthetic: a project and a fetch record under a temporary root."""
+    import importlib.util
+    import tempfile
+    import jsonschema
+    def loaded(name: str, path: Path):
+        spec = importlib.util.spec_from_file_location(name, path)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    declared_at, schema_at = REPO_ROOT / 'src/main/mcp/derivation.json', REPO_ROOT / 'src/main/derivation.schema.json'
+    why = None
+    if not declared_at.is_file() or not schema_at.is_file():
+        why = f'{"src/main/mcp/derivation.json" if not declared_at.is_file() else "src/main/derivation.schema.json"} is absent'
+    else:
+        declared = json.loads(declared_at.read_text())
+        errors = sorted(jsonschema.Draft4Validator(json.loads(schema_at.read_text())).iter_errors(declared), key=lambda e: list(e.path))
+        lineage = declared.get('lineage', '')
+        def at(path: str) -> Path:
+            return REPO_ROOT / path.replace('<lineage>', lineage)
+        family = at(declared.get('writes', [''])[0])
+        latest = factoring.latest_version(family) if family.is_dir() else None
+        section = ''
+        if latest is not None:
+            text = (family / 'CHANGELOG.md').read_text()
+            section = text.split(f'## {latest.stem}', 1)[-1].split('\n## ', 1)[0] if f'## {latest.stem}' in text else ''
+        why = (f'#/{"/".join(str(x) for x in errors[0].path)}: {errors[0].message[:160]}' if errors
+               else f'{declared["reads"]} is no file at lineage {lineage}' if not at(declared['reads']).is_file()
+               else f'{declared["witness"]} is no file at lineage {lineage}' if not at(declared['witness']).is_file()
+               else f'{family.relative_to(REPO_ROOT)} holds no version' if latest is None
+               else f'the derivation writes {factoring.FAMILY_DIR.relative_to(REPO_ROOT)}, where the declaration says {family.relative_to(REPO_ROOT)}' if factoring.FAMILY_DIR != family
+               else f'the derivation reads {factoring.schema_ts().relative_to(REPO_ROOT)}, where the declaration says {at(declared["reads"]).relative_to(REPO_ROOT)}' if factoring.schema_ts() != at(declared['reads'])
+               else f'the changelog section of {latest.stem} does not name the upstream commit {factoring.provenance()["commit"]}' if factoring.provenance()['commit'] not in section
+               else None)
+    run('mcp: the derivation is declared in src/main/mcp/derivation.json, and reads, writes and is recorded as it declares', why is None, why,
+        check='mcp.derivation_declared')
+
+    reference = loaded('reference_noun', REPO_ROOT / 'src/main/reference/reference.py')
+    read = getattr(reference, 'drift', None)
+    verbs = sorted(d.stem for d in (REPO_ROOT / 'src/main/cli/reference').glob('*.json') if d.stem != 'reference')
+    sends = json.loads((REPO_ROOT / 'src/main/cli/reference/reference.json').read_text()).get('sends')
+    with tempfile.TemporaryDirectory() as tmp:
+        project, fetched = Path(tmp) / 'held' / 'p', Path(tmp) / 'fetch' / 'p'
+        project.mkdir(parents=True)
+        fetched.mkdir(parents=True)
+        header = '"lineage","file","url","pin","sha256"\n'
+        (project / 'provenance.csv').write_text(header + '"2026-01-01","schema.json","u","a","aaaa"\n')
+        unfetched = read(project, fetched) if callable(read) else 'no drift(project, fetched)'
+        (fetched / 'fetched.csv').write_text(header + '"2026-01-01","schema.json","u","b","bbbb"\n"2026-02-02","schema.json","u","c","cccc"\n')
+        found = read(project, fetched) if callable(read) else None
+    same = (callable(read) and unfetched is None and found == {'2026-01-01/schema.json': 'drifted - upstream hashes bbbb, provenance.csv pins aaaa',
+                                                               '2026-02-02/schema.json': 'missing'}
+            and verbs == ['fetch'] and not sends)
+    run("reference: its status reads what the last fetch recorded against provenance.csv, and sends nothing; fetch is its one verb", same,
+        None if same else 'src/main/reference/reference.py has no drift(project, fetched)' if not callable(read)
+        else f'unfetched reads {unfetched!r}; fetched reads {found!r}; the verbs are {verbs}; the status declares sends {sorted(sends or {})}',
+        check='reference.status_reads_its_fetch')
+
+    mcp = loaded('mcp_noun', REPO_ROOT / 'src/main/mcp/mcp.py')
+    judge = getattr(mcp, 'as_fetched', None)
+    target = factoring.latest_version(factoring.FAMILY_DIR)
+    judged = None
+    if callable(judge) and target is not None:
+        have, (_path, witness) = json.loads(target.read_text()), factoring.snapshot()
+        moved = json.loads(json.dumps(witness))
+        holder = next(key for key in ('definitions', '$defs') if key in moved)
+        name = sorted(moved[holder])[0]
+        moved[holder][name] = {'type': 'string', 'description': 'changed upstream'}
+        with tempfile.TemporaryDirectory() as tmp:
+            agreeing, differing = Path(tmp) / 'agreeing.json', Path(tmp) / 'differing.json'
+            agreeing.write_text(json.dumps(witness))
+            differing.write_text(json.dumps(moved))
+            judged = (judge(have, agreeing), judge(have, differing))
+    held = judged is not None and isinstance(judged[0], str) and getattr(judged[1], 'FAIL', None) is not None
+    run("mcp: upstream's schema.json as fetched is judged against the committed version - agreeing, or a finding", held,
+        None if held else 'src/main/mcp/mcp.py has no as_fetched(have, path)' if not callable(judge) else f'judged {judged!r}'[:300],
+        check='mcp.upstream_as_fetched_is_judged')

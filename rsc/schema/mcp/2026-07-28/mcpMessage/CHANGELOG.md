@@ -3,12 +3,15 @@
 This family is the HOUSE FACTORING of the Model Context Protocol schema (issues/562,
 issues/598): the composition upstream's generator flattens, stated once in draft-04,
 generated from upstream's `schema.ts` alone. It is a committed derivation, never
-hand-edited: `corpus-yoga mcp derive` reads the newest lineage's `schema.ts` under
-`rsc/reference/mcp` (whose `provenance.csv` pins the lineage, commit and SHA256)
+hand-edited: `corpus-yoga mcp derive` reads the `schema.ts` of the lineage
+`src/main/mcp/derivation.json` declares, under `rsc/reference/mcp` (whose
+`provenance.csv` pins the commit and SHA256) - the lineage this family's address
+names, `rsc/schema/mcp/<lineage>/mcpMessage`, each lineage a series of versions of
+its own (issues/1055) -
 through the parser generated from the house TypeScript grammar into the flat
 shape of every declaration, one stated rule per TypeScript form
-(`src/main/mcp/mcp_generation.py`), composes it over the extends clauses and tags
-it by the categories `src/main/mcp/mcp_extraction.py` reads (issues/581, issues/595; the two
+(`src/main/mcp/generation.py`), composes it over the extends clauses and tags
+it by the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two
 tables faced under `tmp/cache/mcp/`), and applies the hand-written tables beside
 this file: `description.csv`, house text for the definitions schema.ts leaves
 without a JSDoc; `unreachable.csv`, the definitions no message carries (issues/588);
@@ -87,6 +90,12 @@ v4
 
 #### Refactored
 
+- The family description (v5, in place) names the hand-written tables as beside the
+  version file - `addition.csv`, `description.csv`, `unreachable.csv`, `layer.csv` - and
+  no longer by the family's address, which is `rsc/schema/mcp/2026-07-28/mcpMessage`
+  since 2026-11-12 (issues/1055): a version file states nothing of where it stands, so a
+  move changes no byte of it. Derived from upstream commit
+  `271ecc9accafdd9b83a3c869fa67c22953b2af80`, as v5 was. No validation effect.
 - The family description (v5, in place) names the module that reads schema.ts as it is
   named since 2026-11-10, `src/main/mcp/generation.py` - its directory names the noun,
   so the file no longer repeats it (issues/1047). No validation effect.

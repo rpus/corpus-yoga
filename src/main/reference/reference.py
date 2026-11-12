@@ -4,14 +4,16 @@ reference.py - the upstream reference artefacts under rsc/reference (issues/572,
 one project per upstream, one directory per lineage upstream publishes, every
 file byte-for-byte at the pin its provenance.csv row names.
 
-`reference` is a NOUN: what is held. A bare invocation reports it against upstream
-and writes nothing: per project, the lineages upstream lists against those held,
-and per held file whether the bytes at its URL still hash as pinned - the
-currency check, a send, so under CORPUS_YOGA_NO_SEND=1 it degrades to UNVERIFIED and
-reports what is held. Only `sync` writes: it fetches every lineage upstream lists
-that is not held, and every held file whose bytes drifted, and rewrites
-provenance.csv; the lineage's changelog section (`## <pin>`) stays a hand act,
-owed at the commit gate by reference.lineage_changelog. Re-running is silence (L1).
+`reference` is a NOUN: what is held. Upstream is its remote, and reaches a room by
+`fetch` alone (issues/1054): every file upstream publishes, written under
+tmp/reference/fetch/<project>/<lineage>/ with a record beside them, fetched.csv, in
+provenance.csv's columns. A bare invocation reads that record against provenance.csv
+and sends nothing: per project, the lineages held, and each file the fetch found
+missing here or drifted from its pin - or that no fetch has recorded what upstream
+holds. No verb writes rsc/reference: it is the dev gate's witness, and what a fetch
+brings reaches it as a commit - the fetched files and their fetched.csv rows copied
+in, each lineage's changelog section (`## <pin>`) written, owed at the commit gate by
+reference.lineage_changelog.
 
 A project's reference.json names `upstream`; with `lineage_listing` (a GitHub
 contents URL of the directory whose dated subdirectories are the lineages) and
@@ -20,8 +22,8 @@ is the newest upstream commit touching the file; without a listing, the lineages
 are the provenance rows' and the pin is the URL's etag.
 
 Usage:
-    corpus-yoga reference         # status: what upstream lists, what is held, what drifted
-    corpus-yoga reference pull    # fetch what is missing or drifted; write provenance.csv
+    corpus-yoga reference         # status: what is held, and what the last fetch found against it
+    corpus-yoga reference fetch   # record what upstream publishes under tmp/reference/fetch
 """
 
 import csv
@@ -35,6 +37,7 @@ from pathlib import Path
 from declared_parser import command_parser
 import facts  # the one printer of a status's facts (issues/753)
 import spell
+import tier  # the tiers, one home (issues/702)
 import send  # every read of upstream is a send the declaration names (issues/1022)
 from latest import lineages
 
@@ -45,6 +48,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 ROOT = REPO / 'rsc' / 'reference'
+FETCH = tier.TMP / 'reference' / 'fetch'   # what the last fetch recorded of upstream, by project
 COLUMNS = ('lineage', 'file', 'url', 'pin', 'sha256')
 DATED = re.compile(r'\d{4}-\d{2}-\d{2}')
 GITHUB_CONTENTS = re.compile(r'https://api\.github\.com/repos/([^/]+)/([^/]+)/contents/(.+)')
@@ -59,16 +63,16 @@ def declaration(project: Path) -> dict:
     return json.loads(path.read_text()) if path.is_file() else {}
 
 
-def rows(project: Path) -> list[dict]:
-    path = project / 'provenance.csv'
+def rows(project: Path, name: str = 'provenance.csv') -> list[dict]:
+    path = project / name
     if not path.is_file():
         return []
     with path.open(newline='') as fh:
         return list(csv.DictReader(fh))
 
 
-def write_rows(project: Path, table: list[dict]) -> None:
-    with (project / 'provenance.csv').open('w', newline='') as fh:
+def write_rows(project: Path, table: list[dict], name: str = 'provenance.csv') -> None:
+    with (project / name).open('w', newline='') as fh:
         writer = csv.DictWriter(fh, fieldnames=COLUMNS, quoting=csv.QUOTE_ALL)
         writer.writeheader()
         writer.writerows(sorted(table, key=lambda r: (r['lineage'], r['file'])))
@@ -123,32 +127,29 @@ def _pin(project: Path, item: dict, headers: dict) -> str:
     return f'etag {etag}' if etag else f'sha256 {hashlib.sha256(item["bytes"]).hexdigest()}'
 
 
-def _reading(project: Path) -> tuple[list[dict], dict[str, str]]:
-    """Every wanted item with its live bytes, and the lines to print: what is
-    missing, what drifted. Sends."""
+def drift(project: Path, fetched: Path) -> dict[str, str] | None:
+    """What the last fetch found of upstream against what the project pins, by file: missing
+    here, or drifted from its pin; None where no fetch has recorded what upstream holds.
+    Reads the two records; sends nothing."""
+    if not (fetched / 'fetched.csv').is_file():
+        return None
     held = {(r['lineage'], r['file']): r for r in rows(project)}
-    items: list[dict] = []
     lines: dict[str, str] = {}
-    for item in wanted(project):
-        body, headers = _get(item['url'], 'upstream-raw')
-        digest = hashlib.sha256(body).hexdigest()
-        row = held.get((item['lineage'], item['file']))
-        state = 'missing' if row is None else ('drifted' if row['sha256'] != digest else 'current')
-        items.append({**item, 'bytes': body, 'headers': headers, 'sha256': digest, 'state': state, 'row': row})
-        if state != 'current':
-            lines[f'{item["lineage"]}/{item["file"]}'] = state + (
-                f' - upstream hashes {digest[:12]}, provenance.csv pins {row["sha256"][:12]}' if row else '')
-    return items, lines
+    for found in rows(fetched, 'fetched.csv'):
+        row = held.get((found['lineage'], found['file']))
+        if row is None:
+            lines[f'{found["lineage"]}/{found["file"]}'] = 'missing'
+        elif row['sha256'] != found['sha256']:
+            lines[f'{found["lineage"]}/{found["file"]}'] = f'drifted - upstream hashes {found["sha256"][:12]}, provenance.csv pins {row["sha256"][:12]}'
+    return lines
 
 
 @dataclass
 class Project:
-    lineages_upstream: int | None = None
     lineages_held: list[str] | None = None
     pinned_files: int | None = None
-    files_hashing_as_pinned: str | None = None
-    currency: str | facts.Unsettled | None = None
-    to_fetch: dict[str, str] | None = None   # by file: missing, or drifted from its pin
+    upstream: str | facts.Unsettled | None = None
+    upstream_as_fetched: dict[str, str] | None = None   # by file: missing here, or drifted from its pin
     act: facts.Would | None = None
 
 
@@ -162,56 +163,49 @@ class Status:
 
 
 def status() -> int:
-    """Each project's held lineages against upstream, as facts (issues/753); 1 while any file is
-    missing or drifted."""
-    stale = 0
+    """Each project's held lineages, and what the last fetch found of upstream against them, as
+    facts (issues/753): read from the fetch's record, never sent for (issues/1054)."""
+    differing = unfetched = 0
     out: dict[str, Project] = {}
     for project in projects():
         name = project.name
-        held = [d.name for d in lineages(project)]
-        table = rows(project)
-        try:
-            items, lines = _reading(project)
-        except send.SendRefused:
-            out[name] = Project(lineages_held=held, pinned_files=len(table),
-                                currency=facts.Unsettled(facts.phrase('UNVERIFIED - CORPUS_YOGA_NO_SEND=1 refuses the probe'), 'reference'))
-            continue
-        listing = declaration(project).get('lineage_listing')
-        upstream = sorted({i['lineage'] for i in items}) if listing else held
-        item = Project(lineages_upstream=len(upstream), lineages_held=held,
-                       files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
-        if lines:
-            item.to_fetch, item.act = lines, facts.Would(spell.line('reference', 'pull'), {name: len(lines)})
+        item = Project(lineages_held=[d.name for d in lineages(project)], pinned_files=len(rows(project)))
+        lines = drift(project, FETCH / name)
+        if lines is None:
+            unfetched += 1
+            item.upstream = facts.Unsettled(facts.phrase('unfetched - no fetch has recorded what upstream holds'), 'reference')
+            item.act = facts.Would(spell.line('reference', 'fetch'), {name: 1})
+        elif lines:
+            differing += len(lines)
+            item.upstream = facts.phrase('as fetched, {n} file(s) differ from what is held', n=len(lines))
+            item.upstream_as_fetched = lines
+        else:
+            item.upstream = facts.phrase('as fetched, every file is held as pinned')
         out[name] = item
-        stale += len(lines)
-    facts.say_standing(Status(out, facts.phrase('{n} project(s), {stale} file(s) to fetch', n=len(out), stale=stale)))
-    return 1 if stale else 0
+    facts.say_standing(Status(out, facts.phrase('{n} project(s), {differing} file(s) differing from upstream as fetched, {unfetched} unfetched',
+                                                n=len(out), differing=differing, unfetched=unfetched)))
+    return 0
 
 
-def pull() -> int:
+def fetch() -> int:
+    """Record what upstream publishes, per project (issues/1054): each wanted file's bytes under
+    tmp/reference/fetch/<project>/<lineage>/, and fetched.csv beside them with each file's pin and
+    hash. Sends; writes nothing under rsc/reference."""
     for project in projects():
-        items, lines = _reading(project)
-        if not lines:
-            continue                                # current means no write and nothing said (L1)
-        table = {(r['lineage'], r['file']): r for r in rows(project)}
-        minted = set()
-        for item in items:
-            if item['state'] == 'current':
-                continue
-            path = project / item['lineage'] / item['file']
+        into = FETCH / project.name
+        table: list[dict] = []
+        for item in wanted(project):
+            body, headers = _get(item['url'], 'upstream-raw')
+            item = {**item, 'bytes': body}
+            path = into / item['lineage'] / item['file']
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(item['bytes'])
-            pin = _pin(project, item, item['headers'])
-            table[(item['lineage'], item['file'])] = {'lineage': item['lineage'], 'file': item['file'],
-                                                      'url': item['url'], 'pin': pin, 'sha256': item['sha256']}
-            minted.add((item['lineage'], pin))
-            print(f'  ✓ {path.relative_to(REPO)} (' + facts.phrase('{state}, {bytes} bytes, pin {pin}', state=item['state'], bytes=f'{len(item["bytes"]):,}', pin=pin) + ')')
-        write_rows(project, list(table.values()))
-        print(f'  ✓ {(project / "provenance.csv").relative_to(REPO)}')
-        for lineage, pin in sorted(minted):
-            print('  ' + facts.phrase('write the section {pin} in {changelog} (the dev gate holds reference.lineage_changelog)',
-                                        pin=pin, changelog=(project / lineage / 'CHANGELOG.md').relative_to(REPO)))
-    facts.report(None, 'reference pull: DONE - ' + facts.phrase('each project holds what upstream publishes at its pin'))
+            path.write_bytes(body)
+            table.append({'lineage': item['lineage'], 'file': item['file'], 'url': item['url'],
+                          'pin': _pin(project, item, headers), 'sha256': hashlib.sha256(body).hexdigest()})
+        into.mkdir(parents=True, exist_ok=True)
+        write_rows(into, table, 'fetched.csv')
+        print(f'  ✓ {(into / "fetched.csv").relative_to(tier.DATA_ROOT)} (' + facts.phrase('{n} file(s) of {project} as upstream publishes them', n=len(table), project=project.name) + ')')
+    facts.report(None, 'reference fetch: DONE - ' + facts.phrase('did record what upstream publishes; corpus-yoga reference says what differs from what is held'))
     return 0
 
 
@@ -219,9 +213,9 @@ def main():
     parser = command_parser('reference')
     args = parser.parse_args()
     try:
-        sys.exit(pull() if args.verb == 'pull' else status())
+        sys.exit(fetch() if args.verb == 'fetch' else status())
     except send.SendRefused as refused:
-        facts.report(None, f'reference pull: NOT DONE - {refused}')
+        facts.report(None, f'reference fetch: NOT DONE - {refused}')
         sys.exit(1)
 
 

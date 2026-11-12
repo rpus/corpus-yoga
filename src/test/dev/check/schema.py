@@ -25,14 +25,16 @@ import provider
 ))
 def check_schema_layout(run) -> None:
     """A family's address under rsc/schema is its writer's under src/main, then the
-    provider's name where the family's instances are one provider's, then the family: strip the family, strip a segment that is a row of rsc/provider/providers.csv,
-    and what remains is a directory under src/main or nothing. Every pipeline's declared
+    provider's name where the family's instances are one provider's, or the upstream lineage
+    where the family is derived from one (issues/1055), then the family: strip the family, strip a
+    segment that is a row of rsc/provider/providers.csv or a lineage the reference holds under
+    rsc/reference/<writer>, and what remains is a directory under src/main or nothing. Every pipeline's declared
     schema sits under rsc/schema/<pipeline>, at exactly one address."""
     providers = set(provider.provider_names())
     families = _schema_families()
     for key, d in sorted(families.items()):
         parts = key.split('/')[:-1]
-        if parts and parts[-1] in providers:
+        if parts and (parts[-1] in providers or (REPO_ROOT / 'rsc' / 'reference' / '/'.join(parts)).is_dir()):
             parts = parts[:-1]
         writer = SRC / 'main' / '/'.join(parts) if parts else SRC / 'main'
         run(f'{key}: address mirrors its writer', writer.is_dir(),

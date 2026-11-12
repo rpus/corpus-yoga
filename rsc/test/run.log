@@ -1,4 +1,4 @@
-run.py: code+schema 1913/1913
+run.py: code+schema 1916/1916
 
 
 check_schema_join: |
@@ -334,6 +334,11 @@ check_mcp_factoring: |
 
 check_mcp_reproducible: |
   ✓ mcp.reproducible
+
+check_upstream_chain: |
+  ✓ mcp.derivation_declared
+  ✓ reference.status_reads_its_fetch
+  ✓ mcp.upstream_as_fetched_is_judged
 
 check_grammar_laws: |
   ✓ grammar.laws_parse
@@ -678,19 +683,24 @@ stages:
     failures: 0
     tier: schema
     line: "335"
+  check_upstream_chain:
+    passes: 3
+    failures: 0
+    tier: schema
+    line: "338"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "338"
+    line: "343"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "352"
+    line: "357"
 
-checks[code+schema]: 217 types, 1913/1913 invocations passing
+checks[code+schema]: 220 types, 1916/1916 invocations passing
 checks[code]: 162 types, 1174/1174 invocations passing
-checks[schema]: 55 types, 739/739 invocations passing
+checks[schema]: 58 types, 742/742 invocations passing
 
-dev gate: PASS - code+schema 1913/1913 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1916/1916 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

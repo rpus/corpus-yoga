@@ -10,6 +10,8 @@
     "extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow",
     "no message carries it, since {ts} declares no {request} - stands unreachable",
     "{family} absent",
+    "differs from the pinned witness, and the version still agrees with it - the pin is behind",
+    "{n} definition(s) no longer agree with upstream as fetched - {first}",
     "agrees",
     "{n} disagreement(s)",
     "consumer and producer faced under {cache}",
@@ -27,6 +29,8 @@
   "args": [],
   "r": [
     "rsc/reference/mcp",
+    "src/main/mcp/derivation.json",
+    "tmp/reference/fetch",
     "rsc/schema/mcp"
   ]
 }

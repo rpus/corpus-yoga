@@ -1,0 +1,11 @@
+{
+  "lineage": "2026-07-28",
+  "reads": "rsc/reference/mcp/<lineage>/schema.ts",
+  "needs": "src/gen/grammar/TypeScript",
+  "writes": [
+    "rsc/schema/mcp/<lineage>/mcpMessage",
+    "tmp/cache/mcp"
+  ],
+  "witness": "rsc/reference/mcp/<lineage>/schema.json",
+  "arbiter": "corpus-yoga test run"
+}
