@@ -22,7 +22,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 import facts  # the one printer of a status's facts (issues/753)
 import spell
-from cache_io import human, orphans, size_of  # the registry, and what it does not own (issues/865)
+from cache_io import BYTECODE, human, orphans, size_of, stale_bytecode  # the registry, and what it does not own (issues/865)
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
@@ -60,6 +60,8 @@ def status_facts() -> Status:
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
     found = {rel: Orphan(human(size_of(p)), act=facts.Would(spell.line('cache', 'clean'), {rel: 1}))
              for p in orphans(cache) for rel in (p.relative_to(REPO).as_posix(),)}
+    found.update({rel: Orphan(human(size_of(p)), facts.phrase('bytecode whose source no longer stands'), facts.Would(spell.line('cache', 'clean'), {rel: 1}))
+                  for p in stale_bytecode(REPO / BYTECODE) for rel in (p.relative_to(REPO).as_posix(),)})
     out = Status(Tree(subs or 'none'), found,
                  facts.phrase('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found
                  else facts.phrase('{n} subtree(s) present', n=len(subs)))

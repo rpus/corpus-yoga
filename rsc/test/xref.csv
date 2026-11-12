@@ -587,6 +587,8 @@ rsc/metamodel/join.csv,276,path_str,rsc/schema/browser/claude/apiConversation#/d
 rsc/metamodel/join.csv,277,path_str,rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,Y,",rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,,,,cli_only,the account and the organisation a session "
 rsc/migration/1047.sh,2,comment,rsc/migration/1047.sh,Y,# rsc/migration/1047.sh - each pipeline is named for the noun whose promote deposits its
 rsc/migration/1047.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1052.sh,2,comment,rsc/migration/1052.sh,Y,# rsc/migration/1052.sh - python's bytecode stands under tmp/cache/python (issues/1052): each
+rsc/migration/1052.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1058.sh,2,comment,rsc/migration/1058.sh,Y,# rsc/migration/1058.sh - a renamed checkout is one project in the room's live store
 rsc/migration/1058.sh,4,comment,rsc/naming/checkout_paths.csv,Y,"# rsc/naming/checkout_paths.csv declares the paths with ~ as this machine's home, is brought"
 rsc/migration/1058.sh,13,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
@@ -969,12 +971,12 @@ src/main/cli/browser/capture.sh,58,call,src/main/cli/browser/capture.py,Y,"caffe
 src/main/cli/browser/claude/api.py,16,path_str,src/main/cli/browser/claude/api.py,Y,SELF = 'src/main/cli/browser/claude/api.py'
 src/main/cli/browser/fetch.py,23,path_str,src/main/cli/browser/fetch.py,Y,SELF = 'src/main/cli/browser/fetch.py'
 src/main/cli/browser/status.py,17,path_str,src/main/cli/browser/status.py,Y,SELF = 'src/main/cli/browser/status.py'
-src/main/cli/cache/cache.json,14,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
+src/main/cli/cache/cache.json,15,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
 src/main/cli/cache/cache.py,10,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
 src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/rebuild.py,Y,src/main/cli/cache/rebuild.py — so the CLI table carries one `cache` command whose verbs
 src/main/cli/cache/cache_io.py,3,comment,rsc/cache_io.csv,Y,"cache_io.py — the reader for rsc/cache_io.csv, the declared tmp/cache/ IO registry."
 src/main/cli/cache/cache_io.py,25,path_str,src/main/cli/cache/cache_io.py,Y,SELF = 'src/main/cli/cache/cache_io.py'
-src/main/cli/cache/cache_io.py,107,comment,rsc/cache_io.csv,Y,"kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never"
+src/main/cli/cache/cache_io.py,134,comment,rsc/cache_io.csv,Y,"kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never"
 src/main/cli/cache/clean.json,7,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"","
 src/main/cli/cache/clean.py,4,comment,src/main/cli/cache/cache_io.py,Y,machinery neither writes nor reads (src/main/cli/cache/cache_io.py `orphans`).
 src/main/cli/cache/clean.py,13,comment,rsc/CALCULUS.md,Y,"is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
@@ -1592,6 +1594,7 @@ src/test/dev/check/unit.py,21,comment,src/main/rehearsal.schema.json,Y,"src/main
 src/test/dev/check/unit.py,410,comment,rsc/naming/checkout_paths.csv,Y,"A checkout's former paths, rsc/naming/checkout_paths.csv, name one project: an install"
 src/test/dev/check/unit.py,412,comment,rsc/migration/1058.sh,Y,"reads a session the store holds under a former key as the one it holds, and rsc/migration/1058.sh"
 src/test/dev/check/unit.py,522,comment,rsc/migration/1063.sh,Y,"undo, and rsc/migration/1063.sh strips the merge records a room's memory index holds, its"
+src/test/dev/check/unit.py,596,comment,rsc/migration/1052.sh,Y,python the launcher starts is given that prefix; rsc/migration/1052.sh discards the bytecode
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1633,6 +1636,14 @@ src/test/dev/check/unit.py,579,path_str,rsc/migration/1063.sh,Y,script = checkou
 src/test/dev/check/unit.py,517,path_str,src/main/cli/agent,Y,"on=['src/main/cli/agent', 'src/main/facts.py', 'rsc/migration'])"
 src/test/dev/check/unit.py,517,path_str,src/main/facts.py,Y,"on=['src/main/cli/agent', 'src/main/facts.py', 'rsc/migration'])"
 src/test/dev/check/unit.py,517,path_str,rsc/migration,Y,"on=['src/main/cli/agent', 'src/main/facts.py', 'rsc/migration'])"
+src/test/dev/check/unit.py,616,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1052.sh'):"
+src/test/dev/check/unit.py,616,path_str,rsc/migration/1052.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1052.sh'):"
+src/test/dev/check/unit.py,628,path_str,rsc/migration/1052.sh,Y,script = checkout / 'rsc/migration/1052.sh'
+src/test/dev/check/unit.py,593,path_str,src/import_roots.sh,Y,"on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_"
+src/test/dev/check/unit.py,593,path_str,src/run_python_script.sh,Y,"on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_"
+src/test/dev/check/unit.py,593,path_str,rsc/migration,Y,"on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_"
+src/test/dev/check/unit.py,593,path_str,src/main/cli/cache,Y,"on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_"
+src/test/dev/check/unit.py,593,path_str,rsc/cache_io.csv,Y,"on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,541,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1640,6 +1651,7 @@ src/test/dev/check/unit.py,476,path_str,rsc/migration/1058.sh,Y,"return subproce
 src/test/dev/check/unit.py,510,path_str,rsc/migration/1058.sh,Y,finding = offered == {} and found == {'scripts': {'rsc/migration/1058.sh': {'halted': 'c and d both exist'}}}
 src/test/dev/check/unit.py,556,path_str,src/main/cli/agent/agent.py,Y,"None if pulled else f'src/main/cli/agent/agent.py has no pull_act(machine, log); the agent declares {verbs}' if said is "
 src/test/dev/check/unit.py,582,path_str,rsc/migration/1063.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')"
+src/test/dev/check/unit.py,631,path_str,rsc/migration/1052.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')"
 src/test/dev/check/unit.py,463,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
 src/test/dev/check/upstream.py,179,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,211,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"

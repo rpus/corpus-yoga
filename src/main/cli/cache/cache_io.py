@@ -102,6 +102,33 @@ def producers() -> list[str]:
     return cmds
 
 
+BYTECODE = 'tmp/cache/python'   # where every python the launcher starts keeps its bytecode (src/import_roots.sh, issues/1052)
+
+
+def stale_bytecode(prefix: Path) -> list[Path]:
+    """The bytecode under the prefix whose source no longer stands (issues/1052): python keeps a
+    module's bytecode at the prefix, then the source directory's own path, then
+    <module>.<interpreter>.pyc - so a directory whose source directory is gone is stale whole,
+    returned without descending, and a file whose module is gone is stale alone."""
+    found: list[Path] = []
+
+    def visit(d: Path) -> None:
+        source = Path(prefix.anchor) / d.relative_to(prefix)
+        if not source.is_dir():
+            found.append(d)
+            return
+        for child in sorted(d.iterdir()):
+            if child.is_dir():
+                visit(child)
+            elif child.suffix == '.pyc' and not (source / f'{child.name.split(".")[0]}.py').is_file():
+                found.append(child)
+
+    if prefix.is_dir():
+        for child in sorted(prefix.iterdir()):
+            visit(child) if child.is_dir() else found.append(child)
+    return found
+
+
 def orphans(root: Path) -> list[Path]:
     """The tmp/cache/ entries the machinery neither writes nor reads (issues/865): an entry is
     kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never
