@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 run.py — Pre-commit checks for the repo.
 

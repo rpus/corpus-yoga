@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 render_corpus.py — render every projected session conversation
 (tmp/cache/agent/<provider>/<machine>/<project>/<session>/conversation.json, the

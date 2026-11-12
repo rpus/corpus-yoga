@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 mcp.py - the house factoring of the MCP schema, rsc/schema/mcp/<lineage>/mcpMessage,
 generated from upstream's schema.ts alone (issues/598): read through the parser generated

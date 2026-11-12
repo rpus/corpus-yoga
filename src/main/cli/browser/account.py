@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 account.py - each provider's account as last fetched (corpus-yoga browser fetch records it at
 tmp/browser/fetch/<provider>.json) against the captures: which chats are new or have grown since

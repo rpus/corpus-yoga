@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 present_corpus.py — render THE CORPUS dashboard: data/output/site/index.html.
 

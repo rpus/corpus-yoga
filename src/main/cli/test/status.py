@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 status.py - bare `corpus-yoga test`: the checks and their committed expectation, and the two
 hooks `corpus-yoga test install-hook` installs, each as it stands (issues/759, issues/778). Reads; writes

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 indexing.py — the book-style index over the corpus (headword → turn locators)
 and the curation surface behind it: accept / reject / list-candidates over the concept

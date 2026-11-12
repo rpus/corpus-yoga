@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 files_from_downloaded.py
 

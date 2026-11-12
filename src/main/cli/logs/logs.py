@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 logs.py (corpus-yoga logs) - the room's logs, tmp/logs, as the cache and the stage have
 their nouns (issues/814).

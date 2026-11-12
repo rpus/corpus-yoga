@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """empirical.oneOf_branches_evidenced — No oneOf branch is annotated as unevidenced."""
 import json
 import sys

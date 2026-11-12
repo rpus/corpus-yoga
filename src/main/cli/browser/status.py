@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 status.py - bare `corpus-yoga browser`: the capture audit's offline pass, then each account as
 last fetched against the captures (corpus-yoga browser fetch records it), then the stage's units

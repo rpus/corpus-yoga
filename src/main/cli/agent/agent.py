@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 agent.py — CAPTURE agents into the store; RECEIVE them from peer machines;
 MOUNT the live stores - for every declared provider with a harness adapter (issues/633).

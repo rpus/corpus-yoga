@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 rehearsal.py - the stage's rehearsal record, tmp/stage/rehearsal.json (issues/815): one file, what the
 last rehearsal saw and judged, whole.

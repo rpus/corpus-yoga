@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 drafters.py (corpus-yoga agent list-drafters) - the Signatures on main, joined to the
 sessions the store holds (issues/631).

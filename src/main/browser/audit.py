@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 audit.py - "are the captures I have any good?", read from the captures alone. Whether the
 account has moved on since is corpus-yoga browser's, against the account as last fetched

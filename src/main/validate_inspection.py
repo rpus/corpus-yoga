@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Render the failure inspection a validation log carries after a failed verdict:
 the offending sub-instance, the instance and schema paths, the schema fragment

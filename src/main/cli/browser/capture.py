@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 capture.py — Capture conversations from claude.ai or gemini.google.com via Safari.
 

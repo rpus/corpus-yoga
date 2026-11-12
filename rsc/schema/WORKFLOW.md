@@ -107,7 +107,7 @@ the bulk export's whole array), a **singular** family validates *one unit*
 
 ```bash
 src/main/browser/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
-src/main/export/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+src/main/export/validate.sh      --export   data/input/claude/chat/bulk-export/<batch>
 src/main/agent/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
@@ -121,8 +121,9 @@ Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/v
 This is the ONE mint, for every family; what differs per family is where the new
 content comes from (a failing datum; for the house factoring, the reference
 snapshot of step 5), never a second procedure. An upstream reference project under
-`rsc/reference/` does not mint: `corpus-yoga reference pull` holds every lineage
-upstream publishes, and a lineage's change is a section of its own changelog
+`rsc/reference/` does not mint: it holds every lineage upstream publishes, brought
+in by a commit from what `corpus-yoga reference fetch` recorded, and a lineage's
+change is a section of its own changelog
 (step 5).
 
 ```bash
@@ -284,8 +285,8 @@ Open `rsc/metamodel/join.csv` and:
 `rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory
 per upstream project and one directory per lineage upstream publishes, named as
 upstream names it (issues/587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
-the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
-`corpus-yoga mcp derive`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
+the Model Context Protocol's `schema.json` and `schema.ts` (the lineage
+`src/main/mcp/derivation.json` declares read by `corpus-yoga mcp derive`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (issues/597, issues/598) -
 and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
 into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
 `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
@@ -303,13 +304,15 @@ publishes lineages as a listing (mcp's dated `schema/` directory), the listing U
 and the files each lineage holds. Nothing here is a schema family: no datum
 validates against it, no house diagnostic runs over it, and `rsc/metamodel/join.csv`
 reaches it by the same family-dir grammar as any schema
-(`rsc/reference/mcp#/$defs/…`, resolved against the newest lineage).
+(`rsc/reference/mcp#/$defs/…`, resolved against the lineage the derivation declares).
 
-`corpus-yoga reference` is the currency check: per project, what upstream lists
-against what is held, and whether every held file's live bytes still hash as
-pinned - a send, UNVERIFIED under `CORPUS_YOGA_NO_SEND=1`. `corpus-yoga reference pull`
-fetches every lineage not held and every file that drifted, and writes the
-provenance rows; the lineage's changelog section (`## <pin>`) is the hand act.
+`corpus-yoga reference fetch` records what upstream publishes under
+`tmp/reference/fetch`, and writes nothing under `rsc/reference`; `corpus-yoga
+reference` reads that record and says, per project, each file missing here or
+drifted from its pin, sending nothing, and `corpus-yoga mcp` judges upstream's
+`schema.json` as fetched against the committed version. What a fetch brings
+reaches `rsc/reference` as a commit - the fetched files and their `fetched.csv`
+rows copied in - and the lineage's changelog section (`## <pin>`) is the hand act.
 `corpus-yoga test run` holds the hermetic residue (`check_reference`): the committed
 bytes hash to the pinned SHA256 (`reference.verbatim`), every lineage directory is
 declared and every declared lineage held (`reference.lineage_declared`), and every

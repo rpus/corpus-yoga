@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 metamodel.py — per-schema definition catalogues, candidates for rsc/metamodel/metamodel.json.
 Output: tmp/cache/metamodel/catalogue/<family's address under rsc/schema>/v{N}.json for each

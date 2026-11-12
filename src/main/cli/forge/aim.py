@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """aim.py - the one grammar of a PR's aim: the relation between a PR and the issues it
 aims to complete, as the body carries it (issues/884).
 

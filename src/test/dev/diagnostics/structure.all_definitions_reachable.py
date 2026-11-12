@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.all_definitions_reachable - Every definition is reachable from root via
 $ref, or is declared unreachable in the family's unreachable.csv (name, reason)
 beside the version file; a declared name that is reachable, or that names no

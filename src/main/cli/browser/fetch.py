@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 fetch.py (corpus-yoga browser fetch) - what a provider's account holds, read through Safari and
 recorded whole at tmp/browser/fetch/<provider>.json, so that bare `corpus-yoga browser` says which

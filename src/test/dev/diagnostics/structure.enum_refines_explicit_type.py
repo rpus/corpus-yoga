@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.enum_refines_explicit_type — Every enum declares the single explicit type it refines.
 
 An enum is a refinement of one base type, so it must say which: a subschema with "enum" must

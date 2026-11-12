@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 member.py - the one reading of membership by placement: the members of a directory are
 its subdirectories that hold a file outside __pycache__. A directory git emptied in a

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 sync.py — rebuild tmp/cache/ by running its producers.
 

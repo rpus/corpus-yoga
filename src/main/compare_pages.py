@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 compare_pages.py - what changes between two renders of the corpus page, in the
 page's own terms (issues/652): the title, and for each inlined data table the rows

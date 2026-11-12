@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 archive_components.py — copy the non-conversation components of a bulk export
 (memories.json, projects/, users.json) verbatim into the batch's tmp/cache/ directory.
@@ -21,7 +20,7 @@ vintages may lack one).
 
 Usage:
     src/run_python_script.sh src/main/export/archive_components.py \
-      --chat-export data/input/claude/chat/bulk-export/<batch> [--out-dir <override>]
+      --export data/input/claude/chat/bulk-export/<batch> [--out-dir <override>]
 """
 import argparse
 import shutil
@@ -57,7 +56,7 @@ def archive(export_dir: Path, out_dir: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-export', required=True)
+    ap.add_argument('--export', dest='chat_export', required=True)
     ap.add_argument('--out-dir', default=None)
     args = ap.parse_args()
 

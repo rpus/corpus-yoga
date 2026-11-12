@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """composition.wrapper_has_five_fields — Union wrapper schemas have exactly title, description, type, allOf, oneOf."""
 import json
 import sys

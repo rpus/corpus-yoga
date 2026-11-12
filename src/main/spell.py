@@ -106,7 +106,9 @@ def mentions(text: str) -> list[tuple[str, str]]:
     declarations find in it, or '' where it is declared. A word after corpus-yoga is a noun
     where it is declared, and prose where it is not - the product's name is used in prose -
     unless the word after it is a verb some noun declares, which makes the pair a spelling of
-    a noun that is not declared. A word after the noun that is one of its verbs is the verb;
+    a noun that is not declared. A word after the noun that is one of its verbs is the verb,
+    and one that is another noun's verb and not its own is a fault - a verb moved or renamed
+    away from the noun (issues/1069);
     each flag after that must be declared for the verb, for the noun where no verb stands,
     or at the root, an option's value skipped; a placeholder - {word}, <word>, $word - stands
     for a value and is not checked, and a placeholder noun's verb and flags must be declared
@@ -134,6 +136,9 @@ def mentions(text: str) -> list[tuple[str, str]]:
         verb, rest = '', tokens[1:]
         if rest and rest[0] in verbs(noun):
             verb, rest = rest[0], rest[1:]
+        elif rest and any(rest[0] in verbs(other) for other in known):
+            found.append((spelling, f'{noun} declares no verb {rest[0]!r}'))   # a verb moved or renamed away from the noun
+            continue
         found.append((spelling, _check_flags(noun, verb, rest, [])))
     return found
 

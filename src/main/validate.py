@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Usage:
   src/run_python_script.sh src/main/validate.py <data.json> <schema.json>

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """documentation.open_set_enums_documented — Likely open-set enums say so in their description."""
 import json
 import sys

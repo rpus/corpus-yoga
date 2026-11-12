@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 migration.py (corpus-yoga migration) - the moves a rename owes this machine's local roots
 (issues/820): rsc/migration holds them, one guarded script per causing issue over the steps of

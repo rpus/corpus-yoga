@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 schema_fragment.py - Given a JSON pointer and a schema file, output the
 literal subschema at that pointer.

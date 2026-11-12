@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 generation.py - the mcp schema generated from schema.ts alone (issues/598): every
 exported interface, alias and constant read through the house TypeScript grammar

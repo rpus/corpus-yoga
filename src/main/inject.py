@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Replace an inlined JSON block in an HTML file.
 

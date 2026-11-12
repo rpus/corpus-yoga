@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 machine.py — the machine registry and this machine's binding to it. A LIBRARY,
 not a command: nothing here reports. `corpus-yoga status` is the one machine

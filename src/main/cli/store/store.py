@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (issues/738).
 

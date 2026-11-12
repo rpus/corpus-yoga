@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 atomise_bulk.py — Split a bulk export's conversations.json (one big array) into verbatim
 per-conversation JSON files, one per Conversation, each validated against the Conversation

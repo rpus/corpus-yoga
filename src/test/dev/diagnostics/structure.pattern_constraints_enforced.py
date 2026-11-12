@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.pattern_constraints_enforced — String fields with regex in description must have pattern."""
 import json
 import re

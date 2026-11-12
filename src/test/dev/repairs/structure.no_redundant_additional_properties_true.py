@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair structure.no_redundant_additional_properties_true — Remove explicit additionalProperties: true.
 
 Usage: python src/test/dev/repairs/structure.no_redundant_additional_properties_true.py <schema>

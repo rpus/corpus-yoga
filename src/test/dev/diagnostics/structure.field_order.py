@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.field_order — Every definition begins with title, description, type."""
 import json
 import sys

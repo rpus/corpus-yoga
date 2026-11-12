@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 status.py - bare `corpus-yoga site`: the publish tree against its sources, the corpus page and
 the deploy mount, read as rows on stdin from site.sh, which holds what a page is (issues/759):

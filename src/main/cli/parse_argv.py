@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """parse_argv.py — a verb's argv, answered by the declaration's own parser (issues/474).
 
 The python face of parse_argv.sh: a bash target has no parser to answer

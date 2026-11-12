@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 catalogue.py — Generate a per-schema definition catalogue.
 

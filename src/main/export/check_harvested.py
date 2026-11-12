@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 check_harvested.py
 

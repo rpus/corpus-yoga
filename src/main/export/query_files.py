@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 query_files.py — Run the standard SQL queries against files_audit.csv.
 
@@ -7,8 +6,8 @@ database and runs each of the five documented queries, writing results to
 tmp/cache/<export>/audit_queries/.
 
 Usage:
-    python src/main/export/query_files.py --chat-export  <path-to-export>
-    python src/main/export/query_files.py --chat-exports <path-to-exports>
+    python src/main/export/query_files.py --export  <path-to-export>
+    python src/main/export/query_files.py --exports <path-to-exports>
 
 Output files
 ────────────
@@ -159,8 +158,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--chat-export',  help='Path to a single export directory')
-    group.add_argument('--chat-exports', help='Path to a directory containing multiple exports')
+    group.add_argument('--export', dest='chat_export',  help='Path to a single export directory')
+    group.add_argument('--exports', dest='chat_exports', help='Path to a directory containing multiple exports')
     args = parser.parse_args()
 
     if args.chat_export:

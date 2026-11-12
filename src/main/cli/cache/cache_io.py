@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 cache_io.py — the reader for rsc/cache_io.csv, the declared tmp/cache/ IO registry.
 

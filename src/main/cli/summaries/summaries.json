@@ -12,7 +12,7 @@
   "calculus": "accumulate project L1 L4",
   "args": [
     {
-      "name": "--chat-export-cache",
+      "name": "--export-cache",
       "type": "<dir>",
       "cardinality": "",
       "help": "atomised batch cache",

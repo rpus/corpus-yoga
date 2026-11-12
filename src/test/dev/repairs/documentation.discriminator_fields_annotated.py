@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Repair documentation.discriminator_fields_annotated — annotate discriminator fields with (discriminator)."""
 import json
 import sys

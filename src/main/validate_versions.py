@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Validate one JSON file against versioned schemas, one log and one verdict record per
 datum-version pair. The record (src/main/validation_verdict.py, issues/701) is what every reader reads - the

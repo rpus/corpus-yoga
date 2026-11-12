@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 cli.py — the machinery behind `corpus-yoga`, the repo's terminal surface.
 

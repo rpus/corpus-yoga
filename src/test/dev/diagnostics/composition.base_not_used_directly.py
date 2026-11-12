@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """composition.base_not_used_directly — Base schemas are never referenced directly from oneOf lists."""
 import json
 import sys

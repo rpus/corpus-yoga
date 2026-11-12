@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """The validation-output judgments, spoken by the data gate (issues/535, issues/557): every
 datum validates at each of its families' latest versions, its matrix.md agrees with
 those logs, and every input entry has validation output. The latest version is the

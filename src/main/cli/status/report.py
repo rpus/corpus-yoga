@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 report.py - `corpus-yoga status`' report: the rows status.sh collects as its
 checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,

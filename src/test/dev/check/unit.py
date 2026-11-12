@@ -723,3 +723,74 @@ def check_screen_and_scratch(run) -> None:
     named = found == [f'left.{gone}.bbbbbb', 'unnamed']
     run('cache: a scratch entry whose run is gone is an orphan, and one whose run lives is not', named,
         None if named else f'named {found}', check='cache.dead_scratch_is_named')
+
+
+@check(tier='code', says=('command.a_moved_verb_is_a_fault', 'reference.pointer_reads_the_declared_lineage', 'migration.raise_bodies_stand_with_the_record',
+                          'python.a_shebang_is_executable', 'requirements.each_is_pinned'),
+       on=['src', 'rsc/migration', 'pyrightconfig.json'])
+def check_sweep(run) -> None:
+    """What the reading of 2026-11-12 found (issues/1069), held: a word after a declared noun that
+    is another noun's verb is a spelling fault; a pointer into a reference project resolves
+    against the lineage its derivation declares; a raise keeps its body beside the act's record,
+    and rsc/migration/1069.sh moves a room's bodies there; a python file with a shebang is
+    executable; and every requirement is pinned. The migration's fixture is synthetic."""
+    import importlib
+    import importlib.util
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    import factoring
+    import latest
+    spell = importlib.import_module('spell')
+    said = {text: [fault for _spelling, fault in spell.mentions(text)] for text in
+            ('`corpus-yoga reference pull` holds every lineage', 'corpus-yoga reference fetch records them', 'corpus-yoga reference says what differs')}
+    moved = bool(said['`corpus-yoga reference pull` holds every lineage'][0]) and not any(said['corpus-yoga reference fetch records them']) and not any(said['corpus-yoga reference says what differs'])
+    run("spelling: a word after a declared noun that is another noun's verb is a fault, and prose after a noun is not", moved,
+        None if moved else f'the mentions read as {said!r}', check='command.a_moved_verb_is_a_fault')
+
+    read = getattr(latest, 'reference_file', None)
+    pointed = read(factoring.SNAPSHOT_DIR) if callable(read) else latest.latest_file(factoring.SNAPSHOT_DIR)
+    declared = callable(read) and pointed == factoring.WITNESS
+    run('reference: a pointer into a reference project resolves against the lineage its derivation declares', declared,
+        None if declared else 'src/main/latest.py has no reference_file(directory)' if not callable(read) else f'it resolves {pointed}, where the derivation declares {factoring.WITNESS}',
+        check='reference.pointer_reads_the_declared_lineage')
+
+    raise_at = importlib.util.spec_from_file_location('forge_raise', SRC / 'main' / 'cli' / 'forge' / 'raise.py')
+    assert raise_at is not None and raise_at.loader is not None
+    raising = importlib.util.module_from_spec(raise_at)
+    raise_at.loader.exec_module(raising)
+    kept = raising.RECORD.as_posix().endswith('/'.join(('tmp', 'logs', 'forge', 'raise')))
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        old, new = checkout / 'tmp' / 'forge' / 'raise', checkout / 'tmp' / 'logs' / 'forge' / 'raise'
+        old.mkdir(parents=True)
+        new.mkdir(parents=True)
+        (old / '2026-11-11T134619Z.md').write_text('a body\n')
+        (new / '2026-11-11T134618Z.log').write_text('its record\n')
+        script = checkout / 'rsc/migration/1069.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        stands = sorted(p.name for p in new.iterdir()) if new.is_dir() else []
+        moved_bodies = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 2 and applied.returncode == 0 and again.stdout == ''
+                        and stands == ['2026-11-11T134618Z.log', '2026-11-11T134619Z.md'] and not old.exists())
+    run("migration: a raise keeps its body under tmp/logs/forge/raise, and rsc/migration/1069.sh moves a room's bodies there and retires tmp/forge/raise",
+        kept and moved_bodies, None if kept and moved_bodies else f'a raise keeps its body under {raising.RECORD}; bare said {bare.stdout!r} {bare.stderr!r}; '
+        f'applied said {applied.stdout!r} {applied.stderr!r}; again said {again.stdout!r}; the record holds {stands}', check='migration.raise_bodies_stand_with_the_record')
+
+    listed = subprocess.run(['git', 'ls-files', '-s', '--', '*.py'], capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout.splitlines()
+    idle = sorted(row.split('\t', 1)[1] for row in listed if not row.startswith('100755')
+                  and (REPO_ROOT / row.split('\t', 1)[1]).is_file() and (REPO_ROOT / row.split('\t', 1)[1]).read_bytes()[:2] == b'#!')
+    run('python: a python file that opens with a shebang is executable', not idle,
+        None if not idle else f'{len(idle)} file(s) open with a shebang and are not executable - {", ".join(idle[:5])}', check='python.a_shebang_is_executable')
+
+    loose = [line.strip() for line in (SRC / 'requirements.txt').read_text().splitlines() if line.strip() and not line.startswith('#') and '==' not in line]
+    run('requirements: every requirement is pinned', not loose,
+        None if not loose else f'src/requirements.txt leaves unpinned: {", ".join(loose)}', check='requirements.each_is_pinned')

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.definitions_at_bottom — definitions is the last key in the root schema."""
 import json
 import sys

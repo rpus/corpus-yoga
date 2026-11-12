@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 audit_files.py — Full-outer-join file audit for one export.
 
@@ -48,11 +47,11 @@ Downloaded path conventions
 
 Usage
 ─────
-    src/main/export/audit_files.sh --chat-export  <path-to-export>
-    src/main/export/audit_files.sh --chat-exports <path-to-exports>
+    src/main/export/audit_files.sh --export  <path-to-export>
+    src/main/export/audit_files.sh --exports <path-to-exports>
 
     Example:
-        src/main/export/audit_files.sh --chat-export \\
+        src/main/export/audit_files.sh --export \\
             data/input/claude/chat/bulk-export/data-0fc4c1e0-...-batch-0000
 
 SQL queries
@@ -230,8 +229,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--chat-export',  help='Path to a single export directory')
-    group.add_argument('--chat-exports', help='Path to a directory containing multiple exports')
+    group.add_argument('--export', dest='chat_export',  help='Path to a single export directory')
+    group.add_argument('--exports', dest='chat_exports', help='Path to a directory containing multiple exports')
     args = parser.parse_args()
 
     if args.chat_export:

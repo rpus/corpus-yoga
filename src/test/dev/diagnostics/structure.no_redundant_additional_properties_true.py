@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.no_redundant_additional_properties_true — No explicit additionalProperties: true."""
 import json
 import sys

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 project_markdown.py - project gemini's scrape markdown into the presentation tree (the gemini counterpart of src/main/project_markdown.py)
 (data/output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:

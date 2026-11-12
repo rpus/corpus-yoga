@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 transcript_to_json.py - one captured Antigravity session directory to session.json, the
 gemini session family's datum (rsc/schema/agent/gemini/session): the

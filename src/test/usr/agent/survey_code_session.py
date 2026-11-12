@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 survey_code_session.py — Survey the record types and field structure of one or more
 Claude Code CLI session .jsonl files.

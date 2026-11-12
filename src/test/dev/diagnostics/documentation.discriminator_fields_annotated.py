@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """documentation.discriminator_fields_annotated — Discriminator fields annotated with (discriminator)."""
 import json
 import sys

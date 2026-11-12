@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """structure.minItems_on_non_empty_arrays — Non-empty arrays have minItems: 1."""
 import json
 import sys

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 gen_changelog_matrix.py — view or re-render machine-local validation matrices.
 

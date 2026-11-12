@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 factoring.py - the house factoring of the MCP schema (issues/562, issues/598): generated from
 upstream's schema.ts alone, in draft-04, and written to rsc/schema/mcp/<lineage>/mcpMessage;

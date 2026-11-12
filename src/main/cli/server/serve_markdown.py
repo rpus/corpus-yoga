@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Local HTTP server for browsing and searching markdown files.
 

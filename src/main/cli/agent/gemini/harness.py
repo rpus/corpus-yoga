@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 harness.py - the Antigravity adapter (issues/633), from the store as observed on
 home-room 2026-09-14 (Antigravity 2.13.0): a session is brain/<uuid>/ with its

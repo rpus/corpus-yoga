@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 jsonl_to_json.py — Convert a JSONL file to a JSON array, one line at a time.
 

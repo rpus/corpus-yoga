@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 write_if_changed.py - write a cache file through a sibling temp file and keep the existing
 file, and its mtime, when the content is identical. A converted session's mtime is

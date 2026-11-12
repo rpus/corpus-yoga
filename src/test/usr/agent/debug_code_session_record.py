@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 debug_code_session_record.py — Diagnose why a specific record in a session fails
 validation against the session family's latest version (rsc/schema/agent/claude/session/).

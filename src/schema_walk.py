@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 schema_walk.py - the one JSON Schema walk both tiers share (the diagnostics, the
 protocol factoring), DERIVED from the committed draft-04 meta-schema

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 extraction.py - what the house factoring takes from upstream's schema.ts (issues/581,
 issues/597): the composition (which interface extends which), the alias sites (where

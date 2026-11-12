@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """reconcile.py — the forge's declared merge settings against the live ones.
 
 stdin is the live repository json (gh api repos/{owner}/{repo}); argv[1] is
