@@ -693,7 +693,10 @@ merge_chain() {
   set +e
   # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
   # the one full account of what the gate ran, and the terminal is no record
-  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
+  # the gate runs without the checkout's bytecode prefix, so its python keeps its bytecode in the
+  # gate's own worktree, disposed of with it: under the checkout's prefix it would outlive its
+  # sources as an orphan of the cache (issues/1052)
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) env -u PYTHONPYCACHEPREFIX "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
   set -e
   stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"
