@@ -104,16 +104,14 @@ pull writes into this machine's projects root — harness-owned state —
 and the agent noun's status says what it would write before it is asked. Exit 1
 on any CONFLICT.
 
-Field note (2026-07-07, first scripted teleport): a received agent that does
-not appear in the VSCode sidebar was probably trash-buttoned there once — the
-extension tombstones session uuids in `hiddenSessionIds` (its globalState in
-the machine's state.vscdb), machine-globally and with no unhide affordance;
-purge that list with VSCode quit, or resume via the terminal CLI, which does
-not consult it. The listing's other lie is the mirror image: it counts a
-session's eponymous guid-dir (via its subagents/) as a session even after the
-.jsonl is deleted — so the correct on-disk deletion rite is BOTH the .jsonl
-AND its guid-dir together; delete only the file and the sidebar advertises a
-ghost, whose only offered remedy is the tombstone that started this note.
+A received agent can be absent from the VS Code sidebar while its log is sound:
+the extension's Archived list - `hiddenSessionIds` in its globalState,
+machine-global - hides it, whether the user archived it or
+`claudeCode.archiveInactiveSessions` did after its idle days. Unarchive it
+there, or resume it from the terminal CLI, which does not read that list;
+archiving writes nothing to the session's log, so no capture sees it. The
+sidebar also counts a session's guid-dir as a session once its .jsonl is gone,
+so a session removed on disk is removed with its guid-dir.
 """
 import sys
 from dataclasses import dataclass
