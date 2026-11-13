@@ -4,6 +4,10 @@ Wrangles AI conversations — Claude (bulk export, browser capture, Claude Code
 sessions) and Gemini (browser capture) — into one validated, readable, indexed
 corpus.
 
+Its first end is durability: a provider's harness may expire or withdraw a
+conversation, so none should hold the only copy. Its second is reach - reading
+the corpus more fully than the provider does.
+
 ## Quickstart
 
 ```bash

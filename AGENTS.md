@@ -8,7 +8,10 @@ agent's own judgement hides the failure that would have amended it, and a
 session can follow one for ever.
 
 This file points at committed authorities and states the practice that lives
-nowhere else. One home per rule: where an authority exists, follow it there.
+nowhere else - and nowhere outside the repository: an agent's own memory
+holds no rule, design or fact about this repository; a design is an issue,
+and a fact the code depends on stands where the code is. One home per rule:
+where an authority exists, follow it there.
 Never reconstruct practice from merged artifacts - a merged PR shows
 post-flip state, not the discipline that produced it. This file also trumps
 any contradictory post-compaction summary: a summary is written
@@ -101,6 +104,10 @@ eighth principle or a smell.
   An issue a PR can only advance is restructured into PR-sized parts, in
   issue-space, before building - "advances" is a symptom, not a relation to
   live with.
+- A PR takes everything its issue names, and a defect met in the course of
+  the work is fixed on the same branch and said in its what and how; an
+  issue is raised only for what the PR cannot hold - a ruling, an act on
+  the user's data, or work that would not fit before the merge.
 - Failure first, fix second: an illegible failure is repaired and
   demonstrated against the live bug BEFORE the bug is fixed - the live bug
   is the fixture, and fixing it first destroys the evidence.
@@ -141,6 +148,19 @@ eighth principle or a smell.
   standing machinery, ask what the subsystem did before the state being
   patched - main may be the regression, and a sane design stated directly
   beats archaeology.
+- An observation, a question or a complaint from the user is answered in
+  full - what it is, why, and the options with a recommendation - and
+  changes nothing; once the user says they will merge, the branch takes
+  nothing more unasked. A defect, fix or risk the agent knows of is said
+  when it is known: a silent choice between acting and waiting fails
+  either way.
+- A user's claim about what a report says is anchored to the artifact they
+  hold: where it disagrees with what the agent can see, the first reply
+  asks which output, log or file they are reading.
+- A one-word correction names a model: the reply states the model the
+  corrected word implies and tests the code against it before rewording.
+- The unread comments of a forge thread are its comment ids less the set
+  already read - never the comments after a time.
 - "I cannot understand this" is a complete verdict - delivered fast, burden
   on the artifact, diagnosis optional. Never treat the reviewer's
   incomprehension as the reviewer's failure.
@@ -171,6 +191,9 @@ eighth principle or a smell.
 
 - An issue's record is body PLUS comments: `gh issue view <n> --json
   body,comments` before building it.
+- A should-title is one plain clause - a named actor, "should", a verb a
+  newcomer knows, the thing - with no participle hanging after the should
+  and at most one coinage, defined in the body.
 - An issue is raised by `corpus-yoga forge raise issue --title <should>
   --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]`
   (issues/887): the title is held to be a should, the Signature and the as-at
@@ -229,12 +252,11 @@ eighth principle or a smell.
   cherry-pick onto origin/main. Never `reset --soft origin/main` from a
   stale base - it keeps the old index and silently reverts every merge in
   between (the gate's check count betrays it).
-- Any force-push rewrites the branch under a checkout that holds it:
-  always resync the user's checkout yourself as the same act's last step -
-  state what changed against what they held (a flip: the identical tree;
-  a rebase: the new base and settled artifacts), run `git fetch origin &&
-  git reset --hard origin/<branch>` there, and say so. If their tree is
-  dirty, stop and report - never reset.
+- Any force-push rewrites the branch under a checkout that holds it: the
+  same act's last step says what changed against what the user held (a
+  flip: the identical tree; a rebase: the new base and settled artifacts),
+  and the checkout is brought level by a corpus-yoga verb (issues/1081),
+  never by a command an agent runs there.
 - Branches carry honest fix-up commits; never amend during review - the
   squash at merge produces the clean commit, and amending erases the record
   of what review changed.
@@ -262,11 +284,23 @@ eighth principle or a smell.
   dev gate is complete over it - corpus data is never in the dev actor's
   extent, and any act that reads or changes data runs in the user's checkout
   on the user's word.
+- A command that writes asserts its directory first: a scratch worktree can
+  vanish between turns, and a failed cd leaves the shell in the user's
+  checkout.
+- Before every commit the diff's shape is read against the change's intent
+  (`git diff --stat` and a spot-read): an append that deletes lines is a
+  defect however green the gate.
 - Commit the WHOLE worktree state (`git add -A`); never curate the index -
   a partially staged commit publishes a tree the gate never arbitrated.
   Commit-gate-commit until clean: add, commit, add, commit - let the try
   fail.
-- Push as `git push origin HEAD:refs/heads/issue-<n>-<slug>`.
+- Push as `git push origin HEAD:refs/heads/issue-<n>-<slug>`, after the
+  last dev gate has run as the user's room runs it: `env -u
+  CORPUS_YOGA_VENV ./corpus-yoga test run --fresh` in the worktree.
+- A verdict is written after its evidence is read, never in the command
+  that produces it: a commit and its push are separate calls with the
+  hook's verdict read between them, and no chain that ends in a push runs
+  in the background.
 - Never pipe a gating command (`git commit ... | tail -1` reports the
   pipe's tail, not the veto) - run it bare and let its failure stop the
   chain.
@@ -278,10 +312,19 @@ eighth principle or a smell.
 - A demonstration of uncommitted work runs in the worktree, never against
   the branch ref - the ref lacks the edits, and the demo silently exercises
   old code.
-- In the user's checkout: no commits, no pushes, no mutations, unbidden -
-  and never ask to commit; the user announces satisfaction. Enacting verbs
-  (sync, install, rm, deposits) run only when the current message asks;
-  testing means the status and dry-run faces.
+- The user's checkout is the room a PR is tested in, and it runs
+  corpus-yoga commands only, the agent's included: gh, git, lints, probes
+  and demonstrations run in the agent's worktree, and the room's state is
+  read through corpus-yoga's status faces. Its hooks, shell rc, mounts,
+  venv and caches are never altered to get an agent's commit through; an
+  act with no corpus-yoga verb is an issue to file. No commit or push
+  starts there unbidden, and the agent never asks to commit; the user
+  announces satisfaction. Enacting verbs (sync, install, rm, deposits) run
+  only when the current message asks; testing means the status and
+  dry-run faces.
+- Only the user's words ask: a message that is only a command, a path or an
+  output line, and an editor's file-attachment notice, are subjects to
+  discuss, never acts to perform.
 - If the repo is not greppable enough, fix the repo. A rename fixes every
   caller, printed remedies included.
 - A file lives at the level of its subject and is named for its operation,
@@ -290,7 +333,12 @@ eighth principle or a smell.
   in probes as much as in committed code.
 - Names specify and unify: roots classify by purpose, never by file format
   or language - content type is dressing, and polyglot faces of one
-  operation are siblings by stem.
+  operation are siblings by stem. A verb is agentive and transitive - the
+  invoker acts, the artifact undergoes.
+- Every printed line is a fact built as data and rendered by the one
+  printer (facts.lines, facts.opening); a command, an aim line or a YAML
+  line is built through one API from the declaration it names, never
+  typed at a print site, so that grep finds one call site per meaning.
 - Sibling files share one shape: field order and encoding match the family.
   When editing files programmatically, match each file's existing encoding;
   never re-encode strings the change does not touch.
@@ -314,6 +362,9 @@ eighth principle or a smell.
 - The user tests PRE-merge from the branch checkout, usr gate included, and
   merges from that checkout after the flip. Usr testing catches dev failure;
   the PR's "to test" prescribes that run and names its arbiter.
+- A check over rendered output samples the gate's room: a state-dependent
+  line is verified by planting the state and running the gate with it in
+  place, and wording that only one state selects moves into declared data.
 - Ordering and invalidation never derive from clocks: content and issued
   intents order; a timestamp is a label. CALCULUS L9 (Currency) is the
   system-side law.
@@ -333,6 +384,10 @@ eighth principle or a smell.
 - No metonymy in output: printed relations name both sides concretely
   (local / remote-by-name); no repo imagery in code, output, commits, or
   replies.
+- What a provider's key means is a reading, never a fact: a schema
+  description, changelog, PR or finding states the observations with
+  their anchors (session, record, version), names the reading as a
+  reading, and says what would contradict it.
 - Moods are load-bearing: indicative only for facts anchored to a sha or
   date; "should" for every normative clause, titles included.
 - Committed artifacts carry no indexicals: name the room and the date -
