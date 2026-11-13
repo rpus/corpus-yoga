@@ -154,6 +154,17 @@ def place_log(data: bytes, dest: Path, apply: bool) -> tuple[Relation, str]:
     return relation, f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
 
 
+def held_by_peer(room: Path, name: str, data: bytes) -> tuple[str, Path] | None:
+    """The room, and its copy, whose store dir beside room's holds the session named name
+    identical to data or ahead of it: that room's session, pulled here, which no capture of
+    this room stages nor reads against this room's own copy (issues/1071)."""
+    for peer in sorted(d for d in room.parent.iterdir() if d.is_dir() and d != room) if room.parent.is_dir() else []:
+        for theirs in sorted(peer.glob(f'*/{name}')):
+            if theirs.is_file() and relate(data, theirs.read_bytes()) in (Relation.IDENTICAL, Relation.AHEAD):
+                return peer.name, theirs
+    return None
+
+
 PLURAL = {'session': 'sessions', 'memory': 'memories', 'file': 'files'}   # the kinds a verdict counts
 
 

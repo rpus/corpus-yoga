@@ -15,7 +15,7 @@ import sys
 from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, held_by_peer, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
 
 SELF = 'src/main/cli/agent/claude/harness.py'
 _file = Path(__file__).resolve()
@@ -317,16 +317,11 @@ def _capture_session(src_proj: Path, dest_proj: Path, held_projs: list[Path], se
     against_store = not staged_log.exists() and held_log.exists()
     existing = held_log.read_bytes() if against_store else staged_log.read_bytes() if staged_log.exists() else None
     relation = relate(data, existing)
-    if relation not in (Relation.IDENTICAL, Relation.AHEAD):
-        # a session the store holds identical or ahead under another room's name is that room's,
-        # pulled here: it is kept, never staged as this room's nor read against this room's own
-        # copy, from which a session two rooms continued apart has diverged (issues/1071)
-        for room in sorted(d for d in held_projs[0].parent.parent.iterdir() if d.is_dir() and d != held_projs[0].parent):
-            for theirs in sorted(room.glob(f'*/{session.name}')):
-                if relate(data, theirs.read_bytes()) in (Relation.IDENTICAL, Relation.AHEAD):
-                    log.say('kept', f'{src_proj.name}/{session.name}',
-                            {f"{STORE} holds it as {room.name}'s": f'{len(data)} bytes here, {theirs.stat().st_size} there'}, 'session')
-                    return False
+    peer = held_by_peer(held_projs[0].parent, session.name, data) if relation not in (Relation.IDENTICAL, Relation.AHEAD) else None
+    if peer is not None:
+        log.say('kept', f'{src_proj.name}/{session.name}',
+                {f"{STORE} holds it as {peer[0]}'s": f'{len(data)} bytes here, {peer[1].stat().st_size} there'}, 'session')
+        return False
     if may_replace(relation):
         staged_log.parent.mkdir(parents=True, exist_ok=True)
         staged_log.write_bytes(data)

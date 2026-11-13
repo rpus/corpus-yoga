@@ -1,5 +1,6 @@
 """tree.py - the dev gate's checks of the repository's own files, names and cross-references."""
 import ast
+import csv
 import json
 import re
 import subprocess
@@ -431,3 +432,18 @@ def check_tier_contract(run) -> None:
     run('tier: every data and tmp path under src/main derives from src/main/tier.py or tier.sh', not found,
         ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
         check='tier.paths_from_contract')
+
+
+@check(tier='code', says=('tree.a_table_row_holds_its_header_fields',), on='TREE')
+def check_table_widths(run) -> None:
+    """Every row of a tracked table holds as many fields as its header names: a reader by
+    header files a surplus field under no name, so a split note reads as a shorter one."""
+    tables = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached', '-z', '--', '*.csv'],
+                            capture_output=True, text=True).stdout.split('\0')
+    uneven = []
+    for rel in filter(None, tables):
+        with (REPO_ROOT / rel).open(newline='') as fh:
+            rows = list(csv.reader(fh))
+        uneven += [f'{rel}:{number} holds {len(row)} of {len(rows[0])}' for number, row in enumerate(rows, 1) if row and len(row) != len(rows[0])]
+    run(f"tree: every row of a tracked table holds its header's fields ({len(tables) - 1} tables)",
+        not uneven, '; '.join(uneven) or None, check='tree.a_table_row_holds_its_header_fields')

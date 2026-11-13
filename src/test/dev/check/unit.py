@@ -807,7 +807,8 @@ def check_session_continued_apart(run) -> None:
     reads a live session the store holds identical under another room's name as that room's,
     kept and not staged, and the project's memory is still captured; a pull leaves a room's live
     session that diverged from the peer's as it stands, says the divergence as a fact, and still
-    merges the project's memory. The fixtures are synthetic: a store of two rooms and a live
+    merges the project's memory; and the store's live reading says such a session as that room's,
+    as the capture reads it, offering no capture. The fixtures are synthetic: a store of two rooms and a live
     store under temporary roots."""
     import tempfile
     import transport
@@ -844,3 +845,14 @@ def check_session_continued_apart(run) -> None:
                   and (live / project / 'memory' / 'fact.md').is_file())
     run("agent: a pull leaves a live session that diverged from the peer's as it stands, says the divergence as a fact, and merges the memory",
         pulled, None if pulled else f'the pull said {log.facts()!r}', check='agent.a_session_continued_apart_is_each_rooms_own')
+    import live
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        store = root / 'store'
+        held, _peer = planted(store, 'here', ours), planted(store, 'there', theirs)
+        mount = planted(root / 'live', 'projects', theirs)                              # the peer's copy, pulled into this room
+        rows = live.sessions('claude', harness, mount, {'staged': root / 'stage' / 'here', 'held': held})
+        said = [(r.state, r.facts()) for r in rows]
+        level = len(rows) == 1 and rows[0].state == "there's" and rows[0].facts()['act'] is None
+    run("agent: the store's live reading says a live session the store holds under another room's name as that room's, and offers no capture of it",
+        level, None if level else f'the live reading said {said!r}', check='agent.a_session_continued_apart_is_each_rooms_own')

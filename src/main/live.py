@@ -57,7 +57,7 @@ class Ahead:
     provider: str
     kind: str                 # what its selection's declaration calls it
     name: str                 # a session's id, a memory's project
-    state: str                # new, grown, changed, level, behind or diverged
+    state: str                # new, grown, changed, level, behind or diverged; or <room>'s, a session another room's store dir holds identical or ahead
     live: str                 # the live side, in words
     copy: str                 # the copy's side, in words; empty where neither tier holds one
     tier: str = 'staged'      # which tier's copy it was read against: staged, or held
@@ -148,10 +148,41 @@ def _fuller(copies: list[tuple[str, Any]], project: str) -> tuple[str, Any] | No
     return max(copies, key=lambda pair: (pair[1].size, pair[1].project == project))
 
 
+def sessions(name: str, adapter: Any, mount: Path, roots: dict[str, Path]) -> list[Ahead]:
+    """Each live session of the provider's mount against the fuller of its copies under roots -
+    each tier's directory of this room - by the measure the pipeline declares for its kind."""
+    declared = next(s for s in corpus.stores() if s.pipeline == 'agent' and s.provider == name)
+    glob, measure, kind = declared.globs[0].pattern, declared.globs[0].measure, declared.globs[0].kind
+    _value, leq, _words = corpus.MEASURE[measure]
+    pattern = '/'.join(glob.split('/')[declared.depth:])   # the glob below the unit: what a session directory holds of it
+    copies = _copies(adapter, roots)
+    rows: list[Ahead] = []
+    for s in adapter.live_sessions(mount):
+        found = _fuller(copies.get(s.id, []), s.project)
+        tier, copy = found if found is not None else ('staged', None)
+        live_logs = _logs(s.path, pattern)
+        copy_logs = _logs(copy.path, pattern) if copy is not None else None
+        state = STATE[corpus.derive(live_logs, copy_logs, leq)]
+        peer = transport.held_by_peer(roots['held'], s.path.name, live_logs[s.path.name]) if s.path.is_file() and state in ('new', 'grown', 'diverged') else None
+        if peer is not None:
+            rows.append(Ahead(name, kind, s.id[:8], f"{peer[0]}'s", corpus.human(s.size), corpus.human(peer[1].stat().st_size), 'held'))
+            continue
+        agree = 0
+        if state == 'diverged' and copy_logs is not None:
+            for key, mine in live_logs.items():
+                theirs = copy_logs.get(key, b'')
+                agree = next((i for i, (a, b) in enumerate(zip(mine, theirs)) if a != b), min(len(mine), len(theirs)))
+                break
+        rows.append(Ahead(name, kind, s.id[:8], state, corpus.human(s.size),
+                          '' if copy is None else corpus.human(copy.size), tier, agree=agree))
+    return rows
+
+
 def ahead() -> tuple[list[Ahead], list[str]]:
     """The live stores against the two tiers, as rows: every session and second-selection
     unit of each live store this room mounts, related to the fuller of the staged and the
-    held copy by the measure the pipeline declares for its kind - a mirror has no fuller
+    held copy by the measure the pipeline declares for its kind - a session another room's
+    store dir holds identical or ahead is that room's, as the capture reads it - a mirror has no fuller
     copy, so a second-selection unit is read against the staged copy where there is one,
     else the held, under its own project's name or under the name of any project whose
     live directory is the same one, since a link joins the names a repository rename
@@ -169,25 +200,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             continue
         under = transport.store(name).relative_to(corpus.STORE) / room
         roots = {tier: root / under for tier, root in TIERS.items()}
-        declared = next(s for s in corpus.stores() if s.pipeline == 'agent' and s.provider == name)
-        glob, measure, kind = declared.globs[0].pattern, declared.globs[0].measure, declared.globs[0].kind
-        _value, leq, _words = corpus.MEASURE[measure]
-        pattern = '/'.join(glob.split('/')[declared.depth:])   # the glob below the unit: what a session directory holds of it
-        copies = _copies(adapter, roots)
-        for s in adapter.live_sessions(mount):
-            found = _fuller(copies.get(s.id, []), s.project)
-            tier, copy = found if found is not None else ('staged', None)
-            live_logs = _logs(s.path, pattern)
-            copy_logs = _logs(copy.path, pattern) if copy is not None else None
-            state = STATE[corpus.derive(live_logs, copy_logs, leq)]
-            agree = 0
-            if state == 'diverged' and copy_logs is not None:
-                for key, mine in live_logs.items():
-                    theirs = copy_logs.get(key, b'')
-                    agree = next((i for i, (a, b) in enumerate(zip(mine, theirs)) if a != b), min(len(mine), len(theirs)))
-                    break
-            rows.append(Ahead(name, kind, s.id[:8], state, corpus.human(s.size),
-                              '' if copy is None else corpus.human(copy.size), tier, agree=agree))
+        rows.extend(sessions(name, adapter, mount, roots))
         extras = _live_extras(name, mount)
         names: dict[Path, list[str]] = {}   # each live directory's project names: its own, and those linked to it
         for _kind, path in extras:
