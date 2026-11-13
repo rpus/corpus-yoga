@@ -15,7 +15,7 @@ import sys
 from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
+from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, held_by_peer, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
 
 SELF = 'src/main/cli/agent/claude/harness.py'
 _file = Path(__file__).resolve()
@@ -134,7 +134,7 @@ def place_session(src: Path, dest: Path, apply: bool) -> tuple[Relation, str]:
     return place_log(src.read_bytes(), dest, apply)
 
 
-def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: Log, label: str) -> int:
+def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, room: str, log: Log, label: str) -> int:
     """Memory-folder merge — on pull only, where two agents actually meet
     (capture mirrors its own outbox instead; see mirror_memory). A leaf
     file's NAME is dressing; the fact is the identity — so per leaf, judged against
@@ -143,8 +143,10 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
     (byte-prefix) → superseded in place (an appendix); true divergence → BOTH
     kept, the incoming fact re-dressed as <stem>.<machine>.md — machine is the
     sender's ADDRESS under data/input/claude/code/machine-transport, sender-declared — with its [[links]]
-    following (nothing lost, nothing silently overwritten, nothing blocking —
-    reconciliation stays a human act). MEMORY.md is the
+    following (nothing lost, nothing blocking — reconciliation stays a human act). The twin is
+    the sender's copy, so it follows the sender's fact (issues/1073). A file the sender holds as a
+    twin of room's fact, or of its own, is no fact of its own: room's fact and the sender's
+    plain one stand for them, so it is not received. MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
     facts rewritten to their new names, and the merge leaves no record of itself in it
     (issues/1063): it only adds, so there is nothing to undo that removing a fact does not. Each leaf is said into the log under
@@ -175,6 +177,12 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
     leaves = [(p.relative_to(src_dir), p.read_text())
               for p in sorted(src_dir.rglob('*'))
               if p.is_file() and p.name not in ('.DS_Store', 'MEMORY.md')]
+    whose = {room: "{STORE} holds this room's own fact as the sender's twin of it",
+             machine: '{STORE} holds the sender\'s own fact as a twin of it'}
+    twins = {rel: rel.stem.rsplit('.', 1) for rel, _raw in leaves if rel.stem.rsplit('.', 1)[-1] in whose and '.' in rel.stem}
+    for rel, (stem, of) in twins.items():
+        said('kept', rel, {whose[of].format(STORE=STORE): f'read as {stem}{rel.suffix}'})
+    leaves = [(rel, raw) for rel, raw in leaves if rel not in twins]
     # each pair of copies judged alone, read bare, so that no fact's judgement waits on another's
     # and a fact written with its links re-dressed is received again as identical (L1)
     relation = {rel: related(raw, (dest_dir / rel).read_text()) for rel, raw in leaves if (dest_dir / rel).exists()}
@@ -204,11 +212,9 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
             twin = target.with_name(f'{renamed[rel.stem]}{target.suffix}')
             if twin.exists() and twin.read_text() == form:
                 said('kept', rel, {f'{STORE} and {LIVE} diverged': f'the twin {twin.name} already holds it'})
-            elif twin.exists():
-                said('conflict', rel, {f'{STORE} and {LIVE} diverged': f'and the twin {twin.name} differs - left in place'})
-                conflicts += 1
             else:
-                said('wrote', rel, {f'{STORE} and {LIVE} diverged': f'both kept - written as {twin.name}'})
+                said('wrote', rel, {f'{STORE} and {LIVE} diverged': f'the twin {twin.name} follows the sender\'s'
+                                    if twin.exists() else f'both kept - written as {twin.name}'})
                 if apply:
                     twin.write_text(form)
     # MEMORY.md: the index unions by novelty-append, re-dressed lines rewritten
@@ -222,7 +228,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str, log: 
         # a store that holds an index from before issues/1063 holds merge records in it: they
         # are no index lines, and the index lines inside them union like any others
         src_lines = [l for l in src_index.read_text().splitlines()
-                     if not l.lstrip().startswith('<!-- merge:')]
+                     if not l.lstrip().startswith('<!-- merge:') and not any(f'({rel.as_posix()})' in l for rel in twins)]
         for line in src_lines:
             for old, new in renamed.items():
                 line = line.replace(f'({old}.md)', f'({new}.md)').replace(f'[[{old}]]', f'[[{new}]]')
@@ -317,16 +323,11 @@ def _capture_session(src_proj: Path, dest_proj: Path, held_projs: list[Path], se
     against_store = not staged_log.exists() and held_log.exists()
     existing = held_log.read_bytes() if against_store else staged_log.read_bytes() if staged_log.exists() else None
     relation = relate(data, existing)
-    if relation not in (Relation.IDENTICAL, Relation.AHEAD):
-        # a session the store holds identical or ahead under another room's name is that room's,
-        # pulled here: it is kept, never staged as this room's nor read against this room's own
-        # copy, from which a session two rooms continued apart has diverged (issues/1071)
-        for room in sorted(d for d in held_projs[0].parent.parent.iterdir() if d.is_dir() and d != held_projs[0].parent):
-            for theirs in sorted(room.glob(f'*/{session.name}')):
-                if relate(data, theirs.read_bytes()) in (Relation.IDENTICAL, Relation.AHEAD):
-                    log.say('kept', f'{src_proj.name}/{session.name}',
-                            {f"{STORE} holds it as {room.name}'s": f'{len(data)} bytes here, {theirs.stat().st_size} there'}, 'session')
-                    return False
+    peer = held_by_peer(held_projs[0].parent, session.name, data) if relation not in (Relation.IDENTICAL, Relation.AHEAD) else None
+    if peer is not None:
+        log.say('kept', f'{src_proj.name}/{session.name}',
+                {f"{STORE} holds it as {peer[0]}'s": f'{len(data)} bytes here, {peer[1].stat().st_size} there'}, 'session')
+        return False
     if may_replace(relation):
         staged_log.parent.mkdir(parents=True, exist_ok=True)
         staged_log.write_bytes(data)
@@ -410,7 +411,7 @@ def _pull_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool
     return which == 'conflict'
 
 
-def pull_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log:
+def pull_all(bundle: Path, dest_root: Path, apply: bool, machine: str, room: str) -> Log:
     """git pull --all from one peer: every session in every project the machine
     transported (and each project's memory, merged once per project). The same lattice safety as
     capture --all; what it would write is corpus-yoga agent's status (issues/881). This
@@ -428,15 +429,15 @@ def pull_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> Log:
             if conflicted:
                 log.say('kept', f'{proj.name}/memory/', {'withheld': 'a session of the project conflicted; the agent transports as a product'}, 'memory')
             else:
-                merge_memory(proj / 'memory', dest / 'memory', apply, machine, log, proj.name)
+                merge_memory(proj / 'memory', dest / 'memory', apply, machine, room, log, proj.name)
     return log
 
 
-def pull_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> Log:
+def pull_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str, room: str) -> Log:
     log = Log(LIVE, 'did' if apply else 'would')
     conflicted = _pull_session(bundle_proj, dest_root / current_key(bundle_proj.name), session, apply, log)
     if conflicted:
         log.say('kept', f'{bundle_proj.name}/memory/', {'withheld': 'the session conflicted; the agent transports as a product'}, 'memory')
     else:
-        merge_memory(bundle_proj / 'memory', dest_root / current_key(bundle_proj.name) / 'memory', apply, machine, log, bundle_proj.name)
+        merge_memory(bundle_proj / 'memory', dest_root / current_key(bundle_proj.name) / 'memory', apply, machine, room, log, bundle_proj.name)
     return log
