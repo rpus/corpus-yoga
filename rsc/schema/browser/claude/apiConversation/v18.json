@@ -148,6 +148,7 @@
       "enum": [
         "claude-fable-5",
         "claude-fable-5-1",
+        "claude-fable-5-2",
         "claude-haiku-4-5-20251001",
         "claude-opus-4-6",
         "claude-opus-4-7",
@@ -631,6 +632,9 @@
           "$ref": "#/definitions/ReadToolUseBlock"
         },
         {
+          "$ref": "#/definitions/GlobToolUseBlock"
+        },
+        {
           "$ref": "#/definitions/WriteToolUseBlock"
         },
         {
@@ -722,6 +726,9 @@
         },
         {
           "$ref": "#/definitions/ReadToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/GlobToolResultBlock"
         },
         {
           "$ref": "#/definitions/WriteToolResultBlock"
@@ -1118,6 +1125,27 @@
         },
         "input": {
           "$ref": "#/definitions/ToolInputRead"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
+    "GlobToolUseBlock": {
+      "title": "GlobToolUseBlock",
+      "description": "Tool use block for the Glob tool - lists the files of the harness's container that match a pattern, a tool of the harness claude.ai runs since 2026-10, named as Claude Code names it. First observed 2026-11-07 (reading-room's capture and export of conversation 9a1bf550-0e28-4402-ada8-510e2c738859, 2026-11-13).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Glob"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputGlob"
         }
       },
       "required": [
@@ -1796,6 +1824,23 @@
         "name"
       ]
     },
+    "GlobToolResultBlock": {
+      "title": "GlobToolResultBlock",
+      "description": "Tool result block for the Glob tool: text items, the matching paths, or that none was found.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "Glob"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
     "WriteToolResultBlock": {
       "title": "WriteToolResultBlock",
       "description": "Tool result block for the Write tool: text items.",
@@ -2364,6 +2409,20 @@
         }
       }
     },
+    "ToolInputGlob": {
+      "title": "ToolInputGlob",
+      "description": "Input for the Glob tool, closed over the key observed in 1 call of 2026-11-07: the pattern.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pattern"
+      ],
+      "properties": {
+        "pattern": {
+          "type": "string"
+        }
+      }
+    },
     "ToolInputWrite": {
       "title": "ToolInputWrite",
       "description": "Input for the Write tool, closed over the keys observed in 3 call(s) from 2026-10-14.",
@@ -2889,7 +2948,7 @@
           }
         },
         "display_path_segments": {
-          "description": "The path segments as the UI titles them. Example: [\"Areas\", \"Yoga Corpus\"]. Present on a single-document result, absent inside a document list.",
+          "description": "The path segments as the UI titles them. Example: [\"Areas\", \"Yoga Corpus\"]. Present on a single-document result and inside the document list of 2026-11-07, absent inside the 2026-08 lists.",
           "type": "array",
           "items": {
             "type": "string"
@@ -2936,7 +2995,7 @@
     },
     "MemoryDocumentList": {
       "title": "MemoryDocumentList",
-      "description": "Several memories returned by one memory_read (two or three observed, the 2026-08 captures whose input is empty).",
+      "description": "Several memories returned by one memory_read: two or three observed, in the 2026-08 captures whose input is empty, and two in conversation 9a1bf550-0e28-4402-ada8-510e2c738859 of 2026-11-07, whose list carries the operation as each of its documents does.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -2950,6 +3009,10 @@
           "items": {
             "$ref": "#/definitions/MemoryDocument"
           }
+        },
+        "memory_op_kind": {
+          "description": "The operation that produced the list, as its documents carry it. Observed value: \"read\", on the list of 2026-11-07; absent on the 2026-08 lists.",
+          "type": "string"
         }
       }
     },

@@ -1884,6 +1884,7 @@
       "enum": [
         "claude-fable-5",
         "claude-fable-5-1",
+        "claude-fable-5-2",
         "claude-haiku-4-5-20251001",
         "claude-opus-4-6",
         "claude-opus-4-7",
@@ -2154,7 +2155,7 @@
     },
     "ApiRequestContentBlock": {
       "title": "ApiRequestContentBlock",
-      "description": "A block of a message an api-request-blob record holds. Discriminated by type: text, tool_use, tool_result, thinking, or tool_addition, the five observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15; a turn's ContentBlock also admits image, document and fallback, unobserved here.",
+      "description": "A block of a message an api-request-blob record holds. Discriminated by type: text, tool_use, tool_result, thinking, or tool_addition, the five observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15, and tool_removal, observed in reading-room's session e2d2039d under Claude Code 2.1.322, staged 2026-11-12; a turn's ContentBlock also admits image, document and fallback, unobserved here.",
       "type": "object",
       "allOf": [
         {
@@ -2176,6 +2177,9 @@
         },
         {
           "$ref": "#/definitions/ToolAdditionBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolRemovalBlock"
         }
       ]
     },
@@ -2353,6 +2357,28 @@
         }
       }
     },
+    "ToolRemovalBlock": {
+      "title": "ToolRemovalBlock",
+      "description": "A block of type tool_removal, observed three times in reading-room's session e2d2039d under Claude Code 2.1.322, staged 2026-11-12, in one system message of an api-request-blob record that follows a text block opening \"The following tools are no longer available\", each naming one MCP tool by reference. Read as a tool withdrawn after the request shape was written, the counterpart of tool_addition - an inference from its position and that text. Both keys present.",
+      "type": "object",
+      "required": [
+        "type",
+        "tool"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "tool_removal"
+          ],
+          "description": "(discriminator)"
+        },
+        "tool": {
+          "$ref": "#/definitions/ToolRemoval"
+        }
+      }
+    },
     "ImageBlock": {
       "title": "ImageBlock",
       "description": "An image content block. Observed when the user pastes or drags an image into the prompt. Corresponds to MCP ImageContent (rsc/reference/mcp#/$defs/ImageContent); the CLI format uses a nested source object rather than top-level data/mimeType fields.",
@@ -2485,6 +2511,26 @@
         },
         "definition": {
           "$ref": "#/definitions/ToolDefinition"
+        }
+      }
+    },
+    "ToolRemoval": {
+      "title": "ToolRemoval",
+      "description": "What a tool_removal block carries: a kind and a tool's name. Observed three times in reading-room's session e2d2039d under Claude Code 2.1.322, staged 2026-11-12, the kind always tool_reference and each name an MCP tool's, mcp__claude_ai_Claude_Docs__batch among them. Both keys present.",
+      "type": "object",
+      "required": [
+        "type",
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "Observed value: \"tool_reference\". Likely an open set.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the tool the block withdraws, as the request's tool list named it.",
+          "type": "string"
         }
       }
     }

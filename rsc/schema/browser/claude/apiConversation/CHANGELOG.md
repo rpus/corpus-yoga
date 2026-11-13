@@ -13,6 +13,48 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v18
+
+A conversation names a newer model, the harness looks for files, and a memory read's list
+says what it did. Reading-room's browser capture of 2026-11-13 staged 128 conversations, two
+of which the rehearsal of 2026-11-13T110854Z refuses at v17. `d11565d6-640e-465a-9aca-b77a96404d49`
+("Questions for you", updated 2026-11-11T00:16:15Z) has `model` `claude-fable-5-2`, which
+`ModelId` did not hold. `9a1bf550-0e28-4402-ada8-510e2c738859` ("Rilke scan"), in message 1
+(`01a1b7e4-857d-7e2f-87a3-c7b29b21070d`, 2026-11-07T21:23:00Z), holds a tool_use named `Glob` -
+`tool_origin` "first_party", `input` `{"pattern": "*"}`, message "Looked for files" - a tool
+no block of the union names, and its tool_result, text items alone ("No files found").
+Validating that capture fault by fault on reading-room, 2026-11-13, surfaced one more shape
+behind them, in the same message: the `memory_read` result's `structured_content` is a list
+of two documents that carries `memory_op_kind` "read" itself, beside `documents`, and whose
+documents each carry `display_path_segments`, `memory_op_kind` and `memory_id`, as a single
+document does since 2026-09 and 2026-10; the lists of 2026-08 carried none of them.
+
+The bulk export of 2026-11-13 holds the same conversation with the same three shapes
+(conversations v25, and the join rows added with this mint).
+
+Validated over the 128 API captures staged on reading-room on 2026-11-13: v17 refuses the two;
+v18 refuses none. v18 widens one enum, two unions and one object and narrows nothing, so every
+datum v17 admits, v18 admits.
+
+### Replaces
+
+v17
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `ModelId`: the enum admits `claude-fable-5-2`.
+- `ApiToolUseBlock`: admits `GlobToolUseBlock` - `name` "Glob", `input` a `ToolInputGlob` of `pattern`.
+- `ApiToolResultBlock`: admits `GlobToolResultBlock` - `name` "Glob".
+- `MemoryDocumentList`: admits `memory_op_kind`, a string, beside `documents`.
+
+#### Refactored
+
+- `MemoryDocument.display_path_segments`: the description says it stands inside the document list of 2026-11-07, where it said a list never carried it. No validation effect.
+
 ## v17
 
 A model id is one closed set the corpus shares. A conversation's `model` was a bare string,
