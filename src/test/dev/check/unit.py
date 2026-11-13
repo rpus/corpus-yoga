@@ -799,3 +799,48 @@ def check_sweep(run) -> None:
     run('requirements: no requirement is pinned but the antlr runtime the parsers are generated for', ruled,
         None if ruled else f'src/requirements.txt pins {", ".join(pinned) or "nothing"}, where only antlr4-python3-runtime is pinned - every other takes the latest release',
         check='requirements.only_the_parser_runtime_is_pinned')
+
+
+@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])
+def check_session_continued_apart(run) -> None:
+    """A session two rooms continued apart is kept by each as its own (issues/1071): a capture
+    reads a live session the store holds identical under another room's name as that room's,
+    kept and not staged, and the project's memory is still captured; a pull leaves a room's live
+    session that diverged from the peer's as it stands, says the divergence as a fact, and still
+    merges the project's memory. The fixtures are synthetic: a store of two rooms and a live
+    store under temporary roots."""
+    import tempfile
+    import transport
+    harness = transport.adapter('claude')
+    assert harness is not None, 'transport serves no claude adapter'
+    name, project = 'aaaaaaaa-0000-0000-0000-000000000000.jsonl', '-'.join(('', 'Users', 'someone', 'dev', 'project'))   # a project key, as the harness finds them
+    shared, ours, theirs = '{"n": 1}\n', '{"n": 1}\n{"here": 2}\n', '{"n": 1}\n{"there": 2}\n'
+    def planted(root: Path, room: str, text: str, memory: str | None = None) -> Path:
+        at = root / room / project
+        at.mkdir(parents=True, exist_ok=True)
+        (at / name).write_text(text)
+        if memory is not None:
+            (at / 'memory').mkdir(exist_ok=True)
+            (at / 'memory' / 'fact.md').write_text(memory)
+        return root / room
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        store, outbox = root / 'store', root / 'outbox'
+        held, peer = planted(store, 'here', ours), planted(store, 'there', theirs)
+        live = planted(root / 'live', 'projects', theirs, 'a fact of this room\n')      # the peer's copy, pulled into this room
+        log = harness.capture_all(live, outbox, held)
+        staged = sorted(p.relative_to(outbox).as_posix() for p in outbox.rglob('*') if p.is_file()) if outbox.is_dir() else []
+        captured = (log.conflicts == 0 and staged == [f'{project}/memory/fact.md']
+                    and f'{project}/{name}' in log.by.get(log.key('kept'), {}))
+    run("agent: a capture reads a live session the store holds under another room's name as that room's - kept, not staged - and captures the memory",
+        captured, None if captured else f'the capture said {log.facts()!r} and staged {staged}', check='agent.a_session_continued_apart_is_each_rooms_own')
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        bundle = planted(root / 'store', 'there', theirs, 'a fact of the peer\n')
+        live = planted(root / 'live', 'projects', ours)
+        log = harness.pull_all(bundle, live, True, 'there')
+        kept = log.by.get(log.key('kept'), {}).get(f'{project}/{name}')
+        pulled = (log.conflicts == 0 and (live / project / name).read_text() == ours and isinstance(kept, dict) and any('diverged' in key for key in kept)
+                  and (live / project / 'memory' / 'fact.md').is_file())
+    run("agent: a pull leaves a live session that diverged from the peer's as it stands, says the divergence as a fact, and merges the memory",
+        pulled, None if pulled else f'the pull said {log.facts()!r}', check='agent.a_session_continued_apart_is_each_rooms_own')
