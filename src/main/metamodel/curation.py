@@ -259,7 +259,7 @@ def _append_join_row(row: dict, relationship: str, note: str) -> None:
     """One disposal, one appended join.csv row - the worksheet's path
     cells verbatim, the relationship and note the disposal's two fields."""
     with JOIN.open('a', newline='') as fh:
-        csv.writer(fh).writerow([row[c] for c in JOIN_PATH_COLUMNS] + [relationship, note])
+        csv.writer(fh, quoting=csv.QUOTE_ALL).writerow([row[c] for c in JOIN_PATH_COLUMNS] + [relationship, note])   # as every row of the table is written
 
 
 def accept_shared_name(row: dict, date: str) -> str:

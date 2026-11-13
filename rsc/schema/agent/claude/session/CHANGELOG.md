@@ -6,6 +6,46 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v29
+
+A session names a newer model, and is told a tool is gone. Reading-room's session
+`e2d2039d-b1e5-4691-99f9-f0629d13e243`, captured on 2026-11-12 by `corpus-yoga agent capture`
+into the stage, is refused at v28 by the rehearsal of 2026-11-13T104129Z at its record 45418,
+an `api-request` of 2026-11-11T22:10:22Z (Claude Code 2.1.322) whose `params.model` is
+`claude-fable-5-2`, which `ModelId` did not hold: the session was switched to that model on
+2026-11-11, and 706 of its records carry the id. Validating the session fault by fault on
+reading-room, 2026-11-13, surfaced one more shape behind it: record 46984, an
+`api-request-blob` beside an `api-request` of 2026-11-12T22:18:06Z, holds a system message
+whose first block is a text opening "The following tools are no longer available" and whose
+other three are of type `tool_removal`, each `{"type": "tool_removal", "tool": {"type":
+"tool_reference", "name": ...}}` naming one MCP tool, which the blob's block union closed. No
+other record of the session's 47,075 carries the type. It is read as the counterpart of
+`tool_addition` - a tool withdrawn after the request shape was written - an inference from
+its position and that text.
+
+`ModelId` stays the one set shared with apiConversation, v18 of which admits the same id.
+
+Validated over the rehearsal's conversion of the staged session on reading-room, 2026-11-13:
+v28 refuses it at record 45418 and stops; v29 refuses none of its 47,075 records. v29 widens
+one enum and one union and narrows nothing, so every datum v28 admits, v29 admits.
+
+### Replaces
+
+v28
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `ModelId`: the enum admits `claude-fable-5-2`.
+- `ApiRequestContentBlock`: admits `ToolRemovalBlock` - `type` "tool_removal", `tool` a `ToolRemoval` of `type` and `name`, both strings.
+
+#### Refactored
+
+None.
+
 ## v28
 
 A model id is one closed set the corpus shares. Reading-room's session

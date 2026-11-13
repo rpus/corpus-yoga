@@ -19,6 +19,46 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v25
+
+The harness looks for files, and a memory read's list says what it did. Reading-room's bulk
+export of 2026-11-13 (`data-0fc4c1e0-…-2026-11-13-11-07-26`), captured by `corpus-yoga export
+capture` into the stage, is refused at v24 by the rehearsal of 2026-11-13T110854Z at
+conversation 100 (`9a1bf550-0e28-4402-ada8-510e2c738859`, "Rilke scan"), message 1
+(`01a1b7e4-857d-7e2f-87a3-c7b29b21070d`, 2026-11-07T21:23:00Z): a tool_use named `Glob` -
+`tool_origin` "first_party", `input` `{"pattern": "*"}` - a tool no block of the union names.
+Validating the export fault by fault on reading-room, 2026-11-13, surfaced two more shapes
+behind it in the same message: the tool_result named `Glob`, text items alone ("No files
+found"), which the result union closed, where the Read results of 2026-11-03 were unnamed; and
+the `memory_read` result's `structured_content`, a list of two documents that carries
+`memory_op_kind` "read" itself beside `documents`. The API capture of the same conversation
+on 2026-11-13 holds the same three shapes (apiConversation v18, and the join rows added with
+this mint). No other conversation of the export's 130 carries any of them. The export carries
+no model id, so the id apiConversation v18 and session v29 admit does not reach this family.
+
+Validated over the staged export on reading-room, 2026-11-13: v24 refuses it at conversation
+100, message 1, and stops; v25 refuses none of its 130 conversations. v25 adds one tool with
+its input and its result, and one key of one object, and narrows nothing, so every datum v24
+admits, v25 admits.
+
+### Replaces
+
+v24
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `ToolUseBlock`: admits `GlobToolUseBlock` - `name` "Glob", `input` a `ToolInputGlob` of `pattern`.
+- `ToolResultBlock`: admits `GlobToolResultBlock` - `name` "Glob".
+- `MemoryDocumentList`: admits `memory_op_kind`, a string, beside `documents`.
+
+#### Refactored
+
+- `MemoryDocument.display_path_segments`: the description says it stands inside the document list of 2026-11-07, where it said a list never carried it. No validation effect.
+
 ## v24
 
 The harness turns a connected MCP server's tools on, and reads files, and a Read of an image
