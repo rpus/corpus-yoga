@@ -306,7 +306,8 @@ def _capture_session(src_proj: Path, dest_proj: Path, held_projs: list[Path], se
     """Mirror one session (log + workspace) into its project dir in the stage, said into
     the log under its outcome by its address, <project>/<session> (issues/857). Where the stage
     holds no copy, the held one under the first of held_projs - the project's own name, then
-    the names a rename left (issues/1058) - is the baseline (issues/850): a log the store
+    the names a rename left (issues/1058) - is the baseline (issues/850), and a session another
+    room's store dir holds identical or ahead is that room's, kept (issues/1071): a log the store
     holds identical or ahead is not staged and its workspace is not read, one that
     diverges from the held copy is a CONFLICT, as the promote would say, and one that
     extends it is written to the stage. Returns whether the session conflicted."""
@@ -316,6 +317,16 @@ def _capture_session(src_proj: Path, dest_proj: Path, held_projs: list[Path], se
     against_store = not staged_log.exists() and held_log.exists()
     existing = held_log.read_bytes() if against_store else staged_log.read_bytes() if staged_log.exists() else None
     relation = relate(data, existing)
+    if relation not in (Relation.IDENTICAL, Relation.AHEAD):
+        # a session the store holds identical or ahead under another room's name is that room's,
+        # pulled here: it is kept, never staged as this room's nor read against this room's own
+        # copy, from which a session two rooms continued apart has diverged (issues/1071)
+        for room in sorted(d for d in held_projs[0].parent.parent.iterdir() if d.is_dir() and d != held_projs[0].parent):
+            for theirs in sorted(room.glob(f'*/{session.name}')):
+                if relate(data, theirs.read_bytes()) in (Relation.IDENTICAL, Relation.AHEAD):
+                    log.say('kept', f'{src_proj.name}/{session.name}',
+                            {f"{STORE} holds it as {room.name}'s": f'{len(data)} bytes here, {theirs.stat().st_size} there'}, 'session')
+                    return False
     if may_replace(relation):
         staged_log.parent.mkdir(parents=True, exist_ok=True)
         staged_log.write_bytes(data)
@@ -374,13 +385,19 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> Log:
 
 def _pull_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, log: Log) -> bool:
     """One held session into the projects root, said under its outcome by its address;
-    returns whether it conflicted."""
+    returns whether it conflicted. A session that diverged from this room's live copy is
+    kept as it stands, its divergence said (issues/1071)."""
     data = session.read_bytes()
     target = dest_proj / session.name
     # a session the room holds still under a key a former path gave is the copy it holds (issues/1058)
     held = next((d / session.name for d in (dest_proj.parent / k for k in keys_of(dest_proj.name)) if (d / session.name).exists()), target)
     existing = held.read_bytes() if held.exists() else None
     relation = relate(data, existing)
+    if relation is Relation.DIVERGED:
+        # a session two rooms continued apart is each room's own (issues/1071): this room's stands,
+        # the peer's stays in the store, and the divergence is a fact, withholding nothing
+        log.say('kept', f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, STORE, LIVE), 'session')
+        return False
     if apply and may_replace(relation):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
