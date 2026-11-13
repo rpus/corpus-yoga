@@ -391,7 +391,8 @@ observable in the memory merge and should ride into the protocol:
   in MEMORY.md is the human-visible half of the same record; undo is then a
   deletion LICENSED by the record (L3), not an act of memory. Agent transport's
   memory merge keeps no such record: it only adds, so removing what it added
-  is removing a fact's file.
+  is removing a fact's file - save that a twin, the sender's copy of a fact,
+  is rewritten to follow that fact on each pull (issues/1073).
 
 The planned protocol (a `corpus.py` under the shared `src/main/` root, per the
 module placement doctrine) — `units() → {key: atoms}`, a mutability class,

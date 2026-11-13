@@ -1,4 +1,4 @@
-run.py: code+schema 1947/1947
+run.py: code+schema 1951/1951
 
 
 check_schema_join: |
@@ -336,6 +336,9 @@ check_sweep: |
   ✓ migration.raise_bodies_stand_with_the_record
   ✓ python.a_shebang_is_executable
   ✓ requirements.only_the_parser_runtime_is_pinned
+
+check_rooms_settle_over_memory: |
+  ✓ agent.rooms_settle_over_memory  (4/4)
 
 check_session_continued_apart: |
   ✓ agent.a_session_continued_apart_is_each_rooms_own  (3/3)
@@ -706,49 +709,54 @@ stages:
     failures: 0
     tier: code
     line: "333"
+  check_rooms_settle_over_memory:
+    passes: 4
+    failures: 0
+    tier: code
+    line: "340"
   check_session_continued_apart:
     passes: 3
     failures: 0
     tier: code
-    line: "340"
+    line: "343"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "343"
+    line: "346"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "346"
+    line: "349"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "352"
+    line: "355"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "358"
+    line: "361"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "361"
+    line: "364"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "366"
+    line: "369"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "380"
+    line: "383"
 
-checks[code+schema]: 233 types, 1947/1947 invocations passing
-checks[code]: 175 types, 1199/1199 invocations passing
+checks[code+schema]: 234 types, 1951/1951 invocations passing
+checks[code]: 176 types, 1203/1203 invocations passing
 checks[schema]: 58 types, 748/748 invocations passing
 
-dev gate: PASS - code+schema 1947/1947 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1951/1951 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

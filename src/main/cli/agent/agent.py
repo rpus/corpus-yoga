@@ -11,8 +11,10 @@ loud CONFLICT. A memory folder is a set of one-fact-per-file documents whose
 NAMES are dressing (the fact is the identity) plus one index: on pull a
 novel leaf copies in, an identical one skips, one the incoming EXTENDS is
 superseded in place (an appendix), and true divergence keeps BOTH — the
-incoming fact re-dressed as <stem>.<machine>.md with its [[links]] following —
-while MEMORY.md unions by novelty-append. Nothing is overwritten silently
+incoming fact re-dressed as <stem>.<machine>.md with its [[links]] following, a
+twin that follows the sender's fact on every later pull (issues/1073) — while
+MEMORY.md unions by novelty-append; a twin the sender holds of this room's fact,
+or of its own, is not received, since the plain facts stand for them. Nothing is overwritten silently
 (L6), nothing is lost (L4), and reconciliation of diverged facts remains a
 human act — recorded in-folder rather than blocking the transport ("hone,
 not clone": the twins are the fork, made visible). Re-running either
@@ -57,15 +59,16 @@ is a fast-forward gate — no commit chain needed, a dumb file store suffices.
 Each machine's dir is a single-writer branch (a machine pushes only its own ref);
 capture is a fast-forward-only push ('destination is ahead' is the refused
 stale force-push); pull is fetch-plus-merge, the status its dry run; two machines
-extending the same session are diverged branches, refused until a human
-merges. And memory/ is the actual REPOSITORY of the pair — the component
+extending the same session are diverged branches, each machine's own
+(issues/1071). And memory/ is the actual REPOSITORY of the pair — the component
 where real merges happen: diverged facts persist as machine-dressed twin
 branches, and the index unions like a tree merge. The session is history; the
 memory is the repo.
 
 A pull's merge only adds (issues/1063) - a new fact, a longer copy's tail, a
-diverged copy beside the local one, an index line - so it writes no record of
-itself and has no undo: removing a fact is removing its file.
+diverged copy beside the local one, an index line - or brings that diverged copy
+level with the sender's fact, so it writes no record of itself and has no undo:
+removing a fact is removing its file.
 
     corpus-yoga agent
     corpus-yoga agent list-models
@@ -321,7 +324,7 @@ def peers() -> dict[str, Peer | str] | str:
     for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
         if machine.name == registry.machine():
             continue
-        log = adapter.pull_all(machine, projects, False, machine.name)
+        log = adapter.pull_all(machine, projects, False, machine.name, registry.machine())
         held[machine.name] = Peer(summary(log, machine), pull_act(machine.name, log)) if log.facts() else facts.phrase('nothing - the store holds no session of it')
     return held or facts.phrase('none - no peer machine held')
 
@@ -493,10 +496,10 @@ def main() -> int:
     # name as it stands under claude's store (or the directory's own name for a path)
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
-        log = claude.pull_all(bundle, projects, True, machine)
+        log = claude.pull_all(bundle, projects, True, machine, registry.machine())
     else:
         session = claude.pick_session(bundle, args.id)
-        log = claude.pull_move(session.parent, projects, session, True, machine)
+        log = claude.pull_move(session.parent, projects, session, True, machine, registry.machine())
     # the log is facts nested by outcome under the bundle's address (issues/857), then the one
     # effect; what an pull would write is corpus-yoga agent's status (issues/881)
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):

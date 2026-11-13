@@ -384,7 +384,7 @@ def check_memory_merge(run) -> None:
         for _ in range(2):
             log = transport.Log(transport.LIVE, 'did')
             try:
-                harness.merge_memory(sent, held, True, 'peer', log, 'p')
+                harness.merge_memory(sent, held, True, 'peer', 'here', log, 'p')
                 outcomes.append({key: sorted(units) for key, units in log.by.items()})
             except Exception as error:
                 outcomes.append(f'{type(error).__name__}: {error}')
@@ -427,7 +427,7 @@ def check_renamed_checkout(run) -> None:
         bundle, live, outbox, held = root / 'bundle', root / 'live', root / 'outbox', root / 'held'
         (bundle / former[0]).mkdir(parents=True)
         (bundle / former[0] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
-        harness.pull_all(bundle, live, True, 'peer')
+        harness.pull_all(bundle, live, True, 'peer', 'here')
         installed = sorted(p.relative_to(live).as_posix() for p in live.rglob('*.jsonl'))
         (held / former[1]).mkdir(parents=True)
         (held / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
@@ -443,7 +443,7 @@ def check_renamed_checkout(run) -> None:
         unmoved = root / 'unmoved'
         (unmoved / former[1]).mkdir(parents=True)
         (unmoved / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
-        dry = harness.pull_all(bundle, unmoved, False, 'peer')
+        dry = harness.pull_all(bundle, unmoved, False, 'peer', 'here')
         kept = list(dry.by) == [dry.key('kept')]
         run("agent: an install reads a live session still under a former path's key as the one the room holds, and would write nothing", kept,
             None if kept else f'the install would say {dry.facts()}', check='agent.renamed_checkout_is_one_project')
@@ -801,6 +801,72 @@ def check_sweep(run) -> None:
         check='requirements.only_the_parser_runtime_is_pinned')
 
 
+@check(tier='code', says=('agent.rooms_settle_over_memory',), on=['src/main/cli/agent'])
+def check_rooms_settle_over_memory(run) -> None:
+    """Two rooms that capture and pull each other's memory and sessions in turn settle with no
+    conflict (issues/1073): each holds its own fact and a twin of the other's, never a twin of its
+    own, and a fact one room edits reaches the other's twin of it; a session both rooms continued
+    apart settles too, and once settled the store's live reading offers neither room a capture
+    (issues/1077). The fixtures are synthetic: two rooms' live stores and their store dirs under
+    a temporary root."""
+    import tempfile
+    import live
+    import transport
+    harness = transport.adapter('claude')
+    assert harness is not None, 'transport serves no claude adapter'
+    project = '-'.join(('', 'Users', 'someone', 'dev', 'project'))   # a project key, as the harness finds them
+    session = 'aaaaaaaa-0000-0000-0000-000000000000.jsonl'
+    def tree(root: Path) -> dict[str, str]:
+        return {p.relative_to(root).as_posix(): p.read_text() for p in sorted(root.rglob('*')) if p.is_file()}
+    def rounds(root: Path) -> tuple[int, int]:
+        """Captures and pulls in turn until neither room's files change: (rounds, conflicts)."""
+        conflicts = 0
+        for number in range(1, 9):
+            before = tree(root)
+            for here, there in (('a', 'b'), ('b', 'a')):
+                harness.capture_all(root / here / 'live', root / 'store' / here, root / 'store' / here)
+                conflicts += harness.pull_all(root / 'store' / here, root / there / 'live', True, here, there).conflicts
+            if tree(root) == before:
+                return number, conflicts
+        return 0, conflicts
+    def offered(root: Path) -> dict[str, list]:
+        """What the store's live reading of each room offers to capture: (session, state) pairs."""
+        return {room: [(r.name, r.state) for r in live.sessions('claude', harness, root / room / 'live',
+                                                                 {'staged': root / 'stage' / room, 'held': root / 'store' / room})
+                       if r.facts()['act'] is not None] for room in ('a', 'b')}
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        for room in ('a', 'b'):
+            memory = root / room / 'live' / project / 'memory'
+            memory.mkdir(parents=True)
+            (memory / 'x.md').write_text(f'the fact, as {room} holds it\n')
+            (memory / 'MEMORY.md').write_text('- [the fact](x.md)\n')
+        (root / 'a' / 'live' / project / session).write_text('{"n": 1}\n')
+        settled, conflicts = rounds(root)
+        held = {room: sorted(tree(root / room / 'live' / project / 'memory')) for room in ('a', 'b')}
+        twins = settled and conflicts == 0 and held == {'a': ['MEMORY.md', 'x.b.md', 'x.md'], 'b': ['MEMORY.md', 'x.a.md', 'x.md']}
+        run("agent: two rooms that capture and pull each other's memory settle with no conflict, each holding its own fact and the other's twin of it",
+            twins, None if twins else f'settled after {settled} round(s) with {conflicts} conflict(s), holding {held}', check='agent.rooms_settle_over_memory')
+        pulled = offered(root)
+        quiet = settled and pulled == {'a': [], 'b': []}
+        run("agent: once two rooms settle, the store's live reading offers no capture of a session one room holds as pulled from the other",
+            quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {pulled}', check='agent.rooms_settle_over_memory')
+        (root / 'a' / 'live' / project / 'memory' / 'x.md').write_text('the fact, as a has rewritten it\n')
+        for room in ('a', 'b'):
+            with (root / room / 'live' / project / session).open('a') as fh:
+                fh.write(f'{{"{room}": 2}}\n')
+        settled, conflicts = rounds(root)
+        twin = (root / 'b' / 'live' / project / 'memory' / 'x.a.md')
+        followed = settled and conflicts == 0 and twin.is_file() and twin.read_text() == 'the fact, as a has rewritten it\n'
+        run("agent: a fact one room edits reaches the other room's twin of it, with no conflict",
+            followed, None if followed else f'settled after {settled} round(s) with {conflicts} conflict(s); b\'s twin reads {twin.read_text() if twin.is_file() else None!r}',
+            check='agent.rooms_settle_over_memory')
+        apart = offered(root)
+        quiet = settled and apart == {'a': [], 'b': []}
+        run("agent: once two rooms settle a session they continued apart, the store's live reading offers neither a capture",
+            quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {apart}', check='agent.rooms_settle_over_memory')
+
+
 @check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])
 def check_session_continued_apart(run) -> None:
     """A session two rooms continued apart is kept by each as its own (issues/1071): a capture
@@ -839,7 +905,7 @@ def check_session_continued_apart(run) -> None:
         root = Path(tmp)
         bundle = planted(root / 'store', 'there', theirs, 'a fact of the peer\n')
         live = planted(root / 'live', 'projects', ours)
-        log = harness.pull_all(bundle, live, True, 'there')
+        log = harness.pull_all(bundle, live, True, 'there', 'here')
         kept = log.by.get(log.key('kept'), {}).get(f'{project}/{name}')
         pulled = (log.conflicts == 0 and (live / project / name).read_text() == ours and isinstance(kept, dict) and any('diverged' in key for key in kept)
                   and (live / project / 'memory' / 'fact.md').is_file())
