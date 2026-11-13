@@ -96,7 +96,7 @@ rsc/CALCULUS.md,332,doc,rsc/test/run.log,Y,"record other clones diff against —
 rsc/CALCULUS.md,333,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expected-score files beside them. Operations:"
 rsc/CALCULUS.md,338,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
 rsc/CALCULUS.md,377,doc,src/main/cli/agent/agent.py,Y,`src/main/cli/agent/agent.py` (prefix-supersession + the memory-folder
-rsc/CALCULUS.md,396,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
+rsc/CALCULUS.md,397,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/audit/README.md,41,doc,rsc/audit/prompt.md,Y,Provenance: rsc/audit/prompt.md @ <sha> - amend via PR to that file
 rsc/audit/prompt.md,14,doc,src/test/dev/run.py,Y,"- gate-honesty: for every check_* function in src/test/dev/run.py and for src/test/dev/xref.py, the docstring/comment cl"
 rsc/audit/prompt.md,14,doc,src/test/dev/xref.py,Y,"- gate-honesty: for every check_* function in src/test/dev/run.py and for src/test/dev/xref.py, the docstring/comment cl"
@@ -942,12 +942,12 @@ src/main/cli/README.md,150,doc,src/main/indexing/capture.sh,Y,`src/main/indexing
 src/main/cli/README.md,168,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 src/main/cli/agent/agent.json,49,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
-src/main/cli/agent/agent.py,24,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, issues/636, issues/853), the address its units have under"
-src/main/cli/agent/agent.py,41,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and pull --from"
-src/main/cli/agent/agent.py,73,comment,src/main/cli/agent/drafters.py,Y,corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
-src/main/cli/agent/agent.py,129,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,419,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
-src/main/cli/agent/agent.py,420,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
+src/main/cli/agent/agent.py,26,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, issues/636, issues/853), the address its units have under"
+src/main/cli/agent/agent.py,43,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and pull --from"
+src/main/cli/agent/agent.py,76,comment,src/main/cli/agent/drafters.py,Y,corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
+src/main/cli/agent/agent.py,132,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
+src/main/cli/agent/agent.py,422,comment,rsc/migration/636.sh,Y,creates them. A link at a retired address is rsc/migration/636.sh's or
+src/main/cli/agent/agent.py,423,comment,rsc/migration/853.sh,Y,rsc/migration/853.sh's.
 src/main/cli/agent/capture.json,26,path_str,rsc/naming/checkout_paths.csv,Y,"""rsc/naming/checkout_paths.csv"","
 src/main/cli/agent/claude/harness.py,20,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/drafters.py,6,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"(rsc/test/prepare-commit-msg-hook.sh, the grammar's one home): the first names who"
@@ -1585,24 +1585,24 @@ src/test/dev/check/surface.py,396,comment,src/main/send.py,Y,"# A send is refusa
 src/test/dev/check/surface.py,825,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
 src/test/dev/check/surface.py,1638,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
 src/test/dev/check/surface.py,1697,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/dev/check/tree.py,52,comment,src/main/pipeline.schema.json,Y,"is a pipeline, its declaration valid against src/main/pipeline.schema.json, and"
-src/test/dev/check/tree.py,122,comment,src/run_python_script.sh,Y,"Python's import roots are pyrightconfig.json's, which src/run_python_script.sh sets for every"
-src/test/dev/check/tree.py,212,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (the one exemption)."
-src/test/dev/check/tree.py,287,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
-src/test/dev/check/tree.py,328,comment,src/main/spell.py,Y,src/main/spell.py - the one API that spells a command from its declaration - over every
-src/test/dev/check/tree.py,413,comment,src/main/tier.py,Y,"src/main/tier.py and its shell twin are the one home, and no other script builds a"
-src/test/dev/check/tree.py,320,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
-src/test/dev/check/tree.py,320,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
-src/test/dev/check/tree.py,320,path_str,rsc/CALCULUS.md,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
-src/test/dev/check/tree.py,320,path_str,rsc/schema/WORKFLOW.md,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
-src/test/dev/check/tree.py,410,path_str,src/main,Y,"@check(tier='code', says=('tier.paths_from_contract',), on=['src/main'])"
-src/test/dev/check/tree.py,340,path_str,src/main/spell.py,Y,"'src/main/spell.py does not exist: every site types its command', law='G17', check='command.every_spelling_is_declared')"
-src/test/dev/check/tree.py,375,path_str,rsc/CALCULUS.md,Y,"files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORK"
-src/test/dev/check/tree.py,375,path_str,rsc/schema/WORKFLOW.md,Y,"files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORK"
-src/test/dev/check/tree.py,399,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv' or path in GATE_FILES:"
-src/test/dev/check/tree.py,110,path_str,src/main,Y,"f'src/main/{name}/{p}/ lacks {"", "".join(absent)} - run.sh calls each by the provider\'s name',"
-src/test/dev/check/tree.py,96,path_str,src/main,Y,(f'src/main/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
-src/test/dev/check/tree.py,307,comment,src/main/latest.py,Y,"# number written elsewhere is a second home for the family's latest, which src/main/latest.py"
+src/test/dev/check/tree.py,53,comment,src/main/pipeline.schema.json,Y,"is a pipeline, its declaration valid against src/main/pipeline.schema.json, and"
+src/test/dev/check/tree.py,123,comment,src/run_python_script.sh,Y,"Python's import roots are pyrightconfig.json's, which src/run_python_script.sh sets for every"
+src/test/dev/check/tree.py,213,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (the one exemption)."
+src/test/dev/check/tree.py,288,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
+src/test/dev/check/tree.py,329,comment,src/main/spell.py,Y,src/main/spell.py - the one API that spells a command from its declaration - over every
+src/test/dev/check/tree.py,414,comment,src/main/tier.py,Y,"src/main/tier.py and its shell twin are the one home, and no other script builds a"
+src/test/dev/check/tree.py,321,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
+src/test/dev/check/tree.py,321,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
+src/test/dev/check/tree.py,321,path_str,rsc/CALCULUS.md,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
+src/test/dev/check/tree.py,321,path_str,rsc/schema/WORKFLOW.md,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
+src/test/dev/check/tree.py,411,path_str,src/main,Y,"@check(tier='code', says=('tier.paths_from_contract',), on=['src/main'])"
+src/test/dev/check/tree.py,341,path_str,src/main/spell.py,Y,"'src/main/spell.py does not exist: every site types its command', law='G17', check='command.every_spelling_is_declared')"
+src/test/dev/check/tree.py,376,path_str,rsc/CALCULUS.md,Y,"files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORK"
+src/test/dev/check/tree.py,376,path_str,rsc/schema/WORKFLOW.md,Y,"files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORK"
+src/test/dev/check/tree.py,400,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv' or path in GATE_FILES:"
+src/test/dev/check/tree.py,111,path_str,src/main,Y,"f'src/main/{name}/{p}/ lacks {"", "".join(absent)} - run.sh calls each by the provider\'s name',"
+src/test/dev/check/tree.py,97,path_str,src/main,Y,(f'src/main/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
+src/test/dev/check/tree.py,308,comment,src/main/latest.py,Y,"# number written elsewhere is a second home for the family's latest, which src/main/latest.py"
 src/test/dev/check/unit.py,21,comment,src/main/rehearsal.schema.json,Y,"src/main/rehearsal.schema.json, holds each unit of the extent with its digests and the"
 src/test/dev/check/unit.py,410,comment,rsc/naming/checkout_paths.csv,Y,"A checkout's former paths, rsc/naming/checkout_paths.csv, name one project: an install"
 src/test/dev/check/unit.py,412,comment,rsc/migration/1058.sh,Y,"reads a session the store holds under a former key as the one it holds, and rsc/migration/1058.sh"
@@ -1666,7 +1666,8 @@ src/test/dev/check/unit.py,768,path_str,rsc/migration/step.sh,Y,"for part in ('r
 src/test/dev/check/unit.py,768,path_str,rsc/migration/1069.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):"
 src/test/dev/check/unit.py,777,path_str,rsc/migration/1069.sh,Y,script = checkout / 'rsc/migration/1069.sh'
 src/test/dev/check/unit.py,730,path_str,rsc/migration,Y,"on=['src', 'rsc/migration', 'pyrightconfig.json'])"
-src/test/dev/check/unit.py,804,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
+src/test/dev/check/unit.py,804,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.rooms_settle_over_memory',), on=['src/main/cli/agent'])"
+src/test/dev/check/unit.py,870,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,541,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
