@@ -814,7 +814,8 @@ def check_agent_memory_disposed(run) -> None:
     a memory directory goes, its files counted and sized on the line before it, once a stored
     or staged session wrote each of its files by name - a twin a pull wrote, <stem>.<room>.md,
     by the name of the fact it twins; a file no session wrote halts the script before anything
-    goes, named. Bare the steps, applied, again nothing. The fixture is synthetic: a checkout
+    goes, every such file named on the one FAIL line corpus-yoga migration reads as the halt.
+    Bare the steps, applied, again nothing. The fixture is synthetic: a checkout
     with a store and a stage of its own."""
     import os
     import shutil
@@ -845,7 +846,8 @@ def check_agent_memory_disposed(run) -> None:
         def memory() -> list[str]:
             return sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('memory') if p.is_dir())
         held, halted, refused = memory(), ran(), ran('--apply')
-        stops = (halted.returncode == 1 and 'unwritten.md' in halted.stderr and 'kept.md' not in halted.stderr
+        stops = (halted.returncode == 1 and halted.stdout == '' and len(halted.stderr.splitlines()) == 1 and halted.stderr.startswith('FAIL: ')
+                 and 'unwritten.md' in halted.stderr and 'kept.md' not in halted.stderr
                  and refused.returncode == 1 and memory() == held and len(held) == 3)
         run("migration: rsc/migration/1090.sh halts before anything goes while a memory file no session wrote stands, naming it",
             stops, None if stops else f'bare said {halted.stdout!r} {halted.stderr!r}; applied said {refused.stdout!r} {refused.stderr!r}; memory stands at {memory()}',

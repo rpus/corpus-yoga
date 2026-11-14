@@ -46,8 +46,8 @@ for dir in "${dirs[@]}"; do
   done < <(find "$dir" -type f ! -name .DS_Store | sort)
 done
 if (( ${#unwritten[@]} )); then
-  echo "FAIL: no stored or staged session wrote these, so no log holds their text - keep each elsewhere or remove it by hand, then run $SELF again:" >&2
-  printf '  %s\n' "${unwritten[@]}" >&2
+  named="$(printf '%s, ' "${unwritten[@]}")"
+  echo "FAIL: no stored or staged session wrote ${named%, } - no log holds their text; keep each elsewhere or remove it by hand, then run $SELF again" >&2
   exit 1
 fi
 
