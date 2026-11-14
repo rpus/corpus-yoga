@@ -123,9 +123,9 @@ sync_matrices() {
       --pipeline "$p" --write || rc=1
   done
   if (( rc == 0 )); then
-    effect "pipeline render: DONE - $(phrase "each datum's matrix.md re-rendered from its validation logs")"
+    effect "$(act pipeline render): DONE - $(phrase "each datum's matrix.md re-rendered from its validation logs")"
   else
-    effect "pipeline render: NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")"
+    effect "$(act pipeline render): NOT DONE - $(phrase "a pipeline's matrices were not rendered; the line above names it")"
   fi
   return $rc
 }
@@ -397,7 +397,7 @@ LOG_FILE="$RECORD"
 # Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
 # NECESSITY tests, with the input set split (issues/494): CLOSURE holds for the free
 # inputs this run itself produces, so every free derivation is refreshed here -
-# indexing build, site render, model derive - and a paid input (the captures) enters
+# indexing build, site render, metamodel derive - and a paid input (the captures) enters
 # the page as a declared vintage, never as a currency claim. Paid acts stay
 # out-of-run; indexing's status states their lag with the paid prescription.
 run_corpus_tail() {
@@ -421,7 +421,7 @@ run_corpus_tail() {
   step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
   # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): each noun's read-only status IS its L9 currency mechanism (issues/409) —
-  # indexing's carries the paid captures' lag, site's the corpus page's, model's
+  # indexing's carries the paid captures' lag, site's the corpus page's, metamodel's
   # the schema frontier's (issues/373: each family's newest datum against its latest
   # version, read from the validate steps' own logs) — probed here so the atoms
   # reach the tail via hoisting. step_ok: informs, never gates.
@@ -593,9 +593,9 @@ main() {
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    effect "pipeline run: DONE - $(phrase "usr gate PASS; all pipelines completed")"
+    effect "$(act pipeline run): DONE - $(phrase "usr gate PASS; all pipelines completed")"
   else
-    effect "pipeline run: NOT DONE - $(phrase "usr gate FAIL; the failing stage(s) are named above")"
+    effect "$(act pipeline run): NOT DONE - $(phrase "usr gate FAIL; the failing stage(s) are named above")"
   fi
   return $(( ${#verdict_failures[@]} > 0 ))
 }

@@ -2,25 +2,22 @@
   "schemas": [
     "claude/session",
     "gemini/session",
-    "sessionConversation",
-    "claude/projectMemory"
+    "sessionConversation"
   ],
   "input": "data/input/<provider>/code/machine-transport",
   "provider": {
     "claude": {
       "input_glob": "*/*/*.jsonl",
-      "extra_input_glob": "*/*/memory/",
+      "extra_input_glob": "",
       "measure": "prefix",
-      "extra_measure": "mirror",
+      "extra_measure": "",
       "unit": "session",
       "families": [
         "claude/session",
         "sessionConversation"
       ],
-      "extra_unit": "memory",
-      "extra_families": [
-        "claude/projectMemory"
-      ],
+      "extra_unit": "",
+      "extra_families": [],
       "companion": "<stem>/"
     },
     "gemini": {

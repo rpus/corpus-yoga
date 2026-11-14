@@ -222,7 +222,7 @@ def main():
         # (or a corpus-less clone) — depositing under fallback names would file
         # readings wrongly and then hold them immutable. Skip, loudly.
         conversations = Path(args.conversations_output)
-        facts.report(None, 'summaries deposit: DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run browser makes',
+        facts.report(None, facts.act('summaries', 'deposit') + ': DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run browser makes',
                                                                        path=conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations))
         return 0
     readings = readings_by_uuid(Path(args.export_cache))
@@ -293,7 +293,7 @@ def main():
     # the standing twin detector runs on every sync too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
-    facts.report(None, f'summaries deposit: {"NOT DONE" if conflicts else "DONE"} - '
+    facts.report(None, facts.act('summaries', 'deposit') + f': {"NOT DONE" if conflicts else "DONE"} - '
                  + facts.phrase('{deposited} reading(s) deposited, {unchanged} already held, {renamed} folder(s) renamed, under {root}',
                                   deposited=deposited, unchanged=unchanged, renamed=renamed, root=root.relative_to(REPO) if root.is_relative_to(REPO) else root)
                  + ('; ' + facts.phrase('{n} CONFLICT(S)', n=conflicts) if conflicts else ''))

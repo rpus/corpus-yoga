@@ -154,7 +154,7 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
     outcomes = {'did raise': {f'pull/{pr}': url, 'head': args.head, 'base': base, 'title copies': f'issues/{numbers[0]}',
                               'aims to complete': {f'issues/{n}': titles[n] for n in numbers},
                               'body': str(sent.relative_to(REPO))}}
-    return outcomes, f'forge raise: DONE - did raise pull/{pr} at {args.head} for ' + ', '.join(f'issues/{n}' for n in numbers)
+    return outcomes, facts.act('forge', 'raise') + f': DONE - did raise pull/{pr} at {args.head} for ' + ', '.join(f'issues/{n}' for n in numbers)
 
 
 def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
@@ -196,8 +196,8 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]
                               'body': str(sent.relative_to(REPO))}}
     wired = sorted(set(blocked_by) ^ set(read_blocked_by)) + sorted(set(blocks) ^ set(read_blocks))
     if wired:
-        return outcomes, f'forge raise: NOT DONE - did raise issues/{number}, but the forge reads edges other than those wired, ' + ', '.join(f'issues/{n}' for n in wired)
-    return outcomes, (f'forge raise: DONE - did raise issues/{number}; blocked by {len(read_blocked_by)}, blocking {len(read_blocks)}'
+        return outcomes, facts.act('forge', 'raise') + f': NOT DONE - did raise issues/{number}, but the forge reads edges other than those wired, ' + ', '.join(f'issues/{n}' for n in wired)
+    return outcomes, (facts.act('forge', 'raise') + f': DONE - did raise issues/{number}; blocked by {len(read_blocked_by)}, blocking {len(read_blocks)}'
                           + (f'; did supersede issues/{supersedes}' if supersedes else ''))
 
 
@@ -216,13 +216,13 @@ def main(argv: list[str]) -> int:
         face = raise_pr if args.kind == 'pr' else raise_issue
         outcomes, effect = face(args, f'Signature: {signature}', text, stamp)
     except (Refused, send.SendRefused, ValueError) as why:
-        facts.report(None, f'forge raise: NOT DONE - {why}')
+        facts.report(None, facts.act('forge', 'raise') + f': NOT DONE - {why}')
         return 1
     except subprocess.CalledProcessError:
-        facts.report(None, 'forge raise: NOT DONE - a gh call failed; the NOT-done line above names it')
+        facts.report(None, facts.act('forge', 'raise') + ': NOT DONE - a gh call failed; the NOT-done line above names it')
         return 1
     facts.report(outcomes, effect)
-    return 0 if effect.startswith('forge raise: DONE') else 1
+    return 0 if effect.startswith(facts.act('forge', 'raise') + ': DONE') else 1
 
 
 if __name__ == '__main__':

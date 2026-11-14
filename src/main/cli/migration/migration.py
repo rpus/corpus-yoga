@@ -3,16 +3,17 @@ migration.py (corpus-yoga migration) - the moves a rename owes this machine's lo
 (issues/820): rsc/migration holds them, one guarded script per causing issue over the steps of
 rsc/migration/step.sh, and this noun says them and takes them.
 
-    corpus-yoga migration                 # status: each script - how many steps it would take, none, or that it halted and on what
+    corpus-yoga migration                 # status: each script - the steps it would take, none, or that it halted and on what
     corpus-yoga migration apply            # each script with steps and how many: the dry run, the apply with the act elided
     corpus-yoga migration apply            # run each of them, its own lines relayed as it takes its steps; the status says what it would take
 
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
 The status is those three states, read by running every script bare: a script with
-steps is said with how many and carries the apply as its act, a halted one with what it
-said and the reader's own act. The steps themselves are the script's to say - it is the
-declaration of its moves, and prints them bare - so no status restates them. The sync
+steps is said with each step's line as the script prints it, and carries the apply as its
+act; a halted one with the steps before the halt and what it said there. The lines are the
+script's own, relayed, never restated: the checkout runs corpus-yoga commands only, so the
+status is where a reader sees what the apply would take. The sync
 names each script with steps and how many, runs each, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken.
@@ -38,9 +39,10 @@ SCRIPTS = REPO / 'rsc' / 'migration'
 
 @dataclass
 class Script:
-    """A script's state: how many steps it would take, and where it halted, what it said there -
-    a finding, which no verb clears, since no step chooses between a from and a to (issues/1058)."""
-    steps: str | None = None
+    """A script's state: the steps it would take, each as its line, and where it halted, what it
+    said there - a finding, which no verb clears, since no step chooses between a from and a to
+    (issues/1058)."""
+    steps: list[str] | None = None
     halted: facts.Finding | None = None
     act: facts.Would | None = None
 
@@ -73,11 +75,11 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
     for name, (code, lines) in seen.items():
         if code != 0:
             halted += 1
-            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines) - 1) if len(lines) > 1 else None,
+            out[name] = Script(steps=lines[:-1] or None,
                                halted=facts.Finding(lines[-1].removeprefix('FAIL: ') if lines else facts.phrase('it exits {code}', code=code)))
         elif lines:
             pending += 1
-            out[name] = Script(steps=facts.phrase('{n} pending - the script run bare says them', n=len(lines)), act=facts.Would(spell.line('migration', 'apply'), {name: len(lines)}))
+            out[name] = Script(steps=lines, act=facts.Would(spell.line('migration', 'apply'), {name: len(lines)}))
         else:
             out[name] = facts.phrase('none pending')
     return Status(out, facts.phrase('{n} script(s) - {pending} with steps pending, {halted} halted', n=len(out), pending=pending, halted=halted))
@@ -118,8 +120,8 @@ def apply() -> int:
     for name, words in halted.items():
         log.say(f'  {name}: ' + facts.phrase('halted - {words}', words=words))
     undone = failed + list(halted)
-    verdict = ('migration apply: NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
-               else 'migration apply: DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
+    verdict = (facts.act('migration', 'apply') + ': NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
+               else facts.act('migration', 'apply') + ': DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
     for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (issues/896)
         log.say(line)
     return 1 if undone else 0

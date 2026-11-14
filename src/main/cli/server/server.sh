@@ -48,7 +48,7 @@ start() {
     nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    effect "server start: DONE - $(phrase "serves {markdown} at http://localhost:{port} in the background; the daemon writes {log}" markdown="${markdown#"$REPO_DIR/"}" port="$port" log="${LOG_FILE#"$REPO_DIR/"}")"
+    effect "$(act server start): DONE - $(phrase "serves {markdown} at http://localhost:{port} in the background; the daemon writes {log}" markdown="${markdown#"$REPO_DIR/"}" port="$port" log="${LOG_FILE#"$REPO_DIR/"}")"
   else
     "${PY[@]}" "${pyargs[@]}"
   fi
@@ -56,9 +56,9 @@ start() {
 
 stop() {
   if pkill -f 'serve_markdown.py' 2>/dev/null; then
-    effect "server stop: DONE - $(phrase "stopped the serve_markdown daemon")"
+    effect "$(act server stop): DONE - $(phrase "stopped the serve_markdown daemon")"
   else
-    effect "server stop: DONE - $(phrase "no serve_markdown daemon was running")"
+    effect "$(act server stop): DONE - $(phrase "no serve_markdown daemon was running")"
   fi
 }
 

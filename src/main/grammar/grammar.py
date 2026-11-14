@@ -145,7 +145,7 @@ def status() -> int:
 
 def generate() -> int:
     if not tool():
-        facts.report(None, 'grammar generate: NOT DONE - ' + facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status satisfy installs src/requirements.txt'))
+        facts.report(None, facts.act('grammar', 'generate') + ': NOT DONE - ' + facts.phrase('antlr4 (antlr4-tools) is not in the venv - corpus-yoga status satisfy installs src/requirements.txt'))
         return 1
     written = removed = 0
     for project in projects():
@@ -164,7 +164,7 @@ def generate() -> int:
                 (out / name).unlink()
                 removed += 1
                 print(f'  ✓ {(out / name).relative_to(REPO)} ' + facts.phrase('removed - the grammar no longer generates it'))
-    facts.report(None, 'grammar generate: DONE - ' + facts.phrase('{written} file(s) written, {removed} removed', written=written, removed=removed))
+    facts.report(None, facts.act('grammar', 'generate') + ': DONE - ' + facts.phrase('{written} file(s) written, {removed} removed', written=written, removed=removed))
     return 0
 
 
@@ -174,7 +174,7 @@ def main():
     try:
         sys.exit(generate() if args.verb == 'generate' else status())
     except send.SendRefused as refused:
-        facts.report(None, f'grammar generate: NOT DONE - {refused}')
+        facts.report(None, facts.act('grammar', 'generate') + f': NOT DONE - {refused}')
         sys.exit(1)
 
 

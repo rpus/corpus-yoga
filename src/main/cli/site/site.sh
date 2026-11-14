@@ -83,6 +83,7 @@ status() {
     # title: the corpus it folds), so a lag in the paid layer reads as what it is,
     # stated - indexing's status carries the paid prescription. No clock keys (issues/409, issues/494).
     local render="$OUT/index.html" declared
+    has_conversations "$DATA_DIR/output/markdown" || printf 'corpus\tunprojected\n'
     if [[ ! -f "$render" ]]; then
       printf 'index\tABSENT\n'
     else
@@ -112,11 +113,11 @@ render() {
 sync() {
   local mount="$REPO_DIR/ext/mnt/site"
   if [[ ! -d "$mount/.git" ]]; then
-    effect "site sync: NOT DONE - $(phrase "ext/mnt/site is not a git clone; corpus-yoga status reports the mount")"
+    effect "$(act site sync): NOT DONE - $(phrase "ext/mnt/site is not a git clone; corpus-yoga status reports the mount")"
     return 1
   fi
   if [[ ! -d "$OUT" ]]; then
-    effect "site sync: NOT DONE - $(phrase "no publish tree at data/output/site/")"
+    effect "$(act site sync): NOT DONE - $(phrase "no publish tree at data/output/site/")"
     return 1
   fi
   # the branch rpus.co serves, whatever the clone has checked out (issues/1026): a clone that
@@ -124,12 +125,12 @@ sync() {
   local served off
   served="$(clone_served "$mount")"
   if [[ -z "$served" ]]; then
-    effect "site sync: NOT DONE - $(phrase "the clone records no branch rpus.co serves - corpus-yoga site names the remedy")"
+    effect "$(act site sync): NOT DONE - $(phrase "the clone records no branch rpus.co serves - corpus-yoga site names the remedy")"
     return 1
   fi
   off="$(off_served "$mount")"
   if [[ -n "$off" ]]; then
-    effect "site sync: NOT DONE - $(phrase "the clone stands on {branch}, not {local}, the branch rpus.co serves - corpus-yoga site names the switch" branch="$off" local="${served#*/}")"
+    effect "$(act site sync): NOT DONE - $(phrase "the clone stands on {branch}, not {local}, the branch rpus.co serves - corpus-yoga site names the switch" branch="$off" local="${served#*/}")"
     return 1
   fi
   # rpus.co as it stands first (issues/1020): the clone brought level by a fast-forward, so that
@@ -138,13 +139,13 @@ sync() {
   local levelled=0
   level_clone "$mount" || levelled=$?
   if [[ "$levelled" -ne 0 && "$levelled" -ne "$SEND_REFUSED" ]]; then
-    effect "site sync: NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
+    effect "$(act site sync): NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
     return 1
   fi
   local rows
   rows="$(landing "$mount" "$OUT")"
   if [[ -z "$rows" ]]; then
-    effect "site sync: DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
+    effect "$(act site sync): DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
     return 0
   fi
   echo "did land:"
@@ -158,7 +159,7 @@ sync() {
     echo "  $(phrase "nothing to commit - the clone already held the tree")"
   fi
   (cd "$mount" && send enact push "HEAD:${served#*/}") || return 1
-  effect "site sync: DONE - $(phrase "rpus.co serves the publish tree on Netlify's next build")"
+  effect "$(act site sync): DONE - $(phrase "rpus.co serves the publish tree on Netlify's next build")"
 }
 
 
@@ -194,9 +195,9 @@ assemble() {
     eventful=1
   done < <(page_files "$SRC")
   if [[ $eventful -eq 1 ]]; then
-    effect "site assemble: DONE - $(phrase "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)")"
+    effect "$(act site assemble): DONE - $(phrase "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)")"
   else
-    effect "site assemble: DONE - $(phrase "no effect; data/output/site/ already serves rsc/site/ as authored")"
+    effect "$(act site assemble): DONE - $(phrase "no effect; data/output/site/ already serves rsc/site/ as authored")"
   fi
 }
 

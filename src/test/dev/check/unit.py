@@ -260,8 +260,8 @@ def check_unit_state(run) -> None:
 ))
 def check_store(run) -> None:
     """A unit knows what it is called, and a unit another of its kind holds whole is found: over a scratch root, a session whose log is a prefix of the same
-    session's under another project is contained, a memory equal to another's is
-    identical, and what differs is neither."""
+    session's under another project is contained, a session equal to the same session's
+    under another project is identical, and what differs is neither."""
     import tempfile
     import corpus
     twice = getattr(corpus, 'held_twice', None)
@@ -273,23 +273,22 @@ def check_store(run) -> None:
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
         store = root / 'claude' / 'code' / 'machine-transport' / 'a-room'
-        for project, session, log, note in (('one', '11111111-aaaa', b'abc\n', b'same'),
-                                            ('two', '11111111-aaaa', b'abc\ndef\n', b'same'),
-                                            ('three', '22222222-bbbb', b'xyz\n', b'other')):
-            (store / project / 'memory').mkdir(parents=True)
+        for project, session, log in (('one', '11111111-aaaa', b'abc\n'), ('two', '11111111-aaaa', b'abc\ndef\n'),
+                                      ('three', '22222222-bbbb', b'xyz\n'), ('four', '33333333-cccc', b'same\n'),
+                                      ('five', '33333333-cccc', b'same\n')):
+            (store / project).mkdir(parents=True)
             (store / project / f'{session}.jsonl').write_bytes(log)
-            (store / project / 'memory' / 'note.md').write_bytes(note)
         found = corpus.units(root)
         kinds = sorted({u.kind for u in found})
-        run('store: a unit is called what its selection\'s declaration calls it', kinds == ['memory', 'session'],
-            None if kinds == ['memory', 'session'] else f'the kinds read {kinds}', check='store.unit_names_its_kind')
+        run('store: a unit is called what its selection\'s declaration calls it', kinds == ['session'],
+            None if kinds == ['session'] else f'the kinds read {kinds}', check='store.unit_names_its_kind')
         got = [(u.address.relative_to(store.relative_to(root)).as_posix(), h.address.relative_to(store.relative_to(root)).as_posix(), how)
                for u, h, how in ((d.unit, d.holder, d.how) for d in twice(root))]
-    expected = [('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained'), ('two/memory', 'one/memory', 'identical')]
+    expected = [('four/33333333-cccc.jsonl', 'five/33333333-cccc.jsonl', 'identical'), ('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained')]
     run('store: a unit another of its kind holds whole is found', got == expected,
         None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
     # a file inside a held unit that its measure does not read is surplus (issues/833): iCloud's
-    # conflict copy beside a capture; a memory's every file is the mirror's, so none is
+    # conflict copy beside a capture
     extra = getattr(corpus, 'surplus', None)
     if extra is None:
         run('store: a file inside a held unit that its measure does not read is found', False,
@@ -301,10 +300,6 @@ def check_store(run) -> None:
         capture.mkdir(parents=True)
         (capture / 'aaaaaaaa-0000-4000-8000-000000000000.json').write_text('{}')
         (capture / 'aaaaaaaa-0000-4000-8000-000000000000 2.json').write_text('{}')
-        memory = root / 'claude' / 'code' / 'machine-transport' / 'a-room' / 'one' / 'memory'
-        memory.mkdir(parents=True)
-        (memory / 'note.md').write_text('x')
-        (memory / 'note 2.md').write_text('x')
         got = sorted(rel.as_posix() for unit, rel in extra(root))
     expected = ['claude/chat/API-capture/aaaaaaaa-0000-4000-8000-000000000000/aaaaaaaa-0000-4000-8000-000000000000 2.json']
     run('store: a file inside a held unit that its measure does not read is found', got == expected,
@@ -350,60 +345,6 @@ def check_export_atoms(run) -> None:
         None if got == expected else f'held twice read {got}', check='store.export_is_held_within_a_later_one')
 
 
-@check(tier='code', says=('agent.memory_merge_judges_each_fact_alone',), on=['src/main/cli/agent'])
-def check_memory_merge(run) -> None:
-    """Whether a peer's copy of a memory fact differs from the local copy is decided by that
-    pair alone, its links read by the facts they name: a copy that differs only in what one of
-    its links is dressed as is the same fact, kept. The fixture is synthetic: one fact that
-    differs, seven that link it in a chain, one the room lacks that links it, and one the peer
-    extends whose room copy links it already re-dressed, extended after the bytes the room
-    holds; the peer's index line for the new fact joins the room's index, and the merge leaves
-    no record of itself in it (issues/1063); a second receipt of the same folder writes nothing (L1)."""
-    import tempfile
-    import transport
-    harness = transport.adapter('claude')
-    assert harness is not None, 'transport serves no claude adapter'
-    def address(stem: str) -> str:
-        return '/'.join(('p', 'memory', f'{stem}.md'))
-    with tempfile.TemporaryDirectory() as tmp:
-        sent, held = Path(tmp) / 'sent', Path(tmp) / 'held'
-        sent.mkdir()
-        held.mkdir()
-        (sent / 'a0.md').write_text('the fact, as the peer holds it\n')
-        (held / 'a0.md').write_text('the fact, as this room holds it\n')
-        for i in range(1, 8):
-            for root in (sent, held):
-                (root / f'a{i}.md').write_text(f'follows [[a{i - 1}]]\n')
-        (sent / 'b.md').write_text('new here, and follows [[a0]]\n')
-        (held / 'c.md').write_text('begun [[a0.peer]]\n')
-        (sent / 'c.md').write_text('begun [[a0]]\ngone on [[a0]]\n')
-        (held / 'MEMORY.md').write_text('- [the fact](a0.md)\n')
-        (sent / 'MEMORY.md').write_text('- [the fact](a0.md)\n- [new here](b.md)\n')
-        outcomes = []
-        log = transport.Log(transport.LIVE, 'did')
-        for _ in range(2):
-            log = transport.Log(transport.LIVE, 'did')
-            try:
-                harness.merge_memory(sent, held, True, 'peer', 'here', log, 'p')
-                outcomes.append({key: sorted(units) for key, units in log.by.items()})
-            except Exception as error:
-                outcomes.append(f'{type(error).__name__}: {error}')
-                break
-        wrote, kept = log.key('wrote'), log.key('kept')
-        chain = [address(f'a{i}') for i in range(1, 8)]
-        first = {wrote: [address('MEMORY'), address('a0'), address('b'), address('c')], kept: chain}
-        second = {kept: sorted([address('MEMORY'), address('a0'), address('b'), address('c'), *chain])}
-        def text(name: str) -> str | None:
-            return (held / name).read_text() if (held / name).is_file() else None
-        written = (text('a0.peer.md'), text('b.md'), text('c.md'), text('MEMORY.md'))
-        same = (outcomes == [first, second] and written == ('the fact, as the peer holds it\n', 'new here, and follows [[a0.peer]]\n',
-                                                            'begun [[a0.peer]]\ngone on [[a0.peer]]\n',
-                                                            '- [the fact](a0.md)\n- [the fact](a0.peer.md)\n- [new here](b.md)\n'))
-        run("agent: a peer's memory fact is judged against the room's copy alone, and a second receipt writes nothing", same,
-            None if same else f'the two receipts said {outcomes!r}; the twin, the new fact, the extended one and the index hold {written!r}',
-            check='agent.memory_merge_judges_each_fact_alone')
-
-
 @check(tier='code', says=('agent.renamed_checkout_is_one_project', 'migration.renamed_checkout_moves_once'),
        on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])
 def check_renamed_checkout(run) -> None:
@@ -427,7 +368,7 @@ def check_renamed_checkout(run) -> None:
         bundle, live, outbox, held = root / 'bundle', root / 'live', root / 'outbox', root / 'held'
         (bundle / former[0]).mkdir(parents=True)
         (bundle / former[0] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
-        harness.pull_all(bundle, live, True, 'peer', 'here')
+        harness.pull_all(bundle, live, True)
         installed = sorted(p.relative_to(live).as_posix() for p in live.rglob('*.jsonl'))
         (held / former[1]).mkdir(parents=True)
         (held / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
@@ -443,7 +384,7 @@ def check_renamed_checkout(run) -> None:
         unmoved = root / 'unmoved'
         (unmoved / former[1]).mkdir(parents=True)
         (unmoved / former[1] / 'aaaaaaaa-0000-0000-0000-000000000000.jsonl').write_text('{"a": 1}\n')
-        dry = harness.pull_all(bundle, unmoved, False, 'peer', 'here')
+        dry = harness.pull_all(bundle, unmoved, False)
         kept = list(dry.by) == [dry.key('kept')]
         run("agent: an install reads a live session still under a former path's key as the one the room holds, and would write nothing", kept,
             None if kept else f'the install would say {dry.facts()}', check='agent.renamed_checkout_is_one_project')
@@ -683,18 +624,16 @@ def check_screen_and_scratch(run) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         bundle = Path(tmp)
         (bundle / 'p' / 's').mkdir(parents=True)
-        (bundle / 'p' / 'memory').mkdir()
         (bundle / 'p' / 's.jsonl').write_text('x' * 10)
         (bundle / 'p' / 's' / 'f').write_text('x' * 5)
-        (bundle / 'p' / 'memory' / 'a.md').write_text('x' * 3)
         log = transport.Log(transport.LIVE, 'would')
-        for address in ('p/s.jsonl', 'p/s/', '/'.join(('p', 'memory', 'a.md'))):
+        for address in ('p/s.jsonl', 'p/s/'):
             log.say('kept', address, {'identical': 'bytes'})
         log.say('wrote', 'p/t.jsonl', {'new': '9 bytes'})
         said = summary(log, bundle) if callable(summary) else None
     human = cache_io.human
     wanted = {log.key('wrote'): {'p/t.jsonl': {'new': '9 bytes'}},
-              log.key('kept'): {'sessions': f'1, {human(10)}', 'workspaces': f'1, {human(5)}', 'memory facts': f'1, {human(3)}'}}
+              log.key('kept'): {'sessions': f'1, {human(10)}', 'workspaces': f'1, {human(5)}'}}
     same = (counted == {'local': {'claude': f'2 session(s), {human(2_000_000)}'}, 'home-room': {'claude': f'1 session(s), {human(2_000_000)}'}}
             and said == wanted and 'list-sessions' in verbs)
     run('agent: the status counts sessions by room and provider and a pull\'s kept units by kind, names what a pull would write, and list-sessions lists each session',
@@ -801,14 +740,13 @@ def check_sweep(run) -> None:
         check='requirements.only_the_parser_runtime_is_pinned')
 
 
-@check(tier='code', says=('agent.rooms_settle_over_memory',), on=['src/main/cli/agent'])
-def check_rooms_settle_over_memory(run) -> None:
-    """Two rooms that capture and pull each other's memory and sessions in turn settle with no
-    conflict (issues/1073): each holds its own fact and a twin of the other's, never a twin of its
-    own, and a fact one room edits reaches the other's twin of it; a session both rooms continued
-    apart settles too, and once settled the store's live reading offers neither room a capture
-    (issues/1077). The fixtures are synthetic: two rooms' live stores and their store dirs under
-    a temporary root."""
+@check(tier='code', says=('agent.each_room_keeps_its_own_memory',), on=['src/main/cli/agent'])
+def check_rooms_settle_each_with_its_own_memory(run) -> None:
+    """Two rooms that capture and pull each other in turn settle with no conflict, each room's
+    memory its own (issues/1090): a pull writes none of the other room's memory, and a capture
+    stages none, an edit included; a session both rooms continued apart settles too, and once
+    settled the store's live reading offers neither room a capture (issues/1077). The fixtures
+    are synthetic: two rooms' live stores and their store dirs under a temporary root."""
     import tempfile
     import live
     import transport
@@ -825,7 +763,7 @@ def check_rooms_settle_over_memory(run) -> None:
             before = tree(root)
             for here, there in (('a', 'b'), ('b', 'a')):
                 harness.capture_all(root / here / 'live', root / 'store' / here, root / 'store' / here)
-                conflicts += harness.pull_all(root / 'store' / here, root / there / 'live', True, here, there).conflicts
+                conflicts += harness.pull_all(root / 'store' / here, root / there / 'live', True).conflicts
             if tree(root) == before:
                 return number, conflicts
         return 0, conflicts
@@ -834,46 +772,150 @@ def check_rooms_settle_over_memory(run) -> None:
         return {room: [(r.name, r.state) for r in live.sessions('claude', harness, root / room / 'live',
                                                                  {'staged': root / 'stage' / room, 'held': root / 'store' / room})
                        if r.facts()['act'] is not None] for room in ('a', 'b')}
+    def memories(root: Path) -> dict[str, dict[str, dict[str, str]]]:
+        """Each room's memory, live and in its store dir."""
+        return {room: {'live': tree(root / room / 'live' / project / 'memory'), 'store': tree(root / 'store' / room / project / 'memory')}
+                for room in ('a', 'b')}
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         for room in ('a', 'b'):
             memory = root / room / 'live' / project / 'memory'
             memory.mkdir(parents=True)
             (memory / 'x.md').write_text(f'the fact, as {room} holds it\n')
-            (memory / 'MEMORY.md').write_text('- [the fact](x.md)\n')
         (root / 'a' / 'live' / project / session).write_text('{"n": 1}\n')
         settled, conflicts = rounds(root)
-        held = {room: sorted(tree(root / room / 'live' / project / 'memory')) for room in ('a', 'b')}
-        twins = settled and conflicts == 0 and held == {'a': ['MEMORY.md', 'x.b.md', 'x.md'], 'b': ['MEMORY.md', 'x.a.md', 'x.md']}
-        run("agent: two rooms that capture and pull each other's memory settle with no conflict, each holding its own fact and the other's twin of it",
-            twins, None if twins else f'settled after {settled} round(s) with {conflicts} conflict(s), holding {held}', check='agent.rooms_settle_over_memory')
+        held = memories(root)
+        kept = settled and conflicts == 0 and held == {room: {'live': {'x.md': f'the fact, as {room} holds it\n'}, 'store': {}} for room in ('a', 'b')}
+        run("agent: two rooms that capture and pull each other settle with no conflict, each room's memory its own and none in the store",
+            kept, None if kept else f'settled after {settled} round(s) with {conflicts} conflict(s), holding {held}', check='agent.each_room_keeps_its_own_memory')
         pulled = offered(root)
         quiet = settled and pulled == {'a': [], 'b': []}
         run("agent: once two rooms settle, the store's live reading offers no capture of a session one room holds as pulled from the other",
-            quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {pulled}', check='agent.rooms_settle_over_memory')
+            quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {pulled}', check='agent.each_room_keeps_its_own_memory')
         (root / 'a' / 'live' / project / 'memory' / 'x.md').write_text('the fact, as a has rewritten it\n')
         for room in ('a', 'b'):
             with (root / room / 'live' / project / session).open('a') as fh:
                 fh.write(f'{{"{room}": 2}}\n')
         settled, conflicts = rounds(root)
-        twin = (root / 'b' / 'live' / project / 'memory' / 'x.a.md')
-        followed = settled and conflicts == 0 and twin.is_file() and twin.read_text() == 'the fact, as a has rewritten it\n'
-        run("agent: a fact one room edits reaches the other room's twin of it, with no conflict",
-            followed, None if followed else f'settled after {settled} round(s) with {conflicts} conflict(s); b\'s twin reads {twin.read_text() if twin.is_file() else None!r}',
-            check='agent.rooms_settle_over_memory')
+        held = memories(root)
+        edited = (settled and conflicts == 0 and held == {'a': {'live': {'x.md': 'the fact, as a has rewritten it\n'}, 'store': {}},
+                                                          'b': {'live': {'x.md': 'the fact, as b holds it\n'}, 'store': {}}})
+        run("agent: a fact one room edits stays that room's, reaching no store and no other room, with no conflict",
+            edited, None if edited else f'settled after {settled} round(s) with {conflicts} conflict(s), holding {held}', check='agent.each_room_keeps_its_own_memory')
         apart = offered(root)
         quiet = settled and apart == {'a': [], 'b': []}
         run("agent: once two rooms settle a session they continued apart, the store's live reading offers neither a capture",
-            quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {apart}', check='agent.rooms_settle_over_memory')
+            quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {apart}', check='agent.each_room_keeps_its_own_memory')
+
+
+@check(tier='code', says=('site.an_unprojected_corpus_page_is_a_fact', 'report.an_effect_line_names_a_declared_act'),
+       on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])
+def check_effect_lines_and_unprojected_page(run) -> None:
+    """A room with no projected corpus has no corpus page to build: the site status says so as a
+    fact, never as a finding the run fails on, as the render skips, stated - so that a rehearsal of
+    an empty stage passes where the code is sound (issues/1090). And every effect line names its
+    act from the act's declaration, facts.act or the shell's act: a verb no declaration holds
+    raises, and no source types `<noun> <verb>: DONE` or `NOT DONE` by hand, so that a renamed
+    noun strands no effect line, as `model derive` was stranded after the metamodel's rename."""
+    import re
+    import subprocess
+    import facts
+    def said(rows: str) -> str:
+        return subprocess.run([str(SRC / 'run_python_script.sh'), str(SRC / 'main' / 'cli' / 'site' / 'status.py')], input=rows,
+                              capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout
+    bare, built = said('corpus\tunprojected\nindex\tABSENT\n'), said('index\tABSENT\n')
+    fact = ('FAIL' not in bare and 'unbuilt - no projected corpus to render' in bare
+            and 'FAIL' in built and 'absent - the corpus page is unbuilt' in built)
+    run('site: with no projected corpus the absent corpus page is a fact, and with one a finding', fact,
+        None if fact else f'unprojected said {bare!r}; projected said {built!r}', check='site.an_unprojected_corpus_page_is_a_fact')
+    builder = getattr(facts, 'act', None)
+    named = None
+    refused = False
+    if callable(builder):
+        named = builder('metamodel', 'derive')
+        try:
+            builder('model', 'derive')
+        except KeyError:
+            refused = True
+    typed = re.compile(r"[\"'`][a-z-]+ [a-z-]+: (NOT )?DONE")
+    hand = [f'{path.relative_to(REPO_ROOT)}:{number}' for path in sorted((SRC / 'main').rglob('*')) if path.suffix in ('.py', '.sh') and path.is_file()
+            for number, line in enumerate(path.read_text().splitlines(), 1) if typed.search(line)]
+    declared = named == 'metamodel derive' and refused and not hand
+    run('report: every effect line names its act from the declaration, and no source types one', declared,
+        None if declared else f'facts.act gave {named!r}, refusing an undeclared verb: {refused}; typed by hand at {len(hand)} line(s): {", ".join(hand[:6])}',
+        check='report.an_effect_line_names_a_declared_act')
+
+
+@check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])
+def check_migration_status_relays_steps(run) -> None:
+    """corpus-yoga migration's status says each pending step as the line its script prints for it
+    bare, and a halted script's steps before the halt with what it said there: the checkout runs
+    corpus-yoga commands only, so the status is where a reader sees what the apply would take
+    (issues/1090). The fixture is synthetic: two scripts' bare runs."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('migration_status', SRC / 'main' / 'cli' / 'migration' / 'migration.py')
+    assert spec is not None and spec.loader is not None
+    migration = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(migration)
+    said = migration.status_facts({'first': (0, ['mv a b', 'rm c']), 'second': (1, ['mv d e', 'FAIL: f and g both exist'])}).scripts
+    pending, halted = said['first'], said['second']
+    relayed = pending.steps == ['mv a b', 'rm c'] and halted.steps == ['mv d e']
+    run("migration: the status says each pending step as its script's line, a halted script's steps before the halt included", relayed,
+        None if relayed else f'the status said {pending.steps!r} and {halted.steps!r}', check='migration.status_relays_each_step')
+
+
+@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])
+def check_agent_memory_disposed(run) -> None:
+    """rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
+    bare, one line per memory directory, its file count and bytes - the disposal record a
+    reader reviews before the apply; applied, each directory goes and its line is the log's;
+    again, nothing. The sessions beside it stay. The fixture is synthetic: a checkout with a
+    store and a stage of its own."""
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        store = checkout / 'data/input/claude/code/machine-transport/here'
+        stage = checkout / 'tmp/stage/input/claude/code/machine-transport/here'
+        for root in (store, stage):
+            (root / 'p' / 'memory').mkdir(parents=True)
+            (root / 'p' / 'aaaaaaaa.jsonl').write_text('{}\n')
+            (root / 'p' / 'memory' / 'kept.md').write_text('a fact\n')
+        (store / 'q' / 'memory').mkdir(parents=True)
+        (store / 'q' / 'memory' / 'unwritten.md').write_text('a fact no session wrote\n')
+        script = checkout / 'rsc/migration/1090.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('memory') if p.is_dir())
+        sessions = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*.jsonl'))
+        record = bare.stdout.splitlines()
+        disposed = (bare.returncode == 0 and bare.stderr == '' and len(record) == 3
+                    and record == ['rm -r data/input/claude/code/machine-transport/here/p/memory - 1 file(s), 7 bytes',
+                                   'rm -r data/input/claude/code/machine-transport/here/q/memory - 1 file(s), 24 bytes',
+                                   'rm -r tmp/stage/input/claude/code/machine-transport/here/p/memory - 1 file(s), 7 bytes']
+                    and applied.returncode == 0 and applied.stdout.splitlines() == record and again.returncode == 0 and again.stdout == '' and left == []
+                    and sessions == ['data/input/claude/code/machine-transport/here/p/aaaaaaaa.jsonl', 'tmp/stage/input/claude/code/machine-transport/here/p/aaaaaaaa.jsonl'])
+        run("migration: rsc/migration/1090.sh says one line per memory directory the store and the stage hold, with its files and bytes, and disposes of each - bare the record, applied the same lines, again nothing, the sessions kept",
+            disposed, None if disposed else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; again said {again.stdout!r}; '
+            f'memory stands at {left}; sessions at {sessions}', check='migration.agent_memory_is_disposed')
 
 
 @check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])
 def check_session_continued_apart(run) -> None:
     """A session two rooms continued apart is kept by each as its own (issues/1071): a capture
     reads a live session the store holds identical under another room's name as that room's,
-    kept and not staged, and the project's memory is still captured; a pull leaves a room's live
-    session that diverged from the peer's as it stands, says the divergence as a fact, and still
-    merges the project's memory; and the store's live reading says such a session as that room's,
+    kept and not staged, and stages no memory (issues/1090); a pull leaves a room's live session
+    that diverged from the peer's as it stands, says the divergence as a fact, and writes no
+    memory; and the store's live reading says such a session as that room's,
     as the capture reads it, offering no capture. The fixtures are synthetic: a store of two rooms and a live
     store under temporary roots."""
     import tempfile
@@ -897,19 +939,19 @@ def check_session_continued_apart(run) -> None:
         live = planted(root / 'live', 'projects', theirs, 'a fact of this room\n')      # the peer's copy, pulled into this room
         log = harness.capture_all(live, outbox, held)
         staged = sorted(p.relative_to(outbox).as_posix() for p in outbox.rglob('*') if p.is_file()) if outbox.is_dir() else []
-        captured = (log.conflicts == 0 and staged == [f'{project}/memory/fact.md']
+        captured = (log.conflicts == 0 and staged == []
                     and f'{project}/{name}' in log.by.get(log.key('kept'), {}))
-    run("agent: a capture reads a live session the store holds under another room's name as that room's - kept, not staged - and captures the memory",
+    run("agent: a capture reads a live session the store holds under another room's name as that room's - kept, not staged - and stages no memory",
         captured, None if captured else f'the capture said {log.facts()!r} and staged {staged}', check='agent.a_session_continued_apart_is_each_rooms_own')
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         bundle = planted(root / 'store', 'there', theirs, 'a fact of the peer\n')
         live = planted(root / 'live', 'projects', ours)
-        log = harness.pull_all(bundle, live, True, 'there', 'here')
+        log = harness.pull_all(bundle, live, True)
         kept = log.by.get(log.key('kept'), {}).get(f'{project}/{name}')
         pulled = (log.conflicts == 0 and (live / project / name).read_text() == ours and isinstance(kept, dict) and any('diverged' in key for key in kept)
-                  and (live / project / 'memory' / 'fact.md').is_file())
-    run("agent: a pull leaves a live session that diverged from the peer's as it stands, says the divergence as a fact, and merges the memory",
+                  and not (live / project / 'memory').exists())
+    run("agent: a pull leaves a live session that diverged from the peer's as it stands, says the divergence as a fact, and writes no memory",
         pulled, None if pulled else f'the pull said {log.facts()!r}', check='agent.a_session_continued_apart_is_each_rooms_own')
     import live
     with tempfile.TemporaryDirectory() as tmp:

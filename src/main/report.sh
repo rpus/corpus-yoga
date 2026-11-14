@@ -69,6 +69,11 @@ while words:
 print(spell.line(noun, verb, *positional, **flags))' "$@"
 }
 
+act() {  # <noun> <verb> - the act an effect line names, from its declaration, as facts.act
+  [[ -f "${REPO_DIR:-$REPO_ROOT}/src/main/cli/$1/$2.json" ]] || { echo "act: no declaration holds the verb $1 $2" >&2; return 1; }
+  echo "$1 $2"
+}
+
 effect() {
   "${REPO_DIR:-$REPO_ROOT}/src/run_python_script.sh" -c 'import sys; import facts
 facts.report(None, sys.argv[1])' "$1"

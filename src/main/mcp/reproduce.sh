@@ -101,8 +101,8 @@ GENERATED="$WORK/schema/$LINEAGE/schema.json"
 STATUS=0
 diff "$COMMITTED" "$GENERATED" || STATUS=1
 if [[ $STATUS -eq 0 ]]; then
-  effect "mcp reproduce: DONE - rsc/reference/mcp/$LINEAGE/schema.json is byte-identical to what upstream's generator makes of schema.ts"
+  effect "$(act mcp reproduce): DONE - rsc/reference/mcp/$LINEAGE/schema.json is byte-identical to what upstream's generator makes of schema.ts"
 else
-  effect "mcp reproduce: NOT DONE - not reproduced; the diff above is committed (<) against generated (>)"
+  effect "$(act mcp reproduce): NOT DONE - not reproduced; the diff above is committed (<) against generated (>)"
 fi
 exit $STATUS

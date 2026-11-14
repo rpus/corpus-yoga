@@ -567,6 +567,15 @@ def phrase(template: str, **places) -> str:
     return template.format_map(places)
 
 
+def act(noun: str, verb: str) -> str:
+    """The act an effect line names, `<noun> <verb>`, from its declaration: a verb no
+    src/main/cli/<noun>/<verb>.json declares is unrepresentable - it raises here, in every
+    room - so that a rename leaves no effect line naming a verb that is gone."""
+    if not (Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli' / noun / f'{verb}.json').is_file():
+        raise KeyError(f'no declaration holds the verb {noun} {verb}')
+    return f'{noun} {verb}'
+
+
 def report(outcomes, effect: str) -> None:
     """Print what an act reports (issues/801, issues/896): report_lines, each a line."""
     said = report_lines(outcomes, effect)

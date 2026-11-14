@@ -131,10 +131,10 @@ def main(argv: list[str]) -> int:
     try:
         got = fetch()
     except send.SendRefused as refused:
-        facts.report(None, f'forge capture: NOT DONE - {refused}')
+        facts.report(None, facts.act('forge', 'capture') + f': NOT DONE - {refused}')
         return 1
     except subprocess.CalledProcessError:
-        facts.report(None, 'forge capture: NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
+        facts.report(None, facts.act('forge', 'capture') + ': NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
         return 1
     rel = STORE.relative_to(REPO)
     target = STORE / stamp
@@ -144,7 +144,7 @@ def main(argv: list[str]) -> int:
         print(f'  {name}: {count(name, got[name])}')
     # what an act reports (issues/876, issues/896): the effect; the launcher's reply names the promote,
     # since no pipeline reads the ledger and no rehearsal is owed
-    facts.report(None, f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
+    facts.report(None, facts.act('forge', 'capture') + f': DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
     return 0
 
 

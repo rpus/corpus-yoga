@@ -191,12 +191,12 @@ def sync(export_cache: Path, memories_output: Path, markdown: Path) -> int:
     states = memory_states(export_cache)
     if not states:
         cache = Path(export_cache)
-        facts.report(None, 'memories deposit: DONE - ' + facts.phrase('no archived memory states under {cache}; nothing to accumulate',
+        facts.report(None, facts.act('memories', 'deposit') + ': DONE - ' + facts.phrase('no archived memory states under {cache}; nothing to accumulate',
                                                                       cache=cache.relative_to(REPO) if cache.is_relative_to(REPO) else cache))
         return 0
     deposits, conflicts = deposit(states, memories_output)
     render(deposits, markdown)
-    facts.report(None, f'memories deposit: {"NOT DONE" if conflicts else "DONE"} - ' + facts.phrase('{n} deposit(s)', n=len(deposits))
+    facts.report(None, facts.act('memories', 'deposit') + f': {"NOT DONE" if conflicts else "DONE"} - ' + facts.phrase('{n} deposit(s)', n=len(deposits))
                  + ('; ' + facts.phrase('{n} CONFLICT(S), each left in place', n=conflicts) if conflicts else ''))
     return 1 if conflicts else 0
 

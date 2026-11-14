@@ -327,9 +327,9 @@ if __name__ == '__main__':
         try:
             ensure_assets()
         except Exception as e:
-            facts.report(None, f'server ensure-assets: NOT DONE - could not fetch render assets ({e}); the next corpus-yoga server start retries')
+            facts.report(None, facts.act('server', 'ensure-assets') + f': NOT DONE - could not fetch render assets ({e}); the next corpus-yoga server start retries')
             sys.exit(1)
-        facts.report(None, f'server ensure-assets: DONE - render assets present under {STATIC_DIR.relative_to(REPO_ROOT)}/')
+        facts.report(None, facts.act('server', 'ensure-assets') + f': DONE - render assets present under {STATIC_DIR.relative_to(REPO_ROOT)}/')
         sys.exit(0)
 
     if not args.markdown:

@@ -572,8 +572,8 @@ def judges_of(unit: Unit) -> list[str]:
     """The families that judge the unit: the ones its pipeline's declaration names for its
     kind (issues/1018) - the same the validate step validates against and the rehearsal
     keys its verdicts by. Its measure says how it stands to the held unit, not who judges
-    it: claude's memory, a mirror, is judged by projectMemory; gemini's ordering file, a
-    mirror, by none, and promotes on its relation alone."""
+    it: gemini's ordering file, a mirror, is judged by none, and promotes on its relation
+    alone."""
     return list(unit.families)
 
 
@@ -1346,17 +1346,15 @@ class Duplicate:
     by: str                       # the measure's words for the two
 
 
-def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> list[Duplicate]:
+def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[Duplicate]:
     """Every duplicate under root - a unit whose content another unit of its kind holds, the
     same at two addresses or whole within the other's by the kind's measure (issues/738, issues/743).
     Two units are compared where they share a kind and - unless the kind's measure relates
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
     declares; a measure whose order relates everything - mirror's - holds only what is
-    equal. Of identical units the holder is the newest: the one at an address `newest`
-    names - a live directory that is a link, since a link is made from the newer to the
-    older - then one a live store still writes, `live`, so that the copy a capture renews
-    is the one kept, and failing both the one at the first address; a unit a fuller one
-    contains is named with the fullest."""
+    equal. Of identical units the holder is one a live store still writes, `live`, so that
+    the copy a capture renews is the one kept, and failing that the one at the first
+    address; a unit a fuller one contains is named with the fullest."""
     groups: dict[tuple, list[Unit]] = {}
     for unit in units(root):
         if unit.pipeline is not None:
@@ -1375,7 +1373,7 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozense
                           and leq is not _leq_any and leq(mine, theirs)]
             equals = [o for o, theirs in values if o is not unit and theirs == mine]
             # among identical copies one is the holder: a live one, else the first address
-            keeper = min(equals + [unit], key=lambda o: (o.address not in newest, o.address not in live, o.address)) if equals else unit
+            keeper = min(equals + [unit], key=lambda o: (o.address not in live, o.address)) if equals else unit
             if containers:
                 holder, how = max(containers, key=lambda o: size_of(root / o.path)), 'contained'
             elif equals and keeper is not unit:
@@ -1440,7 +1438,7 @@ class StoreStatus:
     now: dict | str | None = None   # the store's standing: every act its body names, gathered (issues/1028)
 
 
-def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, int]:
+def store_facts(live: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, int]:
     """Bare corpus-yoga store, its first two readings as facts (issues/738, issues/741, issues/759): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
@@ -1459,7 +1457,7 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
         elif not unit.members and unit.record:
             stray[unit.record[0].as_posix()] = Stray(human(size_of(STORE / unit.record[0])),
                                                      facts.phrase('the record of a unit the store does not hold'))
-    twice = held_twice(STORE, live, newest)
+    twice = held_twice(STORE, live)
     extra = {rel.as_posix(): Surplus(human(size_of(STORE / rel)), f'{unit.path.name}.json',
                                      facts.Would(spell.line('store', 'clean'), {kind_of(unit): 1}))
              for unit, rel in surplus(STORE)}

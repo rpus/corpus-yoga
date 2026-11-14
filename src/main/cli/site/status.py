@@ -34,7 +34,7 @@ class Site:
     publish_tree: str
     sources: str
     pages: dict | str   # each stale page by its file, that all are current, or absent with the act that assembles them
-    index: CorpusPage | facts.Finding = facts.named('index.html')
+    index: CorpusPage | facts.Finding | str = facts.named('index.html')
     lags: dict[str, dict[str, str] | str] | dict[str, str | facts.Would | facts.Unsettled] | str | facts.Unsettled = facts.Unsettled(facts.phrase('unread - no page and no corpus to compare'), 'site')   # the page's declarations against the corpus (issues/1000)
     deploy: str = ''
     fetch: facts.Unsettled | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
@@ -90,8 +90,11 @@ def main() -> int:
     absent = any(row[0] == 'pages' and row[1] == 'absent' for row in rows)
     standing = next((row[2] for row in rows if row[0] == 'pages'), facts.phrase('current with rsc/site/'))
     title = next((row[1] for row in rows if row[0] == 'index'), 'ABSENT')
-    index: CorpusPage | facts.Finding = CorpusPage(title)
-    if title == 'ABSENT':
+    index: CorpusPage | facts.Finding | str = CorpusPage(title)
+    unprojected = any(row[0] == 'corpus' and row[1] == 'unprojected' for row in rows)
+    if title == 'ABSENT' and unprojected:
+        index = facts.phrase('unbuilt - no projected corpus to render')
+    elif title == 'ABSENT':
         index = facts.Finding(facts.phrase('absent - the corpus page is unbuilt'), facts.Would(spell.line('site', 'render'), {'index.html': 1}))
     land: dict = {}
     for row in rows:

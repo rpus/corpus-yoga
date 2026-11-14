@@ -38,16 +38,15 @@ def check_providers_judged(run) -> None:
 ))
 def check_declared_families_judge(run) -> None:
     """A unit is judged by the families its pipeline's declaration names for its kind, whatever
-    its measure: claude's memory, a mirror unit, by projectMemory; gemini's
-    ordering file, a mirror unit, by none."""
+    its measure: claude's session, a prefix unit, by its two families; gemini's ordering
+    file, a mirror unit, by none."""
     import tempfile
     import corpus
     judged: dict[str, list[str]] = {}
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
         code = next(s for s in corpus.stores() if s.pipeline == 'agent' and s.provider == 'claude')
-        (root / code.input / 'room' / 'project' / 'memory').mkdir(parents=True)
-        (root / code.input / 'room' / 'project' / 'memory' / 'MEMORY.md').write_text('# index\n')
+        (root / code.input / 'room' / 'project').mkdir(parents=True)
         (root / code.input / 'room' / 'project' / 'session.jsonl').write_text('{}\n')
         for unit in corpus.select(root, code):
             judged[unit.kind] = corpus.judges_of(unit)
@@ -56,7 +55,7 @@ def check_declared_families_judge(run) -> None:
         (root / chat.input / 'ordering.txt').write_text('a\n')
         for unit in corpus.select(root, chat):
             judged[unit.kind] = corpus.judges_of(unit)
-    want = {'session': ['claude/session', 'sessionConversation'], 'memory': ['claude/projectMemory'], 'ordering': []}
+    want = {'session': ['claude/session', 'sessionConversation'], 'ordering': []}
     run("stage: a unit is judged by the families its declaration names for its kind, whatever its measure", judged == want,
         None if judged == want else f'the judges read {judged}, where they are {want}', check='stage.declared_families_judge')
     # the declaration is total over the pipeline's families, and the validate step validates
@@ -76,10 +75,8 @@ def check_declared_families_judge(run) -> None:
     enumerated: dict[str, list[str]] = {}
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
-        (root / 'project' / 'memory').mkdir(parents=True)
         (root / 'session').mkdir()
-        for kind, provider, flag, target in (('session', 'claude', '--session', root / 'session'), ('memory', 'claude', '--memory', root / 'project' / 'memory'),
-                                              ('session', 'gemini', '--session', root / 'session')):
+        for kind, provider, flag, target in (('session', 'claude', '--session', root / 'session'), ('session', 'gemini', '--session', root / 'session')):
             said = subprocess.run([str(validate), '--enumerate', '--provider', provider, flag, str(target)], capture_output=True, text=True, cwd=REPO_ROOT).stdout
             families = []
             for line in said.splitlines():

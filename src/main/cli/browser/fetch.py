@@ -90,16 +90,16 @@ def main() -> int:
         finally:
             safari_close_work_tab(previous)
     except send.SendRefused as refused:
-        facts.report(None, f'browser fetch: NOT DONE - {refused}')
+        facts.report(None, facts.act('browser', 'fetch') + f': NOT DONE - {refused}')
         return 1
     except RuntimeError as failed:
-        facts.report(None, f'browser fetch: NOT DONE - {failed}')
+        facts.report(None, facts.act('browser', 'fetch') + f': NOT DONE - {failed}')
         return 1
     account.RECORD.mkdir(parents=True, exist_ok=True)
     record = account.RECORD / f'{provider}.json'
     record.write_text(json.dumps({'fetched': tier.stamp_of('browser fetch'), **read}, indent=1) + '\n')
     listed = len(read['updated']) if provider == 'claude' else len(read['listed'])
-    facts.report(None, 'browser fetch: DONE - ' + facts.phrase('{n} chat(s) of the {provider} account recorded at {record}',
+    facts.report(None, facts.act('browser', 'fetch') + ': DONE - ' + facts.phrase('{n} chat(s) of the {provider} account recorded at {record}',
                                                                 n=listed, provider=provider, record=record.relative_to(REPO)))
     return 0
 

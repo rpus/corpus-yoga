@@ -18,7 +18,7 @@ declaration selects, at an address. Three readings, and nothing written:
               one of its address - promotable, held already, would lose by its relation,
               unlicensed at a version origin/main does not hold - by selection;
   live        the live stores this room mounts against the fuller of the staged and the
-              held copy of each live thing (issues/851): each session and memory a harness holds
+              held copy of each live thing (issues/851): each session a harness holds
               beyond both, with the capture that stages it; a mount that is absent, with
               what mounts it.
 
@@ -43,7 +43,7 @@ from declared_parser import command_parser
 import cleaner  # the one loop every clean verb runs (issues/837)
 import corpus
 import facts
-import live  # the live stores: their addresses, which the duplicates reading keeps the newest of (issues/744), and their reading against both tiers (issues/851)
+import live  # the live stores: their addresses, which the duplicates reading keeps (issues/744), and their reading against both tiers (issues/851)
 
 SELF = 'src/main/cli/store/store.py'
 _file = Path(__file__).resolve()
@@ -68,7 +68,7 @@ def entries() -> list[cleaner.Entry]:
     or path, its facts, the act, and the selection it is counted under. The one list both
     faces walk."""
     out: list[cleaner.Entry] = []
-    for duplicate in corpus.held_twice(corpus.STORE, *live.live_addresses()):
+    for duplicate in corpus.held_twice(corpus.STORE, live.live_addresses()):
         unit, holder, how, by = duplicate.unit, duplicate.holder, duplicate.how, duplicate.by
         paths = [corpus.STORE / m for m in unit.members + unit.record]
         own = corpus.shadow(unit)
@@ -95,7 +95,7 @@ def entries() -> list[cleaner.Entry]:
 def status_facts() -> corpus.StoreStatus:
     """Bare corpus-yoga store, whole: the store's own readings, the stage against the
     store, the live stores against both tiers, and its own standing."""
-    out, held, twice = corpus.store_facts(*live.live_addresses())
+    out, held, twice = corpus.store_facts(live.live_addresses())
     rows = corpus.survey()
     out.staged = corpus.promotion_facts(rows) if rows else facts.phrase('none staged')
     out.would_lose = corpus.relation_would_lose(rows) or None

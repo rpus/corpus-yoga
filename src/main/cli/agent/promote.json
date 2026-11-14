@@ -13,7 +13,7 @@
       "name": "--id",
       "type": "<prefix>",
       "cardinality": "",
-      "help": "one unit of the provider --provider names, by a prefix of a component of its address under the provider (a conversation id, a session's uuid, a project's memory) matching exactly one; requires --provider"
+      "help": "one unit of the provider --provider names, by a prefix of a component of its address under the provider (a conversation id, a session's uuid) matching exactly one; requires --provider"
     },
     {
       "name": "--all",

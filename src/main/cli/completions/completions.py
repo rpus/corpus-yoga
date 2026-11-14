@@ -149,7 +149,7 @@ def install_completion() -> int:
         where = facts.phrase('added at line {line}, above compinit', line=idx + 1)
     text = '\n'.join(lines) + '\n'
     if text == before and loads() is not False:
-        facts.report(None, 'completions install: DONE - ' + facts.phrase('{zshrc} already sets tab-completion up; nothing written', zshrc=tilde(zshrc)))
+        facts.report(None, facts.act('completions', 'install') + ': DONE - ' + facts.phrase('{zshrc} already sets tab-completion up; nothing written', zshrc=tilde(zshrc)))
         return 0
     if text == before:
         print(f'{tilde(zshrc)}: ' + facts.phrase('the four lines stand as they should, and zsh does not load them'))
@@ -158,7 +158,7 @@ def install_completion() -> int:
             with send.within('zshrc'):
                 zshrc.write_text(text)
         except send.SendRefused as refused:
-            facts.report(None, f'completions install: NOT DONE - {refused}')
+            facts.report(None, facts.act('completions', 'install') + f': NOT DONE - {refused}')
             return 1
         print(f'{tilde(zshrc)}: ' + facts.phrase('four lines {where}', where=where))
         for line in block():
@@ -170,7 +170,7 @@ def install_completion() -> int:
         d.unlink()
     if dumps:
         print('  ~/.zcompdump*: ' + facts.phrase('{n} removed - the next terminal rebuilds it', n=len(dumps)))
-    facts.report(None, 'completions install: DONE - ' + facts.phrase('{zshrc} holds the four lines; a new terminal tab-completes corpus-yoga from then on', zshrc=tilde(zshrc)))
+    facts.report(None, facts.act('completions', 'install') + ': DONE - ' + facts.phrase('{zshrc} holds the four lines; a new terminal tab-completes corpus-yoga from then on', zshrc=tilde(zshrc)))
     return 0
 
 
@@ -185,19 +185,19 @@ def uninstall_completion() -> int:
     removing it could break what was built on top."""
     zshrc = Path.home() / '.zshrc'
     if not zshrc.exists():
-        facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('{zshrc} is no file; nothing to remove', zshrc=tilde(zshrc)))
+        facts.report(None, facts.act('completions', 'uninstall') + ': DONE - ' + facts.phrase('{zshrc} is no file; nothing to remove', zshrc=tilde(zshrc)))
         return 0
     kept, removed_line_count = without_completion_block(zshrc.read_text().splitlines())
     if not removed_line_count:
-        facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('{zshrc} holds no corpus-yoga lines; nothing to remove', zshrc=tilde(zshrc)))
+        facts.report(None, facts.act('completions', 'uninstall') + ': DONE - ' + facts.phrase('{zshrc} holds no corpus-yoga lines; nothing to remove', zshrc=tilde(zshrc)))
         return 0
     try:
         with send.within('zshrc'):
             zshrc.write_text('\n'.join(kept) + '\n')
     except send.SendRefused as refused:
-        facts.report(None, f'completions uninstall: NOT DONE - {refused}')
+        facts.report(None, facts.act('completions', 'uninstall') + f': NOT DONE - {refused}')
         return 1
-    facts.report(None, 'completions uninstall: DONE - ' + facts.phrase('removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched, and a new terminal no longer completes', n=removed_line_count, zshrc=tilde(zshrc)))
+    facts.report(None, facts.act('completions', 'uninstall') + ': DONE - ' + facts.phrase('removed the corpus-yoga lines ({n}) from {zshrc}; nothing else touched, and a new terminal no longer completes', n=removed_line_count, zshrc=tilde(zshrc)))
     return 0
 
 

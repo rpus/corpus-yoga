@@ -2,7 +2,6 @@
   "summary": "the moves a rename owes this machine's local roots - rsc/migration, one guarded script per causing issue, each run once (bare says each script's pending steps; sync takes them)",
   "standing": true,
   "phrase": [
-    "{n} pending - the script run bare says them",
     "none pending",
     "it exits {code}",
     "{n} script(s) - {pending} with steps pending, {halted} halted",
@@ -12,7 +11,7 @@
     "took {taken} step(s) of {n} script(s)"
   ],
   "explanation": {
-    "scripts": "each script under rsc/migration, by its path - how many steps it would take, none pending, or that it halted and what it said; the steps themselves the script says when run bare, being the declaration of its moves; corpus-yoga migration apply, in now, runs a script with steps; a halted one names a from and a to that both stand, which the reader resolves by hand",
+    "scripts": "each script under rsc/migration, by its path - the steps it would take, each as the line the script prints for it bare, none pending, or that it halted and what it said; corpus-yoga migration apply, in now, runs a script with steps; a halted one names a from and a to that both stand, which the reader resolves by hand",
     "migration": "the verdict - how many scripts, how many with steps pending, how many halted"
   },
   "target": "src/main/cli/migration/migration.py",

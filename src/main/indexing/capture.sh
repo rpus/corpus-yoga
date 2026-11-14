@@ -308,7 +308,7 @@ capture_dashboard() {
           read -r before_captured _ _ _ <<< "$b"
         fi
         if [[ "$captured" -lt "$before_captured" ]]; then
-          effect "indexing capture: NOT DONE - coverage would fall from $before_captured to $captured; not promoted, the staged reading left in ${stage#"$REPO_DIR/"} for inspection"
+          effect "$(act indexing capture): NOT DONE - coverage would fall from $before_captured to $captured; not promoted, the staged reading left in ${stage#"$REPO_DIR/"} for inspection"
           return 1
         fi
       fi
@@ -320,7 +320,7 @@ capture_dashboard() {
 
   [[ "$want_concepts"   == 1 ]] && mv "$stage/inferred-semantic-concepts.json" "$dest/inferred-semantic-concepts.json"
   [[ "$want_categories" == 1 ]] && mv "$stage/inferred-chat-categories.json"   "$dest/inferred-chat-categories.json"
-  effect "indexing capture: DONE - promoted into data/output/indexing/ as inferred-semantic-concepts.json and inferred-chat-categories.json, which both machines share"
+  effect "$(act indexing capture): DONE - promoted into data/output/indexing/ as inferred-semantic-concepts.json and inferred-chat-categories.json, which both machines share"
 }
 
 # ── the capture source ────────────────────────────────────────────────────────
@@ -364,7 +364,7 @@ capture() {
   # tmp/logs/indexing/capture/<stamp>.log, header included - nothing is written here.
   local conv
   conv="${conversations:-$(corpus_conversations || true)}"
-  [[ -n "$conv" && -e "$conv" ]] || { effect "indexing capture: NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { effect "$(act indexing capture): NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
   # A dry run is the leading half, run alone: the extent and the intent, and nothing else.
@@ -372,7 +372,7 @@ capture() {
   # also why it cannot lie about an effect it did not perform. Worth most on this verb of
   # all: the others preview a free or reversible act, this one previews a purchase.
   if [[ -n "$dry_run" ]]; then
-    effect "indexing capture: DONE - dry run; nothing captured, nothing promoted, nothing spent"
+    effect "$(act indexing capture): DONE - dry run; nothing captured, nothing promoted, nothing spent"
     return 0
   fi
   capture_dashboard "$conv" "$only"

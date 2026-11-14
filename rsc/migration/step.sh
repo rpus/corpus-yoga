@@ -87,6 +87,21 @@ discard() {
   if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
 }
 
+# dispose <directory>: an agent's memory directory the store or the stage holds,
+# <root>/claude/code/machine-transport/<room>/<project>/memory, removed whole, its files
+# counted and sized on the line before it goes - the disposal record, which the migration's
+# log keeps (issues/1090).
+dispose() {
+  local dir="$1" files bytes
+  [[ "$dir" =~ ^(data/input|tmp/stage/input)/claude/code/machine-transport/[^/]+/[^/]+/memory$ ]] \
+    || { echo "FAIL: dispose $dir - only an agent's memory directory under data/input or tmp/stage/input is disposed of" >&2; exit 1; }
+  [[ -d "$dir" && ! -L "$dir" ]] || return 0
+  files="$(find "$dir" -type f ! -name .DS_Store | wc -l | tr -d ' ')"
+  bytes="$(find "$dir" -type f ! -name .DS_Store -exec cat {} + | wc -c | tr -d ' ')"
+  echo "rm -r $dir - $files file(s), $bytes bytes"
+  if (( APPLY )); then rm -r "$dir"; else MOVED+=("$dir"); fi
+}
+
 # retire <directory>: a directory nothing writes any more, removed once empty - bare,
 # once the moves stated above it would have emptied it; a directory still holding
 # files is named and left. Finder's .DS_Store is no file of it: Finder writes one into
