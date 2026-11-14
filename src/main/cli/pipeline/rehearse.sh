@@ -12,7 +12,9 @@
 # and one pipeline's run is the usual act there; the stage is small by construction and
 # gets one judgement.
 #
-# The run is corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=<stamp>, the one name the
+# The run is the pipeline noun's run, a step of this verb at one narration depth deeper, so that
+# its lines and its effect stand beneath the rehearsal's one verdict (issues/1090), with
+# CORPUS_YOGA_REHEARSAL=<stamp>, the one name the
 # tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch, so
 # every script reads and writes the scratch alone: no copy of the code, no copy of the
 # room's cache or output, no link into data/input. The scratch is made afresh for each run -
@@ -51,7 +53,8 @@ main() {
   echo
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || return 1
   local status=0
-  CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run || status=$?
+  CORPUS_YOGA_REHEARSAL="$stamp" CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) \
+    "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" run || status=$?
   echo
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status" || return 1
   return "$status"

@@ -289,7 +289,7 @@ def main():
     args = parser.parse_args()
     if args.verb == 'derive':
         code = derive()
-        facts.report(None, 'mcp derive: ' + ('DONE - ' + facts.phrase('the derivations are current') if code == 0
+        facts.report(None, facts.act('mcp', 'derive') + ': ' + ('DONE - ' + facts.phrase('the derivations are current') if code == 0
                                            else 'NOT DONE - ' + facts.phrase('a derivation failed; the line above names it')))
         sys.exit(code)
     if args.verb == 'reproduce':

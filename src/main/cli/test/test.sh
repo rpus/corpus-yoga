@@ -54,7 +54,7 @@ install_hook() {
 
   ln -sfn "../../rsc/test/prepare-commit-msg-hook.sh" "$git_dir/prepare-commit-msg"
   echo "hook: $(phrase "the prepare-commit-msg hook at {path} is a symlink to {target}" path="$git_dir/prepare-commit-msg" target="$(readlink "$git_dir/prepare-commit-msg")")"
-  effect "test install-hook: DONE - $(phrase "every commit now runs corpus-yoga test run and is stamped with its Signature; deliberate WIP is git commit --no-verify")"
+  effect "$(act test install-hook): DONE - $(phrase "every commit now runs corpus-yoga test run and is stamped with its Signature; deliberate WIP is git commit --no-verify")"
 }
 
 case "${1-}" in
@@ -63,9 +63,9 @@ case "${1-}" in
   xref)         shift; parse_argv test xref "$@"
                 # the test tier's python imports nothing of main's, so the act's tail is said here (issues/876)
                 if "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@"; then
-                  effect "test xref: DONE - $(phrase "rsc/test/xref.csv rewritten; its summary line stands above")"
+                  effect "$(act test xref): DONE - $(phrase "rsc/test/xref.csv rewritten; its summary line stands above")"
                 else
-                  effect "test xref: NOT DONE - $(phrase "the cross-reference table was not rewritten; the lines above name why")"; exit 1
+                  effect "$(act test xref): NOT DONE - $(phrase "the cross-reference table was not rewritten; the lines above name why")"; exit 1
                 fi ;;
   install-hook) shift; parse_argv test install-hook "$@"; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;

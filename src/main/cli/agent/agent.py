@@ -401,7 +401,7 @@ def mount() -> int:
     creates them. A link at a retired address is rsc/migration/636.sh's or
     rsc/migration/853.sh's."""
     if registry.machine() == 'unbound':
-        facts.report(None, 'agent mount: NOT DONE - ' + facts.phrase('machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one'))
+        facts.report(None, facts.act('agent', 'mount') + ': NOT DONE - ' + facts.phrase('machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one'))
         return 1
     verdict = 0
     present = created = 0
@@ -429,7 +429,7 @@ def mount() -> int:
         print(f'{shown}: ' + facts.phrase('the link to {live} is created', live=row['live_store']))
     # what an act reports (issues/801, issues/896): the effect line, handed up to the launcher's reply
     did = facts.phrase('did create {created}, present {present}', created=created, present=present)
-    facts.report(None, f'agent mount: {"NOT DONE" if verdict else "DONE"} - {did}' + ('; ' + facts.phrase('a link at another target is not touched') if verdict else ''))
+    facts.report(None, facts.act('agent', 'mount') + f': {"NOT DONE" if verdict else "DONE"} - {did}' + ('; ' + facts.phrase('a link at another target is not touched') if verdict else ''))
     return verdict
 
 

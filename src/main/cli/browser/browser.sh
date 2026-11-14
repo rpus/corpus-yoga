@@ -135,11 +135,11 @@ main() {
   # it, carried in the record; the launcher replies with now:, the rehearsal that judges
   # what was staged
   if [[ -n "$dry_run" ]]; then
-    effect "browser capture: DONE - dry run; nothing staged, nothing spent"
+    effect "$(act browser capture): DONE - dry run; nothing staged, nothing spent"
   elif [[ "$rc" -eq 0 ]]; then
-    effect "browser capture: DONE - each provider's capture stands above"
+    effect "$(act browser capture): DONE - each provider's capture stands above"
   else
-    effect "browser capture: NOT DONE - a provider's capture above failed (exit $rc)"
+    effect "$(act browser capture): NOT DONE - a provider's capture above failed (exit $rc)"
   fi
   return $rc
 }

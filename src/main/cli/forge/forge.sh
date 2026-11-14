@@ -346,10 +346,10 @@ clean() {
   (( removed_branches )) && counts="$(count "$removed_branches" branch branches)"
   (( removed_refs )) && counts="${counts:+$counts, }$(count "$removed_refs" ref refs)"
   if (( ${#left[@]} )); then
-    effect "forge clean: NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
+    effect "$(act forge clean): NOT DONE - did remove ${counts:-nothing}; did NOT remove $(IFS='; '; echo "${left[*]}")"
     return 1
   fi
-  effect "forge clean: DONE - did remove ${counts:-nothing}"
+  effect "$(act forge clean): DONE - did remove ${counts:-nothing}"
 }
 
 # The act (issues/881): what it would set is the bare status's, drift by drift; this sets each.
@@ -366,17 +366,17 @@ push() {
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
-      effect "forge push: NOT DONE - $(phrase "the live settings could not be read; nothing verified, nothing to agree")"
+      effect "$(act forge push): NOT DONE - $(phrase "the live settings could not be read; nothing verified, nothing to agree")"
       return 1
     fi
-    effect "forge push: DONE - $(phrase "no drift; the forge agrees with src/main/cli/forge/forge.csv")"
+    effect "$(act forge push): DONE - $(phrase "no drift; the forge agrees with src/main/cli/forge/forge.csv")"
     return 0
   fi
   echo "after:"
   reconcile | while IFS=$'\t' read -r st key detail _; do
     [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
   done
-  effect "forge push: DONE - $(phrase "did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv")"
+  effect "$(act forge push): DONE - $(phrase "did set each drifted setting; the forge agrees with src/main/cli/forge/forge.csv")"
 }
 
 # The merge is the reviewer's one act (issues/483): every refusal (OPEN, an aims-to-
@@ -601,9 +601,9 @@ merge_chain() {
   local record_depth=${CORPUS_YOGA_NARRATION_DEPTH:-0}
   opening refuses
   export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
-  send_cleared pr     || { echo "forge merge: NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
-  read -r state base head < <(cd "$REPO_DIR" && send query pr "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
-  [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR merges" pr="$pr" state="$state")"; return 1; }
+  send_cleared pr     || { effect "$(act forge merge): NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
+  read -r state base head < <(cd "$REPO_DIR" && send query pr "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { effect "$(act forge merge): NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
+  [[ "$state" == OPEN ]]     || { effect "$(act forge merge): NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR merges" pr="$pr" state="$state")"; return 1; }
   # A checkout that holds the head with a dirty tree refuses HERE (issues/975), before any
   # read but the one that named the head: the dirt is usually a red gate's own findings in
   # rsc/test/run.log, evidence the merge leaves where the gate wrote it, and the refusal
@@ -613,26 +613,26 @@ merge_chain() {
   if [[ "$branch_here" == "$head" ]]; then
     local dirty
     dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
-    [[ -z "$dirty" ]]       || { echo "forge merge: NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
+    [[ -z "$dirty" ]]       || { effect "$(act forge merge): NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
   fi
-  body="$(cd "$REPO_DIR" && send quote pr "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE - $(phrase "the body read failed")"; return 1; }
+  body="$(cd "$REPO_DIR" && send quote pr "$pr" --json body --jq .body)"     || { effect "$(act forge merge): NOT DONE - $(phrase "the body read failed")"; return 1; }
   # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one
   # line per issue, as corpus-yoga forge raise writes them; a line that says the phrase
   # otherwise refuses here, before any enacting step, since the flip could not read it either.
   local aimed
-  aimed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" aimed <<< "$body")"     || { echo "forge merge: NOT DONE - $(phrase "the body's aim lines are not in the aim's grammar; the line above names it, and corpus-yoga forge raise writes them (issues/884)")"; return 1; }
-  [[ -n "$aimed" ]]     || { echo "forge merge: NOT DONE - $(phrase "the body carries no aim line to flip")"; return 1; }
+  aimed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" aimed <<< "$body")"     || { effect "$(act forge merge): NOT DONE - $(phrase "the body's aim lines are not in the aim's grammar; the line above names it, and corpus-yoga forge raise writes them (issues/884)")"; return 1; }
+  [[ -n "$aimed" ]]     || { effect "$(act forge merge): NOT DONE - $(phrase "the body carries no aim line to flip")"; return 1; }
   # The title is a verbatim COPY of the title of an issue the body aims to
   # complete (issues/479): the should's one home is the issue, main's subject becomes
   # the disposed should, and a non-copy refuses HERE, before any enacting step.
   local title issue_number issue_title copied=0
-  title="$(cd "$REPO_DIR" && send quote pr "$pr" --json title --jq .title)"     || { echo "forge merge: NOT DONE - $(phrase "the title read failed")"; return 1; }
+  title="$(cd "$REPO_DIR" && send quote pr "$pr" --json title --jq .title)"     || { effect "$(act forge merge): NOT DONE - $(phrase "the title read failed")"; return 1; }
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
     issue_title="$(cd "$REPO_DIR" && send quote issue "$issue_number" --json title --jq .title)" || continue
     [[ "$title" == "$issue_title" ]] && copied=1
   done <<< "$aimed"
-  [[ "$copied" == 1 ]]     || { echo "forge merge: NOT DONE - $(phrase "the title copies no issue the body aims at (issues/479); retitle the PR as the verbatim copy of the central issue's title")"; return 1; }
+  [[ "$copied" == 1 ]]     || { effect "$(act forge merge): NOT DONE - $(phrase "the title copies no issue the body aims at (issues/479); retitle the PR as the verbatim copy of the central issue's title")"; return 1; }
   # Every aimed issue's OPEN blockers must be aimed too (issues/482): closing a
   # blocked issue with its stated precondition unmet is what blocked_by
   # exists to prevent, and the refusal lands here, before any enacting step.
@@ -643,17 +643,17 @@ merge_chain() {
     while IFS=$'\t' read -r blocker_number blocker_state; do
       [[ -n "$blocker_number" ]] || continue
       [[ "$blocker_state" == "closed" ]] && continue
-      grep -qx "$blocker_number" <<< "$aimed"       || { echo "forge merge: NOT DONE - $(phrase "issues/{issue} is blocked by open issues/{blocker}, which this body does not aim at (issues/482)" issue="$issue_number" blocker="$blocker_number")"; return 1; }
+      grep -qx "$blocker_number" <<< "$aimed"       || { effect "$(act forge merge): NOT DONE - $(phrase "issues/{issue} is blocked by open issues/{blocker}, which this body does not aim at (issues/482)" issue="$issue_number" blocker="$blocker_number")"; return 1; }
     done <<< "$blocker_rows"
   done <<< "$aimed"
   local standing
-  standing="$(status_rows)"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
+  standing="$(status_rows)"     || { effect "$(act forge merge): NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
   narrate opening "standing report"
-  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { echo "forge merge: NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
+  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { effect "$(act forge merge): NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
-  (cd "$REPO_DIR" && send enact fetch "$base" "$head")     || { echo "forge merge: NOT DONE - $(phrase "the fetch failed")"; return 1; }
+  (cd "$REPO_DIR" && send enact fetch "$base" "$head")     || { effect "$(act forge merge): NOT DONE - $(phrase "the fetch failed")"; return 1; }
   if [[ "$branch_here" == "$head" ]]; then
-    git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge merge: NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
+    git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { effect "$(act forge merge): NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
   fi
   # The squash pin is the merge's OWN sha (issues/488): the head fetched here, or the
   # head the relocation pushes below - never a PR-API re-read, which is
@@ -664,13 +664,13 @@ merge_chain() {
     say "base unmoved - origin/{head} already stands on origin/{base}; nothing to relocate" head="$head" base="$base"
   else
     old_sha="$(cd "$REPO_DIR" && send quote lease "refs/heads/$head" | cut -f1)"
-    [[ -n "$old_sha" ]] || { echo "forge merge: NOT DONE - $(phrase "origin has no refs/heads/{head} to lease against" head="$head")"; return 1; }
-    oid="$(relocated "$base" "$head" "$old_sha")" || { echo "forge merge: NOT DONE - $(phrase "the relocation halted; its last line above names where")"; return 1; }
+    [[ -n "$old_sha" ]] || { effect "$(act forge merge): NOT DONE - $(phrase "origin has no refs/heads/{head} to lease against" head="$head")"; return 1; }
+    oid="$(relocated "$base" "$head" "$old_sha")" || { effect "$(act forge merge): NOT DONE - $(phrase "the relocation halted; its last line above names where")"; return 1; }
     moved=1
     if [[ "$branch_here" == "$head" ]]; then
       if ! enact git -C "$REPO_DIR" checkout "$head" \
          || ! enact git -C "$REPO_DIR" reset --hard "refs/remotes/origin/$head"; then
-        echo "forge merge: NOT DONE - $(phrase "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not" head="$head")"
+        effect "$(act forge merge): NOT DONE - $(phrase "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not" head="$head")"
         return 1
       fi
       say "resynced this checkout - {head} is the relocated copy of what was reviewed" head="$head"
@@ -682,7 +682,7 @@ merge_chain() {
   # until the fast-forward, and the faces this process calls are the tree's it read.
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates
   local gate_wt
-  gate_wt="$(gate_worktree "$oid" "$head")"     || { echo "forge merge: NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
+  gate_wt="$(gate_worktree "$oid" "$head")"     || { effect "$(act forge merge): NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
   # The run reaches the terminal once, through the launcher's tee that keeps this record
   # whole (issues/954); the verdict file is read for the failing stages.
   local gate_rc=0 verdict stages
@@ -703,21 +703,21 @@ merge_chain() {
   rm -f "$verdict"
   if [[ "$gate_rc" -ne 0 ]]; then
     dispose_worktree "$gate_wt"
-    echo "forge merge: NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
+    effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
     return 1
   fi
   # The gate regenerates rsc/test/ where the branch's committed artifacts are stale; those
   # files are derived, and the worktree that holds them is disposed of either way.
   if [[ -n "$(git -C "$gate_wt" status --porcelain)" ]]; then
     dispose_worktree "$gate_wt"
-    echo "forge merge: NOT DONE - $(phrase "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push" head="${oid:0:8}")"
+    effect "$(act forge merge): NOT DONE - $(phrase "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push" head="${oid:0:8}")"
     return 1
   fi
   dispose_worktree "$gate_wt"
   say "data gate green at {head}" head="${oid:0:8}"
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening flips
   flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/aim.py" flip <<< "$body")"
-  printf '%s' "$flipped" | (cd "$REPO_DIR" && send enact edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE - $(if [[ $moved == 1 ]]; then phrase "the flip failed; the body still aims, nothing merged (the relocation stands)"; else phrase "the flip failed; the body still aims, nothing merged"; fi)"; return 1; }
+  printf '%s' "$flipped" | (cd "$REPO_DIR" && send enact edit "$pr" --body-file -)     || { effect "$(act forge merge): NOT DONE - $(if [[ $moved == 1 ]]; then phrase "the flip failed; the body still aims, nothing merged (the relocation stands)"; else phrase "the flip failed; the body still aims, nothing merged"; fi)"; return 1; }
   # The squash is pinned to the head every check above saw; between the flip
   # and here the closes phrasing exists for an instant, and a refused squash
   # restores the body as found (issues/483).
@@ -734,7 +734,7 @@ merge_chain() {
   done
   if [[ "$closing" != "$(sort -n <<< "$aimed")" ]]; then
     printf '%s' "$body" | (cd "$REPO_DIR" && send enact edit "$pr" --body-file -) && say "the body is restored as found - it aims again, nothing closed"
-    echo "forge merge: NOT DONE - $(phrase "the forge would close [{closing}] where the body aims at [{aimed}]; nothing merged (issues/884)" closing="$(tr '\n' ' ' <<< "$closing")" aimed="$(tr '\n' ' ' <<< "$aimed")")"
+    effect "$(act forge merge): NOT DONE - $(phrase "the forge would close [{closing}] where the body aims at [{aimed}]; nothing merged (issues/884)" closing="$(tr '\n' ' ' <<< "$closing")" aimed="$(tr '\n' ' ' <<< "$aimed")")"
     return 1
   fi
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening squashes
@@ -744,13 +744,13 @@ merge_chain() {
     else
       echo "FAIL: $(phrase "the restore failed too - the body says closes on an unmerged PR; edit it by hand")"
     fi
-    echo "forge merge: NOT DONE - $(phrase "the squash refused; nothing merged")"
+    effect "$(act forge merge): NOT DONE - $(phrase "the squash refused; nothing merged")"
     return 1
   fi
-  landed="$(cd "$REPO_DIR" && send query pr "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE - $(phrase "merged, but the merge commit read failed; converge by hand with git fetch origin && git merge --ff-only")"; return 1; }
+  landed="$(cd "$REPO_DIR" && send query pr "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { effect "$(act forge merge): NOT DONE - $(phrase "merged, but the merge commit read failed; converge by hand with git fetch origin && git merge --ff-only")"; return 1; }
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening converges
   if ! enact git -C "$REPO_DIR" checkout "$base"     || ! (cd "$REPO_DIR" && send enact fetch)     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"; then
-    echo "forge merge: NOT DONE - $(phrase "merged as {landed}, but this checkout did not converge; the last NOT-done line above names where" landed="${landed:0:8}")"
+    effect "$(act forge merge): NOT DONE - $(phrase "merged as {landed}, but this checkout did not converge; the last NOT-done line above names where" landed="${landed:0:8}")"
     return 1
   fi
   # The steps after the fast-forward run the tree the checkout converged on (issues/910): a
@@ -793,7 +793,7 @@ conclude() {
   export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
   narrate opening "forge clean"
   if ! CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) clean || ! quiet git -C "$REPO_DIR" status; then
-    echo "forge merge: NOT DONE - $(phrase "merged as {landed} and this checkout converged on it, but the sweep after it did not complete; the last NOT-done line above names where" landed="${landed:0:8}")"
+    effect "$(act forge merge): NOT DONE - $(phrase "merged as {landed} and this checkout converged on it, but the sweep after it did not complete; the last NOT-done line above names where" landed="${landed:0:8}")"
     return 1
   fi
   # Each aimed issue's state after the squash, read from the forge (issues/735, issues/884): the
@@ -807,7 +807,7 @@ conclude() {
     if [[ "$state" == CLOSED ]]; then closed+=("issues/$issue_number"); else open+=("issues/$issue_number"); fi
   done <<< "$aimed"
   export CORPUS_YOGA_NARRATION_DEPTH=$record_depth
-  effect "forge merge: DONE - $(merged "$pr" "${landed:0:8}" "${closed[*]-}" "${open[*]-}")"
+  effect "$(act forge merge): DONE - $(merged "$pr" "${landed:0:8}" "${closed[*]-}" "${open[*]-}")"
 }
 
 # merged <pr> <squash> <closed issues> <issues left open>: the merge's verdict, naming each aimed

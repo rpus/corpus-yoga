@@ -654,7 +654,7 @@ def main():
         else:
             print(accept(accepted_path, args.term, args.aliases))
         pending_report(accepted_path, rejected_path)
-        facts.report(None, 'indexing accept: DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{term} accepted', term=args.term)))
+        facts.report(None, facts.act('indexing', 'accept') + ': DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{term} accepted', term=args.term)))
         return
     if args.verb == 'reject':
         if args.all == bool(args.concept):
@@ -664,7 +664,7 @@ def main():
         else:
             print(reject(accepted_path, rejected_path, args.concept, args.reason))
         pending_report(accepted_path, rejected_path)
-        facts.report(None, 'indexing reject: DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{concept} rejected', concept=args.concept)))
+        facts.report(None, facts.act('indexing', 'reject') + ': DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{concept} rejected', concept=args.concept)))
         return
     if args.verb == 'build':
         root = MARKDOWN_DIR
@@ -672,12 +672,12 @@ def main():
         # sibling in the corpus tail names its absence; this step must not be
         # the one that presumes its input into existence and tracebacks.
         if not root.is_dir():
-            facts.report(None, 'indexing build: DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
+            facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
             return
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)
-        facts.report(None, 'indexing build: DONE - ' + facts.phrase('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
+        facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
                                                                       summary=text.rstrip().rsplit(chr(10), 1)[-1]))
         return
 

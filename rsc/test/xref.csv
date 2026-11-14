@@ -1093,11 +1093,11 @@ src/main/cli/pipeline/pipeline.sh,41,comment,src/main/provider.sh,Y,# shellcheck
 src/main/cli/pipeline/pipeline.sh,397,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
 src/main/cli/pipeline/pipeline.sh,439,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/pipeline/rehearse.sh,16,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch, so"
-src/main/cli/pipeline/rehearse.sh,21,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
-src/main/cli/pipeline/rehearse.sh,32,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
-src/main/cli/pipeline/rehearse.sh,34,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
-src/main/cli/pipeline/rehearse.sh,36,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
+src/main/cli/pipeline/rehearse.sh,18,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch, so"
+src/main/cli/pipeline/rehearse.sh,23,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
+src/main/cli/pipeline/rehearse.sh,34,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
+src/main/cli/pipeline/rehearse.sh,36,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
+src/main/cli/pipeline/rehearse.sh,38,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/pipeline/render.json,15,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/pipeline/status.py,18,path_str,src/main/cli/pipeline/status.py,Y,SELF = 'src/main/cli/pipeline/status.py'
 src/main/cli/pipeline/tail.py,10,comment,src/main/cli/pipeline/pipeline.sh,Y,"stdin: one row per line, `<stage>\t<line>`, as src/main/cli/pipeline/pipeline.sh reads them"
@@ -1128,8 +1128,8 @@ src/main/cli/site/assemble.json,7,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/site/landing.sh,4,comment,src/main/cli/site/site.sh,Y,# against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
 src/main/cli/site/landing.sh,69,comment,src/main/compare_pages.py,Y,"# removals), the corpus page in the page's own terms (src/main/compare_pages.py, issues/652),"
 src/main/cli/site/render.json,9,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
-src/main/cli/site/site.json,75,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
-src/main/cli/site/site.json,89,path_str,rsc/site,Y,"""rsc/site"","
+src/main/cli/site/site.json,76,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.json,90,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
 src/main/cli/site/site.sh,23,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -1140,7 +1140,7 @@ src/main/cli/site/site.sh,36,comment,src/main/corpus_shape.sh,Y,# shellcheck sou
 src/main/cli/site/site.sh,38,comment,src/main/cli/site/landing.sh,Y,# shellcheck source=src/main/cli/site/landing.sh
 src/main/cli/site/site.sh,39,call,src/main/cli/site/landing.sh,Y,"source ""$SCRIPT_DIR/landing.sh""   # what publish would land, read against rpus.co as it stands (issues/1020)"
 src/main/cli/site/status.py,19,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
-src/main/cli/site/status.py,106,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
+src/main/cli/site/status.py,109,path_str,rsc/site,Y,"site = Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/stage/clean.json,9,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,47,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
 src/main/cli/stage/stage.json,53,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
@@ -1593,7 +1593,7 @@ src/test/dev/check/unit.py,353,comment,rsc/migration/1058.sh,Y,"reads a session 
 src/test/dev/check/unit.py,463,comment,rsc/migration/1063.sh,Y,"undo, and rsc/migration/1063.sh strips the merge records a room's memory index holds, its"
 src/test/dev/check/unit.py,537,comment,rsc/migration/1052.sh,Y,python the launcher starts is given that prefix; rsc/migration/1052.sh discards the bytecode
 src/test/dev/check/unit.py,674,comment,rsc/migration/1069.sh,Y,and rsc/migration/1069.sh moves a room's bodies there; a python file with a shebang is
-src/test/dev/check/unit.py,831,comment,rsc/migration/1090.sh,Y,rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
+src/test/dev/check/unit.py,869,comment,rsc/migration/1090.sh,Y,rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1651,13 +1651,17 @@ src/test/dev/check/unit.py,707,path_str,rsc/migration/1069.sh,Y,"for part in ('r
 src/test/dev/check/unit.py,716,path_str,rsc/migration/1069.sh,Y,script = checkout / 'rsc/migration/1069.sh'
 src/test/dev/check/unit.py,669,path_str,rsc/migration,Y,"on=['src', 'rsc/migration', 'pyrightconfig.json'])"
 src/test/dev/check/unit.py,743,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.each_room_keeps_its_own_memory',), on=['src/main/cli/agent'])"
-src/test/dev/check/unit.py,811,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])"
-src/test/dev/check/unit.py,842,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
-src/test/dev/check/unit.py,842,path_str,rsc/migration/1090.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
-src/test/dev/check/unit.py,854,path_str,rsc/migration/1090.sh,Y,script = checkout / 'rsc/migration/1090.sh'
-src/test/dev/check/unit.py,829,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
-src/test/dev/check/unit.py,829,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
-src/test/dev/check/unit.py,874,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
+src/test/dev/check/unit.py,812,path_str,src/main/cli/site,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
+src/test/dev/check/unit.py,812,path_str,src/main/facts.py,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
+src/test/dev/check/unit.py,812,path_str,src/main/report.sh,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
+src/test/dev/check/unit.py,812,path_str,src/main,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
+src/test/dev/check/unit.py,849,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])"
+src/test/dev/check/unit.py,880,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
+src/test/dev/check/unit.py,880,path_str,rsc/migration/1090.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
+src/test/dev/check/unit.py,892,path_str,rsc/migration/1090.sh,Y,script = checkout / 'rsc/migration/1090.sh'
+src/test/dev/check/unit.py,867,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
+src/test/dev/check/unit.py,867,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
+src/test/dev/check/unit.py,912,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,482,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1670,7 +1674,7 @@ src/test/dev/check/unit.py,497,path_str,src/main/cli/agent/agent.py,Y,"None if p
 src/test/dev/check/unit.py,523,path_str,rsc/migration/1063.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')"
 src/test/dev/check/unit.py,572,path_str,rsc/migration/1052.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')"
 src/test/dev/check/unit.py,719,path_str,rsc/migration/1069.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')"
-src/test/dev/check/unit.py,857,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
+src/test/dev/check/unit.py,895,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
 src/test/dev/check/unit.py,404,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
 src/test/dev/check/upstream.py,179,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,211,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"

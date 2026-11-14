@@ -808,6 +808,44 @@ def check_rooms_settle_each_with_its_own_memory(run) -> None:
             quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {apart}', check='agent.each_room_keeps_its_own_memory')
 
 
+@check(tier='code', says=('site.an_unprojected_corpus_page_is_a_fact', 'report.an_effect_line_names_a_declared_act'),
+       on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])
+def check_effect_lines_and_unprojected_page(run) -> None:
+    """A room with no projected corpus has no corpus page to build: the site status says so as a
+    fact, never as a finding the run fails on, as the render skips, stated - so that a rehearsal of
+    an empty stage passes where the code is sound (issues/1090). And every effect line names its
+    act from the act's declaration, facts.act or the shell's act: a verb no declaration holds
+    raises, and no source types `<noun> <verb>: DONE` or `NOT DONE` by hand, so that a renamed
+    noun strands no effect line, as `model derive` was stranded after the metamodel's rename."""
+    import re
+    import subprocess
+    import facts
+    def said(rows: str) -> str:
+        return subprocess.run([str(SRC / 'run_python_script.sh'), str(SRC / 'main' / 'cli' / 'site' / 'status.py')], input=rows,
+                              capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout
+    bare, built = said('corpus\tunprojected\nindex\tABSENT\n'), said('index\tABSENT\n')
+    fact = ('FAIL' not in bare and 'unbuilt - no projected corpus to render' in bare
+            and 'FAIL' in built and 'absent - the corpus page is unbuilt' in built)
+    run('site: with no projected corpus the absent corpus page is a fact, and with one a finding', fact,
+        None if fact else f'unprojected said {bare!r}; projected said {built!r}', check='site.an_unprojected_corpus_page_is_a_fact')
+    builder = getattr(facts, 'act', None)
+    named = None
+    refused = False
+    if callable(builder):
+        named = builder('metamodel', 'derive')
+        try:
+            builder('model', 'derive')
+        except KeyError:
+            refused = True
+    typed = re.compile(r"[\"'`][a-z-]+ [a-z-]+: (NOT )?DONE")
+    hand = [f'{path.relative_to(REPO_ROOT)}:{number}' for path in sorted((SRC / 'main').rglob('*')) if path.suffix in ('.py', '.sh') and path.is_file()
+            for number, line in enumerate(path.read_text().splitlines(), 1) if typed.search(line)]
+    declared = named == 'metamodel derive' and refused and not hand
+    run('report: every effect line names its act from the declaration, and no source types one', declared,
+        None if declared else f'facts.act gave {named!r}, refusing an undeclared verb: {refused}; typed by hand at {len(hand)} line(s): {", ".join(hand[:6])}',
+        check='report.an_effect_line_names_a_declared_act')
+
+
 @check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])
 def check_migration_status_relays_steps(run) -> None:
     """corpus-yoga migration's status says each pending step as the line its script prints for it

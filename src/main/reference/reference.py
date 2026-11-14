@@ -205,7 +205,7 @@ def fetch() -> int:
         into.mkdir(parents=True, exist_ok=True)
         write_rows(into, table, 'fetched.csv')
         print(f'  ✓ {(into / "fetched.csv").relative_to(tier.DATA_ROOT)} (' + facts.phrase('{n} file(s) of {project} as upstream publishes them', n=len(table), project=project.name) + ')')
-    facts.report(None, 'reference fetch: DONE - ' + facts.phrase('did record what upstream publishes; corpus-yoga reference says what differs from what is held'))
+    facts.report(None, facts.act('reference', 'fetch') + ': DONE - ' + facts.phrase('did record what upstream publishes; corpus-yoga reference says what differs from what is held'))
     return 0
 
 
@@ -215,7 +215,7 @@ def main():
     try:
         sys.exit(fetch() if args.verb == 'fetch' else status())
     except send.SendRefused as refused:
-        facts.report(None, f'reference fetch: NOT DONE - {refused}')
+        facts.report(None, facts.act('reference', 'fetch') + f': NOT DONE - {refused}')
         sys.exit(1)
 
 

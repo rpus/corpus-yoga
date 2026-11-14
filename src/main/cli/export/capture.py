@@ -56,7 +56,8 @@ def derived_data_name(manifest_path: Path) -> str:
     """data-<X> from manifest-<X>.json: the prefix swapped, the star kept whole."""
     stem = manifest_path.stem
     if not stem.startswith('manifest-'):
-        sys.exit('export capture: NOT DONE - ' + facts.phrase('{name} does not start with manifest-', name=manifest_path.name))
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('{name} does not start with manifest-', name=manifest_path.name))
+        sys.exit(1)
     return f'data-{stem.removeprefix("manifest-")}'
 
 
@@ -106,8 +107,9 @@ def archive_member(category: str) -> str:
         for row in csv.DictReader(f):
             if row['category'] == category:
                 return row['arrival']
-    sys.exit('export capture: NOT DONE - ' + facts.phrase('{category} - no row in {members} says what its archive unpacks to',
-                                                           category=category, members=MEMBERS_CSV.relative_to(REPO)))
+    facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('{category} - no row in {members} says what its archive unpacks to',
+                                                                                    category=category, members=MEMBERS_CSV.relative_to(REPO)))
+    sys.exit(1)
 
 
 def _inode(path: Path) -> int | None:
@@ -178,11 +180,11 @@ def main(argv: list[str]) -> int:
         else:
             sys.exit(f'usage: {SELF} --manifest <file>')
     if manifest_arg is None:
-        print('export capture: NOT DONE - ' + facts.phrase('--manifest <file> is required, the manifest where the download left it; corpus-yoga export lists what is held and staged'))
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('--manifest <file> is required, the manifest where the download left it; corpus-yoga export lists what is held and staged'))
         return 1
     manifest_path = manifest_arg
     if not manifest_path.is_file():
-        print('export capture: NOT DONE - ' + facts.phrase('{path} is not a file', path=manifest_path))
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('{path} is not a file', path=manifest_path))
         return 1
     manifest = json.loads(manifest_path.read_text())
     files = manifest.get('data_files', [])
@@ -192,26 +194,26 @@ def main(argv: list[str]) -> int:
     print(f'{manifest_path.name}: ' + facts.phrase('{n} file(s), version {version}', n=len(files), version=manifest.get('version')))
     print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
     if (STORE / name).is_dir():
-        print('export capture: NOT DONE - ' + facts.phrase('{name}/ is held in shared storage; nothing fetched, no URL spent', name=name))
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('{name}/ is held in shared storage; nothing fetched, no URL spent', name=name))
         return 1
     if target.exists():
-        print('export capture: NOT DONE - ' + facts.phrase(
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase(
             '{name}/ already exists; nothing fetched, no URL spent. If it holds an earlier or partial capture, the human moves it aside; this verb never overwrites a deposit',
             name=target.name))
         return 1
     same = staged_manifest.exists() and staged_manifest.samefile(manifest_path)
     if staged_manifest.exists() and not same and staged_manifest.read_bytes() != manifest_path.read_bytes():
-        print('export capture: NOT DONE - ' + facts.phrase('a different {manifest} is staged; nothing fetched, no URL spent', manifest=staged_manifest.name))
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('a different {manifest} is staged; nothing fetched, no URL spent', manifest=staged_manifest.name))
         return 1
     if files:
         try:
             send.cleared('export-url')
         except send.SendRefused as refused:
-            print('export capture: NOT DONE - ' + facts.phrase('{refused}; nothing staged, no URL spent', refused=refused))
+            facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('{refused}; nothing staged, no URL spent', refused=refused))
             return 1
         logged_out, prev_tab = front_session()
         if logged_out:
-            print('export capture: NOT DONE - ' + facts.phrase('Safari is logged out of claude.ai (landed on {landed}); log in and re-run; nothing staged, no URL spent',
+            facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('Safari is logged out of claude.ai (landed on {landed}); log in and re-run; nothing staged, no URL spent',
                                                                  landed=logged_out))
             return 1
     else:
@@ -237,12 +239,12 @@ def main(argv: list[str]) -> int:
     # whole is read afterwards from the manifest beside it, by every face, not from here.
     where = target.relative_to(REPO) if target.is_relative_to(REPO) else target
     if fetched < len(files):
-        print('export capture: NOT DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
                                                              fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
         return 1
     # what an act reports (issues/801, issues/896): the effect; the launcher's reply names the
     # rehearsal that judges what was staged, as the store's status names it
-    facts.report(None, 'export capture: DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
+    facts.report(None, facts.act('export', 'capture') + ': DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
                                                                   fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
     return 0
 

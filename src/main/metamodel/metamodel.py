@@ -173,7 +173,7 @@ def derive() -> None:
     render_collision_worksheet()
     # the findings are status's (bare corpus-yoga metamodel): a sync writes, and what an act
     # reports (issues/876, issues/896) is its effect line
-    facts.report(None, 'model derive: DONE - ' + facts.phrase('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
+    facts.report(None, facts.act('metamodel', 'derive') + ': DONE - ' + facts.phrase('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
 
 
 def render_collision_worksheet() -> None:

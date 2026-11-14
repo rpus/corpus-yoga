@@ -481,7 +481,7 @@ satisfy() {
   _held
   echo "corpus-yoga status satisfy - $(phrase "what this machine still needs"):"
   if [[ -z "$_must" ]]; then
-    effect "status satisfy: DONE - $(phrase "nothing; every prerequisite is satisfied")"
+    effect "$(act status satisfy): DONE - $(phrase "nothing; every prerequisite is satisfied")"
     return 0
   fi
   while IFS=$'\t' read -r command does where; do
@@ -493,7 +493,7 @@ satisfy() {
   done <<< "$_must"
   echo
   if [[ -z "$mine" ]]; then
-    effect "status satisfy: DONE - $(phrase "none of these is mine to run; each is the reader's")"
+    effect "$(act status satisfy): DONE - $(phrase "none of these is mine to run; each is the reader's")"
     return 0
   fi
   while IFS= read -r a; do
@@ -525,7 +525,7 @@ satisfy() {
   if [[ -z "$_must" ]]; then echo "  $(phrase "nothing")"; else
     while IFS=$'\t' read -r command does where; do [[ -z "$command" ]] || echo "  - $where: $command - $does"; done <<< "$_must"
   fi
-  effect "status satisfy: DONE - $(phrase "ran the {n} named; what remains is above, each the reader's" n="$(grep -c . <<< "$mine")")"
+  effect "$(act status satisfy): DONE - $(phrase "ran the {n} named; what remains is above, each the reader's" n="$(grep -c . <<< "$mine")")"
 }
 
 report() {

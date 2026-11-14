@@ -120,8 +120,8 @@ def apply() -> int:
     for name, words in halted.items():
         log.say(f'  {name}: ' + facts.phrase('halted - {words}', words=words))
     undone = failed + list(halted)
-    verdict = ('migration apply: NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
-               else 'migration apply: DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
+    verdict = (facts.act('migration', 'apply') + ': NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
+               else facts.act('migration', 'apply') + ': DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
     for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (issues/896)
         log.say(line)
     return 1 if undone else 0
