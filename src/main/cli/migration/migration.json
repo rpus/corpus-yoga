@@ -5,13 +5,13 @@
     "none pending",
     "it exits {code}",
     "{n} script(s) - {pending} with steps pending, {halted} halted",
-    "{n} step(s)",
     "halted - {words}",
-    "took {taken} of {steps} step(s); NOT taken {undone}",
+    "on {script}, which halts",
+    "took {taken} step(s); {script} halts, and {n} script(s) after it wait on it",
     "took {taken} step(s) of {n} script(s)"
   ],
   "explanation": {
-    "scripts": "each script under rsc/migration, by its path - the steps it would take, each as the line the script prints for it bare, none pending, or that it halted and what it said; corpus-yoga migration apply, in now, runs a script with steps; a halted one names a from and a to that both stand, which the reader resolves by hand",
+    "scripts": "each script under rsc/migration, by its path - the steps it would take, each as the line the script prints for it bare, read against the room as it stands and not as the scripts before it would leave it, none pending, that it halted and what it said, or that it waits on a halted script before it in merge order; corpus-yoga migration apply, in now, runs a script with steps; a halted one names a from and a to that both stand, which the reader resolves by hand",
     "migration": "the verdict - how many scripts, how many with steps pending, how many halted"
   },
   "target": "src/main/cli/migration/migration.py",
