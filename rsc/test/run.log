@@ -1,4 +1,4 @@
-run.py: code+schema 1917/1917
+run.py: code+schema 1921/1921
 
 
 check_schema_join: |
@@ -340,6 +340,12 @@ check_rooms_settle_each_with_its_own_memory: |
 check_effect_lines_and_unprojected_page: |
   ✓ site.an_unprojected_corpus_page_is_a_fact
   ✓ report.an_effect_line_names_a_declared_act
+
+check_migration_merge_order: |
+  ✓ migration.scripts_run_in_merge_order  (3/3)
+
+check_migration_idempotent: |
+  ✓ migration.every_script_changes_nothing_twice
 
 check_migration_status_relays_steps: |
   ✓ migration.status_relays_each_step
@@ -721,59 +727,69 @@ stages:
     failures: 0
     tier: code
     line: "340"
-  check_migration_status_relays_steps:
-    passes: 1
+  check_migration_merge_order:
+    passes: 3
     failures: 0
     tier: code
     line: "344"
-  check_agent_memory_disposed:
+  check_migration_idempotent:
     passes: 1
     failures: 0
     tier: code
     line: "347"
+  check_migration_status_relays_steps:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "350"
+  check_agent_memory_disposed:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "353"
   check_session_continued_apart:
     passes: 3
     failures: 0
     tier: code
-    line: "350"
+    line: "356"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "353"
+    line: "359"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "356"
+    line: "362"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "362"
+    line: "368"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "368"
+    line: "374"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "371"
+    line: "377"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "376"
+    line: "382"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "390"
+    line: "396"
 
-checks[code+schema]: 237 types, 1917/1917 invocations passing
-checks[code]: 179 types, 1202/1202 invocations passing
+checks[code+schema]: 239 types, 1921/1921 invocations passing
+checks[code]: 181 types, 1206/1206 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1917/1917 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1921/1921 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

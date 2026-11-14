@@ -398,8 +398,7 @@ def mount() -> int:
     root, ext/mnt/<provider>/code/machine-transport/<machine> (issues/636, issues/853): one symlink
     per declared provider whose live store this machine holds, the target from the
     registry row. The links it would create are corpus-yoga agent's status (issues/881); this
-    creates them. A link at a retired address is rsc/migration/636.sh's or
-    rsc/migration/853.sh's."""
+    creates them."""
     if registry.machine() == 'unbound':
         facts.report(None, facts.act('agent', 'mount') + ': NOT DONE - ' + facts.phrase('machine-name.txt binds no machine, and the mount carries the machine; corpus-yoga status says how to bind one'))
         return 1

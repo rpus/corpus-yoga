@@ -31,8 +31,6 @@
     "absent - nothing captured since the last clean, no rehearsal made",
     "nothing reads it",
     "none - no rehearsal has run",
-    "a directory of stamped rehearsals, the layout before the record was one file (issues/815) - {migration} removes it",
-    "the record before its name carried its extension, which a record at its name supersedes (issues/815) - {migration} removes it",
     "none staged",
     "dirty ({n})",
     "{n} unit(s)",

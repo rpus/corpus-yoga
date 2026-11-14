@@ -14,8 +14,7 @@ step database as a consistent snapshot taken through sqlite's backup API and
 replaced whenever the transcript advanced; and the one rendered file,
 summary.json, the summaries row, at the session's top, replaced when it
 changed. A further selection of the session's tree is a glob the declaration
-adds, never adapter code; a unit held in the shape before issues/856 is
-rsc/migration/856.sh's to move. The
+adds, never adapter code. The
 model a step ran on sits inside the step database's protobuf payloads and is
 not decoded here - issues/634 describes that record; model_rows says so.
 """

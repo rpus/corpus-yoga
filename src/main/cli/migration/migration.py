@@ -9,14 +9,20 @@ rsc/migration/step.sh, and this noun says them and takes them.
 
 A script run bare prints each step it would take and takes none, prints nothing where
 nothing is owed, and halts, exit 1, where a from and a to both stand - nothing chooses.
-The status is those three states, read by running every script bare: a script with
+The scripts have one order, merge order (issues/1094): the order in which main's history
+first holds each, and among those one commit first holds, their issue numbers' - each is
+written against the layout the scripts before it leave. The status is those three states,
+read by running every script bare against the room as it stands, not as the scripts before
+it would leave it; a script after one that halts is said as waiting on it. a script with
 steps is said with each step's line as the script prints it, and carries the apply as its
 act; a halted one with the steps before the halt and what it said there. The lines are the
 script's own, relayed, never restated: the checkout runs corpus-yoga commands only, so the
 status is where a reader sees what the apply would take. The sync
 names each script with steps and how many, runs each, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
-pending step was taken.
+pending step was taken. The apply runs every script with --apply in merge order, whatever
+its bare run said - a script's steps can arise from the one before it - and runs none after
+the first that halts.
 Its record, tmp/logs/migration/apply/<stamp>.log, is the launcher's tee of the whole verb,
 header included (issues/708); the declaration's x rows are what make the verb enacting.
 """
@@ -41,8 +47,9 @@ SCRIPTS = REPO / 'rsc' / 'migration'
 class Script:
     """A script's state: the steps it would take, each as its line, and where it halted, what it
     said there - a finding, which no verb clears, since no step chooses between a from and a to
-    (issues/1058)."""
+    (issues/1058) - or the halted script before it that it waits on."""
     steps: list[str] | None = None
+    waiting: str | None = None
     halted: facts.Finding | None = None
     act: facts.Would | None = None
 
@@ -54,7 +61,15 @@ class Status:
 
 
 def scripts() -> list[Path]:
-    return sorted(SCRIPTS.glob('[0-9]*.sh'))
+    """Every script, in merge order: by the position in main's history of the commit that first
+    holds it - a script no commit holds yet, last - then by its issue number."""
+    history = subprocess.run(['git', 'rev-list', '--reverse', 'HEAD'], capture_output=True, text=True, cwd=REPO).stdout.split()
+    position = {sha: index for index, sha in enumerate(history)}
+    def first(script: Path) -> int:
+        added = subprocess.run(['git', 'log', '--diff-filter=A', '--format=%H', '--', script.relative_to(REPO).as_posix()],
+                               capture_output=True, text=True, cwd=REPO).stdout.split()
+        return position.get(added[-1], len(history)) if added else len(history)
+    return sorted(SCRIPTS.glob('[0-9]*.sh'), key=lambda script: (first(script), int(script.stem)))
 
 
 def run(script: Path, apply: bool = False) -> tuple[int, list[str]]:
@@ -72,8 +87,12 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
     seen = survey() if seen is None else seen
     out: dict[str, Script | str] = {}
     pending = halted = 0
+    stop: str | None = None
     for name, (code, lines) in seen.items():
-        if code != 0:
+        if stop is not None:
+            out[name] = Script(waiting=facts.phrase('on {script}, which halts', script=stop))
+        elif code != 0:
+            stop = name
             halted += 1
             out[name] = Script(steps=lines[:-1] or None,
                                halted=facts.Finding(lines[-1].removeprefix('FAIL: ') if lines else facts.phrase('it exits {code}', code=code)))
@@ -98,33 +117,31 @@ class Log:
 
 
 def apply() -> int:
-    """One list of the scripts with steps, each run after it is named (issues/881: what it would
-    take is the bare status's). Then what an act reports (issues/801): now:, and the verdict as
-    the last line."""
+    """Every script run with --apply in merge order (issues/1094), each named with the steps it
+    took, up to the first that halts, which is named with what it said and ends the run. Then
+    what an act reports (issues/801): the verdict as the last line."""
     log = Log(True)
-    seen = survey()
-    owed = {name: lines for name, (code, lines) in seen.items() if code == 0 and lines}
-    halted = {name: '; '.join(lines) for name, (code, lines) in seen.items() if code != 0}
-    steps = sum(len(lines) for lines in owed.values())
+    order = [script.relative_to(REPO).as_posix() for script in scripts()]
     taken = 0
-    failed: list[str] = []
-    for name, pending in owed.items():
-        log.say(f'  {name}: ' + facts.phrase('{n} step(s)', n=len(pending)))
+    for index, name in enumerate(order):
         code, lines = run(REPO / name, apply=True)
+        if code != 0:
+            for line in lines[:-1]:
+                log.say(f'  {name}: {line}')
+            log.say(f'  {name}: ' + facts.phrase('halted - {words}', words=lines[-1].removeprefix('FAIL: ') if lines else facts.phrase('it exits {code}', code=code)))
+            taken += len(lines) - 1 if lines else 0
+            rest = order[index + 1:]
+            verdict = facts.act('migration', 'apply') + ': NOT DONE - ' + facts.phrase('took {taken} step(s); {script} halts, and {n} script(s) after it wait on it',
+                                                                                         taken=taken, script=name, n=len(rest))
+            break
         for line in lines:
-            log.say(f'    {line}')
-        if code == 0:
-            taken += len(pending)
-        else:
-            failed.append(name)
-    for name, words in halted.items():
-        log.say(f'  {name}: ' + facts.phrase('halted - {words}', words=words))
-    undone = failed + list(halted)
-    verdict = (facts.act('migration', 'apply') + ': NOT DONE - ' + facts.phrase('took {taken} of {steps} step(s); NOT taken {undone}', taken=taken, steps=steps, undone=', '.join(undone)) if undone
-               else facts.act('migration', 'apply') + ': DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(owed)))
+            log.say(f'  {name}: {line}')
+        taken += len(lines)
+    else:
+        verdict = facts.act('migration', 'apply') + ': DONE - ' + facts.phrase('took {taken} step(s) of {n} script(s)', taken=taken, n=len(order))
     for line in facts.report_lines(None, verdict):   # the effect, or handed up to the launcher's reply (issues/896)
         log.say(line)
-    return 1 if undone else 0
+    return 0 if verdict.startswith(facts.act('migration', 'apply') + ': DONE') else 1
 
 
 def main() -> int:

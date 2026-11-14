@@ -1054,15 +1054,10 @@ def human(n: float) -> str:
     return f'{n:.1f}T'
 
 
-BEFORE_815 = tier.TMP_STAGE / 'rehearsal'   # what the layout before issues/815 left: stamped rehearsals, or the record before its extension
-MIGRATION_815 = 'rsc/migration/815.sh'      # the moves it owes, which corpus-yoga migration apply takes
-
-
 def orphans() -> list[Path]:
-    """What sits under tmp/stage and is neither the input, the scratch, the record nor the
-    directory the layout before issues/815 left, which is the migration's."""
+    """What sits under tmp/stage and is neither the input, the scratch nor the record."""
     stage = tier.TMP_STAGE
-    kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name, BEFORE_815.name)
+    kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name)
     return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
 
 
@@ -1093,7 +1088,6 @@ class StageTier:
     scratch: str                  # the last run's derived tiers' size, or that they are absent
     orphans: dict[str, Orphan]    # by path
     record: Rehearsal | str = facts.named('rehearsal.json')   # the record, or why there is none
-    rehearsal: Orphan | None = None                           # what the layout before issues/815 left, while it stands
 
 
 @dataclass
@@ -1183,14 +1177,7 @@ def stage_facts() -> StageStatus:
         scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
         orphans=stage_orphans(),
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
-                else facts.phrase('none - no rehearsal has run') if record is None else record),
-        rehearsal=(Orphan(human(size_of(BEFORE_815)),
-                          facts.phrase('a directory of stamped rehearsals, the layout before the record was one file (issues/815) - {migration} removes it'
-                                         if BEFORE_815.is_dir() else
-                                         'the record before its name carried its extension, which a record at its name supersedes (issues/815) - {migration} removes it',
-                                         migration=MIGRATION_815),
-                          facts.Would(spell.line('migration', 'apply'), {BEFORE_815.relative_to(REPO).as_posix(): 1}))
-                   if BEFORE_815.exists() else None)))
+                else facts.phrase('none - no rehearsal has run') if record is None else record)))
     kinds: dict[str, list[Judged]] = {}
     for row in rows:
         kinds.setdefault(kind_of(row.unit), []).append(row)
