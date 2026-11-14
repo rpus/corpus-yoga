@@ -345,19 +345,14 @@ def check_export_atoms(run) -> None:
         None if got == expected else f'held twice read {got}', check='store.export_is_held_within_a_later_one')
 
 
-@check(tier='code', says=('agent.renamed_checkout_is_one_project', 'migration.renamed_checkout_moves_once'),
-       on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'rsc/migration/step.sh', 'rsc/migration/1058.sh'])
+@check(tier='code', says=('agent.renamed_checkout_is_one_project', 'migration.a_halt_is_a_finding'),
+       on=['src/main/cli/agent', 'rsc/naming/checkout_paths.csv', 'src/main/cli/migration'])
 def check_renamed_checkout(run) -> None:
     """A checkout's former paths, rsc/naming/checkout_paths.csv, name one project: an install
     writes a peer's project held under a former path's key under the current key, a capture
-    reads a session the store holds under a former key as the one it holds, and rsc/migration/1058.sh
-    brings a room's live store under the current key - bare, every step it would take and the
-    halt where an entry stands under both keys; applied, the steps; again, nothing (issues/1058).
-    The fixtures are synthetic: a peer's bundle and a store under temporary roots, and a
-    checkout, a live store and a home of their own for the migration."""
-    import os
-    import shutil
-    import subprocess
+    reads a session the store holds under a former key as the one it holds (issues/1058); and a
+    migration script that halts is a finding, never an act. The fixtures are synthetic: a peer's
+    bundle and a store under temporary roots, and a halted script's bare run."""
     import tempfile
     import transport
     harness = transport.adapter('claude')
@@ -389,58 +384,6 @@ def check_renamed_checkout(run) -> None:
         run("agent: an install reads a live session still under a former path's key as the one the room holds, and would write nothing", kept,
             None if kept else f'the install would say {dry.facts()}', check='agent.renamed_checkout_is_one_project')
 
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        checkout, home = root / 'checkout', root / 'home'
-        for part in ('rsc/migration/step.sh', 'rsc/migration/1058.sh', 'rsc/naming/checkout_paths.csv'):
-            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
-            if (REPO_ROOT / part).is_file():
-                shutil.copy2(REPO_ROOT / part, checkout / part)
-        (checkout / 'machine-name.txt').write_text('room\n')
-        projects = home / 'projects'
-        mount = checkout / 'ext/mnt/claude/code/machine-transport'
-        mount.mkdir(parents=True)
-        (mount / 'room').symlink_to(projects)
-        keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]
-        now, *was = [''.join(c if c.isalnum() else '-' for c in str(home / k.removeprefix('~/'))) for k in keys]
-        (projects / was[1] / 'memory').mkdir(parents=True)
-        (projects / was[1] / 'memory' / 'MEMORY.md').write_text('the index\n')
-        (projects / was[1] / 'bbbbbbbb.jsonl').write_text('{}\n')
-        (projects / was[1] / '.DS_Store').write_text('')
-        (projects / now).mkdir(parents=True)
-        (projects / now / 'memory').symlink_to(projects / was[1] / 'memory')
-        (projects / now / 'cccccccc.jsonl').write_text('{}\n')
-        script = checkout / 'rsc/migration/1058.sh'
-        env = {**os.environ, 'HOME': str(home)}
-        def ran(*flags: str) -> subprocess.CompletedProcess:
-            if not script.is_file():
-                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1058.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env=env, timeout=60)
-        bare, applied, again = ran(), ran('--apply'), ran()
-        moved = sorted(p.relative_to(projects).as_posix() for p in projects.rglob('*') if not p.is_dir() or p.is_symlink())
-        settled = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 1 and applied.returncode == 0 and again.stdout == ''
-                   and moved == sorted([f'{now}/bbbbbbbb.jsonl', f'{now}/cccccccc.jsonl', f'{now}/memory', f'{was[1]}/.DS_Store', f'{was[1]}/memory/MEMORY.md'])
-                   and (projects / now / 'memory').is_symlink())
-        run('migration: rsc/migration/1058.sh brings a former key\'s folder under the current key, its memory left where it stands - bare the steps, applied the moves, again nothing',
-            settled, None if settled else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
-            f'again said {again.stdout!r}; the live store holds {moved}', check='migration.renamed_checkout_moves_once')
-        (projects / was[2] / 'memory').mkdir(parents=True)
-        (projects / was[2] / 'memory' / 'MEMORY.md').write_text('an older index\n')
-        (projects / was[2] / 'cccccccc.jsonl').write_text('{"older": 1}\n')
-        halted = ran()
-        stops = halted.returncode == 1 and 'both exist' in halted.stderr and 'cccccccc.jsonl' in halted.stderr and 'memory' not in halted.stderr
-        run('migration: rsc/migration/1058.sh halts, bare, where a former key\'s entry and the current key\'s both stand and the store holds no copy of it, and never on a memory folder', stops,
-            None if stops else f'it exits {halted.returncode}, saying {halted.stdout!r} {halted.stderr!r}', check='migration.renamed_checkout_moves_once')
-        record = checkout / 'data/input/claude/code/machine-transport/room' / was[2]
-        record.mkdir(parents=True)
-        (record / 'cccccccc.jsonl').write_text('{"older": 1}\n')
-        bare_held, applied_held, again_held = ran(), ran('--apply'), ran()
-        released = (bare_held.returncode == 0 and applied_held.returncode == 0 and again_held.stdout == '' and again_held.returncode == 0
-                    and not (projects / was[2] / 'cccccccc.jsonl').exists() and (projects / was[2] / 'memory' / 'MEMORY.md').is_file()
-                    and (record / 'cccccccc.jsonl').is_file() and (projects / now / 'cccccccc.jsonl').read_text() == '{}\n')
-        run('migration: rsc/migration/1058.sh releases a former key\'s entry the store holds byte for byte where the current key\'s stands, leaves a folder holding only memory, and halts on neither',
-            released, None if released else f'bare said {bare_held.stdout!r} {bare_held.stderr!r}; applied said {applied_held.stdout!r} {applied_held.stderr!r}; again said {again_held.stdout!r}',
-            check='migration.renamed_checkout_moves_once')
     import facts
     import importlib.util
     spec = importlib.util.spec_from_file_location('migration_status', SRC / 'main' / 'cli' / 'migration' / 'migration.py')
@@ -448,12 +391,12 @@ def check_renamed_checkout(run) -> None:
     migration = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(migration)
     import standing
-    halted_facts = migration.status_facts({'rsc/migration/1058.sh': (1, ['mv a b', 'FAIL: c and d both exist'])})
+    halted_facts = migration.status_facts({'halting': (1, ['mv a b', 'FAIL: c and d both exist'])})
     offered, found = facts.now_of(halted_facts), getattr(standing, 'failing', lambda said: None)(facts.plain(halted_facts))
-    finding = offered == {} and found == {'scripts': {'rsc/migration/1058.sh': {'halted': 'c and d both exist'}}}
+    finding = offered == {} and found == {'scripts': {'halting': {'halted': 'c and d both exist'}}}
     run('migration: a halted script is a finding - its FAIL a fact the room gathers, and no entry of now:, which holds acts alone', finding,
         None if finding else f'now: says {offered!r}; the findings gathered are {found!r}',
-        check='migration.renamed_checkout_moves_once')
+        check='migration.a_halt_is_a_finding')
 
 
 @check(tier='code', says=('agent.offers_only_effective_acts', 'status.an_act_has_something_to_act_on', 'migration.merge_records_are_stripped'),
@@ -850,8 +793,8 @@ def check_effect_lines_and_unprojected_page(run) -> None:
 
 @check(tier='code', says=('migration.scripts_run_in_merge_order',), on=['src/main/cli/migration', 'rsc/migration'])
 def check_migration_merge_order(run) -> None:
-    """The scripts under rsc/migration have one order, merge order (issues/1094): rsc/migration/1058.sh,
-    which main held on 2026-11-11, before rsc/migration/1052.sh, held on 2026-11-12, whatever
+    """The scripts under rsc/migration have one order, merge order (issues/1094): rsc/migration/1063.sh,
+    which main held at 1881e5f1, before rsc/migration/1052.sh, held at 556b13c8 after it, whatever
     their names sort as. The status says a script after one that halts as waiting on it, with no
     act; and the apply runs every script with --apply in that order and runs none after the first
     that halts. The fixtures are synthetic: three bare runs, and three scripts of a room of their own."""
@@ -865,8 +808,8 @@ def check_migration_merge_order(run) -> None:
         return module
     migration = loaded()
     order = [script.stem for script in migration.scripts()]
-    merged = '1058' in order and '1052' in order and order.index('1058') < order.index('1052')
-    run('migration: the scripts run in merge order, rsc/migration/1058.sh before rsc/migration/1052.sh', merged,
+    merged = '1063' in order and '1052' in order and order.index('1063') < order.index('1052')
+    run('migration: the scripts run in merge order, rsc/migration/1063.sh before rsc/migration/1052.sh', merged,
         None if merged else f'the scripts run as {order}', check='migration.scripts_run_in_merge_order')
     said = migration.status_facts({'first': (0, ['mv a b']), 'second': (1, ['FAIL: c and d both exist']), 'third': (0, ['mv e f'])}).scripts
     third = said['third']
@@ -894,11 +837,10 @@ def check_migration_merge_order(run) -> None:
         check='migration.scripts_run_in_merge_order')
 
 
-@check(tier='code', says=('migration.every_script_changes_nothing_twice',), on=['rsc/migration', 'rsc/naming/checkout_paths.csv', 'src/main/cli/migration'])
+@check(tier='code', says=('migration.every_script_changes_nothing_twice',), on=['rsc/migration', 'src/main/cli/migration'])
 def check_migration_idempotent(run) -> None:
     """Every script under rsc/migration changes nothing when it runs a second time (issues/1093): a
-    room planted with what each script moves - a former checkout key's project folder with
-    memory beside the current key's (issues/1092), a merge record in a memory index, caches at
+    room planted with what each script moves - a merge record in a live memory index, caches at
     their former names, bytecode under src, a raise body at its former home, an agent memory
     folder in the store and the stage - applied in merge order, then applied again: the second
     pass prints no step, exits as the first did, and changes no file. The fixture is synthetic."""
@@ -915,19 +857,15 @@ def check_migration_idempotent(run) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         checkout, home = root / 'checkout', root / 'home'
-        for part in ['rsc/naming/checkout_paths.csv'] + [f'rsc/migration/{name}' for name in ['step.sh', *order]]:
+        for part in [f'rsc/migration/{name}' for name in ['step.sh', *order]]:
             (checkout / part).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(REPO_ROOT / part, checkout / part)
         (checkout / 'machine-name.txt').write_text('room\n')
         projects = home / 'projects'
         (checkout / 'ext/mnt/claude/code/machine-transport').mkdir(parents=True)
         (checkout / 'ext/mnt/claude/code/machine-transport/room').symlink_to(projects)
-        keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]
-        now, *was = [''.join(c if c.isalnum() else '-' for c in str(home / k.removeprefix('~/'))) for k in keys]
-        planted = {f'{projects}/{was[1]}/memory/MEMORY.md': '- [a fact](a.md)\n<!-- merge: from home-room -->\n',
-                   f'{projects}/{was[1]}/bbbbbbbb.jsonl': '{}\n',
-                   f'{projects}/{now}/memory/MEMORY.md': '- [another fact](b.md)\n',
-                   f'{projects}/{now}/cccccccc.jsonl': '{}\n',
+        planted = {f'{projects}/-p/memory/MEMORY.md': '- [a fact](a.md)\n<!-- merge: from home-room -->\n',
+                   f'{projects}/-p/cccccccc.jsonl': '{}\n',
                    f'{checkout}/tmp/cache/chat-capture/x.json': '{}', f'{checkout}/tmp/cache/model/y.json': '{}',
                    f'{checkout}/src/__pycache__/a.cpython-314.pyc': '', f'{checkout}/src/main/gone/__pycache__/b.cpython-314.pyc': '',
                    f'{checkout}/tmp/forge/raise/body.md': 'a body\n',

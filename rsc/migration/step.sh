@@ -40,17 +40,6 @@ move() {
   if (( APPLY )); then mkdir -p "$(dirname "$to")" && mv "$from" "$to"; else MOVED+=("$from"); ARRIVED+=("$to"); fi
 }
 
-# release <entry> <record>: a live file or directory the store holds byte for byte at record,
-# removed - the store's copy is the record, so nothing is lost; an entry the store does not
-# hold so is left for the steps after it.
-release() {
-  local entry="$1" record="$2"
-  stands "$entry" && [[ ! -L "$entry" ]] || return 0
-  diff -rq "$entry" "$record" >/dev/null 2>&1 || return 0
-  echo "rm -r $entry - $record holds it"
-  if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
-}
-
 # strip <file> <prefix>: the lines of a file that begin with the prefix, removed; every
 # other line kept as it stands.
 strip() {
