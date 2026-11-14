@@ -722,13 +722,13 @@ rsc/schema/WORKFLOW.md,423,doc,src/test/dev/check,Y,`src/test/dev/check/`. Addin
 rsc/schema/agent/claude/projectMemory/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/agent/claude/projectMemory/CHANGELOG.md,70,history,rsc/schema,Y,"migration (pull/20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/agent/claude/session/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/agent/claude/session/CHANGELOG.md,58,history,rsc/model/model_join.csv,N,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
-rsc/schema/agent/claude/session/CHANGELOG.md,80,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
-rsc/schema/agent/claude/session/CHANGELOG.md,93,history,rsc/model/model_join.csv,N,uuid the export families carry under four dressings (rsc/model/model_join.csv's
-rsc/schema/agent/claude/session/CHANGELOG.md,133,history,rsc/model/model_join.csv,N,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
-rsc/schema/agent/claude/session/CHANGELOG.md,167,history,rsc/model/model_join.csv,N,No other family carries the key (rsc/model/model_join.csv names no row for it).
-rsc/schema/agent/claude/session/CHANGELOG.md,659,history,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
-rsc/schema/agent/claude/session/CHANGELOG.md,1039,history,src/main/pipeline/code-transport/run.sh,N,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
+rsc/schema/agent/claude/session/CHANGELOG.md,91,history,rsc/model/model_join.csv,N,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
+rsc/schema/agent/claude/session/CHANGELOG.md,113,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
+rsc/schema/agent/claude/session/CHANGELOG.md,126,history,rsc/model/model_join.csv,N,uuid the export families carry under four dressings (rsc/model/model_join.csv's
+rsc/schema/agent/claude/session/CHANGELOG.md,166,history,rsc/model/model_join.csv,N,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
+rsc/schema/agent/claude/session/CHANGELOG.md,200,history,rsc/model/model_join.csv,N,No other family carries the key (rsc/model/model_join.csv names no row for it).
+rsc/schema/agent/claude/session/CHANGELOG.md,692,history,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
+rsc/schema/agent/claude/session/CHANGELOG.md,1072,history,src/main/pipeline/code-transport/run.sh,N,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/agent/sessionConversation/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/agent/sessionConversation/CHANGELOG.md,36,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
 rsc/schema/agent/sessionConversation/CHANGELOG.md,79,history,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was"
@@ -1811,7 +1811,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/agent/claude/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/agent/claude/projectMemory/v3.json,Y,
 ,,,rsc/schema/agent/claude/session/CHANGELOG.md,Y,
-,,,rsc/schema/agent/claude/session/v29.json,Y,
+,,,rsc/schema/agent/claude/session/v30.json,Y,
 ,,,rsc/schema/agent/gemini/session/CHANGELOG.md,Y,
 ,,,rsc/schema/agent/gemini/session/layer.csv,Y,
 ,,,rsc/schema/agent/gemini/session/v1.json,Y,

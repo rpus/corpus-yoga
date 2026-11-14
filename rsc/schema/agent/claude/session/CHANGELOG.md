@@ -6,6 +6,39 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v30
+
+A turn can come from another agent of the session. Reading-room's session
+`e2d2039d-b1e5-4691-99f9-f0629d13e243`, staged on 2026-11-13, is refused at v29 at its
+record 48370, a `user` turn of Claude Code 2.1.322 that delivers a subagent's final report to
+the session that launched it. Its `origin` has `kind` "peer" and six more keys, which
+`TurnOrigin` closed: `from` and `senderTaskId`, both the subagent's 17-character hexadecimal
+id; `name`, its agent type, "general-purpose"; `body`, the report beneath a frame the harness
+writes; `handbackReportText`, the report alone; and `handback`, true. It is the only record of
+the session with that kind. That the six keys belong to every peer origin, and `handback`
+marks a final report among other peer messages, are readings of one record, which a peer
+message that is no hand-back would test.
+
+Validated on reading-room, 2026-11-14, over the live session's 48,622 records: v29 refuses
+record 48370 alone; v30 refuses none. v30 adds six optional properties and narrows nothing, so
+every datum v29 admits, v30 admits.
+
+### Replaces
+
+v29
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `TurnOrigin`: admits `from`, `senderTaskId`, `name`, `body` and `handbackReportText`, strings, and `handback`, a boolean.
+
+#### Refactored
+
+None.
+
 ## v29
 
 A session names a newer model, and is told a tool is gone. Reading-room's session

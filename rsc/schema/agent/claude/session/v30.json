@@ -1739,7 +1739,7 @@
     },
     "TurnOrigin": {
       "title": "TurnOrigin",
-      "description": "Where a user turn came from (2.1.263 onward). Observed kinds: \"human\" and \"task-notification\" (a background task's completion delivered as a turn). Likely an open set.",
+      "description": "Where a user turn came from (2.1.263 onward). Observed kinds: \"human\", \"task-notification\" (a background task's completion delivered as a turn) and \"peer\" (a message from another agent of the session). Likely an open set.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1747,7 +1747,7 @@
       ],
       "properties": {
         "kind": {
-          "description": "The origin kind. Observed values: \"human\", \"task-notification\".",
+          "description": "The origin kind. Observed values: \"human\", \"task-notification\", \"peer\".",
           "type": "string"
         },
         "producer": {
@@ -1756,6 +1756,30 @@
         },
         "runId": {
           "description": "The run a task-notification origin belongs to (2.1.294 onward). Observed value: \"0mv0upcup-38fcf3a9\", a string that is no uuid, on every such turn of reading-room's session e2d2039d from 2026-10-09T10:57:30Z, beside kind and producer; earlier task notifications carry no run. Undeclared before v21.",
+          "type": "string"
+        },
+        "from": {
+          "description": "The agent a peer origin's message came from (2.1.322 onward). Observed value: a 17-character hexadecimal agent id, on one turn of reading-room's session e2d2039d of 2026-11-13, a subagent's hand-back. Undeclared before v30.",
+          "type": "string"
+        },
+        "senderTaskId": {
+          "description": "The task of the agent a peer origin's message came from (2.1.322 onward). Observed value: the same id as from, on that one turn. Undeclared before v30.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The type of the agent a peer origin's message came from (2.1.322 onward). Observed value: \"general-purpose\", on that one turn. Undeclared before v30.",
+          "type": "string"
+        },
+        "body": {
+          "description": "A peer origin's message as the turn delivers it (2.1.322 onward): on the one turn observed, the agent's report beneath a frame the harness writes. Undeclared before v30.",
+          "type": "string"
+        },
+        "handback": {
+          "description": "Whether a peer origin's message is a subagent's final report to the session that launched it (2.1.322 onward). Observed value: true, on that one turn. Undeclared before v30.",
+          "type": "boolean"
+        },
+        "handbackReportText": {
+          "description": "A hand-back's report as the agent wrote it, without the harness's frame (2.1.322 onward). Undeclared before v30.",
           "type": "string"
         }
       }
