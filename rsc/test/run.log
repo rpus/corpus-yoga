@@ -1,4 +1,4 @@
-run.py: code+schema 1915/1915
+run.py: code+schema 1914/1914
 
 
 check_schema_join: |
@@ -338,7 +338,7 @@ check_rooms_settle_each_with_its_own_memory: |
   ✓ agent.each_room_keeps_its_own_memory  (4/4)
 
 check_agent_memory_disposed: |
-  ✓ migration.agent_memory_is_disposed  (2/2)
+  ✓ migration.agent_memory_is_disposed
 
 check_session_continued_apart: |
   ✓ agent.a_session_continued_apart_is_each_rooms_own  (3/3)
@@ -710,7 +710,7 @@ stages:
     tier: code
     line: "337"
   check_agent_memory_disposed:
-    passes: 2
+    passes: 1
     failures: 0
     tier: code
     line: "340"
@@ -755,8 +755,8 @@ stages:
     tier: code
     line: "383"
 
-checks[code+schema]: 234 types, 1915/1915 invocations passing
-checks[code]: 176 types, 1200/1200 invocations passing
+checks[code+schema]: 234 types, 1914/1914 invocations passing
+checks[code]: 176 types, 1199/1199 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1915/1915 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1914/1914 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

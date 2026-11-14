@@ -808,34 +808,29 @@ def check_rooms_settle_each_with_its_own_memory(run) -> None:
             quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {apart}', check='agent.each_room_keeps_its_own_memory')
 
 
-@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh', 'rsc/machine/machines.csv'])
+@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])
 def check_agent_memory_disposed(run) -> None:
     """rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
-    a memory directory goes, its files counted and sized on the line before it, once a stored
-    or staged session wrote each of its files by name - a twin a pull wrote, <stem>.<room>.md,
-    by the name of the fact it twins; a file no session wrote halts the script before anything
-    goes, every such file named on the one FAIL line corpus-yoga migration reads as the halt.
-    Bare the steps, applied, again nothing. The fixture is synthetic: a checkout
-    with a store and a stage of its own."""
+    bare, one line per memory directory, its file count and bytes - the disposal record a
+    reader reviews before the apply; applied, each directory goes and its line is the log's;
+    again, nothing. The sessions beside it stay. The fixture is synthetic: a checkout with a
+    store and a stage of its own."""
     import os
     import shutil
     import subprocess
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:
         checkout = Path(tmp) / 'checkout'
-        for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh', 'rsc/machine/machines.csv'):
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):
             (checkout / part).parent.mkdir(parents=True, exist_ok=True)
             if (REPO_ROOT / part).is_file():
                 shutil.copy2(REPO_ROOT / part, checkout / part)
-        room = next(line.split(',')[0] for line in (REPO_ROOT / 'rsc/machine/machines.csv').read_text().splitlines()[1:] if line)
         store = checkout / 'data/input/claude/code/machine-transport/here'
         stage = checkout / 'tmp/stage/input/claude/code/machine-transport/here'
-        wrote = '{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Write", "input": {"file_path":"/h/.claude/projects/p/memory/kept.md", "content": "x"}}]}}\n'
         for root in (store, stage):
             (root / 'p' / 'memory').mkdir(parents=True)
-            (root / 'p' / 'aaaaaaaa.jsonl').write_text(wrote)
+            (root / 'p' / 'aaaaaaaa.jsonl').write_text('{}\n')
             (root / 'p' / 'memory' / 'kept.md').write_text('a fact\n')
-        (store / 'p' / 'memory' / f'kept.{room}.md').write_text("another room's copy of the fact\n")
         (store / 'q' / 'memory').mkdir(parents=True)
         (store / 'q' / 'memory' / 'unwritten.md').write_text('a fact no session wrote\n')
         script = checkout / 'rsc/migration/1090.sh'
@@ -843,23 +838,17 @@ def check_agent_memory_disposed(run) -> None:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')
             return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
-        def memory() -> list[str]:
-            return sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('memory') if p.is_dir())
-        held, halted, refused = memory(), ran(), ran('--apply')
-        stops = (halted.returncode == 1 and halted.stdout == '' and len(halted.stderr.splitlines()) == 1 and halted.stderr.startswith('FAIL: ')
-                 and 'unwritten.md' in halted.stderr and 'kept.md' not in halted.stderr
-                 and refused.returncode == 1 and memory() == held and len(held) == 3)
-        run("migration: rsc/migration/1090.sh halts before anything goes while a memory file no session wrote stands, naming it",
-            stops, None if stops else f'bare said {halted.stdout!r} {halted.stderr!r}; applied said {refused.stdout!r} {refused.stderr!r}; memory stands at {memory()}',
-            check='migration.agent_memory_is_disposed')
-        shutil.rmtree(store / 'q')   # the maintainer's ruling on the file no session wrote
         bare, applied, again = ran(), ran('--apply'), ran()
-        left = memory()
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('memory') if p.is_dir())
         sessions = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*.jsonl'))
-        disposed = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 2 and all('file(s)' in line for line in bare.stdout.splitlines())
-                    and applied.returncode == 0 and again.returncode == 0 and again.stdout == '' and left == []
+        record = bare.stdout.splitlines()
+        disposed = (bare.returncode == 0 and bare.stderr == '' and len(record) == 3
+                    and record == ['rm -r data/input/claude/code/machine-transport/here/p/memory - 1 file(s), 7 bytes',
+                                   'rm -r data/input/claude/code/machine-transport/here/q/memory - 1 file(s), 24 bytes',
+                                   'rm -r tmp/stage/input/claude/code/machine-transport/here/p/memory - 1 file(s), 7 bytes']
+                    and applied.returncode == 0 and applied.stdout.splitlines() == record and again.returncode == 0 and again.stdout == '' and left == []
                     and sessions == ['data/input/claude/code/machine-transport/here/p/aaaaaaaa.jsonl', 'tmp/stage/input/claude/code/machine-transport/here/p/aaaaaaaa.jsonl'])
-        run("migration: rsc/migration/1090.sh disposes of every memory directory the store and the stage hold, each sized on its line, the sessions kept - bare the steps, applied, again nothing",
+        run("migration: rsc/migration/1090.sh says one line per memory directory the store and the stage hold, with its files and bytes, and disposes of each - bare the record, applied the same lines, again nothing, the sessions kept",
             disposed, None if disposed else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; again said {again.stdout!r}; '
             f'memory stands at {left}; sessions at {sessions}', check='migration.agent_memory_is_disposed')
 

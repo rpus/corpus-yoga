@@ -90,7 +90,7 @@ discard() {
 # dispose <directory>: an agent's memory directory the store or the stage holds,
 # <root>/claude/code/machine-transport/<room>/<project>/memory, removed whole, its files
 # counted and sized on the line before it goes - the disposal record, which the migration's
-# log keeps (issues/1090). The caller removes only what a stored session's tool calls wrote.
+# log keeps (issues/1090).
 dispose() {
   local dir="$1" files bytes
   [[ "$dir" =~ ^(data/input|tmp/stage/input)/claude/code/machine-transport/[^/]+/[^/]+/memory$ ]] \

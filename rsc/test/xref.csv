@@ -601,7 +601,7 @@ rsc/migration/1063.sh,9,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/
 rsc/migration/1069.sh,2,comment,rsc/migration/1069.sh,Y,# rsc/migration/1069.sh - a raise keeps the body it sent beside the act's record (issues/1069):
 rsc/migration/1069.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1090.sh,2,comment,rsc/migration/1090.sh,Y,# rsc/migration/1090.sh - the corpus holds no agent memory (issues/1090): each memory directory
-rsc/migration/1090.sh,10,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1090.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/635.sh,2,comment,rsc/migration/635.sh,Y,# rsc/migration/635.sh - the agent cache holds a directory per provider (issues/635):
 rsc/migration/635.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/636.sh,2,comment,rsc/migration/636.sh,Y,# rsc/migration/636.sh - the live agent stores mount at ext/mnt/agent/<provider> (issues/636);
@@ -1651,14 +1651,12 @@ src/test/dev/check/unit.py,707,path_str,rsc/migration/1069.sh,Y,"for part in ('r
 src/test/dev/check/unit.py,716,path_str,rsc/migration/1069.sh,Y,script = checkout / 'rsc/migration/1069.sh'
 src/test/dev/check/unit.py,669,path_str,rsc/migration,Y,"on=['src', 'rsc/migration', 'pyrightconfig.json'])"
 src/test/dev/check/unit.py,743,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.each_room_keeps_its_own_memory',), on=['src/main/cli/agent'])"
-src/test/dev/check/unit.py,826,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh', 'rsc/machine/machines.csv'):"
-src/test/dev/check/unit.py,826,path_str,rsc/migration/1090.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh', 'rsc/machine/machines.csv'):"
-src/test/dev/check/unit.py,826,path_str,rsc/machine/machines.csv,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh', 'rsc/machine/machines.csv'):"
-src/test/dev/check/unit.py,841,path_str,rsc/migration/1090.sh,Y,script = checkout / 'rsc/migration/1090.sh'
-src/test/dev/check/unit.py,811,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh', "
-src/test/dev/check/unit.py,811,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh', "
-src/test/dev/check/unit.py,811,path_str,rsc/machine/machines.csv,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh', "
-src/test/dev/check/unit.py,867,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
+src/test/dev/check/unit.py,824,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
+src/test/dev/check/unit.py,824,path_str,rsc/migration/1090.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
+src/test/dev/check/unit.py,836,path_str,rsc/migration/1090.sh,Y,script = checkout / 'rsc/migration/1090.sh'
+src/test/dev/check/unit.py,811,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
+src/test/dev/check/unit.py,811,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
+src/test/dev/check/unit.py,856,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,482,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1671,9 +1669,8 @@ src/test/dev/check/unit.py,497,path_str,src/main/cli/agent/agent.py,Y,"None if p
 src/test/dev/check/unit.py,523,path_str,rsc/migration/1063.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')"
 src/test/dev/check/unit.py,572,path_str,rsc/migration/1052.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')"
 src/test/dev/check/unit.py,719,path_str,rsc/migration/1069.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')"
-src/test/dev/check/unit.py,844,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
+src/test/dev/check/unit.py,839,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
 src/test/dev/check/unit.py,404,path_str,rsc/naming/checkout_paths.csv,Y,"keys = [line.split(',')[0] for line in (checkout / 'rsc/naming/checkout_paths.csv').read_text().splitlines()[1:]]"
-src/test/dev/check/unit.py,830,path_str,rsc/machine/machines.csv,Y,"room = next(line.split(',')[0] for line in (REPO_ROOT / 'rsc/machine/machines.csv').read_text().splitlines()[1:] if line"
 src/test/dev/check/upstream.py,179,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,211,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"
 src/test/dev/check/upstream.py,27,path_str,src/main/cli/grammar/grammar.json,Y,os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')
