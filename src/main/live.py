@@ -1,6 +1,6 @@
 """
 live.py - the live stores this room mounts, read against the two tiers (issues/842, issues/851): every
-session and second-selection unit of each mounted store - ext/mnt/<provider>/code/machine-transport/<machine>,
+session of each mounted store - ext/mnt/<provider>/code/machine-transport/<machine>,
 a link to where the provider's harness writes, at the address its units have under the
 other two roots (issues/853) - related to the fuller of the staged copy and the held copy
 of it by the measure the pipeline declares for its kind, the one promotion relates by, so
@@ -29,40 +29,18 @@ transport = importlib.import_module('transport')   # src/main/cli/agent/transpor
 TIERS = {'staged': corpus.STAGE, 'held': corpus.STORE}   # what each tier's copy is called, and the tier's root
 
 
-def _tree(path: Path) -> dict[str, bytes]:
-    return {f.relative_to(path).as_posix(): f.read_bytes()
-            for f in sorted(path.rglob('*')) if f.is_file() and f.name != '.DS_Store'}
-
-
-def _live_extras(name: str, mount: Path) -> list[tuple[str, Path]]:
-    """What the provider's second selection finds in the live store: (kind, path). The
-    declaration's glob is over <machine>/<project>/..., and the mount is this machine's
-    directory at that address under ext/mnt (issues/853), so the glob applies over the mount's
-    parent as it does over the other two roots."""
-    out = []
-    for store in corpus.stores():
-        if store.provider != name or not str(store.input).endswith(registry.TRANSPORT.as_posix()):
-            continue
-        for extra in store.globs[1:]:
-            for found in sorted(mount.parent.glob(extra.pattern.rstrip('/'))):
-                if found.is_dir() == extra.pattern.endswith('/'):
-                    out.append((extra.kind, found))
-    return out
-
-
 @dataclass
 class Ahead:
     """One live thing against the fuller copy of it: what the readers of the reading are
     given - the status, and any verb that would act on what is ahead."""
     provider: str
     kind: str                 # what its selection's declaration calls it
-    name: str                 # a session's id, a memory's project
-    state: str                # new, grown, changed, level, behind or diverged; or <room>'s, a session another room's store dir holds identical or ahead
+    name: str                 # a session's id
+    state: str                # new, grown, level, behind or diverged; or <room>'s, a session another room's store dir holds identical or ahead
     live: str                 # the live side, in words
     copy: str                 # the copy's side, in words; empty where neither tier holds one
     tier: str = 'staged'      # which tier's copy it was read against: staged, or held
     agree: int = 0            # for a diverged session, the bytes the two agree on before they part
-    link: str = ''            # the project whose directory this one is a link to
 
     @property
     def key(self) -> str:
@@ -73,14 +51,14 @@ class Ahead:
         """The live thing as the status states it: its state, both sides, and the capture that
         stages it - the provider's, on the selection it is counted under (issues/1028)."""
         staged_by = None
-        if self.state in ('new', 'grown', 'changed', 'diverged'):
+        if self.state in ('new', 'grown', 'diverged'):
             key = corpus.selection_of('agent', self.provider, self.kind) or f'{self.provider} {self.kind}'
             staged_by = facts.Would(spell.line('agent', 'capture', provider=self.provider), {key: 1})
         then = {'diverged': facts.phrase('a capture of it would be refused at promotion; the reader reconciles the two'),
                 'behind': facts.phrase('the {tier} copy holds more than the live store does', tier=self.tier)}.get(self.state)
         return {'state': self.state, 'live': self.live, self.tier: self.copy or None,
                 'agree for': facts.phrase('{n} bytes', n=self.agree) if self.state == 'diverged' else None,
-                'then': then, 'link to': self.link or None, 'act': staged_by}
+                'then': then, 'act': staged_by}
 
 
 @dataclass
@@ -104,15 +82,11 @@ STATE = {corpus.Relation.ABSENT: 'new', corpus.Relation.IDENTICAL: 'level', corp
          corpus.Relation.AHEAD: 'behind', corpus.Relation.DIVERGED: 'diverged'}
 
 
-def live_addresses() -> tuple[frozenset[Path], frozenset[Path]]:
-    """The store addresses this room's live stores still write - each live session's, each
-    live second-selection unit's, what a capture of this room would renew - and among them
-    the newest: a live directory that is a link, since a link is made from the newer to the
-    older (the maintainer, reading-room 2026-10-02), so that of an identical pair the store
-    keeps the copy under the newer name (issues/744)."""
+def live_addresses() -> frozenset[Path]:
+    """The store addresses this room's live stores still write - each live session's, what a
+    capture of this room would renew."""
     room = registry.machine()
     live: set[Path] = set()
-    newest: set[Path] = set()
     for row in registry.providers():
         name = row['provider']
         mount, adapter = registry.mount(row), transport.adapter(name)
@@ -121,12 +95,7 @@ def live_addresses() -> tuple[frozenset[Path], frozenset[Path]]:
         under = transport.store(name).relative_to(corpus.STORE) / room
         for s in adapter.live_sessions(mount):
             live.add(under / s.project / s.path.name)
-        for _kind, path in _live_extras(name, mount):
-            address = under / path.parent.name / path.name
-            live.add(address)
-            if path.is_symlink():
-                newest.add(address)
-    return frozenset(live), frozenset(newest)
+    return frozenset(live)
 
 
 def _copies(adapter: Any, roots: dict[str, Path]) -> dict[str, list[tuple[str, Any]]]:
@@ -179,14 +148,10 @@ def sessions(name: str, adapter: Any, mount: Path, roots: dict[str, Path]) -> li
 
 
 def ahead() -> tuple[list[Ahead], list[str]]:
-    """The live stores against the two tiers, as rows: every session and second-selection
-    unit of each live store this room mounts, related to the fuller of the staged and the
-    held copy by the measure the pipeline declares for its kind - a session another room's
-    store dir holds identical or ahead is that room's, as the capture reads it - a mirror has no fuller
-    copy, so a second-selection unit is read against the staged copy where there is one,
-    else the held, under its own project's name or under the name of any project whose
-    live directory is the same one, since a link joins the names a repository rename
-    leaves (issues/744) - and the mounts that are absent, by path."""
+    """The live stores against the two tiers, as rows: every session of each live store this
+    room mounts, related to the fuller of the staged and the held copy by the measure the
+    pipeline declares for its kind - a session another room's store dir holds identical or
+    ahead is that room's, as the capture reads it - and the mounts that are absent, by path."""
     room = registry.machine()
     rows: list[Ahead] = []
     absent: list[str] = []
@@ -201,25 +166,6 @@ def ahead() -> tuple[list[Ahead], list[str]]:
         under = transport.store(name).relative_to(corpus.STORE) / room
         roots = {tier: root / under for tier, root in TIERS.items()}
         rows.extend(sessions(name, adapter, mount, roots))
-        extras = _live_extras(name, mount)
-        names: dict[Path, list[str]] = {}   # each live directory's project names: its own, and those linked to it
-        for _kind, path in extras:
-            names.setdefault(path.resolve(), []).append(path.parent.name)
-        for kind, path in extras:
-            project = path.parent.name
-            link = path.resolve().parent.name if path.is_symlink() else ''
-            live_tree = _tree(path)
-            under = [project] + [n for n in names[path.resolve()] if n != project]
-            found = next(((tier, root / n / path.name) for tier, root in roots.items() for n in under
-                          if (root / n / path.name).is_dir()), None)
-            if found is None:
-                rows.append(Ahead(name, kind, project, 'new', facts.phrase('{n} file(s)', n=len(live_tree)), '', 'staged', link=link))
-                continue
-            tier, copy_dir_of = found
-            copy_tree = _tree(copy_dir_of)
-            differ = sum(1 for k in set(live_tree) | set(copy_tree) if live_tree.get(k) != copy_tree.get(k))
-            rows.append(Ahead(name, kind, project, 'changed' if differ else 'level', facts.phrase('{n} file(s)', n=len(live_tree)),
-                              facts.phrase('{n} differ', n=differ) if differ else facts.phrase('the same'), tier, link=link))
     return rows, absent
 
 

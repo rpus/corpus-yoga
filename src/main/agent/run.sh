@@ -7,15 +7,14 @@
 # and NEVER touches a harness-owned live store, which its provider expires at will.
 # `corpus-yoga agent capture --all` is the capture step that populates the stores; run it
 # early and often. A provider's mechanism is three files under <provider>/:
-# list_sessions.sh, session_to_json.sh and project_conversation.py, and
-# memory_to_json.py where its projects carry a memory/ directory.
+# list_sessions.sh, session_to_json.sh and project_conversation.py.
 #
 # Usage:
 #   src/main/agent/run.sh --item  <path>   # one project: data/input/<provider>/code/machine-transport/<machine>/<project>
 #   src/main/agent/run.sh --input <path>   # the stores: data/input/<provider>/code/machine-transport, <provider> literal or named
 #   src/main/agent/run.sh --plan   # print the ordered step list; run nothing
 #
-# The step lists below (machine_housekeeping, run_one, run_memory, corpus) are the
+# The step lists below (machine_housekeeping, run_one, corpus) are the
 # ONE authority on order: --plan prints exactly the lists that execute (see
 # src/main/steps.sh).
 
@@ -77,16 +76,6 @@ provider_of() {
   echo "${head##*/}"
 }
 
-# The digest of what a memory datum was converted from - the directory's files by
-# relative path and bytes - written beside the conversion as source.sha256, so that a
-# verdict on the converted datum can be tied to the source it was taken over (issues/687:
-# promotion reads it against the staged unit). A session's converter records its own
-# source, the one file it read.
-record_source() {
-  local src="$1" out_dir="$2"
-  (cd "$src" && find . -type f ! -name .DS_Store | sort | while IFS= read -r f; do printf '%s ' "${f#./}"; shasum -a 256 "$f" | cut -d' ' -f1; done) | shasum -a 256 | cut -d' ' -f1 > "$out_dir/source.sha256"
-}
-
 prune_departed() {
   # No blanket wipe: the validation logs under tmp/cache/ ARE the memoisation (an
   # unchanged session revalidates against nothing), and jsonl_to_json keeps
@@ -98,10 +87,6 @@ prune_departed() {
   for existing in "$CACHE_DIR/$provider/$machine/$name"/*/; do
     [[ -d "$existing" ]] || continue
     local sess; sess="$(basename "${existing%/}")"
-    if [[ "$sess" == "memory" ]]; then
-      [[ -d "${project_dir%/}/memory" ]] || rm -rf "${existing:?}"
-      continue
-    fi
     grep -qx -- "$sess" <<< "$held" || rm -rf "${existing:?}"
   done
 }
@@ -145,14 +130,6 @@ run_one() {
   step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
 }
 
-run_memory() {
-  local project_dir="$1" machine="$2" name="$3" guard="$4" provider="$5"
-  local out_dir="$CACHE_DIR/$provider/$machine/$name/memory"
-  step_if "$guard" 'when the project has a memory/ dir' memory_to_json \
-    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
-  step_if "$guard" 'when the project has a memory/ dir' record_source record_source "${project_dir%/}/memory" "$out_dir"
-}
-
 # ── Dispatch workers (issues/395): one task each, machine/project derived from the
 # task itself — a worker learns nothing from scope, so any worker can take any
 # task. Output buffers per task; dispatch_emit restores enumeration order. ──
@@ -170,17 +147,6 @@ convert_one_session() {
   run_one "$source" "$machine" "$name" "$provider"
 }
 
-# One memory conversion. The task is the store project dir; guard is by
-# construction — only projects holding memory/ are enumerated.
-convert_one_memory() {
-  local project_dir="$1" machine name provider
-  machine="$(basename "$(dirname "${project_dir%/}")")"
-  name="$(basename "${project_dir%/}")"
-  provider="$(provider_of "$project_dir")"
-  echo "$provider/$machine/$name/memory"
-  run_memory "$project_dir" "$machine" "$name" 1 "$provider"
-}
-
 # One datum-version pair. The task line is validate_versions.py --pair's argv,
 # tab-separated, as validate.sh --enumerate printed it. Quiet: a current log
 # is a task already done (pull/369); the roll-up states every verdict.
@@ -195,15 +161,14 @@ TASK
 
 # One family roll-up: the dir face of validate.sh over pair logs that are all
 # current, so it relays verdicts (pull/363) and renders the matrix. The task is
-# "session<TAB><provider><TAB><dir>" or "memory<TAB><provider><TAB><dir>".
+# "session<TAB><provider><TAB><dir>".
 rollup_one() {
   local kind provider dir
   IFS="$(printf '\t')" read -r kind provider dir <<TASK
 $1
 TASK
   case "$kind" in
-    session) step validate        "$SCRIPT_DIR/validate.sh" --provider "$provider" --session "$dir" ;;
-    memory)  step validate_memory "$SCRIPT_DIR/validate.sh" --provider "$provider" --memory  "$dir" ;;
+    session) step validate "$SCRIPT_DIR/validate.sh" --provider "$provider" --session "$dir" ;;
   esac
 }
 
@@ -226,7 +191,7 @@ run_store() {
   local project_dirs=("$@")
   local project_dir machine name provider
 
-  local jsonls=() memory_projects=() jsonl
+  local jsonls=() jsonl
   for project_dir in "${project_dirs[@]}"; do
     machine="$(basename "$(dirname "${project_dir%/}")")"
     name="$(basename "${project_dir%/}")"
@@ -240,15 +205,10 @@ run_store() {
       found=1
     done < <("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir")
     [[ "$found" == "1" ]] || echo "  (no sessions found)"
-    [[ -d "${project_dir%/}/memory" && -f "$SCRIPT_DIR/$provider/memory_to_json.py" ]] && memory_projects+=("${project_dir%/}")
   done
 
   if [[ ${#jsonls[@]} -gt 0 ]]; then
     dispatch convert_one_session "${jsonls[@]}"
-    dispatch_emit
-  fi
-  if [[ ${#memory_projects[@]} -gt 0 ]]; then
-    dispatch convert_one_memory "${memory_projects[@]}"
     dispatch_emit
   fi
 
@@ -266,16 +226,6 @@ run_store() {
       pairs+=("$line")
     done < <("$SCRIPT_DIR/validate.sh" --enumerate --provider "$provider" --session "$out_dir")
     rollups+=("$(printf 'session\t%s\t%s' "$provider" "$out_dir")")
-  done
-  for project_dir in ${memory_projects[@]+"${memory_projects[@]}"}; do
-    machine="$(basename "$(dirname "$project_dir")")"
-    name="$(basename "$project_dir")"
-    provider="$(provider_of "$project_dir")"
-    out_dir="$CACHE_DIR/$provider/$machine/$name/memory"
-    while IFS= read -r line; do
-      pairs+=("$line")
-    done < <("$SCRIPT_DIR/validate.sh" --enumerate --provider "$provider" --memory "$out_dir")
-    rollups+=("$(printf 'memory\t%s\t%s' "$provider" "$out_dir")")
   done
 
   if [[ ${#pairs[@]} -gt 0 ]]; then
@@ -298,15 +248,11 @@ print_plan() {
     provider="$(basename "$(dirname "$mechanism")")"
     echo "then per $provider session, dispatched to the next free worker (issues/395):"
     run_one '<session>' '<machine>' '<project>' "$provider"
-    [[ -f "$SCRIPT_DIR/$provider/memory_to_json.py" ]] || continue
-    echo "then per $provider project with a memory/ dir, dispatched likewise:"
-    run_memory '<project-dir>' '<machine>' '<project>' '0' "$provider"
   done
   echo "then per datum-version pair across the run, dispatched likewise:"
   validate_one_pair "$(printf '<input>\t<schema-file>\t<log-dir>\t<label>')"
   echo "then per datum, the family roll-up, dispatched likewise:"
   rollup_one "$(printf 'session\t<provider>\t<session-dir>')"
-  rollup_one "$(printf 'memory\t<provider>\t<memory-dir>')"
   echo "then once, after all projects:"
   corpus
 }

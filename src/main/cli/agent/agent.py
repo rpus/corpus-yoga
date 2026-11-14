@@ -2,23 +2,14 @@
 agent.py — CAPTURE agents into the store; RECEIVE them from peer machines;
 MOUNT the live stores - for every declared provider with a harness adapter (issues/633).
 
-The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
-the underlying operation is TRANSPORT — identity-preserving cp, componentwise,
-with each component's class semantics enforced — and capture is that operation
+The calculus (rsc/CALCULUS.md): what the corpus holds of an agent is its
+sessions; the underlying operation is TRANSPORT — identity-preserving cp,
+with the session's class semantics enforced — and capture is that operation
 pointed homeward: live projects root → the store. A session is append-only, so a copy supersedes an
 existing one iff the existing bytes are a PREFIX of it; anything else is a
-loud CONFLICT. A memory folder is a set of one-fact-per-file documents whose
-NAMES are dressing (the fact is the identity) plus one index: on pull a
-novel leaf copies in, an identical one skips, one the incoming EXTENDS is
-superseded in place (an appendix), and true divergence keeps BOTH — the
-incoming fact re-dressed as <stem>.<machine>.md with its [[links]] following, a
-twin that follows the sender's fact on every later pull (issues/1073) — while
-MEMORY.md unions by novelty-append; a twin the sender holds of this room's fact,
-or of its own, is not received, since the plain facts stand for them. Nothing is overwritten silently
-(L6), nothing is lost (L4), and reconciliation of diverged facts remains a
-human act — recorded in-folder rather than blocking the transport ("hone,
-not clone": the twins are the fork, made visible). Re-running either
-direction on an unchanged pair is silence (L1).
+loud CONFLICT. A project's memory/ is the room's own: an agent writes it through
+tool calls its sessions record, no capture reads it and no pull writes it
+(issues/1090). Re-running either direction on an unchanged pair is silence (L1).
 
 Providers and harnesses: a provider's harness (Claude Code for claude,
 Antigravity for gemini) keeps a live session store of its own shape, mounted at
@@ -34,18 +25,14 @@ creates on its first run - keyed <machine>/<project>/..., the project
 being Claude Code's encoding of the workspace path in every provider's store.
 For claude that is <project>/<session>.jsonl + <project>/<session-uuid>/ (the
 eponymous workspace: subagent transcripts and persisted tool-results the log
-REFERENCES, moved with log semantics per file) + <project>/memory/; for gemini
+REFERENCES, moved with log semantics per file); for gemini
 <project>/<uuid>/ with the transcripts, the steps, a snapshot of the step
 database and the summaries row (the gemini adapter's header states it).
 Provenance is spatial and sender-declared: capture takes no destination - it
 mirrors every session of every served provider into that provider's store
 under <own machine>/, the machine read from the rooted machine-name.txt
 binding, which rsc/machine/machines.csv must declare - and pull --from
-names the peer machine whose sessions to merge, the twin-dressing and marker
-label coming from that ADDRESS rather than the receiver's assertion. An
-outbox is single-writer by construction, so capture MIRRORS each project's
-memory (updated in place, absentees removed); every merge subtlety lives in
-pull, where two agents actually meet. The doctrine: capture is the one
+names the peer machine whose sessions to merge. The doctrine: capture is the one
 READER of a live store - sweep early, sweep often; pull is the one WRITER
 of it, only ever by a user's explicit verb, never a pipeline's, and serves
 claude alone: writing into Antigravity's databases is no transport this verb
@@ -60,15 +47,8 @@ Each machine's dir is a single-writer branch (a machine pushes only its own ref)
 capture is a fast-forward-only push ('destination is ahead' is the refused
 stale force-push); pull is fetch-plus-merge, the status its dry run; two machines
 extending the same session are diverged branches, each machine's own
-(issues/1071). And memory/ is the actual REPOSITORY of the pair — the component
-where real merges happen: diverged facts persist as machine-dressed twin
-branches, and the index unions like a tree merge. The session is history; the
-memory is the repo.
-
-A pull's merge only adds (issues/1063) - a new fact, a longer copy's tail, a
-diverged copy beside the local one, an index line - or brings that diverged copy
-level with the sender's fact, so it writes no record of itself and has no undo:
-removing a fact is removing its file.
+(issues/1071). A pull only adds or extends sessions, so it writes no record of
+itself and has no undo.
 
     corpus-yoga agent
     corpus-yoga agent list-models
@@ -86,8 +66,7 @@ capture takes --provider <name> (every session of one provider), --provider
 pull takes --id or --all: a NAMED agent, a named provider's totality,
 or the named TOTALITY — git push --all /
 pull --all, safe because each per-session placement independently lands on
-the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
-component moves ONCE either way (mirrored out; merged in). What is never
+the lattice (silence / fast-forward / ahead / loud CONFLICT). What is never
 accepted is an INFERENCE: no recency guessing, no automatic choice. What pull
 would write is the agent noun's status, per peer store held (issues/881), totality or
 not.
@@ -282,7 +261,7 @@ class Peer:
         return {**self.outcomes, 'act': self.act}
 
 
-KINDS = ('sessions', 'workspaces', 'memory facts')   # what a pull moves, as its log addresses them
+KINDS = ('sessions', 'workspaces')   # what a pull moves, as its log addresses them
 
 
 def summary(log: transport.Log, bundle: Path) -> dict:
@@ -297,7 +276,7 @@ def summary(log: transport.Log, bundle: Path) -> dict:
             continue
         held: dict[str, list[int]] = {}
         for address in units:
-            kind = KINDS[2] if '/memory/' in address else KINDS[1] if address.endswith('/') else KINDS[0]
+            kind = KINDS[1] if address.endswith('/') else KINDS[0]
             held.setdefault(kind, []).append(size_of(bundle / address) if (bundle / address).exists() else 0)
         out[outcome] = {kind: facts.phrase('{n}, {size}', n=len(held[kind]), size=human(sum(held[kind]))) for kind in KINDS if kind in held}
     return out
@@ -322,7 +301,7 @@ def peers() -> dict[str, Peer | str] | str:
     for machine in (sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []):
         if machine.name == registry.machine():
             continue
-        log = adapter.pull_all(machine, projects, False, machine.name, registry.machine())
+        log = adapter.pull_all(machine, projects, False)
         held[machine.name] = Peer(summary(log, machine), pull_act(machine.name, log)) if log.facts() else facts.phrase('nothing - the store holds no session of it')
     return held or facts.phrase('none - no peer machine held')
 
@@ -490,14 +469,11 @@ def main() -> int:
 
     projects, claude = _claude()
     bundle = peer_bundle(args.source)
-    # the twin-dressing and marker label: the source's ADDRESS — the origin machine's
-    # name as it stands under claude's store (or the directory's own name for a path)
-    machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
-        log = claude.pull_all(bundle, projects, True, machine, registry.machine())
+        log = claude.pull_all(bundle, projects, True)
     else:
         session = claude.pick_session(bundle, args.id)
-        log = claude.pull_move(session.parent, projects, session, True, machine, registry.machine())
+        log = claude.pull_move(session.parent, projects, session, True)
     # the log is facts nested by outcome under the bundle's address (issues/857), then the one
     # effect; what an pull would write is corpus-yoga agent's status (issues/881)
     out: dict[str, object] = {(bundle.relative_to(REPO).as_posix() if bundle.is_relative_to(REPO) else str(bundle)):

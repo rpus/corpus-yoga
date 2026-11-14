@@ -106,22 +106,19 @@ per-corpus code.
 
 - **transport** — identity-preserving copy between machines. Because identity is
   global and classes determine reconciliation, transport is `cp`: a session
-  `.jsonl` moves a conversation's worth of corpus; session + `memory/` folder
-  moves an *agent* (user doctrine, 2026-07-06 — proven by the v5 mint, whose
-  evidence crossed machines as a file). Reified as a careful cp with the class
+  `.jsonl` moves a conversation's worth of corpus, and the session with its
+  workspace is what the corpus holds of an *agent*: its `memory/` folder is the
+  room's own, written through tool calls the session records, and no transport
+  carries it (issues/1090). Reified as a careful cp with the class
   semantics checked: `src/main/cli/agent/agent.py` (`corpus-yoga agent`) —
   prefix-supersession for the append-only session and its eponymous workspace
   (subagent transcripts, persisted tool-results — files the log references,
-  without which a rematerialised agent has dangling limbs); for the memory
-  folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
-  supersedes in place, true divergence keeps both with the incoming fact
-  re-dressed by its machine and links following, the index unioning by
-  novelty-append). Transported agents live in the shared STORE (`data/input/claude/code/machine-transport`, one
+  without which a rematerialised agent has dangling limbs). Transported agents live in the shared STORE (`data/input/claude/code/machine-transport`, one
   hand-made symlink per machine), keyed machine-then-project under the ORIGIN machine's name — the
   rooted `machine-name.txt` binding — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
-  design): transport MIRRORS the agent into its own single-writer outbox, and
-  every merge subtlety lives in the pull, where two agents actually meet.
+  design): transport MIRRORS the sessions into its own single-writer outbox, and
+  the pull fast-forwards a peer's sessions into the room's live store.
 
 - **project / re-derive** — durable identity → presentation: ordinals, markdown,
   matrices, name dressing. Presentation converges to current without ever being
@@ -198,11 +195,11 @@ conjunction verdicts:
 - **bulk export** = conversations × memories × projects × users. A batch is
   deletable iff *every* component is superseded — one mutable document holding
   unique state retains the batch however completely the rest are subsets.
-- **agent** = session × memory. Componentwise transport moves it; componentwise
-  merge semantics differ (append-only × a set of facts under name-dressing), so
-  a forked agent is *two agents thereafter* — diverged facts are installed side
-  by side under machine dressing, never auto-unified: the twins ARE the fork, made
-  visible, and their reconciliation is a human decision ("hone, not clone").
+- **agent** = session × memory in the harness; the corpus holds the session
+  alone (issues/1090). The memory is a fold the agent writes through tool calls
+  its sessions record, so the log holds the aggregate's history, and a room's
+  memory is its own: a session two rooms continued apart is *two sessions
+  thereafter*, each room's (issues/1071).
 
 The product construction is the whole content of "a bulk export is a synchronised
 snapshot of four components" and of agent portability — the same shape, found twice.
@@ -212,8 +209,8 @@ are the log, memories.json is the aggregate. The log is append-only, totally
 ordered, and merges by prefix; the aggregate is a lossy, judgment-made fold over
 the log that no code can replay (the fold is the intelligence), which is exactly
 why aggregates get their own records where logs need none: accumulation deposits
-for the memory document, merge markers for the memory folder — where derivability
-ends, logging resumes.
+for the memory document — where derivability ends, logging resumes. The agent's
+memory folder needs none in the corpus: the session log's tool calls write it.
 
 ---
 
@@ -267,7 +264,7 @@ Each law names its current enforcement (or the incident that taught it).
   duplication is the museum piece).
 - **L6 — Conflicts are loud.** `gated` — No operation silently overwrites divergent
   content: CONFLICT + nonzero exit, content left in place, human judgement
-  summoned. (Deposit stamps, library merges, memory-folder merges.)
+  summoned. (Deposit stamps, library merges.)
 - **L7 — Ownership.** `unenforced (issues/52)` — Each pipeline stage owns exactly one output subtree, which
   it may wipe wholesale; nothing else touches it. Blanket wipes above the owned
   leaf are forbidden (the destroyed inferred-tables incident).
@@ -374,25 +371,20 @@ The generic interface already exists in embryo, four times:
 `atoms.py`'s `COMPONENTS` (atomisers + one generic comparator),
 `library.py` (identity resolution + dressing normalisation + set merge),
 `memories.py` (mutable-document accumulation), and
-`src/main/cli/agent/agent.py` (prefix-supersession + the memory-folder
-merge). The spectre they jointly raise is a `Mergeable` protocol (user-named,
+`src/main/cli/agent/agent.py` (prefix-supersession). The spectre they jointly raise is a `Mergeable` protocol (user-named,
 2026-07-07): a resource class supplies its merge, and the laws supply the
 contract — idempotent (L1: re-merging is silence), monotone (L4: nothing
 lost), loud on true conflict (L6), and commutative UP TO DRESSING (merging A
 into B and B into A yield the same fact-set with mirrored twin names — L5
-says that difference is not load-bearing). Two further properties are already
-observable in the memory merge and should ride into the protocol:
+says that difference is not load-bearing). Two further properties should ride
+into the protocol:
 
 - **Merges are detectable and hence invertible.** Every merge action is
   additive (novelty, twin, unioned index line) or prefix-extending (appendix),
   so a compact per-action record — file, action, prior length where extended —
   suffices to undo a past merge exactly, with no snapshots: delete the
-  additions, truncate the extensions, drop the recorded lines. An annotation
-  in MEMORY.md is the human-visible half of the same record; undo is then a
-  deletion LICENSED by the record (L3), not an act of memory. Agent transport's
-  memory merge keeps no such record: it only adds, so removing what it added
-  is removing a fact's file - save that a twin, the sender's copy of a fact,
-  is rewritten to follow that fact on each pull (issues/1073).
+  additions, truncate the extensions, drop the recorded lines; undo is then a
+  deletion LICENSED by the record (L3), not an act of memory.
 
 The planned protocol (a `corpus.py` under the shared `src/main/` root, per the
 module placement doctrine) — `units() → {key: atoms}`, a mutability class,

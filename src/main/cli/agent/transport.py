@@ -165,7 +165,7 @@ def held_by_peer(room: Path, name: str, data: bytes) -> tuple[str, Path] | None:
     return None
 
 
-PLURAL = {'session': 'sessions', 'memory': 'memories', 'file': 'files'}   # the kinds a verdict counts
+PLURAL = {'session': 'sessions', 'file': 'files'}   # the kinds a verdict counts
 
 
 def agreement(a: bytes, b: bytes | None) -> int:

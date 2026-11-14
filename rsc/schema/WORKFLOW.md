@@ -97,8 +97,8 @@ and the gate vetoes the commit. Describe the change instead — "gained the `dat
 Family names carry type information — the number is the shape, not a style
 accident: a **plural** family validates an *array of units* (`conversations`:
 the bulk export's whole array), a **singular** family validates *one unit*
-(`apiConversation`, `sessionConversation`, `markdownConversation`, `session`,
-`projectMemory`). Read `users` as "the array the export's users.json holds",
+(`apiConversation`, `sessionConversation`, `markdownConversation`, `session`).
+Read `users` as "the array the export's users.json holds",
 `sessionConversation` as "one conversation projected from one session".
 
 ## Step-by-step

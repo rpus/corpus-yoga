@@ -1,5 +1,5 @@
 {
-  "help": "pull a peer room's claude sessions and memory from the store into this machine's live Claude Code store, the peer rooms being its remotes - what it would write is corpus-yoga agent's status, per peer store held; the one adapter that vouches for a write into a live store",
+  "help": "pull a peer room's claude sessions, never its memory, from the store into this machine's live Claude Code store, the peer rooms being its remotes - what it would write is corpus-yoga agent's status, per peer store held; the one adapter that vouches for a write into a live store",
   "would": "would write",
   "modality": "MAY",
   "args": [
