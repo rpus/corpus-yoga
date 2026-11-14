@@ -19,21 +19,26 @@ the session with that kind. That the six keys belong to every peer origin, and `
 marks a final report among other peer messages, are readings of one record, which a peer
 message that is no hand-back would test.
 
-Validated on reading-room, 2026-11-14, over the live session's 48,622 records: v29 refuses
-record 48370 alone; v30 refuses none. v30 adds six optional properties and narrows nothing, so
-every datum v29 admits, v30 admits.
+`TurnOrigin` becomes a union keyed by `kind`, each kind admitting only its own keys. A survey
+of reading-room's 44 live session files on 2026-11-14 (Claude Code 2.1.263 to 2.1.322) finds
+three kinds on 2,156 origins: `human` with `kind` alone on 1,909; `task-notification` with
+`kind` alone on 22 and with `producer` and `runId` beside it on 224; and `peer` on the one
+record above.
+
+Validated on reading-room, 2026-11-14, over the live session's 49,271 records: v29 refuses
+record 48370 alone; v30 refuses none.
 
 ### Replaces
 
 v29
 
-#### Restricted
+#### Restricted (non-material)
 
-None.
+- `TurnOrigin`: a union of `HumanTurnOrigin`, `TaskNotificationTurnOrigin` and `PeerTurnOrigin`, each with `kind` a one-value enum - "human", "task-notification", "peer" - so a fourth kind, or a `human` origin with `producer`, which v29 admitted, is refused. No observed origin is excluded.
 
 #### Relaxed
 
-- `TurnOrigin`: admits `from`, `senderTaskId`, `name`, `body` and `handbackReportText`, strings, and `handback`, a boolean.
+- `PeerTurnOrigin`: admits `from`, `senderTaskId`, `name`, `body` and `handbackReportText`, strings, and `handback`, a boolean, each optional.
 
 #### Refactored
 
