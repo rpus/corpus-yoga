@@ -808,6 +808,24 @@ def check_rooms_settle_each_with_its_own_memory(run) -> None:
             quiet, None if quiet else f'settled after {settled} round(s); the live reading offers {apart}', check='agent.each_room_keeps_its_own_memory')
 
 
+@check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])
+def check_migration_status_relays_steps(run) -> None:
+    """corpus-yoga migration's status says each pending step as the line its script prints for it
+    bare, and a halted script's steps before the halt with what it said there: the checkout runs
+    corpus-yoga commands only, so the status is where a reader sees what the apply would take
+    (issues/1090). The fixture is synthetic: two scripts' bare runs."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('migration_status', SRC / 'main' / 'cli' / 'migration' / 'migration.py')
+    assert spec is not None and spec.loader is not None
+    migration = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(migration)
+    said = migration.status_facts({'first': (0, ['mv a b', 'rm c']), 'second': (1, ['mv d e', 'FAIL: f and g both exist'])}).scripts
+    pending, halted = said['first'], said['second']
+    relayed = pending.steps == ['mv a b', 'rm c'] and halted.steps == ['mv d e']
+    run("migration: the status says each pending step as its script's line, a halted script's steps before the halt included", relayed,
+        None if relayed else f'the status said {pending.steps!r} and {halted.steps!r}', check='migration.status_relays_each_step')
+
+
 @check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])
 def check_agent_memory_disposed(run) -> None:
     """rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):

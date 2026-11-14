@@ -1,4 +1,4 @@
-run.py: code+schema 1914/1914
+run.py: code+schema 1915/1915
 
 
 check_schema_join: |
@@ -336,6 +336,9 @@ check_sweep: |
 
 check_rooms_settle_each_with_its_own_memory: |
   ✓ agent.each_room_keeps_its_own_memory  (4/4)
+
+check_migration_status_relays_steps: |
+  ✓ migration.status_relays_each_step
 
 check_agent_memory_disposed: |
   ✓ migration.agent_memory_is_disposed
@@ -709,54 +712,59 @@ stages:
     failures: 0
     tier: code
     line: "337"
-  check_agent_memory_disposed:
+  check_migration_status_relays_steps:
     passes: 1
     failures: 0
     tier: code
     line: "340"
+  check_agent_memory_disposed:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "343"
   check_session_continued_apart:
     passes: 3
     failures: 0
     tier: code
-    line: "343"
+    line: "346"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "346"
+    line: "349"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "349"
+    line: "352"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "355"
+    line: "358"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "361"
+    line: "364"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "364"
+    line: "367"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "369"
+    line: "372"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "383"
+    line: "386"
 
-checks[code+schema]: 234 types, 1914/1914 invocations passing
-checks[code]: 176 types, 1199/1199 invocations passing
+checks[code+schema]: 235 types, 1915/1915 invocations passing
+checks[code]: 177 types, 1200/1200 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1914/1914 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1915/1915 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
