@@ -6,6 +6,44 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v30
+
+A turn can come from another agent of the session. Reading-room's session
+`e2d2039d-b1e5-4691-99f9-f0629d13e243`, staged on 2026-11-13, is refused at v29 at its
+record 48370, a `user` turn of Claude Code 2.1.322 that delivers a subagent's final report to
+the session that launched it. Its `origin` has `kind` "peer" and six more keys, which
+`TurnOrigin` closed: `from` and `senderTaskId`, both the subagent's 17-character hexadecimal
+id; `name`, its agent type, "general-purpose"; `body`, the report beneath a frame the harness
+writes; `handbackReportText`, the report alone; and `handback`, true. It is the only record of
+the session with that kind. That the six keys belong to every peer origin, and `handback`
+marks a final report among other peer messages, are readings of one record, which a peer
+message that is no hand-back would test.
+
+`TurnOrigin` becomes a union keyed by `kind`, each kind admitting only its own keys. A survey
+of reading-room's 44 live session files on 2026-11-14 (Claude Code 2.1.263 to 2.1.322) finds
+three kinds on 2,156 origins: `human` with `kind` alone on 1,909; `task-notification` with
+`kind` alone on 22 and with `producer` and `runId` beside it on 224; and `peer` on the one
+record above.
+
+Validated on reading-room, 2026-11-14, over the live session's 49,271 records: v29 refuses
+record 48370 alone; v30 refuses none.
+
+### Replaces
+
+v29
+
+#### Restricted (non-material)
+
+- `TurnOrigin`: a union of `HumanTurnOrigin`, `TaskNotificationTurnOrigin` and `PeerTurnOrigin`, each with `kind` a one-value enum - "human", "task-notification", "peer" - so a fourth kind, or a `human` origin with `producer`, which v29 admitted, is refused. No observed origin is excluded.
+
+#### Relaxed
+
+- `PeerTurnOrigin`: admits `from`, `senderTaskId`, `name`, `body` and `handbackReportText`, strings, and `handback`, a boolean, each optional.
+
+#### Refactored
+
+None.
+
 ## v29
 
 A session names a newer model, and is told a tool is gone. Reading-room's session
