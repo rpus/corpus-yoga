@@ -10,6 +10,13 @@
       "does": [
         "WRITES settings others see, each drifted setting as the forge's status names it"
       ]
+    },
+    "protect": {
+      "runs": "gh api -X PUT",
+      "refused": "fails",
+      "does": [
+        "WRITES the default branch's protection, whole, where a declared field of it has drifted"
+      ]
     }
   }
 }
