@@ -101,6 +101,11 @@ def record(stamp: str, body: str) -> Path:
     return path
 
 
+def stamped(triad: str) -> str:
+    """The attribution line a raised body opens with, from the triad."""
+    return f'Signature: {triad}'
+
+
 def number_of(url: str) -> int:
     return int(url.rstrip('/').rsplit('/', 1)[-1])
 
@@ -131,7 +136,7 @@ def check_issue(args, text: str) -> None:
     should.check_body(text)
 
 
-def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
+def raise_pr(args, triad: str, text: str, stamp: str) -> tuple[dict, str]:
     numbers = [int(n) for n in args.issue]
     titles: dict[int, str] = {}
     for number in numbers:
@@ -147,7 +152,7 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
                 raise Refused(f'issues/{number} is blocked by open issues/{blocker}, which this PR does not aim to complete (issues/482)')
     base = default_branch()
     why = '## why\n\n' + '\n'.join(aim.line(number, titles[number]) for number in numbers)
-    sent = record(stamp, f'{signature}\n\n{why}\n\n{text}\n')
+    sent = record(stamp, f'{stamped(triad)}\n\n{why}\n\n{text}\n')
     url = send.run('quote', 'create-pr', '--base', base, '--head', args.head,
                    '--title', titles[numbers[0]], '--body-file', str(sent))
     pr = number_of(url)
@@ -157,7 +162,7 @@ def raise_pr(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
     return outcomes, facts.act('forge', 'raise') + f': DONE - did raise pull/{pr} at {args.head} for ' + ', '.join(f'issues/{n}' for n in numbers)
 
 
-def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]:
+def raise_issue(args, triad: str, text: str, stamp: str) -> tuple[dict, str]:
     blocked_by = [int(n) for n in args.blocked_by or []]
     blocks = [int(n) for n in args.blocks or []]
     supersedes = int(args.supersedes) if args.supersedes else None
@@ -171,8 +176,8 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]
     sha, subject = send.run('quote', 'read', f'repos/{{owner}}/{{repo}}/commits/{branch}',
                             '--jq', '[.sha, (.commit.message | split("\\n")[0])] | @tsv').split('\t', 1)
     date = stamp[:10]
-    machine = signature.split('/', 1)[0]
-    body = should.compose(signature, text, should.as_at(sha, subject, machine, date), supersedes)
+    machine = provider.machine()
+    body = should.compose(stamped(triad), text, should.as_at(sha, subject, machine, date), supersedes)
     sent = record(stamp, body)
     url = send.run('quote', 'create-issue', '--title', args.title, '--body-file', str(sent))
     number = number_of(url)
@@ -184,7 +189,7 @@ def raise_issue(args, signature: str, text: str, stamp: str) -> tuple[dict, str]
     for blocked in blocks:
         wire(blocked, number)
     if supersedes:
-        note = (f'Signature: {signature}\n\nSuperseded by #{number} on the maintainer\'s word, {machine}, {date}, '
+        note = (f'{stamped(triad)}\n\nSuperseded by #{number} on the maintainer\'s word, {machine}, {date}, '
                 f'at {branch} @ {sha[:7]}; its relations are transferred to #{number}.')
         send.run('quote', 'close', str(supersedes), '--reason', 'not planned', '--comment', note)
     read_blocked_by = edges(number, 'blocked_by')
@@ -214,7 +219,7 @@ def main(argv: list[str]) -> int:
         if signature.count('/') != 2:
             raise Refused(f'the Signature triad is not derivable here: {signature}; the session names no provider the registry declares')
         face = raise_pr if args.kind == 'pr' else raise_issue
-        outcomes, effect = face(args, f'Signature: {signature}', text, stamp)
+        outcomes, effect = face(args, signature, text, stamp)
     except (Refused, send.SendRefused, ValueError) as why:
         facts.report(None, facts.act('forge', 'raise') + f': NOT DONE - {why}')
         return 1
