@@ -121,6 +121,20 @@ def check_rehearsal_record(run) -> None:
         check='rehearsal.states_are_decidable')
 
 
+@check(tier='code', says=('store.is_data_input_in_a_rehearsal',), on=['src/main/corpus.py', 'src/main/tier.py'])
+def check_store_is_constant(run) -> None:
+    """The store the promote, the cleaners and the statuses read is data/input whatever a
+    rehearsal sets (issues/1103): a rehearsal's scratch input is a link to the stage, and a
+    store read through it is the stage compared with itself, every staged unit a duplicate."""
+    import os
+    import subprocess
+    said = subprocess.run([str(SRC / 'run_python_script.sh'), '-c', 'import corpus; print(corpus.STORE.relative_to(corpus.REPO).as_posix())'],
+                          capture_output=True, text=True, cwd=REPO_ROOT, env={**os.environ, 'CORPUS_YOGA_REHEARSAL': '2026-11-16T000000Z'})
+    read = said.stdout.strip()
+    run('store: in a rehearsal the store the cleaners and the promote read is data/input', read == 'data/input',
+        None if read == 'data/input' else f'with CORPUS_YOGA_REHEARSAL set the store is read at {read or said.stderr.strip()[-200:]!r}', check='store.is_data_input_in_a_rehearsal')
+
+
 @check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'])
 def check_unit_companion(run) -> None:
     """The staged bulk export <X> is one unit, named by <X>, by the export declaration

@@ -102,7 +102,7 @@ REPO = _root[0]
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)
-STORE = tier.DATA / 'input'
+STORE = tier.STORE                           # data/input, whatever a rehearsal sets
 PIPELINE_ROOT = REPO / 'src' / 'main'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
 NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote

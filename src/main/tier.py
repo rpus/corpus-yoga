@@ -60,6 +60,7 @@ def record_of(act: str) -> Path | None:
     return Path(named) if named else None
 DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else REPO
 DATA = DATA_ROOT / 'data'
+STORE = REPO / 'data' / 'input'   # the store, a constant: a rehearsal's data/input is a link to the stage, and a store read there is the stage itself
 TMP = DATA_ROOT / 'tmp'
 # where acts are logged: the room's act history, or - while the dev gate names the check whose acts
 # it runs - beneath that check, under the gate run's own log, so what a room ran and what its gate
