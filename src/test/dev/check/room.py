@@ -707,6 +707,7 @@ def check_provider_registry(run) -> None:
     'forge.issue_is_a_should_with_wired_relations',
     'forge.anchor_names_the_machine',
     'forge.a_mention_is_never_refused',
+    'forge.default_branch_refuses_a_force_push',
     'forge.merge_names_its_issues',
     'forge.squash_read_back',
 ))
@@ -840,6 +841,25 @@ def check_forge_aim(run) -> None:
     run('forge: a body\'s mention of what the forge writes is never refused, and its use still is', mentioned and still,
         None if mentioned and still else 'a mention in backticks or in a fenced block is refused' if not mentioned else 'an attribution line or a footer in the body\'s own text passed',
         check='forge.a_mention_is_never_refused')
+
+    # The default branch's protection is declared and reconciled (issues/623): over an
+    # unprotected branch each declared row is a drift whose remedy is the one call that sets
+    # the protection whole, and over a branch protected as declared each row agrees.
+    reconciler = [str(SRC / 'run_python_script.sh'), str(SRC / 'main' / 'cli' / 'forge' / 'reconcile.py'), str(SRC / 'main' / 'cli' / 'forge' / 'forge.csv')]
+    repository = json.dumps({'full_name': 'an-owner/a-repository', 'default_branch': 'main'})
+    def reconciled(protection: str) -> dict[str, tuple[str, str]]:
+        said = subprocess.run(reconciler + [protection], input=repository, capture_output=True, text=True, cwd=REPO_ROOT).stdout
+        return {cells[1]: (cells[0], cells[3]) for cells in (line.split('\t') for line in said.splitlines())
+                if len(cells) > 3 and cells[1].startswith('protection.')}
+    bare_branch = reconciled('{}')
+    held = reconciled(json.dumps({'allow_force_pushes': {'enabled': False}, 'allow_deletions': {'enabled': False}, 'enforce_admins': {'enabled': True}}))
+    remedies = {remedy for _state, remedy in bare_branch.values()}
+    refuses_it = ('protection.allow_force_pushes' in bare_branch and all(state == 'DRIFT' for state, _remedy in bare_branch.values())
+                  and len(remedies) == 1 and next(iter(remedies)).startswith('gh api -X PUT repos/an-owner/a-repository/branches/main/protection ')
+                  and '-F allow_force_pushes=false' in next(iter(remedies))
+                  and bool(held) and all(state == 'OK' for state, _remedy in held.values()))
+    run('forge: the default branch\'s protection is declared, a drift where the forge lacks it and its remedy the one call that sets it', refuses_it,
+        None if refuses_it else f'over an unprotected branch the rows read {bare_branch!r}; over a protected one {held!r}', check='forge.default_branch_refuses_a_force_push')
 
     # The squash step over a stub forge (issues/931): a merge call whose reply is lost over a
     # PR the forge has merged concludes, one over a PR the forge holds open refuses. The

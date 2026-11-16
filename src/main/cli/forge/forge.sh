@@ -44,7 +44,18 @@ reconcile() {
     echo -e "UNVERIFIED\tlive\t$(phrase "unreachable, offline, no GitHub remote, or gh not logged in")\t"
     return
   fi
-  printf '%s' "$live" | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/reconcile.py" "$DECLARED" 2>/dev/null \
+  # the default branch's protection (issues/623): the branch says whether it is protected, and
+  # only a protected one has a protection to read - the forge answers 404 for the other
+  local branch held protection=""
+  branch="$(jq -r '.default_branch // empty' <<< "$live")"
+  if [[ -n "$branch" ]] && held="$(cd "$REPO_DIR" && send quote branch "repos/{owner}/{repo}/branches/$branch")"; then
+    if [[ "$(jq -r '.protected' <<< "$held")" == true ]]; then
+      protection="$(cd "$REPO_DIR" && send quote branch "repos/{owner}/{repo}/branches/$branch/protection")" || protection=""
+    else
+      protection='{}'
+    fi
+  fi
+  printf '%s' "$live" | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/reconcile.py" "$DECLARED" "$protection" 2>/dev/null \
     || echo -e "UNVERIFIED\tdeclared\t$(phrase "unreadable, malformed, or no venv")\t"
   # This checkout's origin against the repository the forge answers for it (issues/579). After a
   # rename the forge redirects, so its full_name is the current name while origin may still
@@ -355,13 +366,22 @@ clean() {
 # The act (issues/881): what it would set is the bare status's, drift by drift; this sets each.
 push() {
   send_cleared patch || exit 1
-  local rows drift=0 words
+  local rows drift=0 words protected=0
   rows="$(reconcile)"
   while IFS=$'\t' read -r st key detail remedy; do
     [[ "$st" == DRIFT ]] || continue
     drift=1
     echo "  did set: $key"
-    read -ra words <<< "$remedy"   # the row's remedy ends on the field it sets, its flag before it
+    read -ra words <<< "$remedy"
+    if [[ "$key" == protection.* ]]; then
+      # the forge sets a protection whole (issues/623): every drifted protection row carries the
+      # one call, its words after `gh api -X PUT` the path and each field, and it runs once
+      (( protected )) && continue
+      protected=1
+      (cd "$REPO_DIR" && send enact protect "${words[@]:4}" >/dev/null) || { echo "corpus-yoga forge push: $(phrase "{key} failed - settings unchanged for it" key="$key")" >&2; exit 1; }
+      continue
+    fi
+    # a merge setting's remedy ends on the field it sets, its flag before it
     (cd "$REPO_DIR" && send enact patch "${words[@]: -2}" >/dev/null) || { echo "corpus-yoga forge push: $(phrase "{key} failed - settings unchanged for it" key="$key")" >&2; exit 1; }
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then

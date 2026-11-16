@@ -32,6 +32,10 @@ gate needs, and it lives here. It squash-merges with **no message flags**, becau
 branch's commits and keeps each one's `Signature:` line, the join key into the
 captured session corpus. A hand-written `--body` discards them all.
 
+`forge.csv` also declares the default branch's protection, the rows named `protection.`:
+main refuses a force-push and a deletion from every account, administrators included
+(issues/623), so that linear history is the forge's refusal and no actor's care.
+
 `./corpus-yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
 can see what the forge does to a merge without having to merge one to find out; and
 `./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
