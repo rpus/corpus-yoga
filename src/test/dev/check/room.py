@@ -705,6 +705,7 @@ def check_provider_registry(run) -> None:
 @check(tier='code', on=['src/main/cli/forge', 'src/test'], says=(
     'forge.aim_one_line_per_issue',
     'forge.issue_is_a_should_with_wired_relations',
+    'forge.anchor_names_the_machine',
     'forge.merge_names_its_issues',
     'forge.squash_read_back',
 ))
@@ -764,6 +765,60 @@ def check_forge_aim(run) -> None:
                  and refuses(lambda: should.check_body('## but, in future\n\n- a should.\n\n## currently\n\n### as is\n')))
     run('forge: an issue\'s body is the template\'s sections, and narrates no relation', body_held,
         None if body_held else 'a narrated relation, a hand-written as-at, or sections out of order passed', check='forge.issue_is_a_should_with_wired_relations')
+
+    # An issue's as-at and a superseded issue's note name the machine and nothing of the
+    # stamped line (issues/897): the raise runs whole over a stub forge and a stub triad. The
+    # fixture is the live bug: issues/896 and issues/1098 were raised with the attribution
+    # word and its colon before the machine.
+    import contextlib
+    import importlib.util
+    import io
+    import tempfile
+    raise_at = importlib.util.spec_from_file_location('forge_raise_anchor', SRC / 'main' / 'cli' / 'forge' / 'raise.py')
+    assert raise_at is not None and raise_at.loader is not None
+    raising = importlib.util.module_from_spec(raise_at)
+    raise_at.loader.exec_module(raising)
+    written: dict[str, str] = {}
+    class StubForge:
+        SendRefused = send.SendRefused
+        @staticmethod
+        def run(_face: str, name: str, *args: str) -> str:
+            if name == 'default-branch':
+                return 'main'
+            if name == 'read':
+                return '0123456789abcdef\ta subject (#7)' if '/commits/' in args[0] else 'issues'  # GitHub's grammar, hashed
+            if name == 'issue':
+                return 'OPEN\tan open should'
+            if name == 'create-issue':
+                written['body'] = Path(args[args.index('--body-file') + 1]).read_text()
+                return 'https://github.com/an-owner/a-repository/issues/5'
+            if name == 'close':
+                written['note'] = args[args.index('--comment') + 1]
+            return ''
+    class StubTriad:
+        @staticmethod
+        def signature() -> str:
+            return 'a-room/claude/0123abcd'
+        @staticmethod
+        def machine() -> str:
+            return 'a-room'
+    stood = Path.cwd()
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, stub in (('send', StubForge), ('provider', StubTriad), ('RECORD', Path(tmp) / 'record')):
+            setattr(raising, name, stub)
+        drafted = Path(tmp) / 'body.md'
+        drafted.write_text('## currently\n\n### as is\n\n- a fact.\n\n## but, in future\n\n- a should.\n')
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                raising.main(['issue', '--title', 'a thing should hold', '--body', str(drafted), '--supersedes', '3'])
+        finally:
+            os.chdir(stood)
+    anchors = [line for line in written.get('body', '').splitlines() if line.startswith('main @ ')]
+    note = written.get('note', '')
+    named = (len(anchors) == 1 and re.fullmatch(r'main @ 0123456, after #7 merged; raised from a-room on \d{4}-\d{2}-\d{2}', anchors[0]) is not None  # GitHub's grammar, hashed
+             and note.startswith('Signature: a-room/claude/0123abcd\n') and "word, a-room, " in note)
+    run('forge: an issue\'s as-at and a superseded issue\'s note name the machine, never the stamped line\'s head', named,
+        None if named else f'the as-at reads {anchors!r}; the note opens {note[:120]!r}', check='forge.anchor_names_the_machine')
 
     # The squash step over a stub forge (issues/931): a merge call whose reply is lost over a
     # PR the forge has merged concludes, one over a PR the forge holds open refuses. The
