@@ -94,7 +94,10 @@ eighth principle or a smell.
   itself, and any pivot starts by filing its should.
 - An issue's title carries its "should" - the property that should hold,
   never the instrument that should exist. An issue closes only on
-  demonstration. The should is the issue's identity: an edit that
+  demonstration, on supersession, or on the maintainer's ruling - the
+  last two as not planned, under a ledger note that names the successor
+  or the ruling, the room and the date; an agent proposes a closure in
+  chat and makes none unasked. The should is the issue's identity: an edit that
   changes its intent is supersession, an explicit act; an edit that keeps
   it - a correction, a clearer statement of the same should, a detail a
   ruling has settled - is amendment, made in place, the forge's revision
