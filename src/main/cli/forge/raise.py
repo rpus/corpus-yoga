@@ -46,10 +46,11 @@ def drafted(path: Path) -> str:
     if not path.is_file():
         raise Refused(f'{path} is no file')
     text = path.read_text()
-    if re.search(r'^Signature:', text, re.M):
+    bare = aim.bare(text)
+    if re.search(r'^Signature:', bare, re.M):
         raise Refused('the body carries a Signature line; the forge stamps it')
     for word in FOOTER:
-        if word in text:
+        if word in bare:
             raise Refused(f'the body carries {word!r}, which no raised body may')
     return text.strip('\n')
 

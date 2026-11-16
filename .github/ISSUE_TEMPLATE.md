@@ -55,7 +55,12 @@ main @ <sha>[, after #<N> merged]
 
 ### as is
 
-<!-- The state at issue: indicative only, every claim readable against the
+<!-- Open with what is observed, pasted as it was printed or as the file
+     holds it - the line, the command and what it said - before any account
+     of the code behind it (issues/1101). A mention of what the forge writes
+     wears backticks or a fence, and is never refused (issues/898).
+
+     The state at issue: indicative only, every claim readable against the
      anchor above — file:line quotes, observed output, measured numbers (a
      machine-local measurement additionally names its room). What is wrong
      appears here only as observed fact; why it is wrong is the contrast the
@@ -63,7 +68,12 @@ main @ <sha>[, after #<N> merged]
 
 ## but, in future
 
-<!-- The to-be: normative throughout, "should" in every clause. Contrast and
+<!-- Open with what should be observed in its place, written out as it
+     should read, before the property that makes it so: a reader who holds
+     only this opening and the as-is's should be able to say what is wrong
+     and what right looks like (issues/1101).
+
+     The to-be: normative throughout, "should" in every clause. Contrast and
      improve the as-is; state the property that should hold, never the
      mechanism that should exist. This section is what a closing PR asserts
      compliance with, and what its standing check cites. -->

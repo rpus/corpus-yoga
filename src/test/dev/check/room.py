@@ -706,6 +706,7 @@ def check_provider_registry(run) -> None:
     'forge.aim_one_line_per_issue',
     'forge.issue_is_a_should_with_wired_relations',
     'forge.anchor_names_the_machine',
+    'forge.a_mention_is_never_refused',
     'forge.merge_names_its_issues',
     'forge.squash_read_back',
 ))
@@ -819,6 +820,26 @@ def check_forge_aim(run) -> None:
              and note.startswith('Signature: a-room/claude/0123abcd\n') and "word, a-room, " in note)
     run('forge: an issue\'s as-at and a superseded issue\'s note name the machine, never the stamped line\'s head', named,
         None if named else f'the as-at reads {anchors!r}; the note opens {note[:120]!r}', check='forge.anchor_names_the_machine')
+
+    # A body speaks about what the forge writes by mentioning it - in backticks or in a fenced
+    # block (issues/898): every refusal of a token is read off the bare text, so a mention
+    # passes and the token itself, used, is still refused.
+    mention = ('## currently\n\n### as is\n\n- the raise stamps the `Signature:` line and the `### as at` heading:\n\n'
+               '```\nSignature: a-room/claude/0123abcd\n\n### as at\n\nGenerated with a harness\n```\n\n## but, in future\n\n- a should.\n')
+    used = mention.replace('- a should.', '- a should.\n\nSignature: a-room/claude/0123abcd')
+    with tempfile.TemporaryDirectory() as tmp:
+        def drafts(text: str) -> bool:
+            (Path(tmp) / 'body.md').write_text(text)
+            try:
+                raising.drafted(Path(tmp) / 'body.md')
+            except raising.Refused:
+                return False
+            return True
+        mentioned = not refuses(lambda: should.check_body(mention)) and drafts(mention)
+        still = refuses(lambda: should.check_body(used)) and not drafts(used) and not drafts(mention + '\nCo-Authored-By: a harness\n')
+    run('forge: a body\'s mention of what the forge writes is never refused, and its use still is', mentioned and still,
+        None if mentioned and still else 'a mention in backticks or in a fenced block is refused' if not mentioned else 'an attribution line or a footer in the body\'s own text passed',
+        check='forge.a_mention_is_never_refused')
 
     # The squash step over a stub forge (issues/931): a merge call whose reply is lost over a
     # PR the forge has merged concludes, one over a PR the forge holds open refuses. The
