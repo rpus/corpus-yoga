@@ -127,7 +127,7 @@
       "runs": "gh api repos/{owner}/{repo}",
       "refused": "degrades",
       "does": [
-        "reads the live settings, for the report, for sync and for the merge's standing report"
+        "reads the live settings, for the report, for push and for the merge's standing report"
       ]
     },
     "branch": {
