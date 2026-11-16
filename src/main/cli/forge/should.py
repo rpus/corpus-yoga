@@ -38,10 +38,11 @@ def check_body(text: str) -> None:
         if found < at:
             raise ValueError(f'the body lacks {heading}, or has it out of the template\'s order')
         at = found
+    bare = aim.bare(text)
     for own in WRITTEN:
-        if own in text:
+        if own in bare:
             raise ValueError(f'the body carries {own}, which the forge writes')
-    narrated = _NARRATED.search(aim.bare(text))
+    narrated = _NARRATED.search(bare)
     if narrated:
         raise ValueError(f'the body narrates a relation, {narrated.group(0)!r}; the raise\'s arguments wire it')
 
