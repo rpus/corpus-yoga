@@ -35,9 +35,10 @@
 
      Closure: a PR that closes this issue should read as asserted compliance
      with "but, in future"; a standing property should end as a named check
-     citing this issue; and the issue should close only on demonstration that
-     its should holds — never on the existence of an instrument named for
-     it. -->
+     citing this issue; and a PR should close the issue only on demonstration
+     that its should holds — never on the existence of an instrument named
+     for it. An issue no PR closes should close on supersession or on the
+     maintainer's ruling, as not planned (AGENTS.md, the change process). -->
 
 Signature: <machine>/<provider>/<session>
 

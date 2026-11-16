@@ -5,8 +5,8 @@ AGENTS.md,70,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/
 AGENTS.md,71,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds the grammars of"
 AGENTS.md,73,doc,rsc/migration,Y,comments or if-chains; rsc/migration/ holds the moves a rename owes the
 AGENTS.md,75,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-AGENTS.md,222,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
-AGENTS.md,227,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+AGENTS.md,225,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
+AGENTS.md,230,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,23,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
 CONTRIBUTING.md,37,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 CONTRIBUTING.md,60,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
