@@ -1564,9 +1564,9 @@ src/test/dev/check/unit.py,351,comment,rsc/naming/checkout_paths.csv,Y,"A checko
 src/test/dev/check/unit.py,408,comment,rsc/migration/1063.sh,Y,"undo, and rsc/migration/1063.sh strips the merge records a room's memory index holds, its"
 src/test/dev/check/unit.py,482,comment,rsc/migration/1052.sh,Y,python the launcher starts is given that prefix; rsc/migration/1052.sh discards the bytecode
 src/test/dev/check/unit.py,619,comment,rsc/migration/1069.sh,Y,and rsc/migration/1069.sh moves a room's bodies there; a python file with a shebang is
-src/test/dev/check/unit.py,796,comment,rsc/migration/1063.sh,Y,"The scripts under rsc/migration have one order, merge order (issues/1094): rsc/migration/1063.sh,"
-src/test/dev/check/unit.py,797,comment,rsc/migration/1052.sh,Y,"which main held at 1881e5f1, before rsc/migration/1052.sh, held at 556b13c8 after it, whatever"
-src/test/dev/check/unit.py,919,comment,rsc/migration/1090.sh,Y,rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
+src/test/dev/check/unit.py,798,comment,rsc/migration/1063.sh,Y,"The scripts under rsc/migration have one order, merge order (issues/1094): rsc/migration/1063.sh,"
+src/test/dev/check/unit.py,799,comment,rsc/migration/1052.sh,Y,"which main held at 1881e5f1, before rsc/migration/1052.sh, held at 556b13c8 after it, whatever"
+src/test/dev/check/unit.py,921,comment,rsc/migration/1090.sh,Y,rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1622,30 +1622,30 @@ src/test/dev/check/unit.py,757,path_str,src/main/cli/site,Y,"on=['src/main/cli/s
 src/test/dev/check/unit.py,757,path_str,src/main/facts.py,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
 src/test/dev/check/unit.py,757,path_str,src/main/report.sh,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
 src/test/dev/check/unit.py,757,path_str,src/main,Y,"on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])"
-src/test/dev/check/unit.py,794,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.scripts_run_in_merge_order',), on=['src/main/cli/migration', 'rsc/migration'])"
-src/test/dev/check/unit.py,794,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.scripts_run_in_merge_order',), on=['src/main/cli/migration', 'rsc/migration'])"
-src/test/dev/check/unit.py,840,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.every_script_changes_nothing_twice',), on=['rsc/migration', 'src/main/cli/migration"
-src/test/dev/check/unit.py,840,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.every_script_changes_nothing_twice',), on=['rsc/migration', 'src/main/cli/migration"
-src/test/dev/check/unit.py,899,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])"
-src/test/dev/check/unit.py,930,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
-src/test/dev/check/unit.py,930,path_str,rsc/migration/1090.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
-src/test/dev/check/unit.py,942,path_str,rsc/migration/1090.sh,Y,script = checkout / 'rsc/migration/1090.sh'
-src/test/dev/check/unit.py,917,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
-src/test/dev/check/unit.py,917,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
-src/test/dev/check/unit.py,962,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
+src/test/dev/check/unit.py,796,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.scripts_run_in_merge_order',), on=['src/main/cli/migration', 'rsc/migration'])"
+src/test/dev/check/unit.py,796,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.scripts_run_in_merge_order',), on=['src/main/cli/migration', 'rsc/migration'])"
+src/test/dev/check/unit.py,842,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.every_script_changes_nothing_twice',), on=['rsc/migration', 'src/main/cli/migration"
+src/test/dev/check/unit.py,842,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.every_script_changes_nothing_twice',), on=['rsc/migration', 'src/main/cli/migration"
+src/test/dev/check/unit.py,901,path_str,src/main/cli/migration,Y,"@check(tier='code', says=('migration.status_relays_each_step',), on=['src/main/cli/migration'])"
+src/test/dev/check/unit.py,932,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
+src/test/dev/check/unit.py,932,path_str,rsc/migration/1090.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1090.sh'):"
+src/test/dev/check/unit.py,944,path_str,rsc/migration/1090.sh,Y,script = checkout / 'rsc/migration/1090.sh'
+src/test/dev/check/unit.py,919,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
+src/test/dev/check/unit.py,919,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
+src/test/dev/check/unit.py,964,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
 src/test/dev/check/unit.py,33,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
 src/test/dev/check/unit.py,188,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,427,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
 src/test/dev/check/unit.py,585,path_str,src/main/cli/agent/agent.py,Y,"same, None if same else 'src/main/cli/agent/agent.py has no tally(sized) and summary(log, bundle)' if counted is None or"
 src/test/dev/check/unit.py,642,path_str,src/main/latest.py,Y,None if declared else 'src/main/latest.py has no reference_file(directory)' if not callable(read) else f'it resolves {po
 src/test/dev/check/unit.py,684,path_str,src/requirements.txt,Y,"None if ruled else f'src/requirements.txt pins {"", "".join(pinned) or ""nothing""}, where only antlr4-python3-runtime is pi"
-src/test/dev/check/unit.py,860,path_str,rsc/migration,Y,"for part in [f'rsc/migration/{name}' for name in ['step.sh', *order]]:"
+src/test/dev/check/unit.py,862,path_str,rsc/migration,Y,"for part in [f'rsc/migration/{name}' for name in ['step.sh', *order]]:"
 src/test/dev/check/unit.py,442,path_str,src/main/cli/agent/agent.py,Y,"None if pulled else f'src/main/cli/agent/agent.py has no pull_act(machine, log); the agent declares {verbs}' if said is "
 src/test/dev/check/unit.py,468,path_str,rsc/migration/1063.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')"
 src/test/dev/check/unit.py,517,path_str,rsc/migration/1052.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')"
 src/test/dev/check/unit.py,664,path_str,rsc/migration/1069.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')"
-src/test/dev/check/unit.py,945,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
-src/test/dev/check/unit.py,884,path_str,rsc/migration,Y,"done = subprocess.run([str(checkout / 'rsc/migration' / name), '--apply'], capture_output=True, text=True, env=env, cwd="
+src/test/dev/check/unit.py,947,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
+src/test/dev/check/unit.py,886,path_str,rsc/migration,Y,"done = subprocess.run([str(checkout / 'rsc/migration' / name), '--apply'], capture_output=True, text=True, env=env, cwd="
 src/test/dev/check/upstream.py,179,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,211,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"
 src/test/dev/check/upstream.py,27,path_str,src/main/cli/grammar/grammar.json,Y,os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')

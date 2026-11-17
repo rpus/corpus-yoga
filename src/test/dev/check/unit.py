@@ -761,7 +761,8 @@ def check_effect_lines_and_unprojected_page(run) -> None:
     an empty stage passes where the code is sound (issues/1090). And every effect line names its
     act from the act's declaration, facts.act or the shell's act: a verb no declaration holds
     raises, and no source types `<noun> <verb>: DONE` or `NOT DONE` by hand, so that a renamed
-    noun strands no effect line, as `model derive` was stranded after the metamodel's rename."""
+    noun strands no effect line, as `model derive` was stranded after the metamodel's rename, and
+    `model accept` after it in an f-string the plain pattern could not see (issues/1106)."""
     import re
     import subprocess
     import facts
@@ -782,7 +783,8 @@ def check_effect_lines_and_unprojected_page(run) -> None:
             builder('model', 'derive')
         except KeyError:
             refused = True
-    typed = re.compile(r"[\"'`][a-z-]+ [a-z-]+: (NOT )?DONE")
+    word = r"(?:[a-z-]+|\{[^}]+\}|\$\{?\w+\}?)"   # a word, or a placeholder an f-string or the shell fills in
+    typed = re.compile(r"[\"'`]" + word + " " + word + r": (NOT )?DONE")
     hand = [f'{path.relative_to(REPO_ROOT)}:{number}' for path in sorted((SRC / 'main').rglob('*')) if path.suffix in ('.py', '.sh') and path.is_file()
             for number, line in enumerate(path.read_text().splitlines(), 1) if typed.search(line)]
     declared = named == 'metamodel derive' and refused and not hand
