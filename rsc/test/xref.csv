@@ -61,8 +61,9 @@ README.md,92,doc,rsc/migration,Y,"- the moves a rename owes the machine-local ro
 README.md,93,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
 README.md,94,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
 README.md,95,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,96,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga statu"
-README.md,97,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,96,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv`, the default branch"
+README.md,97,doc,src/test/dev/check,Y,"- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yo"
+README.md,97,doc,src/test/dev/run.py,Y,"- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yo"
 README.md,105,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 README.md,115,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh satisfy` creates the
 README.md,116,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
