@@ -819,7 +819,10 @@ def promotable(rel: Relation, ok: Judgement) -> bool:
 
 def extent(noun: str, provider: str | None, everything: bool, unit_id: str | None) -> list[Unit]:
     """The staged units a noun's promote names: every unit under the noun's roots, or one
-    provider's, or one unit of that provider by a prefix of a component of its address."""
+    provider's, or one unit of that provider by a prefix of a component of its address - never a
+    prefix without its provider, whose shape does not say whose unit it is."""
+    if unit_id is not None and provider is None:
+        sys.exit('error: --id names a unit within a provider - say which with --provider')
     roots = roots_of(noun)
     if provider is not None:
         mine = [r for r in roots if r.parts[0] == provider]
@@ -1588,8 +1591,6 @@ def main(argv: list[str]) -> int:
     sub.add_parser('held', add_help=False)
     args = ap.parse_args(argv)
     if args.act == 'promote':
-        if args.id is not None and args.provider is None:
-            sys.exit('error: --id names a unit within a provider - say which with --provider')
         return promote(args.noun, extent(args.noun, args.provider, args.all, args.id))
     if args.act == 'held':
         for row in held_rows():
