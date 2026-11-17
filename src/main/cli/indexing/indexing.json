@@ -2,6 +2,8 @@
   "summary": "Curate and build the book index over data/output/indexing/ (bare is the status)",
   "standing": true,
   "phrase": [
+    "the {table} reply holds no text block - its blocks are {blocks}; the reply is kept at {kept}",
+    "the {table} reading is not written; the line above says why, and nothing is promoted",
     "{n} candidate concept(s) written to {path}",
     "each anchors in the corpus by the aliases shown; dispose each with corpus-yoga indexing accept \"<concept>\" [alias ...] or reject \"<concept>\", or --all as read",
     "{n} unanchorable concept(s) - no phrasing occurs in any conversation turn, so the corpus cannot index them; named, not queued",

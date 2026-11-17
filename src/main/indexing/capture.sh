@@ -67,11 +67,12 @@ for n, stem, title, cid in corpus_index('$src'):
   fi
 }
 
-# capture_table <columns_json> <column_semantics> <task> <data> → prints {columns, rows} JSON
-# column_semantics: one line per column — "name: what it means"
+# capture_table <columns_json> <column_semantics> <task> <data> <table> → prints {columns, rows} JSON
+# column_semantics: one line per column — "name: what it means". The reply is kept beside the
+# run's record, <stamp>.<table>.reply.json, since a paid call is not repeated for free.
 capture_table() {
-  local columns="$1" semantics="$2" task="$3" data="$4"
-  local request response
+  local columns="$1" semantics="$2" task="$3" data="$4" table="$5"
+  local request response kept
   request="$(jq -n \
     --arg model  "$MODEL" \
     --arg user   "Table schema — columns: $columns
@@ -94,6 +95,9 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
     -H "anthropic-version: 2023-06-01" \
     -H "content-type: application/json" \
     -d @-)"
+  kept="$LOGS_DIR/indexing/capture/$(stamp_of indexing capture).$table.reply.json"
+  mkdir -p "${kept%/*}"
+  printf '%s\n' "$response" > "$kept"
   # A reading cut off at the token ceiling is not a short reading, it is an incomplete one,
   # and the text may still parse. Ask the response why it stopped rather than inferring it
   # from the rows that arrived (L8: failure surfaces; never fabricate where the honest state
@@ -104,7 +108,14 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
          "the reading is incomplete and is NOT promoted" >&2
     return 1
   fi
-  jq -r '.content[0].text' <<< "$response"
+  local text
+  text="$(jq -r '.content[0].text // empty' <<< "$response")"
+  if [[ -z "$text" ]]; then
+    echo "corpus-yoga indexing capture: $(phrase "the {table} reply holds no text block - its blocks are {blocks}; the reply is kept at {kept}" \
+      table="$table" blocks="$(jq -r '[.content[]?.type] | join(", ")' <<< "$response")" kept="${kept#"$REPO_DIR/"}")" >&2
+    return 1
+  fi
+  printf '%s\n' "$text"
 }
 
 # ── per-table capture functions ───────────────────────────────────────────────
@@ -132,14 +143,15 @@ print(', '.join(r[0] for r in json.loads(m.group(1))['rows']))
 # passed in (resolved by the caller before any paid call) so their failure aborts
 # before we spend, not silently or mid-run.
 capture_chat_categories() {
-  local conv="$1" chats="$2" categories="$3" out_file="$4"
-  capture_table \
+  local conv="$1" chats="$2" categories="$3" out_file="$4" text
+  text="$(capture_table \
     '["chat", "category"]' \
     'chat: integer index of the conversation (from the list below)
 category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
-$chats" \
+$chats" chat-categories)" || return 1
+  printf '%s\n' "$text" \
     | "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/rekey_chats.py" --to-id --conversations "$conv" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_file"
@@ -149,15 +161,16 @@ $chats" \
 # concept tagged with the provider(s) it is salient in (from the chat list's [source]
 # markers) — the dimension behind the dashboard's provider toggle (schema v2)
 capture_concepts_to() {
-  local chats="$1" out_file="$2"
-  capture_table \
+  local chats="$1" out_file="$2" text
+  text="$(capture_table \
     '["word", "count", "provider"]' \
     'word: key concept or theme (word or short phrase)
 count: salience weight (not raw frequency); scale so the top concept = 100
 provider: which provider the concept is salient in — "claude", "gemini", or "both", from the [source] markers in the conversation list (a list without markers is all claude)' \
     'Generate a weighted list of 20-50 key concepts and themes across all conversations, tagging each concept with the provider(s) whose conversations it is salient in.' \
     "Conversations:
-$chats" \
+$chats" semantic-concepts)" || return 1
+  printf '%s\n' "$text" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_file"
 }
@@ -268,7 +281,8 @@ capture_dashboard() {
 
   echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/indexing/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
-    capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json"
+    capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json" \
+      || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is promoted" table=semantic-concepts)"; exit 1; }
     validate_capture "$stage/inferred-semantic-concepts.json" semanticConcepts
     echo "  ✓ inferred-semantic-concepts.json ($(jq '.rows | length' "$stage/inferred-semantic-concepts.json") concepts)"
     # What the call bought, judged now (issues/644): the index's own scan says which concepts
@@ -277,7 +291,8 @@ capture_dashboard() {
     "$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; import indexing; indexing.anchor_report(Path(sys.argv[1]), Path(sys.argv[2]))' "$stage/inferred-semantic-concepts.json" "$conv"
   fi
   if [[ "$want_categories" == 1 ]]; then
-    capture_chat_categories "$conv" "$chats" "$categories" "$stage/inferred-chat-categories.json"
+    capture_chat_categories "$conv" "$chats" "$categories" "$stage/inferred-chat-categories.json" \
+      || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is promoted" table=chat-categories)"; exit 1; }
     validate_capture "$stage/inferred-chat-categories.json" chatCategories
     # Every assigned category MUST be an authored palette name, else present.sh's hue
     # lookup misses and those chats render uncoloured — the join's real dependency, which
@@ -370,4 +385,5 @@ main() {
   capture "$@"
 }
 
-main "$@"
+# run, the capture; loaded, its functions alone - so that a check can exercise them without a capture
+[[ "${BASH_SOURCE[0]}" != "$0" ]] || main "$@"
