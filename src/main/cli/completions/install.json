@@ -1,5 +1,5 @@
 {
-  "help": "makes tab complete corpus-yoga in zsh, by adding four lines to ~/.zshrc - run by corpus-yoga status satisfy",
+  "help": "makes tab complete corpus-yoga in zsh, by writing its block into ~/.zshrc and clearing zsh's cached completion lists - run by corpus-yoga status satisfy",
   "would": "would install - open a new terminal afterwards",
   "modality": "MUST",
   "args": [],
@@ -8,7 +8,14 @@
       "runs": "write ~/.zshrc",
       "refused": "fails",
       "does": [
-        "rewrites the corpus-yoga completion block in ~/.zshrc, outside the repository"
+        "rewrites the corpus-yoga completion block in ~/.zshrc, outside the repository - four lines, and compinit's two where ~/.zshrc has none"
+      ]
+    },
+    "zcompdump": {
+      "runs": "remove ~/.zcompdump*",
+      "refused": "fails",
+      "does": [
+        "removes zsh's cached completion lists, outside the repository, so the next terminal builds them afresh with the block in place"
       ]
     }
   }
