@@ -48,7 +48,6 @@ README.md,90,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's ow
 README.md,90,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,90,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,90,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,90,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,91,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
 README.md,91,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
 README.md,91,doc,rsc/naming/checkout_paths.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
@@ -75,7 +74,6 @@ pyrightconfig.json,15,path_str,src/main/cli/agent,Y,"""src/main/cli/agent"","
 pyrightconfig.json,16,path_str,src/main/agent,Y,"""src/main/agent"","
 pyrightconfig.json,17,path_str,src/main/metamodel,Y,"""src/main/metamodel"","
 pyrightconfig.json,20,path_str,src/main/grammar,Y,"""src/main/grammar"","
-pyrightconfig.json,21,path_str,src/gen/grammar/TypeScript,Y,"""src/gen/grammar/TypeScript"""
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the corpus-yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,80,doc,src/main/export/atoms.py,Y,equality of snapshots. (`src/main/export/atoms.py` atomisers.)
 rsc/CALCULUS.md,86,doc,src/main/export/atoms.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/export/atoms.py`, the export's measure; `src/main/corpus.py`'s one read"
@@ -1018,11 +1016,8 @@ src/main/cli/forge/should.py,14,path_str,src/main/cli/forge/should.py,Y,SELF = '
 src/main/cli/forge/status.py,17,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
 src/main/cli/forge/status.py,53,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
 src/main/cli/grammar/generate.json,7,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/grammar/generate.json,8,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
-src/main/cli/grammar/generate.json,11,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
 src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/grammar/grammar.json,23,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
 src/main/cli/indexing/capture.json,38,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
 src/main/cli/indexing/capture.json,39,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
 src/main/cli/indexing/indexing.json,45,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
@@ -1132,7 +1127,6 @@ src/main/cli/status/satisfy.json,32,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/status/satisfy.json,38,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
 src/main/cli/status/satisfy.json,39,path_str,src/main/cli/server/serve_assets.txt,Y,"""src/main/cli/server/serve_assets.txt"","
 src/main/cli/status/satisfy.json,40,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/status/satisfy.json,41,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
 src/main/cli/status/satisfy.json,42,path_str,rsc/provider,Y,"""rsc/provider"""
 src/main/cli/status/status.json,92,path_str,src/main/cli/status/status.sh,Y,"""target"": ""src/main/cli/status/status.sh"","
 src/main/cli/status/status.json,104,path_str,rsc/machine,Y,"""rsc/machine"","
@@ -1140,7 +1134,6 @@ src/main/cli/status/status.json,105,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/status/status.json,111,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
 src/main/cli/status/status.json,112,path_str,src/main/cli/server/serve_assets.txt,Y,"""src/main/cli/server/serve_assets.txt"","
 src/main/cli/status/status.json,113,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/status/status.json,114,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
 src/main/cli/status/status.json,115,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/status/status.sh,2,comment,src/main/cli/status/status.sh,Y,"# src/main/cli/status/status.sh — what this machine has, and what it still needs."
 src/main/cli/status/status.sh,16,comment,src/main/cli/status/status.sh,Y,#   src/main/cli/status/status.sh              # what still needs attention; a section with nothing to say is not shown
@@ -1314,7 +1307,6 @@ src/main/machine.py,39,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.p
 src/main/markdown_projection.py,5,comment,src/run_python_script.sh,Y,"declares and src/run_python_script.sh sets, so the per-pipeline CLIs import it by name:"
 src/main/markdown_projection.py,10,comment,src/main/export/atomise_bulk.py,Y,"(project+render to compare), export/atomise_bulk.py (slug/assign_name"
 src/main/markdown_projection.py,23,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
-src/main/mcp/derivation.json,4,path_str,src/gen/grammar/TypeScript,Y,"""needs"": ""src/gen/grammar/TypeScript"","
 src/main/mcp/extraction.py,38,path_str,src/main/mcp/extraction.py,Y,SELF = 'src/main/mcp/extraction.py'
 src/main/mcp/face.py,23,comment,rsc/cache_io.csv,Y,"derivation's other faces (rsc/cache_io.csv), never committed: they are readings of"
 src/main/mcp/face.py,32,path_str,src/main/mcp/face.py,Y,SELF = 'src/main/mcp/face.py'
@@ -1654,9 +1646,7 @@ src/test/dev/check/upstream.py,211,comment,src/main/mcp/derivation.json,Y,"The m
 src/test/dev/check/upstream.py,27,path_str,src/main/cli/grammar/grammar.json,Y,os.environ[tier.DECLARATION] = send.dispatched('src/main/cli/grammar/grammar.json')
 src/test/dev/check/upstream.py,39,path_str,rsc/rpus/grammar,Y,"@check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=("
 src/test/dev/check/upstream.py,39,path_str,src/main/grammar,Y,"@check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=("
-src/test/dev/check/upstream.py,39,path_str,src/gen/grammar,Y,"@check(tier='schema', on=['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'], says=("
 src/test/dev/check/upstream.py,67,path_str,rsc/reference,Y,"@check(tier='schema', on=['rsc/reference'], says=("
-src/test/dev/check/upstream.py,119,path_str,src/gen/grammar,Y,"@check(tier='schema', on=['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'], says=("
 src/test/dev/check/upstream.py,195,path_str,src/main/cli/mcp/reproduce.json,Y,env[tier.DECLARATION] = send.dispatched('src/main/cli/mcp/reproduce.json')
 src/test/dev/check/upstream.py,227,path_str,src/main/mcp/derivation.json,Y,"declared_at, schema_at = REPO_ROOT / 'src/main/mcp/derivation.json', REPO_ROOT / 'src/main/derivation.schema.json'"
 src/test/dev/check/upstream.py,227,path_str,src/main/derivation.schema.json,Y,"declared_at, schema_at = REPO_ROOT / 'src/main/mcp/derivation.json', REPO_ROOT / 'src/main/derivation.schema.json'"
@@ -1666,12 +1656,10 @@ src/test/dev/check/upstream.py,205,path_str,rsc/reference,Y,"@check(tier='schema
 src/test/dev/check/upstream.py,205,path_str,src/main/reference,Y,"@check(tier='schema', on=['rsc/reference', 'rsc/schema/mcp', 'src/main/mcp', 'src/main/reference', 'src/main/cli/referen"
 src/test/dev/check/upstream.py,205,path_str,src/main/cli/reference,Y,"@check(tier='schema', on=['rsc/reference', 'rsc/schema/mcp', 'src/main/mcp', 'src/main/reference', 'src/main/cli/referen"
 src/test/dev/check/upstream.py,205,path_str,src/main/derivation.schema.json,Y,"@check(tier='schema', on=['rsc/reference', 'rsc/schema/mcp', 'src/main/mcp', 'src/main/reference', 'src/main/cli/referen"
-src/test/dev/check/upstream.py,56,path_str,src/gen/grammar,Y,detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar generate generates it from '
 src/test/dev/check/upstream.py,271,path_str,src/main/reference/reference.py,Y,"None if same else 'src/main/reference/reference.py has no drift(project, fetched)' if not callable(read)"
-src/test/dev/check/upstream.py,292,path_str,src/main/mcp/mcp.py,Y,"None if held else 'src/main/mcp/mcp.py has no as_fetched(have, path)' if not callable(judge) else f'judged {judged!r}'[:"
 src/test/dev/check/upstream.py,230,path_str,src/main/mcp/derivation.json,Y,"why = f'{""src/main/mcp/derivation.json"" if not declared_at.is_file() else ""src/main/derivation.schema.json""} is absent'"
 src/test/dev/check/upstream.py,230,path_str,src/main/derivation.schema.json,Y,"why = f'{""src/main/mcp/derivation.json"" if not declared_at.is_file() else ""src/main/derivation.schema.json""} is absent'"
-src/test/dev/check/upstream.py,61,path_str,src/gen/grammar,Y,"detail = None if ok else (f'src/gen/grammar/{project.name}: {"", "".join(differing)} differ from what '"
+src/test/dev/check/upstream.py,295,path_str,src/main/mcp/mcp.py,Y,"None if held else absent if absent else 'src/main/mcp/mcp.py has no as_fetched(have, path)' if not callable(judge) else "
 src/test/dev/check/upstream.py,256,path_str,src/main/cli/reference,Y,verbs = sorted(d.stem for d in (REPO_ROOT / 'src/main/cli/reference').glob('*.json') if d.stem != 'reference')
 src/test/dev/check/upstream.py,257,path_str,src/main/cli/reference/reference.json,Y,sends = json.loads((REPO_ROOT / 'src/main/cli/reference/reference.json').read_text()).get('sends')
 src/test/dev/gate.py,5,comment,src/test/dev/run.py,Y,"under src/test/dev/check/. The runner, src/test/dev/run.py, derives its sections, its"

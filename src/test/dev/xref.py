@@ -37,7 +37,7 @@ REPO_ROOT = Path(__file__).parents[3]
 def _gitignored_roots() -> frozenset:
     roots = set()
     for line in (REPO_ROOT / '.gitignore').read_text().splitlines():
-        m = re.fullmatch(r'/([^/]+)/?', line.strip())  # anchored top-level dir: /tmp/cache/, /output
+        m = re.fullmatch(r'/([^*?\[\]\s]+?)/?', line.strip())  # anchored root or subroot: /tmp, /src/gen/ - a generated subroot is machine-local as a root is
         if m:
             roots.add(m.group(1))
     return frozenset(roots)
