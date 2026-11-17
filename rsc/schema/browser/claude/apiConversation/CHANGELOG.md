@@ -53,6 +53,7 @@ None.
 
 #### Refactored
 
+- `ApiConversation.model` refers to `LastModel`, a definition added in place: the model the conversation was last continued with, `ModelId` by its values, and described as such - a change of model rewrites it, so it names no earlier turn's author. Observed 2026-11-17 in reading-room: "Questions for you" (d11565d6), switched from claude-fable-5-2 to claude-opus-5-5, was captured naming claude-opus-5-5 for all 405 messages (issues/1116). No validation effect.
 - `MemoryDocument.display_path_segments`: the description says it stands inside the document list of 2026-11-07, where it said a list never carried it. No validation effect.
 
 ## v17

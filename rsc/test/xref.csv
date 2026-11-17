@@ -594,6 +594,8 @@ rsc/metamodel/join.csv,278,path_str,rsc/schema/export/claude/conversations#/defi
 rsc/metamodel/join.csv,278,path_str,rsc/schema/browser/claude/apiConversation#/definitions/GlobToolUseBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,,,rsc/schema/browser/claude/apiConversation#/defini"
 rsc/metamodel/join.csv,279,path_str,rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
 rsc/metamodel/join.csv,279,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
+rsc/metamodel/join.csv,280,path_str,rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
+rsc/metamodel/join.csv,280,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ApiConversation/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
 rsc/migration/1047.sh,2,comment,rsc/migration/1047.sh,Y,# rsc/migration/1047.sh - each pipeline is named for the noun whose promote deposits its
 rsc/migration/1047.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1052.sh,2,comment,rsc/migration/1052.sh,Y,# rsc/migration/1052.sh - python's bytecode stands under tmp/cache/python (issues/1052): each
@@ -715,14 +717,14 @@ rsc/schema/agent/sessionConversation/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.
 rsc/schema/agent/sessionConversation/CHANGELOG.md,36,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
 rsc/schema/agent/sessionConversation/CHANGELOG.md,79,history,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was"
 rsc/schema/browser/claude/apiConversation/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,64,history,rsc/model/model_join.csv,N,"definition shared with session v28 and asserted identical in rsc/model/model_join.csv, so an id"
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,85,history,rsc/schema/export/claude/conversations,Y,"- The family description (v17, in place) names the bulk export's family where it stands since 2026-11-10, `rsc/schema/ex"
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,86,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,187,history,rsc/model/model_join.csv,N,"definitions are one shape under one name in both families (rsc/model/model_join.csv), as"
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,298,history,rsc/model/model_join.csv,N,shared under one name (rsc/model/model_join.csv). Where the two sources differ is
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,358,history,rsc/schema/pipeline/chat-export/claude/conversations,N,"2026-09-16 (issues/632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout"
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,360,history,rsc/schema/pipeline/chat-capture/claude,N,`rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
-rsc/schema/browser/claude/apiConversation/CHANGELOG.md,362,history,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,65,history,rsc/model/model_join.csv,N,"definition shared with session v28 and asserted identical in rsc/model/model_join.csv, so an id"
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,86,history,rsc/schema/export/claude/conversations,Y,"- The family description (v17, in place) names the bulk export's family where it stands since 2026-11-10, `rsc/schema/ex"
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,87,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,188,history,rsc/model/model_join.csv,N,"definitions are one shape under one name in both families (rsc/model/model_join.csv), as"
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,299,history,rsc/model/model_join.csv,N,shared under one name (rsc/model/model_join.csv). Where the two sources differ is
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,359,history,rsc/schema/pipeline/chat-export/claude/conversations,N,"2026-09-16 (issues/632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout"
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,361,history,rsc/schema/pipeline/chat-capture/claude,N,`rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
+rsc/schema/browser/claude/apiConversation/CHANGELOG.md,363,history,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
 rsc/schema/browser/markdownConversation/CHANGELOG.md,6,history,src/main/markdown_projection.py,Y,"src/main/markdown_projection.py - and judges it as a family of the pipeline, with a"
 rsc/schema/browser/markdownConversation/CHANGELOG.md,9,history,rsc/schema/WORKFLOW.md,Y,always did (see `rsc/schema/WORKFLOW.md`).
 rsc/schema/browser/markdownConversation/CHANGELOG.md,40,history,rsc/schema/pipeline/chat-capture/markdownConversation,N,"- The family's address: rsc/schema/pipeline/chat-capture/markdownConversation, a family"
