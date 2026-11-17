@@ -6,12 +6,12 @@
      why section or `closes` is refused by the raise.
 
      The body opens with a Signature line, the same triad the commit hook
-     stamps (src/test/prepare_commit_msg.sh's header is the one authority for
+     stamps (rsc/test/prepare-commit-msg-hook.sh's header is the one authority for
      the grammar): `Signature: <machine>/<provider>/<session>`. Written by
      hand — no hook stamps a body — since raise time has no commit to hook.
      The Signature is the body's ONE attribution. A harness default that
      appends its own — a generated-with footer, a co-author line — has no
-     licensed position in a body, exactly as prepare_commit_msg.sh's stamp
+     licensed position in a body, exactly as prepare-commit-msg-hook.sh's stamp
      already rules for commits; strip it before raising.
 
      The grammar (issues/124): why / what / how / to. The durable record has two git

@@ -1,7 +1,7 @@
 """
-xref.py — the cross-reference table of the repo. `xref` is a NOUN: the table. A bare
-invocation shows its status (the committed table's tallies) and writes nothing; the
-`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated
+xref.py — the cross-reference table of the repo. `corpus-yoga test xref`
+rebuilds it, writes rsc/test/xref.csv, and reports; the dev gate rebuilds it on every run and holds its
+counts to rsc/test/xref_expected_score. Every non-generated
 file is scanned for references to other repo files, one CSV row per reference (columns
 are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 

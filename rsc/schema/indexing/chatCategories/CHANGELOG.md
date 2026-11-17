@@ -1,8 +1,8 @@
 # chatCategories schema changelog
 
 This schema has no machine-local validation matrix: the capture is validated
-in-memory at capture time (dashboard.sh's validate_capture, before promotion to
-data/output/dashboard/) rather than writing per-datum `vN.log` files under `tmp/cache/`
+in-memory at capture time (src/main/indexing/capture.sh's validate_capture, before promotion to
+data/output/indexing/) rather than writing per-datum `vN.log` files under `tmp/cache/`
 (see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 
 ---
@@ -17,6 +17,8 @@ capture's shape gate moved from a hand-written jq check into the schema system
 source-native conversation id.
 
 #### Refactored
+
+- `ChatCategories` description (v1, in place) and the preamble above - the capture that stages and validates it is src/main/indexing/capture.sh, staging under tmp/cache/indexing and promoting to data/output/indexing/, where they named dashboard.sh, cache/dashboard and data/output/dashboard/, retired with the dashboard command (issues/1106). No validation effect.
 
 - The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-chat-categories.json` since 2026-09-15 (issues/655), when the family moved from the dashboard root of rsc/schema to the indexing root, beside the curation the same command writes and the file gained its state prefix. No validation effect.
 

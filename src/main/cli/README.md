@@ -224,7 +224,7 @@ here so that a check can cite them as they land (see issues/39).
   line, the repo's own marker for "type this": the head must be a command or a standard
   tool, and any flags it names must be ones that command advertises (issues/76). A remedy
   computed at run time cannot be read from source and is skipped rather than guessed at.
-- **G18 — Every command is a noun.** `doctrine (issues/47)` — `run` became `pipeline run`; `check` and `xref` remain, and issues/40 takes them to `test`. — no command word is a verb, and
+- **G18 — Every command is a noun.** `doctrine (issues/47)` — `run` became `pipeline run`, and `check` and `xref` became `test run` and `test xref` (issues/40). — no command word is a verb, and
   no flag names what the command grammar already addresses as a noun.
 
 The table is curated, not discovered: a script's absence here is a decision, not
