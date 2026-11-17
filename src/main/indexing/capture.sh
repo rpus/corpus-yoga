@@ -109,7 +109,7 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
     return 1
   fi
   local text
-  text="$(jq -r '.content[0].text // empty' <<< "$response")"
+  text="$(jq -r '[.content[]? | select(.type == "text") | .text] | join("")' <<< "$response")"   # the text blocks, wherever they stand
   if [[ -z "$text" ]]; then
     echo "corpus-yoga indexing capture: $(phrase "the {table} reply holds no text block - its blocks are {blocks}; the reply is kept at {kept}" \
       table="$table" blocks="$(jq -r '[.content[]?.type] | join(", ")' <<< "$response")" kept="${kept#"$REPO_DIR/"}")" >&2

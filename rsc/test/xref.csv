@@ -1424,9 +1424,9 @@ src/schema_walk.py,21,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,(rsc/rpus
 src/schema_walk.py,35,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
 src/schema_walk.py,41,path_str,rsc/reference/JSONSchema/draft-04/schema.json,Y,META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
 src/schema_walk.py,42,path_str,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,GRAMMAR = REPO / 'rsc/rpus/grammar/JSONSchema/draft04.g4'
-src/test/dev/check/indexing.py,15,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named',), on=['src/main/indexing', 'src/main/tier.sh', 'src/ma"
-src/test/dev/check/indexing.py,15,path_str,src/main/tier.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named',), on=['src/main/indexing', 'src/main/tier.sh', 'src/ma"
-src/test/dev/check/indexing.py,15,path_str,src/main/report.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named',), on=['src/main/indexing', 'src/main/tier.sh', 'src/ma"
+src/test/dev/check/indexing.py,15,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
+src/test/dev/check/indexing.py,15,path_str,src/main/tier.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
+src/test/dev/check/indexing.py,15,path_str,src/main/report.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
 src/test/dev/check/join.py,70,comment,rsc/metamodel/metamodel.json,Y,"rsc/metamodel/metamodel.json is the table of documented shared types - a name, its"
 src/test/dev/check/join.py,71,comment,rsc/metamodel/metamodel.schema.json,Y,"description, its occurrences by family - and rsc/metamodel/metamodel.schema.json is"
 src/test/dev/check/join.py,144,comment,rsc/metamodel/rejected.txt,Y,covered by a rejection in rsc/metamodel/rejected.txt. One check per
