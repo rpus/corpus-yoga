@@ -1,5 +1,10 @@
 referring_file,line,ref_type,referred_file,exists,line_text
+.github/ISSUE_TEMPLATE.md,13,doc,rsc/test/prepare-commit-msg-hook.sh,Y,rsc/test/prepare-commit-msg-hook.sh's stamp already rules for commits.
+.github/ISSUE_TEMPLATE.md,34,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,(.github/PULL_REQUEST_TEMPLATE.md) with no licensed position here.
+.github/PULL_REQUEST_TEMPLATE.md,9,doc,rsc/test/prepare-commit-msg-hook.sh,Y,stamps (rsc/test/prepare-commit-msg-hook.sh's header is the one authority for
 AGENTS.md,59,doc,rsc/provider/providers.csv,Y,should be a row of the provider registry (rsc/provider/providers.csv)
+AGENTS.md,67,doc,.github/ISSUE_TEMPLATE.md,Y,- .github/ISSUE_TEMPLATE.md and .github/PULL_REQUEST_TEMPLATE.md are the
+AGENTS.md,67,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,- .github/ISSUE_TEMPLATE.md and .github/PULL_REQUEST_TEMPLATE.md are the
 AGENTS.md,70,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 AGENTS.md,70,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 AGENTS.md,71,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds the grammars of"
@@ -9,6 +14,7 @@ AGENTS.md,225,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/ma
 AGENTS.md,230,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,23,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
 CONTRIBUTING.md,41,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+CONTRIBUTING.md,54,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,(.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
 CONTRIBUTING.md,64,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
 CONTRIBUTING.md,67,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
 CONTRIBUTING.md,95,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
@@ -104,6 +110,7 @@ rsc/audit/prompt.md,17,doc,src/test/dev/repairs,Y,"- sibling-shape: every family
 rsc/audit/prompt.md,17,doc,src/test/dev/diagnostics,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/audit/prompt.md,17,doc,rsc/naming,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
+rsc/audit/prompt.md,20,doc,.github/ISSUE_TEMPLATE.md,Y,"4. File NEW findings only — a finding already covered by an open sub-issue is not refiled. For EACH new finding, perform"
 rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/browser,browser,corpus-yoga pipeline run browser,src/test/dev/run.py,one directory per provider (issues/635): "
 rsc/cache_io.csv,9,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribu"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
@@ -1016,6 +1023,7 @@ src/main/cli/forge/raise.py,10,comment,src/main/provider.py,Y,"uses (src/main/pr
 src/main/cli/forge/raise.py,28,path_str,src/main/cli/forge/raise.py,Y,SELF = 'src/main/cli/forge/raise.py'
 src/main/cli/forge/reconcile.py,4,comment,src/main/cli/forge/forge.csv,Y,src/main/cli/forge/forge.csv; argv[2] is the default branch's protection json
 src/main/cli/forge/reconcile.py,20,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
+src/main/cli/forge/should.py,2,comment,.github/ISSUE_TEMPLATE.md,Y,"should, a body in .github/ISSUE_TEMPLATE.md's sections, and relations that are wired, never"
 src/main/cli/forge/should.py,14,path_str,src/main/cli/forge/should.py,Y,SELF = 'src/main/cli/forge/should.py'
 src/main/cli/forge/status.py,17,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
 src/main/cli/forge/status.py,53,comment,src/main/cli/forge/forge.csv,Y,"The merge settings: each as the forge has it where it agrees with src/main/cli/forge/forge.csv,"
@@ -1721,10 +1729,10 @@ src/test/dev/xref.py,10,comment,rsc/test/xref.csv,Y,"awk -F, '$5==""N""' rsc/tes
 src/test/dev/xref.py,23,path_str,src/test/dev/xref.py,Y,SELF = 'src/test/dev/xref.py'
 src/test/dev/xref.py,48,path_str,rsc/test/run.log,Y,"SKIP_FILES = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
 src/test/dev/xref.py,48,path_str,rsc/test/xref.csv,Y,"SKIP_FILES = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/xref.py,617,comment,rsc/test/xref.csv,Y,owns the write to rsc/test/xref.csv there (issues/249's check/render/gate
+src/test/dev/xref.py,634,comment,rsc/test/xref.csv,Y,owns the write to rsc/test/xref.csv there (issues/249's check/render/gate
 src/test/dev/xref.py,58,comment,src/requirements.txt,Y,"# The third-party half comes from the DECLARATION, src/requirements.txt. Its hand-written"
-src/test/dev/xref.py,339,comment,src/main/cli/pipeline/pipeline.sh,Y,# trailing /.. hops (src/main/cli/pipeline/pipeline.sh anchors REPO_ROOT at its parent)
-src/test/dev/xref.py,434,comment,rsc/schema/WORKFLOW.md,Y,"# A changelog is a record, its entries frozen by intent (rsc/schema/WORKFLOW.md) and its dated"
+src/test/dev/xref.py,356,comment,src/main/cli/pipeline/pipeline.sh,Y,# trailing /.. hops (src/main/cli/pipeline/pipeline.sh anchors REPO_ROOT at its parent)
+src/test/dev/xref.py,451,comment,rsc/schema/WORKFLOW.md,Y,"# A changelog is a record, its entries frozen by intent (rsc/schema/WORKFLOW.md) and its dated"
 src/test/usr/agent/debug_code_session_record.py,7,comment,rsc/schema/WORKFLOW.md,Y,cause. Equivalent to running the validation workflow from rsc/schema/WORKFLOW.md steps 1–3
 src/test/usr/agent/debug_code_session_record.py,14,comment,src/test/usr/agent/debug_code_session_record.py,Y,python src/test/usr/agent/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}
 src/test/usr/agent/debug_code_session_record.py,17,comment,src/test/usr/agent/debug_code_session_record.py,Y,python src/test/usr/agent/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}
@@ -1736,6 +1744,8 @@ src/test/usr/agent/survey_code_session.py,10,comment,src/test/usr/agent/survey_c
 src/validation_matrix.py,5,comment,src/main/validation_verdict.py,Y,"(src/main/validation_verdict.py, issues/701) gets a single sibling matrix.md summarising them (schema × version →"
 src/validation_matrix.py,10,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating;
 src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/validation_audit.py judges the records and matrices (corpus-yoga pipeline audit).
+,,,.gitignore,Y,
+,,,.markdownlint.jsonc,Y,
 ,,,AGENTS.md,Y,
 ,,,CLAUDE.md,Y,
 ,,,README.md,Y,
