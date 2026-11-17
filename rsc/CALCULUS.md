@@ -338,8 +338,8 @@ the same operations, governed by the same laws. Code is not a second ontology.
 - **the terminal grammar (noun / verb)** — the CLI's own invocation surface draws
   the corpus's operation/read line. A bare `corpus-yoga <noun>` is a READ: status
   re-derived on demand, writing nothing — a projection (L5), idempotent by
-  triviality. A `corpus-yoga <noun> <verb>` is an OPERATION, and `sync` is its idempotent
-  archetype (L1: re-running is silence), the write kept behind the verb so a bare
+  triviality. A `corpus-yoga <noun> <verb>` is an OPERATION, and a derivation (`generate`, `derive`, `rebuild`) is its
+  idempotent archetype (L1: re-running is silence), the write kept behind the verb so a bare
   noun can never mutate the tree. Help is a third thing, a projection QUERY —
   `-h`/`--help` answered from the table, never an act — so it left the bare
   invocation and the `help` command both. And the usage each command prints is

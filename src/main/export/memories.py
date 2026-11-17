@@ -175,7 +175,7 @@ class Status:
 def status(memories_output: Path, export_cache: Path) -> int:
     """The bare-noun default: show current state, write nothing. Reports how many
     deposits the store already holds and how many memory states sit in the cache
-    awaiting a sync."""
+    awaiting a deposit."""
     n = len(list(memories_output.glob('*.json'))) if memories_output.is_dir() else 0
     states = memory_states(export_cache)
     store = memories_output.relative_to(REPO) if memories_output.is_relative_to(REPO) else memories_output
@@ -183,7 +183,7 @@ def status(memories_output: Path, export_cache: Path) -> int:
     return 0
 
 
-def sync(export_cache: Path, memories_output: Path, markdown: Path) -> int:
+def deposit_all(export_cache: Path, memories_output: Path, markdown: Path) -> int:
     """The verb: deposit every distinct chat-memory state verbatim into the durable
     store (content-deduplicated against the nearest earlier deposit; deposits are
     immutable and outlive their batches), then render the diffable markdown timeline.
@@ -204,7 +204,7 @@ def sync(export_cache: Path, memories_output: Path, markdown: Path) -> int:
 def main():
     args = command_parser('memories').parse_args()  # whole surface declared (issues/476, issues/477)
     if args.verb == 'deposit':
-        return sync(Path(args.export_cache), Path(args.memories_output), Path(args.markdown))
+        return deposit_all(Path(args.export_cache), Path(args.memories_output), Path(args.markdown))
     # bare → status (read-only)
     return status(Path(args.memories_output), Path(args.export_cache))
 

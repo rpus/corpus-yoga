@@ -167,7 +167,7 @@ assemble() {
   mkdir -p "$OUT"
   local d f name eventful=0
   # reconcile: what left rsc/site/ leaves the publish tree with it (L7: this tree is
-  # sync's own) - a page whose source is gone, and any directory, since the pages sit
+  # assemble's own) - a page whose source is gone, and any directory, since the pages sit
   # at the root since issues/650 (the page directories of 2026-08 to 2026-09-15 among them).
   # index.html is spared: it is render's.
   for d in "$OUT"/*/; do

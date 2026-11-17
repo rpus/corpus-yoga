@@ -31,7 +31,7 @@ written, is never modified. Everything derives from the local corpora — L1:
 re-running is silence on disk.
 
 Usage (bare = status, the verb writes — the memories shape):
-  src/run_python_script.sh src/main/export/summaries.py [sync] \\
+  src/run_python_script.sh src/main/export/summaries.py [deposit] \\
       [--export-cache tmp/cache/export] [--api-capture data/input/claude/chat/API-capture] \\
       [--conversations-output data/output/markdown/claude/chat/conversations] \\
       [--summaries-output data/output/markdown/claude/chat/summaries]
@@ -86,7 +86,7 @@ def readings_by_uuid(gen_root: Path):
     collapsing each run of consecutive-identical readings to its first — each
     surviving pair is one distinct reading, stamped with the FIRST batch exhibiting
     it. (This pre-filters the reading STREAM; the durable deposit rule is the shared
-    accumulate, applied per folder in sync.)"""
+    accumulate, applied per folder in deposit.)"""
     floor = datetime.min.replace(tzinfo=timezone.utc)
     batches = sorted((d for d in gen_root.glob('data-*') if (d / 'json').is_dir()),
                      key=lambda d: export_time(d.name) or floor)
@@ -141,7 +141,7 @@ def twins_of(folder: Path) -> list[Path]:
     """The folder's twin deposits: each byte-identical to its nearest earlier
     sibling — exactly what the shared accumulate rule would never write, so any
     such deposit is a defect in whatever wrote it. A genuine A→B→A recurrence is
-    NOT a twin: its second A's nearest-earlier is B. Callers: status and sync's
+    NOT a twin: its second A's nearest-earlier is B. Callers: status and deposit's
     WARN."""
     deps = sorted(p for p in folder.glob('*.md') if p.name not in NON_DEPOSITS)
     out = []
@@ -194,8 +194,8 @@ class Status:
 
 def status(root: Path) -> int:
     """The bare-noun default: show the store's current state, write nothing.
-    Deliberately store-only (pure directory listing): computing what a sync
-    WOULD deposit means parsing every batch and capture — that is sync's job,
+    Deliberately store-only (pure directory listing): computing what the verb
+    WOULD deposit means parsing every batch and capture — that is the verb's job,
     and its dedup makes running it the cheaper way to find out."""
     folders = sorted(p for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
     readings = rolling = 0
@@ -290,7 +290,7 @@ def main():
         names = sorted(f.name for f in folder.glob('*.md') if f.name != 'index.md')
         _write_if_changed(folder / 'index.md', index_text(u, stem, title, names))
 
-    # the standing twin detector runs on every sync too — ambient in the run
+    # the standing twin detector runs on every deposit too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
     facts.report(None, facts.act('summaries', 'deposit') + f': {"NOT DONE" if conflicts else "DONE"} - '

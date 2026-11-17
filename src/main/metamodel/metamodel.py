@@ -4,10 +4,10 @@ Output: tmp/cache/metamodel/catalogue/<family's address under rsc/schema>/v{N}.j
 versioned schema, keyed as rsc/metamodel/metamodel.json keys a family (issues/672), so two providers'
 families of one name are two catalogues. rsc/metamodel/metamodel.json is hand-curated from these.
 
-`model` is a NOUN: the catalogues. A bare invocation shows their current state and
+`metamodel` is a NOUN: the catalogues. A bare invocation shows their current state and
 writes nothing (so there is no `status` verb — the bare noun IS the status). Only
-the `sync` verb writes: it brings tmp/cache/metamodel into agreement with the schemas, and
-re-running is silence (L1) — which is what naming it `sync` promises.
+the `derive` verb writes: it brings tmp/cache/metamodel into agreement with the schemas, and
+re-running is silence (L1).
 
 Usage:
     corpus-yoga metamodel         # status: which catalogues exist under tmp/cache/metamodel/catalogue/
@@ -53,7 +53,7 @@ CATALOGUE_DIR = OUT_DIR / 'catalogue'
 
 def _catalogues() -> list[tuple[str, Path, Path]]:
     """(family name, schema-version file, its catalogue) for every versioned schema — the
-    inventory that `sync` writes and `status` reports, so the two can never disagree.
+    inventory that `derive` writes and `status` reports, so the two can never disagree.
     The catalogue sits at the family's address under rsc/schema (issues/672)."""
     out = []
     for schema_dir in sorted({v.parent for v in SCHEMA_DIR.rglob('v*.json')}):
@@ -171,7 +171,7 @@ def derive() -> None:
         if not any(directory.iterdir()):
             directory.rmdir()
     render_collision_worksheet()
-    # the findings are status's (bare corpus-yoga metamodel): a sync writes, and what an act
+    # the findings are status's (bare corpus-yoga metamodel): a derive writes, and what an act
     # reports (issues/876, issues/896) is its effect line
     facts.report(None, facts.act('metamodel', 'derive') + ': DONE - ' + facts.phrase('{written} catalogue(s) written, {removed} removed', written=written, removed=removed))
 
@@ -180,7 +180,7 @@ def render_collision_worksheet() -> None:
     """The leisurely queue as a worksheet (machine proposes, human disposes):
     one pre-filled join row per undisposed SHARED NAME, the relationship
     cell blank except where structural equality makes 'identical' a mechanical
-    proposal. Rendered by sync beside the catalogues it derives from."""
+    proposal. Rendered by derive beside the catalogues it derives from."""
     import csv, io
     rows = shared_name_candidates()
     path = OUT_DIR / 'shared_name_candidates.csv'
@@ -224,7 +224,7 @@ def status() -> None:
     total = len(present) + len(missing)
     underived = _underived()
     # the count is the fact; 52 derivable filenames were the mumble - the
-    # names are exactly the schema tree's, and sync mints them all
+    # names are exactly the schema tree's, and derive mints them all
     table, join = curation_report()
     facts.say_standing(Status(
         Catalogue(f'{len(present)}/{total}',

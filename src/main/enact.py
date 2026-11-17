@@ -84,7 +84,7 @@ def enact(*command: str) -> int:
 
 
 def labour(*command: str) -> int:
-    """enact under no bound (issues/992): a local act whose duration is its own - a gate, a sync -
+    """enact under no bound (issues/992): a local act whose duration is its own - a gate, a derivation -
     never a send's; said and relayed exactly as enact says and relays."""
     printed = ' '.join(shlex.quote(part) for part in command)
     print(facts.narration({printed: {'did': 'done'}})[0], file=sys.stderr)

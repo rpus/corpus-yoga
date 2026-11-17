@@ -21,7 +21,7 @@ a durable table must never carry a dangling reference forward silently.
 numbering ordered() produced before empty stubs were excluded (924ebf8) — the
 1-based, all-inclusive numbering that inferred tables from the 924ebf8..a19be50
 era were generated against. NOT the era before 3b8faba (Jul 2), when
-infer_tables.sh (dashboard.sh's predecessor) numbered chats itself via jq
+infer_tables.sh numbered chats itself via jq
 to_entries: 0-BASED, created_at
 only — a table from that vintage migrated with this flag mis-assigns every row
 by one, and only the dropped 'chat 0' would hint at it. None survive on disk,
@@ -32,7 +32,7 @@ This is the migration recipe for an old ordinal-keyed inferred table:
         --conversations <batch>/conversations.json \\
         < tmp/cache/export/<batch>/inferred/data-chat-categories.json
 
-Usage (see dashboard.sh / present.sh):
+Usage (see src/main/indexing/capture.sh / present.sh):
     ... | rekey_chats.py --to-id --conversations <corpus dir | conversations.json> | ...
 """
 import argparse

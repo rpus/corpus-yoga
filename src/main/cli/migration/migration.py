@@ -17,7 +17,7 @@ it would leave it; a script after one that halts is said as waiting on it. a scr
 steps is said with each step's line as the script prints it, and carries the apply as its
 act; a halted one with the steps before the halt and what it said there. The lines are the
 script's own, relayed, never restated: the checkout runs corpus-yoga commands only, so the
-status is where a reader sees what the apply would take. The sync
+status is where a reader sees what the apply would take. The apply
 names each script with steps and how many, runs each, relays its lines as it
 takes them, re-reads the status beneath, and ends with the verdict - DONE only when every
 pending step was taken. The apply runs every script with --apply in merge order, whatever
@@ -105,7 +105,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
 
 
 class Log:
-    """What the sync says, line by line. The record of the act is the launcher's tee of the
+    """What the apply says, line by line. The record of the act is the launcher's tee of the
     whole verb (issues/708), tmp/logs/migration/apply/<stamp>.log, header included; nothing is
     written here."""
 

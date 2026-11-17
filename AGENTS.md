@@ -322,7 +322,7 @@ eighth principle or a smell.
   venv and caches are never altered to get an agent's commit through; an
   act with no corpus-yoga verb is an issue to file. No commit or push
   starts there unbidden, and the agent never asks to commit; the user
-  announces satisfaction. Enacting verbs (sync, install, rm, deposits) run
+  announces satisfaction. Enacting verbs (satisfy, install, rm, deposit) run
   only when the current message asks; testing means the status and
   dry-run faces.
 - Only the user's words ask: a message that is only a command, a path or an

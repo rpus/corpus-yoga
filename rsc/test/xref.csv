@@ -686,7 +686,7 @@ rsc/schema/WORKFLOW.md,337,doc,rsc/schema/mcp/2026-07-28/mcpMessage/category_lay
 rsc/schema/WORKFLOW.md,338,doc,rsc/schema/mcp/2026-07-28/mcpMessage/placement.csv,Y,"`@category` tags into those layers), `rsc/schema/mcp/2026-07-28/mcpMessage/placement.csv`"
 rsc/schema/WORKFLOW.md,340,doc,rsc/schema/mcp/2026-07-28/mcpMessage/addition.csv,Y,and `rsc/schema/mcp/2026-07-28/mcpMessage/addition.csv` (where the house reads differently
 rsc/schema/WORKFLOW.md,347,doc,src/main/mcp/face.py,Y,"`tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every"
-rsc/schema/WORKFLOW.md,357,doc,rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md,Y,"`rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's"
+rsc/schema/WORKFLOW.md,357,doc,rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md,Y,"`rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md`; its mint is the derive's, not step 2's"
 rsc/schema/WORKFLOW.md,372,doc,rsc/metamodel/metamodel.json,Y,`rsc/metamodel/metamodel.json` is the hand-curated cross-family type reference - a table of
 rsc/schema/WORKFLOW.md,374,doc,rsc/metamodel/metamodel.schema.json,Y,"against the row shape beside it, `rsc/metamodel/metamodel.schema.json` (`model.table_valid`,"
 rsc/schema/WORKFLOW.md,375,doc,rsc/CALCULUS.md,Y,issues/591) - under the `curate` disposal discipline (issues/19; rsc/CALCULUS.md) as TWO
@@ -949,11 +949,11 @@ src/main/cli/cache/cache_io.py,155,comment,rsc/cache_io.csv,Y,"kept when it is o
 src/main/cli/cache/clean.json,7,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"","
 src/main/cli/cache/clean.py,3,comment,src/main/cli/cache/cache_io.py,Y,machinery neither writes nor reads (src/main/cli/cache/cache_io.py `orphans`).
 src/main/cli/cache/clean.py,12,comment,rsc/CALCULUS.md,Y,"is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
-src/main/cli/cache/clean.py,14,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync and"
+src/main/cli/cache/clean.py,14,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with rebuild and"
 src/main/cli/cache/clean.py,18,comment,src/main/cleaner.py,Y,"would remove is what the status names, and its faces are src/main/cleaner.py's - will"
 src/main/cli/cache/clean.py,32,path_str,src/main/cli/cache/clean.py,Y,SELF = 'src/main/cli/cache/clean.py'
 src/main/cli/cache/rebuild.json,14,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
-src/main/cli/cache/rebuild.py,5,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
+src/main/cli/cache/rebuild.py,5,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); rebuild runs every row's producers,"
 src/main/cli/cache/rebuild.py,37,path_str,src/main/cli/cache/rebuild.py,Y,SELF = 'src/main/cli/cache/rebuild.py'
 src/main/cli/calculus/calculus.json,4,path_str,rsc/CALCULUS.md,Y,"""target"": ""rsc/CALCULUS.md"","
 src/main/cli/cli.py,4,comment,src/main/cli/README.md,Y,Two curated tables are the interface (format: src/main/cli/README.md): src/main/cli/
@@ -1269,8 +1269,8 @@ src/main/export/run.sh,82,call,src/main/export/atomise_bulk.py,Y,"""$SCRIPT_DIR/
 src/main/export/run.sh,112,call,src/main/export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" deposit"
 src/main/export/run.sh,120,call,src/main/export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" deposit"
 src/main/export/run.sh,127,call,src/main/export/compare_captures.py,Y,"""$SCRIPT_DIR/compare_captures.py"" --api-capture ""$API_CAPTURE"""
-src/main/export/summaries.py,34,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/summaries.py [sync] \
-src/main/export/summaries.py,34,comment,src/main/export/summaries.py,Y,src/run_python_script.sh src/main/export/summaries.py [sync] \
+src/main/export/summaries.py,34,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/summaries.py [deposit] \
+src/main/export/summaries.py,34,comment,src/main/export/summaries.py,Y,src/run_python_script.sh src/main/export/summaries.py [deposit] \
 src/main/export/summaries.py,51,path_str,src/main/export/summaries.py,Y,SELF = 'src/main/export/summaries.py'
 src/main/export/timeline.py,13,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/timeline.py <conversations.json> --table chats
 src/main/export/timeline.py,13,comment,src/main/export/timeline.py,Y,src/run_python_script.sh src/main/export/timeline.py <conversations.json> --table chats
@@ -1368,6 +1368,7 @@ src/main/rehearsal.py,20,comment,src/main/rehearsal.schema.json,Y,"src/main/rehe
 src/main/rehearsal.py,23,comment,src/main/corpus.py,Y,"A unit's standing to the record is decidable from it (src/main/corpus.py, `verdict`):"
 src/main/rehearsal.py,40,path_str,src/main/rehearsal.py,Y,SELF = 'src/main/rehearsal.py'
 src/main/rekey_chats.py,31,comment,src/main/rekey_chats.py,Y,src/main/rekey_chats.py --to-id --legacy-ordinals \
+src/main/rekey_chats.py,35,comment,src/main/indexing/capture.sh,Y,Usage (see src/main/indexing/capture.sh / present.sh):
 src/main/rekey_chats.py,44,path_str,src/main/rekey_chats.py,Y,SELF = 'src/main/rekey_chats.py'
 src/main/reply.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/reply.py <act> <effect-file> <exit-code>
 src/main/reply.py,16,comment,src/main/reply.py,Y,src/run_python_script.sh src/main/reply.py <act> <effect-file> <exit-code>

@@ -248,7 +248,7 @@ def build(markdown_root: Path, accepted_path: Path) -> str:
         # naming a machinery path in it couples corpus bytes to repo layout —
         # any tier move would rewrite corpus content. The verb is the stable
         # surface; `corpus-yoga indexing -h` says where things live.
-        f'Headwords are curated with `corpus-yoga indexing` (accept/reject; `sync` '
+        f'Headwords are curated with `corpus-yoga indexing` (accept/reject; `build` '
         f'rebuilds this index). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
@@ -480,7 +480,7 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
     """Accepted headwords with ZERO corpus locators — the disposal record's
     orphan documentation, the reverse direction of the curate discipline (the
     metamodel.json precedent, pull/36: a curation record must be grounded both ways).
-    build() has always computed this — the located/total ratio in the sync
+    build() has always computed this — the located/total ratio in the build
     line — but as an aggregate; a dead index entry (its concept left the
     corpus, or its aliases never matched) was a count, not a name. Same scan
     build() runs, so the two can never disagree."""

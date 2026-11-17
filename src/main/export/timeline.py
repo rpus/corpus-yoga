@@ -4,7 +4,7 @@ conversations.json, plus the numbered chat list for inference. Every table's `ch
 from the one canonical ordering in markdown_projection.ordered() (created_at order, 1-based), so
 the timeline number, the atomised json/<ordinal>-<slug>.json filename, and the inferred
 category joins all agree. Replaces the inline jq that present.sh and infer_tables.sh
-(dashboard.sh's predecessor) used to duplicate.
+used to duplicate.
 
 `chat` is the 1-based ordinal, kept as an integer so index.html's JS joins (spans/categories/files
 → conversation) stay numeric; the zero-padded form is the filename only.
