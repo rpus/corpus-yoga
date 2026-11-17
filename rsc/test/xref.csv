@@ -1032,7 +1032,7 @@ src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""t
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/indexing/capture.json,31,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
 src/main/cli/indexing/capture.json,32,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
-src/main/cli/indexing/indexing.json,45,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
+src/main/cli/indexing/indexing.json,47,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
 src/main/cli/logs/logs.json,18,path_str,src/main/cli/logs/logs.py,Y,"""target"": ""src/main/cli/logs/logs.py"","
 src/main/cli/logs/logs.py,8,comment,src/main/cli/cli.py,Y,The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
 src/main/cli/logs/logs.py,17,comment,src/main/cleaner.py,Y,runs (src/main/cleaner.py). A current command's logs are never the cleaner's: a log is the
@@ -1307,7 +1307,7 @@ src/main/indexing/capture.sh,30,comment,src/main/report.sh,Y,# shellcheck source
 src/main/indexing/capture.sh,32,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
-src/main/indexing/capture.sh,113,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
+src/main/indexing/capture.sh,124,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
 src/main/indexing/indexing.py,21,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/indexing/indexing.py,55,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
 src/main/indexing/indexing.py,326,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
@@ -1424,6 +1424,9 @@ src/schema_walk.py,21,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,(rsc/rpus
 src/schema_walk.py,35,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
 src/schema_walk.py,41,path_str,rsc/reference/JSONSchema/draft-04/schema.json,Y,META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
 src/schema_walk.py,42,path_str,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,GRAMMAR = REPO / 'rsc/rpus/grammar/JSONSchema/draft04.g4'
+src/test/dev/check/indexing.py,15,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
+src/test/dev/check/indexing.py,15,path_str,src/main/tier.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
+src/test/dev/check/indexing.py,15,path_str,src/main/report.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
 src/test/dev/check/join.py,70,comment,rsc/metamodel/metamodel.json,Y,"rsc/metamodel/metamodel.json is the table of documented shared types - a name, its"
 src/test/dev/check/join.py,71,comment,rsc/metamodel/metamodel.schema.json,Y,"description, its occurrences by family - and rsc/metamodel/metamodel.schema.json is"
 src/test/dev/check/join.py,144,comment,rsc/metamodel/rejected.txt,Y,covered by a rejection in rsc/metamodel/rejected.txt. One check per
@@ -1916,6 +1919,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/update_export_tooltip.py,Y,
 ,,,src/main/word_freq_literal.py,Y,
 ,,,src/test/dev/check/__init__.py,Y,
+,,,src/test/dev/check/indexing.py,Y,
 ,,,src/test/dev/check/join.py,Y,
 ,,,src/test/dev/check/pipeline.py,Y,
 ,,,src/test/dev/check/room.py,Y,
