@@ -262,17 +262,18 @@ def _append_join_row(row: dict, relationship: str, note: str) -> None:
         csv.writer(fh, quoting=csv.QUOTE_ALL).writerow([row[c] for c in JOIN_PATH_COLUMNS] + [relationship, note])   # as every row of the table is written
 
 
-def accept_shared_name(row: dict, date: str) -> str:
+def accept_shared_name(row: dict, date: str) -> tuple[bool, str]:
     """Adopt the machine proposal: the pre-filled row lands in join.csv
-    with its proposed kind. A row without a proposal (divergent shapes) is
-    refused - that judgment is the curator's (or paid capture's, issues/471)."""
+    with its proposed kind, and the answer is True. A row without a proposal
+    (divergent shapes) is refused, and the answer is False - that judgment is the
+    curator's (or paid capture's, issues/471)."""
     if not row['relationship']:
-        return (f"refused: {row['name']} carries no machine proposal - the shapes "
-                'diverge; judge the relationship kind by hand (rsc/metamodel/join_kinds.csv)')
+        return False, (f"refused: {row['name']} carries no machine proposal - the shapes "
+                       'diverge; judge the relationship kind by hand (rsc/metamodel/join_kinds.csv)')
     _append_join_row(row, row['relationship'],
                      f"adopted {date} from the worksheet's machine proposal: "
                      'structurally equal at latest')
-    return f"accepted: {row['name']} - {row['relationship']} row appended to {JOIN.relative_to(REPO)}"
+    return True, f"accepted: {row['name']} - {row['relationship']} row appended to {JOIN.relative_to(REPO)}"
 
 
 def reject_shared_name(row: dict, reason: str, date: str) -> str:

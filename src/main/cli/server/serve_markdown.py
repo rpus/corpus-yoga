@@ -343,6 +343,9 @@ if __name__ == '__main__':
     markdown_dir = Path(args.markdown)
     if not markdown_dir.is_absolute():
         markdown_dir = Path.cwd() / markdown_dir
+    if not markdown_dir.is_relative_to(REPO_ROOT):
+        facts.report(None, facts.act('server', 'start') + ': NOT DONE - ' + facts.phrase('{tree} is outside the checkout - the server serves a markdown tree inside it', tree=markdown_dir))
+        sys.exit(2)
 
     ensure_assets()
 

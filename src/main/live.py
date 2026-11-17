@@ -161,7 +161,9 @@ def ahead() -> tuple[list[Ahead], list[str]]:
         if mount is None or adapter is None:
             continue
         if not mount.is_dir():
-            absent.append(mount.relative_to(REPO).as_posix())
+            live = registry.live_store(row)
+            if live is not None and live.is_dir():   # mount links only a live store this machine holds
+                absent.append(mount.relative_to(REPO).as_posix())
             continue
         under = transport.store(name).relative_to(corpus.STORE) / room
         roots = {tier: root / under for tier, root in TIERS.items()}

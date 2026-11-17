@@ -373,7 +373,11 @@ class Keys:
 def main() -> int:
     walk = Walk()
     # a pointer typed bare is split by the shell at each space within a key: its words are one pointer
-    words = [argument for argument in sys.argv[1:] if not argument.startswith('-')]
+    flags = [argument for argument in sys.argv[1:] if argument.startswith('-')]
+    if flags:
+        print('walkthrough: NOT DONE - ' + facts.phrase('{flag} is no pointer - the walk takes a pointer and no flag', flag=flags[0]), file=sys.stderr)
+        return REFUSED
+    words = sys.argv[1:]
     try:
         astray = walk.seek(' '.join(words)) if words else None
     except ValueError as error:

@@ -215,13 +215,6 @@
       proposes in files, the human disposes in files, and a gate reports anything
       pending.
     </p>
-    <div class="term"><pre>$ <span class="p">corpus-yoga</span> indexing
-<span class="c">accepted: 78 entries (data/output/indexing/accepted-semantic-concepts.txt); rejected: 28 (data/output/indexing/rejected-semantic-concepts.txt)</span>
-<span class="c">FAIL: candidates: 8 concept(s) undisposed - each is the reader's act: corpus-yoga indexing accept "&lt;term&gt;" or corpus-yoga indexing reject "&lt;concept&gt;" --reason "&lt;why&gt;" (…):</span>
-multi-agent AI coordination
-generative design frameworks
-differential forms and truth
-<span class="c">…   (home-room, 2026-09-15)</span></pre></div>
     <p class="small">
       The corpus proposes its own vocabulary; the judgment stays yours. Every answer
       names the legal next moves — the interface is the documentation is the data.
@@ -232,34 +225,31 @@ differential forms and truth
     <div class="eyebrow">§2</div>
     <h2>The routes <span class="sec">src/main/cli/</span></h2>
     <p>
-      One curated table is the whole surface — rendered as help in a terminal, as
-      completion in a shell, as routes here. Each entry cites the calculus
-      operations it performs, and the pre-commit tier holds every citation to the
-      doctrine that defines it. These paths are not yet routed — today the terminal
-      is the surface; the table is the same either way.
+      One declaration per command and per verb, under src/main/cli/, is the whole
+      surface — rendered as help in a terminal and as completion in a shell. Each
+      command cites the calculus operations it performs, and the dev gate holds every
+      citation to the doctrine that defines it. These paths are not yet routed —
+      today the terminal is the surface.
     </p>
     <ul class="routes">
-      <li><span class="path">/corpus-yoga/run</span>
-          <span class="what">Every pipeline against its inputs; <code>--plan</code> prints the ordered steps that execute.
+      <li><span class="path">/corpus-yoga/pipeline</span>
+          <span class="what">The pipelines, and the run over data/input/ that never acquires; <code>--plan</code> prints the ordered steps that execute.
           <span class="ops">⟨atomise validate supersession accumulate project⟩</span></span></li>
       <li><span class="path">/corpus-yoga/calculus</span>
           <span class="what">The corpus calculus — objects, operations, products, laws; extracted from working code, never designed ahead of it.
           <span class="ops">⟨the doctrine itself⟩</span></span></li>
-      <li><span class="path">/corpus-yoga/index</span>
+      <li><span class="path">/corpus-yoga/indexing</span>
           <span class="what">A book-style index over every conversation: headwords to durable turn anchors, locators that survive renumbering.
-          <span class="ops">⟨project curate⟩</span></span></li>
+          <span class="ops">⟨capture curate project⟩</span></span></li>
       <li><span class="path">/corpus-yoga/memories</span>
           <span class="what">Every distinct memory state, deposited before the source rewrites it — a diffable timeline of what the machine believed.
           <span class="ops">⟨accumulate normalise project L1 L4⟩</span></span></li>
-      <li><span class="path">/corpus-yoga/supersede</span>
-          <span class="what">Do later exports supersede earlier ones? Computed per component; never assumed.
-          <span class="ops">⟨supersession L3⟩</span></span></li>
+      <li><span class="path">/corpus-yoga/store</span>
+          <span class="what">Shared storage: what is held, what is held twice, and what may be deleted — computed, never assumed.
+          <span class="ops">⟨supersession L3 L10⟩</span></span></li>
       <li><span class="path">/corpus-yoga/agent</span>
-          <span class="what">Move an agent — session × memory — between machines, with every conflict loud.
-          <span class="ops">⟨transport supersession merge L1 L6⟩</span></span></li>
-      <li><span class="path">/corpus-yoga/machine</span>
-          <span class="what">Docker-style room manifests: desired state as committed data, observation strictly local.
-          <span class="ops">⟨validate L2 L8⟩</span></span></li>
+          <span class="what">Code-agent sessions, captured from the machine each ran on into a shared store, with every conflict loud.
+          <span class="ops">⟨transport supersession merge L1 L3 L4 L6⟩</span></span></li>
     </ul>
   </section>
 
@@ -274,33 +264,22 @@ differential forms and truth
       <li><span class="l">L6</span><p><b>Conflicts are loud.</b> Nothing overwrites divergent content silently; human judgment is summoned, not preempted.</p></li>
       <li><span class="l">L8</span><p><b>Absence is a signal.</b> Missing data is an informative skip; a crashed step surfaces. Nothing fabricates a value where the honest state is unknown.</p></li>
     </ul>
-    <p class="small">Six of eight shown; the calculus names its enforcement — or the incident that taught it — beside each.</p>
+    <p class="small">Six of ten shown; the calculus names its enforcement — or the incident that taught it — beside each.</p>
   </section>
 
   <section id="agents">
     <div class="eyebrow">§4</div>
     <h2>The agents</h2>
     <p>
-      An agent is two files: an append-only session and a folder of memory. That
-      makes it portable — copy both and the agent resumes mid-thought on another
-      machine, remembering the conversation that built the vehicle it arrived in.
-      A forked agent is two agents thereafter: hone, not clone.
-    </p>
-    <div class="term"><pre>$ <span class="p">corpus-yoga</span> agent receive --from home-room --apply
-receive ← home-room: a6f25723-….jsonl
-  session: <span class="ok">new</span>
-  memory/MEMORY.md: <span class="ok">new</span>
-$ <span class="p">corpus-yoga</span> agent receive --from home-room --apply
-  session: identical — no-op
-  memory/MEMORY.md: identical — no-op<span class="cursor"></span></pre></div>
-    <p class="small">
-      Run it twice and the second run is silence — L1, observed. Divergence would
-      have refused loudly instead — L6, ready.
+      An agent's work is a session: an append-only log, kept by its harness on the
+      machine it ran on, which may expire it. corpus-yoga captures each session into
+      a shared store, so every room holds every room's sessions, and the store keeps
+      a session after the harness has let it go.
     </p>
   </section>
 
   <footer>
-    <span class="score">deterministic tiers 994/994 · byte-identical on any clone</span>
+    <span class="score">a hermetic dev gate · byte-identical on any clone</span>
     <span>home room ⇄ reading room</span>
     <span>rpus.co</span>
   </footer>

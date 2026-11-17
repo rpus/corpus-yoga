@@ -41,7 +41,6 @@ Usage (via corpus-yoga indexing):
   corpus-yoga indexing build                               # build data/output/markdown/index.md
   corpus-yoga indexing capture [--conversations <path>]   # PAID: the model re-reads the corpus for
       [--only semantic-concepts|chat-categories]   #   the two index tables (see capture.sh);
-      [--dry-run]                                  #   --dry-run: coverage preview, spends nothing
 """
 import re
 import sys

@@ -10,7 +10,7 @@
 #
 # Usage (via `corpus-yoga indexing capture`, or directly):
 #   src/main/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
-#     [--conversations <path>] [--only semantic-concepts|chat-categories] [--dry-run]
+#     [--conversations <path>] [--only semantic-concepts|chat-categories]
 #
 # Captures land durable in data/output/indexing/ as inferred-*.json (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
@@ -339,12 +339,11 @@ corpus_conversations() {
 
 capture() {
   parse_argv indexing capture "$@"
-  local conversations="" only="" dry_run=""
+  local conversations="" only=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --conversations) conversations="$2"; shift 2 ;;
       --only)          only="$2";          shift 2 ;;
-      --dry-run)       dry_run=1;          shift ;;
       *) echo "corpus-yoga indexing capture: unknown argument: $1" >&2; exit 1 ;;
     esac
   done
@@ -352,13 +351,10 @@ capture() {
     ''|semantic-concepts|chat-categories) ;;
     *) echo "corpus-yoga indexing capture --only: expected 'semantic-concepts' or 'chat-categories', got '$only'" >&2; exit 1 ;;
   esac
-  # the key is the EFFECT's prerequisite, not the preview's: --dry-run must work on a
-  # machine that cannot spend, or it cannot answer "what would this cost me?" there
   # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
-  # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
-  # working under CORPUS_YOGA_NO_SEND: it is the preamble a refused machine still deserves (issues/29).
-  [[ -n "$dry_run" ]] || send_cleared messages || exit 1
-  [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
+  # machine's missing key is irrelevant).
+  send_cleared messages || exit 1
+  [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money: a paid call is not reproducible for free, so its
   # record is the evidence. The record is the launcher's tee of the whole verb (issues/708),
   # tmp/logs/indexing/capture/<stamp>.log, header included - nothing is written here.
@@ -367,14 +363,6 @@ capture() {
   [[ -n "$conv" && -e "$conv" ]] || { effect "$(act indexing capture): NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
-  # A dry run is the leading half, run alone: the extent and the intent, and nothing else.
-  # It needs no separate implementation because it IS the bracket's first call — which is
-  # also why it cannot lie about an effect it did not perform. Worth most on this verb of
-  # all: the others preview a free or reversible act, this one previews a purchase.
-  if [[ -n "$dry_run" ]]; then
-    effect "$(act indexing capture): DONE - dry run; nothing captured, nothing promoted, nothing spent"
-    return 0
-  fi
   capture_dashboard "$conv" "$only"
 }
 

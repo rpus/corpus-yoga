@@ -20,6 +20,7 @@
     "the value is shown - n goes on, b goes back",
     "the walk began here",
     "{key} is no key - {keys}",
+    "{flag} is no pointer - the walk takes a pointer and no flag",
     "{n} key",
     "{n} keys",
     "{n} value",

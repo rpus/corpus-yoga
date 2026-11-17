@@ -75,19 +75,24 @@ def fetch_list(endpoint: str) -> list:
     return [record for page in pages for record in page]
 
 
-def fetch_map(name: str, endpoint: str, numbers: list[int], tolerate_refusal: bool) -> dict:
-    """{"n": [...]} for each number read - only those; the endpoint's refusal, where
-    tolerated, is the empty list it stands for."""
-    out = {}
+def fetch_map(name: str, endpoint: str, numbers: list[int], tolerate_refusal: bool) -> tuple[dict, list[int]]:
+    """{"n": [...]} for each number the forge answered with a list, and the numbers it did
+    not: a read the forge refused, where refusal is tolerated, or answered with no list,
+    is left out of the map and returned beside it - an empty list is always the forge's."""
+    out, unread = {}, []
     for n in numbers:
         try:
             answer = json.loads(send.run('quote', name, endpoint.replace('<n>', str(n))))
         except subprocess.CalledProcessError:
             if not tolerate_refusal:
                 raise
-            answer = []
-        out[str(n)] = answer if isinstance(answer, list) else []
-    return out
+            unread.append(n)
+            continue
+        if isinstance(answer, list):
+            out[str(n)] = answer
+        else:
+            unread.append(n)
+    return out, unread
 
 
 def fetch_review_counts() -> list:
@@ -97,19 +102,19 @@ def fetch_review_counts() -> list:
     return [node for page in pages for node in page['data']['repository']['pullRequests']['nodes']]
 
 
-def fetch() -> dict[str, Captured]:
+def fetch() -> tuple[dict[str, Captured], list[str]]:
     got: dict[str, Captured] = {name: fetch_list(endpoint) for name, endpoint in LISTS}
     counts = fetch_review_counts()
     got['review_counts.json'] = counts
     reviewed = [node['number'] for node in counts if node['reviews']['totalCount']]
     blocked = [i['number'] for i in got['issues_and_PRs.json'] if 'pull_request' not in i
                and (i.get('issue_dependencies_summary') or {}).get('total_blocked_by', 1)]
-    got['reviews_by_PR.json'] = fetch_map(
+    got['reviews_by_PR.json'], unread = fetch_map(
         'reviews', 'repos/{owner}/{repo}/pulls/<n>/reviews', reviewed, tolerate_refusal=False)
-    got['blocked_by_by_issue.json'] = fetch_map(
+    got['blocked_by_by_issue.json'], refused = fetch_map(
         'dependencies', 'repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by', blocked, tolerate_refusal=True)
     got['repository.json'] = json.loads(send.run('quote', 'repository'))
-    return got
+    return got, [f'pull/{n}' for n in unread] + [f'issues/{n}' for n in refused]
 
 
 def render(value: Captured) -> bytes:
@@ -129,7 +134,7 @@ def main(argv: list[str]) -> int:
     stamp = argv[0]
     os.chdir(REPO)  # gh resolves {owner}/{repo} from the checkout's remote
     try:
-        got = fetch()
+        got, unread = fetch()
     except send.SendRefused as refused:
         facts.report(None, facts.act('forge', 'capture') + f': NOT DONE - {refused}')
         return 1
@@ -142,6 +147,8 @@ def main(argv: list[str]) -> int:
     for name in ROSTER:
         (target / name).write_bytes(render(got[name]))
         print(f'  {name}: {count(name, got[name])}')
+    if unread:
+        print('  ' + facts.phrase('{numbers} not read, so not deposited', numbers=', '.join(unread)))
     # what an act reports (issues/876, issues/896): the effect; the launcher's reply names the promote,
     # since no pipeline reads the ledger and no rehearsal is owed
     facts.report(None, facts.act('forge', 'capture') + f': DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')

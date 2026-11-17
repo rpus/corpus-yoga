@@ -10,8 +10,8 @@
     "{verb} is no verb it takes - {verbs} (bare is the status; corpus-yoga cache <verb> -h says its flags)"
   ],
   "explanation": {
-    "orphans": "each entry under tmp/cache that no current step writes or reads, by its path, with its size, corpus-yoga cache clean, in now, removing it - a former output whose producer moved or was renamed",
-    "now": "the room's standing as the cache reads it - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where every entry is owned"
+    "orphans": "each entry under tmp/cache that no current step writes or reads, by its path, with its size, corpus-yoga cache clean, in now, removing it - a former output whose producer moved or was renamed - and, inside the subtrees the registry owns, bytecode whose source no longer stands and scratch whose run is gone",
+    "now": "the room's standing as the cache reads it - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where nothing under tmp/cache is an orphan"
   },
   "target": "src/main/cli/cache/cache.py",
   "calculus": "project",

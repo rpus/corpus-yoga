@@ -15,10 +15,10 @@ the corpus more fully than the provider does.
 ./corpus-yoga                        # suggests what to run next; runs none of it
 ./corpus-yoga status                 # read-only: whether everything is well, and what needs doing
 ./corpus-yoga walkthrough            # walk the room's state: n next, m members, v value, b back, x runs the command it stands on
-./corpus-yoga browser capture        # acquire: Safari sweep into data/input/
+./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, tmp/stage/input/
 ./corpus-yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
-./corpus-yoga indexing capture       # PAID: the model re-reads the corpus for the index tables
+./corpus-yoga indexing capture       # PAID: the model reads the conversation titles for the index tables
 ./corpus-yoga site render            # render the corpus page from corpus + captures
 ./corpus-yoga test run               # the dev gate: the hermetic suite over src/ and rsc/
 ```
@@ -60,7 +60,7 @@ each noun's bare status the units; `corpus-yoga store` reads shared storage in t
 terms - what is held, what is duplicated, and what the stage holds against it; the
 store's status reads everything upstream of it - the stage, and this room's live stores
 against the fuller of the staged and the held copy - and alone names what to run next,
-while the stage's status is a report and names no act (issues/851). The stage's cleaner looks
+while the stage's status names an act only where an orphan stands, the clean that removes it (issues/851). The stage's cleaner looks
 forward, at what the store already holds, and the store's inward.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
@@ -93,8 +93,8 @@ reading-room, 2026-08-22, at 17e173c (issues/498).
 - the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit hook attests and the machine report and mounts iterate)
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`corpus-yoga status` reports both)
 - commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga status` reconciles them against the live forge and prints each drift's own `gh` remedy)
-- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yoga test` shows status)
+- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv`, the default branch's protection among them (`corpus-yoga forge` reconciles them against the live forge, and `corpus-yoga forge push` sets a drift)
+- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yoga test` shows status)
 
 ## Getting data
 

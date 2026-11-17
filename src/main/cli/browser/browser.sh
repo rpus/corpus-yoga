@@ -9,7 +9,6 @@
 #   corpus-yoga browser                                      # free, local: are the captures any good?
 #   corpus-yoga browser capture --all                        # every provider, every mechanism it has
 #   corpus-yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
-#   corpus-yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   corpus-yoga browser capture --provider claude --id <id>  # one conversation
 #   corpus-yoga browser promote --all | --provider <p> [--id <id>]   # what capture staged, into data/input
 #
@@ -17,7 +16,7 @@
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
 #   when absent; what no handle names stays on check_harvested's report — by-hand, stated.
 #   --id requires --provider (an id's shape cannot say whose it is); restrictions
-#   intersecting to nothing are reported, never defaulted around. --dry-run: the extent, then stop.
+#   intersecting to nothing are reported, never defaulted around.
 #   CORPUS_YOGA_NO_SEND=1 refuses every outward call: a capture has no scratch form, so refusing
 #   it is the only way to exercise these paths without reaching the account.
 
@@ -41,9 +40,9 @@ main() {
     '') exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/browser/status.py" ;;   # bare noun → status (read-only), never a capture
     fetch) shift; parse_argv browser fetch "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/browser/fetch.py" "$@" ;;
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
+    *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac
-  local provider="" mechanism="" id="" dry_run="" all=""
+  local provider="" mechanism="" id="" all=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --all) all="1"; shift ;;
@@ -57,14 +56,13 @@ main() {
           API|DOM) mechanism="$2"; shift 2 ;;
           *) echo "error: --mechanism takes API | DOM (got: ${2-})" >&2; exit 1 ;;
         esac ;;
-      --dry-run) dry_run="1"; shift ;;
       --id)
         case "${2-}" in
           ''|--*) echo "error: --id takes a conversation id (got: ${2-})" >&2; exit 1 ;;
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
     esac
   done
   # The extent is named, never inferred (issues/641): --all, or one provider, or one of its
@@ -101,9 +99,9 @@ main() {
   # the bare noun already answers, and its bulk (consistency QA of
   # already-captured data) is not about what this run will do. The capture's
   # bracket is its EXTENT — captured / never-captured — computed by
-  # capture.py from the discovery the run performs anyway; --dry-run is
-  # that first call run alone (G19: discovery + extent, nothing captured),
-  # forwarded below like any other restriction.
+  # capture.py from the discovery the run performs anyway; what a capture would
+  # bring in before it runs is bare `corpus-yoga browser`'s to say, read against the
+  # account as `corpus-yoga browser fetch` last recorded it.
   #
   # The record is the launcher's tee of the whole verb (issues/708). Each provider's capture
   # narrative - one line per step, issues/413 - is an artifact beside it, named by the same
@@ -128,15 +126,13 @@ main() {
     mechs="${provider_mechs[$i]}"
     echo "$p: capturing by ${mechs//+/ and }"
     "$SCRIPT_DIR/capture.sh" --progress "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
-      ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
+      ${id:+--id "$id"} || rc=$?
     i=$((i + 1))
   done
   # what an act reports (issues/876, issues/896): the effect, the last line where no launcher asked for
   # it, carried in the record; the launcher replies with now:, the rehearsal that judges
   # what was staged
-  if [[ -n "$dry_run" ]]; then
-    effect "$(act browser capture): DONE - dry run; nothing staged, nothing spent"
-  elif [[ "$rc" -eq 0 ]]; then
+  if [[ "$rc" -eq 0 ]]; then
     effect "$(act browser capture): DONE - each provider's capture stands above"
   else
     effect "$(act browser capture): NOT DONE - a provider's capture above failed (exit $rc)"

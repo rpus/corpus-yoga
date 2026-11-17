@@ -166,8 +166,14 @@ def install_completion() -> int:
     # compinit keeps the list of completion files it found in ~/.zcompdump and can judge
     # a list made before these lines current; the next terminal would then not complete.
     dumps = sorted(Path.home().glob('.zcompdump*'))
-    for d in dumps:
-        d.unlink()
+    if dumps:
+        try:
+            with send.within('zcompdump'):
+                for d in dumps:
+                    d.unlink()
+        except send.SendRefused as refused:
+            facts.report(None, facts.act('completions', 'install') + f': NOT DONE - {refused}')
+            return 1
     if dumps:
         print('  ~/.zcompdump*: ' + facts.phrase('{n} removed - the next terminal rebuilds it', n=len(dumps)))
     facts.report(None, facts.act('completions', 'install') + ': DONE - ' + facts.phrase('{zshrc} holds the four lines; a new terminal tab-completes corpus-yoga from then on', zshrc=tilde(zshrc)))

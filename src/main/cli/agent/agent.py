@@ -181,9 +181,10 @@ class Session:
 
 @dataclass
 class Mount:
-    """A live store this room does not mount: which rows cannot appear, and what makes them."""
+    """A live store this room does not mount: which rows cannot appear, and what makes them -
+    no act where this machine holds no live store to mount."""
     standing: str
-    act: facts.Would
+    act: facts.Would | None = None
 
 
 Sessions = dict[str, dict[str, dict[str, dict[str, Session]]]]   # by where - local, then each machine - provider, project and id
@@ -227,9 +228,14 @@ def list_agents() -> Census:
         else:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
-            absent[mount_path.relative_to(REPO).as_posix()] = Mount(
-                facts.phrase('absent - no local {provider} rows', provider=provider),
-                facts.Would(spell.line('agent', 'mount'), {mount_path.relative_to(REPO).as_posix(): 1}))
+            live = registry.live_store(row)
+            if live is not None and live.is_dir():
+                absent[mount_path.relative_to(REPO).as_posix()] = Mount(
+                    facts.phrase('absent - no local {provider} rows', provider=provider),
+                    facts.Would(spell.line('agent', 'mount'), {mount_path.relative_to(REPO).as_posix(): 1}))
+            else:   # mount links only a live store this machine holds, so it is no act here
+                absent[mount_path.relative_to(REPO).as_posix()] = Mount(
+                    facts.phrase('absent - this machine holds no {provider} live store', provider=provider))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -313,12 +319,17 @@ class Status:
     drafters: 'drafters.Brief | None'                     # said under its ref and head
     staged: dict[str, corpus.Staged]
     pull: dict[str, Peer | str] | str = 'none'         # per peer store held, what pull would write (issues/881)
+    bound: bool = True                                  # whether machine-name.txt binds this room
 
     def facts(self) -> dict:
         brief = self.drafters
-        if brief is None:                 # no machine binding: the drafters cannot be read against one (issues/758)
+        if brief is None and not self.bound:   # no machine binding: the drafters cannot be read against one (issues/758)
             unbound = {'binding': facts.phrase('absent - echo <declared-machine-name> > machine-name.txt binds it, to a name rsc/machine/machines.csv declares')}
             return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': unbound, 'staged': self.staged, 'pull': self.pull}
+        if brief is None:
+            import drafters
+            return {'sessions': self.sessions, 'mounts': self.mounts, 'drafters': facts.phrase('none - no Signature on {ref} names a session or a machine', ref=drafters.REF),
+                    'staged': self.staged, 'pull': self.pull}
         return {'sessions': self.sessions, 'mounts': self.mounts, f'drafters on {brief.ref} @ {brief.head}': brief, 'staged': self.staged,
                 'pull': self.pull}
 
@@ -447,9 +458,10 @@ def main() -> int:
         census = list_agents()
         import drafters
         import machine
-        brief = drafters.brief() if machine.BINDING.exists() else None     # an unbound room reads what needs no machine (issues/758)
+        bound = machine.BINDING.exists()
+        brief = drafters.brief() if bound else None     # an unbound room reads what needs no machine (issues/758)
         report = corpus.report_facts('agent')
-        facts.say_standing(Status(census.counts, census.mounts, brief, report.staged, peers()))
+        facts.say_standing(Status(census.counts, census.mounts, brief, report.staged, peers(), bound))
         return 0
     if args.verb == 'mount':
         return mount()

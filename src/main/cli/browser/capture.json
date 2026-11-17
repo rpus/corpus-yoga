@@ -19,19 +19,13 @@
       "name": "--id",
       "type": "<uuid-prefix>",
       "cardinality": "",
-      "help": "capture ONE conversation, by its full id or a prefix of eight characters or more naming exactly one of the listing - filed under the full id, which a sweep overwrites in place (the audit FAILs name it); requires --provider - an id's shape does not say whose it is"
+      "help": "capture ONE conversation, by its full id or a prefix naming exactly one of the listing - filed under the full id, which a sweep overwrites in place (the audit FAILs name it); requires --provider - an id's shape does not say whose it is"
     },
     {
       "name": "--all",
       "type": "",
       "cardinality": "1/browser-capture-1",
       "help": "every conversation of every provider, every mechanism it has"
-    },
-    {
-      "name": "--dry-run",
-      "type": "",
-      "cardinality": "",
-      "help": "discover and state the extent (captured / never-captured), then stop - captures nothing, writes nothing"
     }
   ],
   "sends": {

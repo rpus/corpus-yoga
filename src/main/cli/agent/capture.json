@@ -1,5 +1,5 @@
 {
-  "help": "mirror this machine's own sessions of every served provider into that provider's store dir (what a machine pushes to the shared store)",
+  "help": "copy this machine's own sessions of every served provider into the stage, tmp/stage/input/<provider>/code/machine-transport/<machine>, which corpus-yoga agent promote takes into the store",
   "would": "would capture",
   "modality": "MAY",
   "args": [
@@ -13,13 +13,13 @@
       "name": "--id",
       "type": "<uuid-prefix>",
       "cardinality": "",
-      "help": "one session of the provider --provider names, by a uuid prefix of eight characters or more matching exactly one; requires --provider - a uuid's shape does not say whose it is, as the browser capture's --id says"
+      "help": "one session of the provider --provider names, by a uuid prefix matching exactly one; requires --provider - a uuid's shape does not say whose it is, as the browser capture's --id says"
     },
     {
       "name": "--all",
       "type": "",
       "cardinality": "1/agent-capture-1",
-      "help": "every session of every served provider (the whole outbox of each)"
+      "help": "every session of every served provider whose live store is mounted (the whole outbox of each)"
     }
   ],
   "r": [

@@ -142,14 +142,18 @@ sync() {
     effect "$(act site sync): NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
     return 1
   fi
-  local rows
+  local rows ahead
   rows="$(landing "$mount" "$OUT")"
-  if [[ -z "$rows" ]]; then
+  # commits the clone holds and rpus.co does not are pushed whatever the files say
+  ahead="$(git -C "$mount" rev-list --count "$served..HEAD" 2>/dev/null || echo 0)"
+  if [[ -z "$rows" && "$ahead" == 0 ]]; then
     effect "$(act site sync): DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
     return 0
   fi
-  echo "did land:"
-  printf '%s\n' "$rows" | while IFS=$'\t' read -r _ rel _; do [[ -n "$rel" ]] && echo "  $rel"; done
+  if [[ -n "$rows" ]]; then
+    echo "did land:"
+    printf '%s\n' "$rows" | while IFS=$'\t' read -r _ rel _; do [[ -n "$rel" ]] && echo "  $rel"; done
+  fi
   send_cleared push || return 1
   enact cp -R "$OUT/" "$mount/" || return 1
   enact git -C "$mount" add -A || return 1
@@ -165,28 +169,28 @@ sync() {
 
 assemble() {
   mkdir -p "$OUT"
-  local d f name eventful=0
-  # reconcile: what left rsc/site/ leaves the publish tree with it (L7: this tree is
-  # assemble's own) - a page whose source is gone, and any directory, since the pages sit
-  # at the root since issues/650 (the page directories of 2026-08 to 2026-09-15 among them).
-  # index.html is spared: it is render's.
+  local d f name eventful=0 departed=0
+  # A page that left rsc/site/ halts the assemble, the publish tree left as it is: the copy to
+  # rpus.co is a union that never deletes, so the page stays there, and this is the one run
+  # that can still see it go. index.html is render's, never a departed page.
   for d in "$OUT"/*/; do
     [[ -d "$d" ]] || continue
-    name="$(basename "$d")"
-    rm -rf "${OUT:?}/$name"
-    echo "site: $(phrase "pruned {name}/ - the publish tree holds pages at its root, not directories" name="$name")"
-    eventful=1
+    echo "site: $(phrase "{name}/ is a directory, where the publish tree holds pages at its root - it stays on rpus.co, which the copy never deletes from" name="$(basename "$d")")"
+    departed=1
   done
   for f in "$OUT"/*.html; do
     [[ -f "$f" ]] || continue
     name="$(basename "$f")"
     [[ "$name" == index.html ]] && continue
     if [[ ! -f "$SRC/$name" ]]; then
-      rm -f "$f"
-      echo "site: $(phrase "pruned {name} - its source left rsc/site/" name="$name")"
-      eventful=1
+      echo "site: $(phrase "{name} left rsc/site/ - it stays on rpus.co, which the copy never deletes from" name="$name")"
+      departed=1
     fi
   done
+  if [[ $departed -eq 1 ]]; then
+    effect "$(act site assemble): NOT DONE - $(phrase "a page left rsc/site/ and stays on rpus.co; the lines above name it, and data/output/site/ is left as it was")"
+    return 1
+  fi
   while IFS= read -r f; do
     # current already? byte-identical → silence (L1)
     [[ -f "$OUT/$f" ]] && cmp -s "$SRC/$f" "$OUT/$f" && continue

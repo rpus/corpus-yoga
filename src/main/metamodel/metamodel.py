@@ -285,15 +285,17 @@ def main():
             parser.error(facts.phrase('{verb} takes a <name> or --all, not both and not neither', verb=args.verb))
         from datetime import date
         today = date.today().isoformat()
-        disposed = 0
+        disposed = refused = 0
         for row in _disposal_rows(parser, args):
             if args.verb == 'accept':
-                print(accept_shared_name(row, today))
+                added, line = accept_shared_name(row, today)
             else:
-                print(reject_shared_name(row, args.reason, today))
-            disposed += 1
+                added, line = True, reject_shared_name(row, args.reason, today)
+            print(line)
+            disposed += added
+            refused += not added
         render_collision_worksheet()
-        facts.report(None, facts.act('metamodel', args.verb) + ': DONE - ' + facts.phrase('{n} shared name(s) {verb}ed', n=disposed, verb=args.verb))
+        facts.report(None, facts.act('metamodel', args.verb) + ': DONE - ' + facts.phrase('{n} shared name(s) {verb}ed, {refused} refused', n=disposed, verb=args.verb, refused=refused))
     else:
         # bare → status (read-only); only the verbs above write
         status()

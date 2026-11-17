@@ -1,4 +1,4 @@
 {
-  "help": "model census - message.model counts over assistant records, every project and session",
+  "help": "model census - per session in the live stores this room mounts, each model and the records it wrote - message.model over Claude Code's assistant records, and for Antigravity the transcript's steps, its model undecoded",
   "args": []
 }
