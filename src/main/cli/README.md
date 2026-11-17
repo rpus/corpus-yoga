@@ -135,19 +135,15 @@ They are stated, followed, and reviewed by people.
   `pull` brings a peer room's sessions from the store into this machine's live session store, the peer rooms being its remotes, machine-local by nature.
 - **G2 — Bare is status: free, local, and read-only.** `unenforced (issues/47, issues/52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
-  write living in the verb (`site`, `indexing`, `server`, `memories`, `summaries`,
-  `metamodel`, `store`); the command's *whole act* where it has no verb and that
-  act is one free idempotent step (`check`, `status` — `run` left this set when it
-  became `pipeline run`, and issues/40 takes `check` to `test run`, leaving `status` alone
-  or nothing); and a *usage refusal* where the verb is required
-  and bare is meaningless (`browser`, `cache`, `agent`).
-- **G19 — An effecting verb is bracketed by status.** `doctrine (issues/56)` — it reports the
-  state it is about to change, then effects, then reports the state it left. The bracket is
-  what makes an effect auditable without a log, and what stops a verb reporting success it
-  has not earned: `corpus-yoga indexing capture` prints an exact coverage join before spending and
-  nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
-  counted rows. Stated first, and for a long time only, as a parenthetical in
-  `src/main/indexing/capture.sh` — the same file that implements half of it.
+  write living in the verb - every command that has one, `status` among them; and the
+  command's *whole act* where it has no verb and that act is one free idempotent read
+  (`calculus`, `walkthrough`). No command answers bare with a usage refusal.
+- **G19 — An effecting verb's dry run is its noun's status, and its report ends on its effect.** `doctrine (issues/56, issues/801, issues/881)` —
+  what the verb would change is what its noun's bare status names under `now:`, so the state
+  before the act is a report anyone can read without acting; the verb then reports what it
+  did, the launcher re-reads the room's `now:` beneath, and the act's effect line, `<noun> <verb>: DONE - …` or `NOT DONE - …`, is the last line.
+  A verb that took a flag to print its own dry run would be a second report of what the
+  status already says.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
   INVOCATION FORMS, each becoming its own `form` in `corpus-yoga <command> -h` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
