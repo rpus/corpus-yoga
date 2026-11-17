@@ -111,7 +111,7 @@ parse_args() {
   done
 }
 
-# sync REGENERATES (the verb's one meaning): each datum's matrix.md is re-rendered from
+# render REGENERATES (the verb's one meaning): each datum's matrix.md is re-rendered from
 # the vN.log files beside it, so the summary agrees with the logs it summarises.
 sync_matrices() {
   parse_args "$@"
@@ -615,7 +615,7 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, rehearse, sync, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, rehearse, render, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
 esac
 
 # --plan runs before the log exists: it writes nothing, not even a log file.

@@ -25,7 +25,7 @@ def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:
     command-level rows (subcommand ''). The completion offers exactly these at
     that position — never the across-verbs union, which TAB-completed flags the
     dispatched verb then rejects (found 2026-07-23: `cache rebuild --apply` was
-    offered, and dies in sync's argparse; --apply is clean's)."""
+    offered, and dies in rebuild's argparse; --apply is clean's)."""
     rows = [r for r in command_rows(command) if r['subcommand'] == subcommand]
     flags, paths = [], []
     for r in rows:

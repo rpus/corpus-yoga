@@ -9,7 +9,7 @@
     "STALE against {source}",
     "regenerates",
     "current with {source} (antlr4 {version})",
-    "no - it holds no grammar, a .g4 at its top level - a leftover no sync generates from",
+    "no - it holds no grammar, a .g4 at its top level - a leftover corpus-yoga grammar generate generates nothing from",
     "removes it",
     "{n} project(s), {stale} absent or stale",
     "removed - the grammar no longer generates it",

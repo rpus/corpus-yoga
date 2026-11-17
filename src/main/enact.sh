@@ -17,7 +17,7 @@
 # evidence, and what a verb says when it finishes is the verb's own business.
 #
 # labour() is enact() under no bound, for a local act whose duration is its own - a gate, a
-# sync - never a send's (issues/992). query(), quote() and quiet() are the read faces, named for how many times each
+# derivation - never a send's (issues/992). query(), quote() and quiet() are the read faces, named for how many times each
 # renders the answer: query twice (the item carries the answer, `- <command>: <answer>`, and
 # stdout returns it, capture-and-chain); quote once (stdout only; the item says done); quiet
 # zero (the item says done, the answer is discarded). Failure is never quiet in any of these faces. attempt() is the one
@@ -63,7 +63,7 @@ enact() {
   return "$status"
 }
 
-# labour <cmd...>: a local act under no bound - a gate, a sync - whose duration is its own
+# labour <cmd...>: a local act under no bound - a gate, a derivation - whose duration is its own
 # and never a send's (issues/992); said and relayed exactly as enact says and relays.
 labour() {
   local printed status

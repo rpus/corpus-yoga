@@ -9,7 +9,7 @@ tier. Bare shows its state and writes nothing; the verbs do the work.
 Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
 src/main/cli/cache/rebuild.py — so the CLI table carries one `cache` command whose verbs
 are the two halves of the reproduction ritual: `corpus-yoga cache clean &&
-corpus-yoga cache rebuild` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
+corpus-yoga cache rebuild` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `rebuild` is the
 idempotent regenerator (L1); `clean` is the only destructive verb, and takes no flag
 (issues/865): what it would remove is what bare cache names under orphans: and now:.
 STDLIB-ONLY, like everything it routes to.

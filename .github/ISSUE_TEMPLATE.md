@@ -10,7 +10,7 @@
      closes, sub-issue - is refused by the raise: the argument wires what the phrase
      only narrated. The Signature is the body's ONE attribution; a harness default
      that appends its own has no licensed position in a body, exactly as
-     prepare_commit_msg.sh's stamp already rules for commits.
+     rsc/test/prepare-commit-msg-hook.sh's stamp already rules for commits.
 
      The grammar: an issue is a SHOULD. The title states it in one sentence,
      in should-form — the word appears — the property that should hold, never

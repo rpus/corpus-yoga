@@ -4,7 +4,7 @@ validation against the session family's latest version (rsc/schema/agent/claude/
 
 For each branch of Record.oneOf, reports whether it passes or fails and — for the
 branch matching the record's type — drills into the sub-schema to find the leaf-level
-cause. Equivalent to running the validation workflow from workflow.md steps 1–3
+cause. Equivalent to running the validation workflow from rsc/schema/WORKFLOW.md steps 1–3
 (validate → categorise → triage) for a single record.
 
 Accepts either a .jsonl session file (converts in-memory) or a pre-converted .json array.

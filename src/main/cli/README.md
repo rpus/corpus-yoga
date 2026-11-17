@@ -35,7 +35,7 @@ over the SET QUOTIENT `<class>` — the mutually-exclusive args are one equivale
 quotient by that class, rendered as the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordinal>`. So the usage
 cannot drift from the helptext, because there is one source, not two — nothing to reconcile,
 no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
-prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
+prints producer commands under `rebuild`); `subcommand` blank is command-level, `arg-name` blank
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
 as a step of the named run pipeline (`export`), or of `pipeline.sh`'s whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
@@ -105,7 +105,7 @@ absent:
 A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 surface, and that document is the authority for the principle — cited, never paraphrased.
 G3 is L5 (presentation is re-derivable) applied to usage; G10 implements L9's `run`-step
-mechanism; G1's `sync` clause is L1; G16 is bounded by L2, which is why a plan line must
+mechanism; G1's derivation clause is L1; G16 is bounded by L2, which is why a plan line must
 name a REPO-RELATIVE path (an absolute one would put a machine fact in a committed
 artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
 
@@ -125,18 +125,18 @@ They are stated, followed, and reviewed by people.
 
 - **G1 — A verb means one thing everywhere it appears.** `doctrine (issues/49)` `from L1` — `capture` acquires
   (`browser capture`, `indexing capture`, `agent capture` all *bring data in*, from
-  Safari, the paid model, and the harness's session store); `sync` makes its target agree
-  with its authority, idempotently — one meaning by definition, not by catalogue (user
+  Safari, the paid model, and the harness's session store); a derivation (`generate`, `derive`,
+  `rebuild`) makes its target agree with its authority, idempotently — one meaning by definition, not by catalogue (user
   ruling, 2026-07-27: the instances are open-ended, so enumerating shapes would be a
-  second surface to drift); what and where a sync writes — a re-derivation, a monotone
+  second surface to drift); what and where a derivation writes — a re-derivation, a monotone
   deposit, a surface outside the repo — are declared effects (issues/29), not senses of the
-  verb; `list-<noun>` enumerates and reports that collection; `clean` destroys; `run`
+  verb; `sync` pulls and then pushes (`site sync`, issues/1047); `list-<noun>` enumerates and reports that collection; `clean` destroys; `run`
   only processes what `data/input/` already holds; `present` renders, free;
   `pull` brings a peer room's sessions from the store into this machine's live session store, the peer rooms being its remotes, machine-local by nature.
 - **G2 — Bare is status: free, local, and read-only.** `unenforced (issues/47, issues/52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
-  write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
-  `model`, `store`, `xref`); the command's *whole act* where it has no verb and that
+  write living in the verb (`site`, `indexing`, `server`, `memories`, `summaries`,
+  `metamodel`, `store`); the command's *whole act* where it has no verb and that
   act is one free idempotent step (`check`, `status` — `run` left this set when it
   became `pipeline run`, and issues/40 takes `check` to `test run`, leaving `status` alone
   or nothing); and a *usage refusal* where the verb is required
@@ -224,7 +224,7 @@ here so that a check can cite them as they land (see issues/39).
   line, the repo's own marker for "type this": the head must be a command or a standard
   tool, and any flags it names must be ones that command advertises (issues/76). A remedy
   computed at run time cannot be read from source and is skipped rather than guessed at.
-- **G18 — Every command is a noun.** `doctrine (issues/47)` — `run` became `pipeline run`; `check` and `xref` remain, and issues/40 takes them to `test`. — no command word is a verb, and
+- **G18 — Every command is a noun.** `doctrine (issues/47)` — `run` became `pipeline run`, and `check` and `xref` became `test run` and `test xref` (issues/40). — no command word is a verb, and
   no flag names what the command grammar already addresses as a noun.
 
 The table is curated, not discovered: a script's absence here is a decision, not

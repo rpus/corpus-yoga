@@ -11,7 +11,7 @@ latest case. Being derived, an orphan is safe to remove (nothing regenerates it 
 even a mistaken removal of a LIVE subtree costs only a pipeline re-run, never data - that
 is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
 
-The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync and
+The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with rebuild and
 `corpus-yoga test run`'s check_cache_io - one registry, three consumers.
 
 The verb takes no flag (issues/865), as the stage's and the store's cleaners do (issues/844): what it

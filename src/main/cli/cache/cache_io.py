@@ -9,7 +9,7 @@ you can cd to or rm. Three consumers share it:
 
   clean  — a tmp/cache/ subtree ABSENT from the registry is residue (neither written
            nor read): removable (corpus-yoga cache clean).
-  sync   — every row's producer commands rebuild tmp/cache/ (corpus-yoga cache rebuild).
+  rebuild — every row's producer commands rebuild tmp/cache/ (corpus-yoga cache rebuild).
   check  — `corpus-yoga test run`'s check_cache_io blocks the catastrophe: a path READ with
            no WRITER (a tmp/cache/ dependency nothing produces) breaks the "tmp/cache/ is
            reproducible from data/input/" contract. Written-but-not-read is fine (a
@@ -90,7 +90,7 @@ def pipelines() -> set[str]:
 
 
 def producers() -> list[str]:
-    """Every written_by command, row by row in registry order — sync's plan.
+    """Every written_by command, row by row in registry order — rebuild's plan.
     Deliberately NO dedup: the row is the unit of the reproduction claim, and a
     command string shared by two rows proves nothing about one run covering
     both — a producer may write more than its row declares (site render

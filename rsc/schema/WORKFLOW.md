@@ -343,7 +343,7 @@ from upstream at a JSON Pointer: the null upstream's generator drops from
 from the constant schema.ts exports). Every definition's description ends with its
 layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
 definition the rule cannot place, or an addition row that fits neither reading,
-refuses the derivation. The sync also writes the factoring's two faces under
+refuses the derivation. The derive also writes the factoring's two faces under
 `tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every
 definition flat and open, which a party validates what it receives against, and
 the producer face, flat and closed, which it validates what it sends against -
@@ -354,7 +354,7 @@ never a source: the dev gate holds the file byte-identical to the derivation
 counterpart resolved and normalized, the declared additions set back
 (`mcp.factoring_agrees`), and every held lineage's `schema.ts` parsed
 (`mcp.lineages_parse`). Its history lives in
-`rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
+`rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md`; its mint is the derive's, not step 2's
 (issues/583): whenever the derivation differs from the latest version file - upstream
 moved, or the house rules did - `corpus-yoga mcp derive` prints the diff and writes the
 next version in place of the current one, by plain file operations; a version of

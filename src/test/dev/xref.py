@@ -1,7 +1,7 @@
 """
-xref.py — the cross-reference table of the repo. `xref` is a NOUN: the table. A bare
-invocation shows its status (the committed table's tallies) and writes nothing; the
-`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated
+xref.py — the cross-reference table of the repo. `corpus-yoga test xref`
+rebuilds it, writes rsc/test/xref.csv, and reports; the dev gate rebuilds it on every run and holds its
+counts to rsc/test/xref_expected_score. Every non-generated
 file is scanned for references to other repo files, one CSV row per reference (columns
 are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 
@@ -100,7 +100,18 @@ _TOKEN = r'[\w./\-]+\.(?:' + '|'.join(REF_EXTS) + r')'
 PATH_TOKEN_RE = re.compile(_TOKEN)
 DOTSLASH_TOKEN_RE = re.compile(r'(?<![./\w])\./' + _TOKEN)
 
-REPO_PREFIXES = tuple(f'{d}/' for d in sorted(_IGNORED_ROOTS | {'rsc', 'src'}))
+def _tracked_dot() -> frozenset:
+    """The names beginning with a dot that git tracks something under at the top - .github
+    among them - asked of git: a dot-name the repository commits is read and referred to like
+    any other, and one it does not (.git, a harness's or a tool's own) is neither."""
+    import subprocess
+    listed = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files'], capture_output=True, text=True).stdout
+    return frozenset(path.split('/', 1)[0] for path in listed.splitlines() if path.startswith('.'))
+
+
+TRACKED_DOT = _tracked_dot()
+TRACKED_DOT_DIRS = frozenset(d for d in TRACKED_DOT if (REPO_ROOT / d).is_dir())
+REPO_PREFIXES = tuple(f'{d}/' for d in sorted(_IGNORED_ROOTS | {'rsc', 'src'} | TRACKED_DOT_DIRS))
 # Regex alternation of bare directory names, e.g. 'cache|rsc|src'
 PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 
@@ -121,6 +132,12 @@ def _gitignored(rels: list[str]) -> set[str]:
     return set(r.stdout.splitlines())
 
 
+def _bare(path: str) -> str:
+    """The path without a leading ./ - or as written where it opens with a tracked dot-name,
+    whose own dot is part of it."""
+    return path if path.split('/', 1)[0] in TRACKED_DOT else path.lstrip('./')
+
+
 def repo_files() -> list[Path]:
     """Return all scannable source files in the repo."""
     result = []
@@ -131,7 +148,7 @@ def repo_files() -> list[Path]:
         if str(rel) in SKIP_FILES:
             continue
         parts = rel.parts
-        if any(part in SKIP_DIRS or part.startswith('.') for part in parts):
+        if any(part in SKIP_DIRS or (part.startswith('.') and part not in TRACKED_DOT) for part in parts):
             continue
         result.append(f)
     ignored = _gitignored([str(f.relative_to(REPO_ROOT)) for f in result])
@@ -145,7 +162,7 @@ def looks_like_repo_path(s: str) -> bool:
         return False
     if s.startswith('~'):
         return False  # home-relative path, outside the repo
-    bare = s.lstrip('./')
+    bare = _bare(s)
     if any(bare.startswith(d + '/') or bare == d for d in SKIP_DIRS):
         return False  # reference into a skipped directory
     if '<' in s or '…' in s:
@@ -210,7 +227,7 @@ def resolve(referred: str, referring: Path) -> tuple[str, str]:
         rel = str(f.resolve().relative_to(REPO_ROOT))
         return f'{rel}#{pointer}' if pointer else rel
 
-    bare = file_part.lstrip('./')
+    bare = _bare(file_part)
     candidate = REPO_ROOT / bare
     if candidate.exists():
         try:
@@ -470,7 +487,7 @@ def extract_markdown(f: Path, rows: list) -> None:
             if looks_like_repo_path(s):
                 emit(rows, f, i, doc, s, stripped)
         # Bare path-like strings in code blocks / text (must not end with a hyphen)
-        for match in re.finditer(rf'\b((?:{PREFIXES_RE})/[\w./\-]+)(?![\-])\b', stripped):
+        for match in re.finditer(rf'(?:\b|(?<![\w./\-])(?=\.))((?:{PREFIXES_RE})/[\w./\-]+)(?![\-])\b', stripped):   # a tracked dot-name opens at its dot
             s = match.group(1)
             if looks_like_repo_path(s):
                 emit(rows, f, i, doc, s, stripped)

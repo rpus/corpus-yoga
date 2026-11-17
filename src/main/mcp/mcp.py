@@ -7,7 +7,7 @@ extraction.py reads (issues/581, issues/595); upstream's schema.json beside it i
 every definition must flatten to, never a source.
 
 `mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes
-nothing (the bare noun IS the status). Only `sync` writes: the two extracted
+nothing (the bare noun IS the status). Only `derive` writes: the two extracted
 tables and the two faces under tmp/cache/mcp/ (the readable faces of the
 derivation's inputs and of its output - the consumer and producer schemas of
 face.py, issues/605) and the

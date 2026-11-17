@@ -1014,7 +1014,7 @@ def promote(noun: str, selected: list[Unit]) -> int:
     was asked and declined it (issues/867). Exit 1 while anything asked for was left undone."""
     rows = survey(selected)
     if not rows:
-        print(f'{noun} promote: DONE - nothing staged')
+        print(facts.act(noun, 'promote') + ': DONE - nothing staged')
         return 0
     groups: dict[str, list[str]] = {}
     written = unchanged = 0

@@ -97,7 +97,7 @@ def check_declared_families_judge(run) -> None:
 ))
 def check_cache_io(run) -> None:
     """The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
-    covers every pipeline's gen root (so clean and sync know the pipelines),
+    covers every pipeline's gen root (so clean and rebuild know the pipelines),
     and — the catastrophe guard — no subtree is READ with no WRITER. A tmp/cache/ path
     the machinery consumes but nothing produces breaks the 'tmp/cache/ is reproducible
     from data/input/' contract: a fresh clone, or `corpus-yoga cache clean`, would strand the

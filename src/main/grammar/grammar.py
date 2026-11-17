@@ -15,7 +15,7 @@ rest of what a machine needs.
 
 `grammar` is a NOUN: the generated parsers. A bare invocation reports whether each
 project's parser is present and what the tool generates from its grammar now, and
-writes nothing; only `sync` writes, generating what is absent, regenerating what
+writes nothing; only `generate` writes, generating what is absent, regenerating what
 differs and removing what the grammar no longer produces. Both need the tool:
 `antlr4` from antlr4-tools in the venv, which on first use fetches
 antlr4-<version>-complete.jar into ~/.m2 (a send, refused under CORPUS_YOGA_NO_SEND=1 - the
@@ -57,8 +57,8 @@ def projects() -> list[Path]:
 
 
 def orphans() -> list[Path]:
-    """A directory under rsc/rpus/grammar holding no grammar: a leftover no sync can
-    generate from, named for the reader with its rm, never removed here (issues/638)."""
+    """A directory under rsc/rpus/grammar holding no grammar: a leftover `generate` can
+    generate nothing from, named for the reader with its rm, never removed here (issues/638)."""
     return sorted(p for p in GRAMMARS.iterdir() if p.is_dir() and not list(p.glob('*.g4')))
 
 
@@ -138,7 +138,7 @@ def status() -> int:
         projects_[project.name] = item
     for orphan in orphans():
         address = orphan.relative_to(REPO).as_posix()
-        projects_[address] = Project(facts.phrase('no - it holds no grammar, a .g4 at its top level - a leftover no sync generates from'))
+        projects_[address] = Project(facts.phrase('no - it holds no grammar, a .g4 at its top level - a leftover corpus-yoga grammar generate generates nothing from'))
     facts.say_standing(Status(projects_, facts.phrase('{n} project(s), {stale} absent or stale', n=len(projects()), stale=stale)))
     return 1 if stale else 0
 
