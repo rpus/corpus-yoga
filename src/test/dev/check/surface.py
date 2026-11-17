@@ -109,6 +109,7 @@ def sends_run_by_name() -> dict[str, str]:
     'effects.send_switch_read_once',
     'effects.send_faces_agree',
     'effects.sends_are_dispatched',
+    'effects.send_reads_no_input',
     'effects.sends_declared',
     'effects.sends_run',
     'naming.log_path_derives_from_command',
@@ -505,6 +506,22 @@ def check_cli_surface(run) -> None:
         None if held else f'from a tree holding no declaration, the shell runner answered {answers[0] or shell.stderr.strip()[:120]!r} '
                           f'and the python runner {answers[1] or python.stderr.strip()[-120:]!r}, where the dispatched merge.json runs git fetch origin',
         check='effects.sends_are_dispatched')
+
+    # A send's program reads no input of its caller's (issues/1085): a program that waits on
+    # its input - a prompt, a pager - waits on the terminal or the pipe the verb was started
+    # from. Each face of each language runs a program that reads one line, with a line waiting.
+    reader = 'read -r line; echo "[$line]"'
+    python_faces = {face: subprocess.run([sys.executable, '-c', f'import enact; print(enact.{face}("sh", "-c", {reader!r}).strip())'],
+                                         input='a line\n', capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout.strip()
+                    for face in ('quote', 'query')}
+    shell_faces = {face: subprocess.run(['bash', '-c', f'source "$1"; {face} sh -c \'{reader}\'', '_', str(REPO_ROOT / 'src' / 'main' / 'enact.sh')],
+                                        input='a line\n', capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout.strip()
+                   for face in ('quote', 'query')}
+    read = {f'python {face}': said for face, said in python_faces.items()} | {f'shell {face}': said for face, said in shell_faces.items()}
+    unread = all(said == '[]' for said in read.values())
+    run("send: a send's program reads no input of its caller's, so that it never waits on a terminal", unread,
+        None if unread else 'with a line waiting on the caller\'s input, the program read ' + '; '.join(f'{face} {said!r}' for face, said in read.items()),
+        check='effects.send_reads_no_input')
 
     # Python is type-checked by pyright — Pylance's own engine — against
     # pyrightconfig.json, the ONE declaration of the import roots that the editor, this

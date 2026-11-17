@@ -60,8 +60,8 @@ def _ended_whole(process) -> None:
 def _bounded(command, capture: bool):
     """The command under the send bound, as subprocess.run would return it; TimeoutExpired
     where it ran out, with nothing of it left running."""
-    with subprocess.Popen(command, stdout=subprocess.PIPE if capture else None,
-                          stderr=subprocess.PIPE if capture else None, text=True) as process:
+    with subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE if capture else None,
+                          stderr=subprocess.PIPE if capture else None, text=True) as process:   # no input: a prompt would wait on the caller's terminal (issues/1085)
         try:
             out, err = process.communicate(timeout=bound())
         except subprocess.TimeoutExpired:

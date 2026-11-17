@@ -43,7 +43,7 @@ bounded() {
            $SIG{ALRM} = sub { my @all = map { [split] } `ps -axo pid=,ppid=`; my @tree = ($pid); my $i = 0;
                               while ($i < @tree) { my $p = $tree[$i++]; push @tree, map { $_->[0] } grep { $_->[1] == $p } @all }
                               kill TERM => reverse @tree; waitpid $pid, 0; exit 124 };
-           alarm $s; waitpid $pid, 0; exit $? >> 8' "${CORPUS_YOGA_SEND_TIMEOUT:-60}" "$@"
+           alarm $s; waitpid $pid, 0; exit $? >> 8' "${CORPUS_YOGA_SEND_TIMEOUT:-60}" "$@" < /dev/null   # no input: a prompt would wait on the caller's terminal (issues/1085)
 }
 
 # relayed <printed> <status>: the outcome beneath the item, did or did NOT, the bound named.
