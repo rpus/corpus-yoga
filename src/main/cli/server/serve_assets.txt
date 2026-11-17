@@ -5,10 +5,10 @@
 # and src/main/cli/status/status.sh reports how many are present. Two upstreams — marked 9 and
 # KaTeX 0.16.9 — the js/css plus the woff2 webfonts KaTeX needs to render maths.
 #
-# Format: one artifact per line, "<dest> <url>", dest relative to tmp/cache/serve_markdown/.
+# Format: one artifact per line, "<dest> <url>", dest relative to ext/lib/serve_markdown/.
 # The core js/css are REQUIRED (serve refuses to start without them); the fonts/ are
 # progressive enhancement, fetched best-effort. To bump a version, edit the URLs here
-# and `corpus-yoga cache clean && corpus-yoga cache rebuild` (or delete tmp/cache/serve_markdown and re-serve).
+# and run `corpus-yoga server ensure-assets` (or delete ext/lib/serve_markdown and re-serve).
 
 marked.min.js       https://cdn.jsdelivr.net/npm/marked@9/marked.min.js
 katex.min.js        https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js

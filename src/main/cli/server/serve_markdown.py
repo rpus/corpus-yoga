@@ -46,8 +46,8 @@ def ensure_assets() -> None:
     """Fetch any missing render library into STATIC_DIR. The core js/css are
     REQUIRED — a failure raises, so serve refuses to start half-rendered; the fonts/
     woff2 are progressive enhancement, fetched best-effort. Called at serve startup
-    and by --ensure-assets (the cache rebuild's producer, which additionally tolerates the
-    required-libs raise so an offline rebuild still exits clean)."""
+    and by --ensure-assets (corpus-yoga server ensure-assets, which additionally tolerates the
+    required-libs raise so an offline fetch still exits clean)."""
     for dest_rel, url in assets():
         dest = STATIC_DIR / dest_rel
         if dest.exists():
@@ -319,8 +319,8 @@ if __name__ == '__main__':
     p.add_argument('--ensure-assets', action='store_true')
     args = p.parse_args()
 
-    # The cache rebuild's producer path: repopulate ext/lib/serve_markdown and stop. Best-effort
-    # so an offline `corpus-yoga cache rebuild` still exits clean — serve itself hard-requires the
+    # The ensure-assets path: repopulate ext/lib/serve_markdown and stop. Best-effort
+    # so an offline `corpus-yoga server ensure-assets` still exits clean — serve itself hard-requires the
     # assets at startup (ensure_assets there is not caught), so a broken render can't
     # slip through; here we only warn and leave the subtree for the next online run.
     if args.ensure_assets:

@@ -1,4 +1,4 @@
-run.py: code+schema 1921/1921
+run.py: code+schema 1915/1915
 
 
 check_schema_join: |
@@ -170,7 +170,7 @@ check_cli_surface: |
   ✓ cli.commands_alphabetical
   ✓ cli.target_exists  (24/24)
   ✓ cli.calculus_defined  (24/24)
-  ✓ cli.advertised_flags_exist  (13/13)
+  ✓ cli.advertised_flags_exist  (12/12)
   ✓ cli.docstring_flags_advertised  (22/22)
   ✓ cli.subcommands_dispatch  (22/22)
   ✓ cli.target_flags_advertised  (22/22)
@@ -190,18 +190,18 @@ check_cli_surface: |
   ✓ output.plan_lines_name_their_target  (82/82)
   ✓ structure.file_at_level_of_subject  (47/47)
   ✓ structure.cli_declaration_mirrors_the_api  (25/25)
-  ✓ structure.cli_declaration_validates  (80/80)
+  ✓ structure.cli_declaration_validates  (79/79)
   ✓ cli.every_form_listed  (24/24)
   ✓ cli.help_is_the_declaration  (25/25)
-  ✓ cli.prose_holds_no_pair  (79/79)
+  ✓ cli.prose_holds_no_pair  (78/78)
   ✓ cli.flag_not_axis_value  (23/23)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_is_the_nouns_entry  (77/77)
-  ✓ cli.verb_help_answered  (55/55)
+  ✓ cli.verb_help_is_the_nouns_entry  (76/76)
+  ✓ cli.verb_help_answered  (54/54)
   ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
@@ -263,7 +263,7 @@ check_step_imports: |
   ✓ imports.step_module_imports  (2/2)
 
 check_self_paths: |
-  ✓ structure.self_path_matches_address  (125/125)
+  ✓ structure.self_path_matches_address  (124/124)
 
 check_committed_tree: |
   ✓ structure.corpus_roots_ignored
@@ -556,12 +556,12 @@ stages:
     tier: code
     line: "164"
   check_cli_surface:
-    passes: 585
+    passes: 582
     failures: 0
     tier: code
     line: "167"
   check_cli_verb_help:
-    passes: 135
+    passes: 133
     failures: 0
     tier: code
     line: "202"
@@ -636,7 +636,7 @@ stages:
     tier: code
     line: "262"
   check_self_paths:
-    passes: 125
+    passes: 124
     failures: 0
     tier: code
     line: "265"
@@ -791,8 +791,8 @@ stages:
     tier: code
     line: "399"
 
-checks[code+schema]: 242 types, 1921/1921 invocations passing
-checks[code]: 184 types, 1206/1206 invocations passing
+checks[code+schema]: 242 types, 1915/1915 invocations passing
+checks[code]: 184 types, 1200/1200 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1921/1921 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1915/1915 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

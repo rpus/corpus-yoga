@@ -31,7 +31,7 @@ CONTRIBUTING.md,120,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is r
 README.md,14,doc,src/main/cli/status/status.sh,Y,"./src/main/cli/status/status.sh satisfy           # pre-venv, once: mint the venv (bare, the same report read-only)"
 README.md,33,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,33,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,35,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `corpus-yoga cache rebuild` rebuilds it from the registry (`rsc/cache_io.csv`) |
+README.md,35,doc,rsc/cache_io.csv,Y,"| `tmp/cache/` | cache | local | none — each subtree's producer, which the registry (`rsc/cache_io.csv`) names, rebuilds"
 README.md,42,doc,src/main/tier.py,Y,"`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):"
 README.md,48,doc,src/main/rehearsal.py,Y,"`tmp/stage/rehearsal.json` (`src/main/rehearsal.py`, its shape"
 README.md,49,doc,src/main/rehearsal.schema.json,Y,"`src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote"
@@ -954,20 +954,17 @@ src/main/cli/browser/claude/api.py,15,path_str,src/main/cli/browser/claude/api.p
 src/main/cli/browser/fetch.py,22,path_str,src/main/cli/browser/fetch.py,Y,SELF = 'src/main/cli/browser/fetch.py'
 src/main/cli/browser/status.py,16,path_str,src/main/cli/browser/status.py,Y,SELF = 'src/main/cli/browser/status.py'
 src/main/cli/cache/cache.json,16,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
-src/main/cli/cache/cache.py,9,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
-src/main/cli/cache/cache.py,10,comment,src/main/cli/cache/rebuild.py,Y,src/main/cli/cache/rebuild.py — so the CLI table carries one `cache` command whose verbs
+src/main/cli/cache/cache.py,8,comment,src/main/cli/cache/clean.py,Y,Thin verb router over src/main/cli/cache/clean.py. Each subtree is rebuilt by its own
+src/main/cli/cache/cache.py,9,comment,rsc/cache_io.csv,Y,"producer, the writer rsc/cache_io.csv names for it, never by this noun; `clean` is its one"
 src/main/cli/cache/cache_io.py,2,comment,rsc/cache_io.csv,Y,"cache_io.py — the reader for rsc/cache_io.csv, the declared tmp/cache/ IO registry."
-src/main/cli/cache/cache_io.py,25,path_str,src/main/cli/cache/cache_io.py,Y,SELF = 'src/main/cli/cache/cache_io.py'
-src/main/cli/cache/cache_io.py,155,comment,rsc/cache_io.csv,Y,"kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never"
+src/main/cli/cache/cache_io.py,24,path_str,src/main/cli/cache/cache_io.py,Y,SELF = 'src/main/cli/cache/cache_io.py'
+src/main/cli/cache/cache_io.py,141,comment,rsc/cache_io.csv,Y,"kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never"
 src/main/cli/cache/clean.json,7,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"","
 src/main/cli/cache/clean.py,3,comment,src/main/cli/cache/cache_io.py,Y,machinery neither writes nor reads (src/main/cli/cache/cache_io.py `orphans`).
 src/main/cli/cache/clean.py,12,comment,rsc/CALCULUS.md,Y,"is the tmp/cache/ contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
 src/main/cli/cache/clean.py,14,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with rebuild and"
 src/main/cli/cache/clean.py,18,comment,src/main/cleaner.py,Y,"would remove is what the status names, and its faces are src/main/cleaner.py's - will"
 src/main/cli/cache/clean.py,32,path_str,src/main/cli/cache/clean.py,Y,SELF = 'src/main/cli/cache/clean.py'
-src/main/cli/cache/rebuild.json,14,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
-src/main/cli/cache/rebuild.py,5,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); rebuild runs every row's producers,"
-src/main/cli/cache/rebuild.py,37,path_str,src/main/cli/cache/rebuild.py,Y,SELF = 'src/main/cli/cache/rebuild.py'
 src/main/cli/calculus/calculus.json,4,path_str,rsc/CALCULUS.md,Y,"""target"": ""rsc/CALCULUS.md"","
 src/main/cli/cli.py,4,comment,src/main/cli/README.md,Y,Two curated tables are the interface (format: src/main/cli/README.md): src/main/cli/
 src/main/cli/cli.py,14,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
@@ -988,7 +985,7 @@ src/main/cli/completions/completions.py,5,comment,src/main/cli/completions/offer
 src/main/cli/completions/completions.py,24,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
 src/main/cli/completions/offer.py,6,comment,src/main/cli/completions/offer.zsh,Y,src/main/cli/completions/offer.zsh evaluates what this prints each time tab is pressed.
 src/main/cli/completions/offer.py,16,path_str,src/main/cli/completions/offer.py,Y,SELF = 'src/main/cli/completions/offer.py'
-src/main/cli/completions/offer.py,73,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
+src/main/cli/completions/offer.py,72,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
 src/main/cli/export/capture.json,36,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/export/capture.py,8,comment,src/main/export/pipeline.json,Y,staged unit <X> (src/main/export/pipeline.json's companion):
 src/main/cli/export/capture.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
@@ -1833,7 +1830,6 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/cli/browser/status.py,Y,
 ,,,src/main/cli/cache/cache.json,Y,
 ,,,src/main/cli/cache/clean.json,Y,
-,,,src/main/cli/cache/rebuild.json,Y,
 ,,,src/main/cli/calculus/calculus.json,Y,
 ,,,src/main/cli/command.schema.json,Y,
 ,,,src/main/cli/completions/completions.json,Y,
