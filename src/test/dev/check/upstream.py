@@ -275,7 +275,7 @@ def check_upstream_chain(run) -> None:
     mcp = loaded('mcp_noun', REPO_ROOT / 'src/main/mcp/mcp.py')
     judge = getattr(mcp, 'as_fetched', None)
     target = factoring.latest_version(factoring.FAMILY_DIR)
-    judged = None
+    judged, absent = None, None
     if callable(judge) and target is not None:
         have, (_path, witness) = json.loads(target.read_text()), factoring.snapshot()
         moved = json.loads(json.dumps(witness))
@@ -286,8 +286,11 @@ def check_upstream_chain(run) -> None:
             agreeing, differing = Path(tmp) / 'agreeing.json', Path(tmp) / 'differing.json'
             agreeing.write_text(json.dumps(witness))
             differing.write_text(json.dumps(moved))
-            judged = (judge(have, agreeing), judge(have, differing))
+            try:
+                judged = (judge(have, agreeing), judge(have, differing))
+            except extraction.ParserAbsent as refused:   # the judgment parses schema.ts; grammar.parser_current names the same absence
+                absent = str(refused)
     held = judged is not None and isinstance(judged[0], str) and getattr(judged[1], 'FAIL', None) is not None
     run("mcp: upstream's schema.json as fetched is judged against the committed version - agreeing, or a finding", held,
-        None if held else 'src/main/mcp/mcp.py has no as_fetched(have, path)' if not callable(judge) else f'judged {judged!r}'[:300],
+        None if held else absent if absent else 'src/main/mcp/mcp.py has no as_fetched(have, path)' if not callable(judge) else f'judged {judged!r}'[:300],
         check='mcp.upstream_as_fetched_is_judged')
