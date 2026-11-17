@@ -56,7 +56,8 @@
           "type": "boolean"
         },
         "model": {
-          "$ref": "#/definitions/LastModel"
+          "description": "The model the conversation was last continued with: claude.ai's one model for the whole conversation. A change of model rewrites it, so it names no earlier turn's author - on 2026-11-17 (reading-room) a conversation switched from claude-fable-5-2 to claude-opus-5-5 was captured naming claude-opus-5-5 for all 405 of its messages, 403 of them written before the switch (issues/1116). No message carries a model, so which model wrote a turn is not in the capture. A reader that carries this value onward names it as what it is, the last model, never as a turn's model.",
+          "$ref": "#/definitions/ModelId"
         },
         "platform": {
           "description": "Platform. Example: \"CLAUDE_AI\".",
@@ -141,13 +142,23 @@
         }
       ]
     },
-    "LastModel": {
-      "title": "LastModel",
-      "description": "The model the conversation was last continued with: claude.ai's one model for the whole conversation, under its key `model`. A change of model rewrites it, so it names no earlier turn's author - on 2026-11-17 (reading-room) a conversation switched from claude-fable-5-2 to claude-opus-5-5 was captured naming claude-opus-5-5 for all 405 of its messages, 403 of them written before the switch (issues/1116). No message carries a model, so which model wrote a turn is not in the capture. A reader that carries this value onward names it as what it is, the last model, never as a turn's model.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/ModelId"
-        }
+    "ModelId": {
+      "title": "ModelId",
+      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/metamodel/join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
+      "type": "string",
+      "enum": [
+        "claude-fable-5",
+        "claude-fable-5-1",
+        "claude-fable-5-2",
+        "claude-haiku-4-5-20251001",
+        "claude-opus-4-6",
+        "claude-opus-4-7",
+        "claude-opus-4-8",
+        "claude-opus-5",
+        "claude-opus-5-5",
+        "claude-sonnet-4-6",
+        "claude-sonnet-5",
+        "claude-sonnet-5-5"
       ]
     },
     "ApiMessageBase": {
@@ -307,25 +318,6 @@
       "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
       "type": "string",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    },
-    "ModelId": {
-      "title": "ModelId",
-      "description": "A Claude model id, as the harness and claude.ai name a model: the exhaustive set of ids the corpus knows, one definition shared by the session and apiConversation families and asserted identical in rsc/metamodel/join.csv, so that an id neither knows refuses its datum in both until the next version of both admits it. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here.",
-      "type": "string",
-      "enum": [
-        "claude-fable-5",
-        "claude-fable-5-1",
-        "claude-fable-5-2",
-        "claude-haiku-4-5-20251001",
-        "claude-opus-4-6",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
-        "claude-opus-5",
-        "claude-opus-5-5",
-        "claude-sonnet-4-6",
-        "claude-sonnet-5",
-        "claude-sonnet-5-5"
-      ]
     },
     "ApiAttachment": {
       "title": "ApiAttachment",
