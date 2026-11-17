@@ -14,12 +14,6 @@
       "type": "semantic-concepts|chat-categories",
       "cardinality": "",
       "help": "limit the paid capture to semantic-concepts | chat-categories"
-    },
-    {
-      "name": "--dry-run",
-      "type": "",
-      "cardinality": "",
-      "help": "print the coverage this capture would re-read, and stop - spends nothing, needs no API key"
     }
   ],
   "sends": {
@@ -28,8 +22,7 @@
       "refused": "fails",
       "does": [
         "PAID - POSTs the conversation list, one numbered title per conversation, for the semantic-concepts reading",
-        "PAID - POSTs it again for the chat-categories reading",
-        "--dry-run sends neither, and works refused"
+        "PAID - POSTs it again for the chat-categories reading"
       ]
     }
   },

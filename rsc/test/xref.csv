@@ -1029,8 +1029,8 @@ src/main/cli/forge/status.py,53,comment,src/main/cli/forge/forge.csv,Y,"The merg
 src/main/cli/grammar/generate.json,7,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/indexing/capture.json,38,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
-src/main/cli/indexing/capture.json,39,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
+src/main/cli/indexing/capture.json,31,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
+src/main/cli/indexing/capture.json,32,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
 src/main/cli/indexing/indexing.json,45,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
 src/main/cli/logs/logs.json,18,path_str,src/main/cli/logs/logs.py,Y,"""target"": ""src/main/cli/logs/logs.py"","
 src/main/cli/logs/logs.py,8,comment,src/main/cli/cli.py,Y,The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
@@ -1308,9 +1308,9 @@ src/main/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=s
 src/main/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
 src/main/indexing/capture.sh,113,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
 src/main/indexing/indexing.py,21,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
-src/main/indexing/indexing.py,56,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
-src/main/indexing/indexing.py,327,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-src/main/indexing/indexing.py,605,comment,src/main/corpus_shape.sh,Y,"shape's one home, src/main/corpus_shape.sh."
+src/main/indexing/indexing.py,55,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
+src/main/indexing/indexing.py,326,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
+src/main/indexing/indexing.py,604,comment,src/main/corpus_shape.sh,Y,"shape's one home, src/main/corpus_shape.sh."
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
 src/main/machine.py,8,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.

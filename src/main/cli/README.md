@@ -34,8 +34,8 @@ over the SET QUOTIENT `<class>` — the mutually-exclusive args are one equivale
 (interchangeable in the slot they fill), so `1/agent-capture-1` is cardinality-1 in the
 quotient by that class, rendered as the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordinal>`. So the usage
 cannot drift from the helptext, because there is one source, not two — nothing to reconcile,
-no check. A flag is scoped to its verb (`--dry-run` is `indexing capture`'s,
-no other `indexing` verb takes it); `subcommand` blank is command-level, `arg-name` blank
+no check. A flag is scoped to its verb (`--reason` is `indexing reject`'s and
+`metamodel reject`'s, never their nouns'); `subcommand` blank is command-level, `arg-name` blank
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
 as a step of the named run pipeline (`export`), or of `pipeline.sh`'s whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
