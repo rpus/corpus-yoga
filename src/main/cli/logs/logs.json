@@ -1,17 +1,17 @@
 {
-  "summary": "the room's logs, tmp/logs - one directory per command, one beneath it per verb, each act's log stamped within - the orphans among them, directories of a command or verb that no longer exists, and the act that removes them (bare is the status, naming what its cleaner would remove; clean its one janitor)",
+  "summary": "the room's logs, tmp/logs - one directory per command, one beneath it per verb, each act's log stamped within - the orphans among them - directories of a command or verb that no longer exists, files directly under tmp/logs, and directories beneath a verb's that no record names - and the act that removes them (bare is the status, naming what its cleaner would remove; clean its one janitor)",
   "standing": true,
   "explanation": {
     "tmp/logs": "the tier whole - how many commands have a directory, how many logs they hold, and their size",
-    "orphans": "each directory of a command that no longer exists, or of a verb its command no longer declares, by its path, with how many logs it holds, their size, why it is an orphan, corpus-yoga logs clean, in now, removing it; a log is the record of an act, so its disposal is the reader's, which the cleaner's run is",
-    "now": "the room's standing as the logs noun reads it - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where every directory is a current command's or verb's"
+    "orphans": "each directory of a command that no longer exists, or of a verb its command no longer declares, each file directly under tmp/logs, and each directory beneath a verb's that no record names by its stamp, by its path, with how many logs it holds, their size, why it is an orphan, corpus-yoga logs clean, in now, removing it; a log is the record of an act, so its disposal is the reader's, which the cleaner's run is",
+    "now": "the room's standing as the logs noun reads it - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where nothing under tmp/logs is an orphan"
   },
   "phrase": [
     "no command keeps it",
     "no command keeps a log here",
     "no command corpus-yoga {command}",
     "no verb corpus-yoga {command} {verb}",
-    "a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, never a directory",
+    "a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, and a directory only where its record's stamp names it",
     "absent - no act has been logged",
     "none - nothing to do"
   ],

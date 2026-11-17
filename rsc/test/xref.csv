@@ -914,7 +914,7 @@ src/main/cli/README.md,105,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>
 src/main/cli/README.md,110,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
 src/main/cli/README.md,150,doc,src/main/indexing/capture.sh,Y,`src/main/indexing/capture.sh` — the same file that implements half of it.
 src/main/cli/README.md,168,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
-src/main/cli/agent/agent.json,50,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
+src/main/cli/agent/agent.json,51,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): what the corpus holds of an agent is its
 src/main/cli/agent/agent.py,17,comment,rsc/provider/providers.csv,Y,"(rsc/provider/providers.csv, issues/636, issues/853), the address its units have under"
 src/main/cli/agent/agent.py,34,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and pull --from"

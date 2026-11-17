@@ -84,7 +84,7 @@ def orphans() -> list[tuple[Path, str]]:
                     # a directory named by the stamp of a record beside it is that act's own, as its other
                     # artifacts are - the gate run's checks and the acts they ran (issues/1030)
                     if entry.is_dir() and not any((verb / f'{entry.name}{suffix}').is_file() for suffix in ('.log', '.report')):
-                        out.append((entry, facts.phrase("a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, never a directory", command=command.name, verb=verb.name)))
+                        out.append((entry, facts.phrase("a directory beneath a verb's - corpus-yoga {command} {verb} keeps files beside its record, and a directory only where its record's stamp names it", command=command.name, verb=verb.name)))
     return out
 
 

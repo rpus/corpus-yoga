@@ -1,5 +1,5 @@
 {
-  "help": "PAID - the model reads the corpus for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)",
+  "help": "PAID - the model reads the conversation list, one numbered title per conversation, for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)",
   "would": "would read the corpus - PAID",
   "modality": "MAY",
   "args": [
@@ -27,7 +27,7 @@
       "runs": "curl -sf https://api.anthropic.com/v1/messages",
       "refused": "fails",
       "does": [
-        "PAID - POSTs the corpus for the semantic-concepts reading",
+        "PAID - POSTs the conversation list, one numbered title per conversation, for the semantic-concepts reading",
         "PAID - POSTs it again for the chat-categories reading",
         "--dry-run sends neither, and works refused"
       ]

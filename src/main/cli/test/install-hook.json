@@ -1,5 +1,5 @@
 {
-  "help": "point .git/hooks/pre-commit at src/test/dev/run.sh - idempotent, and repairs a link left dangling by a rename",
+  "help": "install the pre-commit hook as a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run, and link prepare-commit-msg to rsc/test/prepare-commit-msg-hook.sh - idempotent",
   "would": "would point",
   "modality": "MUST",
   "args": [],

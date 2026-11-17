@@ -3,6 +3,7 @@
   "standing": true,
   "phrase": [
     "absent - no local {provider} rows",
+    "absent - this machine holds no {provider} live store",
     "none - the claude store is not mounted",
     "nothing - the store holds no session of it",
     "{n} session(s), {size}",

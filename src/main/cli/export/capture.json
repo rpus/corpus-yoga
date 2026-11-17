@@ -12,7 +12,7 @@
   ],
   "x": [
     "--manifest <file> (consumed: moved into the stage as the unit's record)",
-    "~/Downloads (where Safari puts each download, under the server's name, replacing a same-named entry; moved out on arrival)"
+    "~/Downloads (where Safari puts each download, under the server's name, replacing a same-named directory and naming an arrival beside a same-named file <stem>-<n>; moved out on arrival)"
   ],
   "sends": {
     "safari": {

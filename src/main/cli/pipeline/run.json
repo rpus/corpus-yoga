@@ -1,5 +1,5 @@
 {
-  "help": "run the tests, then every pipeline over data/input/, the one named, or one input item of it - processing only, never acquiring",
+  "help": "run the tests, then every pipeline over data/input/ or the one named, then the reduce over the whole corpus; or, for one input item, that item through its pipeline alone - processing only, never acquiring",
   "would": "would process",
   "modality": "MAY",
   "args": [
@@ -54,6 +54,6 @@
     "jq"
   ],
   "explanation": {
-    "stages": "the tail's table as facts - each stage the run performed, with its count of failures (every non-zero exit states an atom, so the count is the stage's verdict) and the line where its banner stands in the log, so that a count turns back into the lines that produced it; each pipeline stage runs alone as corpus-yoga pipeline run <stage>, and corpus is the reduce over all"
+    "stages": "the tail's table as facts - each stage the run performed, with its count of failures (every non-zero exit states an atom, so the count is the stage's verdict) and the line where its banner stands in the log, so that a count turns back into the lines that produced it; a pipeline stage runs with the tests before it and corpus after it as corpus-yoga pipeline run <stage>, and corpus is the reduce over all"
   }
 }

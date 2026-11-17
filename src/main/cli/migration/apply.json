@@ -1,5 +1,5 @@
 {
-  "help": "take every pending step of every script under rsc/migration - each script with steps named with how many, run, its own lines relayed as it takes them - then the status re-read beneath and the verdict last",
+  "help": "take the pending steps of the scripts under rsc/migration, in merge order - each script run, its own lines relayed when it exits, stopping at the first script that halts - then the status re-read beneath and the verdict last",
   "would": "would apply",
   "modality": "MUST",
   "args": [],
