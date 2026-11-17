@@ -7,7 +7,7 @@
       "name": "--markdown",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the markdown tree to serve; data/output/markdown unless named"
+      "help": "the markdown tree to serve, a folder inside the checkout; data/output/markdown unless named"
     },
     {
       "name": "--port",

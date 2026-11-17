@@ -2,6 +2,7 @@
   "summary": "serve the markdown corpus locally (LaTeX + turn deep links)",
   "standing": true,
   "phrase": [
+    "{tree} is outside the checkout - the server serves a markdown tree inside it",
     "running (pid {pid})",
     "not running",
     "{got}/{total} in ext/lib/serve_markdown",

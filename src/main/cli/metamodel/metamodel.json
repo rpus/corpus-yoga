@@ -23,7 +23,7 @@
     "{name} is not in the queue - corpus-yoga metamodel list-candidates names it",
     "{verb} takes a <name> or --all, not both and not neither",
     "{written} catalogue(s) written, {removed} removed",
-    "{n} shared name(s) {verb}ed"
+    "{n} shared name(s) {verb}ed, {refused} refused"
   ],
   "target": "src/main/metamodel/metamodel.py",
   "calculus": "project",

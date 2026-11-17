@@ -109,7 +109,7 @@ def _epilog(command: str, verb: str) -> str | None:
 # pattern in cli.py: a metavar is a name, and reading meaning from its spelling
 # would make <n-list> a number). A metavar absent here parses as a string,
 # which is the safe way to be wrong.
-VALUE_ARG_TYPES = {'<n>': int}
+VALUE_ARG_TYPES = {'<n>': int, '<pr>': int}   # a PR is named by its number
 
 
 def _path_arg_types() -> set:

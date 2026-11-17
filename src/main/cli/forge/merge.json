@@ -19,7 +19,7 @@
       "name": "pr",
       "type": "<pr>",
       "cardinality": "1",
-      "help": "the PR to merge, as a number, a URL or a branch"
+      "help": "the PR to merge, by its number"
     }
   ],
   "sends": {

@@ -98,8 +98,8 @@ def signature_hook() -> Hook:
 
 
 def main() -> int:
-    run = (REPO / 'src' / 'test' / 'dev' / 'run.py').read_text()
-    facts.say_standing(Status(Test(Checks(facts.phrase('{n} check sections', n=len(re.findall(r'^def check_', run, re.M)))), commit_hook(), signature_hook())))
+    sections = sum(len(re.findall(r'^def check_', path.read_text(), re.M)) for path in (REPO / 'src' / 'test' / 'dev' / 'check').glob('*.py'))
+    facts.say_standing(Status(Test(Checks(facts.phrase('{n} check sections', n=sections)), commit_hook(), signature_hook())))
     return 0
 
 

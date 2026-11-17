@@ -261,6 +261,8 @@ def derive() -> int:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(wanted)
         print('  ✓ ' + facts.phrase('{family} ({n} definitions)', family=target.relative_to(REPO), n=len(json.loads(wanted)['definitions'])))
+        for path in face.written(json.loads(wanted)):
+            print(f'  ✓ {path.relative_to(REPO)}')
         return 0
     have = target.read_text()
     if have == wanted:

@@ -7,6 +7,7 @@
     "unread - the forge was not asked; branches says why",
     "declared {want}, live {got}",
     "the default branch's protection was not read",
+    "{numbers} not read, so not deposited",
     "no src/main/cli/forge/forge.csv",
     "not installed",
     "CORPUS_YOGA_NO_SEND=1 refuses the send gh api",

@@ -26,12 +26,6 @@
       "type": "",
       "cardinality": "1/browser-capture-1",
       "help": "every conversation of every provider, every mechanism it has"
-    },
-    {
-      "name": "--dry-run",
-      "type": "",
-      "cardinality": "",
-      "help": "discover and state the extent (captured / never-captured), then stop - captures nothing, writes nothing"
     }
   ],
   "sends": {

@@ -142,14 +142,18 @@ sync() {
     effect "$(act site sync): NOT DONE - $(phrase "the clone could not be brought level with rpus.co by a fast-forward - corpus-yoga site says where they part")"
     return 1
   fi
-  local rows
+  local rows ahead
   rows="$(landing "$mount" "$OUT")"
-  if [[ -z "$rows" ]]; then
+  # commits the clone holds and rpus.co does not are pushed whatever the files say
+  ahead="$(git -C "$mount" rev-list --count "$served..HEAD" 2>/dev/null || echo 0)"
+  if [[ -z "$rows" && "$ahead" == 0 ]]; then
     effect "$(act site sync): DONE - $(phrase "no effect; rpus.co's clone already holds the publish tree as assembled")"
     return 0
   fi
-  echo "did land:"
-  printf '%s\n' "$rows" | while IFS=$'\t' read -r _ rel _; do [[ -n "$rel" ]] && echo "  $rel"; done
+  if [[ -n "$rows" ]]; then
+    echo "did land:"
+    printf '%s\n' "$rows" | while IFS=$'\t' read -r _ rel _; do [[ -n "$rel" ]] && echo "  $rel"; done
+  fi
   send_cleared push || return 1
   enact cp -R "$OUT/" "$mount/" || return 1
   enact git -C "$mount" add -A || return 1
