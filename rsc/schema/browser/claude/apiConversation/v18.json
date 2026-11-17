@@ -56,6 +56,7 @@
           "type": "boolean"
         },
         "model": {
+          "description": "The model the conversation was last continued with: claude.ai's one model for the whole conversation. A change of model rewrites it, so it names no earlier turn's author - on 2026-11-17 (reading-room) a conversation switched from claude-fable-5-2 to claude-opus-5-5 was captured naming claude-opus-5-5 for all 405 of its messages, 403 of them written before the switch (issues/1116). No message carries a model, so which model wrote a turn is not in the capture. A reader that carries this value onward names it as what it is, the last model, never as a turn's model.",
           "$ref": "#/definitions/ModelId"
         },
         "platform": {
