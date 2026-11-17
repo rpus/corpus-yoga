@@ -1,5 +1,5 @@
 {
-  "summary": "the rebuildable tmp/cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; rebuild runs every producer again",
+  "summary": "the rebuildable tmp/cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; each subtree's own producer, which rsc/cache_io.csv names, rebuilds it",
   "standing": true,
   "phrase": [
     "no current step writes or reads it",

@@ -906,7 +906,7 @@ def check_cli_verb_help(run) -> None:
     # verb through parse_argv, a python verb's own parser, a python command's subparser;
     # each refuses before any verb body runs.
     for words, message in ((['agent', 'capture'], 'one of the arguments --provider --all is required'),
-                           (['cache', 'rebuild', '--nonsense'], 'unrecognized arguments: --nonsense'),
+                           (['cache', 'clean', '--nonsense'], 'unrecognized arguments: --nonsense'),
                            (['store', 'clean', '--nonsense'], 'unrecognized arguments: --nonsense')):
         command, verb = words[0], words[1]
         proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, cwd=REPO_ROOT, env=env)

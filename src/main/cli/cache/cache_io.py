@@ -5,11 +5,10 @@ tmp/cache/ is the cache tier: every LIVE subtree is written and/or read by the
 machinery. This registry declares, per tmp/cache/ subtree, WHO writes it (its
 producer command) and WHO reads it (machinery consumers, or `external:<who>`
 for a human/browser/shell). Paths are REPO-RELATIVE (`tmp/cache/…`), the real thing
-you can cd to or rm. Three consumers share it:
+you can cd to or rm. Two consumers share it:
 
   clean  — a tmp/cache/ subtree ABSENT from the registry is residue (neither written
            nor read): removable (corpus-yoga cache clean).
-  rebuild — every row's producer commands rebuild tmp/cache/ (corpus-yoga cache rebuild).
   check  — `corpus-yoga test run`'s check_cache_io blocks the catastrophe: a path READ with
            no WRITER (a tmp/cache/ dependency nothing produces) breaks the "tmp/cache/ is
            reproducible from data/input/" contract. Written-but-not-read is fine (a
@@ -87,19 +86,6 @@ def path_for(pipeline: str) -> str:
 def pipelines() -> set[str]:
     """The pipeline names the registry tags — cross-checked against PIPELINES."""
     return {r['pipeline'] for r in rows() if r['pipeline']}
-
-
-def producers() -> list[str]:
-    """Every written_by command, row by row in registry order — rebuild's plan.
-    Deliberately NO dedup: the row is the unit of the reproduction claim, and a
-    command string shared by two rows proves nothing about one run covering
-    both — a producer may write more than its row declares (site render
-    also lands the data/output/ page) or less than a twin row hopes. A shared
-    command running twice is the safe reading."""
-    cmds: list[str] = []
-    for r in rows():
-        cmds.extend(r['written_by'])
-    return cmds
 
 
 SCRATCH = 'tmp/cache/scratch'   # where a script keeps what it needs only while it runs (src/main/tier.sh, issues/906)
