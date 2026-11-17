@@ -57,5 +57,5 @@ def clean(noun: str, entries: list[Entry], plural: dict[str, str]) -> int:
     if left:
         facts.report(None, f'{noun} clean: NOT DONE - did remove {counts}; did NOT remove ' + '; '.join(left))
     else:
-        facts.report(None, f'{noun} clean: DONE - did remove {counts}')
+        facts.report(None, facts.act(noun, 'clean') + f': DONE - did remove {counts}')
     return 1 if left else 0

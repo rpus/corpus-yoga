@@ -293,7 +293,7 @@ def main():
                 print(reject_shared_name(row, args.reason, today))
             disposed += 1
         render_collision_worksheet()
-        facts.report(None, f'model {args.verb}: DONE - ' + facts.phrase('{n} shared name(s) {verb}ed', n=disposed, verb=args.verb))
+        facts.report(None, facts.act('metamodel', args.verb) + ': DONE - ' + facts.phrase('{n} shared name(s) {verb}ed', n=disposed, verb=args.verb))
     else:
         # bare → status (read-only); only the verbs above write
         status()
