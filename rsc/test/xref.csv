@@ -798,8 +798,9 @@ rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md,95,history,rsc/schema/mcp/2026
 rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md,100,history,src/main/mcp/generation.py,Y,"named since 2026-11-10, `src/main/mcp/generation.py` - its directory names the noun,"
 rsc/schema/mcp/2026-07-28/mcpMessage/CHANGELOG.md,106,history,rsc/schema/mcp/mcpMessage,N,"`rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
-rsc/site/README.md,10,doc,rsc/site/corpus-yoga.html,Y,"whose source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at"
+rsc/site/README.md,10,doc,rsc/site/corpus-yoga.html,Y,"naming the page, where a page's source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at"
 rsc/site/README.md,37,doc,src/main/compare_pages.py,Y,"(`src/main/compare_pages.py`, issues/652), since a line diff of two renders"
+rsc/site/README.md,39,doc,rsc/site,Y,"never deletes one, so a page that left rsc/site/ would stay on rpus.co unseen;"
 rsc/test/prepare-commit-msg-hook.sh,12,comment,rsc/provider/providers.csv,Y,"#            (rsc/provider/providers.csv) - the outer corpus identity coordinate, so a"
 rsc/test/prepare-commit-msg-hook.sh,29,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 rsc/test/prepare-commit-msg-hook.sh,38,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"
@@ -1110,8 +1111,8 @@ src/main/cli/site/assemble.json,7,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/site/landing.sh,4,comment,src/main/cli/site/site.sh,Y,# against the clone's files as they last stood. Sourced by src/main/cli/site/site.sh after
 src/main/cli/site/landing.sh,69,comment,src/main/compare_pages.py,Y,"# removals), the corpus page in the page's own terms (src/main/compare_pages.py, issues/652),"
 src/main/cli/site/render.json,9,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
-src/main/cli/site/site.json,76,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
-src/main/cli/site/site.json,90,path_str,rsc/site,Y,"""rsc/site"","
+src/main/cli/site/site.json,77,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.json,91,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
 src/main/cli/site/site.sh,23,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh

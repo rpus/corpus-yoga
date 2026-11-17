@@ -6,8 +6,8 @@ The hand-written inputs for <https://rpus.co>. The tree that serves is
 each file here says by its name which verb reads it (issues/650):
 
 - **`<name>.html`** - a PAGE, complete as written. `corpus-yoga site assemble`
-  copies it to `data/output/site/<name>.html`, byte for byte, and prunes a page
-  whose source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at
+  copies it to `data/output/site/<name>.html`, byte for byte, and halts,
+  naming the page, where a page's source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at
   <https://rpus.co/corpus-yoga.html>.
 - **`index.template.html`** - a TEMPLATE, not a page: the corpus page with its
   data left out, six empty `<script type="application/json">` slots between
@@ -35,9 +35,9 @@ its `now:` names the command that lands it.
 Netlify builds on push. The dry run states what changes in the corpus page in the
 page's own terms, each data table compared by its identity column
 (`src/main/compare_pages.py`, issues/652), since a line diff of two renders
-misstates the change. The copy lands new and changed files and mirrors no
-deletion: a page or directory that left the publish tree is removed from the
-site repo by hand. `ext/mnt/site` is the machine's hand-made symlink to the
+misstates the change. The copy is a union: it lands new and changed files and
+never deletes one, so a page that left rsc/site/ would stay on rpus.co unseen;
+`corpus-yoga site assemble` halts on it, naming it, while it can still be seen. `ext/mnt/site` is the machine's hand-made symlink to the
 private site repo's clone (the mount by reference `corpus-yoga status`
 reports) - the repo's location itself is machine-local and not this repo's
 business.

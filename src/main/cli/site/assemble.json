@@ -1,5 +1,5 @@
 {
-  "help": "assemble data/output/site/ from rsc/site/ - every page copied beside index.html, a departed page pruned - idempotent; index.html stays render's",
+  "help": "assemble data/output/site/ from rsc/site/ - every page copied beside index.html - idempotent; index.html stays render's. A page that left rsc/site/ halts it, the publish tree left as it is, since the copy to rpus.co never deletes and the page stays there",
   "would": "would assemble",
   "modality": "MAY",
   "args": [],
