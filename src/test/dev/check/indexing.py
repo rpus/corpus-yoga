@@ -2,6 +2,7 @@
 import json
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -50,3 +51,48 @@ def check_reply_without_text(run) -> None:
     run('indexing: a reply\'s text is read from its text block, wherever it stands', read,
         None if read else f'stdout {done.stdout.strip()[-160:]!r}; stderr {done.stderr.strip()[-160:]!r}',
         check='indexing.reply_text_read_wherever_it_stands')
+
+
+@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/main/cli/indexing'])
+def check_listed_queue_offers_disposal(run) -> None:
+    """Once the queue is listed as it stands, the indexing status offers accept --all and
+    reject --all, never list-candidates again; a queue listed before it moved, or never
+    listed, is offered list-candidates (issues/1123). The status reads a planted capture,
+    disposal records and turn bodies, never the room's."""
+    import importlib.util
+    facts = importlib.import_module('facts')
+    # loaded by path: this check's own module holds the name indexing
+    spec = importlib.util.spec_from_file_location('indexing_status', SRC / 'main' / 'indexing' / 'indexing.py')
+    assert spec is not None and spec.loader is not None
+    indexing = importlib.util.module_from_spec(spec)
+    sys.modules['indexing_status'] = indexing
+    spec.loader.exec_module(indexing)
+    kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'CANDIDATES_TXT', 'turn_bodies')}
+    offered = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / 'markdown').mkdir()
+        inferred, listed = root / 'inferred-semantic-concepts.json', root / 'candidate-semantic-concepts.txt'
+        inferred.write_text(json.dumps({'columns': ['concept'], 'rows': [['quasiparticles'], ['adjunctions']]}))
+        setattr(indexing, 'INFERRED_FILE', inferred)
+        setattr(indexing, 'CANDIDATES_TXT', listed)
+        setattr(indexing, 'turn_bodies', lambda _root: ['on quasiparticles and adjunctions'])
+        accepted, rejected = root / 'accepted-semantic-concepts.txt', root / 'rejected-semantic-concepts.txt'
+        try:
+            def offer() -> list[str]:
+                now = facts.now_of(indexing.status(accepted, rejected, root / 'markdown'))
+                return sorted(command for acts in now.values() for command in acts)
+            offered['unlisted'] = offer()
+            listed.write_text(indexing.candidates_report(accepted, rejected, root / 'markdown'))
+            offered['listed'] = offer()
+            rejected.write_text('adjunctions\n')
+            offered['moved'] = offer()
+        finally:
+            for name, value in kept.items():
+                setattr(indexing, name, value)
+    expected = {'unlisted': ['corpus-yoga indexing list-candidates'],
+                'listed': ['corpus-yoga indexing accept --all', 'corpus-yoga indexing reject --all'],
+                'moved': ['corpus-yoga indexing list-candidates']}
+    ok = offered == expected
+    run('indexing: a queue listed as it stands is offered its disposal, not its listing', ok,
+        None if ok else f'offered {offered!r}', check='indexing.listed_queue_offers_disposal')
