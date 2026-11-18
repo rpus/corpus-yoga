@@ -2,7 +2,8 @@
 stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its noun.
 
     corpus-yoga stage                   # status: the input, the scratch, each orphan, the rehearsal record, the units' counts
-    corpus-yoga stage clean             # remove what the status names: each orphan, each duplicate of a held unit, each incomplete unit
+    corpus-yoga stage clean             # remove what the status names: each orphan, each duplicate of a held unit, each incomplete unit,
+                                        # and tmp/stage whole once no unit stays staged
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch
 is what the last rehearsal's run derived, replaced whole by the next; rehearsal.json is
@@ -12,9 +13,10 @@ corpus-yoga pipeline; this face counts them against the record. The janitor clea
 tier as corpus-yoga cache clean clears its own: every staged unit identical to the held
 one, a duplicate, already promoted; every unit whose record or payload is absent,
 incomplete; and every entry under tmp/stage that is neither the input, the scratch nor
-the record, an orphan of an earlier layout. The scratch and the record are the
-rehearsal's to replace, never the janitor's; a unit that is unlicensed or would lose is
-evidence of another kind and is never the janitor's.
+the record, an orphan of an earlier layout. The scratch and the record serve the staged units:
+while one stays staged they are the rehearsal's to replace, and once none does the janitor
+removes tmp/stage whole (issues/1127). A unit that is unlicensed or would lose is evidence of
+another kind and is never the janitor's.
 
 The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (issues/837):
 this noun names its entries - each orphan, duplicate and incomplete unit, keyed by its
@@ -28,6 +30,7 @@ from declared_parser import command_parser
 import cleaner  # the one loop every clean verb runs (issues/837)
 import corpus
 import facts  # the one face a sentence is said through (issues/909)
+import tier
 
 SELF = 'src/main/cli/stage/stage.py'
 _file = Path(__file__).resolve()
@@ -59,6 +62,7 @@ def entries() -> list[cleaner.Entry]:
         name = e.relative_to(REPO).as_posix()
         out.append(cleaner.Entry('orphan', name, {'orphan': facts.phrase('neither the input, the scratch nor the record'), 'size': corpus.human(corpus.size_of(e))},
                                  lambda e=e: corpus.dispose(e)))
+    remaining = []
     if corpus.STAGE.is_dir():
         for unit in corpus.units(corpus.STAGE):
             if corpus.redundant(unit):
@@ -69,6 +73,14 @@ def entries() -> list[cleaner.Entry]:
                 out.append(cleaner.Entry('incomplete unit', unit.address.as_posix(),
                                          {'incomplete unit': facts.phrase('missing {missing}', missing=', '.join(unit.missing)), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
+            else:
+                remaining.append(unit)
+    if corpus.spent(remaining):
+        stage = tier.TMP_STAGE
+        out.append(cleaner.Entry('spent stage', stage.relative_to(REPO).as_posix() if stage.is_relative_to(REPO) else str(stage),
+                                 {'spent stage': facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
+                                  'size': corpus.human(corpus.size_of(stage))},
+                                 corpus.dispose_spent))
     return out
 
 

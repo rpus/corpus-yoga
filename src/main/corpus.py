@@ -1064,6 +1064,20 @@ def orphans() -> list[Path]:
     return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
 
 
+def spent(remaining: list['Unit']) -> bool:
+    """Whether tmp/stage holds anything while no unit stays staged: its input, scratch and
+    rehearsal record serve only the staged units, so with none they serve nothing (issues/1127)."""
+    stage = tier.TMP_STAGE
+    return not remaining and stage.is_dir() and any(stage.iterdir())
+
+
+def dispose_spent() -> str | None:
+    """Remove tmp/stage whole, as it stands at the act: refused where a unit was staged meanwhile."""
+    if units(STAGE):
+        return facts.phrase('a unit was staged meanwhile')
+    return dispose(tier.TMP_STAGE)
+
+
 @dataclass
 class Orphan:
     size: str
@@ -1139,7 +1153,12 @@ class StageStatus:
 
 
 def stage_orphans() -> dict[str, 'Orphan']:
-    """Each orphan under tmp/stage by its path, with the act that removes it."""
+    """Each orphan under tmp/stage by its path, with the act that removes it - or, where no unit
+    is staged, tmp/stage itself, which the janitor removes whole (issues/1127)."""
+    if spent(units(STAGE)):
+        at = tier.TMP_STAGE.relative_to(REPO).as_posix() if tier.TMP_STAGE.is_relative_to(REPO) else str(tier.TMP_STAGE)
+        return {at: Orphan(human(size_of(tier.TMP_STAGE)), facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
+                           facts.Would(spell.line('stage', 'clean'), {at: 1}))}
     return {e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), facts.phrase('nothing reads it'),
                                                     facts.Would(spell.line('stage', 'clean'), {e.relative_to(REPO).as_posix(): 1}))
             for e in orphans()}
@@ -1254,7 +1273,7 @@ def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
     return out
 
 
-JANITOR_KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units'}   # each kind of entry the stage's janitor removes, and its plural
+JANITOR_KINDS = {'orphan': 'orphans', 'duplicate': 'duplicates', 'incomplete unit': 'incomplete units', 'spent stage': 'spent stages'}   # each kind of entry the stage's janitor removes, and its plural
 
 
 def nest(into: dict[str, object], path: tuple[str, ...], value: object) -> None:
