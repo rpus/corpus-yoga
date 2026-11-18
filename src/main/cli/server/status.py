@@ -2,8 +2,8 @@
 status.py - bare `corpus-yoga server`: whether the markdown daemon runs, the render assets
 present against their manifest (issues/759), the book index against the judged index it is
 written from, and under now: the build once the judged index stands and index.md differs from
-it, the stop while the daemon runs, the start where the corpus is rendered and the daemon is
-down (issues/947, issues/960). Reads; writes nothing.
+it, the stop while the daemon runs, the start once the book index is current and the daemon is
+down (issues/947, issues/960, issues/1125). Reads; writes nothing.
 """
 import sys
 from dataclasses import dataclass
@@ -69,12 +69,13 @@ class Status:
     now: dict | str = facts.phrase('none - nothing to do')   # every act the body names, gathered (issues/1028)
 
 
-def daemon_act(running: bool, rendered: bool) -> facts.Would | None:
-    """The act the daemon's state allows (issues/960): the stop while it runs; the start while
-    the corpus page is rendered and it is down; none otherwise."""
+def daemon_act(running: bool, index: BookIndex | None) -> facts.Would | None:
+    """The act the daemon's state allows (issues/960): the stop while it runs; the start while it
+    is down and the book index is current, as site sync waits on site build (issues/1125); none
+    otherwise, the index's own line saying what it waits on."""
     if running:
         return facts.Would(spell.line('server', 'stop'), {'serve_markdown daemon': 1})
-    if rendered:
+    if index is not None and index.act is None and index.standing == facts.phrase('current - written from the judged index'):
         return facts.Would(spell.line('server', 'start', daemon=True), {'data/output/markdown': 1})
     return None
 
@@ -91,13 +92,12 @@ def main() -> int:
         for version in re.findall(r'/npm/([^/@]+@[^/]+)', line) if name not in missing else []:
             if version not in versions:
                 versions.append(version)
-    rendered = (tier.DATA / 'output' / 'markdown' / 'index.md').is_file()
     out = Status(Server(facts.phrase('running (pid {pid})', pid=found[0]) if found else facts.phrase('not running'), render_assets=Assets(
         facts.phrase('{got}/{total} in ext/lib/serve_markdown', got=len(wanted) - len(missing), total=len(wanted)), versions or None,
         (facts.phrase('all of them') if len(missing) == len(wanted) else missing) or None,
         facts.would(spell.line('server', 'ensure-assets'), {'ext/lib/serve_markdown': len(missing)}))))
-    out.server.act = daemon_act(bool(found), rendered)
     out.server.index = book_index()
+    out.server.act = daemon_act(bool(found), out.server.index)
     out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)
     return 0
