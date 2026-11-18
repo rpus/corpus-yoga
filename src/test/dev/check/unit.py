@@ -1022,7 +1022,7 @@ def check_session_continued_apart(run) -> None:
 @check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
 def check_spent_stage(run) -> None:
     """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the
-    janitor removes tmp/stage whole, and the status names it with the janitor as its act; while
+    janitor removes tmp/stage/usr whole, and the status names it with the janitor as its act; while
     a unit stays staged, neither touches them (issues/1127). Held over a planted stage, the tier's
     paths pointed at it, never the room's."""
     import importlib
@@ -1071,5 +1071,5 @@ def check_spent_stage(run) -> None:
         for name, value in kept_corpus.items():
             setattr(corpus, name, value)
     want = {'spent': (['spent stage'], ['stage'], False), 'held': ([], [], True)}
-    run('stage: once no unit is staged, the janitor removes tmp/stage whole and the status names it; while one is, neither does',
+    run('stage: once no unit is staged, the janitor removes tmp/stage/usr whole and the status names it; while one is, neither does',
         said == want, None if said == want else f'(kinds, named, stage left) were {said!r}', check='stage.clean_leaves_no_spent_stage')

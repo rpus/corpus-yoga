@@ -4,11 +4,11 @@ of its address, whether the pipelines have found it valid, and its promotion int
 storage (issues/687). The home rsc/CALCULUS.md's roadmap names for the Mergeable protocol; this is
 its first face, promotion, and the four older comparisons it names stand as they are.
 
-THE STAGE - the room's stage is one root, tmp/stage (src/main/tier.py, issues/702): tmp/stage/
-input is what the captures write, at the address each unit will have under data/input;
-tmp/stage/scratch is what the last rehearsal's run derived - a data tier whose input links
-to tmp/stage/input and whose output is its preview, a tmp tier with the validation -
-replaced whole by the next run; and tmp/stage/rehearsal.json is the rehearsal record, one
+THE STAGE - the room's stage is one root, tmp/stage/usr, the usr actor's (src/main/tier.py, issues/702,
+issues/1133): tmp/stage/usr/input is what the captures write, at the address each unit will have under data/input;
+tmp/stage/usr/scratch is what the last rehearsal's run derived - a data tier whose input links
+to tmp/stage/usr/input and whose output is its preview, a tmp tier with the validation -
+replaced whole by the next run; and tmp/stage/usr/rehearsal.json is the rehearsal record, one
 file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). A capture writes the
 stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
@@ -62,7 +62,7 @@ PROMOTE - each capturing noun has the verb: what `corpus-yoga browser capture` s
 `corpus-yoga browser promote` promotes, over the same extent words (--provider <p> |
 --all, --id <prefix>); agent, export and forge likewise. A noun's units are the staged
 units under the roots its capture declares it writes (src/main/cli/<noun>/capture.json's
-w rows under tmp/stage/input). Every staged unit gets its verdict; the relation refuses
+w rows under tmp/stage/usr/input). Every staged unit gets its verdict; the relation refuses
 only where the held copy would lose something (AHEAD, DIVERGED). Promotion is a copy,
 never a move: the unit's members are written over the held ones by address, byte-equal
 being silence, and the stage is never written by promote - the captures own it, and
@@ -112,7 +112,7 @@ NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each
 
 @dataclass
 class Unit:
-    address: Path                 # relative to the input root (data/input or tmp/stage/input)
+    address: Path                 # relative to the input root (data/input or tmp/stage/usr/input)
     members: list[Path]           # the paths that make it: its directory, or its file and companion
     files: list[Path]             # every file under the members
     selected: list[Path]          # the files the glob selected - what the measure reads
@@ -661,9 +661,9 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
 # -- promote -------------------------------------------------------------------------------
 
 def roots_of(noun: str) -> list[Path]:
-    """The stage roots a noun's capture declares it writes, relative to tmp/stage/input."""
+    """The stage roots a noun's capture declares it writes, relative to tmp/stage/usr/input."""
     decl = json.loads((CLI_ROOT / noun / 'capture.json').read_text())
-    return [Path(w.removeprefix('tmp/stage/input/')) for w in decl.get('w', []) if w.startswith('tmp/stage/input/')]
+    return [Path(w.removeprefix('tmp/stage/usr/input/')) for w in decl.get('w', []) if w.startswith('tmp/stage/usr/input/')]
 
 
 def noun_of(unit: Unit) -> str | None:
@@ -1058,21 +1058,21 @@ def human(n: float) -> str:
 
 
 def orphans() -> list[Path]:
-    """What sits under tmp/stage and is neither the input, the scratch nor the record."""
+    """What sits under tmp/stage/usr and is neither the input, the scratch nor the record."""
     stage = tier.TMP_STAGE
     kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name)
     return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
 
 
 def spent(remaining: list['Unit']) -> bool:
-    """Whether tmp/stage holds anything while no unit stays staged: its input, scratch and
+    """Whether tmp/stage/usr holds anything while no unit stays staged: its input, scratch and
     rehearsal record serve only the staged units, so with none they serve nothing (issues/1127)."""
     stage = tier.TMP_STAGE
     return not remaining and stage.is_dir() and any(stage.iterdir())
 
 
 def dispose_spent() -> str | None:
-    """Remove tmp/stage whole, as it stands at the act: refused where a unit was staged meanwhile."""
+    """Remove tmp/stage/usr whole, as it stands at the act: refused where a unit was staged meanwhile."""
     if units(STAGE):
         return facts.phrase('a unit was staged meanwhile')
     return dispose(tier.TMP_STAGE)
@@ -1146,15 +1146,15 @@ class StageStatus:
     why and what is unlicensed and why, as facts. It names no act (issues/851): the stage is a
     scratch tier between the live stores and the store, and the store's status, which
     reads both, says what to run next."""
-    tmp_stage: StageTier | str = facts.named('tmp/stage')
+    tmp_stage: StageTier | str = facts.named('tmp/stage/usr')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema, then the reason: how many
     unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (issues/867)
 
 
 def stage_orphans() -> dict[str, 'Orphan']:
-    """Each orphan under tmp/stage by its path, with the act that removes it - or, where no unit
-    is staged, tmp/stage itself, which the janitor removes whole (issues/1127)."""
+    """Each orphan under tmp/stage/usr by its path, with the act that removes it - or, where no unit
+    is staged, tmp/stage/usr itself, which the janitor removes whole (issues/1127)."""
     if spent(units(STAGE)):
         at = tier.TMP_STAGE.relative_to(REPO).as_posix() if tier.TMP_STAGE.is_relative_to(REPO) else str(tier.TMP_STAGE)
         return {at: Orphan(human(size_of(tier.TMP_STAGE)), facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
@@ -1302,7 +1302,7 @@ def selection_of(pipeline: str, provider: str | None, kind: str) -> str | None:
 
 def kind_of(unit: Unit) -> str:
     """What a count of the unit is a count of: its selection, as the path under the input
-    root - tmp/stage/input, or data/input - that the pipeline's declaration selects it by,
+    root - tmp/stage/usr/input, or data/input - that the pipeline's declaration selects it by,
     the store's input with the provider filled in and the glob after it; a unit no
     declaration selects is counted by its own address."""
     return unit.selection or unit.address.as_posix()
@@ -1442,7 +1442,7 @@ class StoreStatus:
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, issues/851)
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (issues/842)
-    stage_orphans: dict[str, 'Orphan'] | None = None   # by path: what under tmp/stage nothing reads, with the act that removes it
+    stage_orphans: dict[str, 'Orphan'] | None = None   # by path: what under tmp/stage/usr nothing reads, with the act that removes it
     would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (issues/867)
     now: dict | str | None = None   # the store's standing: every act its body names, gathered (issues/1028)
 

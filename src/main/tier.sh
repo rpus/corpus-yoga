@@ -5,16 +5,22 @@
 # (CORPUS_YOGA_ACT, CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG are the launcher's: the act it
 # dispatched, that act's stamp and the record it tees the act into - read here alone, by
 # stamp_of and record_of, and only by the act they name - src/main/tier.py, issues/708, issues/912)
-# names the stage's scratch root, tmp/stage/scratch, unset the checkout's. DATA_ROOT is
-# that root, DATA_DIR and TMP_DIR its data and tmp; TMP_STAGE is the checkout's stage, a
-# constant, and TMP_STAGE_SCRATCH the scratch whatever tiers are in force. tier_path turns
+# names the stage's scratch root, tmp/stage/<actor>/scratch, unset the checkout's. DATA_ROOT is
+# that root, DATA_DIR and TMP_DIR its data and tmp; TMP_STAGE is the actor's stage,
+# tmp/stage/<actor>, and TMP_STAGE_SCRATCH its scratch whatever tiers are in force. tier_path turns
 # a declared repo-relative path (data/..., tmp/...) into the tier's. Sourced, never run; the names are the sourcing script's own, never exported.
 _tier_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIER_REPO="${_tier_dir%/src/main}"
+# the actor's stage under tmp/stage (issues/1133): the usr actor's, tmp/stage/usr, wherever
+# CORPUS_YOGA_ACTOR names no other - tmp/stage/dev the one other
+case "${CORPUS_YOGA_ACTOR:-usr}" in
+  usr|dev) _tier_actor="${CORPUS_YOGA_ACTOR:-usr}" ;;
+  *) echo "tier.sh: CORPUS_YOGA_ACTOR names ${CORPUS_YOGA_ACTOR}, no actor of usr, dev" >&2; exit 1 ;;
+esac
 # shellcheck disable=SC2034  # the sourcing script's to use
-TMP_STAGE="$TIER_REPO/tmp/stage"
+TMP_STAGE="$TIER_REPO/tmp/stage/$_tier_actor"
 # shellcheck disable=SC2034  # the sourcing script's to use
-TMP_STAGE_SCRATCH="$TIER_REPO/tmp/stage/scratch"
+TMP_STAGE_SCRATCH="$TMP_STAGE/scratch"
 if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TMP_STAGE_SCRATCH"; else DATA_ROOT="$TIER_REPO"; fi
 DATA_DIR="$DATA_ROOT/data"
 TMP_DIR="$DATA_ROOT/tmp"

@@ -4,10 +4,12 @@ data and tmp paths from. Every script computes its code root, REPO, from its own
 the only fact it lacks is which layout its tiers are read from, and that is one name:
 CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the stage's scratch root under
 TMP_STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or
-tmp/stage/scratch, and DATA and TMP are its data and tmp. No path is ever
+tmp/stage/<actor>/scratch, and DATA and TMP are its data and tmp. No path is ever
 passed, only the name the layout resolves, so nothing but a rehearsal can rebind a tier.
 
-The stage, TMP_STAGE, is the checkout's, a constant: TMP_STAGE_INPUT is what the captures
+The stage, TMP_STAGE, is an actor's, under tmp/stage, named for the actor (issues/1133): the usr
+actor's, tmp/stage/usr, every capture, rehearsal, promote and clean, wherever CORPUS_YOGA_ACTOR
+names no other - the dev actor's, tmp/stage/dev, being the one other. TMP_STAGE_INPUT is what the captures
 write; TMP_STAGE_SCRATCH holds only what the last rehearsal's run derived - data/input a
 link to TMP_STAGE_INPUT, data/output its preview, tmp/cache its validation - and is
 replaced whole by the next run; TMP_STAGE_REHEARSAL is the rehearsal record, one file,
@@ -25,7 +27,10 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-TMP_STAGE = REPO / 'tmp' / 'stage'    # the checkout's stage, a constant
+ACTORS = ('usr', 'dev')   # whose a stage is, each its own under tmp/stage
+ACTOR = os.environ.get('CORPUS_YOGA_ACTOR') or 'usr'
+assert ACTOR in ACTORS, f'CORPUS_YOGA_ACTOR names {ACTOR!r}, no actor of {ACTORS}'
+TMP_STAGE = REPO / 'tmp' / 'stage' / ACTOR    # the actor's stage
 TMP_STAGE_INPUT = TMP_STAGE / 'input'  # what the captures write
 TMP_STAGE_SCRATCH = TMP_STAGE / 'scratch'   # data/{input -> ../../input, output}, tmp/cache - the last run's, replaced whole
 TMP_STAGE_REHEARSAL = TMP_STAGE / 'rehearsal.json'   # the rehearsal record, one file
