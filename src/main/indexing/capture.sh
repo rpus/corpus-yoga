@@ -3,7 +3,7 @@
 # the model reads the conversation list (the numbered titles, provider-marked) for the two index tables, weighted
 # concepts (inferred-semantic-concepts.json — the indexing queue's feedstock) and the
 # chat-to-category assignment (inferred-chat-categories.json — a categorical index the
-# site render consumes). One paid sweep, one derive-then-deposit bracket.
+# site build consumes). One paid sweep, one derive-then-deposit bracket.
 #
 # This file CAPTURES, bare or with flags; what is deposited and how far the paid
 # layer lags the corpus is `corpus-yoga indexing`'s to say (indexing.py).

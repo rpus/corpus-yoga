@@ -13,6 +13,7 @@
     "src/main/indexing",
     "src/main/cli/completions",
     "src/main/cli/agent",
+    "src/main/cli/server",
     "src/main/agent",
     "src/main/metamodel",
     "src/main/mcp",

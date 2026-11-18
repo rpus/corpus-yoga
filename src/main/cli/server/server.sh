@@ -2,7 +2,8 @@
 # Local HTTP server for browsing and searching markdown files, with LaTeX rendering.
 #
 # Usage:
-#   src/main/cli/server/server.sh                 # status: daemon + render-asset presence
+#   src/main/cli/server/server.sh                 # status: daemon + render-asset presence + the book index
+#   src/main/cli/server/server.sh build           # write data/output/markdown/index.md from the judged index
 #   src/main/cli/server/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
 #   src/main/cli/server/server.sh stop
 #   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit
@@ -68,5 +69,6 @@ case "${1:-}" in
   start)          shift; parse_argv server start "$@"; start "$@" ;;
   stop)           shift; parse_argv server stop "$@"; stop ;;
   ensure-assets)  shift; parse_argv server ensure-assets "$@"; "${PY[@]}" --ensure-assets ;;
-  *) echo "server: unknown verb '${1}' — expected start, stop, ensure-assets (bare: status)" >&2; help; exit 1 ;;
+  build)          shift; parse_argv server build "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/server/book_index.py" ;;
+  *) echo "server: unknown verb '${1}' — expected build, start, stop, ensure-assets (bare: status)" >&2; help; exit 1 ;;
 esac

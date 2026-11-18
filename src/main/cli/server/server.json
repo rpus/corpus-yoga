@@ -9,14 +9,20 @@
     "all of them",
     "serves {markdown} at http://localhost:{port} in the background; the daemon writes {log}",
     "stopped the serve_markdown daemon",
-    "no serve_markdown daemon was running"
+    "no serve_markdown daemon was running",
+    "no judged index - corpus-yoga indexing build writes it",
+    "no effect; {path} already holds the judged index",
+    "current - written from the judged index",
+    "stale - the judged index moved since it was written"
   ],
   "target": "src/main/cli/server/server.sh",
   "calculus": "project",
   "args": [],
   "r": [
     "src/main/cli/server/serve_assets.txt",
-    "ext/lib/serve_markdown"
+    "ext/lib/serve_markdown",
+    "data/output/indexing",
+    "data/output/markdown"
   ],
   "sends": {
     "asset": {

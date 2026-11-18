@@ -385,34 +385,24 @@ prep_pipeline_safe() {
 RECORD="$(record_of pipeline run)"
 LOG_FILE="$RECORD"
 
-# The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
+# The whole-corpus tail: the root-level REDUCE, run once after every pipeline -
 # for operations whose input spans them all (the pipelines' own run_tails fold
-# one pipeline's corpus; this folds the union). First member: indexing build,
-# whose locators span claude chat, code sessions, and gemini — and whose
-# staleness is invisible to a run that does not fold it — index.md goes on citing
-# whatever it cited when it was last built. Same command-backed step
-# discipline as the pipeline tails: the plan speaks `indexing build`, and the
-# gate holds it to command AND verb (a declared step=corpus).
+# one pipeline's corpus; this folds the union). Same command-backed step discipline
+# as the pipeline tails: the plan speaks each verb, and the gate holds it to command
+# AND verb (a declared step=corpus).
 #
-# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
-# NECESSITY tests, with the input set split (issues/494): CLOSURE holds for the free
-# inputs this run itself produces, so every free derivation is refreshed here -
-# indexing build, site render, metamodel derive - and a paid input (the captures) enters
-# the page as a declared vintage, never as a currency claim. Paid acts stay
-# out-of-run; indexing's status states their lag with the paid prescription.
+# Membership: L9 - Currency (rsc/CALCULUS.md). The index and the corpus page are built
+# from the reader's judgement of a paid capture, so no run builds them: each is offered
+# by its noun's status once the step before it stands (issues/1125), and a gate that runs
+# this pipeline - corpus-yoga forge merge's - leaves them as it found them.
 run_corpus_tail() {
   # Its own banner, so its atoms are attributed to it rather than to whichever pipeline
   # ran last — the table reads sections, and a reduce over everything is a section.
   # Not under --plan: the plan lists STEPS, and a banner is a log boundary, not a step —
   # the line above it ("then once, over the whole corpus") already says the same thing.
   STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
-  step indexing "$REPO_ROOT/src/run_python_script.sh" \
-    "$REPO_ROOT/src/main/indexing/indexing.py" build
-  # Free derivations refreshed before anything probes them (issues/494): the corpus
-  # page and the model catalogues; both content-keyed, so an unchanged corpus
-  # writes nothing.
-  step site "$REPO_ROOT/src/main/cli/site/site.sh" assemble
-  step site "$REPO_ROOT/src/main/cli/site/site.sh" render
+  # the model catalogues, refreshed before anything probes them; content-keyed, so an
+  # unchanged corpus writes nothing
   step metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py" derive
   # The data gate's own validation judgments (issues/535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
@@ -587,7 +577,7 @@ main() {
   # served. The data-tier coupling this line once narrated (pipelines move what the
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (issues/342).
-  pair outputs data/output/markdown/index.md
+  pair outputs data/output/markdown
   if [[ -n "$RECORD" ]]; then pair Log "${RECORD#"$REPO_ROOT/"}"; fi
   # what an act reports (issues/876, issues/896): the usr gate's own verdict stands above; the act's
   # effect line ends the run, or is handed to the launcher where the reader typed it. The

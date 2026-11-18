@@ -1,5 +1,5 @@
 {
-  "summary": "the rpus.co publish tree - data/output/site/ assembled from rsc/site/",
+  "summary": "the rpus.co publish tree - data/output/site/, built from rsc/site/, the corpus and the judged index",
   "standing": true,
   "phrase": [
     "unread - no page and no corpus to compare",
@@ -12,7 +12,7 @@
     "nothing to land - rpus.co holds the tree as assembled",
     "current with rsc/site/",
     "absent - the corpus page is unbuilt",
-    "unbuilt - no projected corpus to render",
+    "unbuilt - no projected corpus to build it from",
     "nothing can land - no clone of rpus.co is mounted",
     "title absent",
     "absent - the rpus.co publish layer, optional",
@@ -35,8 +35,6 @@
     "{name} left rsc/site/ - it stays on rpus.co, which the copy never deletes from",
     "a page left rsc/site/ and stays on rpus.co; the lines above name it, and data/output/site/ is left as it was",
     "placed {file}",
-    "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)",
-    "no effect; data/output/site/ already serves rsc/site/ as authored",
     "{side} {n} words",
     "{side} {added} entered, {removed} left, {moved} counts moved",
     "entered {words}",
@@ -72,7 +70,13 @@
     "columns removed",
     "{value} ({difference})",
     "{value} (was {old})",
-    "{n} more"
+    "{n} more",
+    "{placed} page(s) placed; index.html skipped - no projected corpus under {root}, which corpus-yoga pipeline run projects",
+    "{placed} page(s) placed; index.html already current",
+    "no effect; data/output/site/ already holds rsc/site/ and the corpus page as built",
+    "{placed} page(s) placed; {page} written",
+    "stale - the judged index or the categories moved since the page was built",
+    "due - the tree differs from what site build would write"
   ],
   "target": "src/main/cli/site/site.sh",
   "calculus": "project",
