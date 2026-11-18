@@ -3,17 +3,14 @@
 #
 # Usage:
 #   corpus-yoga site          # status: each artifact's presence and currency, and who produces it
-#   corpus-yoga site assemble # assemble the tree from rsc/site/ - every page copied beside index.html
-#   corpus-yoga site sync     # make rpus.co serve the tree: pull rpus.co, copy into ext/mnt/site, commit, push;
-#                             # the dry run states what changes in the corpus page, table by table
-#   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
+#   corpus-yoga site build    # write the tree: every page of rsc/site/, and index.html, the corpus page
+#   corpus-yoga site sync     # make rpus.co serve the tree: pull rpus.co, copy into ext/mnt/site, commit, push
 #
-# The tree has two verbs with disjoint files: assemble owns every page, a file
-# rsc/site/<name>.html copied to data/output/site/<name>.html as authored (issues/650);
-# render owns index.html at the root, the corpus page present_corpus.py writes
-# at its URL position (issues/409) from
+# build writes the whole tree: each page rsc/site/<name>.html copied to
+# data/output/site/<name>.html as authored (issues/650), and index.html at the root, the
+# corpus page present_corpus.py writes at its URL position (issues/409) from
 # rsc/site/index.template.html, the one file under rsc/site/ that is not a page.
-# assemble never touches index.html; README.md documents the family.
+# README.md documents the family.
 
 set -euo pipefail
 SELF='src/main/cli/site/site.sh'
@@ -43,10 +40,9 @@ usage() {
 corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from rsc/site/
 
   corpus-yoga site          status: each artifact's presence and currency, and who produces it
-  corpus-yoga site assemble assemble the tree (every page copied beside index.html)
-  corpus-yoga site sync     pull rpus.co, copy the tree into ext/mnt/site, commit and push there (what it would land is the bare status's;
-                            the dry run states what changes in the corpus page, table by table)
-  corpus-yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
+  corpus-yoga site build    write the tree: every page of rsc/site/, and index.html (the corpus page) from the corpus,
+                            the judged index and the categories
+  corpus-yoga site sync     pull rpus.co, copy the tree into ext/mnt/site, commit and push there (what it would land is the bare status's)
 EOF
 }
 
@@ -61,14 +57,9 @@ status() {
   # mount - which status.py types and says as one shape
   {
     if [[ ! -d "$OUT" ]]; then
-      # The pages are the rpus.co publish layer - deploy-side, optional; the
-      # quickstart teaches only the render. Prescribing assemble here made every
-      # pipeline run nag a verb the front door never taught.
       printf 'pages\tabsent\t%s\n' "$(phrase "absent - the rpus.co publish layer, optional")"
     else
       local f
-      # the run assembles before this probe (issues/494): a stale tree here is rsc/site/ edited
-      # outside a run
       while IFS= read -r f; do
         if [[ ! -f "$OUT/$f" ]]; then
           printf 'page\t%s\t%s\n' "$f" "$(phrase "absent from the tree")"
@@ -77,17 +68,14 @@ status() {
         fi
       done < <(page_files "$SRC")
     fi
-    # The corpus page is its own layer (render's, the quickstart's subject):
-    # stated ALWAYS — an absent tree must not silence the one site verb the
-    # front door teaches. The page declares the inputs it was rendered from (its
-    # title: the corpus it folds), so a lag in the paid layer reads as what it is,
-    # stated - indexing's status carries the paid prescription. No clock keys (issues/409, issues/494).
-    local render="$OUT/index.html" declared
+    # The corpus page is stated always, an absent tree included. The page declares the inputs it
+    # was built from (its title: the corpus it folds), read back by status.py. No clock keys.
+    local page="$OUT/index.html" declared
     has_conversations "$DATA_DIR/output/markdown" || printf 'corpus\tunprojected\n'
-    if [[ ! -f "$render" ]]; then
+    if [[ ! -f "$page" ]]; then
       printf 'index\tABSENT\n'
     else
-      declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$render" | head -1)"
+      declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$page" | head -1)"
       printf 'index\t%s\n' "${declared:-$(phrase "title absent")}"
     fi
     if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
@@ -103,10 +91,6 @@ status() {
       printf 'deploy\t%s\n' "$(phrase "no ext/mnt/site mount on this machine - optional")"
     fi
   } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/site/status.py"
-}
-
-render() {
-  exec "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/present_corpus.py" "$@"
 }
 
 # The act (issues/881): what it would land is the bare status's; this copies, commits and pushes.
@@ -167,12 +151,12 @@ sync() {
 }
 
 
-assemble() {
+build() {
   mkdir -p "$OUT"
-  local d f name eventful=0 departed=0
-  # A page that left rsc/site/ halts the assemble, the publish tree left as it is: the copy to
-  # rpus.co is a union that never deletes, so the page stays there, and this is the one run
-  # that can still see it go. index.html is render's, never a departed page.
+  local d f name placed=0 departed=0
+  # A page that left rsc/site/ halts the build, the publish tree left as it is: the copy to
+  # rpus.co is a union that never deletes, so the page stays there, and this is the one act
+  # that can still see it go. index.html is the corpus page, never a departed page.
   for d in "$OUT"/*/; do
     [[ -d "$d" ]] || continue
     echo "site: $(phrase "{name}/ is a directory, where the publish tree holds pages at its root - it stays on rpus.co, which the copy never deletes from" name="$(basename "$d")")"
@@ -188,7 +172,7 @@ assemble() {
     fi
   done
   if [[ $departed -eq 1 ]]; then
-    effect "$(act site assemble): NOT DONE - $(phrase "a page left rsc/site/ and stays on rpus.co; the lines above name it, and data/output/site/ is left as it was")"
+    effect "$(act site build): NOT DONE - $(phrase "a page left rsc/site/ and stays on rpus.co; the lines above name it, and data/output/site/ is left as it was")"
     return 1
   fi
   while IFS= read -r f; do
@@ -196,20 +180,16 @@ assemble() {
     [[ -f "$OUT/$f" ]] && cmp -s "$SRC/$f" "$OUT/$f" && continue
     cp "$SRC/$f" "$OUT/$f"
     echo "site: $(phrase "placed {file}" file="$f")"
-    eventful=1
+    placed=$((placed + 1))
   done < <(page_files "$SRC")
-  if [[ $eventful -eq 1 ]]; then
-    effect "$(act site assemble): DONE - $(phrase "pages placed; data/output/site/ serves rsc/site/ as authored (index.html stays render's)")"
-  else
-    effect "$(act site assemble): DONE - $(phrase "no effect; data/output/site/ already serves rsc/site/ as authored")"
-  fi
+  # the corpus page, which says the verdict for the whole tree, the pages placed with it
+  exec "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/present_corpus.py" --placed "$placed"
 }
 
 case "${1:-}" in
   '')          status ;;
-  assemble)    shift; parse_argv site assemble "$@"; assemble ;;
-  sync)      shift; parse_argv site sync "$@"; sync "$@" ;;
-  render)      shift; parse_argv site render "$@"; render "$@" ;;
+  build)       shift; parse_argv site build "$@"; build ;;
+  sync)        shift; parse_argv site sync "$@"; sync "$@" ;;
   -h|--help)   usage ;;
   *)           echo "corpus-yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;
 esac

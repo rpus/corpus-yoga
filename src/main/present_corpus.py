@@ -5,9 +5,10 @@ The batch presenter (present.sh) renders ONE EXPORT's presentation under
 tmp/cache/export/<batch>/presentation — an export artifact, honestly filed under
 its export. This is the corpus one: the keys are corpus_index's 1..N ordinals
 over data/output/markdown (every source, claude first — the same numbers the book index,
-the NN- filenames, and rekey_chats speak), the two captured tables come from
-data/output/indexing, and every conversation-keyed table is derived from the projected
-corpus itself, whole batches nowhere involved.
+the NN- filenames, and rekey_chats speak), the concept table is the judged index
+(data/output/indexing/indexed-semantic-concepts.json, the one the server's index.md is written
+from), the category table is the paid capture as it returned it, and every
+conversation-keyed table is derived from the projected corpus itself, whole batches nowhere involved.
 
 Values are best-effort by data reality: claude turn anchors are the messages'
 UUIDv7 ids, whose first 48 bits are a millisecond timestamp, so claude lanes
@@ -17,15 +18,17 @@ absence is shown, never invented. Bolster the values when a source grows time
 data; the KEYS are the contract.
 
 Usage:
-  present_corpus.py [--markdown <dir>] [--indexing <dir>] [--out <dir>] [--page-out <dir>]
+  present_corpus.py [--markdown <dir>] [--indexing <dir>] [--out <dir>] [--page-out <dir>] [--placed <n>]
 
 Defaults: data/output/markdown, data/output/indexing, tmp/cache/site/presentation for the
 data tables, data/output/site for the finished page (its URL position; all repo-relative).
 The page is the human-facing artifact (library tier); the per-table JSON it is built
 from — machine feedstock, re-derived on every run — stay behind in the cache workshop.
-Called by site.sh (`corpus-yoga site render`) — free, local, re-derivable at will (L5).
+Called by site.sh (`corpus-yoga site build`), after the pages it placed, whose count --placed
+carries so that one verdict speaks for the whole tree — free, local, re-derivable at will (L5).
 """
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -86,11 +89,32 @@ def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
     f = out_dir / f'{key}.json'
     f.write_text(styled)
     subprocess.run([sys.executable, str(MAIN / 'inject.py'), str(html), key, str(f)], check=True)
-    # a table injected empty because its capture is absent is said so, never ticked
-    if not table.get('rows') and str(table.get('note', '')).startswith('Not captured'):
-        print(f'  ○ {key} - not captured; the page carries the note')
+    # a table injected empty because its input is absent is said so, never ticked
+    if not table.get('rows') and str(table.get('note', '')).startswith(('Not captured', 'Not built')):
+        print(f'  ○ {key} - absent; the page carries the note')
     else:
         print(f'  ✓ {key} ({len(table.get("rows", []))} rows)')
+
+
+def concept_table(index: dict) -> dict:
+    """The page's concept table from the judged index: each located headword, weighted by
+    the turns it is found in, with the provider(s) those turns are in."""
+    rows = []
+    for head, _aliases, locators in index['rows']:
+        if not locators:
+            continue
+        providers = sorted({rel.split('/', 1)[0] for rel, _role, _n, _anchor in locators})
+        rows.append([head, len(locators), providers[0] if len(providers) == 1 else 'both'])
+    return {'columns': ['word', 'count', 'provider'], 'rows': rows}
+
+
+def built_from(index_file: Path, categories_file: Path) -> str:
+    """What the page's two indexing tables are built from, by content: the judged index's own
+    record of its inputs, and the digest of the categories as captured. The site status reads it
+    back from the page's meta to say whether the page is current."""
+    index = json.loads(index_file.read_text()).get('built_from', '') if index_file.is_file() else ''
+    categories = 'sha256:' + hashlib.sha256(categories_file.read_bytes()).hexdigest() if categories_file.is_file() else ''
+    return f'index {index or "absent"}; categories {categories or "absent"}'
 
 
 def main() -> int:
@@ -101,6 +125,7 @@ def main() -> int:
                     help='cache workshop dir for the data tables (feedstock)')
     ap.add_argument('--page-out', default=str(tier.DATA / 'output' / 'site'),
                     help='publish-tree dir the finished index.html lands in (its URL position)')
+    ap.add_argument('--placed', type=int, default=0, help='how many pages site.sh placed before the corpus page')
     args = ap.parse_args()
 
     md_root, dash = Path(args.markdown), Path(args.indexing)
@@ -109,7 +134,7 @@ def main() -> int:
     if not entries:
         # a room with no corpus skips, stated (issues/406, issues/494): the run's step must not fail
         rel = md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root
-        facts.report(None, facts.act('site', 'render') + f': DONE - skipped; no projected corpus under {rel}, which corpus-yoga pipeline run projects')
+        facts.report(None, facts.act('site', 'build') + ': DONE - ' + facts.phrase('{placed} page(s) placed; index.html skipped - no projected corpus under {root}, which corpus-yoga pipeline run projects', placed=args.placed, root=rel))
         return 0
 
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -164,29 +189,24 @@ def main() -> int:
            for k, v in tables(human_words, assistant_words).items()}
     write_table(out_dir, 'data-literal-words', lit, html)
 
-    concepts_file = dash / 'inferred-semantic-concepts.json'
+    index_file = dash / 'indexed-semantic-concepts.json'
     categories_file = dash / 'inferred-chat-categories.json'
-    for key, f, note in (
-        ('data-semantic-concepts', concepts_file,
-         'Generated by Claude. Weights are inferred concept salience, not raw frequencies; since v2 each '
-         'concept is tagged with the provider(s) it is salient in. The durable single-source capture '
-         '(data/output/indexing/inferred-semantic-concepts.json); refresh with `corpus-yoga indexing capture`.'),
-        ('data-chat-categories', categories_file,
-         'Generated by Claude. Stored id-keyed (claude uuid / gemini app id); the chat index here is the '
-         'corpus ordinal (corpus_index over data/output/markdown — every source), re-derived at presentation time. '
-         'Refresh with `corpus-yoga indexing capture`.'),
-    ):
-        if not f.exists():
-            table = {'columns': [], 'rows': [], 'note': f'Not captured yet — run `corpus-yoga indexing capture`. {note}'}
-        elif key == 'data-chat-categories':
-            rekeyed = run_helper(SCRIPT_DIR / 'rekey_chats.py', ['--to-ordinal', '--conversations', str(md_root)],
-                                 f.read_text())
-            table = json.loads(rekeyed)
-            table['note'] = note
-        else:
-            table = json.loads(f.read_text())
-            table['note'] = note
-        write_table(out_dir, key, table, html)
+    note = ('The headwords the reader accepted, each weighted by the turns it is found in and tagged with the '
+            'provider(s) of those turns, from the judged index (data/output/indexing/indexed-semantic-concepts.json); '
+            'corpus-yoga indexing build refreshes it.')
+    table = (dict(concept_table(json.loads(index_file.read_text())), note=note) if index_file.is_file()
+             else {'columns': [], 'rows': [], 'note': f'Not built yet — run `corpus-yoga indexing build`. {note}'})
+    write_table(out_dir, 'data-semantic-concepts', table, html)
+    note = ('Generated by Claude, as the paid capture returned it - no judgement of categories exists. Stored id-keyed '
+            '(claude uuid / gemini app id); the chat index here is the corpus ordinal (corpus_index over '
+            'data/output/markdown — every source), re-derived at presentation time. Refresh with `corpus-yoga indexing capture`.')
+    if categories_file.exists():
+        table = json.loads(run_helper(SCRIPT_DIR / 'rekey_chats.py', ['--to-ordinal', '--conversations', str(md_root)],
+                                      categories_file.read_text()))
+        table['note'] = note
+    else:
+        table = {'columns': [], 'rows': [], 'note': f'Not captured yet — run `corpus-yoga indexing capture`. {note}'}
+    write_table(out_dir, 'data-chat-categories', table, html)
 
     claude_times = sorted(all_times)
     if claude_times:
@@ -197,7 +217,9 @@ def main() -> int:
         date_range = 'undated'
     title = (f'Conversation corpus — {len(entries)} conversations '
              f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}), {date_range}')
-    html.write_text(re.sub(r'<title>.*?</title>', f'<title>{title}</title>', html.read_text()))
+    html.write_text(re.sub(r'<title>.*?</title>',
+                           f'<title>{title}</title>\n  <meta name="corpus-yoga-built-from" content="{built_from(index_file, categories_file)}">',
+                           html.read_text(), count=1))
     # The page declares the inputs it was rendered from (issues/494): the corpus it folds
     # (the title) and the paid layer's coverage - so a render over lagging captures
     # reads as exactly what it is, anchored, never laundered.
@@ -217,13 +239,16 @@ def main() -> int:
     if page.exists() and page.read_bytes() == html.read_bytes():
         # content-keyed (issues/494): current inputs mean no write, and a quiet run stays quiet
         html.unlink()
-        facts.report(None, facts.act('site', 'render') + ': DONE - index.html current; nothing written')
+        facts.report(None, facts.act('site', 'build') + ': DONE - ' + (
+            facts.phrase('{placed} page(s) placed; index.html already current', placed=args.placed) if args.placed
+            else facts.phrase('no effect; data/output/site/ already holds rsc/site/ and the corpus page as built')))
         return 0
     page.unlink(missing_ok=True)
     shutil.move(str(html), str(page))
     print(f'  title: {title}')
     print(f'  data tables: {out_dir.relative_to(REPO)}/')
-    facts.report(None, facts.act('site', 'render') + f': DONE - {page.relative_to(REPO) if page.is_relative_to(REPO) else page} rendered')
+    facts.report(None, facts.act('site', 'build') + ': DONE - ' + facts.phrase('{placed} page(s) placed; {page} written', placed=args.placed,
+                                                                              page=page.relative_to(REPO) if page.is_relative_to(REPO) else page))
     return 0
 
 

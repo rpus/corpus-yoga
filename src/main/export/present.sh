@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The BATCH presenter: one export's presentation under its own directory
 # (tmp/cache/export/<batch>/presentation — an export artifact, honestly filed).
-# The corpus page render is src/main/present_corpus.py (corpus-yoga site render).
+# The corpus page is src/main/present_corpus.py's (corpus-yoga site build).
 # Run from the repo root, e.g.:
 #   src/main/export/present.sh --export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
 #   src/main/export/present.sh --exports data/input/claude/chat/bulk-export

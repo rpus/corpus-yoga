@@ -9,8 +9,8 @@ inference exactly as a model's capture is; the repo privileges neither.
 The format authorities are the schemas, not this file:
 
 - `inferred-semantic-concepts.json` — `rsc/schema/indexing/semanticConcepts/` (latest
-  version + CHANGELOG); the dashboard sizes its cloud by the weights, `indexing`
-  borrows only the names as candidate headwords.
+  version + CHANGELOG); `indexing` borrows only the names as candidate headwords, and
+  a batch page sizes its cloud by the weights.
 - `inferred-chat-categories.json` — `rsc/schema/indexing/chatCategories/`; id-keyed so
   identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
 - `accepted-semantic-concepts.txt` / `rejected-semantic-concepts.txt` — headword and disposal formats in
@@ -23,4 +23,7 @@ The disposal loop:
     corpus-yoga indexing list-candidates       (candidates = inferred − accepted − rejected − unanchorable,
                                                each with the aliases that anchor it in a turn)
     accept <term> [alias ...] / reject <concept>   (your judgement, one per concept; --all as read)
-    corpus-yoga indexing build                  (the book index over durable turn anchors)
+    corpus-yoga indexing build                  (the judged index, indexed-semantic-concepts.json: each accepted
+                                               headword with the turns it is found in)
+    corpus-yoga server build / site build       (the book index the server serves / the corpus page,
+                                               both written from the judged index)

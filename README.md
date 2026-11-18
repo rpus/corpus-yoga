@@ -19,7 +19,9 @@ the corpus more fully than the provider does.
 ./corpus-yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
 ./corpus-yoga indexing capture       # PAID: the model reads the conversation titles for the index tables
-./corpus-yoga site render            # render the corpus page from corpus + captures
+./corpus-yoga indexing build         # the judged index, once you have accepted or rejected each proposal
+./corpus-yoga server build           # the book index the server serves, from the judged index
+./corpus-yoga site build             # the rpus.co tree: its pages, and the corpus page from the judged index
 ./corpus-yoga test run               # the dev gate: the hermetic suite over src/ and rsc/
 ```
 
@@ -108,7 +110,9 @@ Code sessions: `corpus-yoga agent capture --all`; `corpus-yoga agent list-drafte
 requests, comments, reviews, labels, blocked_by edges): `corpus-yoga forge capture` -
 one stamped deposit under `data/input/github/forge/gh-CLI/` per run. Paid model readings:
 `corpus-yoga indexing capture` (needs `ANTHROPIC_API_KEY` set; `corpus-yoga status`
-reports it), rendered free by `corpus-yoga site render`. Disposal is computed, never assumed: `corpus-yoga store` reads what is duplicated, an earlier export held whole within a later one among it, and `corpus-yoga store clean` is its janitor.
+reports it); once each proposed concept is accepted or rejected, `corpus-yoga indexing build`
+writes the judged index, from which `corpus-yoga server build` writes the book index and
+`corpus-yoga site build` the corpus page, each offered by its noun's status in turn. Disposal is computed, never assumed: `corpus-yoga store` reads what is duplicated, an earlier export held whole within a later one among it, and `corpus-yoga store clean` is its janitor.
 
 ## Prerequisites
 

@@ -757,8 +757,9 @@ def check_rooms_settle_each_with_its_own_memory(run) -> None:
        on=['src/main/cli/site', 'src/main/facts.py', 'src/main/report.sh', 'src/main'])
 def check_effect_lines_and_unprojected_page(run) -> None:
     """A room with no projected corpus has no corpus page to build: the site status says so as a
-    fact, never as a finding the run fails on, as the render skips, stated - so that a rehearsal of
-    an empty stage passes where the code is sound (issues/1090). And every effect line names its
+    fact, never as a finding, as the build skips, stated - so that a rehearsal of an empty stage
+    passes where the code is sound (issues/1090); and with a corpus, an unbuilt page is a step not
+    yet taken, said with what it waits on or its build, since no run builds it (issues/1125). And every effect line names its
     act from the act's declaration, facts.act or the shell's act: a verb no declaration holds
     raises, and no source types `<noun> <verb>: DONE` or `NOT DONE` by hand, so that a renamed
     noun strands no effect line, as `model derive` was stranded after the metamodel's rename, and
@@ -770,9 +771,9 @@ def check_effect_lines_and_unprojected_page(run) -> None:
         return subprocess.run([str(SRC / 'run_python_script.sh'), str(SRC / 'main' / 'cli' / 'site' / 'status.py')], input=rows,
                               capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout
     bare, built = said('corpus\tunprojected\nindex\tABSENT\n'), said('index\tABSENT\n')
-    fact = ('FAIL' not in bare and 'unbuilt - no projected corpus to render' in bare
-            and 'FAIL' in built and 'absent - the corpus page is unbuilt' in built)
-    run('site: with no projected corpus the absent corpus page is a fact, and with one a finding', fact,
+    fact = ('FAIL' not in bare and 'unbuilt - no projected corpus to build it from' in bare
+            and 'FAIL' not in built and 'absent - the corpus page is unbuilt' in built)
+    run('site: an absent corpus page is a fact, with no projected corpus and with one', fact,
         None if fact else f'unprojected said {bare!r}; projected said {built!r}', check='site.an_unprojected_corpus_page_is_a_fact')
     builder = getattr(facts, 'act', None)
     named = None

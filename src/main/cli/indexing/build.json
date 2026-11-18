@@ -1,13 +1,13 @@
 {
-  "help": "build data/output/markdown/index.md from accepted-semantic-concepts.txt - idempotent",
+  "help": "build data/output/indexing/indexed-semantic-concepts.json, the judged index - each accepted headword with its aliases and the turns it is found in - from accepted-semantic-concepts.txt and the corpus; the server and the site are built from it - idempotent",
   "would": "would build",
   "modality": "MAY",
   "args": [],
-  "step": "corpus",
   "r": [
-    "data/output/indexing"
+    "data/output/indexing",
+    "data/output/markdown"
   ],
   "w": [
-    "data/output/markdown/index.md"
+    "data/output/indexing/indexed-semantic-concepts.json"
   ]
 }

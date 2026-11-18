@@ -283,10 +283,11 @@ Each law names its current enforcement (or the incident that taught it).
   that same run or is stable curation), else the owning noun's status surfaces
   the lag, the safe remedy beside it; curated → the disposal loop (see
   `curate`). Staleness is never silent: an artifact no mechanism can refresh
-  automatically is an artifact whose status says so. The corpus page, once the
-  outlier that forced this law, is re-judged with its input set split (issues/494):
-  CLOSURE holds for the free inputs the run produces, so the run renders it;
-  the paid captures enter it as a declared vintage, never as a currency claim.
+  automatically is an artifact whose status says so. The corpus page and the book
+  index are built from the reader's judgement of a paid capture, so CLOSURE fails for
+  them and no run builds them (issues/1125, after issues/494 had the run render the
+  page): each is built by its own verb - `indexing build`, then `server build` and
+  `site build` - offered by its noun's status only once the step before it stands.
 - **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
   what its source returned, under a stamp, into the room's stage, `tmp/stage/input/`,
   at the address its unit will have under `data/input/`, and reads no other capture

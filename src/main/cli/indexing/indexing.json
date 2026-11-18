@@ -42,7 +42,14 @@
     "{term} accepted",
     "{concept} rejected",
     "skipped; no corpus at {root}, which corpus-yoga pipeline run projects",
-    "{path} written; {summary}"
+    "{path} written; {summary}",
+    "{located}/{accepted} headwords located; {locators} turn locators across {conversations} conversations.",
+    "waits on the paid capture - corpus-yoga indexing capture",
+    "waits on the reader's judgement of {n} concept(s) - corpus-yoga indexing",
+    "waits on corpus-yoga indexing build",
+    "current - built from the accepted record and the corpus as they stand",
+    "stale - the accepted record or the corpus moved since it was built",
+    "no effect; {path} is built from the accepted record and the corpus as they stand"
   ],
   "target": "src/main/indexing/indexing.py",
   "calculus": "capture curate project",

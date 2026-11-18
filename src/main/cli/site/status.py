@@ -11,10 +11,13 @@ tab-separated. Reads; writes nothing but the clone's record of rpus.co, which si
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+import re
 import facts
 import spell
 import tier
+import indexing
 import page_declaration as declared  # what the page declares, read back against the corpus (issues/1000)
+from present_corpus import built_from
 
 SELF = 'src/main/cli/site/status.py'
 _file = Path(__file__).resolve()
@@ -26,19 +29,27 @@ REPO = _root[0]
 @dataclass
 class CorpusPage:
     title: str = facts.named('the corpus page')
-    act: facts.Would | None = None     # the render, while the page lags the corpus (issues/1000)
+    indexing: str | None = None        # the page's judged index and categories against those held
+
+
+@dataclass
+class Build:
+    """The tree against what site build would write - offered only once the judged index stands."""
+    standing: str
+    act: facts.Would | None = None
 
 
 @dataclass
 class Site:
     publish_tree: str
     sources: str
-    pages: dict | str   # each stale page by its file, that all are current, or absent with the act that assembles them
+    pages: dict | str   # each stale page by its file, that all are current, or absent
     index: CorpusPage | facts.Finding | str = facts.named('index.html')
     lags: dict[str, dict[str, str] | str] | dict[str, str | facts.Would | facts.Unsettled] | str | facts.Unsettled = facts.Unsettled(facts.phrase('unread - no page and no corpus to compare'), 'site')   # the page's declarations against the corpus (issues/1000)
     deploy: str = ''
     fetch: facts.Unsettled | None = None      # where rpus.co could not be read as it stands, and so is read as last fetched (issues/1020)
     clone: str | facts.Finding | None = None   # where the clone stands to the branch rpus.co serves; a finding where publish refuses it
+    build: Build | None = None
     publish: dict | str = facts.phrase('nothing to land - rpus.co holds the tree as assembled')   # what would land, under the act that lands it (issues/881, issues/1028)
 
 
@@ -84,6 +95,17 @@ def read_lag(site: Site) -> bool:
     return True
 
 
+def indexing_moved() -> bool:
+    """Whether the page's judged index or categories differ from those held: the page records
+    what they were by content, in its corpus-yoga-built-from meta."""
+    page_file = tier.DATA / 'output' / 'site' / 'index.html'
+    if not page_file.is_file():
+        return False
+    found = re.search(r'<meta name="corpus-yoga-built-from" content="([^"]*)">', page_file.read_text())
+    held = built_from(indexing.INDEXED_FILE, tier.DATA / 'output' / 'indexing' / 'inferred-chat-categories.json')
+    return found is None or found.group(1) != held
+
+
 def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.strip()]
     stale = {row[1]: row[2] for row in rows if row[0] == 'page'}
@@ -93,9 +115,9 @@ def main() -> int:
     index: CorpusPage | facts.Finding | str = CorpusPage(title)
     unprojected = any(row[0] == 'corpus' and row[1] == 'unprojected' for row in rows)
     if title == 'ABSENT' and unprojected:
-        index = facts.phrase('unbuilt - no projected corpus to render')
+        index = facts.phrase('unbuilt - no projected corpus to build it from')
     elif title == 'ABSENT':
-        index = facts.Finding(facts.phrase('absent - the corpus page is unbuilt'), facts.Would(spell.line('site', 'render'), {'index.html': 1}))
+        index = facts.phrase('absent - the corpus page is unbuilt')
     land: dict = {}
     for row in rows:
         if row[0] != 'land' or len(row) < 3:
@@ -113,11 +135,17 @@ def main() -> int:
     refused = position is not None and len(position) >= 4      # a clone publish refuses: no served branch, another branch, diverged
     if position is not None:
         site.clone = facts.Finding(position[1]) if refused else position[1]
-    if absent:
-        site.pages = {'state': standing, 'act': facts.Would(spell.line('site', 'assemble'), {'data/output/site/': 1})}
-    if read_lag(site) and isinstance(site.index, CorpusPage):
-        site.index.act = facts.Would(spell.line('site', 'render'), {'index.html': 1})   # before the publish: what would land is the lag otherwise
-    if land and not absent and not refused:
+    lagging = read_lag(site)
+    moved = indexing_moved()
+    if isinstance(site.index, CorpusPage) and moved:
+        site.index.indexing = facts.phrase('stale - the judged index or the categories moved since the page was built')
+    due = {name: 1 for name, stands in (('data/output/site/', absent or bool(stale)),
+                                         ('index.html', title == 'ABSENT' and not unprojected or lagging or moved)) if stands}
+    if due:
+        waits = indexing.waits_on(indexing.ACCEPTED_FILE, indexing.REJECTED_FILE, indexing.MARKDOWN_DIR) if not unprojected else None
+        site.build = (Build(waits) if waits is not None else
+                      Build(facts.phrase('due - the tree differs from what site build would write'), facts.Would(spell.line('site', 'build'), due)))
+    if land and not absent and not refused and not due:
         # what would land, each file with what changes in it, under the act that lands it (issues/881,
         # issues/998); a clone the publish refuses has its finding instead
         site.publish = {'act': facts.Would(spell.line('site', 'sync'), land)}

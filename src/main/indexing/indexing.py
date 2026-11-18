@@ -6,16 +6,14 @@ capture. Driven by `corpus-yoga indexing` (see src/main/cli/).
 Building an index is the first proper USE of the corpus rather than merely writing into it.
 It scans the readable markdown library (data/output/markdown/{claude,gemini}/conversations/),
 matches the accepted headwords (data/output/indexing/accepted-semantic-concepts.txt: 'headword = alias,
-...' lines, case-insensitive on word boundaries), and writes data/output/markdown/index.md —
-one alphabetised entry per headword, locators grouped by conversation, every locator
-a link to the turn's durable anchor (message uuid for claude, role-count for
-gemini), so an entry survives corpus renumbering.
+...' lines, case-insensitive on word boundaries), and writes the judged index,
+data/output/indexing/indexed-semantic-concepts.json - each headword with every turn it is found
+in, by the turn's durable anchor (message uuid for claude, role-count for gemini), so an
+entry survives corpus renumbering. The server's book index (corpus-yoga server build) and the
+site's concept table (corpus-yoga site build) are both written from it.
 
-Human-and-agent-amenable by construction: the entry text reads as a book index
-(conversation name, turn labels H3/A7), while every locator's href is a
-machine-followable file#anchor. accepted-semantic-concepts.txt is the curation surface; the index
-is derived dressing (regenerate at will; deterministic output — no timestamps —
-so regeneration is a no-op when nothing changed, per CALCULUS L1).
+accepted-semantic-concepts.txt is the curation surface; the judged index is derived
+(deterministic, no timestamps, so a rebuild is a no-op when nothing changed, per CALCULUS L1).
 
 Curation is reproducible from the repo, on the schema system's template
 (candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
@@ -38,7 +36,7 @@ Usage (via corpus-yoga indexing):
   corpus-yoga indexing accept --all                       # accept the whole queue as read, aliases folded in
   corpus-yoga indexing reject [--reason <why>] <concept>  # reject a concept
   corpus-yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
-  corpus-yoga indexing build                               # build data/output/markdown/index.md
+  corpus-yoga indexing build                               # build data/output/indexing/indexed-semantic-concepts.json
   corpus-yoga indexing capture [--conversations <path>]   # PAID: the model re-reads the corpus for
       [--only semantic-concepts|chat-categories]   #   the two index tables (see capture.sh);
 """
@@ -61,11 +59,8 @@ REPO_ROOT = _root[0]
 MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
 ACCEPTED_FILE = tier.DATA / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
 REJECTED_FILE = tier.DATA / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
+INDEXED_FILE = tier.DATA / 'output' / 'indexing' / 'indexed-semantic-concepts.json'  # the judged index, corpus-yoga indexing build's (written)
 
-
-# Show this many turn links per (headword, conversation) before folding the rest
-# into a "+N more" note — book indexes cite, they do not enumerate.
-LOCATORS_SHOWN = 4
 
 
 def parse_accepted(path: Path) -> dict[str, list[str]]:
@@ -236,53 +231,93 @@ def anchored_split(concepts: list[str], markdown_root: Path) -> tuple[list[tuple
     return anchored, unanchorable
 
 
-def build(markdown_root: Path, accepted_path: Path) -> str:
+def inputs_digest(markdown_root: Path, accepted_path: Path) -> str:
+    """The digest of what the judged index is built from - the accepted record and every
+    conversation the index scans, each by its path and bytes - so that whether the index
+    is current is a comparison of content, never of clocks."""
+    import hashlib
+    digest = hashlib.sha256()
+    digest.update(accepted_path.read_bytes() if accepted_path.is_file() else b'')
+    for source in ('claude', 'gemini'):
+        folder = markdown_root / source / 'chat' / 'conversations'
+        for f in sorted(folder.glob('*.md')) if folder.is_dir() else []:
+            digest.update(f'\0{source}/chat/conversations/{f.name}\0'.encode())
+            digest.update(f.read_bytes())
+    return 'sha256:' + digest.hexdigest()
+
+
+def indexed(markdown_root: Path, accepted_path: Path) -> dict:
+    """The judged index as data: each accepted headword, alphabetised, with its aliases and
+    every turn it is found in, `[conversation, role, n, anchor]`, the conversation by its path
+    under data/output/markdown. The server's index.md and the site's concept table are both
+    built from it, so neither reads the other's output."""
     entries = parse_accepted(accepted_path)
     corpus = scan(markdown_root)
-
-    lines = [
-        '# Index',
-        '',
-        # No tier path here, deliberately: the index is a CORPUS artifact, and
-        # naming a machinery path in it couples corpus bytes to repo layout —
-        # any tier move would rewrite corpus content. The verb is the stable
-        # surface; `corpus-yoga indexing -h` says where things live.
-        f'Headwords are curated with `corpus-yoga indexing` (accept/reject; `build` '
-        f'rebuilds this index). Locators link to durable turn anchors; '
-        f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
-        '',
-    ]
-    n_locators = 0
-    hit_heads = 0
-    letter = None
+    rows = []
     for head in sorted(entries, key=str.lower):
         rx = term_regex(entries[head])
-        per_conv = []
-        for _source, stem, rel, turns in corpus:
-            hits = [(role, n, anchor) for role, n, anchor, body in turns if rx.search(body)]
-            if hits:
-                per_conv.append((stem, rel, hits))
-        if not per_conv:
-            continue
-        hit_heads += 1
-        first = head[0].upper() if head[0].isalpha() else '·'
-        if first != letter:
-            letter = first
-            lines += [f'## {letter}', '']
-        lines.append(f'### {head}')
-        for stem, rel, hits in per_conv:
-            n_locators += len(hits)
-            shown = [f'[{role}{n}]({rel}#{anchor})' for role, n, anchor in hits[:LOCATORS_SHOWN]]
-            more = f' +{len(hits) - LOCATORS_SHOWN} more' if len(hits) > LOCATORS_SHOWN else ''
-            lines.append(f'- [{stem}]({rel}#{hits[0][2]}) — {", ".join(shown)}{more}')
-        lines.append('')
-    lines += [
-        '---',
-        '',
-        f'{hit_heads}/{len(entries)} headwords located; {n_locators} turn locators '
-        f'across {len(corpus)} conversations.',
-    ]
-    return '\n'.join(lines) + '\n'
+        locators = [[rel, role, n, anchor] for _source, _stem, rel, turns in corpus
+                    for role, n, anchor, body in turns if rx.search(body)]
+        rows.append([head, [t for t in entries[head] if t != head], locators])
+    return {'columns': ['headword', 'aliases', 'locators'], 'rows': rows,
+            'conversations': len(corpus), 'built_from': inputs_digest(markdown_root, accepted_path)}
+
+
+def summary_of(index: dict) -> str:
+    """The judged index in one line: how many headwords are found, of how many accepted."""
+    located = [row for row in index['rows'] if row[2]]
+    return facts.phrase('{located}/{accepted} headwords located; {locators} turn locators across {conversations} conversations.',
+                        located=len(located), accepted=len(index['rows']),
+                        locators=sum(len(row[2]) for row in located), conversations=index['conversations'])
+
+
+def held_index() -> dict | None:
+    """The judged index as last built, or None where none is."""
+    import json
+    return json.loads(INDEXED_FILE.read_text()) if INDEXED_FILE.is_file() else None
+
+
+def index_is_current(markdown_root: Path, accepted_path: Path) -> bool:
+    """Whether the judged index was built from the accepted record and the corpus as they stand."""
+    held = held_index()
+    return held is not None and held.get('built_from') == inputs_digest(markdown_root, accepted_path)
+
+
+def conversation_count() -> int:
+    """How many conversations the corpus holds, counted by its shape's one home,
+    src/main/corpus_shape.sh; none where no corpus is projected."""
+    import subprocess
+    corpus = tier.DATA / 'output' / 'markdown'
+    if not corpus.is_dir():
+        return 0
+    shape = REPO_ROOT / 'src' / 'main' / 'corpus_shape.sh'
+    counted = subprocess.run(['bash', '-c', 'source "$1"; count_conversations "$2"', 'count', str(shape), str(corpus)],
+                             capture_output=True, text=True).stdout.strip()
+    return int(counted or 0)
+
+
+def capture_lag() -> int:
+    """How many conversations the paid capture does not cover - every one where no concept
+    capture is held."""
+    import json
+    categories = tier.DATA / 'output' / 'indexing' / 'inferred-chat-categories.json'
+    covered = len(json.loads(categories.read_text()).get('rows', [])) if categories.is_file() and inferred_concepts() else 0
+    return max(conversation_count() - covered, 0)
+
+
+def waits_on(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> str | None:
+    """The first step before the judged index that does not stand, said as what the index
+    waits on - the paid capture, the reader's judgement, the build - or None where the index
+    is built from a current capture the reader has judged. The server's and the site's builds
+    are offered only where this is None."""
+    if capture_lag():
+        return facts.phrase('waits on the paid capture - corpus-yoga indexing capture')
+    anchored, _ = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
+    if anchored:
+        return facts.phrase("waits on the reader's judgement of {n} concept(s) - corpus-yoga indexing", n=len(anchored))
+    if not index_is_current(markdown_root, accepted_path):
+        return facts.phrase('waits on corpus-yoga indexing build')
+    return None
 
 
 STOPWORDS = frozenset(
@@ -485,21 +520,11 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
           + ('; ' + facts.phrase('{n} unanchorable, named by list-candidates, not queued', n=len(unanchorable)) if unanchorable else ''))
 
 
-def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
-    """Accepted headwords with ZERO corpus locators — the disposal record's
-    orphan documentation, the reverse direction of the curate discipline (the
-    metamodel.json precedent, pull/36: a curation record must be grounded both ways).
-    build() has always computed this — the located/total ratio in the build
-    line — but as an aggregate; a dead index entry (its concept left the
-    corpus, or its aliases never matched) was a count, not a name. Same scan
-    build() runs, so the two can never disagree."""
-    entries = parse_accepted(accepted_path)
-    corpus = scan(markdown_root)
-    return sorted((h for h in entries
-                   if not any(term_regex(entries[h]).search(body)
-                              for _source, _stem, _rel, turns in corpus
-                              for _role, _n, _anchor, body in turns)),
-                  key=str.lower)
+def orphan_headwords(index: dict) -> list[str]:
+    """Accepted headwords with no corpus locator in the judged index - the disposal record
+    grounded both ways (the metamodel.json precedent, pull/36): a dead entry is named, not
+    counted. Read from the index itself, so the two can never disagree."""
+    return [row[0] for row in index['rows'] if not row[2]]
 
 
 def anchor_report(concepts_file: Path, markdown_root: Path) -> None:
@@ -544,25 +569,38 @@ class Unanchorable:
 
 
 @dataclass
+class Index:
+    """The judged index, data/output/indexing/indexed-semantic-concepts.json, against the
+    accepted record and the corpus as they stand."""
+    standing: str
+    act: facts.Would | None = None
+
+
+@dataclass
 class Indexing:
     """The curation surface: the disposal record's counts, its orphans, the candidate queue
-    with the reader's acts on it, and what the corpus cannot anchor."""
+    with the reader's acts on it, what the corpus cannot anchor, and the judged index."""
     accepted: Disposal
     rejected: Disposal
     orphans: Orphans | str | None = None
     candidates: Candidates | str | None = None
     unanchorable: Unanchorable | None = None
+    index: Index | None = None
 
 
-def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Indexing:
+def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: int = 0) -> Indexing:
     """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`) as facts
-    (issues/753, issues/759)."""
+    (issues/753, issues/759). Each act is offered only once every step before it stands: none
+    while the paid capture lags the corpus by `lag` conversations, the build only once nothing
+    is left to judge."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
     out = Indexing(Disposal(n_accepted, a_rel.as_posix()), Disposal(n_rejected, r_rel.as_posix()))
-    if markdown_root.is_dir() and n_accepted:
-        orphans = orphan_headwords(markdown_root, accepted_path)
+    current = markdown_root.is_dir() and index_is_current(markdown_root, accepted_path)
+    held = held_index() if current else None
+    if held is not None and n_accepted:
+        orphans = orphan_headwords(held)
         # a notice, never a failure (issues/675): the reader's curation, not a verb's, clears it
         out.orphans = (Orphans(orphans, a_rel.as_posix())
                        if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
@@ -577,13 +615,27 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (issues/644).
-    act = (facts.Acts((facts.Would(spell.line('indexing', 'accept', all=True), {a_rel.as_posix(): len(pending)}),
+    act = (None if lag or not pending else
+           facts.Acts((facts.Would(spell.line('indexing', 'accept', all=True), {a_rel.as_posix(): len(pending)}),
                        facts.Would(spell.line('indexing', 'reject', all=True), {r_rel.as_posix(): len(pending)})))
            if listed_queue_is_current(queue_text(anchored)) else
            facts.Would(spell.line('indexing', 'list-candidates'), {'tmp/cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
-    out.candidates = Candidates(undisposed=pending, act=act) if pending else facts.phrase('none - fully disposed')
+    out.candidates = (Candidates(undisposed=pending, act=act,
+                                 queue=facts.phrase('waits on the paid capture - corpus-yoga indexing capture') if lag else None)
+                      if pending else facts.phrase('none - fully disposed'))
     if unanchorable:
         out.unanchorable = Unanchorable([c for c, _ in unanchorable])
+    if not markdown_root.is_dir():
+        return out
+    if current:
+        out.index = Index(facts.phrase('current - built from the accepted record and the corpus as they stand'))
+    elif lag:
+        out.index = Index(facts.phrase('waits on the paid capture - corpus-yoga indexing capture'))
+    elif pending:
+        out.index = Index(facts.phrase("waits on the reader's judgement of {n} concept(s) - corpus-yoga indexing", n=len(pending)))
+    else:
+        out.index = Index(facts.phrase('stale - the accepted record or the corpus moved since it was built'),
+                          facts.Would(spell.line('indexing', 'build'), {INDEXED_FILE.relative_to(REPO).as_posix() if INDEXED_FILE.is_relative_to(REPO) else str(INDEXED_FILE): 1}))
     return out
 
 
@@ -599,7 +651,7 @@ class Currency:
 @dataclass
 class Captures:
     """The paid model captures held: the concept proposals the candidates are drawn from,
-    the categories the site render colours by."""
+    the categories the site build colours by."""
     paid_captures: dict[str, str]
     corpus: Currency | None = None
 
@@ -615,7 +667,6 @@ def captures() -> Captures:
     captures are paid, so no run step keeps them fresh). The corpus is counted by its
     shape's one home, src/main/corpus_shape.sh."""
     import json
-    import subprocess
     held_dir = tier.DATA / 'output' / 'indexing'
     rows: dict[str, int | None] = {}
     for name in ('inferred-semantic-concepts.json', 'inferred-chat-categories.json'):
@@ -625,10 +676,7 @@ def captures() -> Captures:
     corpus = tier.DATA / 'output' / 'markdown'
     if not corpus.is_dir():
         return out                # L8: no corpus yet - nothing to be current against
-    shape = REPO_ROOT / 'src' / 'main' / 'corpus_shape.sh'
-    counted = subprocess.run(['bash', '-c', 'source "$1"; count_conversations "$2"', 'count', str(shape), str(corpus)],
-                             capture_output=True, text=True).stdout.strip()
-    n, m = int(counted or 0), rows['inferred-chat-categories.json'] or 0
+    n, m = conversation_count(), rows['inferred-chat-categories.json'] or 0
     if n > 0:
         # a lag is a notice, never a failure (issues/675): no verb failed, and only the reader's paid act clears it
         out.corpus = Currency(n, m)
@@ -678,23 +726,26 @@ def main():
         facts.report(None, facts.act('indexing', 'reject') + ': DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{concept} rejected', concept=args.concept)))
         return
     if args.verb == 'build':
+        import json
         root = MARKDOWN_DIR
-        # A machine with no corpus skips, stated (issues/406): every data-reading
-        # sibling in the corpus tail names its absence; this step must not be
-        # the one that presumes its input into existence and tracebacks.
+        # A machine with no corpus skips, stated (issues/406): this step must not be the one
+        # that presumes its input into existence and tracebacks.
         if not root.is_dir():
             facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
             return
-        text = build(root, accepted_path)
-        out = root / 'index.md'
-        out.write_text(text)
-        facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('{path} written; {summary}', path=out.relative_to(REPO) if out.is_relative_to(REPO) else out,
-                                                                      summary=text.rstrip().rsplit(chr(10), 1)[-1]))
+        out = INDEXED_FILE.relative_to(REPO) if INDEXED_FILE.is_relative_to(REPO) else INDEXED_FILE
+        if index_is_current(root, accepted_path):
+            facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('no effect; {path} is built from the accepted record and the corpus as they stand', path=out))
+            return
+        index = indexed(root, accepted_path)
+        INDEXED_FILE.parent.mkdir(parents=True, exist_ok=True)
+        INDEXED_FILE.write_text(json.dumps(index, ensure_ascii=False, indent=1) + '\n')
+        facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('{path} written; {summary}', path=out, summary=summary_of(index)))
         return
 
     # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
     # paid captures' standing (deposits + the paid layer's currency, issues/409)
-    facts.say_standing(Status(status(accepted_path, rejected_path, MARKDOWN_DIR), captures()))
+    facts.say_standing(Status(status(accepted_path, rejected_path, MARKDOWN_DIR, capture_lag()), captures()))
 
 
 if __name__ == '__main__':

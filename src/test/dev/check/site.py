@@ -188,10 +188,11 @@ def check_site_reads_rpus_co(run) -> None:
     'server.now_names_the_stop_or_the_start',
 ))
 def check_server_standing(run) -> None:
-    """The server's standing is a function of two facts of the room: the stop
-    while the daemon runs, the start while the corpus is rendered and the daemon is down,
-    none otherwise - read from the status's own function, since the gate's room never
-    runs the daemon and a rendered-output check would sample one state."""
+    """The server's standing is a function of two facts of the room: the stop while the daemon
+    runs; the start while the daemon is down and the book index is current - as site sync is
+    offered only once no site build is due (issues/1125); none otherwise, the index's line saying
+    what it waits on - read from the status's own function, since the gate's room never runs the
+    daemon and a rendered-output check would sample one state."""
     import importlib.util
     spec = importlib.util.spec_from_file_location('server_status', SRC / 'main' / 'cli' / 'server' / 'status.py')
     assert spec is not None and spec.loader is not None
@@ -200,11 +201,18 @@ def check_server_standing(run) -> None:
     spec.loader.exec_module(module)
     daemon_act = getattr(module, 'daemon_act', None)
     facts = sys.modules.get('facts') or __import__('facts')
-    said = {case: (facts.now_of({'daemon': daemon_act(*case)}) or 'none - nothing to do') for case in ((True, True), (True, False), (False, True), (False, False))} if daemon_act else {}
-    want = {(True, True): {'MAY': {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}},
-            (True, False): {'MAY': {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}},
-            (False, True): {'MAY': {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}}},
-            (False, False): 'none - nothing to do'}
-    run("server: its now: names the stop while the daemon runs, the start while the corpus is rendered and the daemon is down, none otherwise",
-        said == want, None if said == want else ('status.py declares no daemon_act(running, rendered)' if not daemon_act else f'said {said!r}'),
+    spell = sys.modules.get('spell') or __import__('spell')
+    index = {'current': module.BookIndex(facts.phrase('current - written from the judged index')),
+             'due': module.BookIndex(facts.phrase('stale - the judged index moved since it was written'),
+                                     facts.Would(spell.line('server', 'build'), {'data/output/markdown/index.md': 1})),
+             'waiting': module.BookIndex(facts.phrase('waits on corpus-yoga indexing build')),
+             'no corpus': None}
+    cases = [(True, 'current'), (True, 'due'), (False, 'current'), (False, 'due'), (False, 'waiting'), (False, 'no corpus')]
+    said = {case: (facts.now_of({'daemon': daemon_act(case[0], index[case[1]])}) or 'none - nothing to do') for case in cases} if daemon_act else {}
+    stop = {'MAY': {'corpus-yoga server stop': {'would stop': {'serve_markdown daemon': 1}}}}
+    want = {(True, 'current'): stop, (True, 'due'): stop,
+            (False, 'current'): {'MAY': {'corpus-yoga server start --daemon': {'would serve': {'data/output/markdown': 1}}}},
+            (False, 'due'): 'none - nothing to do', (False, 'waiting'): 'none - nothing to do', (False, 'no corpus'): 'none - nothing to do'}
+    run("server: its now: names the stop while the daemon runs, the start only while it is down and the book index is current, none otherwise",
+        said == want, None if said == want else ('status.py declares no daemon_act(running, index)' if not daemon_act else f'said {said!r}'),
         check='server.now_names_the_stop_or_the_start')
