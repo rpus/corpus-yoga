@@ -263,6 +263,31 @@ def _block(rows: list[tuple[int, str]], start: int, indent: int):
     return out, at
 
 
+def faults(said) -> str | None:
+    """Where facts read back break the printer's shape - a list that holds a mapping or a list,
+    since a collection of named things is a mapping keyed by their names (issues/765); a key
+    `stands`, which names nothing (issues/771); a text value that holds a colon followed by a
+    space or ends on a colon, which a reader takes for a pair (issues/792) - or None where
+    nothing does. A key that stands twice is load's to refuse."""
+    def walk(node, at: str) -> str | None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                here = f'{at}/{key}'
+                if key == 'stands':
+                    return f'the key at {here} names nothing'
+                found = walk(value, here)
+                if found is not None:
+                    return found
+        elif isinstance(node, list):
+            if any(isinstance(item, (dict, list)) for item in node):
+                return f'the list at {at} holds a mapping or a list'
+            return next((found for index, item in enumerate(node) if (found := walk(item, f'{at}/{index}')) is not None), None)
+        elif isinstance(node, str) and (': ' in node or node.endswith(':')):
+            return f'the value at {at} holds a colon followed by a space'
+        return None
+    return walk(said, '')
+
+
 def load(text: str):
     """What `lines` printed, read back as the mappings, lists and scalars it was printed
     from: the printer's inverse, and no more of YAML than the printer writes. It needs

@@ -21,6 +21,11 @@ NOUNS = tuple(sorted(d.parent.name for d in CLI.glob('*/*.json') if d.stem == d.
 _said: dict[str, object] = {}     # each noun's status, read once a process, however many spots are taken from it
 
 
+class Unreadable(str):
+    """A status that could not be read as facts - it does not load, holds a key twice, or breaks
+    the printer's shape (facts.faults): a finding of its noun, said under the room's FAIL:."""
+
+
 def read_at_once(nouns) -> None:
     """Read the nouns' statuses together, so that the reading takes the time of the slowest
     and not their sum (issues/811): each is a process of its own, and none reads another."""
@@ -36,11 +41,15 @@ def said_by(noun: str):
         bound = enact.bound()
         try:
             asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO, timeout=bound)
-            _said[noun] = facts.load(asked.stdout)
+            loaded = facts.load(asked.stdout)
+            fault = facts.faults(loaded)
+            if fault is not None:
+                raise ValueError(fault)
+            _said[noun] = loaded
         except subprocess.TimeoutExpired:
             _said[noun] = facts.phrase('unread - corpus-yoga {noun} did not answer within {bound} s', noun=noun, bound=bound)
         except ValueError as error:
-            _said[noun] = facts.phrase('corpus-yoga {noun} is unreadable - {error}', noun=noun, error=error)
+            _said[noun] = Unreadable(facts.phrase('corpus-yoga {noun} is unreadable - {error}', noun=noun, error=error))
     return _said[noun]
 
 
@@ -73,7 +82,8 @@ def room_fail() -> dict:
     """Every finding the nouns hold, each noun's under its command (issues/1058): the room's
     FAIL:, gathered from the statuses the fold already read."""
     read_at_once(NOUNS)
-    return {f'corpus-yoga {noun}': found for noun in NOUNS if (found := failing(said_by(noun))) is not None}
+    return {f'corpus-yoga {noun}': found for noun in NOUNS
+            if (found := said if isinstance(said := said_by(noun), Unreadable) else failing(said)) is not None}
 
 
 def room_now() -> dict:

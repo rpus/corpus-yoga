@@ -5,9 +5,10 @@ tab-separated, in the file named - typed and said as one shape (issues/759). A r
 what it is about (issues/771) and says the fact alone; its commands are columns of their own,
 `<command> <what it does>` in pairs, each an act said under now: (issues/1050). A row `<section>
 graft <noun> <pointer>` is what that noun's own status says at that spot, loaded as the data it is
-(issues/777): whole in the full report, and in the short one only with `standing` as a fifth column
-(issues/824) - the spot's facts as they stand - since every other spot's acts reach the report
-through now:. Before it stands FAIL:, every finding the nouns' statuses hold, by noun, where any
+(issues/777), shown in the short report where it has `standing` as a fifth column (issues/824) -
+the spot's facts as they stand. The full report, --show-all, shows instead every standing noun's
+whole status, as the noun prints it, its now: included, each under `corpus-yoga <noun>`, so that
+one run of it reads every noun once (issues/1131). Before it stands FAIL:, every finding the nouns' statuses hold, by noun, where any
 does (issues/1058). The report ends on now:, the room's standing folded once from every noun's own
 (src/main/standing.py, issues/949) with the acts the rows name - every act under MAY or MUST, as
 its verb declares. Runs under the venv's python, or under python3 before the venv is minted,
@@ -48,27 +49,20 @@ class Report:
         return {**{name: self.sections[name] for name in sorted(self.sections)}, 'FAIL': self.FAIL, 'now': self.now}
 
 
-def grafted(noun: str, pointer: str, whole: bool, as_standing: bool = False):
-    """What the noun's own status says at the pointer: its facts, loaded, its now: left to the
-    room's, which folds every noun's (issues/1050). None where the short report has nothing of it
-    to show: every spot but one grafted as standing (issues/824), whose facts show as they stand -
-    a mapping or a list, never the sentence that says the spot is empty."""
-    if not whole and not as_standing:
-        return None
+def grafted(noun: str, pointer: str):
+    """What the noun's own status says at the pointer, for the short report (issues/824): its facts
+    as they stand, a mapping or a list, or why the status could not be read; None where the spot
+    holds nothing, since the short report never says that a spot is empty."""
     venv = Path(os.environ.get('CORPUS_YOGA_VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
     if not venv.is_file():
-        return facts.phrase('unread - the venv is not minted') if whole else None
+        return None
     at = standing.said_by(noun)
     if isinstance(at, str):
         return at
-    if isinstance(at, dict):
-        at = {key: value for key, value in at.items() if key != 'now'}
     for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
         if not isinstance(at, dict) or token not in at:
-            return facts.phrase('corpus-yoga {noun} says nothing at {pointer}', noun=noun, pointer=pointer) if whole else None   # a spot the noun has no occasion for
+            return None                               # a spot the noun has no occasion for
         at = at[token]
-    if whole:
-        return at
     return at if isinstance(at, (dict, list)) and at else None
 
 
@@ -102,10 +96,12 @@ def main() -> int:
     if venv.is_file():
         standing.read_at_once(sorted({row[2] for row in rows if row[1] == 'graft'} | set(standing.NOUNS)))   # the grafted and the folded, one batch
     for name, kind, subject, stands, *rest in rows:
+        if kind == 'graft' and whole:
+            continue                                  # every noun is shown whole below
         if kind == 'graft':
             # the section is the command (issues/812); beneath it, what stands at the pointer, under
             # the pointer's last key - or merged whole where the pointer names the noun itself
-            said = grafted(subject, stands, whole, rest[:1] == ['standing'])
+            said = grafted(subject, stands)
             if said is None:
                 continue
             last = stands.rsplit('/', 1)[-1].replace('~1', '/').replace('~0', '~')
@@ -136,6 +132,14 @@ def main() -> int:
             # any other command is one status satisfy runs, and is said as its act (issues/1034)
             acts.append(facts.Would(command, {thing: 1}) if _is_act(command)
                         else facts.Would(spell.line('status', 'satisfy'), {above[0] if above else thing: 1}))
+    if whole and venv.is_file():
+        for noun in standing.NOUNS:
+            said = standing.said_by(noun)
+            section = sections.setdefault(f'corpus-yoga {noun}', {})
+            if isinstance(said, dict):
+                section.update(said)
+            else:
+                section[noun] = said
     own = facts.now_of(facts.Acts(tuple(acts)))
     if mode == 'must':
         # what satisfy runs: each command the rows name as typed, and every MUST act of the nouns

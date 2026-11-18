@@ -23,7 +23,7 @@ import tier
 import offer as cli_offer
 
 
-@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 'src/main/browser/audit.py'], says=(
+@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'src/main/standing.py', 'src/main/corpus.py', 'src/main/metamodel/metamodel.py', 'src/main/browser/audit.py'], says=(
     'cli.bare_suggests_and_runs_nothing',
     'cli.no_send_flag',
     'environment.names_carry_the_prefix',
@@ -34,6 +34,7 @@ import offer as cli_offer
     'report.fail_is_the_findings',
     'report.rows_are_keyed_by_subject',
     'report.says_what_the_nouns_say',
+    'report.shows_every_status_whole',
     'status.lines_load_as_yaml',
     'status.pipeline_says_declarations_and_units',
     'status.remedy_names_a_command',
@@ -41,8 +42,9 @@ import offer as cli_offer
     'status.value_holds_no_pair',
 ))
 def check_status_facts(run) -> None:
-    """Every noun's bare status is its facts as YAML: run as the reader runs it, in
-    this checkout with sends refused, what it prints loads as one mapping - the lines are
+    """Every noun's bare status is its facts as YAML: read once, in the full report, corpus-yoga
+    status --show-all, which runs each standing noun as the reader runs it, with sends refused, and
+    holds its whole status (issues/1131), what it prints loads as one mapping - the lines are
     the data - and the usage line the CLI appends is one of its pairs. A key that stands
     twice in one mapping is refused, where YAML's own reader keeps the last in silence, and a list holds only scalars: a dash means a bare value, and a collection of
     named things is a mapping keyed by their names. And a remedy the reader types names a command: every Command a status
@@ -177,81 +179,56 @@ def check_status_facts(run) -> None:
         return (at, node) if isinstance(node, str) and (': ' in node or node.endswith(':')) else None
 
     env = {**os.environ, 'CORPUS_YOGA_NO_SEND': '1'}
-    for noun in sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command'])):
-        proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), noun], capture_output=True, text=True,
-                              env=env, cwd=REPO_ROOT, timeout=300)
-        try:
-            loaded = yaml.load(proc.stdout, Loader=Strict)
-            said_wrong = [line for line in proc.stderr.splitlines() if line.strip()]
-            why = None if isinstance(loaded, dict) else (f'loads as {type(loaded).__name__}, not a mapping'
-                                                         + (f' - it exits {proc.returncode}, saying {said_wrong[-1][:200]}' if said_wrong else ''))
-            if why is None and getattr(status_facts, 'load', None) is not None:
-                # the printer's own reader reads what the YAML reader reads (issues/766)
-                try:
-                    if status_facts.load(proc.stdout) != loaded:
-                        why = 'the printer\'s reader and the YAML reader read it differently'
-                except ValueError as error:
-                    why = f'the printer\'s reader refuses it: {error}'
-            if why is None:
-                # no key names nothing (issues/771, issues/779): `stands` is a head that says nothing of what follows
-                nothing = named_nothing(loaded)
-                if nothing is not None:
-                    why = f'the key at {nothing} names nothing - a probe\'s answer stands under what it is about'
-            if why is None:
-                # a dash means a bare value (issues/765): a collection of named things is a mapping keyed by their names
-                nested = listed_structure(loaded)
-                if nested is not None:
-                    why = f'the list at {nested} holds a mapping or a list - a collection is keyed by its members\' names'
-        except yaml.YAMLError as error:
-            mark = getattr(error, 'problem_mark', None)
-            where = f' at line {mark.line + 1}' if mark is not None else ''
-            line = proc.stdout.splitlines()[mark.line] if mark is not None and mark.line < len(proc.stdout.splitlines()) else ''
-            why = f'{getattr(error, "problem", error)}{where}: {line.strip()[:100]}'
-        run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
+    # One run of the full report reads every standing noun's whole status, each once (issues/1131); every
+    # noun's facts below are its section of that report, as the report read them - strictly, a status
+    # that does not load or breaks the printer's shape being said there as unreadable.
+    report_text = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'status', '--show-all'], capture_output=True, text=True,
+                                 env=env, cwd=REPO_ROOT, timeout=300).stdout
+    full: dict = {}
+    try:
+        loaded = yaml.load(report_text, Loader=Strict)
+        why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
+        if why is None:
+            full = loaded
+            try:
+                if status_facts.load(report_text) != loaded:
+                    why = 'the printer\'s reader and the YAML reader read it differently'
+            except ValueError as error:
+                why = f'the printer\'s reader refuses it: {error}'
+    except yaml.YAMLError as error:
+        mark = getattr(error, 'problem_mark', None)
+        why = f'{getattr(error, "problem", error)}' + (f' at line {mark.line + 1}' if mark is not None else '')
+    run('status: corpus-yoga status --show-all: its lines load as one mapping, read alike by the printer\'s reader', why is None, why,
+        check='status.lines_load_as_yaml')
+    nouns_with_now = importlib.import_module('standing').NOUNS   # as each noun declares `standing` (issues/1034)
+
+    def status_of(noun: str) -> dict:
+        """The noun's whole status as the full report holds it; empty where it holds none."""
+        section = full.get(f'corpus-yoga {noun}')
+        return section if isinstance(section, dict) else {}
+
+    for noun in nouns_with_now:
+        section = full.get(f'corpus-yoga {noun}')
+        unread = section[noun] if isinstance(section, dict) and set(section) == {noun} and isinstance(section[noun], str) else None
+        why = f'the full report holds no corpus-yoga {noun} section' if not isinstance(section, dict) else unread
+        whole_status = isinstance(section, dict) and ('now' in section or unread is not None)
+        run(f'report: corpus-yoga status --show-all holds corpus-yoga {noun}\'s whole status', whole_status,
+            None if whole_status else f'its corpus-yoga {noun} section holds {sorted(section) if isinstance(section, dict) else section!r}, not the status ending on now:',
+            check='report.shows_every_status_whole')
+        run(f'status: corpus-yoga {noun}: its lines load as one mapping, and keep the printer\'s shape', why is None, why,
             check='status.lines_load_as_yaml')
-        # no value holds a pair (issues/792): the first colon-space on a line ends its key
-        try:
-            paired = pair_in_a_value(yaml.load(proc.stdout, Loader=Strict))
-        except yaml.YAMLError:
-            paired = None                         # said above
+        paired = pair_in_a_value(section) if why is None else None
         run(f'status: corpus-yoga {noun}: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
             None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]} - a pair is a fact of its own beneath, or the phrase says it without the colon',
             check='status.room_round_trip_holds_no_pair')
 
-    # The machine report says what a noun's status says, taken from that status (issues/777):
-    # each section it grafts is, in the full report, the noun's own facts at that spot.
-    said_text: dict[tuple[str, ...], str] = {}      # each command's output, read once a section
-    def said_by(*words: str) -> dict:
-        out = said_text.setdefault(words, subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=300).stdout)
-        try:
-            loaded = yaml.load(out, Loader=Strict)
-        except yaml.YAMLError:
-            return {}
-        return loaded if isinstance(loaded, dict) else {}
     def at(node, *keys):
         for key in keys:
             node = node.get(key) if isinstance(node, dict) else None
         return node
-    whole = said_by('status', '--show-all')
-    # a grafted section is headed by its command (issues/812): `corpus-yoga <noun>`, and beneath it what
-    # stands at each pointer under the pointer's last key, or the noun's whole status
-    grafts = [('completions', 'completions'), ('test', 'test', 'pre-commit hook'), ('test', 'test', 'signature hook'),
-              ('server', 'server', 'render assets'), ('forge', 'forge settings'), ('forge', 'branches'),
-              ('stage', 'invalid'), ('stage', 'unlicensed'), ('grammar',), ('migration',)]
-    for noun, *spot in grafts:
-        own = at(said_by(noun), *spot)
-        if not spot and isinstance(own, dict):
-            own = {key: value for key, value in own.items() if key != 'now'}   # a noun's now: is the room's, folded (issues/1050)
-        section = whole.get(f'corpus-yoga {noun}')
-        last = spot[-1] if spot else ''
-        said = section if not last or last == noun else (section.get(last) if isinstance(section, dict) else None)
-        same = own is not None and said == own or own is None and str(said).startswith(f'corpus-yoga {noun} says nothing at')
-        run(f'report: its corpus-yoga {noun} section{" / " + last if last and last != noun else ""} is what corpus-yoga {noun} says', same,
-            None if same else f'the report says {str(said)[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
-            check='report.says_what_the_nouns_say')
-    by_forge = at(said_by('forge'), 'this checkout', 'pre-commit')
+    by_forge = at(status_of('forge'), 'this checkout', 'pre-commit')
     by_forge = str(next(iter(by_forge.values())) if isinstance(by_forge, dict) else by_forge)   # a row that owes a remedy says its state first
-    by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed'))
+    by_test = str(at(status_of('test'), 'test', 'pre-commit hook', 'installed'))
     same = by_test.removeprefix('yes - ') == by_forge or by_forge.endswith(by_test)
     run('report: the forge says the commit hook as corpus-yoga test says it', same,
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
@@ -259,38 +236,36 @@ def check_status_facts(run) -> None:
     # noun's own body (issues/1028), with an act two nouns name over one unit taken once; and
     # the report's now: is that fold with the acts its own rows name, which are MUST - a row
     # names a fault (issues/1050).
-    import importlib
-    nouns_with_now = importlib.import_module('standing').NOUNS   # as each noun declares `standing` (issues/1034)
-    own_now = {noun: at(said_by(noun), 'now') for noun in nouns_with_now}
+    own_now = {noun: at(status_of(noun), 'now') for noun in nouns_with_now}
     nowless = sorted(noun for noun, now in own_now.items() if now is None)
     run('report: every noun that declares standing ends its bare status on now:', not nowless,
         None if not nowless else f'{", ".join(nowless)}: bare corpus-yoga <noun> says no now: - say the status through facts.say_standing',
         check='report.every_standing_noun_ends_on_now')
     import copy
     folded = importlib.import_module('standing').fold(own_now)
-    room_now = whole.get('now')
+    room_now = full.get('now')
     room_now = room_now if isinstance(room_now, dict) else {}
     holds_fold = importlib.import_module('facts').merge(copy.deepcopy(room_now), folded, once=True) == room_now
     may_is_fold = set(room_now.get('MAY', {})) == set(folded.get('MAY', {}))
     in_order = list(room_now) == [m for m in ('MAY', 'MUST') if m in room_now]
-    same = holds_fold and may_is_fold and in_order and (room_now or whole.get('now') == 'none - nothing to do')
+    same = holds_fold and may_is_fold and in_order and (room_now or full.get('now') == 'none - nothing to do')
     run('report: its now: is the fold of every noun\'s own now:, with the MUST acts its own rows name', bool(same),
-        None if same else f'the report says {str(whole.get("now"))[:160]} where the fold gives {str(folded)[:160]}', check='report.now_is_the_fold')
+        None if same else f'the report says {str(full.get("now"))[:160]} where the fold gives {str(folded)[:160]}', check='report.now_is_the_fold')
 
     # The report's FAIL: is every finding the nouns' statuses hold, gathered under each noun's
     # command (issues/1058): an error is a fact of its noun, said once more where the room is read,
     # and never an entry of now:, whose every entry is a command.
     gather = getattr(importlib.import_module('standing'), 'failing', None)
-    findings = {f'corpus-yoga {noun}': found for noun in nouns_with_now if gather is not None and (found := gather(said_by(noun))) is not None}
+    findings = {f'corpus-yoga {noun}': found for noun in nouns_with_now if gather is not None and (found := gather(status_of(noun))) is not None}
     commands = all(str(line).removeprefix('./').startswith('corpus-yoga ') and isinstance(does, dict) and not any(key == 'reports the noun' for key in does)
                    for line, does in room_now.get('MUST', {}).items())
-    same = gather is not None and whole.get('FAIL') == (findings or None) and commands
+    same = gather is not None and full.get('FAIL') == (findings or None) and commands
     run('report: its FAIL: is every finding the nouns hold, and every entry of its now: MUST: is a command', same,
         None if same else 'src/main/standing.py has no failing(said)' if gather is None
-        else f'the report says FAIL: {str(whole.get("FAIL"))[:160]} where the nouns hold {str(findings)[:160]}; MUST: holds {list(room_now.get("MUST", {}))}',
+        else f'the report says FAIL: {str(full.get("FAIL"))[:160]} where the nouns hold {str(findings)[:160]}; MUST: holds {list(room_now.get("MUST", {}))}',
         check='report.fail_is_the_findings')
 
-    paired = pair_in_a_value(whole)
+    paired = pair_in_a_value(full)
     run('status: the full machine report: the printer\'s round trip over this room holds no colon followed by a space', paired is None,
         None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.room_round_trip_holds_no_pair')
     # The phrases a status can say are its noun's declared phrase array (issues/909, issues/914, issues/935), each its
@@ -372,7 +347,7 @@ def check_status_facts(run) -> None:
     # facts (issues/800): under `pipelines:` the pipelines alone, each with its declared input and
     # the steps its plan names; under `staged:` a mapping of units, each a mapping of facts;
     # the counts left to `corpus-yoga stage`; its acts under now: (issues/1050).
-    pipeline_said = said_by('pipeline')
+    pipeline_said = status_of('pipeline')
     declared_pipelines = sorted(d.name for d in (SRC / 'main').iterdir() if (d / 'pipeline.json').is_file())
     def planned(name: str) -> list[str]:
         out = subprocess.run([str(SRC / 'main' / name / 'run.sh'), '--plan'], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
@@ -412,7 +387,7 @@ def check_status_facts(run) -> None:
     run('status: corpus-yoga pipeline says each pipeline by its declaration and each staged unit by its facts', why is None, why,
         check='status.pipeline_says_declarations_and_units')
     for noun in ('agent', 'browser', 'export'):
-        own = said_by(noun)                       # a noun that refuses to report at all (an unbound room, issues/758) says neither key
+        own = status_of(noun)                     # a noun that refuses to report at all (an unbound room, issues/758) says neither key
         why = (f'it ends with a stage: sentence, {str(own["stage"])[:80]!r}' if 'stage' in own
                else 'its staged: is not a mapping of units' if 'staged' in own and not isinstance(own['staged'], dict) else None)
         run(f'status: corpus-yoga {noun} says its staged units by their facts, and no counts', why is None, why,
@@ -438,9 +413,9 @@ def check_status_facts(run) -> None:
 
     # The machine report gives no verdict on itself (issues/786): it ends at its last section,
     # and what needs doing is read from its now:.
-    verdict = whole.get('status')
-    run('report: it gives no verdict on itself', bool(whole) and verdict is None,
-        None if whole and verdict is None else f'the report ends `status: {str(verdict)[:120]}`' if whole else 'corpus-yoga status --show-all loads as nothing',
+    verdict = full.get('status')
+    run('report: it gives no verdict on itself', bool(full) and verdict is None,
+        None if full and verdict is None else f'the report ends `status: {str(verdict)[:120]}`' if full else 'corpus-yoga status --show-all loads as nothing',
         check='report.gives_no_verdict_on_itself')
 
     # The bare word suggests what to run next, and runs none of it (issues/786): asked in this
@@ -478,8 +453,6 @@ def check_status_facts(run) -> None:
 
     # The machine report's rows are keyed by what each is about (issues/771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
-    said_by('status', '--show-all')
-    report_text = said_text[('status', '--show-all')]
     try:
         report = yaml.load(report_text, Loader=Strict)
         def keyed_by_kind(node, path: str = '') -> list[str]:
