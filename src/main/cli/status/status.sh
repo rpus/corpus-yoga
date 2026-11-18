@@ -532,7 +532,6 @@ report() {
   _rows=()
   check_machine
   check_tools
-  graft grammar ""
   check_venv
   check_dependencies \
     "python requirements" \
@@ -540,18 +539,12 @@ report() {
     req_extract req_probe \
     "requirements installed" \
     "$(phrase "corpus-yoga status satisfy, or automatically on the next corpus-yoga pipeline run")"
-  graft server "/server/render assets"
   check_optional_modes
-  graft completions "/completions"
   check_git_identity
-  graft test "/test/pre-commit hook"
-  graft test "/test/signature hook"
-  graft forge "/forge settings"
-  graft forge "/branches"
   check_pipeline_inputs
+  # the short report shows these spots of the stage; --show-all shows every standing noun's whole status
   graft stage "/invalid" standing
   graft stage "/unlicensed" standing
-  graft migration ""
 
   # A report is information: it exits 0 unless it could not BE produced. Severity
   # lives in the rows; refusal lives at the acts (forge merge refuses on the gate

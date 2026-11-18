@@ -54,7 +54,6 @@
     "corpus-yoga {noun} is unreadable - {error}",
     "unread - corpus-yoga {noun} did not answer within {bound} s",
     "unread - the venv is not minted",
-    "corpus-yoga {noun} says nothing at {pointer}",
     "absent - {binding} holds a name rsc/machine/machines.csv declares",
     "no - the first commit refuses; git config user.name and user.email hold it"
   ],
@@ -96,7 +95,7 @@
       "name": "--show-all",
       "type": "",
       "cardinality": "",
-      "help": "show the full report, satisfied items included; without it, only what needs attention"
+      "help": "show the full report - satisfied items included, and every command's whole status, each read once; without it, only what needs attention"
     }
   ],
   "r": [
