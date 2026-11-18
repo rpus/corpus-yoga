@@ -127,6 +127,16 @@ main() {
   set -- ${forward[@]+"${forward[@]}"}
 
   mkdir -p "$REPO_DIR/tmp/cache"
+  # The dev gate runs over its own stage, tmp/stage/dev (issues/1134): an input made empty and
+  # read-only here, so that nothing is staged into it, and a scratch whose data/input is that input -
+  # the dev actor's data and tmp - so that no check reads what the usr gate or a usr act produced.
+  local stage="$REPO_DIR/tmp/stage/dev"
+  [[ ! -d "$stage/input" ]] || chmod u+w "$stage/input"
+  rm -rf "$stage"
+  mkdir -p "$stage/input" "$stage/scratch/data/output" "$stage/scratch/tmp"
+  ln -s ../../input "$stage/scratch/data/input"
+  chmod a-w "$stage/input"
+  export CORPUS_YOGA_ACTOR=dev
 
   # One invocation. run.py settles internally (issues/249): every output is built in
   # memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are

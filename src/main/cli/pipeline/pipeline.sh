@@ -409,15 +409,11 @@ run_corpus_tail() {
   # a run of one pipeline audits that pipeline: the audit takes the name (pull/545), and a
   # whole-cache audit after one pipeline's run would judge the others' unrefreshed records
   step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
-  # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
-  # guards): each noun's read-only status IS its L9 currency mechanism (issues/409) —
-  # indexing's carries the paid captures' lag, site's the corpus page's, metamodel's
-  # the schema frontier's (issues/373: each family's newest datum against its latest
-  # version, read from the validate steps' own logs) — probed here so the atoms
-  # reach the tail via hoisting. step_ok: informs, never gates.
-  step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/indexing/indexing.py"
-  step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
-  step_ok metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py"
+  # The room's statuses, read over the state this run produced (issues/1134): every standing noun's
+  # whole status, each read once - indexing's the paid captures' lag, site's the corpus page's,
+  # metamodel's the schema frontier's among them, each its L9 currency mechanism (issues/409) - with
+  # a status that does not read as facts said under FAIL. step_ok: informs, never gates.
+  step_ok status "$REPO_ROOT/src/main/cli/status/status.sh" --show-all
   # what the store no longer needs - its duplicates, surplus and orphaned shadows - is its
   # status's reading, carried by corpus-yoga status (issues/844); the run reads it no more.
   # run in a pipeline (main's tee), where errexit is silent: the gating steps' failures

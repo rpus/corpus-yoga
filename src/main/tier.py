@@ -63,13 +63,15 @@ def record_of(act: str) -> Path | None:
     otherwise - the one reading of CORPUS_YOGA_LOG (issues/912). No verb writes into it."""
     named = os.environ.get(LOG) if dispatched(act) else None
     return Path(named) if named else None
-DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else REPO
+# a rehearsal's data and tmp are its stage's scratch; so are the dev actor's always, the dev gate
+# reading nothing the usr actor's acts produce (issues/1134)
+DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL or ACTOR == 'dev' else REPO
 DATA = DATA_ROOT / 'data'
 TMP = DATA_ROOT / 'tmp'
 # where acts are logged: the room's act history, or - while the dev gate names the check whose acts
 # it runs - beneath that check, under the gate run's own log, so what a room ran and what its gate
 # ran are told apart (issues/1030)
-LOGS = TMP / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else TMP / 'logs'
+LOGS = REPO / 'tmp' / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else TMP / 'logs'
 
 
 def path(declared: str) -> Path:

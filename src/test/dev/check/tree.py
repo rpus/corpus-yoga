@@ -409,7 +409,7 @@ def check_spelling(run) -> None:
         law='G17', check='prescription.names_a_command')
 
 
-@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_the_actors'), on=['src/main'])
+@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_the_actors', 'tier.gate_reads_its_own_stage'), on=['src/main', 'src/test/dev/run.sh'])
 def check_tier_contract(run) -> None:
     """Every data or tmp path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
@@ -448,6 +448,25 @@ def check_tier_contract(run) -> None:
     want = {'none named': ['tmp/stage/usr'], 'dev': ['tmp/stage/dev']}
     run("tier: the stage is the actor's, tmp/stage/usr where none is named and tmp/stage/dev for the dev actor, in python and the shell alike",
         resolved == want, None if resolved == want else f'the stage resolved as {resolved}', check='tier.stage_is_the_actors')
+
+    # The dev gate reads its own stage, never the usr actor's (issues/1134): as the gate runs - src/test/dev/run.sh
+    # makes tmp/stage/dev and names the dev actor - data, tmp and the stage resolve beneath tmp/stage/dev,
+    # in this process and in a shell sourcing tier.sh, and its input is empty and read-only.
+    import tier
+    stage = REPO_ROOT / 'tmp' / 'stage' / 'dev'
+    shell_side = subprocess.run(['bash', '-c', 'source "$1"; printf "%s\\n" "$DATA_DIR" "$TMP_DIR" "$TMP_STAGE"', '_', str(SRC / 'main' / 'tier.sh')],
+                                capture_output=True, text=True).stdout.split()
+    sides = {'DATA': tier.DATA, 'TMP': tier.TMP, 'TMP_STAGE': tier.TMP_STAGE, **dict(zip(('DATA_DIR', 'TMP_DIR', 'TMP_STAGE (shell)'), shell_side))}
+    outside = [f'{name} {Path(path).relative_to(REPO_ROOT) if Path(path).is_relative_to(REPO_ROOT) else path}'
+               for name, path in sides.items() if not Path(path).is_relative_to(stage)]
+    held = sorted(p.name for p in (stage / 'input').iterdir()) if (stage / 'input').is_dir() else None
+    writable = (stage / 'input').is_dir() and os.access(stage / 'input', os.W_OK)
+    why = ('; '.join(outside) + ' - outside tmp/stage/dev' if outside else
+           'tmp/stage/dev/input is absent' if held is None else
+           f'tmp/stage/dev/input holds {held}' if held else
+           'tmp/stage/dev/input is writable' if writable else None)
+    run("tier: as the dev gate runs, data, tmp and the stage are its own, tmp/stage/dev, whose input is empty and read-only", why is None, why,
+        check='tier.gate_reads_its_own_stage')
 
 
 @check(tier='code', says=('tree.a_table_row_holds_its_header_fields',), on='TREE')
