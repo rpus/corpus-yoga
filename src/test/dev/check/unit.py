@@ -1017,3 +1017,59 @@ def check_session_continued_apart(run) -> None:
         level = len(rows) == 1 and rows[0].state == "there's" and rows[0].facts()['act'] is None
     run("agent: the store's live reading says a live session the store holds under another room's name as that room's, and offers no capture of it",
         level, None if level else f'the live reading said {said!r}', check='agent.a_session_continued_apart_is_each_rooms_own')
+
+
+@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
+def check_spent_stage(run) -> None:
+    """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the
+    janitor removes tmp/stage whole, and the status names it with the janitor as its act; while
+    a unit stays staged, neither touches them (issues/1127). Held over a planted stage, the tier's
+    paths pointed at it, never the room's."""
+    import importlib
+    import importlib.util
+    import sys
+    import tempfile
+    tier = importlib.import_module('tier')
+    corpus = importlib.import_module('corpus')
+    spec = importlib.util.spec_from_file_location('stage_janitor', SRC / 'main' / 'cli' / 'stage' / 'stage.py')
+    assert spec is not None and spec.loader is not None
+    janitor = importlib.util.module_from_spec(spec)
+    sys.modules['stage_janitor'] = janitor
+    spec.loader.exec_module(janitor)
+    names = ('TMP_STAGE', 'TMP_STAGE_INPUT', 'TMP_STAGE_SCRATCH', 'TMP_STAGE_REHEARSAL')
+    kept_tier = {name: getattr(tier, name) for name in names}
+    kept_corpus = {name: getattr(corpus, name) for name in ('STAGE', 'STORE')}
+    said: dict[str, object] = {}
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            for case in ('spent', 'held'):
+                stage = Path(tmp) / case / 'stage'
+                (stage / 'input').mkdir(parents=True)
+                (stage / 'scratch' / 'data' / 'output').mkdir(parents=True)
+                (stage / 'scratch' / 'data' / 'output' / 'projected.md').write_text('a projection of a promoted unit\n')
+                (stage / 'rehearsal.json').write_text('{}\n')
+                if case == 'held':
+                    (stage / 'input' / 'awaiting-promotion.txt').write_text('a staged unit\n')
+                store = Path(tmp) / case / 'store'
+                store.mkdir()
+                for name, path in (('TMP_STAGE', stage), ('TMP_STAGE_INPUT', stage / 'input'),
+                                   ('TMP_STAGE_SCRATCH', stage / 'scratch'), ('TMP_STAGE_REHEARSAL', stage / 'rehearsal.json')):
+                    setattr(tier, name, path)
+                setattr(corpus, 'STAGE', stage / 'input')
+                setattr(corpus, 'STORE', store)
+                try:
+                    entries = janitor.entries()
+                    named = sorted(corpus.stage_orphans())
+                    for entry in entries:
+                        entry.act()
+                    said[case] = ([e.kind for e in entries], [Path(k).name for k in named], stage.exists())
+                except Exception as error:   # noqa: BLE001 - the failure IS the finding
+                    said[case] = f'raised {type(error).__name__}: {error}'
+    finally:
+        for name, value in kept_tier.items():
+            setattr(tier, name, value)
+        for name, value in kept_corpus.items():
+            setattr(corpus, name, value)
+    want = {'spent': (['spent stage'], ['stage'], False), 'held': ([], [], True)}
+    run('stage: once no unit is staged, the janitor removes tmp/stage whole and the status names it; while one is, neither does',
+        said == want, None if said == want else f'(kinds, named, stage left) were {said!r}', check='stage.clean_leaves_no_spent_stage')

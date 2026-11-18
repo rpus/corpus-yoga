@@ -40,7 +40,9 @@
     "unpaired - {present} with no {missing} beside it",
     "neither the input, the scratch nor the record",
     "identical to the held unit",
-    "missing {missing}"
+    "missing {missing}",
+    "no unit is staged - its input, scratch and rehearsal record serve none",
+    "a unit was staged meanwhile"
   ],
   "target": "src/main/cli/stage/stage.py",
   "calculus": "supersession L3 L4 L6 L10",
