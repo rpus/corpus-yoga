@@ -3,9 +3,15 @@ tier.py - the tiers as a declared contract (issues/702), the one home every scri
 data and tmp paths from. Every script computes its code root, REPO, from its own address;
 the only fact it lacks is which layout its tiers are read from, and that is one name:
 CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the stage's scratch root under
-TMP_STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or
+TMP_STAGE, and unset names the room's. DATA_ROOT is that root, ROOM or
 tmp/stage/scratch, and DATA and TMP are its data and tmp. No path is ever
 passed, only the name the layout resolves, so nothing but a rehearsal can rebind a tier.
+
+ROOM is where a room's state stands - its data, tmp, stage and mounts, all the usr acts
+write: the checkout itself, or, where CORPUS_YOGA_GATE_ROOM names it, the dev gate's own
+room, GATE_ROOM, which the gate makes empty at each run, so that the dev gate depends on
+nothing the usr gate produces (issues/1129). The logs of acts a check runs stand beneath
+the gate run's own log in the checkout, the dev gate's own record.
 
 The stage, TMP_STAGE, is the checkout's, a constant: TMP_STAGE_INPUT is what the captures
 write; TMP_STAGE_SCRATCH holds only what the last rehearsal's run derived - data/input a
@@ -25,7 +31,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-TMP_STAGE = REPO / 'tmp' / 'stage'    # the checkout's stage, a constant
+GATE_ROOM = REPO / 'tmp' / 'cache' / 'test' / 'room'   # the dev gate's own room, made empty at each run
+ROOM = GATE_ROOM if os.environ.get('CORPUS_YOGA_GATE_ROOM') else REPO
+TMP_STAGE = ROOM / 'tmp' / 'stage'    # the room's stage
 TMP_STAGE_INPUT = TMP_STAGE / 'input'  # what the captures write
 TMP_STAGE_SCRATCH = TMP_STAGE / 'scratch'   # data/{input -> ../../input, output}, tmp/cache - the last run's, replaced whole
 TMP_STAGE_REHEARSAL = TMP_STAGE / 'rehearsal.json'   # the rehearsal record, one file
@@ -58,13 +66,14 @@ def record_of(act: str) -> Path | None:
     otherwise - the one reading of CORPUS_YOGA_LOG (issues/912). No verb writes into it."""
     named = os.environ.get(LOG) if dispatched(act) else None
     return Path(named) if named else None
-DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else REPO
+DATA_ROOT = TMP_STAGE_SCRATCH if REHEARSAL else ROOM
 DATA = DATA_ROOT / 'data'
 TMP = DATA_ROOT / 'tmp'
+MNT = ROOM / 'ext' / 'mnt'    # the room's mounts of the live stores and the site's clone
 # where acts are logged: the room's act history, or - while the dev gate names the check whose acts
 # it runs - beneath that check, under the gate run's own log, so what a room ran and what its gate
 # ran are told apart (issues/1030)
-LOGS = TMP / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else TMP / 'logs'
+LOGS = REPO / 'tmp' / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else TMP / 'logs'
 
 
 def path(declared: str) -> Path:

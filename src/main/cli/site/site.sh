@@ -78,15 +78,15 @@ status() {
       declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$page" | head -1)"
       printf 'index\t%s\n' "${declared:-$(phrase "title absent")}"
     fi
-    if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
+    if [[ -d "$MNT_DIR/site/." ]]; then
       printf 'deploy\t%s\n' "$(phrase "the mount ext/mnt/site is present, rpus.co's clone")"
-      clone_fetch "$REPO_DIR/ext/mnt/site"
-      clone_position "$REPO_DIR/ext/mnt/site"
-      landing "$REPO_DIR/ext/mnt/site" "$OUT"
-    elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
+      clone_fetch "$MNT_DIR/site"
+      clone_position "$MNT_DIR/site"
+      landing "$MNT_DIR/site" "$OUT"
+    elif [[ -L "$MNT_DIR/site" ]]; then
       # a machine that once deployed and moved its clone — the reader most surprised by
       # "no mount", and the one who least needs the convention; say what status says
-      printf 'deploy\t%s\n' "$(phrase "ext/mnt/site is a dangling link to {target} - repoint it at the site repo's clone, or remove it" target="$(readlink "$REPO_DIR/ext/mnt/site")")"
+      printf 'deploy\t%s\n' "$(phrase "ext/mnt/site is a dangling link to {target} - repoint it at the site repo's clone, or remove it" target="$(readlink "$MNT_DIR/site")")"
     else
       printf 'deploy\t%s\n' "$(phrase "no ext/mnt/site mount on this machine - optional")"
     fi
@@ -95,7 +95,7 @@ status() {
 
 # The act (issues/881): what it would land is the bare status's; this copies, commits and pushes.
 sync() {
-  local mount="$REPO_DIR/ext/mnt/site"
+  local mount="$MNT_DIR/site"
   if [[ ! -d "$mount/.git" ]]; then
     effect "$(act site sync): NOT DONE - $(phrase "ext/mnt/site is not a git clone; corpus-yoga status reports the mount")"
     return 1

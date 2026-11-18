@@ -12,15 +12,21 @@
 _tier_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIER_REPO="${_tier_dir%/src/main}"
 # shellcheck disable=SC2034  # the sourcing script's to use
-TMP_STAGE="$TIER_REPO/tmp/stage"
+# ROOM: where the room's state stands - the checkout, or the dev gate's own room where
+# CORPUS_YOGA_GATE_ROOM names it, so that the dev gate reads nothing a usr act wrote (issues/1129)
+if [[ -n "${CORPUS_YOGA_GATE_ROOM:-}" ]]; then ROOM="$TIER_REPO/tmp/cache/test/room"; else ROOM="$TIER_REPO"; fi
 # shellcheck disable=SC2034  # the sourcing script's to use
-TMP_STAGE_SCRATCH="$TIER_REPO/tmp/stage/scratch"
-if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TMP_STAGE_SCRATCH"; else DATA_ROOT="$TIER_REPO"; fi
+TMP_STAGE="$ROOM/tmp/stage"
+# shellcheck disable=SC2034  # the sourcing script's to use
+TMP_STAGE_SCRATCH="$ROOM/tmp/stage/scratch"
+if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TMP_STAGE_SCRATCH"; else DATA_ROOT="$ROOM"; fi
 DATA_DIR="$DATA_ROOT/data"
 TMP_DIR="$DATA_ROOT/tmp"
-# where acts are logged: the room's history, or beneath the check the dev gate names (issues/1030)
 # shellcheck disable=SC2034  # the sourcing script's to use
-if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TMP_DIR/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$TMP_DIR/logs"; fi
+MNT_DIR="$ROOM/ext/mnt"
+# where acts are logged: the room's history, or beneath the check the dev gate names, in its own record (issues/1030)
+# shellcheck disable=SC2034  # the sourcing script's to use
+if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TIER_REPO/tmp/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$TMP_DIR/logs"; fi
 
 # scratch_file <name>, scratch_dir <name>: a disposable file or directory a run keeps only
 # while it runs (issues/906), made under tmp/cache/scratch and named <name>.<pid>.<random> - the

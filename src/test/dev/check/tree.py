@@ -408,17 +408,17 @@ def check_spelling(run) -> None:
         law='G17', check='prescription.names_a_command')
 
 
-@check(tier='code', says=('tier.paths_from_contract',), on=['src/main'])
+@check(tier='code', says=('tier.paths_from_contract', 'tier.gate_reads_its_own_room'), on=['src/main', 'src/test/dev/run.sh'])
 def check_tier_contract(run) -> None:
-    """Every data or tmp path under src/main derives from the tier contract:
+    """Every data, tmp or mount path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
     path through the literal segment 'data' or 'tmp' from a root of its own - REPO,
     parents[3], $REPO_DIR - by hand - a rehearsal is
     the checkout's own code run over other tiers, which such a path would escape."""
     # a Path built through the literal segment 'data' or 'tmp' from any root-shaped
     # expression - REPO, repo, parents[3], _root[0] - and the shell's $<ROOT>/data, /tmp
-    py = re.compile(r"/\s*'(data|tmp)'\s*/")
-    sh = re.compile(r'\$\{?[A-Z_]*(DIR|ROOT)\}?/(data|tmp)(/|")')
+    py = re.compile(r"/\s*'(data|tmp)'\s*/|/\s*'ext'\s*/\s*'mnt'")
+    sh = re.compile(r'\$\{?[A-Z_]*(DIR|ROOT)\}?/(data|tmp|ext/mnt)(/|")')
     found = []
     for f in sorted((SRC / 'main').rglob('*')):
         if f.suffix not in ('.py', '.sh') or f.name in ('tier.py', 'tier.sh') or '__pycache__' in f.parts or 'gen' in f.parts:
@@ -429,9 +429,23 @@ def check_tier_contract(run) -> None:
                 continue
             if pat.search(line):
                 found.append(f'{f.relative_to(REPO_ROOT)}:{i}')
-    run('tier: every data and tmp path under src/main derives from src/main/tier.py or tier.sh', not found,
+    run('tier: every data, tmp and mount path under src/main derives from src/main/tier.py or tier.sh', not found,
         ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
         check='tier.paths_from_contract')
+
+    # The dev gate reads its own room, never the checkout's (issues/1129): as the gate runs - src/test/dev/run.sh
+    # makes the room and names it - every tier a usr act writes resolves beneath tmp/cache/test/room,
+    # in this process and in a shell that sources tier.sh, so no check can reach the room's corpus.
+    import tier
+    room = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'room'
+    python_side = {'DATA': tier.DATA, 'TMP': tier.TMP, 'TMP_STAGE': tier.TMP_STAGE, 'MNT': getattr(tier, 'MNT', REPO_ROOT / 'ext' / 'mnt')}
+    shell_side = dict(zip(('DATA_DIR', 'TMP_DIR', 'TMP_STAGE', 'MNT_DIR'), subprocess.run(
+        ['bash', '-c', 'source "$1"; printf "%s\\n" "$DATA_DIR" "$TMP_DIR" "$TMP_STAGE" "${MNT_DIR:-$TIER_REPO/ext/mnt}"', '_', str(SRC / 'main' / 'tier.sh')],
+        capture_output=True, text=True).stdout.split()))
+    outside = [f'{name} {path}' for name, path in {**python_side, **shell_side}.items() if not Path(path).is_relative_to(room)]
+    run("tier: as the dev gate runs, data, tmp, the stage and the mounts resolve beneath its own room, tmp/cache/test/room",
+        not outside, ('; '.join(outside) + ' - the checkout\'s, which the usr gate writes') if outside else None,
+        check='tier.gate_reads_its_own_room')
 
 
 @check(tier='code', says=('tree.a_table_row_holds_its_header_fields',), on='TREE')

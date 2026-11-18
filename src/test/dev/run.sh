@@ -127,6 +127,13 @@ main() {
   set -- ${forward[@]+"${forward[@]}"}
 
   mkdir -p "$REPO_DIR/tmp/cache"
+  # The dev gate's own room (issues/1129): every tier a usr act writes - data, tmp, the stage,
+  # the mounts - resolves beneath it, made empty here, so no check reads the checkout's corpus.
+  # A check that needs a room's state plants it.
+  local room="$REPO_DIR/tmp/cache/test/room"
+  rm -rf "$room"
+  mkdir -p "$room/data" "$room/tmp" "$room/ext/mnt"
+  export CORPUS_YOGA_GATE_ROOM=1
 
   # One invocation. run.py settles internally (issues/249): every output is built in
   # memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are

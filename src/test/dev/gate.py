@@ -41,8 +41,6 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-INPUT                    = REPO_ROOT / 'data' / 'input'
-CACHE                    = REPO_ROOT / 'tmp' / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'

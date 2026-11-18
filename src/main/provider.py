@@ -19,6 +19,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
+import tier
 
 SELF = 'src/main/provider.py'
 _file = Path(__file__).resolve()
@@ -127,7 +128,7 @@ def read_signature(line: str) -> tuple[str, str | None, str | None] | None:
     return (m.group(1), m.group(2), m.group(3)) if m else None
 
 
-MOUNT_ROOT = REPO / 'ext' / 'mnt'                 # the live tier's root: the third root over the one address grammar (issues/853)
+MOUNT_ROOT = tier.MNT                 # the live tier's root: the third root over the one address grammar (issues/853)
 TRANSPORT = Path('code') / 'machine-transport'    # the channel and the capture a provider's live sessions have under every tier root
 
 

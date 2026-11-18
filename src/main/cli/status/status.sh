@@ -454,11 +454,11 @@ check_pipeline_inputs() {
   # it), so satisfy cannot create it and absence is not a todo — deploying is
   # optional per machine. Present it is verified and named; absent it is stated as the
   # optional affordance it is, with the hand-make convention the README declares.
-  if [[ -L "$REPO_ROOT/ext/mnt/site" || -d "$REPO_ROOT/ext/mnt/site" ]]; then
-    if [[ -d "$REPO_ROOT/ext/mnt/site/." ]]; then
+  if [[ -L "$MNT_DIR/site" || -d "$MNT_DIR/site" ]]; then
+    if [[ -d "$MNT_DIR/site/." ]]; then
       ok "ext/mnt/site" "linked"
     else
-      todo "ext/mnt/site" "$(phrase 'dangling - to {target}' target="$(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null)")" "rm ext/mnt/site" "$(phrase 'removes it; ln -s <site-repo-clone> ext/mnt/site makes one that stands')"
+      todo "ext/mnt/site" "$(phrase 'dangling - to {target}' target="$(readlink "$MNT_DIR/site" 2>/dev/null)")" "rm ext/mnt/site" "$(phrase 'removes it; ln -s <site-repo-clone> ext/mnt/site makes one that stands')"
     fi
   else
     ok "ext/mnt/site" "absent"
