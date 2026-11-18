@@ -21,12 +21,13 @@ esac
 TMP_STAGE="$TIER_REPO/tmp/stage/$_tier_actor"
 # shellcheck disable=SC2034  # the sourcing script's to use
 TMP_STAGE_SCRATCH="$TMP_STAGE/scratch"
-if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TMP_STAGE_SCRATCH"; else DATA_ROOT="$TIER_REPO"; fi
+# a rehearsal's data and tmp are its stage's scratch; so are the dev actor's always (issues/1134)
+if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" || "$_tier_actor" == dev ]]; then DATA_ROOT="$TMP_STAGE_SCRATCH"; else DATA_ROOT="$TIER_REPO"; fi
 DATA_DIR="$DATA_ROOT/data"
 TMP_DIR="$DATA_ROOT/tmp"
 # where acts are logged: the room's history, or beneath the check the dev gate names (issues/1030)
 # shellcheck disable=SC2034  # the sourcing script's to use
-if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TMP_DIR/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$TMP_DIR/logs"; fi
+if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TIER_REPO/tmp/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$TMP_DIR/logs"; fi
 
 # scratch_file <name>, scratch_dir <name>: a disposable file or directory a run keeps only
 # while it runs (issues/906), made under tmp/cache/scratch and named <name>.<pid>.<random> - the
