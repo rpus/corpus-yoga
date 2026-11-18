@@ -1,9 +1,12 @@
-run.py: code+schema 1917/1917
+run.py: code+schema 1918/1918
 
 
 check_reply_without_text: |
   ✓ indexing.reply_without_text_is_named
   ✓ indexing.reply_text_read_wherever_it_stands
+
+check_listed_queue_offers_disposal: |
+  ✓ indexing.listed_queue_offers_disposal
 
 check_schema_join: |
   ✓ metamodel.join_kind_declared
@@ -409,399 +412,404 @@ stages:
     failures: 0
     tier: code
     line: "4"
+  check_listed_queue_offers_disposal:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "8"
   check_schema_join:
     passes: 2
     failures: 0
     tier: schema
-    line: "8"
+    line: "11"
   check_metamodel_join_versions:
     passes: 1
     failures: 0
     tier: schema
-    line: "12"
+    line: "15"
   check_metamodel_table:
     passes: 1
     failures: 0
     tier: schema
-    line: "15"
+    line: "18"
   check_metamodel_occurrences:
     passes: 3
     failures: 0
     tier: schema
-    line: "18"
+    line: "21"
   check_metamodel_obligations:
     passes: 212
     failures: 0
     tier: schema
-    line: "23"
+    line: "26"
   check_metamodel_identity:
     passes: 1
     failures: 0
     tier: schema
-    line: "27"
+    line: "30"
   check_providers_judged:
     passes: 1
     failures: 0
     tier: code
-    line: "30"
+    line: "33"
   check_declared_families_judge:
     passes: 3
     failures: 0
     tier: code
-    line: "33"
+    line: "36"
   check_cache_io:
     passes: 22
     failures: 0
     tier: code
-    line: "38"
+    line: "41"
   check_accumulate_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "44"
+    line: "47"
   check_capture_prefix:
     passes: 1
     failures: 0
     tier: code
-    line: "47"
+    line: "50"
   check_capture_monotone:
     passes: 4
     failures: 0
     tier: code
-    line: "50"
+    line: "53"
   check_turn_count_one_home:
     passes: 2
     failures: 0
     tier: code
-    line: "53"
+    line: "56"
   check_status_facts:
     passes: 149
     failures: 0
     tier: code
-    line: "57"
+    line: "60"
   check_facts:
     passes: 5
     failures: 0
     tier: code
-    line: "74"
+    line: "77"
   check_drafters:
     passes: 2
     failures: 0
     tier: code
-    line: "80"
+    line: "83"
   check_provider_registry:
     passes: 2
     failures: 0
     tier: code
-    line: "84"
+    line: "87"
   check_forge_aim:
     passes: 10
     failures: 0
     tier: code
-    line: "88"
+    line: "91"
   check_schema_layout:
     passes: 24
     failures: 0
     tier: schema
-    line: "97"
+    line: "100"
   check_keyword_roles:
     passes: 2
     failures: 0
     tier: schema
-    line: "101"
+    line: "104"
   check_schema_validity:
     passes: 14
     failures: 0
     tier: schema
-    line: "105"
+    line: "108"
   check_schema_meta_validity:
     passes: 14
     failures: 0
     tier: schema
-    line: "108"
+    line: "111"
   check_schema_single_version:
     passes: 14
     failures: 0
     tier: schema
-    line: "111"
+    line: "114"
   check_schema_changelogs:
     passes: 28
     failures: 0
     tier: schema
-    line: "114"
+    line: "117"
   check_versioned_schema_diagnostics:
     passes: 363
     failures: 0
     tier: schema
-    line: "118"
+    line: "121"
   check_validate_verdict:
     passes: 4
     failures: 0
     tier: code
-    line: "146"
+    line: "149"
   check_verdict_record:
     passes: 2
     failures: 0
     tier: code
-    line: "149"
+    line: "152"
   check_failing_record:
     passes: 2
     failures: 0
     tier: code
-    line: "152"
+    line: "155"
   check_site_lag:
     passes: 5
     failures: 0
     tier: code
-    line: "156"
+    line: "159"
   check_site_reads_rpus_co:
     passes: 4
     failures: 0
     tier: code
-    line: "162"
+    line: "165"
   check_server_standing:
     passes: 1
     failures: 0
     tier: code
-    line: "168"
+    line: "171"
   check_cli_surface:
     passes: 582
     failures: 0
     tier: code
-    line: "171"
+    line: "174"
   check_cli_verb_help:
     passes: 133
     failures: 0
     tier: code
-    line: "206"
+    line: "209"
   check_cli_exclusive_classes:
     passes: 10
     failures: 0
     tier: code
-    line: "211"
+    line: "214"
   check_effects:
     passes: 3
     failures: 0
     tier: code
-    line: "214"
+    line: "217"
   check_acts_said_once:
     passes: 3
     failures: 0
     tier: code
-    line: "219"
+    line: "222"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "224"
+    line: "227"
   check_gate_logs:
     passes: 2
     failures: 0
     tier: code
-    line: "227"
+    line: "230"
   check_record_is_the_launchers:
     passes: 1
     failures: 0
     tier: code
-    line: "231"
+    line: "234"
   check_record_names_read_once:
     passes: 1
     failures: 0
     tier: code
-    line: "234"
+    line: "237"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "237"
+    line: "240"
   check_completions:
     passes: 10
     failures: 0
     tier: code
-    line: "241"
+    line: "244"
   check_walkthrough:
     passes: 1
     failures: 0
     tier: code
-    line: "248"
+    line: "251"
   check_required_files:
     passes: 9
     failures: 0
     tier: code
-    line: "251"
+    line: "254"
   check_pipeline_declarations:
     passes: 20
     failures: 0
     tier: code
-    line: "254"
+    line: "257"
   check_import_path:
     passes: 2
     failures: 0
     tier: code
-    line: "262"
+    line: "265"
   check_step_imports:
     passes: 2
     failures: 0
     tier: code
-    line: "266"
+    line: "269"
   check_self_paths:
     passes: 124
     failures: 0
     tier: code
-    line: "269"
+    line: "272"
   check_committed_tree:
     passes: 3
     failures: 0
     tier: code
-    line: "272"
+    line: "275"
   check_templates:
     passes: 2
     failures: 0
     tier: code
-    line: "277"
+    line: "280"
   check_xref:
     passes: 3
     failures: 0
     tier: code
-    line: "280"
+    line: "283"
   check_spelling:
     passes: 3
     failures: 0
     tier: code
-    line: "285"
+    line: "288"
   check_tier_contract:
     passes: 1
     failures: 0
     tier: code
-    line: "290"
+    line: "293"
   check_table_widths:
     passes: 1
     failures: 0
     tier: code
-    line: "293"
+    line: "296"
   check_rehearsal_record:
     passes: 2
     failures: 0
     tier: code
-    line: "296"
+    line: "299"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "300"
+    line: "303"
   check_unit_state:
     passes: 6
     failures: 0
     tier: code
-    line: "303"
+    line: "306"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "310"
+    line: "313"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "315"
+    line: "318"
   check_renamed_checkout:
     passes: 3
     failures: 0
     tier: code
-    line: "318"
+    line: "321"
   check_effective_acts:
     passes: 4
     failures: 0
     tier: code
-    line: "322"
+    line: "325"
   check_bytecode:
     passes: 3
     failures: 0
     tier: code
-    line: "327"
+    line: "330"
   check_screen_and_scratch:
     passes: 3
     failures: 0
     tier: code
-    line: "332"
+    line: "335"
   check_sweep:
     passes: 5
     failures: 0
     tier: code
-    line: "337"
+    line: "340"
   check_rooms_settle_each_with_its_own_memory:
     passes: 4
     failures: 0
     tier: code
-    line: "344"
+    line: "347"
   check_effect_lines_and_unprojected_page:
     passes: 2
     failures: 0
     tier: code
-    line: "347"
+    line: "350"
   check_migration_merge_order:
     passes: 3
     failures: 0
     tier: code
-    line: "351"
+    line: "354"
   check_migration_idempotent:
     passes: 1
     failures: 0
     tier: code
-    line: "354"
+    line: "357"
   check_migration_status_relays_steps:
     passes: 1
     failures: 0
     tier: code
-    line: "357"
+    line: "360"
   check_agent_memory_disposed:
     passes: 1
     failures: 0
     tier: code
-    line: "360"
+    line: "363"
   check_session_continued_apart:
     passes: 3
     failures: 0
     tier: code
-    line: "363"
+    line: "366"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "366"
+    line: "369"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "369"
+    line: "372"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "375"
+    line: "378"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "381"
+    line: "384"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "384"
+    line: "387"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "389"
+    line: "392"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "403"
+    line: "406"
 
-checks[code+schema]: 244 types, 1917/1917 invocations passing
-checks[code]: 186 types, 1202/1202 invocations passing
+checks[code+schema]: 245 types, 1918/1918 invocations passing
+checks[code]: 187 types, 1203/1203 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1917/1917 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1918/1918 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

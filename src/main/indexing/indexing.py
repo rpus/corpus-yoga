@@ -327,8 +327,19 @@ def candidates_report(accepted_path: Path, rejected_path: Path, markdown_root: P
     just the data. Reproducible, so it is a rebuildable tmp/cache/ file,
     regenerated on demand (not committed, not gated)."""
     anchored, _ = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
+    return queue_text(anchored)
+
+
+def queue_text(anchored: list[tuple[str, list[str]]]) -> str:
+    """The anchored concepts as the queue's lines - the text list-candidates writes."""
     lines = [c + (f' = {", ".join(aliases)}' if aliases else '') for c, aliases in anchored]
     return '\n'.join(lines) + ('\n' if lines else '')
+
+
+def listed_queue_is_current(live: str) -> bool:
+    """Whether tmp/cache/indexing/candidate-semantic-concepts.txt holds the queue as it stands -
+    the one judgment both the status's offer and --all's refusal read."""
+    return CANDIDATES_TXT.is_file() and CANDIDATES_TXT.read_text() == live
 
 
 def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
@@ -434,8 +445,7 @@ def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str
     if not CANDIDATES_TXT.exists():
         return facts.phrase('refused - no derived queue; run corpus-yoga indexing list-candidates, read it, then --all')
     as_read = CANDIDATES_TXT.read_text()
-    live = candidates_report(accepted_path, rejected_path, MARKDOWN_DIR)
-    if as_read != live:
+    if not listed_queue_is_current(candidates_report(accepted_path, rejected_path, MARKDOWN_DIR)):
         return facts.phrase('refused - the queue moved since you listed it; re-run corpus-yoga indexing list-candidates, re-read, then --all')
     queue = [line.strip() for line in as_read.splitlines() if line.strip()]
     if not queue:
@@ -525,7 +535,7 @@ class Orphans:
 class Candidates:
     queue: str | None = None
     undisposed: list[str] | None = None
-    act: facts.Would | None = None
+    act: facts.Would | facts.Acts | None = None
 
 
 @dataclass
@@ -567,9 +577,11 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (issues/644).
-    out.candidates = (Candidates(undisposed=pending, act=facts.Would(spell.line('indexing', 'list-candidates'),
-                                                                        {'tmp/cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
-                      if pending else facts.phrase('none - fully disposed'))
+    act = (facts.Acts((facts.Would(spell.line('indexing', 'accept', all=True), {a_rel.as_posix(): len(pending)}),
+                       facts.Would(spell.line('indexing', 'reject', all=True), {r_rel.as_posix(): len(pending)})))
+           if listed_queue_is_current(queue_text(anchored)) else
+           facts.Would(spell.line('indexing', 'list-candidates'), {'tmp/cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
+    out.candidates = Candidates(undisposed=pending, act=act) if pending else facts.phrase('none - fully disposed')
     if unanchorable:
         out.unanchorable = Unanchorable([c for c, _ in unanchorable])
     return out
