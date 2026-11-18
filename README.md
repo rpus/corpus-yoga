@@ -15,7 +15,7 @@ the corpus more fully than the provider does.
 ./corpus-yoga                        # suggests what to run next; runs none of it
 ./corpus-yoga status                 # read-only: whether everything is well, and what needs doing
 ./corpus-yoga walkthrough            # walk the room's state: n next, m members, v value, b back, x runs the command it stands on
-./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, tmp/stage/input/
+./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, tmp/stage/usr/input/
 ./corpus-yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
 ./corpus-yoga indexing capture       # PAID: the model reads the conversation titles for the index tables
@@ -40,14 +40,14 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `tmp/logs/` | run history | local | disposable - `corpus-yoga logs` names the directories of commands and verbs that no longer exist, and `corpus-yoga logs clean` is the tier's janitor |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-A capture writes to `tmp/stage/input/`, at the address its unit will have under
+A capture writes to `tmp/stage/usr/input/`, at the address its unit will have under
 `data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
 every script reads its data and tmp under one root, the checkout's, or the stage's
-scratch, `tmp/stage/scratch/`, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's stamp, and
+scratch, `tmp/stage/usr/scratch/`, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's stamp, and
 `corpus-yoga pipeline rehearse` is the checkout's own code run under that name, its input
-the shared `tmp/stage/input/`, judging the staged units there and writing the scratch
+the shared `tmp/stage/usr/input/`, judging the staged units there and writing the scratch
 alone; what it saw and judged it then writes whole as the rehearsal record,
-`tmp/stage/rehearsal.json` (`src/main/rehearsal.py`, its shape
+`tmp/stage/usr/rehearsal.json` (`src/main/rehearsal.py`, its shape
 `src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote
 reads. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
 `agent promote`, `export promote`, `forge promote`, over the same extent words as its

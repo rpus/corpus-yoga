@@ -5,8 +5,8 @@ and the append-only placement the adapters share (issues/633).
 A harness is the program a provider ships to let its model act as a coding
 agent - Claude Code for claude, Antigravity for gemini - and each keeps a live
 session store of its own shape, mounted at ext/mnt/<provider>/code/machine-transport/<machine>
-(issues/636, issues/853), the address its units have under tmp/stage/input and data/input, so that
-ext/mnt, tmp/stage/input and data/input are three roots over one address grammar.
+(issues/636, issues/853), the address its units have under tmp/stage/usr/input and data/input, so that
+ext/mnt, tmp/stage/usr/input and data/input are three roots over one address grammar.
 The adapter for a provider lives at src/main/cli/agent/<provider>/harness.py,
 by function with provider subdirectories as the browser capture is laid out
 (issues/626), and exposes four functions the driver (agent.py) calls without knowing
@@ -176,7 +176,7 @@ def agreement(a: bytes, b: bytes | None) -> int:
 
 def fact(relation: Relation, data: bytes, existing: bytes | None, src: str, dest: str) -> dict[str, str]:
     """One lattice state as one fact (issues/854, issues/857): the relation as a whole-scalar key,
-    both sides named by root - ext/mnt, tmp/stage/input or data/input - and its measure
+    both sides named by root - ext/mnt, tmp/stage/usr/input or data/input - and its measure
     as the value. The unit's address is the fact's header, so the key carries roots alone."""
     had, now = growth(data, existing)
     return {

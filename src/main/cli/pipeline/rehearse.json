@@ -1,17 +1,17 @@
 {
-  "help": "the stage's judgement, whole - every pipeline over everything staged, the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/scratch/data, whose input is tmp/stage/input, and tmp/stage/scratch/tmp, made afresh for each run; then the record, tmp/stage/rehearsal.json, one file written whole after the run (src/main/rehearsal.py) - the stamp, the commit, the Signature, the run's exit, the digest of every whole staged unit as the run began, an incomplete one passed over, and each unit's verdicts with the validator's output where one is refused - which every promote reads, so that the last rehearsal is the verdict for every unit. It takes no extent. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
+  "help": "the stage's judgement, whole - every pipeline over everything staged, the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to the scratch tiers, tmp/stage/usr/scratch/data, whose input is tmp/stage/usr/input, and tmp/stage/usr/scratch/tmp, made afresh for each run; then the record, tmp/stage/usr/rehearsal.json, one file written whole after the run (src/main/rehearsal.py) - the stamp, the commit, the Signature, the run's exit, the digest of every whole staged unit as the run began, an incomplete one passed over, and each unit's verdicts with the validator's output where one is refused - which every promote reads, so that the last rehearsal is the verdict for every unit. It takes no extent. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
   "would": "would judge",
   "modality": "MAY",
   "args": [],
   "r": [
-    "tmp/stage/input",
+    "tmp/stage/usr/input",
     "rsc",
     "machine-name.txt",
     "rsc/naming/export_archive_members.csv"
   ],
   "w": [
-    "tmp/stage/rehearsal.json",
-    "tmp/stage/scratch"
+    "tmp/stage/usr/rehearsal.json",
+    "tmp/stage/usr/scratch"
   ],
   "x": [
     "git"

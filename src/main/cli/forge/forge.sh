@@ -8,7 +8,7 @@
 #   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (issues/887)
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
-#   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/usr/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
 
 set -euo pipefail

@@ -23,11 +23,11 @@
     }
   ],
   "r": [
-    "tmp/stage/input/claude/code/machine-transport",
-    "tmp/stage/input/gemini/code/machine-transport",
+    "tmp/stage/usr/input/claude/code/machine-transport",
+    "tmp/stage/usr/input/gemini/code/machine-transport",
     "data/input/claude/code/machine-transport",
     "data/input/gemini/code/machine-transport",
-    "tmp/stage/rehearsal.json"
+    "tmp/stage/usr/rehearsal.json"
   ],
   "w": [
     "data/input/claude/code/machine-transport",

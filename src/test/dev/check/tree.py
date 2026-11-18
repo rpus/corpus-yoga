@@ -2,6 +2,7 @@
 import ast
 import csv
 import json
+import os
 import re
 import subprocess
 import sys
@@ -408,7 +409,7 @@ def check_spelling(run) -> None:
         law='G17', check='prescription.names_a_command')
 
 
-@check(tier='code', says=('tier.paths_from_contract',), on=['src/main'])
+@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_the_actors'), on=['src/main'])
 def check_tier_contract(run) -> None:
     """Every data or tmp path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
@@ -432,6 +433,21 @@ def check_tier_contract(run) -> None:
     run('tier: every data and tmp path under src/main derives from src/main/tier.py or tier.sh', not found,
         ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
         check='tier.paths_from_contract')
+
+    # The stage is one per actor (issues/1133): tmp/stage/usr where no actor is named, tmp/stage/dev
+    # where the dev actor is - in python and in a shell sourcing tier.sh alike.
+    resolved = {}
+    for actor in ('', 'dev'):
+        env = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_ACTOR'} | ({'CORPUS_YOGA_ACTOR': actor} if actor else {})
+        python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.TMP_STAGE)', str(SRC / 'main')],
+                                     capture_output=True, text=True, env=env).stdout.strip()
+        shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$TMP_STAGE"', '_', str(SRC / 'main' / 'tier.sh')],
+                                    capture_output=True, text=True, env=env).stdout.strip()
+        resolved[actor or 'none named'] = sorted({Path(python_side).relative_to(REPO_ROOT).as_posix() if python_side else '?',
+                                                  Path(shell_side).relative_to(REPO_ROOT).as_posix() if shell_side else '?'})
+    want = {'none named': ['tmp/stage/usr'], 'dev': ['tmp/stage/dev']}
+    run("tier: the stage is the actor's, tmp/stage/usr where none is named and tmp/stage/dev for the dev actor, in python and the shell alike",
+        resolved == want, None if resolved == want else f'the stage resolved as {resolved}', check='tier.stage_is_the_actors')
 
 
 @check(tier='code', says=('tree.a_table_row_holds_its_header_fields',), on='TREE')

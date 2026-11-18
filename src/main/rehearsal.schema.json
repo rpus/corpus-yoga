@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Rehearsal",
-  "description": "The stage's rehearsal record, tmp/stage/rehearsal.json (issues/815): what the last rehearsal saw and judged, whole, written by src/main/rehearsal.py after corpus-yoga pipeline rehearse ran the pipelines over the stage. This schema lives beside its writer rather than under rsc/schema/, which is the data domain: the record is the repository's own, not corpus data.",
+  "description": "The stage's rehearsal record, tmp/stage/usr/rehearsal.json (issues/815): what the last rehearsal saw and judged, whole, written by src/main/rehearsal.py after corpus-yoga pipeline rehearse ran the pipelines over the stage. This schema lives beside its writer rather than under rsc/schema/, which is the data domain: the record is the repository's own, not corpus data.",
   "type": "object",
   "required": [
     "stamp",
@@ -49,7 +49,7 @@
       "additionalProperties": {
         "$ref": "#/definitions/Unit"
       },
-      "description": "every staged unit as the run began, by its address under tmp/stage/input; a unit staged later is absent, unseen by this rehearsal"
+      "description": "every staged unit as the run began, by its address under tmp/stage/usr/input; a unit staged later is absent, unseen by this rehearsal"
     }
   },
   "definitions": {
