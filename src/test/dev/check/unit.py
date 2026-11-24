@@ -155,10 +155,12 @@ def check_unit_companion(run) -> None:
     'audit.input_changed_since_output',
     'stage.empty_selection_is_incomplete',
     'stage.recapture_names_a_full_id',
+    'stage.re_rendered_is_told_apart',
     'stage.states_are_told_apart',
 ))
 def check_unit_state(run) -> None:
-    """A staged unit is in one of seven states, and the stage's counts are of those states: promotable, held already, invalid - a family gave its verdict against it -
+    """A staged unit is in one of eight states, and the stage's counts are of those states: promotable, re-rendered -
+    the held unit by its measure, in other bytes - held already, invalid - a family gave its verdict against it -
     would lose - its relation would cost the held copy something, which the promote, asked,
     refuses - unlicensed - valid at a version origin/main does not hold - incomplete, and
     unjudged, the state before any verdict, whose remedy is a rehearsal. No status line
@@ -198,6 +200,31 @@ def check_unit_state(run) -> None:
         (root / store.input / 'full' / 'full.json').write_text('{}')
         states = {u.address.name: state(u, Relation.ABSENT, judgement.UNJUDGED) for u in corpus.select(root, store)}
     ok = states.get('empty') == 'incomplete' and states.get('full') == 'unjudged'
+    # A staged unit its measure finds identical to the held one, in other bytes, is re-rendered
+    # (issues/1138): the conversation has not moved, and the state says so - held over a planted
+    # stage and store of gemini units, whose measure is the turns.
+    gemini = next(s for s in corpus.stores() if s.pipeline == 'browser' and s.provider == 'gemini')
+    turn = '## Human ({n})\n\nask {n}\n\n---\n\n## Gemini ({n})\n\n* {sep}**answer {n}**\n\n---\n\n'
+    page = lambda turns, sep: '# t\n\n' + ''.join(turn.format(n=n, sep=sep) for n in range(1, turns + 1))   # noqa: E731
+    planted = {'re-rendered': (page(2, '\n'), page(2, '')), 'byte-equal': (page(2, ''), page(2, '')), 'grown': (page(2, ''), page(3, ''))}
+    kept = {name: getattr(corpus, name) for name in ('STAGE', 'STORE')}
+    try:
+        with tempfile.TemporaryDirectory() as scratch:
+            stage_root, store_root = Path(scratch) / 'stage', Path(scratch) / 'store'
+            for name, (held, staged) in planted.items():
+                for root, body in ((store_root, held), (stage_root, staged)):
+                    (root / gemini.input / name).mkdir(parents=True)
+                    (root / gemini.input / name / 't.md').write_text(body)
+            setattr(corpus, 'STAGE', stage_root)
+            setattr(corpus, 'STORE', store_root)
+            told = {u.address.name: state(u, corpus.relation(u)[0], judgement.VALID) for u in corpus.select(stage_root, gemini)}
+    finally:
+        for name, value in kept.items():
+            setattr(corpus, name, value)
+    want = {'re-rendered': 're-rendered', 'byte-equal': 'held already', 'grown': 'promotable'}
+    run('stage: a unit of the held turns in other bytes is re-rendered, told apart from one with new turns', told == want,
+        None if told == want else f'the states read {told}, where they are {want}',
+        check='stage.re_rendered_is_told_apart')
     run('stage: a directory the selection names with no file under it is incomplete', ok,
         None if ok else f'the states read {states}, where an empty directory is incomplete and a full one unjudged',
         check='stage.empty_selection_is_incomplete')
