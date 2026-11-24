@@ -151,6 +151,13 @@
             "null"
           ],
           "description": "the keyword and the value the datum fails, where the verdict is invalid; null otherwise"
+        },
+        "holds": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "what the datum held at the fault that the rule refused - the keys a closed object does not admit, the required keys it lacks, the kind a type refuses, else the value, spelled where short and said by its kind where not - where the verdict is invalid; null otherwise (issues/1141)"
         }
       }
     }

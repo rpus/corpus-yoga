@@ -84,7 +84,8 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
     written = verdict.write(os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0],
                             os.path.realpath(input_file), input_digest, input_bytes, input_lines,   # the file, not a link to it
                             schema_path, schema_digest, found is None, result[0], at,
-                            found['path'] if found else None, found['schema'] if found else None, found['rule'] if found else None)
+                            found['path'] if found else None, found['schema'] if found else None, found['rule'] if found else None,
+                            found['holds'] if found else None)
     record = verdict.read(written)
     assert record is not None, written
     return record
@@ -132,9 +133,10 @@ def validate_versions(input_file, schema_dir, log_dir, label):
         print(f'  {label}: validates at {version}{note}')
     else:
         # the atom names the fault (issues/952): its subject first, then the fault's path, the
-        # rule it fails, the schema node and the log that holds the whole, each a fact beneath
+        # rule it fails, what the datum held there (issues/1141), the schema node and the log
+        # that holds the whole, each a fact beneath
         print(f'  FAIL: {label}: does not validate at latest {version}{note}')
-        for key, said in (('path', 'path'), ('rule', 'rule'), ('schema_path', 'schema')):
+        for key, said in (('path', 'path'), ('rule', 'rule'), ('holds', 'holds'), ('schema_path', 'schema')):
             if record.get(key):
                 print(f'    {said}: {record[key]}')
         print(f'    log: {_said(log_out)}')

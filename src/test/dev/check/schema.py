@@ -300,9 +300,11 @@ def check_verdict_record(run) -> None:
             None if got == '✗' else f'read {got} - the verdict came from the text, not the record', check='validation.verdict_is_record')
 
 
-@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py'], says=(
+@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/main/validation_verdict.py',
+                         'src/main/rehearsal.py', 'src/main/corpus.py'], says=(
     'pipeline.failing_is_keyed_by_datum',
     'validation.fail_atom_names_the_fault',
+    'validation.fault_names_what_the_datum_held',
 ))
 def check_failing_record(run) -> None:
     """A failing stage's record names each refused datum by its id with the fault beneath: the tail keys atoms by their subject, datums refused for one fault share
@@ -345,3 +347,38 @@ def check_failing_record(run) -> None:
           and record.get('path') == '/turn' and record.get('schema_path') == '/properties/turn')
     run('validation: a FAIL atom names the fault - its path, rule, schema node and log - and no line of it is cut or arrowed', ok,
         None if ok else f'printed {said.getvalue()!r}; the record holds {sorted(record)}', check='validation.fail_atom_names_the_fault')
+    # A fault says what the datum held that the rule refused (issues/1141), whatever the keyword,
+    # never the instance whole: in the fault, the FAIL atom and the words a status says.
+    validate = importlib.import_module('validate')
+    corpus = importlib.import_module('corpus')
+    cases = {
+        'additionalProperties': ({'type': 'object', 'properties': {'a': {}}, 'additionalProperties': False}, {'a': 1, 'offers_allowed': True}, 'the key offers_allowed'),
+        'required': ({'type': 'object', 'required': ['model']}, {'a': 1}, 'no model'),
+        'enum': ({'type': 'object', 'properties': {'m': {'enum': ['x', 'y']}}}, {'m': 'z'}, 'the value "z"'),
+        'type': ({'type': 'object', 'properties': {'turn': {'type': 'string'}}}, {'turn': [{'text': 'x' * 200}]}, 'an array'),
+    }
+    held: dict[str, object] = {}
+    atom = ''
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        for name, (schema, datum_value, _) in cases.items():
+            (root / name / 'schema').mkdir(parents=True)
+            (root / name / 'schema' / 'v1.json').write_text(json.dumps(schema))
+            (root / name / 'datum.json').write_text(json.dumps(datum_value))
+            found = validate.fault(str(root / name / 'datum.json'), str(root / name / 'schema' / 'v1.json'))
+            held[name] = (found or {}).get('holds')
+        said = io.StringIO()
+        with contextlib.redirect_stdout(said):
+            validate_versions.validate_versions(str(root / 'additionalProperties' / 'datum.json'), str(root / 'additionalProperties' / 'schema'),
+                                                str(root / 'additionalProperties' / 'validation'), 'datum')
+        atom = said.getvalue()
+    want = {name: expected for name, (_, _, expected) in cases.items()}
+    try:
+        words = corpus.Refusal('browser', 'claude/apiConversation', 'v1', 'Additional properties are not allowed', '/', 'additionalProperties false',
+                               '/definitions/ApiConversation', 'the key offers_allowed').words()
+    except TypeError as error:
+        words = f'raised {error}'
+    ok = held == want and 'holds: the key offers_allowed' in atom and words == '/ fails additionalProperties false, holding the key offers_allowed'
+    run('validation: a fault says what the datum held that the rule refused, in the fault, the FAIL atom and a status', ok,
+        None if ok else f'held {held}, where {want}; the atom printed {atom!r}; a status says {words!r}',
+        check='validation.fault_names_what_the_datum_held')

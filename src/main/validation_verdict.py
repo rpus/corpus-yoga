@@ -11,10 +11,11 @@ own verdict.
      "verdict": "valid" | "invalid", "reason": <the validator's first line>, "at": <stamp>,
      "path": <the fault's instance path, a JSON Pointer> | null,
      "schema_path": <the schema node whose keyword found it, a JSON Pointer> | null,
-     "rule": <the keyword and value the datum fails> | null}
+     "rule": <the keyword and value the datum fails> | null,
+     "holds": <what the datum held there that the rule refused> | null}
 
-The last three (issues/952) are null where the verdict is valid; a record without the keys
-predates them and is not current, so it re-validates once.
+The last four (issues/952, issues/1141) are null where the verdict is valid; a record without
+the keys predates them and is not current, so it re-validates once.
 """
 import json
 from pathlib import Path
@@ -28,13 +29,13 @@ def path_for(log_dir, version: str) -> Path:
 
 def write(log_dir, version: str, datum: str, datum_digest: str, datum_bytes: int, datum_lines: int,
           schema: str, schema_digest: str, valid: bool, reason: str, at: str,
-          path: str | None = None, schema_path: str | None = None, rule: str | None = None) -> Path:
+          path: str | None = None, schema_path: str | None = None, rule: str | None = None, holds: str | None = None) -> Path:
     p = path_for(log_dir, version)
     p.write_text(json.dumps({
         'datum': str(datum), 'datum_sha256': datum_digest, 'datum_bytes': datum_bytes, 'datum_lines': datum_lines,
         'schema': str(schema), 'schema_sha256': schema_digest, 'version': version,
         'verdict': 'valid' if valid else 'invalid', 'reason': reason, 'at': at,
-        'path': path, 'schema_path': schema_path, 'rule': rule}, indent=2) + '\n')
+        'path': path, 'schema_path': schema_path, 'rule': rule, 'holds': holds}, indent=2) + '\n')
     return p
 
 
@@ -49,7 +50,7 @@ def read(path) -> dict | None:
     return record
 
 
-FAULT = ('path', 'schema_path', 'rule')   # the fault's fields (issues/952); a record without them re-validates once
+FAULT = ('path', 'schema_path', 'rule', 'holds')   # the fault's fields (issues/952, issues/1141); a record without them re-validates once
 
 
 def current(record: dict | None, datum_digest: str, schema_digest: str) -> bool:

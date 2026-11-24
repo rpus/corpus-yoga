@@ -1206,7 +1206,7 @@ src/main/corpus.py,49,comment,src/main/validation_verdict.py,Y,"at the unit's ca
 src/main/corpus.py,97,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
 src/main/corpus.py,452,path_str,rsc/schema,Y,SCHEMA_ROOT = 'rsc/schema'   # <pipeline>/<family as the pipeline declares it>/<version>.json
 src/main/corpus.py,213,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
-src/main/corpus.py,591,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
+src/main/corpus.py,596,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
 src/main/enact.sh,34,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
 src/main/export/archive_components.py,22,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/archive_components.py       --export data/input/claude/chat/bulk-export/<batch>
@@ -1415,7 +1415,7 @@ src/main/validate.py,3,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,3,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
-src/main/validate.py,205,comment,src/main/validate_inspection.py,Y,`Path:` and `Schema path:` where it names an instance path (src/main/validate_inspection.py
+src/main/validate.py,246,comment,src/main/validate_inspection.py,Y,`Path:` and `Schema path:` where it names an instance path (src/main/validate_inspection.py
 src/main/validate_inspection.py,69,path_str,src/run_python_script.sh,Y,"f'src/run_python_script.sh ""{occurrences_script}"" ""{schema_ptr}""'"
 src/main/validate_versions.py,3,comment,src/main/validation_verdict.py,Y,"datum-version pair. The record (src/main/validation_verdict.py, issues/701) is what every reader reads - the"
 src/main/validate_versions.py,27,path_str,src/main/validate_versions.py,Y,SELF = 'src/main/validate_versions.py'
@@ -1525,6 +1525,8 @@ src/test/dev/check/schema.py,303,path_str,src/main/cli/pipeline/tail.py,Y,"@chec
 src/test/dev/check/schema.py,303,path_str,src/main/validate_versions.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
 src/test/dev/check/schema.py,303,path_str,src/main/validate.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
 src/test/dev/check/schema.py,303,path_str,src/main/validation_verdict.py,Y,"@check(tier='code', on=['src/main/cli/pipeline/tail.py', 'src/main/validate_versions.py', 'src/main/validate.py', 'src/m"
+src/test/dev/check/schema.py,304,path_str,src/main/rehearsal.py,Y,"'src/main/rehearsal.py', 'src/main/corpus.py'], says=("
+src/test/dev/check/schema.py,304,path_str,src/main/corpus.py,Y,"'src/main/rehearsal.py', 'src/main/corpus.py'], says=("
 src/test/dev/check/schema.py,70,path_str,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,f'rsc/rpus/grammar/JSONSchema/draft04.g4 gives {missing} neither role - name each in its annotation or restriction rule'
 src/test/dev/check/schema.py,42,path_str,src/main,Y,"f'src/main/{""/"".join(parts)} is no directory - the family sits where no code writes against it; '"
 src/test/dev/check/site.py,15,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/page_declaration.py', 'src/main/markdown_projection.py', 'src/main/compare_pages.py'],"
