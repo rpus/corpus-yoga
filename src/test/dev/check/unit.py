@@ -13,6 +13,7 @@ from gate import (
     'rehearsal.record_is_whole',
     'rehearsal.states_are_decidable',
     'rehearsal.done_when_every_unit_is_judged',
+    'rehearsal.a_record_from_newer_code_is_said_printably',
 ))
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
@@ -72,6 +73,11 @@ def check_rehearsal_record(run) -> None:
         before = rehearsal.read(root / 'layout')
         (root / 'broken').write_text('{"stamp": "x"}')
         broken = rehearsal.read(root / 'broken')
+        # a record a newer schema wrote - a verdict with a key this checkout's schema does not admit
+        newer = json.loads(json.dumps(record))
+        next(iter(newer['units'][a.address.as_posix()]['verdicts'].values()))['holds_more'] = 'x'
+        (root / 'newer').write_text(json.dumps(newer))
+        from_newer = rehearsal.read(root / 'newer')
         wants = [
             ('the schema is draft-04', not schema_faults, '; '.join(schema_faults)),
             ('the record validates', not faults, '; '.join(faults)),
@@ -120,6 +126,14 @@ def check_rehearsal_record(run) -> None:
         f'{wrong[0][0][0].value}: {wrong[0][0][1][:100]!r}, where it is {wrong[0][1][0].value}: {wrong[0][1][1]!r}' if wrong
         else f'unseen, changed, superseded and no family count as {states}, where they are unjudged, unjudged, unjudged and promotable',
         check='rehearsal.states_are_decidable')
+    # A record from newer code is not a record to this checkout, and the reason is said in words the
+    # one printer can say (issues/1149): a validator's message passed through broke every status
+    # that read it - a colon followed by a space is a pair to the printer.
+    import facts
+    printable = isinstance(from_newer, str) and 'is not a record' in from_newer and facts.faults({'record': from_newer}) is None
+    run('rehearsal: a record from newer code is said as not a record, in words the printer can say', printable,
+        None if printable else f'the reader says {from_newer!r}; the printer finds {facts.faults({"record": from_newer})!r}',
+        check='rehearsal.a_record_from_newer_code_is_said_printably')
     # A rehearsal is done when it has judged every unit it saw that a family judges, whatever
     # the verdicts; the exit of the run it wraps is a fact of its line (issues/1145).
     outcome = getattr(rehearsal, 'outcome', None)

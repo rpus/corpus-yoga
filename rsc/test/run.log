@@ -315,6 +315,7 @@ check_table_widths: |
 check_rehearsal_record: |
   ✓ rehearsal.record_is_whole
   ✓ rehearsal.states_are_decidable
+  ✓ rehearsal.a_record_from_newer_code_is_said_printably
   ✓ rehearsal.done_when_every_unit_is_judged
 
 check_unit_companion: |
@@ -716,7 +717,7 @@ stages:
     tier: code
     line: "312"
   check_rehearsal_record:
-    passes: 3
+    passes: 4
     failures: 0
     tier: code
     line: "315"

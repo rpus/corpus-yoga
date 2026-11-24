@@ -63,7 +63,7 @@ def faults(record) -> list[str]:
     place; none where it validates."""
     import jsonschema
     validator = jsonschema.Draft4Validator(json.loads(SCHEMA.read_text()))
-    return [f'{"/".join(str(p) for p in e.absolute_path) or "(root)"}: {e.message}'
+    return [facts.plain_words(f'{"/".join(str(p) for p in e.absolute_path) or "(root)"} - {e.message}')   # said by the printer (issues/1149)
             for e in sorted(validator.iter_errors(record), key=lambda e: [str(p) for p in e.absolute_path])]
 
 

@@ -263,6 +263,13 @@ def _block(rows: list[tuple[int, str]], start: int, indent: int):
     return out, at
 
 
+def plain_words(text: str) -> str:
+    """Words from outside the house - a validator's message, a tool's - as a value the printer can
+    say: each colon followed by a space, which a reader takes for a pair, written ' - ', and a
+    closing colon dropped (issues/1149). The one home of that rule for borrowed words."""
+    return text.replace(': ', ' - ').rstrip(':')
+
+
 def faults(said) -> str | None:
     """Where facts read back break the printer's shape - a list that holds a mapping or a list,
     since a collection of named things is a mapping keyed by their names (issues/765); a key
