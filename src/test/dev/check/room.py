@@ -683,6 +683,10 @@ def check_provider_registry(run) -> None:
     'forge.default_branch_refuses_a_force_push',
     'forge.merge_names_its_issues',
     'forge.squash_read_back',
+    'forge.rebase_refuses_where_merge_refuses',
+    'forge.relocation_levels_every_local_copy',
+    'forge.relocation_keeps_a_red_settles_evidence',
+    'forge.rebase_concludes_in_the_tree_it_converged_on',
 ))
 def check_forge_aim(run) -> None:
     """A PR's aim is one line per issue in the aim's one grammar: the merge reads
@@ -863,3 +867,115 @@ def check_forge_aim(run) -> None:
         has_step and exits.get('MERGED') == 0 and exits.get('OPEN') == 1,
         'forge.sh has no squashed step: the merge reads gh pr merge\'s exit alone' if not has_step
         else f'over a merged PR the step exited {exits["MERGED"]}, over an open one {exits["OPEN"]}', check='forge.squash_read_back')
+
+    # The rebase is the merge's own relocation on the reader's word (issues/1147): one step refuses
+    # for both, so over a stub forge holding the PR closed each verb ends NOT DONE for one reason.
+    import tempfile
+    ended: dict[str, tuple[int, str] | str] = {}
+    for verb in ('merge', 'rebase'):
+        declared = (SRC / 'main' / 'cli' / 'forge' / f'{verb}.json').is_file()
+        chained = re.search(rf'^{verb}_chain\(\)', forge_sh.read_text(), re.M) is not None
+        if not (declared and chained):
+            ended[verb] = f'no forge {verb} declared and chained'
+            continue
+        with tempfile.TemporaryDirectory() as stub:
+            gh = Path(stub) / 'gh'
+            gh.write_text('#!/bin/bash\ncase "$1 $2" in "pr view") printf "CLOSED\\tmain\\tissue-7-x\\n" ;; *) exit 1 ;; esac\n')
+            gh.chmod(0o755)
+            done = subprocess.run(['bash', '-c', f'source "$1"; {verb}_chain 7', '_', str(forge_sh)], capture_output=True, text=True,
+                                  env={**{k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND'},   # the stub forge is local
+                                       'PATH': f'{stub}:{os.environ["PATH"]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},
+                                  cwd=REPO_ROOT)
+            verdict = next((line.strip() for line in done.stdout.splitlines() if ': NOT DONE - ' in line), '')
+            ended[verb] = (done.returncode, verdict.split(': NOT DONE - ', 1)[-1])
+    merge_end = ended.get('merge')
+    alike = isinstance(merge_end, tuple) and merge_end == ended.get('rebase') and merge_end[0] == 1 and 'CLOSED' in merge_end[1]
+    run('forge: the rebase refuses where the merge refuses, by the one step both take', alike,
+        None if alike else f'over a closed PR the merge ended {ended.get("merge")!r} and the rebase {ended.get("rebase")!r}',
+        check='forge.rebase_refuses_where_merge_refuses')
+
+    # A relocation brings every local copy of the branch level with the forge's new head, checked
+    # out or not, unless the copy holds commits the forge's old head lacked; and a PR is behind
+    # its base by the forge's head, never by a local copy (issues/1147).
+    # under the commit hook git exports GIT_DIR and GIT_INDEX_FILE, naming this repository's index:
+    # every git these clones run is stripped of them, or it writes into the tree being committed
+    planted = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+
+    def git(repo: Path, *words: str) -> str:
+        return subprocess.run(['git', '-C', str(repo), *words], capture_output=True, text=True, check=True, env=planted).stdout.strip()
+    leveled: dict[str, object] = {}
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        quiet = {**planted, 'GIT_AUTHOR_NAME': 'a', 'GIT_AUTHOR_EMAIL': 'a@a', 'GIT_COMMITTER_NAME': 'a', 'GIT_COMMITTER_EMAIL': 'a@a'}
+        subprocess.run(['git', 'init', '-q', '--bare', '-b', 'main', str(root / 'forge.git')], check=True, env=planted)
+        for clone in ('reader', 'mover'):
+            subprocess.run(['git', 'clone', '-q', str(root / 'forge.git'), str(root / clone)], check=True, capture_output=True, env=planted)
+        def commit(repo: Path, name: str) -> None:
+            (repo / name).write_text(name + '\n')
+            subprocess.run(['git', '-C', str(repo), 'add', name], check=True, env=planted)
+            subprocess.run(['git', '-C', str(repo), 'commit', '-q', '-m', name], check=True, env=quiet)
+        reader, mover = root / 'reader', root / 'mover'
+        commit(reader, 'base'); git(reader, 'push', '-q', 'origin', 'main')
+        git(reader, 'checkout', '-q', '-b', 'feature'); commit(reader, 'feature'); git(reader, 'push', '-q', 'origin', 'feature')
+        git(reader, 'checkout', '-q', 'main')
+        git(mover, 'fetch', '-q', 'origin'); git(mover, 'checkout', '-q', 'main'); git(mover, 'pull', '-q')
+        commit(mover, 'moved'); git(mover, 'push', '-q', 'origin', 'main')
+        old = git(reader, 'rev-parse', 'refs/heads/feature')
+        git(mover, 'checkout', '-q', '-b', 'feature', 'origin/feature')
+        subprocess.run(['git', '-C', str(mover), 'rebase', '-q', 'main'], check=True, capture_output=True, env=quiet)
+        git(mover, 'push', '-q', '--force', 'origin', 'feature')
+        git(reader, 'fetch', '-q', 'origin')
+        new = git(reader, 'rev-parse', 'refs/remotes/origin/feature')
+        if re.search(r'^level_local\(\)', forge_sh.read_text(), re.M) and re.search(r'^pr_behind\(\)', forge_sh.read_text(), re.M):
+            def call(script: str) -> str:
+                return subprocess.run(['bash', '-c', f'source "$1"; {script}', '_', str(forge_sh)], capture_output=True, text=True, cwd=REPO_ROOT, env=planted).stdout
+            said = call(f'level_local "{reader}" feature {old} main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
+            leveled['level'] = (said[-1] if said else '', git(reader, 'rev-parse', 'refs/heads/feature') == new)
+            git(reader, 'branch', '-q', '-f', 'feature', old); git(reader, 'checkout', '-q', 'feature'); commit(reader, 'unpushed'); git(reader, 'checkout', '-q', 'main')
+            held = git(reader, 'rev-parse', 'refs/heads/feature')
+            said = call(f'level_local "{reader}" feature {old} main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
+            leveled['kept'] = (said[-1] if said else '', git(reader, 'rev-parse', 'refs/heads/feature') == held)
+            behind = call(f'pr_behind "{reader}" main {old} && echo behind || echo level').strip()
+            standing = call(f'pr_behind "{reader}" main {new} && echo behind || echo level').strip()
+            leveled['behind'] = (behind, standing)
+        else:
+            leveled['steps'] = 'forge.sh has no level_local or no pr_behind'
+    want_level = {'level': ('level', True), 'kept': ('kept', True), 'behind': ('behind', 'level')}
+    run('forge: a relocation brings every local copy of the branch level, and a PR is behind its base by the forge\'s head', leveled == want_level,
+        None if leveled == want_level else f'read {leveled}, where {want_level}', check='forge.relocation_levels_every_local_copy')
+
+    # A red settle keeps its evidence (issues/1147): the relocation worktree is disposed of whatever
+    # happens, and with it the run.log and report that name the failing check - so they are kept first.
+    forge_text = forge_sh.read_text()
+    kept: object = 'forge.sh has no kept_settle'
+    if re.search(r'^kept_settle\(\)', forge_text, re.M):
+        with tempfile.TemporaryDirectory() as scratch:
+            worktree, dest = Path(scratch) / 'wt', Path(scratch) / 'kept'
+            (worktree / 'rsc' / 'test').mkdir(parents=True)
+            (worktree / 'rsc' / 'test' / 'run.log').write_text('  ✗ some.check\n')
+            (worktree / 'tmp' / 'logs' / 'test' / 'run').mkdir(parents=True)
+            (worktree / 'tmp' / 'logs' / 'test' / 'run' / 'x.report').write_text('the report\n')
+            subprocess.run(['bash', '-c', 'source "$1"; kept_settle "$2" "$3" >/dev/null', '_', str(forge_sh), str(worktree), str(dest)],
+                           capture_output=True, text=True, cwd=REPO_ROOT, env=planted)
+            kept = sorted((p.name, p.read_text()) for p in dest.iterdir()) if dest.is_dir() else 'nothing kept'
+    want_kept = [('run.log', '  ✗ some.check\n'), ('x.report', 'the report\n')]
+    run("forge: a red settle's run.log and report are kept before the relocation worktree is disposed of", kept == want_kept,
+        None if kept == want_kept else f'kept {kept!r}, where {want_kept!r}', check='forge.relocation_keeps_a_red_settles_evidence')
+
+    # The rebase's conclusion runs in the tree its resync converged on (issues/1147, as the merge's
+    # does - issues/910): a resync can rewrite forge.sh and the phrases its verdict reads, so the
+    # verdict is said by the forge.sh on disk after it, never by the process that read the old one.
+    concluded = ''
+    with tempfile.TemporaryDirectory() as scratch:
+        tree = Path(scratch)
+        (tree / 'src' / 'main' / 'cli' / 'forge').mkdir(parents=True)
+        (tree / 'src' / 'main' / 'cli' / 'forge' / 'forge.sh').write_text('rebase_concluded() { echo "concluded by the converged tree: $*"; }\n')
+        script = ('source "$1"; REPO_DIR="$2"; opening() { :; }; '
+                  'pr_open() { PR_BASE=main; PR_HEAD=feature; PR_HERE=feature; }; '
+                  'relocate() { PR_MOVED=1; PR_FROM=aaaa; PR_OID=bbbb; PR_LOCAL=resynced; }; '
+                  'rebase_chain 7')
+        concluded = subprocess.run(['bash', '-c', script, '_', str(forge_sh), str(tree)], capture_output=True, text=True,
+                                   cwd=REPO_ROOT, env=planted).stdout
+    fresh = 'concluded by the converged tree: feature main aaaa bbbb 1 resynced' in concluded
+    run('forge: the rebase concludes in the tree its resync converged on', fresh,
+        None if fresh else f'rebase_chain over a stub relocation printed {concluded[-300:]!r}', check='forge.rebase_concludes_in_the_tree_it_converged_on')

@@ -14,6 +14,15 @@ so the body file carries the drafter's sections alone, as the two templates teac
 and nothing the forge writes. An open blocker not aimed at refuses a PR's raise as it
 would the merge (issues/482). The body as sent is kept under `tmp/forge/raise/`.
 
+Rebase an open PR onto main with `./corpus-yoga forge rebase <pr>` whenever a test needs main's
+merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and
+relocation, by the steps the merge takes - in a detached worktree under `tmp/forge/rebase/`,
+`rsc/test/` conflicts taken by the syntactic rule below, any other halting with the branch and
+this checkout as found, to be settled by hand - and every local copy of the branch brought
+level with the relocated head, by reset, never by pull, which would merge the old commits with
+their replays. It refuses where the merge's relocation would, and does
+nothing the merge does after it.
+
 Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (issues/483). It is a straight
 line of echoed commands — refuse, relocate if the base moved (in a detached worktree
 under `tmp/forge/merge/`, never in this checkout - issues/507), stand at the head and run

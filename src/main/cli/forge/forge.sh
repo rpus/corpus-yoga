@@ -7,6 +7,7 @@
 #   corpus-yoga forge raise pr <issue>... --head <branch> --body <file>   # the PR, its title and aim lines generated from the issues (issues/884)
 #   corpus-yoga forge raise issue --title <should> --body <file> [--blocked-by N]... [--blocks N]... [--supersedes N]   # the issue, its relations wired (issues/887)
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
+#   corpus-yoga forge rebase <pr>     # the merge's relocation alone, on the reader's word (issues/1147): refuse, relocate if the base moved, resync a checkout that holds the branch
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
 #   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/usr/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
@@ -177,8 +178,8 @@ branches() {
         fi
       fi
     elif [[ "$st" != MERGED ]]; then
-      if [[ "$st" == OPEN ]] && ! git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "$tip" 2>/dev/null; then
-        echo -e "KEPT\t$b\t$(phrase "pull/{pr} is {state}; behind {base} - rebase before merging" pr="$n" state="$st" base="$base")"
+      if [[ "$st" == OPEN ]] && pr_behind "$REPO_DIR" "$base" "$oid"; then
+        echo -e "KEPT\t$b\t$(phrase "pull/{pr} is {state}; behind {base}" pr="$n" state="$st" base="$base")\t$(spell forge rebase "$n")"
       else
         echo -e "KEPT\t$b\t$(phrase "pull/{pr} is {state}" pr="$n" state="$st")"
       fi
@@ -504,22 +505,22 @@ relocation_point() {  # <base-ref> <head-ref>
 }
 
 # The relocation of a moved base (issues/507, issues/585): in a detached worktree of its own
-# under tmp/forge/merge/, never in the invoking checkout - so a halt or an
+# under tmp/forge/<verb>/ - the merge's or the rebase's (issues/1147) - never in the invoking checkout - so a halt or an
 # interruption leaves the checkout as found. Replays only the branch's own commits
 # (relocation_point), takes an rsc/test/ conflict wholesale (the syntactic class,
 # CONTRIBUTING.md), settles the artifacts by the gate's own regeneration, commits
 # that if anything changed, pushes leased against <old-sha>, and disposes of the
 # worktree whatever happened. Prints the relocated head on success; every halt
 # prints its own last line and returns 1.
-relocated() {  # <base> <head> <old-sha>
-  local base="$1" head="$2" old_sha="$3"
+relocated() {  # <verb> <base> <head> <old-sha>
+  local verb="$1" base="$2" head="$3" old_sha="$4"
   local wt onto held own merged_pr conflicted guard=0 oid
-  wt="$TMP_DIR/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-$head"
+  wt="$TMP_DIR/forge/$verb/$(date -u '+%Y-%m-%dT%H%M%SZ')-$head"
   dispose() {
     git -C "$REPO_DIR" worktree remove --force "$wt" >/dev/null 2>&1 || true
     git -C "$REPO_DIR" worktree prune >/dev/null 2>&1 || true
   }
-  mkdir -p "$TMP_DIR/forge/merge"
+  mkdir -p "$TMP_DIR/forge/$verb"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "refs/remotes/origin/$head" >&2 \
     || { say "relocation halted - could not open a worktree at origin/{head}" head="$head" >&2; return 1; }
   # A paused rebase is an EXPECTED state, not a failure (issues/485): the attempt
@@ -554,7 +555,7 @@ relocated() {  # <base> <head> <old-sha>
         say "conflict outside rsc/test/ - the syntactic rule does not apply" >&2
         grep -v '^rsc/test/' <<< "$conflicted" | while IFS= read -r conflicted_file; do narrate item "$conflicted_file" 1 >&2; done
         enact git -C "$wt" rebase --abort >&2
-        say "relocation halted - a real conflict lands in the source; resolve it in review, not in the merge" >&2
+        say "relocation halted - a real conflict lands in the source; resolve it by hand, in review" >&2
         dispose; return 1
       fi
       if [[ -n "$conflicted" ]]; then
@@ -571,7 +572,10 @@ relocated() {  # <base> <head> <old-sha>
   (cd "$wt" && labour "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
   (cd "$wt" && labour "$wt/src/test/dev/run.sh" --settle) >&2 \
-    || { say "relocation halted - the settle run failed; a red check on the relocated head is a real failure" >&2; dispose; return 1; }
+    || { local kept_at
+         kept_at="$(kept_settle "$wt" "$TMP_DIR/forge/$verb/$(basename "$wt")-settle")"
+         say "relocation halted - the settle run failed; a red check on the relocated head is a real failure - its run.log and report are kept at {kept}" kept="${kept_at#"$REPO_DIR/"}" >&2
+         dispose; return 1; }
   if [[ -n "$(git -C "$wt" status --porcelain rsc/test/)" ]]; then
     if ! enact git -C "$wt" add rsc/test/ >&2 \
        || ! enact git -C "$wt" commit -m "regenerated artifacts settle on the relocated base" >&2; then
@@ -580,10 +584,22 @@ relocated() {  # <base> <head> <old-sha>
     fi
   fi
   (cd "$wt" && send enact relocate --force-with-lease="refs/heads/$head:$old_sha" origin "HEAD:refs/heads/$head") >&2 \
-    || { say "relocation halted - the lease refused; the branch moved under the merge" >&2; dispose; return 1; }
+    || { say "relocation halted - the lease refused; the branch moved under the relocation" >&2; dispose; return 1; }
   oid="$(git -C "$wt" rev-parse HEAD)"
   dispose
   echo "$oid"
+}
+
+# kept_settle <worktree> <dest>: a red settle's evidence kept before its worktree is disposed of
+# (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest
+# report the run wrote beside it - so that the halt says where to read what failed. Prints <dest>.
+kept_settle() {  # <worktree> <dest>
+  local wt="$1" dest="$2" report
+  mkdir -p "$dest"
+  [[ -f "$wt/rsc/test/run.log" ]] && cp "$wt/rsc/test/run.log" "$dest/"
+  report="$(find "$wt/tmp/logs/test/run" -name '*.report' -type f 2>/dev/null | sort | tail -1)"   # stamped names: the last is the newest
+  [[ -n "$report" ]] && cp "$report" "$dest/"
+  echo "$dest"
 }
 
 # gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/forge/merge for
@@ -612,29 +628,145 @@ dispose_worktree() {  # <path>
   git -C "$REPO_DIR" worktree prune >/dev/null 2>&1 || true
 }
 
+# pr_open <verb> <pr>: the refusals the merge and the rebase share (issues/1147) - sends
+# cleared, the PR read, OPEN, and a checkout that holds its head with a dirty tree. The dirty
+# tree refuses HERE (issues/975), before any read but the one that named the head: the dirt is
+# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,
+# and the refusal costs the reader one git read rather than the forge's reads and the fetch.
+# Sets PR_BASE, PR_HEAD and PR_HERE, the branch this checkout holds; a refusal says its effect
+# and returns 1.
+pr_open() {  # <verb> <pr>
+  local verb="$1" pr="$2" state dirty
+  send_cleared pr     || { effect "$(act forge "$verb"): NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
+  read -r state PR_BASE PR_HEAD < <(cd "$REPO_DIR" && send query pr "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
+  [[ "$state" == OPEN ]]     || { effect "$(act forge "$verb"): NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR is merged or rebased" pr="$pr" state="$state")"; return 1; }
+  PR_HERE="$(git -C "$REPO_DIR" branch --show-current)"
+  if [[ "$PR_HERE" == "$PR_HEAD" ]]; then
+    dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
+    [[ -z "$dirty" ]]       || { effect "$(act forge "$verb"): NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$PR_HEAD" paths="$dirty")"; return 1; }
+  fi
+}
+
+# relocate <verb>: the relocation the merge and the rebase share (issues/1147), over PR_BASE,
+# PR_HEAD and PR_HERE - both refs fetched; a held branch with commits origin lacks refused; an
+# unmoved base said and left; a moved one relocated (relocated, leased) and a checkout that holds
+# the branch resynced on it. Sets PR_FROM, the merge-base it stood on, PR_OID, the head now, and
+# PR_MOVED; a halt says its effect and returns 1.
+relocate() {  # <verb>
+  local verb="$1" base="$PR_BASE" head="$PR_HEAD" old_sha
+  PR_MOVED=0
+  (cd "$REPO_DIR" && send enact fetch "$base" "$head")     || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the fetch failed")"; return 1; }
+  if [[ "$PR_HERE" == "$head" ]]; then
+    git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { effect "$(act forge "$verb"): NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
+  fi
+  PR_FROM="$(git -C "$REPO_DIR" merge-base "refs/remotes/origin/$base" "refs/remotes/origin/$head")"
+  # The head is the verb's OWN sha (issues/488): the head fetched here, or the head the
+  # relocation pushes below - never a PR-API re-read, which is eventually consistent and
+  # served the pre-push sha in the same breath as the push (the two failed merges of
+  # pull/486, 2026-08-14, this room's logs).
+  PR_OID="$(git -C "$REPO_DIR" rev-parse "refs/remotes/origin/$head")"
+  if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
+    say "base unmoved - origin/{head} already stands on origin/{base}; nothing to relocate" head="$head" base="$base"
+    return 0
+  fi
+  old_sha="$(cd "$REPO_DIR" && send quote lease "refs/heads/$head" | cut -f1)"
+  [[ -n "$old_sha" ]] || { effect "$(act forge "$verb"): NOT DONE - $(phrase "origin has no refs/heads/{head} to lease against" head="$head")"; return 1; }
+  PR_OID="$(relocated "$verb" "$base" "$head" "$old_sha")" || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the relocation halted; its last line above names where")"; return 1; }
+  PR_MOVED=1
+  level_local "$REPO_DIR" "$head" "$old_sha" "$PR_HERE" \
+    || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not" head="$head")"; return 1; }
+}
+
+# level_local <repo> <head> <old-sha> <here>: every local copy of a relocated branch brought level
+# with the forge's new head (issues/1147) - reset where the checkout is on it, moved where it is
+# not - by reset, never by pull, which would merge the old commits with their replays; a copy
+# holding commits the forge's old head did not is left as it was, since moving it would lose them.
+# Sets PR_LOCAL: resynced, level, kept, or none where the clone holds no local copy.
+level_local() {  # <repo> <head> <old-sha> <here>
+  local repo="$1" head="$2" old_sha="$3" here="$4"
+  PR_LOCAL=none
+  git -C "$repo" show-ref --verify --quiet "refs/heads/$head" || return 0
+  if ! git -C "$repo" merge-base --is-ancestor "refs/heads/$head" "$old_sha" 2>/dev/null; then
+    PR_LOCAL=kept
+    say "the local {head} holds commits the forge's old head {old} did not - left as it was" head="$head" old="${old_sha:0:8}"
+    return 0
+  fi
+  if [[ "$here" == "$head" ]]; then
+    enact git -C "$repo" checkout "$head" && enact git -C "$repo" reset --hard "refs/remotes/origin/$head" || return 1
+    PR_LOCAL=resynced
+    say "resynced this checkout - {head} is the relocated copy of what was reviewed" head="$head"
+  else
+    enact git -C "$repo" branch -f "$head" "refs/remotes/origin/$head" || return 1
+    PR_LOCAL=level
+    say "the local {head} brought level with the relocated copy" head="$head"
+  fi
+}
+
+# pr_behind <repo> <base> <head-oid>: whether the PR's head on the forge does not stand on its base
+# (issues/1147) - the head the rebase acts on, never a local copy, which can lag the forge; false
+# where this clone does not hold the head, which cannot be judged here.
+pr_behind() {  # <repo> <base> <head-oid>
+  git -C "$1" cat-file -e "$3^{commit}" 2>/dev/null || return 1
+  ! git -C "$1" merge-base --is-ancestor "refs/remotes/origin/$2" "$3" 2>/dev/null
+}
+
+# The rebase is the merge's relocation on the reader's word (issues/1147): the refusals and the
+# relocation the merge takes, the same steps, and nothing after them - no gate, no flip, no
+# squash - so it is done exactly where the merge's relocation would be, and refuses exactly
+# where that would. A conflict outside rsc/test/ leaves the branch and this checkout as found,
+# for the reader to settle by hand.
+rebase() {
+  local pr="$1" rc=0
+  rebase_chain "$pr" || rc=$?
+  local record; record="$(record_of forge rebase)"
+  if [[ -n "$record" ]]; then echo "Log: ${record#"$REPO_DIR/"}"; fi
+  return "$rc"
+}
+
+rebase_chain() {
+  local pr="$1"
+  local record_depth=${CORPUS_YOGA_NARRATION_DEPTH:-0}
+  opening refuses
+  export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
+  pr_open rebase "$pr" || return 1
+  CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
+  relocate rebase || return 1
+  # The verdict is said by the tree the resync converged on (as the merge's conclusion is, issues/910):
+  # a resync can rewrite this forge.sh and the phrases the verdict reads, so a fresh bash of the
+  # forge.sh on disk now says it, and this process reads nothing of the tree after this line.
+  bash -c 'source "$1"; shift; rebase_concluded "$@"' _ "$REPO_DIR/src/main/cli/forge/forge.sh" \
+    "$PR_HEAD" "$PR_BASE" "${PR_FROM:-}" "${PR_OID:-}" "$PR_MOVED" "${PR_LOCAL:-none}"
+}
+
+# rebase_concluded <head> <base> <from> <oid> <moved> <local>: the rebase's verdict, run by the
+# forge.sh of the tree the resync converged on (issues/1147). The name and its arguments are the one
+# contract between the tree that rebased and the tree rebased onto, and do not change.
+rebase_concluded() {  # <head> <base> <from> <oid> <moved> <local>
+  local PR_HEAD="$1" PR_BASE="$2" PR_FROM="$3" PR_OID="$4" PR_MOVED="$5" PR_LOCAL="$6"
+  if (( ! PR_MOVED )); then
+    effect "$(act forge rebase): DONE - $(phrase "origin/{head} already stands on origin/{base}; nothing to relocate" head="$PR_HEAD" base="$PR_BASE")"
+  else
+    local moved_to; moved_to="$(phrase "{head} relocated from {from} onto origin/{base} as {oid}" head="$PR_HEAD" from="${PR_FROM:0:8}" base="$PR_BASE" oid="${PR_OID:0:8}")"
+    case "$PR_LOCAL" in
+      resynced) effect "$(act forge rebase): DONE - $moved_to; $(phrase "this checkout resynced on it")" ;;
+      level)    effect "$(act forge rebase): DONE - $moved_to; $(phrase "the local {head} brought level with it" head="$PR_HEAD")" ;;
+      kept)     effect "$(act forge rebase): DONE - $moved_to; $(phrase "the local {head} holds commits the forge's old head did not, and was left as it was" head="$PR_HEAD")" ;;
+      *)        effect "$(act forge rebase): DONE - $moved_to; $(phrase "this clone holds no local {head}" head="$PR_HEAD")" ;;
+    esac
+  fi
+}
+
 merge_chain() {
   local pr="$1"
-  local state base head body branch_here old_sha flipped n moved=0
+  local base head body flipped n moved=0
   local oid landed
   # the record's depth is the one this verb was started at; each declared step opens a key
   # there, its events stand one deeper, and a verb run as a step three deeper (issues/941)
   local record_depth=${CORPUS_YOGA_NARRATION_DEPTH:-0}
   opening refuses
   export CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 1 ))
-  send_cleared pr     || { effect "$(act forge merge): NOT DONE - $(phrase "sends refused (CORPUS_YOGA_NO_SEND)")"; return 1; }
-  read -r state base head < <(cd "$REPO_DIR" && send query pr "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { effect "$(act forge merge): NOT DONE - $(phrase "the PR read failed; does {pr} name a PR?" pr="$pr")"; return 1; }
-  [[ "$state" == OPEN ]]     || { effect "$(act forge merge): NOT DONE - $(phrase "pull/{pr} is {state}; only an open PR merges" pr="$pr" state="$state")"; return 1; }
-  # A checkout that holds the head with a dirty tree refuses HERE (issues/975), before any
-  # read but the one that named the head: the dirt is usually a red gate's own findings in
-  # rsc/test/run.log, evidence the merge leaves where the gate wrote it, and the refusal
-  # costs the reader one git read rather than the forge's reads, the standing report and
-  # the fetch.
-  branch_here="$(git -C "$REPO_DIR" branch --show-current)"
-  if [[ "$branch_here" == "$head" ]]; then
-    local dirty
-    dirty="$(git -C "$REPO_DIR" status --porcelain | sed 's/^...//' | paste -sd ' ' -)"
-    [[ -z "$dirty" ]]       || { effect "$(act forge merge): NOT DONE - $(phrase "this checkout holds {head} with a dirty tree - {paths}" head="$head" paths="$dirty")"; return 1; }
-  fi
+  pr_open merge "$pr" || return 1
+  base="$PR_BASE" head="$PR_HEAD"
   body="$(cd "$REPO_DIR" && send quote pr "$pr" --json body --jq .body)"     || { effect "$(act forge merge): NOT DONE - $(phrase "the body read failed")"; return 1; }
   # The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one
   # line per issue, as corpus-yoga forge raise writes them; a line that says the phrase
@@ -671,31 +803,8 @@ merge_chain() {
   narrate opening "standing report"
   CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" <<< "$standing"     || { effect "$(act forge merge): NOT DONE - $(phrase "refuse-class drift; the standing report above names it")"; return 1; }
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
-  (cd "$REPO_DIR" && send enact fetch "$base" "$head")     || { effect "$(act forge merge): NOT DONE - $(phrase "the fetch failed")"; return 1; }
-  if [[ "$branch_here" == "$head" ]]; then
-    git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { effect "$(act forge merge): NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
-  fi
-  # The squash pin is the merge's OWN sha (issues/488): the head fetched here, or the
-  # head the relocation pushes below - never a PR-API re-read, which is
-  # eventually consistent and served the pre-push sha in the same breath as the
-  # push (the two failed merges of pull/486, 2026-08-14, this room's logs).
-  oid="$(git -C "$REPO_DIR" rev-parse "refs/remotes/origin/$head")"
-  if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
-    say "base unmoved - origin/{head} already stands on origin/{base}; nothing to relocate" head="$head" base="$base"
-  else
-    old_sha="$(cd "$REPO_DIR" && send quote lease "refs/heads/$head" | cut -f1)"
-    [[ -n "$old_sha" ]] || { effect "$(act forge merge): NOT DONE - $(phrase "origin has no refs/heads/{head} to lease against" head="$head")"; return 1; }
-    oid="$(relocated "$base" "$head" "$old_sha")" || { effect "$(act forge merge): NOT DONE - $(phrase "the relocation halted; its last line above names where")"; return 1; }
-    moved=1
-    if [[ "$branch_here" == "$head" ]]; then
-      if ! enact git -C "$REPO_DIR" checkout "$head" \
-         || ! enact git -C "$REPO_DIR" reset --hard "refs/remotes/origin/$head"; then
-        effect "$(act forge merge): NOT DONE - $(phrase "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not" head="$head")"
-        return 1
-      fi
-      say "resynced this checkout - {head} is the relocated copy of what was reviewed" head="$head"
-    fi
-  fi
+  relocate merge || return 1
+  oid="$PR_OID" moved="$PR_MOVED"
   # The data gate (issues/541, issues/549, issues/937): corpus-yoga pipeline run at the head being
   # merged, in a detached worktree of its own under tmp/forge/merge - the head's code over
   # this checkout's corpus, reached by link - so that this checkout stands where it stood
@@ -855,7 +964,8 @@ case "${1-}" in
   push)      shift; parse_argv forge push "$@"; push "$@" ;;
   clean)     shift; parse_argv forge clean "$@"; clean "$@" ;;
   raise)     shift; parse_argv forge raise "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/raise.py" "$@" ;;
-  merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
+  merge)     shift; parse_argv forge merge "$@"; merge "$@"; exit ;;
+  rebase)    shift; parse_argv forge rebase "$@"; rebase "$@"; exit ;;
   capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   promote)   shift; parse_argv forge promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote forge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;

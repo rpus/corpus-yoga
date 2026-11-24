@@ -11,23 +11,26 @@ AGENTS.md,71,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ 
 AGENTS.md,73,doc,rsc/migration,Y,comments or if-chains; rsc/migration/ holds the moves a rename owes the
 AGENTS.md,75,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
 AGENTS.md,225,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
-AGENTS.md,230,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
-CONTRIBUTING.md,23,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
-CONTRIBUTING.md,41,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
-CONTRIBUTING.md,54,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,(.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
-CONTRIBUTING.md,64,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
-CONTRIBUTING.md,67,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-CONTRIBUTING.md,95,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
-CONTRIBUTING.md,98,doc,src/main/provider.py,Y,verb as a commit names the session that drafted it; `src/main/provider.py`'s
-CONTRIBUTING.md,99,doc,src/main/provider.sh,Y,"`signature()` is the one derivation, and `src/main/provider.sh` its shell face."
-CONTRIBUTING.md,104,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived)
-CONTRIBUTING.md,105,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,105,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,107,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
-CONTRIBUTING.md,109,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-CONTRIBUTING.md,117,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
-CONTRIBUTING.md,118,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
-CONTRIBUTING.md,120,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
+AGENTS.md,229,doc,rsc/test,Y,merged work; a conflict outside rsc/test/ is settled by hand. The forge's declared squash settings
+AGENTS.md,231,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+CONTRIBUTING.md,18,doc,src/main/cli/forge/rebase.json,Y,"merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and"
+CONTRIBUTING.md,20,doc,rsc/test,Y,"`rsc/test/` conflicts taken by the syntactic rule below, any other halting with the branch and"
+CONTRIBUTING.md,32,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
+CONTRIBUTING.md,50,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+CONTRIBUTING.md,63,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,(.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
+CONTRIBUTING.md,73,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
+CONTRIBUTING.md,76,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+CONTRIBUTING.md,104,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
+CONTRIBUTING.md,107,doc,src/main/provider.py,Y,verb as a commit names the session that drafted it; `src/main/provider.py`'s
+CONTRIBUTING.md,108,doc,src/main/provider.sh,Y,"`signature()` is the one derivation, and `src/main/provider.sh` its shell face."
+CONTRIBUTING.md,113,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived)
+CONTRIBUTING.md,114,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,114,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,116,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
+CONTRIBUTING.md,118,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+CONTRIBUTING.md,126,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
+CONTRIBUTING.md,127,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
+CONTRIBUTING.md,129,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
 README.md,14,doc,src/main/cli/status/status.sh,Y,"./src/main/cli/status/status.sh satisfy           # pre-venv, once: mint the venv (bare, the same report read-only)"
 README.md,35,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,35,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
@@ -1003,27 +1006,30 @@ src/main/cli/forge/capture.py,41,comment,src/run_python_script.sh,Y,src/run_pyth
 src/main/cli/forge/capture.py,41,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp>
 src/main/cli/forge/capture.py,52,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
 src/main/cli/forge/capture.py,100,comment,src/main/cli/forge/review-counts.graphql,Y,"(src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."
-src/main/cli/forge/forge.json,123,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
-src/main/cli/forge/forge.json,206,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge/forge.json,131,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
+src/main/cli/forge/forge.json,214,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   corpus-yoga forge push            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the
-src/main/cli/forge/forge.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
-src/main/cli/forge/forge.sh,23,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/forge/forge.sh,25,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
-src/main/cli/forge/forge.sh,27,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/forge/forge.sh,29,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
-src/main/cli/forge/forge.sh,31,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
-src/main/cli/forge/forge.sh,85,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge/forge.sh,305,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
-src/main/cli/forge/forge.sh,312,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
-src/main/cli/forge/forge.sh,430,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
-src/main/cli/forge/forge.sh,570,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,629,comment,rsc/test/run.log,Y,"# rsc/test/run.log, evidence the merge leaves where the gate wrote it, and the refusal"
-src/main/cli/forge/forge.sh,639,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,844,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,21,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
+src/main/cli/forge/forge.sh,24,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/forge/forge.sh,26,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
+src/main/cli/forge/forge.sh,28,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
+src/main/cli/forge/forge.sh,30,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
+src/main/cli/forge/forge.sh,32,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
+src/main/cli/forge/forge.sh,86,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
+src/main/cli/forge/forge.sh,306,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
+src/main/cli/forge/forge.sh,313,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
+src/main/cli/forge/forge.sh,431,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
+src/main/cli/forge/forge.sh,571,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
+src/main/cli/forge/forge.sh,594,comment,rsc/test/run.log,Y,"# (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest"
+src/main/cli/forge/forge.sh,634,comment,rsc/test/run.log,Y,"# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,"
+src/main/cli/forge/forge.sh,771,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
+src/main/cli/forge/forge.sh,953,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/merge.json,94,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/forge/raise.py,4,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,6,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,10,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
 src/main/cli/forge/raise.py,28,path_str,src/main/cli/forge/raise.py,Y,SELF = 'src/main/cli/forge/raise.py'
+src/main/cli/forge/rebase.json,59,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/forge/reconcile.py,4,comment,src/main/cli/forge/forge.csv,Y,src/main/cli/forge/forge.csv; argv[2] is the default branch's protection json
 src/main/cli/forge/reconcile.py,20,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/forge/should.py,2,comment,.github/ISSUE_TEMPLATE.md,Y,"should, a body in .github/ISSUE_TEMPLATE.md's sections, and relations that are wired, never"
@@ -1497,9 +1503,10 @@ src/test/dev/check/room.py,678,path_str,src/test,Y,"@check(tier='code', on=['src
 src/test/dev/check/room.py,264,path_str,src/main/standing.py,Y,None if same else 'src/main/standing.py has no failing(said)' if gather is None
 src/test/dev/check/room.py,489,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
 src/test/dev/check/room.py,663,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/check/room.py,697,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
-src/test/dev/check/room.py,722,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
-src/test/dev/check/room.py,853,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,701,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
+src/test/dev/check/room.py,726,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
+src/test/dev/check/room.py,857,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,887,path_str,src/main/cli/forge,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},"
 src/test/dev/check/schema.py,30,comment,rsc/provider/providers.csv,Y,segment that is a row of rsc/provider/providers.csv or a lineage the reference holds under
 src/test/dev/check/schema.py,61,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"(rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON"
 src/test/dev/check/schema.py,105,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
@@ -1543,32 +1550,34 @@ src/test/dev/check/site.py,187,path_str,src/main/facts.py,Y,"@check(tier='code',
 src/test/dev/check/site.py,33,path_str,src/main/page_declaration.py,Y,"'src/main/page_declaration.py is absent: nothing declares what the page was rendered from', check='site.lag_is_read_from"
 src/test/dev/check/surface.py,127,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/dev/check/surface.py,133,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-src/test/dev/check/surface.py,1604,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
-src/test/dev/check/surface.py,1623,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/dev/check/surface.py,1609,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
+src/test/dev/check/surface.py,1628,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
 src/test/dev/check/surface.py,89,path_str,rsc/CALCULUS.md,Y,"@check(tier='code', on=['src', 'rsc/CALCULUS.md', 'corpus-yoga.code-workspace'], says=("
 src/test/dev/check/surface.py,927,path_str,src/declared_parser.py,Y,"@check(tier='code', says=('cli.exclusive_class_parses',), on=['src/main/cli', 'src/declared_parser.py'])"
 src/test/dev/check/surface.py,1155,path_str,src/main/facts.py,Y,"'src/main/facts.py has no Would and no now_of: each noun composes its now: beside its body', check='status.now_is_gather"
 src/test/dev/check/surface.py,1124,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/facts.py', 'src/main/cli'], says=("
-src/test/dev/check/surface.py,1188,path_str,src/main/tier.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])"
-src/test/dev/check/surface.py,1188,path_str,src/main/tier.sh,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])"
-src/test/dev/check/surface.py,1188,path_str,src/main/cli/cli.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])"
-src/test/dev/check/surface.py,1258,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
-src/test/dev/check/surface.py,1258,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
-src/test/dev/check/surface.py,1329,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
-src/test/dev/check/surface.py,1329,path_str,src/run_python_script.sh,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
-src/test/dev/check/surface.py,1458,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'corpus-yoga'], says=("
+src/test/dev/check/surface.py,1188,path_str,src/main/tier.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])"
+src/test/dev/check/surface.py,1188,path_str,src/main/tier.sh,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])"
+src/test/dev/check/surface.py,1188,path_str,src/main/cli/cli.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])"
+src/test/dev/check/surface.py,1188,path_str,src/main/facts.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])"
+src/test/dev/check/surface.py,1188,path_str,src/test/dev/run.py,Y,"on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])"
+src/test/dev/check/surface.py,1263,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
+src/test/dev/check/surface.py,1263,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test'], says=("
+src/test/dev/check/surface.py,1334,path_str,src/main,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
+src/test/dev/check/surface.py,1334,path_str,src/run_python_script.sh,Y,"@check(tier='code', on=['src/main', 'src/run_python_script.sh', 'corpus-yoga'], says=("
+src/test/dev/check/surface.py,1463,path_str,src/main/facts.py,Y,"@check(tier='code', on=['src/main/cli', 'src/main/facts.py', 'corpus-yoga'], says=("
 src/test/dev/check/surface.py,490,path_str,src/main/send.sh,Y,"None if agrees else f'src/main/send.sh SEND_REFUSED and src/main/send.py REFUSED_STATUS differ',"
 src/test/dev/check/surface.py,497,path_str,src/main/cli/forge/merge.json,Y,"handed = {**os.environ, tier_module.DECLARATION: send_module.dispatched('src/main/cli/forge/merge.json'), 'REPO_DIR': ba"
-src/test/dev/check/surface.py,1224,path_str,src/test/dev/gate.py,Y,"None if ok else ('src/test/dev/gate.py writes no check log' if write is None else f'the log read {said!r}'),"
-src/test/dev/check/surface.py,1357,path_str,src/main/cli/completions/_corpus-yoga,Y,"run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '"
-src/test/dev/check/surface.py,1360,path_str,src/main/cli/completions/_corpus-yoga,Y,"'src/main/cli/completions/_corpus-yoga is no file', check='completions.says_why_it_offers_nothing')"
-src/test/dev/check/surface.py,1361,path_str,src/main/cli/completions/_corpus-yoga,Y,"run('completions: a terminal that has pressed tab follows a change to what tab does', False, 'src/main/cli/completions/_"
+src/test/dev/check/surface.py,1222,path_str,src/test/dev/gate.py,Y,"None if ok else ('src/test/dev/gate.py writes no check log' if write is None else f'the log read {said!r}'),"
+src/test/dev/check/surface.py,1362,path_str,src/main/cli/completions/_corpus-yoga,Y,"run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '"
+src/test/dev/check/surface.py,1365,path_str,src/main/cli/completions/_corpus-yoga,Y,"'src/main/cli/completions/_corpus-yoga is no file', check='completions.says_why_it_offers_nothing')"
+src/test/dev/check/surface.py,1366,path_str,src/main/cli/completions/_corpus-yoga,Y,"run('completions: a terminal that has pressed tab follows a change to what tab does', False, 'src/main/cli/completions/_"
 src/test/dev/check/surface.py,1102,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
 src/test/dev/check/surface.py,316,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
 src/test/dev/check/surface.py,396,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
 src/test/dev/check/surface.py,825,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/dev/check/surface.py,1638,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/dev/check/surface.py,1697,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/dev/check/surface.py,1643,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/dev/check/surface.py,1702,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
 src/test/dev/check/tree.py,54,comment,src/main/pipeline.schema.json,Y,"is a pipeline, its declaration valid against src/main/pipeline.schema.json, and"
 src/test/dev/check/tree.py,124,comment,src/run_python_script.sh,Y,"Python's import roots are pyrightconfig.json's, which src/run_python_script.sh sets for every"
 src/test/dev/check/tree.py,214,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (the one exemption)."
@@ -1728,8 +1737,8 @@ src/test/dev/run.py,79,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.
 src/test/dev/run.py,83,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
 src/test/dev/run.py,84,path_str,rsc/metamodel,Y,"MODEL = ['rsc/metamodel']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
 src/test/dev/run.py,498,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
-src/test/dev/run.py,696,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,697,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,702,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,703,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
 src/test/dev/run.py,422,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/dev/run.py,424,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/dev/run.py,175,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
@@ -1737,8 +1746,8 @@ src/test/dev/run.py,186,comment,src/main/cli/README.md,Y,"# src/main/cli/README.
 src/test/dev/run.py,186,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
 src/test/dev/run.py,323,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
 src/test/dev/run.py,386,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,745,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,745,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,751,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,751,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
