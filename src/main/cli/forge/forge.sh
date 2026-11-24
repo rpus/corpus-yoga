@@ -572,7 +572,10 @@ relocated() {  # <verb> <base> <head> <old-sha>
   (cd "$wt" && labour "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
   (cd "$wt" && labour "$wt/src/test/dev/run.sh" --settle) >&2 \
-    || { say "relocation halted - the settle run failed; a red check on the relocated head is a real failure" >&2; dispose; return 1; }
+    || { local kept_at
+         kept_at="$(kept_settle "$wt" "$TMP_DIR/forge/$verb/$(basename "$wt")-settle")"
+         say "relocation halted - the settle run failed; a red check on the relocated head is a real failure - its run.log and report are kept at {kept}" kept="${kept_at#"$REPO_DIR/"}" >&2
+         dispose; return 1; }
   if [[ -n "$(git -C "$wt" status --porcelain rsc/test/)" ]]; then
     if ! enact git -C "$wt" add rsc/test/ >&2 \
        || ! enact git -C "$wt" commit -m "regenerated artifacts settle on the relocated base" >&2; then
@@ -585,6 +588,18 @@ relocated() {  # <verb> <base> <head> <old-sha>
   oid="$(git -C "$wt" rev-parse HEAD)"
   dispose
   echo "$oid"
+}
+
+# kept_settle <worktree> <dest>: a red settle's evidence kept before its worktree is disposed of
+# (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest
+# report the run wrote beside it - so that the halt says where to read what failed. Prints <dest>.
+kept_settle() {  # <worktree> <dest>
+  local wt="$1" dest="$2" report
+  mkdir -p "$dest"
+  [[ -f "$wt/rsc/test/run.log" ]] && cp "$wt/rsc/test/run.log" "$dest/"
+  report="$(find "$wt/tmp/logs/test/run" -name '*.report' -type f 2>/dev/null | sort | tail -1)"   # stamped names: the last is the newest
+  [[ -n "$report" ]] && cp "$report" "$dest/"
+  echo "$dest"
 }
 
 # gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/forge/merge for
@@ -716,6 +731,18 @@ rebase_chain() {
   pr_open rebase "$pr" || return 1
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
   relocate rebase || return 1
+  # The verdict is said by the tree the resync converged on (as the merge's conclusion is, issues/910):
+  # a resync can rewrite this forge.sh and the phrases the verdict reads, so a fresh bash of the
+  # forge.sh on disk now says it, and this process reads nothing of the tree after this line.
+  bash -c 'source "$1"; shift; rebase_concluded "$@"' _ "$REPO_DIR/src/main/cli/forge/forge.sh" \
+    "$PR_HEAD" "$PR_BASE" "${PR_FROM:-}" "${PR_OID:-}" "$PR_MOVED" "${PR_LOCAL:-none}"
+}
+
+# rebase_concluded <head> <base> <from> <oid> <moved> <local>: the rebase's verdict, run by the
+# forge.sh of the tree the resync converged on (issues/1147). The name and its arguments are the one
+# contract between the tree that rebased and the tree rebased onto, and do not change.
+rebase_concluded() {  # <head> <base> <from> <oid> <moved> <local>
+  local PR_HEAD="$1" PR_BASE="$2" PR_FROM="$3" PR_OID="$4" PR_MOVED="$5" PR_LOCAL="$6"
   if (( ! PR_MOVED )); then
     effect "$(act forge rebase): DONE - $(phrase "origin/{head} already stands on origin/{base}; nothing to relocate" head="$PR_HEAD" base="$PR_BASE")"
   else
@@ -937,8 +964,8 @@ case "${1-}" in
   push)      shift; parse_argv forge push "$@"; push "$@" ;;
   clean)     shift; parse_argv forge clean "$@"; clean "$@" ;;
   raise)     shift; parse_argv forge raise "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/raise.py" "$@" ;;
-  merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
-  rebase)    shift; parse_argv forge rebase "$@"; rebase "$@" ;;
+  merge)     shift; parse_argv forge merge "$@"; merge "$@"; exit ;;
+  rebase)    shift; parse_argv forge rebase "$@"; rebase "$@"; exit ;;
   capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   promote)   shift; parse_argv forge promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote forge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;

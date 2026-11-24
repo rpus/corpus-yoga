@@ -90,7 +90,9 @@
     }
   },
   "r": [
-    "machine-name.txt"
+    "machine-name.txt",
+    "rsc/test/run.log",
+    "tmp/logs/test/run"
   ],
   "w": [
     "tmp/forge/merge"

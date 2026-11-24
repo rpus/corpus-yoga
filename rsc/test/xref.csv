@@ -1020,13 +1020,16 @@ src/main/cli/forge/forge.sh,306,comment,src/main/cleaner.py,Y,"# count <n> <sing
 src/main/cli/forge/forge.sh,313,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
 src/main/cli/forge/forge.sh,431,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
 src/main/cli/forge/forge.sh,571,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,619,comment,rsc/test/run.log,Y,"# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,"
-src/main/cli/forge/forge.sh,744,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,926,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,594,comment,rsc/test/run.log,Y,"# (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest"
+src/main/cli/forge/forge.sh,634,comment,rsc/test/run.log,Y,"# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,"
+src/main/cli/forge/forge.sh,771,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
+src/main/cli/forge/forge.sh,953,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/merge.json,94,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/forge/raise.py,4,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,6,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,10,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
 src/main/cli/forge/raise.py,28,path_str,src/main/cli/forge/raise.py,Y,SELF = 'src/main/cli/forge/raise.py'
+src/main/cli/forge/rebase.json,59,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/forge/reconcile.py,4,comment,src/main/cli/forge/forge.csv,Y,src/main/cli/forge/forge.csv; argv[2] is the default branch's protection json
 src/main/cli/forge/reconcile.py,20,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/forge/should.py,2,comment,.github/ISSUE_TEMPLATE.md,Y,"should, a body in .github/ISSUE_TEMPLATE.md's sections, and relations that are wired, never"
@@ -1500,10 +1503,10 @@ src/test/dev/check/room.py,678,path_str,src/test,Y,"@check(tier='code', on=['src
 src/test/dev/check/room.py,264,path_str,src/main/standing.py,Y,None if same else 'src/main/standing.py has no failing(said)' if gather is None
 src/test/dev/check/room.py,489,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
 src/test/dev/check/room.py,663,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/check/room.py,699,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
-src/test/dev/check/room.py,724,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
-src/test/dev/check/room.py,855,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
-src/test/dev/check/room.py,885,path_str,src/main/cli/forge,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},"
+src/test/dev/check/room.py,701,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
+src/test/dev/check/room.py,726,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
+src/test/dev/check/room.py,857,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,887,path_str,src/main/cli/forge,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},"
 src/test/dev/check/schema.py,30,comment,rsc/provider/providers.csv,Y,segment that is a row of rsc/provider/providers.csv or a lineage the reference holds under
 src/test/dev/check/schema.py,61,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"(rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON"
 src/test/dev/check/schema.py,105,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"

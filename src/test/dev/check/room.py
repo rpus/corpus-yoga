@@ -685,6 +685,8 @@ def check_provider_registry(run) -> None:
     'forge.squash_read_back',
     'forge.rebase_refuses_where_merge_refuses',
     'forge.relocation_levels_every_local_copy',
+    'forge.relocation_keeps_a_red_settles_evidence',
+    'forge.rebase_concludes_in_the_tree_it_converged_on',
 ))
 def check_forge_aim(run) -> None:
     """A PR's aim is one line per issue in the aim's one grammar: the merge reads
@@ -941,3 +943,39 @@ def check_forge_aim(run) -> None:
     want_level = {'level': ('level', True), 'kept': ('kept', True), 'behind': ('behind', 'level')}
     run('forge: a relocation brings every local copy of the branch level, and a PR is behind its base by the forge\'s head', leveled == want_level,
         None if leveled == want_level else f'read {leveled}, where {want_level}', check='forge.relocation_levels_every_local_copy')
+
+    # A red settle keeps its evidence (issues/1147): the relocation worktree is disposed of whatever
+    # happens, and with it the run.log and report that name the failing check - so they are kept first.
+    forge_text = forge_sh.read_text()
+    kept: object = 'forge.sh has no kept_settle'
+    if re.search(r'^kept_settle\(\)', forge_text, re.M):
+        with tempfile.TemporaryDirectory() as scratch:
+            worktree, dest = Path(scratch) / 'wt', Path(scratch) / 'kept'
+            (worktree / 'rsc' / 'test').mkdir(parents=True)
+            (worktree / 'rsc' / 'test' / 'run.log').write_text('  ✗ some.check\n')
+            (worktree / 'tmp' / 'logs' / 'test' / 'run').mkdir(parents=True)
+            (worktree / 'tmp' / 'logs' / 'test' / 'run' / 'x.report').write_text('the report\n')
+            subprocess.run(['bash', '-c', 'source "$1"; kept_settle "$2" "$3" >/dev/null', '_', str(forge_sh), str(worktree), str(dest)],
+                           capture_output=True, text=True, cwd=REPO_ROOT, env=planted)
+            kept = sorted((p.name, p.read_text()) for p in dest.iterdir()) if dest.is_dir() else 'nothing kept'
+    want_kept = [('run.log', '  ✗ some.check\n'), ('x.report', 'the report\n')]
+    run("forge: a red settle's run.log and report are kept before the relocation worktree is disposed of", kept == want_kept,
+        None if kept == want_kept else f'kept {kept!r}, where {want_kept!r}', check='forge.relocation_keeps_a_red_settles_evidence')
+
+    # The rebase's conclusion runs in the tree its resync converged on (issues/1147, as the merge's
+    # does - issues/910): a resync can rewrite forge.sh and the phrases its verdict reads, so the
+    # verdict is said by the forge.sh on disk after it, never by the process that read the old one.
+    concluded = ''
+    with tempfile.TemporaryDirectory() as scratch:
+        tree = Path(scratch)
+        (tree / 'src' / 'main' / 'cli' / 'forge').mkdir(parents=True)
+        (tree / 'src' / 'main' / 'cli' / 'forge' / 'forge.sh').write_text('rebase_concluded() { echo "concluded by the converged tree: $*"; }\n')
+        script = ('source "$1"; REPO_DIR="$2"; opening() { :; }; '
+                  'pr_open() { PR_BASE=main; PR_HEAD=feature; PR_HERE=feature; }; '
+                  'relocate() { PR_MOVED=1; PR_FROM=aaaa; PR_OID=bbbb; PR_LOCAL=resynced; }; '
+                  'rebase_chain 7')
+        concluded = subprocess.run(['bash', '-c', script, '_', str(forge_sh), str(tree)], capture_output=True, text=True,
+                                   cwd=REPO_ROOT, env=planted).stdout
+    fresh = 'concluded by the converged tree: feature main aaaa bbbb 1 resynced' in concluded
+    run('forge: the rebase concludes in the tree its resync converged on', fresh,
+        None if fresh else f'rebase_chain over a stub relocation printed {concluded[-300:]!r}', check='forge.rebase_concludes_in_the_tree_it_converged_on')

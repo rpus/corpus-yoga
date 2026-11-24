@@ -90,7 +90,7 @@
     "relocation halted - a real conflict lands in the source; resolve it by hand, in review",
     "conflict confined to rsc/test/ - the syntactic class, taken wholesale",
     "the parsers could not be generated in the worktree - the settle below will say what it lacks",
-    "relocation halted - the settle run failed; a red check on the relocated head is a real failure",
+    "relocation halted - the settle run failed; a red check on the relocated head is a real failure - its run.log and report are kept at {kept}",
     "relocation halted - the settle commit failed; the gate's veto above says why",
     "relocation halted - the lease refused; the branch moved under the relocation",
     "sends refused (CORPUS_YOGA_NO_SEND)",
