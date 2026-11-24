@@ -683,6 +683,7 @@ def check_provider_registry(run) -> None:
     'forge.default_branch_refuses_a_force_push',
     'forge.merge_names_its_issues',
     'forge.squash_read_back',
+    'forge.rebase_refuses_where_merge_refuses',
 ))
 def check_forge_aim(run) -> None:
     """A PR's aim is one line per issue in the aim's one grammar: the merge reads
@@ -863,3 +864,29 @@ def check_forge_aim(run) -> None:
         has_step and exits.get('MERGED') == 0 and exits.get('OPEN') == 1,
         'forge.sh has no squashed step: the merge reads gh pr merge\'s exit alone' if not has_step
         else f'over a merged PR the step exited {exits["MERGED"]}, over an open one {exits["OPEN"]}', check='forge.squash_read_back')
+
+    # The rebase is the merge's own relocation on the reader's word (issues/1147): one step refuses
+    # for both, so over a stub forge holding the PR closed each verb ends NOT DONE for one reason.
+    import tempfile
+    ended: dict[str, tuple[int, str] | str] = {}
+    for verb in ('merge', 'rebase'):
+        declared = (SRC / 'main' / 'cli' / 'forge' / f'{verb}.json').is_file()
+        chained = re.search(rf'^{verb}_chain\(\)', forge_sh.read_text(), re.M) is not None
+        if not (declared and chained):
+            ended[verb] = f'no forge {verb} declared and chained'
+            continue
+        with tempfile.TemporaryDirectory() as stub:
+            gh = Path(stub) / 'gh'
+            gh.write_text('#!/bin/bash\ncase "$1 $2" in "pr view") printf "CLOSED\\tmain\\tissue-7-x\\n" ;; *) exit 1 ;; esac\n')
+            gh.chmod(0o755)
+            done = subprocess.run(['bash', '-c', f'source "$1"; {verb}_chain 7', '_', str(forge_sh)], capture_output=True, text=True,
+                                  env={**{k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND'},   # the stub forge is local
+                                       'PATH': f'{stub}:{os.environ["PATH"]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},
+                                  cwd=REPO_ROOT)
+            verdict = next((line.strip() for line in done.stdout.splitlines() if ': NOT DONE - ' in line), '')
+            ended[verb] = (done.returncode, verdict.split(': NOT DONE - ', 1)[-1])
+    merge_end = ended.get('merge')
+    alike = isinstance(merge_end, tuple) and merge_end == ended.get('rebase') and merge_end[0] == 1 and 'CLOSED' in merge_end[1]
+    run('forge: the rebase refuses where the merge refuses, by the one step both take', alike,
+        None if alike else f'over a closed PR the merge ended {ended.get("merge")!r} and the rebase {ended.get("rebase")!r}',
+        check='forge.rebase_refuses_where_merge_refuses')

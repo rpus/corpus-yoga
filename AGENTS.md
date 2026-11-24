@@ -223,9 +223,10 @@ eighth principle or a smell.
   (issues/735); and converges the checkout. Commits are never rewritten (no squash, no
   reword - the branch merges as reviewed) and never carry the parser's
   words. Its declaration (src/main/cli/forge/merge.json) is the authority
-  for its steps. Never rebase eagerly: no open branch can know which merge
-  comes next, so alignment is only information at the merge - eager
-  alignment is work invalidated by every merge it did not predict. The forge's declared squash settings
+  for its steps. An open PR is rebased onto main by
+  the reader, with `corpus-yoga forge rebase <pr>` - the merge's own relocation, refused where
+  the merge's would refuse (issues/1147) - whenever the reader judges a test needs main's
+  merged work; a conflict outside rsc/test/ is settled by hand. The forge's declared squash settings
   (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
   COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
   CONTRIBUTING.md, reconciled by `corpus-yoga forge`) publish the title as main's
@@ -248,8 +249,7 @@ eighth principle or a smell.
 - A multi-commit branch is treated identically to a single-commit one at
   every step - review, rebase, flip, merge. No operation in the workflow
   distinguishes by commit count, and none may collapse one into the other.
-- A merge verdict is a function of (base sha, head sha): keep the branch
-  rebased onto current origin/main and ignore GitHub's `mergeable` flag -
+- A merge verdict is a function of (base sha, head sha): ignore GitHub's `mergeable` flag -
   it is an unanchored cache.
 - When origin/main has moved since the branch's base: rebuild by
   cherry-pick onto origin/main. Never `reset --soft origin/main` from a

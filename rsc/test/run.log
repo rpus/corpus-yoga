@@ -1,4 +1,4 @@
-run.py: code+schema 1927/1927
+run.py: code+schema 1931/1931
 
 
 check_reply_without_text: |
@@ -103,6 +103,7 @@ check_forge_aim: |
   ✓ forge.default_branch_refuses_a_force_push
   ✓ forge.merge_names_its_issues
   ✓ forge.squash_read_back
+  ✓ forge.rebase_refuses_where_merge_refuses
 
 check_schema_layout: |
   ✓ schema.family_mirrors_writer  (14/14)
@@ -205,18 +206,18 @@ check_cli_surface: |
   ✓ output.plan_lines_name_their_target  (69/69)
   ✓ structure.file_at_level_of_subject  (48/48)
   ✓ structure.cli_declaration_mirrors_the_api  (25/25)
-  ✓ structure.cli_declaration_validates  (79/79)
+  ✓ structure.cli_declaration_validates  (80/80)
   ✓ cli.every_form_listed  (24/24)
   ✓ cli.help_is_the_declaration  (25/25)
-  ✓ cli.prose_holds_no_pair  (78/78)
+  ✓ cli.prose_holds_no_pair  (79/79)
   ✓ cli.flag_not_axis_value  (23/23)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_is_the_nouns_entry  (76/76)
-  ✓ cli.verb_help_answered  (54/54)
+  ✓ cli.verb_help_is_the_nouns_entry  (77/77)
+  ✓ cli.verb_help_answered  (55/55)
   ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
@@ -309,7 +310,6 @@ check_table_widths: |
 check_rehearsal_record: |
   ✓ rehearsal.record_is_whole
   ✓ rehearsal.states_are_decidable
-  ✓ rehearsal.done_when_every_unit_is_judged
 
 check_unit_companion: |
   ✓ stage.export_is_one_unit
@@ -525,7 +525,7 @@ stages:
     tier: code
     line: "94"
   check_forge_aim:
-    passes: 10
+    passes: 11
     failures: 0
     tier: code
     line: "98"
@@ -533,187 +533,187 @@ stages:
     passes: 24
     failures: 0
     tier: schema
-    line: "107"
+    line: "108"
   check_keyword_roles:
     passes: 2
     failures: 0
     tier: schema
-    line: "111"
+    line: "112"
   check_schema_validity:
     passes: 14
     failures: 0
     tier: schema
-    line: "115"
+    line: "116"
   check_schema_meta_validity:
     passes: 14
     failures: 0
     tier: schema
-    line: "118"
+    line: "119"
   check_schema_single_version:
     passes: 14
     failures: 0
     tier: schema
-    line: "121"
+    line: "122"
   check_schema_changelogs:
     passes: 28
     failures: 0
     tier: schema
-    line: "124"
+    line: "125"
   check_versioned_schema_diagnostics:
     passes: 363
     failures: 0
     tier: schema
-    line: "128"
+    line: "129"
   check_validate_verdict:
     passes: 4
     failures: 0
     tier: code
-    line: "156"
+    line: "157"
   check_verdict_record:
     passes: 2
     failures: 0
     tier: code
-    line: "159"
+    line: "160"
   check_failing_record:
     passes: 3
     failures: 0
     tier: code
-    line: "162"
+    line: "163"
   check_site_lag:
     passes: 5
     failures: 0
     tier: code
-    line: "167"
+    line: "168"
   check_site_reads_rpus_co:
     passes: 4
     failures: 0
     tier: code
-    line: "173"
+    line: "174"
   check_server_standing:
     passes: 1
     failures: 0
     tier: code
-    line: "179"
+    line: "180"
   check_cli_surface:
-    passes: 568
+    passes: 570
     failures: 0
     tier: code
-    line: "182"
+    line: "183"
   check_cli_verb_help:
-    passes: 133
+    passes: 135
     failures: 0
     tier: code
-    line: "217"
+    line: "218"
   check_cli_exclusive_classes:
     passes: 10
     failures: 0
     tier: code
-    line: "222"
+    line: "223"
   check_effects:
     passes: 3
     failures: 0
     tier: code
-    line: "225"
+    line: "226"
   check_acts_said_once:
     passes: 3
     failures: 0
     tier: code
-    line: "230"
+    line: "231"
   check_status_is_the_dry_run:
     passes: 1
     failures: 0
     tier: code
-    line: "235"
+    line: "236"
   check_gate_logs:
     passes: 2
     failures: 0
     tier: code
-    line: "238"
+    line: "239"
   check_record_is_the_launchers:
     passes: 1
     failures: 0
     tier: code
-    line: "242"
+    line: "243"
   check_record_names_read_once:
     passes: 1
     failures: 0
     tier: code
-    line: "245"
+    line: "246"
   check_reply:
     passes: 3
     failures: 0
     tier: code
-    line: "248"
+    line: "249"
   check_completions:
     passes: 10
     failures: 0
     tier: code
-    line: "252"
+    line: "253"
   check_walkthrough:
     passes: 1
     failures: 0
     tier: code
-    line: "259"
+    line: "260"
   check_required_files:
     passes: 9
     failures: 0
     tier: code
-    line: "262"
+    line: "263"
   check_pipeline_declarations:
     passes: 20
     failures: 0
     tier: code
-    line: "265"
+    line: "266"
   check_import_path:
     passes: 2
     failures: 0
     tier: code
-    line: "273"
+    line: "274"
   check_step_imports:
     passes: 2
     failures: 0
     tier: code
-    line: "277"
+    line: "278"
   check_self_paths:
     passes: 125
     failures: 0
     tier: code
-    line: "280"
+    line: "281"
   check_committed_tree:
     passes: 3
     failures: 0
     tier: code
-    line: "283"
+    line: "284"
   check_templates:
     passes: 2
     failures: 0
     tier: code
-    line: "288"
+    line: "289"
   check_xref:
     passes: 3
     failures: 0
     tier: code
-    line: "291"
+    line: "292"
   check_spelling:
     passes: 3
     failures: 0
     tier: code
-    line: "296"
+    line: "297"
   check_tier_contract:
     passes: 3
     failures: 0
     tier: code
-    line: "301"
+    line: "302"
   check_table_widths:
     passes: 1
     failures: 0
     tier: code
-    line: "306"
+    line: "307"
   check_rehearsal_record:
-    passes: 3
+    passes: 2
     failures: 0
     tier: code
-    line: "309"
+    line: "310"
   check_unit_companion:
     passes: 1
     failures: 0
@@ -835,8 +835,8 @@ stages:
     tier: code
     line: "423"
 
-checks[code+schema]: 258 types, 1927/1927 invocations passing
-checks[code]: 200 types, 1212/1212 invocations passing
+checks[code+schema]: 258 types, 1931/1931 invocations passing
+checks[code]: 200 types, 1216/1216 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1927/1927 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1931/1931 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
