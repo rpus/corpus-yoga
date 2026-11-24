@@ -18,8 +18,9 @@ Rebase an open PR onto main with `./corpus-yoga forge rebase <pr>` whenever a te
 merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and
 relocation, by the steps the merge takes - in a detached worktree under `tmp/forge/rebase/`,
 `rsc/test/` conflicts taken by the syntactic rule below, any other halting with the branch and
-this checkout as found, to be settled by hand - and a clean checkout that holds the branch
-resynced on the relocated copy. It refuses where the merge's relocation would, and does
+this checkout as found, to be settled by hand - and every local copy of the branch brought
+level with the relocated head, by reset, never by pull, which would merge the old commits with
+their replays. It refuses where the merge's relocation would, and does
 nothing the merge does after it.
 
 Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (issues/483). It is a straight

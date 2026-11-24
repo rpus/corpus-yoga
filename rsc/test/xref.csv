@@ -15,22 +15,22 @@ AGENTS.md,229,doc,rsc/test,Y,merged work; a conflict outside rsc/test/ is settle
 AGENTS.md,231,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,18,doc,src/main/cli/forge/rebase.json,Y,"merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and"
 CONTRIBUTING.md,20,doc,rsc/test,Y,"`rsc/test/` conflicts taken by the syntactic rule below, any other halting with the branch and"
-CONTRIBUTING.md,31,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
-CONTRIBUTING.md,49,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
-CONTRIBUTING.md,62,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,(.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
-CONTRIBUTING.md,72,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
-CONTRIBUTING.md,75,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-CONTRIBUTING.md,103,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
-CONTRIBUTING.md,106,doc,src/main/provider.py,Y,verb as a commit names the session that drafted it; `src/main/provider.py`'s
-CONTRIBUTING.md,107,doc,src/main/provider.sh,Y,"`signature()` is the one derivation, and `src/main/provider.sh` its shell face."
-CONTRIBUTING.md,112,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived)
-CONTRIBUTING.md,113,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,113,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,115,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
-CONTRIBUTING.md,117,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-CONTRIBUTING.md,125,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
-CONTRIBUTING.md,126,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
-CONTRIBUTING.md,128,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
+CONTRIBUTING.md,32,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
+CONTRIBUTING.md,50,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge push` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+CONTRIBUTING.md,63,doc,.github/PULL_REQUEST_TEMPLATE.md,Y,(.github/PULL_REQUEST_TEMPLATE.md holds that grammar) — reads the PR's closing
+CONTRIBUTING.md,73,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
+CONTRIBUTING.md,76,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+CONTRIBUTING.md,104,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
+CONTRIBUTING.md,107,doc,src/main/provider.py,Y,verb as a commit names the session that drafted it; `src/main/provider.py`'s
+CONTRIBUTING.md,108,doc,src/main/provider.sh,Y,"`signature()` is the one derivation, and `src/main/provider.sh` its shell face."
+CONTRIBUTING.md,113,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived)
+CONTRIBUTING.md,114,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,114,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,116,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
+CONTRIBUTING.md,118,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+CONTRIBUTING.md,126,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
+CONTRIBUTING.md,127,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
+CONTRIBUTING.md,129,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
 README.md,14,doc,src/main/cli/status/status.sh,Y,"./src/main/cli/status/status.sh satisfy           # pre-venv, once: mint the venv (bare, the same report read-only)"
 README.md,35,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,35,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
@@ -1006,8 +1006,8 @@ src/main/cli/forge/capture.py,41,comment,src/run_python_script.sh,Y,src/run_pyth
 src/main/cli/forge/capture.py,41,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp>
 src/main/cli/forge/capture.py,52,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
 src/main/cli/forge/capture.py,100,comment,src/main/cli/forge/review-counts.graphql,Y,"(src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."
-src/main/cli/forge/forge.json,126,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
-src/main/cli/forge/forge.json,209,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge/forge.json,131,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
+src/main/cli/forge/forge.json,214,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   corpus-yoga forge push            # make the forge agree with src/main/cli/forge/forge.csv; what it would set is the
 src/main/cli/forge/forge.sh,21,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/forge/forge.sh,24,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
@@ -1021,8 +1021,8 @@ src/main/cli/forge/forge.sh,313,comment,src/main/cleaner.py,Y,"# every clean ver
 src/main/cli/forge/forge.sh,431,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
 src/main/cli/forge/forge.sh,571,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
 src/main/cli/forge/forge.sh,619,comment,rsc/test/run.log,Y,"# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,"
-src/main/cli/forge/forge.sh,713,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,895,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,744,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
+src/main/cli/forge/forge.sh,926,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/raise.py,4,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,6,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
 src/main/cli/forge/raise.py,10,comment,src/main/provider.py,Y,"uses (src/main/provider.py), and take the drafter's sections from the body file, which"
@@ -1500,10 +1500,10 @@ src/test/dev/check/room.py,678,path_str,src/test,Y,"@check(tier='code', on=['src
 src/test/dev/check/room.py,264,path_str,src/main/standing.py,Y,None if same else 'src/main/standing.py has no failing(said)' if gather is None
 src/test/dev/check/room.py,489,path_str,src/main,Y,"'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')"
 src/test/dev/check/room.py,663,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/check/room.py,698,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
-src/test/dev/check/room.py,723,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
-src/test/dev/check/room.py,854,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
-src/test/dev/check/room.py,884,path_str,src/main/cli/forge,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},"
+src/test/dev/check/room.py,699,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no aim grammar: the merge reads aims by a regex over prose', check='forge.aim_one_line_per_issue"
+src/test/dev/check/room.py,724,path_str,src/main/cli/forge,Y,"'src/main/cli/forge has no issue grammar: the title and the relations are checked by review alone', check='forge.issue_i"
+src/test/dev/check/room.py,855,path_str,src/main/cli/forge/merge.json,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched('src/main/cli/forge/merge.json')},"
+src/test/dev/check/room.py,885,path_str,src/main/cli/forge,Y,"'PATH': f'{stub}:{os.environ[""PATH""]}', tier.DECLARATION: send.dispatched(f'src/main/cli/forge/{verb}.json')},"
 src/test/dev/check/schema.py,30,comment,rsc/provider/providers.csv,Y,segment that is a row of rsc/provider/providers.csv or a lineage the reference holds under
 src/test/dev/check/schema.py,61,comment,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"(rsc/rpus/grammar/JSONSchema/draft04.g4), annotation or restriction - $ref, a JSON"
 src/test/dev/check/schema.py,105,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"

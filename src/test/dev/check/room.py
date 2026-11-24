@@ -684,6 +684,7 @@ def check_provider_registry(run) -> None:
     'forge.merge_names_its_issues',
     'forge.squash_read_back',
     'forge.rebase_refuses_where_merge_refuses',
+    'forge.relocation_levels_every_local_copy',
 ))
 def check_forge_aim(run) -> None:
     """A PR's aim is one line per issue in the aim's one grammar: the merge reads
@@ -890,3 +891,53 @@ def check_forge_aim(run) -> None:
     run('forge: the rebase refuses where the merge refuses, by the one step both take', alike,
         None if alike else f'over a closed PR the merge ended {ended.get("merge")!r} and the rebase {ended.get("rebase")!r}',
         check='forge.rebase_refuses_where_merge_refuses')
+
+    # A relocation brings every local copy of the branch level with the forge's new head, checked
+    # out or not, unless the copy holds commits the forge's old head lacked; and a PR is behind
+    # its base by the forge's head, never by a local copy (issues/1147).
+    # under the commit hook git exports GIT_DIR and GIT_INDEX_FILE, naming this repository's index:
+    # every git these clones run is stripped of them, or it writes into the tree being committed
+    planted = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+
+    def git(repo: Path, *words: str) -> str:
+        return subprocess.run(['git', '-C', str(repo), *words], capture_output=True, text=True, check=True, env=planted).stdout.strip()
+    leveled: dict[str, object] = {}
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        quiet = {**planted, 'GIT_AUTHOR_NAME': 'a', 'GIT_AUTHOR_EMAIL': 'a@a', 'GIT_COMMITTER_NAME': 'a', 'GIT_COMMITTER_EMAIL': 'a@a'}
+        subprocess.run(['git', 'init', '-q', '--bare', '-b', 'main', str(root / 'forge.git')], check=True, env=planted)
+        for clone in ('reader', 'mover'):
+            subprocess.run(['git', 'clone', '-q', str(root / 'forge.git'), str(root / clone)], check=True, capture_output=True, env=planted)
+        def commit(repo: Path, name: str) -> None:
+            (repo / name).write_text(name + '\n')
+            subprocess.run(['git', '-C', str(repo), 'add', name], check=True, env=planted)
+            subprocess.run(['git', '-C', str(repo), 'commit', '-q', '-m', name], check=True, env=quiet)
+        reader, mover = root / 'reader', root / 'mover'
+        commit(reader, 'base'); git(reader, 'push', '-q', 'origin', 'main')
+        git(reader, 'checkout', '-q', '-b', 'feature'); commit(reader, 'feature'); git(reader, 'push', '-q', 'origin', 'feature')
+        git(reader, 'checkout', '-q', 'main')
+        git(mover, 'fetch', '-q', 'origin'); git(mover, 'checkout', '-q', 'main'); git(mover, 'pull', '-q')
+        commit(mover, 'moved'); git(mover, 'push', '-q', 'origin', 'main')
+        old = git(reader, 'rev-parse', 'refs/heads/feature')
+        git(mover, 'checkout', '-q', '-b', 'feature', 'origin/feature')
+        subprocess.run(['git', '-C', str(mover), 'rebase', '-q', 'main'], check=True, capture_output=True, env=quiet)
+        git(mover, 'push', '-q', '--force', 'origin', 'feature')
+        git(reader, 'fetch', '-q', 'origin')
+        new = git(reader, 'rev-parse', 'refs/remotes/origin/feature')
+        if re.search(r'^level_local\(\)', forge_sh.read_text(), re.M) and re.search(r'^pr_behind\(\)', forge_sh.read_text(), re.M):
+            def call(script: str) -> str:
+                return subprocess.run(['bash', '-c', f'source "$1"; {script}', '_', str(forge_sh)], capture_output=True, text=True, cwd=REPO_ROOT, env=planted).stdout
+            said = call(f'level_local "{reader}" feature {old} main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
+            leveled['level'] = (said[-1] if said else '', git(reader, 'rev-parse', 'refs/heads/feature') == new)
+            git(reader, 'branch', '-q', '-f', 'feature', old); git(reader, 'checkout', '-q', 'feature'); commit(reader, 'unpushed'); git(reader, 'checkout', '-q', 'main')
+            held = git(reader, 'rev-parse', 'refs/heads/feature')
+            said = call(f'level_local "{reader}" feature {old} main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
+            leveled['kept'] = (said[-1] if said else '', git(reader, 'rev-parse', 'refs/heads/feature') == held)
+            behind = call(f'pr_behind "{reader}" main {old} && echo behind || echo level').strip()
+            standing = call(f'pr_behind "{reader}" main {new} && echo behind || echo level').strip()
+            leveled['behind'] = (behind, standing)
+        else:
+            leveled['steps'] = 'forge.sh has no level_local or no pr_behind'
+    want_level = {'level': ('level', True), 'kept': ('kept', True), 'behind': ('behind', 'level')}
+    run('forge: a relocation brings every local copy of the branch level, and a PR is behind its base by the forge\'s head', leveled == want_level,
+        None if leveled == want_level else f'read {leveled}, where {want_level}', check='forge.relocation_levels_every_local_copy')
