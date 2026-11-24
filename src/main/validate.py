@@ -11,6 +11,7 @@ the second the instance path, the third the schema node whose keyword found it.
 """
 
 import os
+import re
 import sys
 import json
 import jsonschema
@@ -163,9 +164,10 @@ def escaped(step) -> str:
 def fault(data_path, schema_path, data_ptr='', schema_ptr=''):
     """The fault a reader acts on, as data (issues/848, issues/952): None where the data validates;
     otherwise its message, the property at fault (where), the instance path as a JSON
-    Pointer (path) and as steps, the rule it fails - the keyword and its value - and the
-    schema node whose keyword found it (schema), a JSON Pointer in the same form. A schema
-    error is a fault with its message alone."""
+    Pointer (path) and as steps, the rule it fails - the keyword and its value - what the
+    datum held there that the rule refused (holds, issues/1141), and the schema node whose
+    keyword found it (schema), a JSON Pointer in the same form. A schema error is a fault
+    with its message alone."""
     with open(data_path) as f:
         data = follow_pointer(json.load(f), data_ptr)
     with open(schema_path) as f:
@@ -184,9 +186,48 @@ def fault(data_path, schema_path, data_ptr='', schema_ptr=''):
                 'path': '/' + '/'.join(escaped(step) for step in steps),
                 'steps': steps,
                 'rule': _rule(found),
+                'holds': _holds(found),
                 'schema': node_pointer(root_schema, found.absolute_schema_path, schema_ptr)}
     except jsonschema.SchemaError as e:
-        return {'message': f'Schema error: {e.message}', 'where': '', 'path': None, 'steps': [], 'rule': None, 'schema': None}
+        return {'message': f'Schema error: {e.message}', 'where': '', 'path': None, 'steps': [], 'rule': None, 'holds': None, 'schema': None}
+
+
+KINDS = ((bool, 'a boolean'), (int, 'a number'), (float, 'a number'), (str, 'a string'),
+         (list, 'an array'), (dict, 'an object'), (type(None), 'null'))   # bool before int: a bool is an int
+SHORT = 60   # the widest value a fault spells out; a wider one is said by its kind
+
+
+def _kind(value) -> str:
+    return next(kind for python_type, kind in KINDS if isinstance(value, python_type))
+
+
+def _value(value) -> str:
+    """A value as a fault says it: spelled as JSON where it is a scalar no wider than SHORT,
+    else by its kind - never the instance whole."""
+    if not isinstance(value, (dict, list)):
+        spelled = json.dumps(value)
+        if len(spelled) <= SHORT:
+            return f'the value {spelled}'
+        if isinstance(value, str):
+            return f'a string of {len(value)} characters'
+    return _kind(value)
+
+
+def _holds(found) -> str:
+    """What the datum held that the rule refused (issues/1141): the keys a closed object does not
+    admit, the required keys it lacks, the kind a type refuses, else the value - spelled where
+    it is short, said by its kind where it is not."""
+    instance = found.instance
+    if found.validator == 'additionalProperties' and isinstance(instance, dict) and isinstance(found.schema, dict):
+        declared = set(found.schema.get('properties', {}))
+        patterns = list(found.schema.get('patternProperties', {}))
+        extra = sorted(key for key in instance if key not in declared and not any(re.search(p, key) for p in patterns))
+        return ('the key ' if len(extra) == 1 else 'the keys ') + ', '.join(extra)
+    if found.validator == 'required' and isinstance(instance, dict) and isinstance(found.validator_value, list):
+        return ', '.join(f'no {key}' for key in found.validator_value if key not in instance)
+    if found.validator == 'type':
+        return _kind(instance)
+    return _value(instance)
 
 
 def _rule(found) -> str | None:

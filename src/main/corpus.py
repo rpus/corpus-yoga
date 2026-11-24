@@ -533,7 +533,7 @@ def reason(first_line: str) -> str:
 class Refusal:
     """A family's verdict against a unit: the pipeline, the family and version, the reason,
     and where the record holds them (issues/952) the fault's instance path, the rule it
-    fails and the schema node. Its address is the version file's path under
+    fails, the schema node and what the datum held there that the rule refused (issues/1141). Its address is the version file's path under
     rsc/schema, the one home the first three have."""
     pipeline: str
     family: str
@@ -542,17 +542,22 @@ class Refusal:
     where: str | None = None
     rule: str | None = None
     node: str | None = None
+    holds: str | None = None
 
     def words(self) -> str:
-        """The fault in one line: where it is and the rule it fails, or the reason alone."""
-        return f'{self.where} fails {self.rule}' if self.where and self.rule else self.where or self.reason
+        """The fault in one line: where it is, the rule it fails and what the datum held there,
+        or the reason alone."""
+        if self.where and self.rule:
+            return f'{self.where} fails {self.rule}, holding {self.holds}' if self.holds else f'{self.where} fails {self.rule}'
+        return self.where or self.reason
 
     def facts(self) -> str | dict[str, str]:
         """What the stage says of the refusal beneath the version file: the reason alone, or
-        the fault's path, rule and schema node where the record holds them."""
+        the fault's path, rule, what the datum held there and schema node where the record
+        holds them."""
         if self.where is None:
             return self.reason
-        return {'path': self.where, 'rule': self.rule or '', 'schema': self.node or ''}
+        return {'path': self.where, 'rule': self.rule or '', 'holds': self.holds or '', 'schema': self.node or ''}
 
     @property
     def at(self) -> str:
@@ -651,7 +656,8 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
                 main_version=main_version))
             return Judgement.UNLICENSED, facts.phrase('valid at {at} - {reason}', at=refusal.at, reason=refusal.reason), refusal
         if one['verdict'] != 'valid':
-            refusal = Refusal(unit.pipeline, family, version, reason(one['reason']), one.get('path'), one.get('rule'), one.get('schema_path'))
+            refusal = Refusal(unit.pipeline, family, version, reason(one['reason']), one.get('path'), one.get('rule'), one.get('schema_path'),
+                              one.get('holds'))
             return Judgement.INVALID, facts.phrase('invalid at {at} - {reason} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)',
                                                      at=refusal.at, reason=refusal.reason), refusal
         words.append(f'{family} {version}')
