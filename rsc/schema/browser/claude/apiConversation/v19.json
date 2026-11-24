@@ -109,6 +109,10 @@
           "description": "Whether the conversation is shared with other accounts on claude.ai. Observed reading-room 2026-10-07 on every one of the account's 123 conversations, false in each; the captures of 2026-09-27 and before carry it not, so it is optional. Undeclared before v13.",
           "type": "boolean"
         },
+        "offers_allowed": {
+          "description": "A flag claude.ai returns on the conversation, undocumented by claude.ai. Observed reading-room 2026-11-24 on every one of the account's 130 conversations, true in each; the captures of 2026-11-13 and before carry it not, so it is optional. The name reads as whether claude.ai may show offers in the conversation - a reading: a conversation carrying false where offers appear would contradict it. Undeclared before v19.",
+          "type": "boolean"
+        },
         "has_assistant_outputs": {
           "type": "boolean",
           "description": "Whether the conversation holds assistant outputs. First observed 2026-10-14, true, on one conversation of 2026-10-14; absent on every other."
