@@ -1247,18 +1247,38 @@ class Promotion:
                    facts.Acts(tuple(acts)) if acts else None)
 
 
-def acts_on_staged(rows: list[Judged]) -> list[facts.Would]:
+def judged_at(record: object, head: str) -> str | None:
+    """The commit the record's verdicts were judged at, where it is not the checkout's
+    (issues/1143); None where they agree or no record stands. A verdict is a function of the
+    datum, the schema and the code that judged it, and the record pins the code by its commit."""
+    if not isinstance(record, dict) or not isinstance(record.get('commit'), str) or not record['commit']:
+        return None
+    return None if head.startswith(record['commit']) else record['commit']
+
+
+@functools.cache
+def _head() -> str:
+    return subprocess.run(['git', '-C', str(REPO), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
+
+
+def acts_on_staged(rows: list[Judged], elsewhere: str | None | bool = True) -> list[facts.Would]:
     """The acts on staged units, in the workflow's order (issues/851, issues/1028): the
-    rehearsal for what is not judged, the capturing noun's promote for what is promotable or
+    rehearsal for what is not judged, counted by why (issues/1143), and for what was judged at
+    another commit than the checkout's - elsewhere, read from the record unless given - counted
+    by that commit; the capturing noun's promote for what is promotable or
     re-rendered, counted by which (issues/1138),
     the capture again for an incomplete unit named by a full id, and the stage's cleaner for
     what the store already holds and for each incomplete unit - each on the unit's kind."""
+    if elsewhere is True:
+        elsewhere = judged_at(rehearsal.read(), _head())
     acts: list[facts.Would] = []
     for row in rows:
         kind = kind_of(row.unit)
         if row.state == 'unjudged':
-            acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: 1}))
-        elif row.state in ('promotable', 're-rendered') and (noun := noun_of(row.unit)) is not None:
+            acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: {NOT_JUDGED[row.judgement]: 1}}))
+        elif elsewhere and row.judgement in JUDGED:
+            acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: {facts.phrase('judged at {commit}', commit=elsewhere): 1}}))
+        if row.state in ('promotable', 're-rendered') and (noun := noun_of(row.unit)) is not None:
             acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: {row.state: 1}}))
         if row.state == 'incomplete' and (again := recapture_of(row.unit)):
             acts.append(facts.Would(again, {kind: 1}))
