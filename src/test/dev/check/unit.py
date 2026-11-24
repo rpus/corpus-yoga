@@ -12,6 +12,7 @@ from gate import (
 @check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier.py', 'src/main/browser', 'src/main/export', 'src/main/agent', 'rsc/reference/JSONSchema'], says=(
     'rehearsal.record_is_whole',
     'rehearsal.states_are_decidable',
+    'rehearsal.done_when_every_unit_is_judged',
 ))
 def check_rehearsal_record(run) -> None:
     """The stage's rehearsal record is one file, whole, of what the last rehearsal saw and
@@ -119,6 +120,20 @@ def check_rehearsal_record(run) -> None:
         f'{wrong[0][0][0].value}: {wrong[0][0][1][:100]!r}, where it is {wrong[0][1][0].value}: {wrong[0][1][1]!r}' if wrong
         else f'unseen, changed, superseded and no family count as {states}, where they are unjudged, unjudged, unjudged and promotable',
         check='rehearsal.states_are_decidable')
+    # A rehearsal is done when it has judged every unit it saw that a family judges, whatever
+    # the verdicts; the exit of the run it wraps is a fact of its line (issues/1145).
+    outcome = getattr(rehearsal, 'outcome', None)
+    seen = {'units': {'a': {'verdicts': {'f': {'verdict': 'invalid'}}}, 'b': {'verdicts': {}}, 'c': {'verdicts': {}}}}
+    got_outcome = ([outcome(stamp, seen, {'a', 'b'}, 1), outcome(stamp, seen, {'a'}, 1), outcome(stamp, seen, {'a'}, 0)]
+                   if outcome else None)
+    shaped = (bool(got_outcome)
+              and got_outcome[0][0] == 1 and ': NOT DONE - ' in got_outcome[0][1] and 'b' in got_outcome[0][1].split(' - ')[-1]
+              and got_outcome[1][0] == 0 and ': DONE - ' in got_outcome[1][1] and got_outcome[1][1].endswith('; the run exited 1')
+              and got_outcome[2][0] == 0 and ': DONE - ' in got_outcome[2][1] and 'exited' not in got_outcome[2][1])
+    run('rehearsal: done when it has judged every unit it saw that a family judges, whatever it found', shaped,
+        None if shaped else f'the outcomes read {got_outcome}, where an unjudged unit a family judges is NOT DONE and exit 1, '
+        "and a whole judgement is DONE and exit 0 with the run's exit said",
+        check='rehearsal.done_when_every_unit_is_judged')
 
 
 @check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'])
