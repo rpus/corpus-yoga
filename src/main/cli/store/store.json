@@ -6,7 +6,7 @@
     "re-rendered": "by selection, then by address, each unit its measure finds the same as the held one while its files hold other bytes - the conversation has not moved, and the promote would replace the bytes that record it (issues/1138)",
     "would lose": "by selection, then by the relation under which the held copy would lose something, with how many units carry it; the reader reconciles the two. The promote, asked, refuses them; a status asks for nothing (issues/867)",
     "live": "the live stores this room mounts, read against the fuller of the staged and the held copy of each live thing - each session a harness holds beyond both tiers, or holds less of, with the capture that stages it; a mount that is absent, with what mounts it. A live thing the store holds level reads as level however empty the stage is",
-    "now": "the store's standing, in the workflow's order - each command, its verb, and the kinds it acts on with how many - a capture for each live thing ahead of both tiers, the rehearsal for what is staged and not judged, each capturing noun's promote for what is promotable or re-rendered, the stage's cleaner for what the store already holds and for the stage's incomplete units and orphans, and this janitor for what the store no longer needs; the workflow's steps, which remedy nothing (issues/851). The store's own; the room's standing, which bare corpus-yoga status and every act's reply end on, folds it with the other nouns' (issues/949)"
+    "now": "the store's standing, in the workflow's order - each command, its verb, and the kinds it acts on with how many - a capture for each live thing ahead of both tiers, the rehearsal for what is staged and not judged, counted by why, and for what was judged at another commit than the checkout's, counted by that commit (issues/1143), each capturing noun's promote for what is promotable or re-rendered, the stage's cleaner for what the store already holds and for the stage's incomplete units and orphans, and this janitor for what the store no longer needs; the workflow's steps, which remedy nothing (issues/851). The store's own; the room's standing, which bare corpus-yoga status and every act's reply end on, folds it with the other nouns' (issues/949)"
   },
   "phrase": [
     "the held unit holds more - a recapture replaces the staged copy",
@@ -22,6 +22,7 @@
     "nothing",
     "{held} -> {staged} file(s) mirrored, {removed} removed",
     "held whole or not at all",
+    "judged at {commit}",
     "the same by its {measure} ({detail}), other bytes in {files} - the promote replaces the held bytes",
     "a capture of it would be refused at promotion; the reader reconciles the two",
     "the {tier} copy holds more than the live store does",

@@ -157,6 +157,7 @@ def check_unit_companion(run) -> None:
     'stage.recapture_names_a_full_id',
     'stage.re_rendered_is_told_apart',
     'stage.re_rendered_promote_says_so',
+    'stage.rehearsal_offered_where_judged_elsewhere',
     'stage.states_are_told_apart',
 ))
 def check_unit_state(run) -> None:
@@ -221,6 +222,12 @@ def check_unit_state(run) -> None:
             told = {u.address.name: state(u, corpus.relation(u)[0], judgement.VALID) for u in corpus.select(stage_root, gemini)}
             judged = [corpus.Judged(u, corpus.relation(u)[0], '', judgement.VALID, '') for u in corpus.select(stage_root, gemini)]
             promotes = [act for act in corpus.acts_on_staged(judged) if ' promote' in act.line]
+            unseen = [corpus.Judged(u, corpus.relation(u)[0], '', judgement.UNSEEN, '') for u in corpus.select(stage_root, gemini)][:1]
+            refused = None
+            try:
+                rehearsals = [act for act in corpus.acts_on_staged(judged + unseen, elsewhere='deadbeef') if ' rehearse' in act.line]
+            except TypeError as error:
+                rehearsals, refused = [], f'raised {error}'
             kind = corpus.kind_of(judged[0].unit) if judged else None
     finally:
         for name, value in kept.items():
@@ -236,6 +243,17 @@ def check_unit_state(run) -> None:
     run("stage: the promote a status offers counts the re-rendered apart from the promotable", offered == want_offer,
         None if offered == want_offer else f'the promote is offered over {offered}, where it is {want_offer}',
         check='stage.re_rendered_promote_says_so')
+    # A verdict recorded at another commit than the checkout's is offered a rehearsal, valid or
+    # invalid, saying the commit; one with no standing verdict says why (issues/1143).
+    judged_at = getattr(corpus, 'judged_at', None)
+    anchored = (judged_at({'commit': '2d5dfa86'}, '4f5b9b08e2a1'), judged_at({'commit': '2d5dfa86'}, '2d5dfa86c3d0'), judged_at(None, '2d5dfa86c3d0')) if judged_at else None
+    said = facts.Acts(tuple(rehearsals)).facts()
+    offered = refused or next((by_would for by_line in said.values() for by_would in by_line.values()), None)
+    want_offer = {kind: {'judged at deadbeef': 3, 'unseen': 1}}
+    ok_offer = anchored == ('2d5dfa86', None, None) and offered == want_offer
+    run("stage: a rehearsal is offered for every unit judged at another commit than the checkout's, and says why", ok_offer,
+        None if ok_offer else f'judged_at reads {anchored}, where (2d5dfa86, None, None); the rehearsal is offered over {offered}, where it is {want_offer}',
+        check='stage.rehearsal_offered_where_judged_elsewhere')
     run('stage: a directory the selection names with no file under it is incomplete', ok,
         None if ok else f'the states read {states}, where an empty directory is incomplete and a full one unjudged',
         check='stage.empty_selection_is_incomplete')
