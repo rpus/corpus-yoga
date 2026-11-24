@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from gate import (
+    planted_environment,
     GATE_FILES,
     CLI,
     PLAIN_PHRASE_REMEDY,
@@ -897,16 +898,14 @@ def check_forge_aim(run) -> None:
     # A relocation brings every local copy of the branch level with the forge's new head, checked
     # out or not, unless the copy holds commits the forge's old head lacked; and a PR is behind
     # its base by the forge's head, never by a local copy (issues/1147).
-    # under the commit hook git exports GIT_DIR and GIT_INDEX_FILE, naming this repository's index:
-    # every git these clones run is stripped of them, or it writes into the tree being committed
-    planted = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    planted = planted_environment()
 
     def git(repo: Path, *words: str) -> str:
         return subprocess.run(['git', '-C', str(repo), *words], capture_output=True, text=True, check=True, env=planted).stdout.strip()
     leveled: dict[str, object] = {}
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
-        quiet = {**planted, 'GIT_AUTHOR_NAME': 'a', 'GIT_AUTHOR_EMAIL': 'a@a', 'GIT_COMMITTER_NAME': 'a', 'GIT_COMMITTER_EMAIL': 'a@a'}
+        quiet = planted
         subprocess.run(['git', 'init', '-q', '--bare', '-b', 'main', str(root / 'forge.git')], check=True, env=planted)
         for clone in ('reader', 'mover'):
             subprocess.run(['git', 'clone', '-q', str(root / 'forge.git'), str(root / clone)], check=True, capture_output=True, env=planted)

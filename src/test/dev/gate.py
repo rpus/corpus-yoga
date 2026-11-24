@@ -232,6 +232,21 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 
 # ── Checks ────────────────────────────────────────────────────────────────────
 
+def planted_environment(**extra: str) -> dict[str, str]:
+    """The environment git runs under in a repository a check plants, or in what a check runs
+    outside the repository being committed (issues/1150): no GIT_* variable of the invoking
+    process - under the commit hook GIT_DIR and GIT_INDEX_FILE name the repository being committed,
+    and a planted clone's git inheriting them writes into it - a planted identity, and no global
+    or system git config, so no hook path or setting of the room reaches the clone. The gate's
+    own git, over the repository it gates, keeps them: under `git commit -a` the index being
+    committed is the one GIT_INDEX_FILE names."""
+    environment = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    environment.update({'GIT_AUTHOR_NAME': 'gate', 'GIT_AUTHOR_EMAIL': 'gate@localhost', 'GIT_COMMITTER_NAME': 'gate',
+                        'GIT_COMMITTER_EMAIL': 'gate@localhost', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_CONFIG_NOSYSTEM': '1'})
+    environment.update(extra)
+    return environment
+
+
 def _machine_anchor() -> str:
     """The provenance line every machine-facing log opens with (issues/365): the Signature
     triad the commit hook stamps - the machine this checkout is bound to (or 'unbound':
