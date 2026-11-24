@@ -775,7 +775,8 @@ def pass_over() -> int:
     return 0
 
 
-STATES: tuple[str, ...] = ('promotable', 'held already', 'invalid', 'unlicensed', 'would lose', 'incomplete', 'unjudged')
+STATES: tuple[str, ...] = ('promotable', 're-rendered', 'held already', 'invalid', 'unlicensed', 'would lose', 'incomplete', 'unjudged')
+PROMOTED = ('promotable', 're-rendered', 'held already')   # the states the promote copies, or finds held, byte-equal
 JUDGED = {Judgement.VALID: 'valid', Judgement.INVALID: 'invalid', Judgement.UNLICENSED: 'unlicensed'}   # a verdict the rehearsal gave
 NOT_JUDGED = {Judgement.CHANGED: 'changed since', Judgement.UNSEEN: 'unseen',          # none stands: why, or no family at all,
               Judgement.SUPERSEDED: 'superseded', Judgement.UNJUDGED: 'seen without verdict',   # which promotes on the relation alone
@@ -786,7 +787,9 @@ def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
     """The one of STATES a staged unit is in (issues/867): invalid where a family gave its verdict
     against it; would lose where its relation would cost the held copy something, which the
     promote, asked, refuses; unlicensed where it is valid at a version origin/main does not
-    hold; unjudged before any verdict. A status asks for no act, so no state is refused."""
+    hold; unjudged before any verdict; re-rendered where its measure finds it identical to the held
+    unit and its bytes differ (issues/1138) - the conversation has not moved, and the promote would
+    replace the bytes that record it. A status asks for no act, so no state is refused."""
     if unit.missing:
         return 'incomplete'
     if judgement is Judgement.INVALID:
@@ -797,7 +800,9 @@ def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
         return 'unlicensed'
     if judgement in (Judgement.UNSEEN, Judgement.CHANGED, Judgement.SUPERSEDED, Judgement.UNJUDGED):
         return 'unjudged'
-    return 'held already' if redundant(unit) else 'promotable'
+    if redundant(unit):
+        return 'held already'
+    return 're-rendered' if rel is Relation.IDENTICAL else 'promotable'
 
 
 def tally(rows: list[Judged]) -> dict[str, int]:
@@ -1020,15 +1025,17 @@ def promote(noun: str, selected: list[Unit]) -> int:
         print(facts.act(noun, 'promote') + ': DONE - nothing staged')
         return 0
     groups: dict[str, list[str]] = {}
-    written = unchanged = 0
-    left: dict[str, int] = {s: 0 for s in STATES[2:]}
+    written = unchanged = re_rendered = 0
+    left: dict[str, int] = {s: 0 for s in STATES if s not in PROMOTED}
     for row in rows:
         line = _unit_line(row.unit, row.relation, row.detail)
         if row.promotable:
             n = _copy(row.unit)
             if n:
-                groups.setdefault(f'promoted - {row.words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
+                heading = 're-rendered, promoted' if row.state == 're-rendered' else 'promoted'
+                groups.setdefault(f'{heading} - {row.words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
                 written += 1
+                re_rendered += row.state == 're-rendered'
             else:
                 groups.setdefault(f'held already, byte-equal - {row.words}', []).append(line)
                 unchanged += 1
@@ -1038,7 +1045,7 @@ def promote(noun: str, selected: list[Unit]) -> int:
     say(groups)
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
     undone = sum(left.values())
-    facts.report(None, f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
+    facts.report(None, f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, of them re-rendered {re_rendered}, held already {unchanged}, '
                  + ', '.join(f'{"refused" if s == "would lose" else s} {left[s]}' for s in left))
     return 1 if undone else 0
 
@@ -1212,14 +1219,16 @@ def stage_facts() -> StageStatus:
 @dataclass
 class Promotion:
     """One kind of staged unit as it stands to the store (issues/842): how many are staged, and
-    how many are promotable, held already, would lose by their relation, unlicensed at a
-    version origin/main does not hold, or pending the stage's judgement (issues/867)."""
+    how many are promotable, re-rendered - the held unit by its measure, in other bytes
+    (issues/1138) - held already, would lose by their relation, unlicensed at a version
+    origin/main does not hold, or pending the stage's judgement (issues/867)."""
     staged: int
     promotable: int | None
-    held_already: int | None
-    would_lose: int | None
-    unlicensed: int | None
-    pending: int | None
+    re_rendered: int | None = field(metadata={'key': 're-rendered'})
+    held_already: int | None = None
+    would_lose: int | None = None
+    unlicensed: int | None = None
+    pending: int | None = None
     acts: facts.Acts | None = None   # the acts on this kind, in the workflow's order (issues/1028)
 
     @classmethod
@@ -1227,14 +1236,15 @@ class Promotion:
         counts = tally(rows)
         pending = counts['invalid'] + counts['unjudged'] + counts['incomplete']
         acts = acts_on_staged(rows)
-        return cls(len(rows), counts['promotable'] or None, counts['held already'] or None,
+        return cls(len(rows), counts['promotable'] or None, counts['re-rendered'] or None, counts['held already'] or None,
                    counts['would lose'] or None, counts['unlicensed'] or None, pending or None,
                    facts.Acts(tuple(acts)) if acts else None)
 
 
 def acts_on_staged(rows: list[Judged]) -> list[facts.Would]:
     """The acts on staged units, in the workflow's order (issues/851, issues/1028): the
-    rehearsal for what is not judged, the capturing noun's promote for what is promotable,
+    rehearsal for what is not judged, the capturing noun's promote for what is promotable or
+    re-rendered, counted by which (issues/1138),
     the capture again for an incomplete unit named by a full id, and the stage's cleaner for
     what the store already holds and for each incomplete unit - each on the unit's kind."""
     acts: list[facts.Would] = []
@@ -1242,8 +1252,8 @@ def acts_on_staged(rows: list[Judged]) -> list[facts.Would]:
         kind = kind_of(row.unit)
         if row.state == 'unjudged':
             acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: 1}))
-        elif row.state == 'promotable' and (noun := noun_of(row.unit)) is not None:
-            acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: 1}))
+        elif row.state in ('promotable', 're-rendered') and (noun := noun_of(row.unit)) is not None:
+            acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: {row.state: 1}}))
         if row.state == 'incomplete' and (again := recapture_of(row.unit)):
             acts.append(facts.Would(again, {kind: 1}))
         if row.state in ('held already', 'incomplete'):
@@ -1257,6 +1267,31 @@ def promotion_facts(rows: list[Judged]) -> dict[str, Promotion]:
     for row in rows:
         kinds.setdefault(kind_of(row.unit), []).append(row)
     return {kind: Promotion.of(of_kind) for kind, of_kind in sorted(kinds.items())}
+
+
+def other_bytes(unit: Unit) -> list[str]:
+    """The staged unit's files, by their path under its address, whose held copy is absent or
+    holds other bytes."""
+    out = []
+    for rel in unit.members:
+        staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
+        for key in sorted(staged):
+            if key not in held or staged[key].read_bytes() != held[key].read_bytes():
+                path = rel / key if key else rel
+                out.append(path.relative_to(unit.address).as_posix() if path != unit.address and path.is_relative_to(unit.address) else path.as_posix())
+    return out
+
+
+def re_rendered_by(rows: list[Judged]) -> dict[str, dict[str, str]]:
+    """Each re-rendered unit, by selection, then by its address (issues/1138): its measure finds it
+    the held unit, and these files hold other bytes, which the promote would write over the held."""
+    out: dict[str, dict[str, str]] = {}
+    for row in rows:
+        if row.state == 're-rendered':
+            out.setdefault(kind_of(row.unit), {})[row.unit.address.as_posix()] = facts.phrase(
+                'the same by its {measure} ({detail}), other bytes in {files} - the promote replaces the held bytes',
+                measure=row.unit.measure, detail=row.detail, files=', '.join(other_bytes(row.unit)))
+    return out
 
 
 def relation_would_lose(rows: list[Judged]) -> dict[str, object]:
@@ -1442,6 +1477,7 @@ class StoreStatus:
     duplicates: dict[str, HeldTwice] | None = None   # by the duplicate's address
     live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, issues/851)
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (issues/842)
+    re_rendered: dict[str, dict[str, str]] | None = field(default=None, metadata={'key': 're-rendered'})   # by selection, then address: the same by the measure, other bytes (issues/1138)
     stage_orphans: dict[str, 'Orphan'] | None = None   # by path: what under tmp/stage/usr nothing reads, with the act that removes it
     would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (issues/867)
     now: dict | str | None = None   # the store's standing: every act its body names, gathered (issues/1028)
