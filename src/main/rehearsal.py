@@ -20,6 +20,11 @@ reader finds half a judgement; the next rehearsal replaces it whole. Its shape i
 src/main/rehearsal.schema.json, held on every write and every read: what does not
 validate is not a record, and the reader says so.
 
+A rehearsal is done when it has written its record and judged every unit it saw that a
+family judges, whatever the verdicts (issues/1145): what they found is the stage's to say, and
+the exit of the run it wraps - the usr gate, red wherever a datum is invalid - a fact of its
+line and of the record.
+
 A unit's standing to the record is decidable from it (src/main/corpus.py, `verdict`):
 absent from `units`, unseen by the rehearsal; present with other digests than it has now,
 changed since; present with no verdict, seen and not judged; else judged, valid or
@@ -152,6 +157,23 @@ def begin(stamp: str) -> int:
     return 0
 
 
+def outcome(stamp: str, record: dict, owed: set[str], exit_code: int) -> tuple[int, str]:
+    """The rehearsal's verdict and its exit (issues/1145): DONE, 0, where every unit the record saw
+    that a family judges - owed, by address - holds a verdict, whatever it found; NOT DONE, 1,
+    naming those that hold none. The exit of the run it wraps is said where it is not 0."""
+    units = record['units']
+    unjudged = sorted(address for address, unit in units.items() if address in owed and not unit['verdicts'])
+    judged = sum(1 for unit in units.values() if unit['verdicts'])
+    unowed = sum(1 for address in units if address not in owed)
+    saw = (f'rehearsal {stamp} saw {len(units)} unit(s), judged {judged}'
+           + (f', {unowed} judged by no family' if unowed else '') + f' - the record is {_rel(RECORD)}')
+    ran = '' if exit_code == 0 else f'; the run exited {exit_code}'
+    act = facts.act('pipeline', 'rehearse')
+    if unjudged:
+        return 1, f'{act}: NOT DONE - {saw}{ran} - {len(unjudged)} unit(s) a family judges hold no verdict - {", ".join(unjudged)}'
+    return 0, f'{act}: DONE - {saw}{ran}'
+
+
 def end(stamp: str, exit_code: int) -> int:
     import corpus
     seen = json.loads(EXTENT.read_text()) if EXTENT.is_file() else None
@@ -166,14 +188,11 @@ def end(stamp: str, exit_code: int) -> int:
         facts.report(None, facts.act('pipeline', 'rehearse') + f': NOT DONE - the record does not validate against {_rel(SCHEMA)} - {bad[0]}; no record written')
         return 1
     write(record)
-    judged = sum(1 for unit in record['units'].values() if unit['verdicts'])
-    # what an act reports (issues/801, issues/896): its effect, DONE where the run completed, its record
-    # written either way; the launcher replies with now:, the room's standing now that
-    # the stage is judged
-    saw = f'rehearsal {stamp} saw {len(record["units"])} unit(s), judged {judged} - the record is {_rel(RECORD)}'
-    facts.report(None, facts.act('pipeline', 'rehearse') + f': {"DONE" if exit_code == 0 else "NOT DONE"} - {saw}'
-                 + ('' if exit_code == 0 else f'; the run exited {exit_code}'))
-    return 0
+    # what an act reports (issues/801, issues/896): its effect and its record; the launcher replies
+    # with now:, the room's standing now that the stage is judged
+    code, line = outcome(stamp, record, {unit.address.as_posix() for unit in units if unit.families}, exit_code)
+    facts.report(None, line)
+    return code
 
 
 def main(argv: list[str]) -> int:

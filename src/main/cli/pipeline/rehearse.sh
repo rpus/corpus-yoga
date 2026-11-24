@@ -56,8 +56,8 @@ main() {
   CORPUS_YOGA_REHEARSAL="$stamp" CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) \
     "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" run || status=$?
   echo
-  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status" || return 1
-  return "$status"
+  # the rehearsal's exit is its own verdict's (issues/1145): judged whole, whatever the run found
+  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status"
 }
 
 main "$@"
