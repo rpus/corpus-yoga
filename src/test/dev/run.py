@@ -647,6 +647,12 @@ def _on_disk(path: Path, newline: str | None) -> str | None:
 
 def main():
     import argparse
+    import facts
+    # The gate is a step of whatever act runs it - corpus-yoga test run, a relocation's settle - and
+    # no check is that act: what a check prints, or what it runs prints, is never handed up as the
+    # running act's effect (issues/1147). run.sh, the gate's parent, says the gate's own verdict.
+    for handed_through in (facts.ACT, facts.EFFECT):
+        os.environ.pop(handed_through, None)
     ap = argparse.ArgumentParser()
     ap.add_argument('--fix', action='store_true')
     ap.add_argument('--fresh', action='store_true',

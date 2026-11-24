@@ -1184,8 +1184,8 @@ def check_status_is_the_dry_run(run) -> None:
         check='verbs.status_is_the_dry_run')
 
 
-@check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log'),
-       on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py'])
+@check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log', 'gate.checks_hand_no_effect_up'),
+       on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])
 def check_gate_logs(run) -> None:
     """What a room ran and what its gate ran are told apart: an act run while the gate names a
     check, `CORPUS_YOGA_GATE_CHECK` as `<gate run>/<check>`, is logged beneath that check, under
@@ -1198,8 +1198,6 @@ def check_gate_logs(run) -> None:
     room = REPO_ROOT / 'tmp' / 'logs' / 'store' / 'clean'
     held = set(room.glob('*.log')) if room.is_dir() else set()
     environment = {**os.environ, 'CORPUS_YOGA_GATE_CHECK': f'{probe}/check_probe', 'CORPUS_YOGA_NO_SEND': '1'}
-    environment.pop('CORPUS_YOGA_ACT', None)
-    environment.pop('CORPUS_YOGA_EFFECT', None)
     try:
         subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'store', 'clean', '--nonsense'], capture_output=True, text=True,
                        cwd=REPO_ROOT, env=environment)
@@ -1223,6 +1221,13 @@ def check_gate_logs(run) -> None:
     run("logs: each check's log under the gate run opens on its verdict and holds its lines", ok,
         None if ok else ('src/test/dev/gate.py writes no check log' if write is None else f'the log read {said!r}'),
         check='logs.each_check_has_its_log')
+    # The gate is a step of whatever act runs it - corpus-yoga test run, a relocation's settle - so no
+    # check hands an effect up to that act (issues/1147): under forge rebase a check's own
+    # `forge rebase: NOT DONE` line was taken for the running act's and written to its effect file.
+    import facts
+    dispatched = sorted(name for name in (facts.ACT, facts.EFFECT) if name in os.environ)
+    run("gate: a check sees no act to hand its effect up to, whatever act runs the gate", not dispatched,
+        None if not dispatched else f'the checks run with {dispatched}', check='gate.checks_hand_no_effect_up')
 
 
 @check(tier='code', says=('logs.no_verb_logs_for_itself',), on=['src/main/cli'])
