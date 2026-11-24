@@ -1244,7 +1244,7 @@ class Promotion:
 def acts_on_staged(rows: list[Judged]) -> list[facts.Would]:
     """The acts on staged units, in the workflow's order (issues/851, issues/1028): the
     rehearsal for what is not judged, the capturing noun's promote for what is promotable or
-    re-rendered,
+    re-rendered, counted by which (issues/1138),
     the capture again for an incomplete unit named by a full id, and the stage's cleaner for
     what the store already holds and for each incomplete unit - each on the unit's kind."""
     acts: list[facts.Would] = []
@@ -1253,7 +1253,7 @@ def acts_on_staged(rows: list[Judged]) -> list[facts.Would]:
         if row.state == 'unjudged':
             acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: 1}))
         elif row.state in ('promotable', 're-rendered') and (noun := noun_of(row.unit)) is not None:
-            acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: 1}))
+            acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: {row.state: 1}}))
         if row.state == 'incomplete' and (again := recapture_of(row.unit)):
             acts.append(facts.Would(again, {kind: 1}))
         if row.state in ('held already', 'incomplete'):

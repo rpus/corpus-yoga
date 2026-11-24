@@ -156,6 +156,7 @@ def check_unit_companion(run) -> None:
     'stage.empty_selection_is_incomplete',
     'stage.recapture_names_a_full_id',
     'stage.re_rendered_is_told_apart',
+    'stage.re_rendered_promote_says_so',
     'stage.states_are_told_apart',
 ))
 def check_unit_state(run) -> None:
@@ -218,6 +219,9 @@ def check_unit_state(run) -> None:
             setattr(corpus, 'STAGE', stage_root)
             setattr(corpus, 'STORE', store_root)
             told = {u.address.name: state(u, corpus.relation(u)[0], judgement.VALID) for u in corpus.select(stage_root, gemini)}
+            judged = [corpus.Judged(u, corpus.relation(u)[0], '', judgement.VALID, '') for u in corpus.select(stage_root, gemini)]
+            promotes = [act for act in corpus.acts_on_staged(judged) if ' promote' in act.line]
+            kind = corpus.kind_of(judged[0].unit) if judged else None
     finally:
         for name, value in kept.items():
             setattr(corpus, name, value)
@@ -225,6 +229,13 @@ def check_unit_state(run) -> None:
     run('stage: a unit of the held turns in other bytes is re-rendered, told apart from one with new turns', told == want,
         None if told == want else f'the states read {told}, where they are {want}',
         check='stage.re_rendered_is_told_apart')
+    import facts
+    said = facts.Acts(tuple(promotes)).facts() if promotes else {}
+    offered = next((by_would for by_line in said.values() for by_would in by_line.values()), None)
+    want_offer = {kind: {'promotable': 1, 're-rendered': 1}}
+    run("stage: the promote a status offers counts the re-rendered apart from the promotable", offered == want_offer,
+        None if offered == want_offer else f'the promote is offered over {offered}, where it is {want_offer}',
+        check='stage.re_rendered_promote_says_so')
     run('stage: a directory the selection names with no file under it is incomplete', ok,
         None if ok else f'the states read {states}, where an empty directory is incomplete and a full one unjudged',
         check='stage.empty_selection_is_incomplete')
