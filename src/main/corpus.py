@@ -545,11 +545,13 @@ class Refusal:
     holds: str | None = None
 
     def words(self) -> str:
-        """The fault in one line: where it is, the rule it fails and what the datum held there,
-        or the reason alone."""
-        if self.where and self.rule:
-            return f'{self.where} fails {self.rule}, holding {self.holds}' if self.holds else f'{self.where} fails {self.rule}'
-        return self.where or self.reason
+        """The fault in one line: where it is, the rule it fails where it names one - a union's
+        verdict names none (issues/894) - and what the datum held there wherever it is recorded
+        (issues/1156); or the reason alone."""
+        if not self.where:
+            return self.reason
+        said = f'{self.where} fails {self.rule}' if self.rule else self.where
+        return f'{said}, holding {self.holds}' if self.holds else said
 
     def facts(self) -> str | dict[str, str]:
         """What the stage says of the refusal beneath the version file: the reason alone, or

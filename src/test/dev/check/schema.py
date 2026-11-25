@@ -305,6 +305,7 @@ def check_verdict_record(run) -> None:
     'pipeline.failing_is_keyed_by_datum',
     'validation.fail_atom_names_the_fault',
     'validation.fault_names_what_the_datum_held',
+    'validation.a_union_fault_says_what_the_datum_held',
 ))
 def check_failing_record(run) -> None:
     """A failing stage's record names each refused datum by its id with the fault beneath: the tail keys atoms by their subject, datums refused for one fault share
@@ -382,3 +383,10 @@ def check_failing_record(run) -> None:
     run('validation: a fault says what the datum held that the rule refused, in the fault, the FAIL atom and a status', ok,
         None if ok else f'held {held}, where {want}; the atom printed {atom!r}; a status says {words!r}',
         check='validation.fault_names_what_the_datum_held')
+    # A union's verdict names no keyword, so its fault has no rule; what the datum held there is said
+    # all the same (issues/1156) - the value the union's discriminator refused names the fault.
+    union_words = corpus.Refusal('agent', 'claude/session', 'v30', "type - 'data-flow-records' is not a type the union declares", '/10/type', None,
+                                 '/definitions/Record', 'the value "data-flow-records"').words()
+    said_held = union_words == '/10/type, holding the value "data-flow-records"'
+    run('validation: a union fault, which names no rule, says what the datum held', said_held,
+        None if said_held else f'a status says {union_words!r}', check='validation.a_union_fault_says_what_the_datum_held')
