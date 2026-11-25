@@ -715,13 +715,13 @@ rsc/schema/WORKFLOW.md,415,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
 rsc/schema/WORKFLOW.md,416,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
 rsc/schema/WORKFLOW.md,423,doc,src/test/dev/check,Y,`src/test/dev/check/`. Adding a schema version multiplies invocations of existing checks and
 rsc/schema/agent/claude/session/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/agent/claude/session/CHANGELOG.md,131,history,rsc/model/model_join.csv,N,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
-rsc/schema/agent/claude/session/CHANGELOG.md,153,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
-rsc/schema/agent/claude/session/CHANGELOG.md,166,history,rsc/model/model_join.csv,N,uuid the export families carry under four dressings (rsc/model/model_join.csv's
-rsc/schema/agent/claude/session/CHANGELOG.md,206,history,rsc/model/model_join.csv,N,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
-rsc/schema/agent/claude/session/CHANGELOG.md,240,history,rsc/model/model_join.csv,N,No other family carries the key (rsc/model/model_join.csv names no row for it).
-rsc/schema/agent/claude/session/CHANGELOG.md,732,history,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
-rsc/schema/agent/claude/session/CHANGELOG.md,1112,history,src/main/pipeline/code-transport/run.sh,N,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
+rsc/schema/agent/claude/session/CHANGELOG.md,138,history,rsc/model/model_join.csv,N,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
+rsc/schema/agent/claude/session/CHANGELOG.md,160,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
+rsc/schema/agent/claude/session/CHANGELOG.md,173,history,rsc/model/model_join.csv,N,uuid the export families carry under four dressings (rsc/model/model_join.csv's
+rsc/schema/agent/claude/session/CHANGELOG.md,213,history,rsc/model/model_join.csv,N,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
+rsc/schema/agent/claude/session/CHANGELOG.md,247,history,rsc/model/model_join.csv,N,No other family carries the key (rsc/model/model_join.csv names no row for it).
+rsc/schema/agent/claude/session/CHANGELOG.md,739,history,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
+rsc/schema/agent/claude/session/CHANGELOG.md,1119,history,src/main/pipeline/code-transport/run.sh,N,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/agent/sessionConversation/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/agent/sessionConversation/CHANGELOG.md,36,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
 rsc/schema/agent/sessionConversation/CHANGELOG.md,79,history,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was"

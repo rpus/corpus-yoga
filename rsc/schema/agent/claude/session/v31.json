@@ -945,7 +945,7 @@
     },
     "DataFlowRecordsRecord": {
       "title": "DataFlowRecordsRecord",
-      "description": "A record Claude Code 2.1.331 writes through a session, each carrying a list of entries that name a response or an event. Observed on reading-room in session 380a1912-9383-46d7-8203-2b8d527eb727, staged 2026-11-25: 400 records of 3,070 lines, the first at line 11, none in any session held before. Read as the harness's record of which responses and events fed which - a reading of one session, which an entry naming anything but a response or an event would contradict. Undeclared before v31.",
+      "description": "A record Claude Code 2.1.331 writes through a session, each carrying a list of entries that name a response or an event. Observed on reading-room in session 380a1912-9383-46d7-8203-2b8d527eb727, staged 2026-11-25 and rehearsed at 2026-11-25T131106Z: 485 records of 3,794 lines, the first at line 11, none in any session held before. Read as the harness's record of which responses and events fed which - a reading of one session, which an entry naming anything but a response or an event would contradict. Undeclared before v31.",
       "type": "object",
       "required": [
         "type",
@@ -967,7 +967,7 @@
           "enum": [
             1
           ],
-          "description": "The version of the record's own shape, 1 on all 400 records; a record of another version is refused, so that a new shape asks for a new version of this family."
+          "description": "The version of the record's own shape, 1 on all 485 records; a record of another version is refused, so that a new shape asks for a new version of this family."
         },
         "sessionId": {
           "$ref": "#/definitions/UuidV4"
@@ -977,7 +977,7 @@
           "items": {
             "$ref": "#/definitions/DataFlowEntry"
           },
-          "description": "Empty on 4 of the 400 records, one entry on the rest."
+          "description": "Empty on 1 of the 485 records, one entry on 479, two on 5."
         }
       }
     },
@@ -1726,7 +1726,7 @@
     },
     "DataFlowEntry": {
       "title": "DataFlowEntry",
-      "description": "One entry of a data-flow-records record: a response, or an event by the tool it ran or what it touched.",
+      "description": "One entry of a data-flow-records record: a response, or an event by the tool it ran, what it touched or its source.",
       "oneOf": [
         {
           "$ref": "#/definitions/DataFlowResponseEntry"
@@ -1736,6 +1736,9 @@
         },
         {
           "$ref": "#/definitions/DataFlowTouchEntry"
+        },
+        {
+          "$ref": "#/definitions/DataFlowSourceEntry"
         }
       ]
     },
@@ -2120,7 +2123,7 @@
     },
     "DataFlowResponseEntry": {
       "title": "DataFlowResponseEntry",
-      "description": "A response of the model, and the earlier responses it lists. Observed 396 times: once alone, the session's first, and 395 times listing one earlier response.",
+      "description": "A response of the model, and the earlier responses it lists. Observed 484 times: once alone, the session's first, and 483 times listing one earlier response.",
       "type": "object",
       "required": [
         "response_id"
@@ -2158,7 +2161,7 @@
     },
     "DataFlowTouchEntry": {
       "title": "DataFlowTouchEntry",
-      "description": "An event and what it touched. Observed once, a write to the session's local instructions memory.",
+      "description": "An event and what it touched. Observed twice, each a write to a memory of the session: its local instructions, and its local memory.",
       "type": "object",
       "required": [
         "event_id",
@@ -2180,15 +2183,51 @@
           "properties": {
             "kind": {
               "type": "string",
-              "description": "memory on the one entry observed."
+              "description": "memory on both entries observed."
             },
             "id": {
               "type": "string",
-              "description": "local_instructions_ and the session's uuid on the one entry observed."
+              "description": "local_instructions_ or local_, and the session's uuid, on the two entries observed."
             },
             "action": {
               "type": "string",
-              "description": "write on the one entry observed."
+              "description": "write on both entries observed."
+            }
+          }
+        }
+      }
+    },
+    "DataFlowSourceEntry": {
+      "title": "DataFlowSourceEntry",
+      "description": "An event and its source. Observed once, its source of type unknown and no id; whether a source of a known type carries an id is not yet seen.",
+      "type": "object",
+      "required": [
+        "event_id",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "$ref": "#/definitions/EventId"
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "type",
+            "id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "unknown on the one entry observed."
+            },
+            "id": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "null on the one entry observed."
             }
           }
         }
@@ -2415,7 +2454,7 @@
     },
     "ResponseId": {
       "title": "ResponseId",
-      "description": "A response of the model by its id, msg_ and 24 letters and digits; every response_id and listed entry of the 400 data-flow-records records of reading-room's session 380a1912, 2026-11-25.",
+      "description": "A response of the model by its id, msg_ and 24 letters and digits; every response_id and listed entry of the 485 data-flow-records records of reading-room's session 380a1912, 2026-11-25.",
       "type": "string",
       "pattern": "^msg_[0-9A-Za-z]{24}$"
     },
