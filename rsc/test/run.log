@@ -326,6 +326,7 @@ check_unit_state: |
   ✓ stage.states_are_told_apart  (2/2)
   ✓ stage.re_rendered_is_told_apart
   ✓ stage.re_rendered_promote_says_so
+  ✓ stage.promote_counts_by_the_state_before_the_copy
   ✓ stage.rehearsal_offered_where_judged_elsewhere
   ✓ stage.empty_selection_is_incomplete
   ✓ audit.counts_what_pipelines_were_shown
@@ -728,7 +729,7 @@ stages:
     tier: code
     line: "322"
   check_unit_state:
-    passes: 9
+    passes: 10
     failures: 0
     tier: code
     line: "325"
