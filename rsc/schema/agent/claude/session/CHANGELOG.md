@@ -6,6 +6,48 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v31
+
+A session records which responses and events fed which. Reading-room's live session
+`380a1912-9383-46d7-8203-2b8d527eb727`, of Claude Code 2.1.331, staged by `corpus-yoga agent
+capture`, is refused at v30 by the rehearsal of 2026-11-25T103040Z at its record 10: a record of
+a kind the union did not list, `{"type": "data-flow-records", "v": 1, "sessionId": "380a1912-…",
+"records": [...]}`. As staged for the rehearsal of 2026-11-25T131106Z the transcript holds 485 such
+records of its 3,794 lines, the first at line 11; every one has those four keys and `v` 1;
+`records` is empty on 1, holds one entry on 479 and two on 5. The 489 entries take four shapes -
+`{response_id}` once, the session's first; `{response_id, listed}` on 483, `listed` one earlier
+response id; `{event_id, tool_name}` twice, HookText and Read; `{event_id, touched}` twice, each
+`{kind: "memory", action: "write"}`, its `id` `local_instructions_380a1912-…` and
+`local_380a1912-…`; and `{event_id, source}` once, `{type: "unknown", id: null}`. Every response id
+is `msg_` and 24 letters and digits, every event id `event_` and a version 4 uuid. No session held
+on reading-room carries the kind (issues/1155). That it is the harness's record of which responses
+and events fed which is a reading of one session, which an entry naming anything else would test.
+
+A first cut of v31, closed to the three shapes the transcript held at 10:30, was refused by the
+rehearsal of 13:11 at record 3714 for the `source` entry; the session was still running, and its
+transcript can show a shape no earlier part held.
+
+Validated on reading-room, 2026-11-25, over the 13:11 rehearsal's conversion of the staged
+session and the 24 held sessions' conversions: v30 refuses the staged one at record 10 and admits
+the 24; v31 admits all 25. v31 adds one record kind and narrows nothing, so every datum v30
+admits, v31 admits.
+
+### Replaces
+
+v30
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Record`: admits `DataFlowRecordsRecord` - `type` "data-flow-records", `v` 1, `sessionId` a `UuidV4`, and `records`, an array of `DataFlowEntry`: a `DataFlowResponseEntry` (`response_id` and an optional `listed`, each a `ResponseId`), a `DataFlowToolEntry` (`event_id`, an `EventId`, and `tool_name`), a `DataFlowTouchEntry` (`event_id` and `touched`, of `kind`, `id` and `action`) or a `DataFlowSourceEntry` (`event_id` and `source`, of `type` and an `id` that is a string or null), each closed.
+
+#### Refactored
+
+None.
+
 ## v30
 
 A turn can come from another agent of the session. Reading-room's session

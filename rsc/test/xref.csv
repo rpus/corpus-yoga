@@ -593,15 +593,16 @@ rsc/metamodel/join.csv,274,path_str,rsc/schema/browser/claude/apiConversation#/d
 rsc/metamodel/join.csv,275,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ReadToolResultBlock,Y,",,,rsc/schema/browser/claude/apiConversation#/definitions/ReadToolResultBlock,,api_only,the API capture names every tool"
 rsc/metamodel/join.csv,276,path_str,rsc/schema/export/claude/conversations#/definitions/ToolResultImage,Y,"rsc/schema/export/claude/conversations#/definitions/ToolResultImage,,,rsc/schema/browser/claude/apiConversation#/definit"
 rsc/metamodel/join.csv,276,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ApiToolResultImage,Y,"rsc/schema/export/claude/conversations#/definitions/ToolResultImage,,,rsc/schema/browser/claude/apiConversation#/definit"
-rsc/metamodel/join.csv,277,path_str,rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,Y,",rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,,,,cli_only,the account and the organisation a session "
-rsc/metamodel/join.csv,278,path_str,rsc/schema/export/claude/conversations#/definitions/GlobToolResultBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolResultBlock,,,rsc/schema/browser/claude/apiConversation#/def"
-rsc/metamodel/join.csv,278,path_str,rsc/schema/browser/claude/apiConversation#/definitions/GlobToolResultBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolResultBlock,,,rsc/schema/browser/claude/apiConversation#/def"
-rsc/metamodel/join.csv,279,path_str,rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,,,rsc/schema/browser/claude/apiConversation#/defini"
-rsc/metamodel/join.csv,279,path_str,rsc/schema/browser/claude/apiConversation#/definitions/GlobToolUseBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,,,rsc/schema/browser/claude/apiConversation#/defini"
-rsc/metamodel/join.csv,280,path_str,rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
-rsc/metamodel/join.csv,280,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
-rsc/metamodel/join.csv,281,path_str,rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
-rsc/metamodel/join.csv,281,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ApiConversation/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
+rsc/metamodel/join.csv,277,path_str,rsc/schema/agent/claude/session#/definitions/DataFlowRecordsRecord,Y,",rsc/schema/agent/claude/session#/definitions/DataFlowRecordsRecord,,,,cli_only,which responses and events fed which, a "
+rsc/metamodel/join.csv,278,path_str,rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,Y,",rsc/schema/agent/claude/session#/definitions/SessionOwnerRecord,,,,cli_only,the account and the organisation a session "
+rsc/metamodel/join.csv,279,path_str,rsc/schema/export/claude/conversations#/definitions/GlobToolResultBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolResultBlock,,,rsc/schema/browser/claude/apiConversation#/def"
+rsc/metamodel/join.csv,279,path_str,rsc/schema/browser/claude/apiConversation#/definitions/GlobToolResultBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolResultBlock,,,rsc/schema/browser/claude/apiConversation#/def"
+rsc/metamodel/join.csv,280,path_str,rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,,,rsc/schema/browser/claude/apiConversation#/defini"
+rsc/metamodel/join.csv,280,path_str,rsc/schema/browser/claude/apiConversation#/definitions/GlobToolUseBlock,Y,"rsc/schema/export/claude/conversations#/definitions/GlobToolUseBlock,,,rsc/schema/browser/claude/apiConversation#/defini"
+rsc/metamodel/join.csv,281,path_str,rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
+rsc/metamodel/join.csv,281,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
+rsc/metamodel/join.csv,282,path_str,rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
+rsc/metamodel/join.csv,282,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ApiConversation/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
 rsc/migration/1047.sh,2,comment,rsc/migration/1047.sh,Y,# rsc/migration/1047.sh - each pipeline is named for the noun whose promote deposits its
 rsc/migration/1047.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1052.sh,2,comment,rsc/migration/1052.sh,Y,# rsc/migration/1052.sh - python's bytecode stands under tmp/cache/python (issues/1052): each
@@ -714,13 +715,13 @@ rsc/schema/WORKFLOW.md,415,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
 rsc/schema/WORKFLOW.md,416,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
 rsc/schema/WORKFLOW.md,423,doc,src/test/dev/check,Y,`src/test/dev/check/`. Adding a schema version multiplies invocations of existing checks and
 rsc/schema/agent/claude/session/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/agent/claude/session/CHANGELOG.md,96,history,rsc/model/model_join.csv,N,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
-rsc/schema/agent/claude/session/CHANGELOG.md,118,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
-rsc/schema/agent/claude/session/CHANGELOG.md,131,history,rsc/model/model_join.csv,N,uuid the export families carry under four dressings (rsc/model/model_join.csv's
-rsc/schema/agent/claude/session/CHANGELOG.md,171,history,rsc/model/model_join.csv,N,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
-rsc/schema/agent/claude/session/CHANGELOG.md,205,history,rsc/model/model_join.csv,N,No other family carries the key (rsc/model/model_join.csv names no row for it).
-rsc/schema/agent/claude/session/CHANGELOG.md,697,history,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
-rsc/schema/agent/claude/session/CHANGELOG.md,1077,history,src/main/pipeline/code-transport/run.sh,N,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
+rsc/schema/agent/claude/session/CHANGELOG.md,138,history,rsc/model/model_join.csv,N,"and asserted identical in rsc/model/model_join.csv, so an id neither knows refuses in both. The"
+rsc/schema/agent/claude/session/CHANGELOG.md,160,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
+rsc/schema/agent/claude/session/CHANGELOG.md,173,history,rsc/model/model_join.csv,N,uuid the export families carry under four dressings (rsc/model/model_join.csv's
+rsc/schema/agent/claude/session/CHANGELOG.md,213,history,rsc/model/model_join.csv,N,"no usage per model (rsc/model/model_join.csv: `ToolsUsedRecord` joins as `cli_only`, as"
+rsc/schema/agent/claude/session/CHANGELOG.md,247,history,rsc/model/model_join.csv,N,No other family carries the key (rsc/model/model_join.csv names no row for it).
+rsc/schema/agent/claude/session/CHANGELOG.md,739,history,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
+rsc/schema/agent/claude/session/CHANGELOG.md,1119,history,src/main/pipeline/code-transport/run.sh,N,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/agent/sessionConversation/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/agent/sessionConversation/CHANGELOG.md,36,history,rsc/metamodel/join.csv,Y,"- A description that names the table of shared types (in place) names it where it now stands, `rsc/metamodel/join.csv`, "
 rsc/schema/agent/sessionConversation/CHANGELOG.md,79,history,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (pull/20), which `rsc/schema/` was"
@@ -1812,7 +1813,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/rpus/grammar/TypeScript/TypeScriptLexer.g4,Y,
 ,,,rsc/rpus/grammar/TypeScript/TypeScriptParser.g4,Y,
 ,,,rsc/schema/agent/claude/session/CHANGELOG.md,Y,
-,,,rsc/schema/agent/claude/session/v30.json,Y,
+,,,rsc/schema/agent/claude/session/v31.json,Y,
 ,,,rsc/schema/agent/gemini/session/CHANGELOG.md,Y,
 ,,,rsc/schema/agent/gemini/session/layer.csv,Y,
 ,,,rsc/schema/agent/gemini/session/v1.json,Y,
