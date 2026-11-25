@@ -693,12 +693,14 @@ def check_screen_and_scratch(run) -> None:
 
     loose = sorted(f'{path.relative_to(REPO_ROOT)}:{number}' for path in SRC.rglob('*.sh') if path.name != 'tier.sh'
                    for number, line in enumerate(path.read_text().splitlines(), 1) if 'mktemp' in line and not line.lstrip().startswith('#'))
-    probe = 'f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]'
     placed: dict[str, object] = {}
     with tempfile.TemporaryDirectory() as tmp:
-        for case, env, under in (('dispatched', {'CORPUS_YOGA_ACT': 'probe verb'}, 'probe/verb'), ('undispatched', {'SELF': '/'.join(('src', 'main', 'probe', 'probe.sh'))}, 'probe')):
-            environment = {k: v for k, v in os.environ.items() if k not in ('CORPUS_YOGA_ACT', 'SELF')} | env
-            made = subprocess.run(['bash', '-c', f'source "{SRC}/main/tier.sh"; TMP_DIR="{tmp}"; {probe}'], capture_output=True, text=True, timeout=30, env=environment)
+        script = Path(tmp) / 'probe.sh'
+        script.write_text(f'SELF=a-helper-it-sourced.sh; source "{SRC}/main/tier.sh"; TMP_DIR="{tmp}"\n'
+                          'f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]\n')
+        for case, env, under in (('dispatched', {'CORPUS_YOGA_ACT': 'probe verb'}, 'probe/verb'), ('undispatched', {}, 'probe')):
+            environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_ACT'} | env
+            made = subprocess.run(['bash', str(script)], capture_output=True, text=True, timeout=30, env=environment)
             lines = made.stdout.split()
             ok = made.returncode == 0 and len(lines) == 3 and all(line.startswith(f'{tmp}/{under}/probe.{lines[2]}.') for line in lines[:2])
             placed[case] = True if ok else f'{made.stdout!r} {made.stderr.strip()[:160]!r}'

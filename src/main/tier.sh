@@ -38,12 +38,13 @@ if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TIER_REPO/logs/test/r
 
 # scratch_file <name>, scratch_dir <name>: a disposable file or directory a run keeps only
 # while it runs (issues/906), made under tmp/<command>/<verb>/ - the act the launcher dispatched,
-# or the running script's own name where it dispatched none (issues/1170) - and named
+# or the running script's own name, $0, where it dispatched none (issues/1170) - never SELF, which
+# every helper a script sources declares over the script's own - and named
 # <name>.<pid>.<random>, the pid the run's own, so that corpus-yoga tmp names what a run that died
 # left there. No script calls mktemp but through these: nothing disposable is written outside the tree.
 _run_dir() {
-  local act="${CORPUS_YOGA_ACT:-}" script="${SELF:-${BASH_SOURCE[2]:-run}}"
-  if [[ -n "$act" ]]; then echo "$TMP_DIR/${act// //}"; else script="${script##*/}"; echo "$TMP_DIR/${script%.*}"; fi
+  local act="${CORPUS_YOGA_ACT:-}" script="${0##*/}"
+  if [[ -n "$act" ]]; then echo "$TMP_DIR/${act// //}"; else echo "$TMP_DIR/${script%.*}"; fi
 }
 scratch_file() {
   local dir; dir="$(_run_dir)"
