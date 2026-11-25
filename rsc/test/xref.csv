@@ -1043,7 +1043,7 @@ src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""t
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/indexing/capture.json,31,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
 src/main/cli/indexing/capture.json,32,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
-src/main/cli/indexing/indexing.json,54,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
+src/main/cli/indexing/indexing.json,55,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
 src/main/cli/logs/logs.json,18,path_str,src/main/cli/logs/logs.py,Y,"""target"": ""src/main/cli/logs/logs.py"","
 src/main/cli/logs/logs.py,8,comment,src/main/cli/cli.py,Y,The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
 src/main/cli/logs/logs.py,17,comment,src/main/cleaner.py,Y,runs (src/main/cleaner.py). A current command's logs are never the cleaner's: a log is the
@@ -1319,12 +1319,13 @@ src/main/indexing/capture.sh,30,comment,src/main/report.sh,Y,# shellcheck source
 src/main/indexing/capture.sh,32,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
-src/main/indexing/capture.sh,124,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
+src/main/indexing/capture.sh,134,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
 src/main/indexing/indexing.py,19,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/indexing/indexing.py,53,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
 src/main/indexing/indexing.py,288,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
 src/main/indexing/indexing.py,361,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
 src/main/indexing/indexing.py,668,comment,src/main/corpus_shape.sh,Y,"shape's one home, src/main/corpus_shape.sh."
+src/main/indexing/reply_shape.py,20,path_str,src/main/indexing/reply_shape.py,Y,SELF = 'src/main/indexing/reply_shape.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
 src/main/machine.py,8,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
@@ -1440,15 +1441,19 @@ src/schema_walk.py,42,path_str,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,GRAMMAR 
 src/test/dev/check/indexing.py,17,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
 src/test/dev/check/indexing.py,17,path_str,src/main/tier.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
 src/test/dev/check/indexing.py,17,path_str,src/main/report.sh,Y,"@check(tier='code', says=('indexing.reply_without_text_is_named', 'indexing.reply_text_read_wherever_it_stands'), on=['s"
-src/test/dev/check/indexing.py,57,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,57,path_str,src/main/facts.py,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,57,path_str,src/main/cli/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,126,path_str,src/main/indexing/indexing.py,Y,"'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',"
-src/test/dev/check/indexing.py,114,path_str,src/main/indexing,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,114,path_str,src/main/cli/server/book_index.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,114,path_str,src/main/present_corpus.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,114,path_str,src/main/cli/pipeline,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,114,path_str,src/main/cli/site,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,58,path_str,src/main/indexing,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
+src/test/dev/check/indexing.py,58,path_str,rsc/schema/indexing,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
+src/test/dev/check/indexing.py,58,path_str,src/main/report.sh,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
+src/test/dev/check/indexing.py,58,path_str,src/main/cli/indexing,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
+src/test/dev/check/indexing.py,123,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
+src/test/dev/check/indexing.py,123,path_str,src/main/facts.py,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
+src/test/dev/check/indexing.py,123,path_str,src/main/cli/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
+src/test/dev/check/indexing.py,192,path_str,src/main/indexing/indexing.py,Y,"'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',"
+src/test/dev/check/indexing.py,180,path_str,src/main/indexing,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,180,path_str,src/main/cli/server/book_index.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,180,path_str,src/main/present_corpus.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,180,path_str,src/main/cli/pipeline,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,180,path_str,src/main/cli/site,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
 src/test/dev/check/join.py,70,comment,rsc/metamodel/metamodel.json,Y,"rsc/metamodel/metamodel.json is the table of documented shared types - a name, its"
 src/test/dev/check/join.py,71,comment,rsc/metamodel/metamodel.schema.json,Y,"description, its occurrences by family - and rsc/metamodel/metamodel.schema.json is"
 src/test/dev/check/join.py,144,comment,rsc/metamodel/rejected.txt,Y,covered by a rejection in rsc/metamodel/rejected.txt. One check per
@@ -1943,6 +1948,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/export/require_export.sh,Y,
 ,,self_only,src/main/export/vintage.py,Y,
 ,,,src/main/format_table.py,Y,
+,,self_only,src/main/indexing/reply_shape.py,Y,
 ,,,src/main/inject.py,Y,
 ,,self_only,src/main/member.py,Y,
 ,,self_only,src/main/metamodel/catalogue.py,Y,

@@ -49,7 +49,8 @@
     "waits on corpus-yoga indexing build",
     "current - built from the accepted record and the corpus as they stand",
     "stale - the accepted record or the corpus moved since it was built",
-    "no effect; {path} is built from the accepted record and the corpus as they stand"
+    "no effect; {path} is built from the accepted record and the corpus as they stand",
+    "the reading fails {family} {version} at {fault}; staged in {stage}, not promoted"
   ],
   "target": "src/main/indexing/indexing.py",
   "calculus": "capture curate project",
