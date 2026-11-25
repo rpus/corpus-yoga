@@ -3,7 +3,7 @@ atomise_bulk.py — Split a bulk export's conversations.json (one big array) int
 per-conversation JSON files, one per Conversation, each validated against the Conversation
 definition in the latest conversations schema (inner-ref; no separate/duplicated schema).
 
-  data/input/claude/chat/bulk-export/<batch>/conversations.json  -->  tmp/cache/export/<batch>/json/<ordinal>-<slug>.json
+  data/input/claude/chat/bulk-export/<batch>/conversations.json  -->  cache/export/<batch>/json/<ordinal>-<slug>.json
 
 This is the ONLY reader of the 24 MB array. Everything downstream consumes the per-conversation
 pieces instead: project_markdown.py renders them to markdown/, compare_sources.py cross-checks
@@ -15,7 +15,7 @@ conversation <ordinal> all correspond, and a plain filesystem sort is conversati
 
 Usage (output defaults per batch; --out overrides):
   src/run_python_script.sh src/main/export/atomise_bulk.py \
-    --bulk-export data/input/claude/chat/bulk-export/<batch>            # -> tmp/cache/export/<batch>/json/
+    --bulk-export data/input/claude/chat/bulk-export/<batch>            # -> cache/export/<batch>/json/
 """
 import argparse
 import json
@@ -74,10 +74,10 @@ def atomise(batch_dir, out_dir):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bulk-export', required=True, help='a bulk-export batch dir (containing conversations.json)')
-    ap.add_argument('--out', help='output dir (default: tmp/cache/export/<batch>/json)')
+    ap.add_argument('--out', help='output dir (default: cache/export/<batch>/json)')
     args = ap.parse_args()
     batch = Path(args.bulk_export)
-    out = Path(args.out) if args.out else tier.TMP / 'cache' / 'export' / batch.name / 'json'
+    out = Path(args.out) if args.out else tier.CACHE / 'export' / batch.name / 'json'
     atomise(batch, out)
 
 

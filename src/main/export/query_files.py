@@ -1,9 +1,9 @@
 """
 query_files.py — Run the standard SQL queries against files_audit.csv.
 
-Loads tmp/cache/<export>/presentation/files_audit.csv into an in-memory SQLite
+Loads cache/<export>/presentation/files_audit.csv into an in-memory SQLite
 database and runs each of the five documented queries, writing results to
-tmp/cache/<export>/audit_queries/.
+cache/<export>/audit_queries/.
 
 Usage:
     python src/main/export/query_files.py --export  <path-to-export>
@@ -31,7 +31,7 @@ import tier  # the tiers, one home (issues/702)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-CACHE_DIR    = tier.TMP / 'cache' / 'export'
+CACHE_DIR    = tier.CACHE / 'export'
 
 QUERIES: list[tuple[str, str, str]] = [
     (

@@ -19,7 +19,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser/claude/apiConversation"
 LEAN_SCHEMA_DIR="$REPO_DIR/rsc/schema/browser/markdownConversation"   # the core both providers share (issues/965)
-CACHE_DIR="$TMP_DIR/cache/browser/claude"
+CACHE_DIR="$CACHE_ROOT/browser/claude"
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (issues/395)
 

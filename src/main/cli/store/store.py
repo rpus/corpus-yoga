@@ -69,9 +69,9 @@ def entries() -> list[cleaner.Entry]:
     or path, its facts, the act, and the selection it is counted under. The one list both
     faces walk."""
     out: list[cleaner.Entry] = []
-    for duplicate in corpus.held_twice(corpus.STORE, live.live_addresses()):
+    for duplicate in corpus.held_twice(corpus.HELD, live.live_addresses()):
         unit, holder, how, by = duplicate.unit, duplicate.holder, duplicate.how, duplicate.by
-        paths = [corpus.STORE / m for m in unit.members + unit.record]
+        paths = [corpus.HELD / m for m in unit.members + unit.record]
         own = corpus.shadow(unit)
         if own is not None and own.exists():
             paths.append(own)
@@ -85,11 +85,11 @@ def entries() -> list[cleaner.Entry]:
         out.append(cleaner.Entry('orphaned shadow', shadow,
                                  {'orphaned shadow': facts.phrase('the store holds no unit it derives from'), 'size': corpus.human(corpus.size_of(d))},
                                  lambda d=d: _dispose_all([d]), '/'.join(shadow.split('/')[:3])))
-    for unit, rel in corpus.surplus(corpus.STORE):
+    for unit, rel in corpus.surplus(corpus.HELD):
         out.append(cleaner.Entry('surplus file', rel.as_posix(),
                                  {'surplus file': facts.phrase('its measure does not read it, and no capture wrote it'), 'beside': f'{unit.path.name}.json',
-                                  'size': corpus.human(corpus.size_of(corpus.STORE / rel))},
-                                 lambda rel=rel: _dispose_all([corpus.STORE / rel]), corpus.kind_of(unit)))
+                                  'size': corpus.human(corpus.size_of(corpus.HELD / rel))},
+                                 lambda rel=rel: _dispose_all([corpus.HELD / rel]), corpus.kind_of(unit)))
     return out
 
 

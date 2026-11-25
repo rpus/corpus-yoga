@@ -6,7 +6,7 @@
 #   src/main/export/audit_files.sh --export  <path-to-export>
 #   src/main/export/audit_files.sh --exports <path-to-exports>
 #
-# Output: tmp/cache/export/<export>/audit_queries/
+# Output: cache/export/<export>/audit_queries/
 
 set -euo pipefail
 SELF='src/main/export/audit_files.sh'

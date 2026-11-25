@@ -5,8 +5,8 @@ and the append-only placement the adapters share (issues/633).
 A harness is the program a provider ships to let its model act as a coding
 agent - Claude Code for claude, Antigravity for gemini - and each keeps a live
 session store of its own shape, mounted at ext/mnt/<provider>/code/machine-transport/<machine>
-(issues/636, issues/853), the address its units have under tmp/stage/usr/input and data/input, so that
-ext/mnt, tmp/stage/usr/input and data/input are three roots over one address grammar.
+(issues/636, issues/853), the address its units have under stage/usr/input and data/input, so that
+ext/mnt, stage/usr/input and data/input are three roots over one address grammar.
 The adapter for a provider lives at src/main/cli/agent/<provider>/harness.py,
 by function with provider subdirectories as the browser capture is laid out
 (issues/626), and exposes four functions the driver (agent.py) calls without knowing
@@ -51,13 +51,13 @@ AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
 # The three roots a unit's one address is read under, as the narration names them (issues/854):
 # the live tier, the stage, the store.
 LIVE = registry.MOUNT_ROOT.relative_to(REPO).as_posix()
-STAGE = tier.TMP_STAGE_INPUT.relative_to(REPO).as_posix()
-STORE = (tier.DATA / 'input').relative_to(tier.DATA_ROOT).as_posix()
+STAGED = tier.STAGE_INPUT.relative_to(REPO).as_posix()
+HELD = (tier.DATA / 'input').relative_to(tier.DATA_ROOT).as_posix()
 
 
 def under(outbox: Path) -> Path:
     """The address of an outbox's units under every root: the outbox under the stage."""
-    return outbox.relative_to(tier.TMP_STAGE_INPUT)
+    return outbox.relative_to(tier.STAGE_INPUT)
 
 
 @dataclass
@@ -176,7 +176,7 @@ def agreement(a: bytes, b: bytes | None) -> int:
 
 def fact(relation: Relation, data: bytes, existing: bytes | None, src: str, dest: str) -> dict[str, str]:
     """One lattice state as one fact (issues/854, issues/857): the relation as a whole-scalar key,
-    both sides named by root - ext/mnt, tmp/stage/usr/input or data/input - and its measure
+    both sides named by root - ext/mnt, stage/usr/input or data/input - and its measure
     as the value. The unit's address is the fact's header, so the key carries roots alone."""
     had, now = growth(data, existing)
     return {
@@ -200,7 +200,7 @@ class Log:
     writes - every unit it touched by its address, and beneath the unit the relation that
     decided it. A unit appears once, under the one thing that happened to it; the verdict
     counts each outcome by kind."""
-    dest: str                        # the root the act writes: STAGE for a capture, LIVE for a pull
+    dest: str                        # the root the act writes: STAGED for a capture, LIVE for a pull
     tense: str = 'did'               # did, or would for a dry run
     by: dict[str, dict[str, object]] = field(default_factory=dict)      # outcome → address → the unit's facts
     counted: dict[tuple[str, str], int] = field(default_factory=dict)  # (outcome, kind) → how many

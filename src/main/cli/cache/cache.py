@@ -1,8 +1,8 @@
 """
-cache.py — the `corpus-yoga cache` dispatcher. `cache` is a NOUN: the rebuildable tmp/cache/
+cache.py — the `corpus-yoga cache` dispatcher. `cache` is a NOUN: the rebuildable cache/
 tier. Bare shows its state and writes nothing; the verbs do the work.
 
-    corpus-yoga cache                    # status: the tmp/cache/ subtrees present, each orphan, and what to run next
+    corpus-yoga cache                    # status: the cache/ subtrees present, each orphan, and what to run next
     corpus-yoga cache clean              # remove the orphaned subtrees the status names (neither written nor read)
 
 Thin verb router over src/main/cli/cache/clean.py. Each subtree is rebuilt by its own
@@ -18,7 +18,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 import facts  # the one printer of a status's facts (issues/753)
 import spell
-from cache_io import BYTECODE, SCRATCH, dead_scratch, human, orphans, size_of, stale_bytecode  # the registry, and what it does not own (issues/865)
+from cache_io import BYTECODE, human, orphans, size_of, stale_bytecode  # the registry, and what it does not own (issues/865)
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
@@ -33,7 +33,7 @@ class Tree:
 
 @dataclass
 class Orphan:
-    """An entry under tmp/cache that no current step writes or reads, with the act that removes it."""
+    """An entry under cache that no current step writes or reads, with the act that removes it."""
     size: str
     why: str = facts.phrase('no current step writes or reads it')
     act: facts.Would | None = None
@@ -44,7 +44,7 @@ class Status:
     """Bare corpus-yoga cache: the subtrees present, each orphan by its path, and under
     now: the cleaner over what it would remove, by path (issues/865), so that the room's one
     reading, which folds this block, names an orphaned subtree a room carries."""
-    tmp_cache: Tree = facts.named('tmp/cache')
+    tmp_cache: Tree = facts.named('cache')
     orphans: dict[str, Orphan] | None = None
     cache: str = ''               # the tree's count, a fact of the room; a status ends on now: (issues/740)
     now: dict | str | None = None
@@ -52,14 +52,12 @@ class Status:
 
 def status_facts() -> Status:
     """The bare-noun default as facts: the state, nothing written."""
-    cache = tier.TMP / 'cache'
+    cache = tier.CACHE
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
     found = {rel: Orphan(human(size_of(p)), act=facts.Would(spell.line('cache', 'clean'), {rel: 1}))
              for p in orphans(cache) for rel in (p.relative_to(REPO).as_posix(),)}
     found.update({rel: Orphan(human(size_of(p)), facts.phrase('bytecode whose source no longer stands'), facts.Would(spell.line('cache', 'clean'), {rel: 1}))
                   for p in stale_bytecode(REPO / BYTECODE) for rel in (p.relative_to(REPO).as_posix(),)})
-    found.update({rel: Orphan(human(size_of(p)), facts.phrase('scratch whose run is gone'), facts.Would(spell.line('cache', 'clean'), {rel: 1}))
-                  for p in dead_scratch(tier.TMP / Path(SCRATCH).relative_to('tmp')) for rel in (p.relative_to(REPO).as_posix(),)})
     out = Status(Tree(subs or 'none'), found,
                  facts.phrase('{n} subtree(s) present, {orphans} orphan(s)', n=len(subs), orphans=len(found)) if found
                  else facts.phrase('{n} subtree(s) present', n=len(subs)))

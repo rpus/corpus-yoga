@@ -7,7 +7,7 @@
       "name": "--all",
       "type": "",
       "cardinality": "",
-      "help": "reject the whole derived queue (tmp/cache/indexing/candidate-semantic-concepts.txt) as read - refused if the queue moved since list-candidates wrote it; the one --reason is stamped on every line"
+      "help": "reject the whole derived queue (cache/indexing/candidate-semantic-concepts.txt) as read - refused if the queue moved since list-candidates wrote it; the one --reason is stamped on every line"
     },
     {
       "name": "--reason",
@@ -25,7 +25,7 @@
   ],
   "r": [
     "data/output/indexing",
-    "tmp/cache/indexing"
+    "cache/indexing"
   ],
   "w": [
     "data/output/indexing/rejected-semantic-concepts.txt"

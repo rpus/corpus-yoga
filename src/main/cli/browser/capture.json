@@ -1,5 +1,5 @@
 {
-  "help": "capture browser-reachable chats via Safari into the room's stage, tmp/stage/usr/input/ - corpus-yoga browser promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
+  "help": "capture browser-reachable chats via Safari into the room's stage, stage/usr/input/ - corpus-yoga browser promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
   "would": "would capture",
   "modality": "MAY",
   "args": [
@@ -45,8 +45,8 @@
     }
   },
   "w": [
-    "tmp/stage/usr/input/claude/chat/API-capture",
-    "tmp/stage/usr/input/gemini/chat/DOM-capture",
+    "stage/usr/input/claude/chat/API-capture",
+    "stage/usr/input/gemini/chat/DOM-capture",
     "data/output/artifacts/claude/chat/downloaded"
   ],
   "r": [

@@ -9,7 +9,7 @@ read back; a superseded issue is closed, its relations transferred and its ledge
 posted, in the one act. Both faces stamp the Signature from the triad the commit hook
 uses (src/main/provider.py), and take the drafter's sections from the body file, which
 carries nothing the forge writes. The body as sent is kept beside the act's record, under
-tmp/logs/forge/raise/<stamp>.md (issues/1069).
+logs/forge/raise/<stamp>.md (issues/1069).
 """
 import os
 import re
@@ -31,7 +31,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-RECORD = tier.TMP / 'logs' / 'forge' / 'raise'
+RECORD = tier.LOGS_ROOT / 'forge' / 'raise'
 FOOTER = ('Generated with', 'Co-Authored-By')
 KINDS = ('pr', 'issue')
 

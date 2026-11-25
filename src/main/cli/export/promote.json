@@ -4,9 +4,9 @@
   "modality": "MAY",
   "args": [],
   "r": [
-    "tmp/stage/usr/input/claude/chat/bulk-export",
+    "stage/usr/input/claude/chat/bulk-export",
     "data/input/claude/chat/bulk-export",
-    "tmp/stage/usr/rehearsal.json"
+    "stage/usr/rehearsal.json"
   ],
   "w": [
     "data/input/claude/chat/bulk-export"

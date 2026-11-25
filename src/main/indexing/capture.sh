@@ -207,7 +207,7 @@ validate_capture() {
     printf '%s\n' "$verdict" >&2
     effect "$(act indexing capture): NOT DONE - $(phrase "the reading fails {family} {version} at {fault}; staged in {stage}, not promoted" \
       family="$family" version="$(basename "$schema" .json)" \
-      fault="$("$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" fault "$file" "$schema")" stage="tmp/cache/indexing")"
+      fault="$("$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" fault "$file" "$schema")" stage="cache/indexing")"
     exit 1
   }
 }
@@ -265,8 +265,8 @@ coverage_report() {
 # weighted concept list (word cloud) and the chat→category assignment. Run once
 # over the corpus; both machines share the result.
 #
-# capture is DERIVE-then-DEPOSIT: both readings are captured into tmp/cache/indexing
-# (the workshop, git-ignored, corpus-scoped like tmp/cache/indexing) and validated there, then
+# capture is DERIVE-then-DEPOSIT: both readings are captured into cache/indexing
+# (the workshop, git-ignored, corpus-scoped like cache/indexing) and validated there, then
 # PROMOTED into the durable data/output/indexing/ only once both succeed. A failed or
 # malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
 # untouched; set -e aborts before the promotion step. Promotion is `mv` (an atomic
@@ -274,13 +274,13 @@ coverage_report() {
 # window is two syscalls rather than a paid API round-trip.
 # capture_dashboard <conversations_json> <only> — <only> is "" (both),
 # "semantic-concepts", or "chat-categories". Whatever is requested is captured and
-# validated in tmp/cache/ FIRST, then all of it promoted — so the default two-file refresh
+# validated in cache/ FIRST, then all of it promoted — so the default two-file refresh
 # never leaves the durable pair at mixed vintages if the second capture fails.
 capture_dashboard() {
   local conv="$1" only="${2:-}"
-  # corpus-scoped staging (like tmp/cache/indexing): the capture is a reading of the
+  # corpus-scoped staging (like cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
-  local stage="$TMP_DIR/cache/indexing"
+  local stage="$CACHE_ROOT/indexing"
   local dest="$DATA_DIR/output/indexing"
   mkdir -p "$stage" "$dest"
 
@@ -298,7 +298,7 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/indexing/ on success)"
+  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → cache/indexing (promoted to data/output/indexing/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json" \
       || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is promoted" table=semantic-concepts)"; exit 1; }
@@ -391,7 +391,7 @@ capture() {
   [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money: a paid call is not reproducible for free, so its
   # record is the evidence. The record is the launcher's tee of the whole verb (issues/708),
-  # tmp/logs/indexing/capture/<stamp>.log, header included - nothing is written here.
+  # logs/indexing/capture/<stamp>.log, header included - nothing is written here.
   local conv
   conv="${conversations:-$(corpus_conversations || true)}"
   [[ -n "$conv" && -e "$conv" ]] || { effect "$(act indexing capture): NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }

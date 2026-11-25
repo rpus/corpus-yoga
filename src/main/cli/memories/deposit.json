@@ -5,7 +5,7 @@
   "args": [],
   "step": "export",
   "r": [
-    "tmp/cache/export",
+    "cache/export",
     "rsc/naming/memory_deposit_vintages.csv"
   ],
   "w": [

@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import cache_io  # the declared tmp/cache/ IO registry (check_cache_io)
+import cache_io  # the declared cache/ IO registry (check_cache_io)
 import cli  # the CLI table machinery (check_cli_surface)
 import tier  # the act's stamp, one reading (issues/912)
 from latest import latest_file  # the one reading of the latest
@@ -42,7 +42,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 INPUT                    = REPO_ROOT / 'data' / 'input'
-CACHE                    = REPO_ROOT / 'tmp' / 'cache'
+CACHE                    = REPO_ROOT / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
@@ -57,7 +57,7 @@ SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 # launcher's where it ran the verb, so the pair share it. The committed surface names
 # only the stable directory — a stamp is machine-varying and may not enter it (L2).
 _REPORT_STAMP = tier.stamp_of('test run')
-REPORT = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
+REPORT = REPO_ROOT / 'logs' / 'test' / 'run' / f'{_REPORT_STAMP}.report'
 _twin = 2
 while REPORT.exists():
     REPORT = REPORT.with_name(f'{_REPORT_STAMP}-{_twin}.report')

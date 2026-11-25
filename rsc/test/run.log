@@ -1,4 +1,4 @@
-run.py: code+schema 1944/1944
+run.py: code+schema 1967/1967
 
 
 check_reply_without_text: |
@@ -51,8 +51,8 @@ check_declared_families_judge: |
 check_cache_io: |
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (10/10)
-  ✓ cache_io.paths_resolve  (10/10)
+  ✓ cache_io.read_implies_writer  (9/9)
+  ✓ cache_io.paths_resolve  (9/9)
 
 check_accumulate_contract: |
   ✓ accumulate.trajectory_contract
@@ -69,15 +69,15 @@ check_turn_count_one_home: |
 
 check_status_facts: |
   ✓ status.remedy_names_a_command  (8/8)
-  ✓ status.lines_load_as_yaml  (23/23)
-  ✓ report.shows_every_status_whole  (21/21)
-  ✓ status.room_round_trip_holds_no_pair  (23/23)
+  ✓ status.lines_load_as_yaml  (24/24)
+  ✓ report.shows_every_status_whole  (22/22)
+  ✓ status.room_round_trip_holds_no_pair  (24/24)
   ✓ report.says_what_the_nouns_say
   ✓ report.every_standing_noun_ends_on_now
   ✓ report.now_is_the_fold
   ✓ report.fail_is_the_findings
-  ✓ status.value_holds_no_pair  (23/23)
-  ✓ phrase.each_is_said  (46/46)
+  ✓ status.value_holds_no_pair  (24/24)
+  ✓ phrase.each_is_said  (48/48)
   ✓ environment.names_carry_the_prefix
   ✓ cli.no_send_flag  (3/3)
   ✓ status.pipeline_says_declarations_and_units  (4/4)
@@ -192,15 +192,15 @@ check_cli_surface: |
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (24/24)
-  ✓ cli.calculus_defined  (24/24)
+  ✓ cli.target_exists  (25/25)
+  ✓ cli.calculus_defined  (25/25)
   ✓ cli.advertised_flags_exist  (12/12)
-  ✓ cli.docstring_flags_advertised  (22/22)
-  ✓ cli.subcommands_dispatch  (22/22)
-  ✓ cli.target_flags_advertised  (22/22)
+  ✓ cli.docstring_flags_advertised  (23/23)
+  ✓ cli.subcommands_dispatch  (23/23)
+  ✓ cli.target_flags_advertised  (23/23)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (24/24)
+  ✓ naming.target_stem_matches_command  (25/25)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (25/25)
   ✓ naming.venv_default_agrees  (2/2)
@@ -213,19 +213,19 @@ check_cli_surface: |
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (69/69)
   ✓ structure.file_at_level_of_subject  (48/48)
-  ✓ structure.cli_declaration_mirrors_the_api  (25/25)
-  ✓ structure.cli_declaration_validates  (80/80)
-  ✓ cli.every_form_listed  (24/24)
-  ✓ cli.help_is_the_declaration  (25/25)
-  ✓ cli.prose_holds_no_pair  (79/79)
-  ✓ cli.flag_not_axis_value  (23/23)
+  ✓ structure.cli_declaration_mirrors_the_api  (26/26)
+  ✓ structure.cli_declaration_validates  (82/82)
+  ✓ cli.every_form_listed  (25/25)
+  ✓ cli.help_is_the_declaration  (26/26)
+  ✓ cli.prose_holds_no_pair  (81/81)
+  ✓ cli.flag_not_axis_value  (24/24)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_is_the_nouns_entry  (77/77)
-  ✓ cli.verb_help_answered  (55/55)
+  ✓ cli.verb_help_is_the_nouns_entry  (79/79)
+  ✓ cli.verb_help_answered  (56/56)
   ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
@@ -289,7 +289,7 @@ check_step_imports: |
   ✓ imports.step_module_imports  (2/2)
 
 check_self_paths: |
-  ✓ structure.self_path_matches_address  (126/126)
+  ✓ structure.self_path_matches_address  (127/127)
 
 check_committed_tree: |
   ✓ structure.corpus_roots_ignored
@@ -361,8 +361,8 @@ check_bytecode: |
 
 check_screen_and_scratch: |
   ✓ agent.status_counts_by_kind
-  ✓ scratch.stands_under_tmp_cache
-  ✓ cache.dead_scratch_is_named
+  ✓ tmp.run_file_stands_under_its_command
+  ✓ tmp.dead_run_file_is_named
 
 check_sweep: |
   ✓ command.a_moved_verb_is_a_fault
@@ -392,6 +392,9 @@ check_agent_memory_disposed: |
 
 check_session_continued_apart: |
   ✓ agent.a_session_continued_apart_is_each_rooms_own  (3/3)
+
+check_roots_migration: |
+  ✓ migration.roots_named_for_what_they_hold
 
 check_spent_stage: |
   ✓ stage.clean_leaves_no_spent_stage
@@ -498,7 +501,7 @@ stages:
     tier: code
     line: "46"
   check_cache_io:
-    passes: 22
+    passes: 20
     failures: 0
     tier: code
     line: "51"
@@ -523,7 +526,7 @@ stages:
     tier: code
     line: "66"
   check_status_facts:
-    passes: 159
+    passes: 165
     failures: 0
     tier: code
     line: "70"
@@ -613,12 +616,12 @@ stages:
     tier: code
     line: "188"
   check_cli_surface:
-    passes: 571
+    passes: 585
     failures: 0
     tier: code
     line: "191"
   check_cli_verb_help:
-    passes: 135
+    passes: 138
     failures: 0
     tier: code
     line: "226"
@@ -693,7 +696,7 @@ stages:
     tier: code
     line: "288"
   check_self_paths:
-    passes: 126
+    passes: 127
     failures: 0
     tier: code
     line: "291"
@@ -812,49 +815,54 @@ stages:
     failures: 0
     tier: code
     line: "393"
-  check_spent_stage:
+  check_roots_migration:
     passes: 1
     failures: 0
     tier: code
     line: "396"
+  check_spent_stage:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "399"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "399"
+    line: "402"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "402"
+    line: "405"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "408"
+    line: "411"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "414"
+    line: "417"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "417"
+    line: "420"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "422"
+    line: "425"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "436"
+    line: "439"
 
-checks[code+schema]: 269 types, 1944/1944 invocations passing
-checks[code]: 211 types, 1229/1229 invocations passing
+checks[code+schema]: 270 types, 1967/1967 invocations passing
+checks[code]: 212 types, 1252/1252 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1944/1944 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run
+dev gate: PASS - code+schema 1967/1967 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run

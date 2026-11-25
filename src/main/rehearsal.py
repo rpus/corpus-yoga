@@ -1,5 +1,5 @@
 """
-rehearsal.py - the stage's rehearsal record, tmp/stage/usr/rehearsal.json (issues/815): one file, what the
+rehearsal.py - the stage's rehearsal record, stage/usr/rehearsal.json (issues/815): one file, what the
 last rehearsal saw and judged, whole.
 
     rehearsal.py begin <stamp>          # before the run: the extent, every staged unit's digests, under the scratch tiers
@@ -7,8 +7,8 @@ last rehearsal saw and judged, whole.
 
 A rehearsal is corpus-yoga pipeline rehearse (src/main/cli/pipeline/rehearse.sh): the
 checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract
-(src/main/tier.py) resolves to the scratch tiers, tmp/stage/usr/scratch, replaced whole by each
-run - data/input a link to tmp/stage/usr/input, data/output the preview, tmp/cache the
+(src/main/tier.py) resolves to the scratch tiers, stage/usr/scratch, replaced whole by each
+run - data/input a link to stage/usr/input, data/output the preview, cache the
 validation. What the run leaves there is grist; the record is what a reader reads: the
 anchor (the stamp, the commit and how many files were changed in the tree, the Signature,
 the command), the run's exit, and under `units` every staged unit the run began over, by
@@ -48,9 +48,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-RECORD = tier.TMP_STAGE_REHEARSAL
+RECORD = tier.STAGE_REHEARSAL
 SCHEMA = REPO / 'src' / 'main' / 'rehearsal.schema.json'
-EXTENT = tier.TMP_STAGE_SCRATCH / 'extent.json'      # what begin writes and end reads: the units as the run began
+EXTENT = tier.STAGE_SCRATCH / 'extent.json'      # what begin writes and end reads: the units as the run began
 COMMAND = spell.line('pipeline', 'rehearse')
 
 

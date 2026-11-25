@@ -11,5 +11,5 @@ declaration `src/schema_walk.py` derives every keyword's position from (issues/5
 `provenance.csv` pins the file's URL, etag and SHA256; `reference.json` names
 upstream. No lineage listing: the drafts are not a dated series, so
 `corpus-yoga reference fetch` records the pinned rows' files only, under
-`tmp/reference/fetch/JSONSchema/`, and `corpus-yoga reference` says a row whose bytes
+`fetch/reference/JSONSchema/`, and `corpus-yoga reference` says a row whose bytes
 as fetched no longer hash as pinned; a commit copies it in.

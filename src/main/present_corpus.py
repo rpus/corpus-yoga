@@ -2,7 +2,7 @@
 present_corpus.py — render THE CORPUS dashboard: data/output/site/index.html.
 
 The batch presenter (present.sh) renders ONE EXPORT's presentation under
-tmp/cache/export/<batch>/presentation — an export artifact, honestly filed under
+cache/export/<batch>/presentation — an export artifact, honestly filed under
 its export. This is the corpus one: the keys are corpus_index's 1..N ordinals
 over data/output/markdown (every source, claude first — the same numbers the book index,
 the NN- filenames, and rekey_chats speak), the concept table is the judged index
@@ -20,7 +20,7 @@ data; the KEYS are the contract.
 Usage:
   present_corpus.py [--markdown <dir>] [--indexing <dir>] [--out <dir>] [--page-out <dir>] [--placed <n>]
 
-Defaults: data/output/markdown, data/output/indexing, tmp/cache/site/presentation for the
+Defaults: data/output/markdown, data/output/indexing, cache/site/presentation for the
 data tables, data/output/site for the finished page (its URL position; all repo-relative).
 The page is the human-facing artifact (library tier); the per-table JSON it is built
 from — machine feedstock, re-derived on every run — stay behind in the cache workshop.
@@ -121,7 +121,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description='render the corpus dashboard from data/output/markdown + data/output/indexing')
     ap.add_argument('--markdown', default=str(tier.DATA / 'output' / 'markdown'))
     ap.add_argument('--indexing', default=str(tier.DATA / 'output' / 'indexing'))
-    ap.add_argument('--out', default=str(tier.TMP / 'cache' / 'site' / 'presentation'),
+    ap.add_argument('--out', default=str(tier.CACHE / 'site' / 'presentation'),
                     help='cache workshop dir for the data tables (feedstock)')
     ap.add_argument('--page-out', default=str(tier.DATA / 'output' / 'site'),
                     help='publish-tree dir the finished index.html lands in (its URL position)')

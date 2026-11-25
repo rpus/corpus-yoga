@@ -44,9 +44,9 @@
     "machine-name.txt"
   ],
   "w": [
-    "tmp/cache/browser",
-    "tmp/cache/export",
-    "tmp/cache/agent",
+    "cache/browser",
+    "cache/export",
+    "cache/agent",
     "data/output/markdown/claude",
     "data/output/markdown/gemini",
     "data/output/memories"

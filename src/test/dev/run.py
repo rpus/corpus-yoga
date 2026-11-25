@@ -77,15 +77,15 @@ for _found in sorted(m.name for m in pkgutil.iter_modules(check.__path__)):
 GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/gate.py', 'src/test/dev/check', 'src/test/dev/xref.py',
                 'rsc/test/xref_expected_score']
 ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}
-# the cache's own home: inside tmp/cache, which subject scans must skip -
+# the cache's own home: inside cache, which subject scans must skip -
 # without this exclusion every run would dirty the sections that read it
-CACHE_PREFIX = 'tmp/cache/test'
+CACHE_PREFIX = 'cache/test'
 SCHEMA = ['rsc/schema']
 MODEL = ['rsc/metamodel']   # the cross-family model: the table, its schema, the join, its kinds, the rejections
 
 SUBJECTS: dict[str, list[str] | str] = {d.name: d.on for d in CHECKS if d.on is not None}   # each check's declared paths (issues/1023)
 
-SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
+SECTION_CACHE = REPO_ROOT / 'cache' / 'test' / 'sections.json'
 
 
 def _tree_files():
@@ -117,8 +117,8 @@ def subject_hash(spec) -> str:
     for rel in sorted(set(rels)):
         f = REPO_ROOT / rel
         try:
-            if rel.startswith(('tmp/', 'data/')):
-                # tmp/ and data/ subjects are large and machine-local; their key
+            if rel.split('/')[0] in xref.IGNORED_ROOTS:
+                # subjects under a machine-local root are large; their key
                 # stays stat (size + mtime) as the DECLARED lawful difference
                 # (issues/368): the tier is machine-local and never enters a committed
                 # artifact, so a clock-faked miss costs a re-read, not a lie.
@@ -174,7 +174,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     results = []
     # Two buffers: the committed rsc/test/run.log renders from results (identical
     # on any clone); the machine buffer holds the per-invocation body and the run's
-    # anchor, written as the per-check report beside the record under tmp/logs/test/run/
+    # anchor, written as the per-check report beside the record under logs/test/run/
     # (machine-facing) - a committed artifact never carries a machine fact.
     committed_buffer = io.StringIO()
     machine_buffer   = io.StringIO()
@@ -385,7 +385,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
     # any clone; this script writes it to rsc/test/run.log itself) and the
     # FULL report (adds the run's anchor and the per-invocation body — printed to
-    # stdout and written as the <stamp>.report beside the record under tmp/logs/test/run/).
+    # stdout and written as the <stamp>.report beside the record under logs/test/run/).
 
 
     def _fix_lines(fail_list, hints):
@@ -470,7 +470,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         ✗s were hard to find. The count carries what the old body could not: `(16/17)` is one
         command misbehaving, `(3/17)` is something structural.
 
-        Every invocation stays in the per-check report (one stamped .report per run under tmp/logs/test/run/, beside the record),
+        Every invocation stays in the per-check report (one stamped .report per run under logs/test/run/, beside the record),
         where evidence belongs; this is the file a human reads in a diff."""
         out, seen_section = io.StringIO(), None
         order: dict[tuple, list] = {}
@@ -496,7 +496,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         """Render one report variant; returns (text, runnable fix lines) — results ->
         artifact bytes, a pure function of (results, surface) (issues/249). Three surfaces:
         'committed' is rsc/test/run.log (code+schema only, byte-identical on any
-        clone); 'full' is the stamped .report under tmp/logs/test/run/ (adds the run's anchor and body);
+        clone); 'full' is the stamped .report under logs/test/run/ (adds the run's anchor and body);
         'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
         at the full report for detail — pass its already-rendered text as
         full_report, since the terminal has no body of its own to anchor its stage

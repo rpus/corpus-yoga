@@ -3,7 +3,7 @@
 Two commands produce and consume the intelligences' *readings* of the corpus —
 the model's paid captures (`corpus-yoga indexing capture` → `data/output/indexing/inferred-*.json`) and
 the user's curation (`corpus-yoga indexing` → `data/output/indexing/`). Corpus-derived, so
-outside git: durable in `data/output/`, rebuildable in `tmp/cache/`. A user's curation is
+outside git: durable in `data/output/`, rebuildable in `cache/`. A user's curation is
 inference exactly as a model's capture is; the repo privileges neither.
 
 The format authorities are the schemas, not this file:

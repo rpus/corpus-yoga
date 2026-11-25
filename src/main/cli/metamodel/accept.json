@@ -19,10 +19,10 @@
   "r": [
     "rsc/schema",
     "rsc/metamodel",
-    "tmp/cache"
+    "cache"
   ],
   "w": [
     "rsc/metamodel/join.csv",
-    "tmp/cache/metamodel"
+    "cache/metamodel"
   ]
 }

@@ -22,6 +22,7 @@ from member import members
 from send import SWITCH as SEND_SWITCH
 import send as send_module
 import tier as tier_module
+import xref  # the gate's sibling, src/test/dev/xref.py
 import cli
 import completions as cli_completions
 import offer as cli_offer
@@ -331,10 +332,10 @@ def check_cli_surface(run) -> None:
         check='shell.shellcheck_clean')
     # A command's log path derives from the command (issues/54): having typed `corpus-yoga <noun>
     # <verb>`, a reader can guess where the log went without reading the script that
-    # wrote it. Held over the SOURCE — every tmp/logs/ path any file names must open
+    # wrote it. Held over the SOURCE — every logs/ path any file names must open
     # with a command word — because the directories themselves exist only on a machine
     # that has run something, and a check that passes for want of evidence is worse
-    # than none. Validation logs are exempt by living under tmp/cache/ beside the datum
+    # than none. Validation logs are exempt by living under cache/ beside the datum
     # they memoise: the log IS the memoisation (L1), not run history.
     commands_words = {c['command'] for c in cmds}
     for path in sorted(REPO_ROOT.rglob('*')):
@@ -345,18 +346,18 @@ def check_cli_surface(run) -> None:
         # does, so the check examined nothing and passed. `every expected check ran`
         # caught it; a vacuous check that reports success is worse than no check.
         rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data') or rel.parts[:2] == ('rsc', 'migration'):
+        if rel.parts[0] in xref.IGNORED_ROOTS | {'.git'} or rel.parts[:2] == ('rsc', 'migration'):
             continue                      # a migration names a retired address: that is its purpose
         try:
             text = path.read_text()
         except (UnicodeDecodeError, OSError):
             continue
-        for m in re.finditer(r"tmp/logs/([A-Za-z0-9_.-]+)", text):
+        for m in re.finditer(r"(?<![\w/.-])logs/([A-Za-z0-9_.-]+)", text):   # the root, never a directory of that name beneath another
             seg = m.group(1)
             ok = seg in commands_words or seg in ('...', '<command>')
-            run(f'logs: {rel}: tmp/logs/{seg}/ opens with a command word', ok,
+            run(f'logs: {rel}: logs/{seg}/ opens with a command word', ok,
                 None if ok else
-                f'{rel} writes or names tmp/logs/{seg}/, and `{seg}` is no command — a '
+                f'{rel} writes or names logs/{seg}/, and `{seg}` is no command — a '
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
 
@@ -1005,7 +1006,7 @@ def check_effects(run):
             if a[0] == b[0]:
                 continue
             # ownership is per-COMMAND: two verbs of one command share its workshop
-            # (indexing list-candidates and indexing capture both write tmp/cache/indexing — one owner)
+            # (indexing list-candidates and indexing capture both write cache/indexing — one owner)
             if a[4] == b[4]:
                 continue
             pa, pb = a[1], b[1]
@@ -1029,10 +1030,10 @@ def check_effects(run):
     # stated: literals composed from non-root variables (root / 'claude' / ...)
     # and paths built by helpers a command imports are not seen; targets under
     # src/test are not scanned (the gate names every path as its subject).
-    roots = ('data', 'tmp', 'ext', 'rsc')
-    ignore = ('tmp/logs',)          # the logging convention: never a declared row
+    roots = ('cache', 'data', 'ext', 'fetch', 'logs', 'rsc', 'stage', 'tmp')
+    ignore = ('logs',)          # the logging convention: never a declared row
     sh_token = re.compile(
-        r'(?:^|[\s"\'=(:/])((?:data|tmp|ext|rsc)/[A-Za-z0-9_.\-/]*[A-Za-z0-9_\-]|machine-name\.txt)')
+        r'(?:^|[\s"\'=(:/])((?:cache|data|ext|fetch|logs|rsc|stage|tmp)/[A-Za-z0-9_.\-/]*[A-Za-z0-9_\-]|machine-name\.txt)')
 
     def py_literals(path: Path):
         try:
@@ -1159,10 +1160,10 @@ def check_acts_said_once(run) -> None:
         first: object
         rest: list
         now: object = None
-    one, other = 'tmp/logs/site/one', 'tmp/logs/site/other'
+    one, other = 'logs/site/one', 'logs/site/other'
     body = Body({'a': {'act': would('corpus-yoga logs clean', {one: 1})}},
                 [{'act': would('corpus-yoga logs clean', {other: 1})}, {'b': {'act': would('corpus-yoga logs clean', {one: 1})}}],
-                {'corpus-yoga logs clean': {'would remove': {'tmp/logs/site/elsewhere': 1}}})
+                {'corpus-yoga logs clean': {'would remove': {'logs/site/elsewhere': 1}}})
     gathered = now_of(body)
     said = facts.plain({'orphan': 'a fact', 'act': would('corpus-yoga logs clean', {one: 1}), 'only acts': {'act': would('corpus-yoga logs clean', {one: 1})}})
     want = {'MAY': {'corpus-yoga logs clean': {'would remove': {one: 2, other: 1}}}}
@@ -1190,13 +1191,13 @@ def check_status_is_the_dry_run(run) -> None:
 def check_gate_logs(run) -> None:
     """What a room ran and what its gate ran are told apart: an act run while the gate names a
     check, `CORPUS_YOGA_GATE_CHECK` as `<gate run>/<check>`, is logged beneath that check, under
-    tmp/logs/test/run/<gate run>/<check>/, and the room's own act history gains nothing; and
+    logs/test/run/<gate run>/<check>/, and the room's own act history gains nothing; and
     each check's log, `<check>.log` under the gate run, opens on its verdict and holds its lines."""
     import shutil
     import tempfile
     probe = f'probe-{os.getpid()}'
-    beneath = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / probe
-    room = REPO_ROOT / 'tmp' / 'logs' / 'store' / 'clean'
+    beneath = REPO_ROOT / 'logs' / 'test' / 'run' / probe
+    room = REPO_ROOT / 'logs' / 'store' / 'clean'
     held = set(room.glob('*.log')) if room.is_dir() else set()
     environment = {**os.environ, 'CORPUS_YOGA_GATE_CHECK': f'{probe}/check_probe', 'CORPUS_YOGA_NO_SEND': '1'}
     try:
@@ -1596,13 +1597,13 @@ def check_walkthrough(run) -> None:
         return out
     summary = walked('/status/help/summary', 'v\nq\n')
     top = walked('', 'q\n')
-    slashed = walked('/stage/status/tmp~1stage~1usr', 'q\n')
+    slashed = walked('/stage/status/stage~1usr', 'q\n')
     astray = walked('/status/help/nonesuch/deeper', 'q\n')
     spaced = '/status/help/explanation/pipeline inputs'
     wants += [
         ('a pointer starts the walk on its spot', summary[0].get('at') == '/status/help/summary' and summary[0].get('key') == 'summary'
          and summary[1].get('value') == declared['summary']),
-        ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'tmp/stage/usr' and slashed[0].get('at') == '/stage/status/tmp~1stage~1usr'),
+        ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'stage/usr' and slashed[0].get('at') == '/stage/status/stage~1usr'),
         ('where no spot stands the longest truncation that does, and the walk says so', astray[0].get('at') == '/status/help'
          and 'the longest part of it that stands is /status/help' in str(astray[0].get('note'))),
         ('its exit is 0 where it went as asked', proc.returncode == 0 and exits.get('/status/help/summary') == 0),

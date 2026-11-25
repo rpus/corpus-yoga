@@ -496,7 +496,7 @@ def enacting(row: dict, rest: list[str]) -> dict | None:
 
 def _log_enacting(row: dict, verb: str, d: dict, stamp: str, rest: list[str]) -> None:
     """issues/453, issues/708: the run-log obligation derives from the declaration - an enacting verb
-    leaves an anchored log under tmp/logs/<command>/<verb>/<stamp>.log, the record of the
+    leaves an anchored log under logs/<command>/<verb>/<stamp>.log, the record of the
     whole verb: this header, the target's every line, the verb's own tail and, where the
     reader typed the verb, the launcher's reply. No verb writes a log of its own: the
     launcher names the stamp and the record in the environment (tier.STAMP, tier.LOG),

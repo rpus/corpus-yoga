@@ -11,12 +11,12 @@
     }
   ],
   "r": [
-    "tmp/cache",
+    "cache",
     "rsc/schema"
   ],
   "w": [
-    "tmp/cache/browser",
-    "tmp/cache/export",
-    "tmp/cache/agent"
+    "cache/browser",
+    "cache/export",
+    "cache/agent"
   ]
 }

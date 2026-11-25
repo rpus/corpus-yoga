@@ -4,7 +4,7 @@
   "phrase": [
     "captured {done} of {total}, {failed} failed, in {seconds}s",
     "apiConversation JSON fetch failed - the FAIL line above carries the remedy",
-    "no markdown - the in-browser scrape log is in the progress file, tmp/logs/browser/capture/<stamp>.<provider>.progress",
+    "no markdown - the in-browser scrape log is in the progress file, logs/browser/capture/<stamp>.<provider>.progress",
     "previous .md retained, now STALE",
     "{n} conversation(s) written to {path}",
     "scrape injected, watching",

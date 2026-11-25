@@ -33,8 +33,8 @@ assets it names (uploads), the latter deposited into the artifact library
 (data/output/artifacts/claude/chat/downloaded/) when absent — see complete_files.
 
 Usage:
-    python capture.py --provider claude                   [--api-capture  tmp/stage/usr/input/claude/chat/API-capture]
-    python capture.py --provider gemini --id <id>         [--dom-capture  tmp/stage/usr/input/gemini/chat/DOM-capture]
+    python capture.py --provider claude                   [--api-capture  stage/usr/input/claude/chat/API-capture]
+    python capture.py --provider gemini --id <id>         [--dom-capture  stage/usr/input/gemini/chat/DOM-capture]
 """
 import argparse
 import json
@@ -217,7 +217,7 @@ def outcome(do_api, do_scrape, files, had_md):
     if do_api and not has_json:
         return facts.phrase('apiConversation JSON fetch failed - the FAIL line above carries the remedy'), None
     if do_scrape and not has_md:
-        why = facts.phrase('no markdown - the in-browser scrape log is in the progress file, tmp/logs/browser/capture/<stamp>.<provider>.progress')
+        why = facts.phrase('no markdown - the in-browser scrape log is in the progress file, logs/browser/capture/<stamp>.<provider>.progress')
         if had_md:
             why += ' (' + facts.phrase('previous .md retained, now STALE') + ')'
         return (None, why) if do_api else (why, None)
@@ -493,9 +493,9 @@ def main():
                     help='print the providers and mechanisms the restrictions select, then stop — '
                          'so a caller reads the scope off the declaration instead of restating it')
     ap.add_argument('--api-capture', default=None,
-                    help='API-capture root (default: tmp/stage/usr/input/<provider>/chat/API-capture - corpus-yoga browser promote reaches data/input)')
+                    help='API-capture root (default: stage/usr/input/<provider>/chat/API-capture - corpus-yoga browser promote reaches data/input)')
     ap.add_argument('--dom-capture', default=None,
-                    help='DOM-capture root (default: tmp/stage/usr/input/<provider>/chat/DOM-capture)')
+                    help='DOM-capture root (default: stage/usr/input/<provider>/chat/DOM-capture)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -552,10 +552,10 @@ def main():
             raise SystemExit(1)
 
     # one root per mechanism in scope; dirs appear only when captured into
-    # a capture writes to the room's stage, tmp/stage/usr/input/..., the address its unit will have
+    # a capture writes to the room's stage, stage/usr/input/..., the address its unit will have
     # under data/input; corpus-yoga browser promote is what reaches shared storage (issues/687)
-    api_root = Path(args.api_capture or tier.TMP_STAGE_INPUT / args.provider / 'chat' / 'API-capture').resolve()
-    dom_root = Path(args.dom_capture or tier.TMP_STAGE_INPUT / args.provider / 'chat' / 'DOM-capture').resolve()
+    api_root = Path(args.api_capture or tier.STAGE_INPUT / args.provider / 'chat' / 'API-capture').resolve()
+    dom_root = Path(args.dom_capture or tier.STAGE_INPUT / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
     if 'DOM' in mechanisms:

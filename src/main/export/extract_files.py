@@ -7,7 +7,7 @@ tool calls,.
 
 Group output by conversation under:
 
-    tmp/cache/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
+    cache/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
@@ -158,7 +158,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).resolve().parent
-CACHE_DIR     = tier.TMP / 'cache' / 'export'
+CACHE_DIR     = tier.CACHE / 'export'
 
 
 def main():

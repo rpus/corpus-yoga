@@ -2,7 +2,7 @@
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
   browser-capture  data/input/claude/chat/API-capture/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
-  bulk-export      tmp/cache/export/<batch>/json/<name>.json                  (the atomised pieces;
+  bulk-export      cache/export/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
 The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
@@ -15,7 +15,7 @@ Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/project_markdown.py \
     --api-capture data/input/claude/chat/API-capture              # -> data/output/markdown/claude/chat/conversations/
   src/run_python_script.sh src/main/project_markdown.py \
-    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> tmp/cache/export/<batch>/markdown/
+    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> cache/export/<batch>/markdown/
 """
 import argparse
 import json
@@ -37,7 +37,7 @@ REPO_ROOT = _root[0]
 def _newest_batch_json():
     """The newest ATOMISED export's json/ dir (by export_time, the one ordering
     authority), or None where no batch has been atomised."""
-    cache = tier.TMP / 'cache' / 'export'
+    cache = tier.CACHE / 'export'
     atomised = [d for d in cache.glob('data-*') if (d / 'json').is_dir()]
     if not atomised:
         return None
@@ -126,7 +126,7 @@ def main():
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument('--api-capture', help='dir of <uuid>/ apiConversation capture folders')
     src.add_argument('--bulk-export', help='a bulk-export batch dir whose atomised json/ pieces are rendered')
-    ap.add_argument('--out', help='output dir (default: tmp/cache/<pipeline>/[<batch>/]markdown)')
+    ap.add_argument('--out', help='output dir (default: cache/<pipeline>/[<batch>/]markdown)')
     args = ap.parse_args()
 
     if args.api_capture:
@@ -149,7 +149,7 @@ def main():
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
         # Provenance cross-checks the other way: against the capture corpus, when present.
         batch = Path(args.bulk_export)
-        json_dir = tier.TMP / 'cache' / 'export' / batch.name / 'json'
+        json_dir = tier.CACHE / 'export' / batch.name / 'json'
         if not json_dir.is_dir():
             sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
         captures = tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture'
@@ -157,7 +157,7 @@ def main():
                      if (api := find_api_json(d)) is not None] if captures.is_dir() else None)
         other_index = _msg_index(cap_apis) if cap_apis else None
         other_name = 'data/input/claude/chat/API-capture' if cap_apis else None
-        # no summaries link here: tmp/cache/ stems renumber per batch, so a relative
+        # no summaries link here: cache/ stems renumber per batch, so a relative
         # link into data/output/'s stem-named folders would dangle
         named = ((f.stem, lean, tree_problems(c['chat_messages']),
                   _frontmatter('bulk-export', c, lean, other_index, other_name, 'capture'),
@@ -165,7 +165,7 @@ def main():
                  for f in sorted(json_dir.glob('*.json'))
                  for c in (json.loads(f.read_text()),)
                  for lean in (project(c),))
-        out = Path(args.out) if args.out else tier.TMP / 'cache' / 'export' / batch.name / 'markdown'
+        out = Path(args.out) if args.out else tier.CACHE / 'export' / batch.name / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
     print(f"rendered {n_ok} conversations to {out} ({n_bad} invalid, {n_empty} empty)")

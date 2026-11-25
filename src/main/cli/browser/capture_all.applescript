@@ -11,7 +11,7 @@ set singleScript to POSIX file (scriptDir & "/capture_one.applescript")
 -- The declared-address root (issues/352's discipline, issues/403): suffix-strip, refused
 -- loudly when this file is not at SELF — before anything is written anywhere.
 set repoDir to do shell script "p=" & quoted form of scriptPath & "; s=" & quoted form of SELF & "; r=\"${p%/$s}\"; [ \"$r/$s\" = \"$p\" ] || { echo \"$p: not at its declared address $s\" >&2; exit 1; }; printf %s \"$r\""
-set logDir to repoDir & "/tmp/logs/browser/capture/all-conversations"
+set logDir to repoDir & "/logs/browser/capture/all-conversations"
 do shell script "mkdir -p " & quoted form of logDir
 set logFile to logDir & "/" & (do shell script "date -u '+%Y-%m-%dT%H%M%SZ'") & ".log"
 

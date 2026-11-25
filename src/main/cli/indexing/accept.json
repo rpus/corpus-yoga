@@ -7,7 +7,7 @@
       "name": "--all",
       "type": "",
       "cardinality": "",
-      "help": "accept the whole derived queue (tmp/cache/indexing/candidate-semantic-concepts.txt) as read - refused if the queue moved since list-candidates wrote it; each candidate becomes a headword with the aliases that anchor it folded in (issues/644)"
+      "help": "accept the whole derived queue (cache/indexing/candidate-semantic-concepts.txt) as read - refused if the queue moved since list-candidates wrote it; each candidate becomes a headword with the aliases that anchor it folded in (issues/644)"
     },
     {
       "name": "term",
@@ -24,7 +24,7 @@
   ],
   "r": [
     "data/output/indexing",
-    "tmp/cache/indexing"
+    "cache/indexing"
   ],
   "w": [
     "data/output/indexing/accepted-semantic-concepts.txt"

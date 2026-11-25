@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into the room's input,
-# tmp/stage/usr/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# stage/usr/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
 # promote what was captured into data/input/ - the same extent words for both, a bare
 # call of either refused (issues/641). Scope is two independent restrictions, intersected;
 # neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
@@ -105,7 +105,7 @@ main() {
   #
   # The record is the launcher's tee of the whole verb (issues/708). Each provider's capture
   # narrative - one line per step, issues/413 - is an artifact beside it, named by the same
-  # stamp: tmp/logs/browser/capture/<stamp>.<provider>.progress, handed down as
+  # stamp: logs/browser/capture/<stamp>.<provider>.progress, handed down as
   # --progress for the capture to write; the terminal and the record keep the anchors.
   local stamp providers=() provider_mechs=() logs=() p mechs
   stamp="$(stamp_of browser capture)"

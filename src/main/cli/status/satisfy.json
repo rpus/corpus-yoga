@@ -32,7 +32,7 @@
     "rsc/test",
     "data/input",
     "data/output",
-    "tmp/cache",
+    "cache",
     "ext/lib/serve_markdown",
     "ext/mnt",
     "src/requirements.txt",

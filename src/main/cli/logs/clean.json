@@ -1,13 +1,13 @@
 {
-  "help": "remove the orphans the status names - directories of a command that no longer exists or of a verb its command no longer declares, files directly under tmp/logs, and directories beneath a verb's that no record names; the verb takes no flag, and prints what it will remove, what it did remove, what to run next, and the verdict",
+  "help": "remove the orphans the status names - directories of a command that no longer exists or of a verb its command no longer declares, files directly under logs, and directories beneath a verb's that no record names; the verb takes no flag, and prints what it will remove, what it did remove, what to run next, and the verdict",
   "would": "would remove",
   "modality": "MAY",
   "args": [],
   "r": [
-    "tmp/logs",
+    "logs",
     "src/main/cli"
   ],
   "consumes": [
-    "tmp/logs"
+    "logs"
   ]
 }

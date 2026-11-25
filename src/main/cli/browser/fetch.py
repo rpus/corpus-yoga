@@ -1,6 +1,6 @@
 """
 fetch.py (corpus-yoga browser fetch) - what a provider's account holds, read through Safari and
-recorded whole at tmp/browser/fetch/<provider>.json, so that bare `corpus-yoga browser` says which
+recorded whole at fetch/<provider>/chat/listing.json, so that bare `corpus-yoga browser` says which
 chats are new or have grown since their capture, read against the account as last fetched,
 without sending.
 
@@ -95,8 +95,8 @@ def main() -> int:
     except RuntimeError as failed:
         facts.report(None, facts.act('browser', 'fetch') + f': NOT DONE - {failed}')
         return 1
-    account.RECORD.mkdir(parents=True, exist_ok=True)
-    record = account.RECORD / f'{provider}.json'
+    record = account.record(provider)
+    record.parent.mkdir(parents=True, exist_ok=True)
     record.write_text(json.dumps({'fetched': tier.stamp_of('browser fetch'), **read}, indent=1) + '\n')
     listed = len(read['updated']) if provider == 'claude' else len(read['listed'])
     facts.report(None, facts.act('browser', 'fetch') + ': DONE - ' + facts.phrase('{n} chat(s) of the {provider} account recorded at {record}',

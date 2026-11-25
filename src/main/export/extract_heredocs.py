@@ -10,8 +10,8 @@ bash_tool commands, i.e. patterns of the form:
 
 Groups output by conversation under:
 
-    tmp/cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
-    tmp/cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
+    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
+    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
 The durable library data/output/artifacts/claude/chat/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
@@ -188,7 +188,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 
 SCRIPT_DIR     = Path(__file__).resolve().parent
-CACHE_DIR     = tier.TMP / 'cache' / 'export'
+CACHE_DIR     = tier.CACHE / 'export'
 
 
 def main():

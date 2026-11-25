@@ -18,8 +18,8 @@ accepted-semantic-concepts.txt is the curation surface; the judged index is deri
 Curation is reproducible from the repo, on the schema system's template
 (candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 for the three line-list formats (accepted-semantic-concepts.txt, rejected-semantic-concepts.txt, candidate-semantic-concepts.txt) and
-the loop. `list-candidates` derives the candidates into a rebuildable tmp/cache/ file
-(tmp/cache/indexing/candidate-semantic-concepts.txt) from the single-source concept capture
+the loop. `list-candidates` derives the candidates into a rebuildable cache/ file
+(cache/indexing/candidate-semantic-concepts.txt) from the single-source concept capture
 (data/output/indexing/inferred-semantic-concepts.json); every captured concept must end up
 accepted or rejected — anything else is a CANDIDATE, reported here and by the
 pre-commit data tier.
@@ -30,7 +30,7 @@ many candidates remain.
 
 Usage (via corpus-yoga indexing):
   corpus-yoga indexing                                    # status: counts + candidates
-  corpus-yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidate-semantic-concepts.txt: each
+  corpus-yoga indexing list-candidates [--top N]          # derive cache/indexing/candidate-semantic-concepts.txt: each
       #   candidate concept with the aliases that anchor it; the unanchorable named, not queued
   corpus-yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
   corpus-yoga indexing accept --all                       # accept the whole queue as read, aliases folded in
@@ -98,7 +98,7 @@ def inferred_concepts() -> list[str]:
     """The finite candidate source: the single-source concept capture
     data/output/indexing/inferred-semantic-concepts.json (a model reading the corpus; refresh with `corpus-yoga indexing capture`).
     Durable and shared across machines (via data/output/), so both curate one shared base — the
-    24-vs-27 divergence of the old per-batch, per-machine tmp/cache/ inference is gone.
+    24-vs-27 divergence of the old per-batch, per-machine cache/ inference is gone.
     Empty where no capture has been taken yet."""
     import json
     f = INFERRED_FILE
@@ -338,7 +338,7 @@ STOPWORDS = frozenset(
 
 
 INFERRED_FILE = tier.DATA / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
-CANDIDATES_TXT = tier.TMP / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
+CANDIDATES_TXT = tier.CACHE / 'indexing' / 'candidate-semantic-concepts.txt'
 
 
 def _coverage(accepted_path: Path, rejected_path: Path):
@@ -359,7 +359,7 @@ def candidates_report(accepted_path: Path, rejected_path: Path, markdown_root: P
     a DETERMINISTIC, reproducible derivation of
     data/output/indexing/inferred-semantic-concepts.json − accepted − rejected −
     unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-    just the data. Reproducible, so it is a rebuildable tmp/cache/ file,
+    just the data. Reproducible, so it is a rebuildable cache/ file,
     regenerated on demand (not committed, not gated)."""
     anchored, _ = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     return queue_text(anchored)
@@ -372,14 +372,14 @@ def queue_text(anchored: list[tuple[str, list[str]]]) -> str:
 
 
 def listed_queue_is_current(live: str) -> bool:
-    """Whether tmp/cache/indexing/candidate-semantic-concepts.txt holds the queue as it stands -
+    """Whether cache/indexing/candidate-semantic-concepts.txt holds the queue as it stands -
     the one judgment both the status's offer and --all's refusal read."""
     return CANDIDATES_TXT.is_file() and CANDIDATES_TXT.read_text() == live
 
 
 def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
                top: int | None) -> None:
-    """Write the candidate line-list (tmp/cache/indexing/candidate-semantic-concepts.txt) AND print it —
+    """Write the candidate line-list (cache/indexing/candidate-semantic-concepts.txt) AND print it —
     the queue is the deliverable, so the console leads with it, never with a
     side report. The optional frequency advisory (frequent uncovered corpus
     words, --top N) scans data/output/markdown, so it is never filed — it would differ
@@ -471,7 +471,7 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) 
 
 
 def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str) -> str:
-    """Enact the DERIVED queue — tmp/cache/indexing/candidate-semantic-concepts.txt, the artifact the
+    """Enact the DERIVED queue — cache/indexing/candidate-semantic-concepts.txt, the artifact the
     reviewer read — never a live recomputation (issues/355). A missing or drifted queue is
     a refusal, so what is disposed is provably what was reviewed; the judgment stays
     human, its unit the list the human read. Wholesale accept folds each candidate's
@@ -619,7 +619,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: i
            facts.Acts((facts.Would(spell.line('indexing', 'accept', all=True), {a_rel.as_posix(): len(pending)}),
                        facts.Would(spell.line('indexing', 'reject', all=True), {r_rel.as_posix(): len(pending)})))
            if listed_queue_is_current(queue_text(anchored)) else
-           facts.Would(spell.line('indexing', 'list-candidates'), {'tmp/cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
+           facts.Would(spell.line('indexing', 'list-candidates'), {'cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
     out.candidates = (Candidates(undisposed=pending, act=act,
                                  queue=facts.phrase('waits on the paid capture - corpus-yoga indexing capture') if lag else None)
                       if pending else facts.phrase('none - fully disposed'))

@@ -5,10 +5,10 @@
 # that the machine report runs before anything else is installed - once per repository: a
 # python it starts inherits them.
 
-# python_cache <repo>: python's bytecode kept under <repo>/tmp/cache/python, never beside
+# python_cache <repo>: python's bytecode kept under <repo>/cache/python, never beside
 # the sources (issues/1052), so that a module moved or removed leaves nothing under src.
 python_cache() {
-  export PYTHONPYCACHEPREFIX="$1/tmp/cache/python"
+  export PYTHONPYCACHEPREFIX="$1/cache/python"
 }
 
 # import_roots <repo> <python>: PYTHONPATH exported as <repo>'s declared roots, and the

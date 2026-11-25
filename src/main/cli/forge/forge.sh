@@ -9,7 +9,7 @@
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge rebase <pr>     # the merge's relocation alone, on the reader's word (issues/1147): refuse, relocate if the base moved, resync a checkout that holds the branch
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
-#   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/usr/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge capture            # deposit the forge's ledger under stage/usr/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
 
 set -euo pipefail
@@ -505,7 +505,7 @@ relocation_point() {  # <base-ref> <head-ref>
 }
 
 # The relocation of a moved base (issues/507, issues/585): in a detached worktree of its own
-# under tmp/forge/<verb>/ - the merge's or the rebase's (issues/1147) - never in the invoking checkout - so a halt or an
+# under tmp/, named for the act, the merge's or the rebase's (issues/1147, issues/1170) - never in the invoking checkout - so a halt or an
 # interruption leaves the checkout as found. Replays only the branch's own commits
 # (relocation_point), takes an rsc/test/ conflict wholesale (the syntactic class,
 # CONTRIBUTING.md), settles the artifacts by the gate's own regeneration, commits
@@ -515,12 +515,11 @@ relocation_point() {  # <base-ref> <head-ref>
 relocated() {  # <verb> <base> <head> <old-sha>
   local verb="$1" base="$2" head="$3" old_sha="$4"
   local wt onto held own merged_pr conflicted guard=0 oid
-  wt="$TMP_DIR/forge/$verb/$(date -u '+%Y-%m-%dT%H%M%SZ')-$head"
+  wt="$(scratch_dir worktree)"
   dispose() {
     git -C "$REPO_DIR" worktree remove --force "$wt" >/dev/null 2>&1 || true
     git -C "$REPO_DIR" worktree prune >/dev/null 2>&1 || true
   }
-  mkdir -p "$TMP_DIR/forge/$verb"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "refs/remotes/origin/$head" >&2 \
     || { say "relocation halted - could not open a worktree at origin/{head}" head="$head" >&2; return 1; }
   # A paused rebase is an EXPECTED state, not a failure (issues/485): the attempt
@@ -573,7 +572,7 @@ relocated() {  # <verb> <base> <head> <old-sha>
     || say "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
   (cd "$wt" && labour "$wt/src/test/dev/run.sh" --settle) >&2 \
     || { local kept_at
-         kept_at="$(kept_settle "$wt" "$TMP_DIR/forge/$verb/$(basename "$wt")-settle")"
+         kept_at="$(kept_settle "$wt" "$LOGS_DIR/forge/$verb/$(stamp_of forge "$verb")")"
          say "relocation halted - the settle run failed; a red check on the relocated head is a real failure - its run.log and report are kept at {kept}" kept="${kept_at#"$REPO_DIR/"}" >&2
          dispose; return 1; }
   if [[ -n "$(git -C "$wt" status --porcelain rsc/test/)" ]]; then
@@ -590,33 +589,30 @@ relocated() {  # <verb> <base> <head> <old-sha>
   echo "$oid"
 }
 
-# kept_settle <worktree> <dest>: a red settle's evidence kept before its worktree is disposed of
+# kept_settle <worktree> <dest>: a red settle's evidence kept before its worktree is disposed of -
+# beside the act's record, under the act's stamp, since it outlives the act (issues/1170)
 # (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest
 # report the run wrote beside it - so that the halt says where to read what failed. Prints <dest>.
 kept_settle() {  # <worktree> <dest>
   local wt="$1" dest="$2" report
   mkdir -p "$dest"
   [[ -f "$wt/rsc/test/run.log" ]] && cp "$wt/rsc/test/run.log" "$dest/"
-  report="$(find "$wt/tmp/logs/test/run" -name '*.report' -type f 2>/dev/null | sort | tail -1)"   # stamped names: the last is the newest
+  report="$(find "$wt/logs/test/run" -name '*.report' -type f 2>/dev/null | sort | tail -1)"   # stamped names: the last is the newest
   [[ -n "$report" ]] && cp "$report" "$dest/"
   echo "$dest"
 }
 
-# gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/forge/merge for
-# the data gate (issues/937), this checkout's corpus reached by link - data, ext and the
-# machine binding whole, tmp's subtrees each but forge, which holds the worktrees - and the
-# machine-local parsers generated there (issues/597). Prints its path; every halt returns 1.
+# gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/, named for the act, for
+# the data gate (issues/937), this checkout's corpus reached by link - each machine-local root
+# whole but tmp, which holds only what lasts one run, the worktrees among it, and the machine
+# binding (issues/1170) - and the machine-local parsers generated there (issues/597). Prints
+# its path; every halt returns 1.
 gate_worktree() {
   local oid="$1" head="$2" wt root
-  wt="$TMP_DIR/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-gate-$head"
-  mkdir -p "$TMP_DIR/forge/merge"
+  wt="$(scratch_dir gate)"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "$oid" >&2 || return 1
-  for root in data ext machine-name.txt; do
+  for root in cache data ext fetch logs stage machine-name.txt; do
     [[ -e "$REPO_DIR/$root" ]] && ln -s "$REPO_DIR/$root" "$wt/$root"
-  done
-  mkdir -p "$wt/tmp"
-  for root in "$REPO_DIR"/tmp/*/; do
-    [[ -d "$root" && "$(basename "$root")" != forge ]] && ln -s "${root%/}" "$wt/tmp/$(basename "$root")"
   done
   (cd "$wt" && PYTHONDONTWRITEBYTECODE=1 quiet "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the gate below will say what it lacks" >&2
@@ -828,7 +824,7 @@ merge_chain() {
   relocate merge || return 1
   oid="$PR_OID" moved="$PR_MOVED"
   # The data gate (issues/541, issues/549, issues/937): corpus-yoga pipeline run at the head being
-  # merged, in a detached worktree of its own under tmp/forge/merge - the head's code over
+  # merged, in a detached worktree of its own under tmp/, named for the act - the head's code over
   # this checkout's corpus, reached by link - so that this checkout stands where it stood
   # until the fast-forward, and the faces this process calls are the tree's it read.
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates
@@ -845,7 +841,7 @@ merge_chain() {
   # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
   # the one full account of what the gate ran, and the terminal is no record
   # the gate's python writes no bytecode (issues/1069): the gate's worktree reaches the checkout's
-  # tmp/cache by link and lives for this one run, so what it wrote there would outlive its
+  # cache by link and lives for this one run, so what it wrote there would outlive its
   # sources as an orphan of the cache
   CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) PYTHONDONTWRITEBYTECODE=1 "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
@@ -854,7 +850,7 @@ merge_chain() {
   rm -f "$verdict"
   if [[ "$gate_rc" -ne 0 ]]; then
     dispose_worktree "$gate_wt"
-    effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
+    effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
     return 1
   fi
   # The gate regenerates rsc/test/ where the branch's committed artifacts are stale; those

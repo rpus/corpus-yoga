@@ -34,7 +34,7 @@ classification determines every operation's semantics.
 | --- | --- | --- |
 | **uuid** | the unit persists while presentation shifts around it | conversations, messages, sessions, captures, projects, library dirs (`<ordinal>-<slug>-<uuid8>`, uuid8 suffix is the key) |
 | **snapshot time** | units are versions of ONE mutable thing — ordination *is* identity | memory deposits (`data/output/memories/<ISO>.json`), batch names (export epoch) |
-| **path / slug / ordinal** | presentation only — NEVER identity | filenames in `tmp/cache/`, ordinal prefixes, slug dressing |
+| **path / slug / ordinal** | presentation only — NEVER identity | filenames in `cache/`, ordinal prefixes, slug dressing |
 
 The governing slogan (earned twice by duplicated library dirs): *the LLM speaks
 ordinals, storage speaks uuid, presentation re-derives ordinals.* The one deliberate
@@ -48,19 +48,19 @@ things — they are one thing at many times.
 | **append-only** | atom-subset: `A ⊑ B ⟺ atoms(A) ⊆ atoms(B)` | union, freshest-wins per unit | superseded ⇒ deletable | conversations (atoms = message uuids), sessions (atoms = records), captures |
 | **mutable document** | content equality ONLY — every distinct state is unique history | accumulate distinct states; same-key-different-content is a loud CONFLICT | deletable once its states are deposited (the licence) | `memories.json`, an agent's `memory/` folder |
 | **curated set** | n/a (grows by curation) | per-element union: move unique, drop byte-identical, CONFLICT on divergent | never (precious) | `data/output/artifacts/downloaded/` |
-| **derived** | n/a — regenerate | none needed: re-derive | always (rebuildable) | all of `tmp/cache/`, `data/output/markdown/` |
+| **derived** | n/a — regenerate | none needed: re-derive | always (rebuildable) | all of `cache/`, `data/output/markdown/` |
 
-The lifecycle roots follow from the classes: `data/input/` holds supplied inputs, `tmp/cache/`
+The lifecycle roots follow from the classes: `data/input/` holds supplied inputs, `cache/`
 caches rebuildable derivations (coupled to no one pipeline — some subdirs are
 datum-scoped and die with their datum, others outlive any datum), `data/output/` holds what
-outlives any batch or run, `tmp/logs/` holds run-keyed diagnostics of the machinery. The
+outlives any batch or run, `logs/` holds run-keyed diagnostics of the machinery. The
 non-reproducible **readings** of the corpus by the intelligences that tend it live
 in `data/output/` alongside the rest of the durable corpus — curation is inference by a
 user (`data/output/indexing/accepted-semantic-concepts.txt`, `data/output/indexing/rejected-semantic-concepts.txt`) exactly as concept
 extraction is inference by a model (`data/output/indexing/inferred-*.json`); the repo privileges no
 intelligence over another. They are corpus-derived and stay out of git with the
 rest of `data/output/` (shared across machines by the same means — e.g. iCloud — as `data/input/`);
-only their reproducible by-product, the candidates, is a rebuildable `tmp/cache/`
+only their reproducible by-product, the candidates, is a rebuildable `cache/`
 derivation. (User insight, 2026-07-09.)
 
 ---
@@ -289,7 +289,7 @@ Each law names its current enforcement (or the incident that taught it).
   page): each is built by its own verb - `indexing build`, then `server build` and
   `site build` - offered by its noun's status only once the step before it stands.
 - **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
-  what its source returned, under a stamp, into the room's stage, `tmp/stage/usr/input/`,
+  what its source returned, under a stamp, into the room's stage, `stage/usr/input/`,
   at the address its unit will have under `data/input/`, and reads no other capture
   (issues/687) - of the store it reads the held unit at that one address, the baseline a
   stage that holds no copy lacks, so that a capture writes only what the live store
@@ -298,7 +298,7 @@ Each law names its current enforcement (or the incident that taught it).
   diverges from it is decided at the one reduce that reaches shared storage,
   each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
   `src/main/append_only.py` over a measure per kind), and beyond it where the
-  pipelines reduce — in `tmp/cache/` and `data/output/` (bulk exports and
+  pipelines reduce — in `cache/` and `data/output/` (bulk exports and
   `corpus-yoga store`; sessions and `render_corpus.py`; `corpus-yoga forge
   capture` since the maintainer's ruling of 2026-08-23, issues/497). The two captures that
   read the store they wrote, each to guard its own write - `corpus-yoga agent capture`
@@ -326,7 +326,7 @@ the same operations, governed by the same laws. Code is not a second ontology.
   completion is not stored at all: zsh reads it from the declarations each time
   tab is pressed).
 - **committed derivation** — a class the corpus tables did not need:
-  regenerable like anything in `tmp/cache/`, but COMMITTED as the machine-invariant
+  regenerable like anything in `cache/`, but COMMITTED as the machine-invariant
   record other clones diff against — `rsc/test/run.log`,
   `rsc/test/xref.csv`, and the expected-score files beside them. Operations:
   re-run to regenerate (L1); drift from the committed state is loud (L6);

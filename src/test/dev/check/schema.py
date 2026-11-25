@@ -278,7 +278,7 @@ def check_verdict_record(run) -> None:
         schema_root = root / 'rsc' / 'schema' / 'browser'
         (schema_root / 'claude' / 'apiConversation').mkdir(parents=True)
         (schema_root / 'claude' / 'apiConversation' / 'v1.json').write_text('{}')
-        datum = root / 'tmp' / 'cache' / 'browser' / 'claude' / 'datum'
+        datum = root / 'cache' / 'browser' / 'claude' / 'datum'
         log_dir = datum / 'validation' / 'apiConversation'
         log_dir.mkdir(parents=True)
         (log_dir / 'v1.log').write_text('2026-09-27T00:00:00+00:00\n'

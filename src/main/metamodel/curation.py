@@ -242,7 +242,7 @@ def shared_name_candidates() -> list[dict]:
     return rows
 
 
-WORKSHEET = tier.TMP / 'cache' / 'metamodel' / 'shared_name_candidates.csv'
+WORKSHEET = tier.CACHE / 'metamodel' / 'shared_name_candidates.csv'
 
 
 def worksheet_rows() -> list[dict] | None:
@@ -338,7 +338,7 @@ def emptiness_violations(repo: Path) -> list:
     first falsifying file per edge. Rooms without the relevant corpus skip,
     stated by the caller."""
     doc_roots = {'null_in_api': tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                 'null_in_export': tier.TMP / 'cache' / 'export'}
+                 'null_in_export': tier.CACHE / 'export'}
     emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
     out = []
     for i, row in enumerate(_join_rows(), 2):

@@ -125,7 +125,7 @@ def data_root(root: Path) -> Path:
     """The data root whose deposits license a unit under root: the checkout's for the store
     and for the stage, whose exports are judged against the deposits that will hold them;
     the parent of any other root, so a scratch root carries its own."""
-    return tier.DATA if root in (tier.DATA / 'input', tier.TMP_STAGE_INPUT) else root.parent
+    return tier.DATA if root in (tier.DATA / 'input', tier.STAGE_INPUT) else root.parent
 
 
 def value(root: Path, unit) -> dict | None:

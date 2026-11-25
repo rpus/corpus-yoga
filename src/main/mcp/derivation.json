@@ -4,7 +4,7 @@
   "needs": "src/gen/grammar/TypeScript",
   "writes": [
     "rsc/schema/mcp/<lineage>/mcpMessage",
-    "tmp/cache/mcp"
+    "cache/mcp"
   ],
   "witness": "rsc/reference/mcp/<lineage>/schema.json",
   "arbiter": "corpus-yoga test run"

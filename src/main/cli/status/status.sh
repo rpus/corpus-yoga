@@ -17,7 +17,7 @@
 #   src/main/cli/status/status.sh --show-all   # the full report, what is satisfied included
 #
 # A row is keyed by what it is about, its value what stands; the commands that act on it stand beside it.
-# corpus-yoga pipeline run writes only data/input/, tmp/cache/, data/output/, tmp/logs/ and the venv.
+# corpus-yoga pipeline run writes only data/input/, cache/, data/output/, logs/ and the venv.
 
 set -euo pipefail
 SELF='src/main/cli/status/status.sh'

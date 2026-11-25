@@ -1,5 +1,5 @@
 {
-  "help": "record what upstream publishes of every project - each lineage's files, upstream's lineages where the project declares a lineage listing and the lineages provenance.csv holds where it does not, under tmp/reference/fetch/<project>/<lineage>/, with fetched.csv beside them naming each file's pin and hash - so that a bare corpus-yoga reference says what differs from what is held without sending; writes nothing under rsc/reference (refused loudly under CORPUS_YOGA_NO_SEND)",
+  "help": "record what upstream publishes of every project - each lineage's files, upstream's lineages where the project declares a lineage listing and the lineages provenance.csv holds where it does not, under fetch/reference/<project>/<lineage>/, with fetched.csv beside them naming each file's pin and hash - so that a bare corpus-yoga reference says what differs from what is held without sending; writes nothing under rsc/reference (refused loudly under CORPUS_YOGA_NO_SEND)",
   "would": "would fetch",
   "modality": "MAY",
   "args": [],
@@ -7,7 +7,7 @@
     "rsc/reference"
   ],
   "w": [
-    "tmp/reference/fetch"
+    "fetch/reference"
   ],
   "sends": {
     "github-api": {
