@@ -13,6 +13,34 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v19
+
+claude.ai's API returns a fourth flag on every conversation that no version knew.
+Reading-room's browser capture of 2026-11-24 staged all 130 conversations of the
+account under tmp/stage/usr/input, and the rehearsal of 2026-11-24T182126Z refused every
+one at v18 with `Additional properties are not allowed ('offers_allowed' was unexpected)`:
+each carries `offers_allowed` at the top of the conversation object, true in all 130, where
+the 128 captures held under data/input, of 2026-11-13 and before, carry no such key. It is
+admitted as an optional boolean beside `is_archived`, `workspace_upgraded` and
+`is_multiplayer`, so that every capture held before 2026-11-24 validates at v19 unchanged;
+all 128 held and all 130 staged captures do, validated by hand over the room's data on
+reading-room, 2026-11-24 (issues/1137). With the key admitted, nothing else in the 130
+refuses: v18's refusal hid no second fault. Nothing reached shared storage: the stage held
+the refused captures.
+
+### Replaces
+
+v18
+
+#### Relaxed
+
+- `ApiConversation`: optional `offers_allowed`, a boolean, observed true on every
+  conversation of 2026-11-24.
+
+#### Refactored
+
+None.
+
 ## v18
 
 A conversation names a newer model, the harness looks for files, and a memory read's list
