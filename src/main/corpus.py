@@ -525,7 +525,7 @@ REASON_WIDTH = 120   # a validator's first line may dump the instance; the recor
 def reason(first_line: str) -> str:
     """The validator's message as a status may say it: its 'Validation error' prefix dropped,
     no colon-space pair, and cut where it runs long - the record holds the whole output."""
-    text = first_line.removeprefix('Validation error: ').replace(': ', ' - ')
+    text = facts.plain_words(first_line.removeprefix('Validation error: '))
     return text if len(text) <= REASON_WIDTH else text[:REASON_WIDTH - 3] + '...'
 
 
