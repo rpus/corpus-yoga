@@ -145,7 +145,8 @@ main() {
   # this one invocation, faulting if the results will not settle. The full
   # report goes beside the record as tmp/logs/test/run/<stamp>.report, the terminal tail prints here, and
   # the exit code is the verdict.
-  local rc=0
+  local rc=0 named="" previous=""
+  for arg in "$@"; do [[ "$previous" == --check ]] && named="$arg"; previous="$arg"; done
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/run.py" "$@" || rc=$?
 
   # The artifacts' currency, guarded without touching anything. Deleting the old
@@ -157,7 +158,8 @@ main() {
   # Worktree-vs-index is the right comparison: what is about to be committed must
   # be what a fresh run produces. Unchanged artifacts never diff, so this is
   # silent until it matters.
-  if (( ! SETTLE )) && ! git -C "$REPO_DIR" diff --quiet -- "${ARTIFACTS[@]}" 2>/dev/null; then
+  # one check alone (--check, issues/1167) writes no artifact, so it has none to leave unstaged
+  if (( ! SETTLE )) && [[ -z "$named" ]] && ! git -C "$REPO_DIR" diff --quiet -- "${ARTIFACTS[@]}" 2>/dev/null; then
     echo "ERROR: the regenerated artifacts are not staged — what would be committed is stale:" >&2
     printf '    → run: git add %s\n' "${ARTIFACTS[*]}" >&2
     rc=1
@@ -168,7 +170,13 @@ main() {
   # launcher where the reader typed it
   # shellcheck source=src/main/report.sh
   source "$REPO_DIR/src/main/report.sh"
-  if (( rc == 0 )); then
+  if [[ -n "$named" ]]; then
+    if (( rc == 0 )); then
+      effect "test run: DONE - $named passed, its section alone; nothing written, and the full gate remains the commit's"
+    else
+      effect "test run: NOT DONE - $named did not pass, or names no check; its lines stand above, and nothing was written"
+    fi
+  elif (( rc == 0 )); then
     effect "test run: DONE - the dev gate passed; its verdict line stands above"
   else
     effect "test run: NOT DONE - the dev gate failed, or its artifacts are not staged; the lines above name it"

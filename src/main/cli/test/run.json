@@ -10,6 +10,12 @@
       "help": "run every fix command, then stop - stages nothing (review and stage yourself)"
     },
     {
+      "name": "--check",
+      "type": "<check>",
+      "cardinality": "",
+      "help": "one check alone, by the name the report gives it or by its section - run fresh, its lines printed, nothing written; the full gate remains the commit's"
+    },
+    {
       "name": "--fresh",
       "type": "",
       "cardinality": "",

@@ -156,10 +156,11 @@ class RunOnce:
     section_chunks:      dict   # each check's lines, by its name, for its own log (issues/1030)
 
 
-def _run_once(allow_replay: bool) -> RunOnce:
+def _run_once(allow_replay: bool, only: tuple[str, ...] = ()) -> RunOnce:
     """Check (tree -> results, section-cache replay iff allow_replay), then render
     every surface from those results (issues/249's separation: a check computes, only
-    render builds bytes). Writes NOTHING — not the committed artifacts, not even
+    render builds bytes). With only, the sections named there run and no other, and the
+    section cache is left as it stands (issues/1167). Writes NOTHING — not the committed artifacts, not even
     the machine-local log — because whether this run's bytes are new is a fact
     only main()'s settle loop can see, by comparing them against disk."""
     cache: dict = {}
@@ -304,7 +305,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # every declared check, in its module's order; a check that reads what every other check
         # cited runs after them all, once the ledger is whole (issues/1023)
         returned: dict[str, object] = {}
-        for declared in [d for d in CHECKS if not d.after_all] + [d for d in CHECKS if d.after_all]:
+        selected = [d for d in CHECKS if not only or d.name in only]
+        for declared in [d for d in selected if not d.after_all] + [d for d in selected if d.after_all]:
             if declared.after_all:
                 returned[declared.name] = run_section(lambda run, _fn=declared.fn, _c=cited_laws: _fn(run, _c),
                                                       label=declared.name, tier=declared.tier)
@@ -327,8 +329,9 @@ def _run_once(allow_replay: bool) -> RunOnce:
         xref_rows = _read_committed_xref(RSC / 'test' / 'xref.csv')
 
     try:
-        SECTION_CACHE.parent.mkdir(parents=True, exist_ok=True)
-        SECTION_CACHE.write_text(json.dumps(fresh_cache))
+        if not only:   # a narrowed run holds no other section's entry, and would erase them
+            SECTION_CACHE.parent.mkdir(parents=True, exist_ok=True)
+            SECTION_CACHE.write_text(json.dumps(fresh_cache))
     except OSError:
         pass
     if replayed:
@@ -645,6 +648,28 @@ def _on_disk(path: Path, newline: str | None) -> str | None:
         return None
 
 
+def _check_alone(name: str, fixing: bool) -> int:
+    """One check alone (issues/1167): the section that declares the name - a check's name as the
+    report gives it, or the section's own - run fresh through this runner, its lines printed, and
+    nothing written: not rsc/test/, not the section cache, not the report. 0 where the section
+    passed, 1 where it did not, 2 where no section declares the name. The full gate stays the
+    commit's."""
+    if fixing:
+        print('--check runs one check and fixes nothing; --fix belongs to the full gate', file=sys.stderr)
+        return 2
+    named = [d for d in CHECKS if name in d.says or d.name == name]
+    if not named:
+        print(f'no declared check is named {name} - a check is named as the report names it '
+              f'(stage.export_is_one_unit) or by its section (check_unit_companion)', file=sys.stderr)
+        return 2
+    result = _run_once(allow_replay=False, only=tuple(d.name for d in named))
+    for declared in named:
+        print(f'{declared.name}: |')   # the section's key, as the report heads it
+        print(result.section_chunks.get(declared.name, ''), end='')
+    print()
+    return 0 if all('✗' not in result.section_chunks.get(d.name, '') for d in named) else 1
+
+
 def main():
     import argparse
     import facts
@@ -657,7 +682,11 @@ def main():
     ap.add_argument('--fix', action='store_true')
     ap.add_argument('--fresh', action='store_true',
                     help='ignore the section cache: re-run every check')
+    ap.add_argument('--check', metavar='<check>',
+                    help='one check alone, by the name the report gives it or by its section; writes nothing')
     args = ap.parse_args()
+    if args.check is not None:
+        sys.exit(_check_alone(args.check, args.fix))
 
     committed_path = RSC / 'test' / 'run.log'
     xref_path      = RSC / 'test' / 'xref.csv'

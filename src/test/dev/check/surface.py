@@ -1185,7 +1185,7 @@ def check_status_is_the_dry_run(run) -> None:
 
 
 @check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log', 'gate.checks_hand_no_effect_up',
-                         'gate.planted_git_reaches_only_its_repository'),
+                         'gate.planted_git_reaches_only_its_repository', 'gate.one_check_runs_alone'),
        on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])
 def check_gate_logs(run) -> None:
     """What a room ran and what its gate ran are told apart: an act run while the gate names a
@@ -1258,6 +1258,32 @@ def check_gate_logs(run) -> None:
     held = reached == (['file'], [])
     run("gate: a check's git in a repository it plants reaches that repository alone, under the commit hook's environment", held,
         None if held else f'(planted, sentinel) staged {reached!r}, where ([\'file\'], [])', check='gate.planted_git_reaches_only_its_repository')
+
+    # One check runs alone when named (issues/1167): through the gate's own runner, the section that
+    # declares the name and no other, writing nothing - not rsc/test/, not the section cache, not a report.
+    runner = REPO_ROOT / 'src' / 'test' / 'dev' / 'run.py'
+    launcher = REPO_ROOT / 'src' / 'run_python_script.sh'
+    watched = [REPO_ROOT / 'rsc' / 'test' / 'run.log', REPO_ROOT / 'rsc' / 'test' / 'xref.csv',
+               REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json']
+    reports = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run'
+
+    def fingerprint() -> tuple:
+        return (tuple((p.stat().st_mtime_ns, p.stat().st_size) if p.exists() else None for p in watched),
+                frozenset(reports.glob('*.report')) if reports.is_dir() else frozenset())
+    before = fingerprint()
+    alone = subprocess.run([str(launcher), str(runner), '--check', 'stage.export_is_one_unit'],
+                           capture_output=True, text=True, cwd=REPO_ROOT, timeout=300)
+    unknown = subprocess.run([str(launcher), str(runner), '--check', 'no.such_check'],
+                             capture_output=True, text=True, cwd=REPO_ROOT, timeout=300)
+    after = fingerprint()
+    sections = re.findall(r'^(check_[a-z_]+): \|$', alone.stdout, re.M)
+    ran_alone = (alone.returncode == 0 and sections == ['check_unit_companion'] and '✓ stage: a staged bulk export' in alone.stdout
+                 and before == after
+                 and unknown.returncode == 2 and 'no declared check is named no.such_check' in unknown.stderr)
+    run('gate: one check runs alone when named, through the gate\'s runner, writing nothing', ran_alone,
+        None if ran_alone else f'--check ran sections {sections} with exit {alone.returncode} ({alone.stderr.strip()[-160:]!r}); '
+        f'an unknown name exited {unknown.returncode} ({unknown.stderr.strip()[-120:]!r}); the artifacts {"unchanged" if before == after else "CHANGED"}',
+        check='gate.one_check_runs_alone')
 
 
 @check(tier='code', says=('logs.no_verb_logs_for_itself',), on=['src/main/cli'])

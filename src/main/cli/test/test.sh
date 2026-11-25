@@ -4,6 +4,7 @@
 # Usage:
 #   corpus-yoga test              # status: which checks exist, and whether the hook is installed
 #   corpus-yoga test run [--fix] [--fresh]  # the three-tier suite (--fresh ignores the section cache)
+#   corpus-yoga test run --check <check>  # one check alone, by its name in the report; writes nothing (issues/1167)
 #   corpus-yoga test xref         # rebuild the cross-reference table, write it, and report
 #   corpus-yoga test install-hook # point .git/hooks at run.sh and the prepare-commit-msg hook
 #
@@ -69,5 +70,5 @@ case "${1-}" in
                 fi ;;
   install-hook) shift; parse_argv test install-hook "$@"; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-  *) echo "Usage: corpus-yoga test [run [--fix] [--fresh] | xref | install-hook]  (corpus-yoga test -h for details)" >&2; exit 1 ;;
+  *) echo "Usage: corpus-yoga test [run [--fix] [--fresh] [--check <check>] | xref | install-hook]  (corpus-yoga test -h for details)" >&2; exit 1 ;;
 esac
