@@ -37,22 +37,21 @@ TMP_DIR="$DATA_ROOT/tmp"
 if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TIER_REPO/logs/test/run/$CORPUS_YOGA_GATE_CHECK"; else LOGS_DIR="$LOGS_ROOT"; fi
 
 # scratch_file <name>, scratch_dir <name>: a disposable file or directory a run keeps only
-# while it runs (issues/906), made under tmp/<command>/<verb>/ - the act the launcher dispatched,
-# or the running script's own name, $0, where it dispatched none (issues/1170) - never SELF, which
-# every helper a script sources declares over the script's own - and named
-# <name>.<pid>.<random>, the pid the run's own, so that corpus-yoga tmp names what a run that died
-# left there. No script calls mktemp but through these: nothing disposable is written outside the tree.
-_run_dir() {
+# while it runs (issues/906), made directly under tmp/ and named <act>.<name>.<pid>.<random> - the
+# act the launcher dispatched, <command>.<verb>, or the running script's own name, $0, where it
+# dispatched none, never SELF, which every helper a script sources declares over the script's own;
+# the pid the run's own, so that corpus-yoga tmp names what a run that died left there. No directory
+# is made for a run, so none is left empty when its files go (issues/1170). No script calls mktemp
+# but through these: nothing disposable is written outside the tree.
+_run_prefix() {
   local act="${CORPUS_YOGA_ACT:-}" script="${0##*/}"
-  if [[ -n "$act" ]]; then echo "$TMP_DIR/${act// //}"; else echo "$TMP_DIR/${script%.*}"; fi
+  if [[ -n "$act" ]]; then echo "$TMP_DIR/${act// /.}"; else echo "$TMP_DIR/${script%.*}"; fi
 }
 scratch_file() {
-  local dir; dir="$(_run_dir)"
-  mkdir -p "$dir" && mktemp "$dir/$1.$$.XXXXXX"
+  mkdir -p "$TMP_DIR" && mktemp "$(_run_prefix).$1.$$.XXXXXX"
 }
 scratch_dir() {
-  local dir; dir="$(_run_dir)"
-  mkdir -p "$dir" && mktemp -d "$dir/$1.$$.XXXXXX"
+  mkdir -p "$TMP_DIR" && mktemp -d "$(_run_prefix).$1.$$.XXXXXX"
 }
 
 # stamp_of <command> <verb>: the act's stamp - the launcher's where it dispatched this act,

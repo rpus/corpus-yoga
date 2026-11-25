@@ -653,10 +653,11 @@ def check_screen_and_scratch(run) -> None:
     """The agent status counts what it holds by kind and names only what a reader acts on
     (issues/1004): sessions by room and provider, a pull's kept units by kind with their size, the
     units it would write by name - the per-session listing a verb of its own, list-sessions.
-    A disposable file a script keeps stands under tmp/<command>/<verb>/, the act the launcher
-    dispatched, or tmp/<script>/ where it dispatched none, named with the pid of the run that keeps
-    it, through the tier's scratch_file and scratch_dir alone (issues/906, issues/1170), and the tmp
-    noun names one whose run is gone, and nothing not so named. The fixtures are synthetic."""
+    A disposable file a script keeps stands directly under tmp/, named for the act the launcher
+    dispatched, <command>.<verb>, or the running script where it dispatched none, then with the pid of
+    the run that keeps it, through the tier's scratch_file and scratch_dir alone, no directory made
+    for it to be left empty (issues/906, issues/1170); and the tmp noun names one whose run is gone,
+    and any entry no command declares it keeps under tmp/. The fixtures are synthetic."""
     import importlib.util
     import os
     import subprocess
@@ -696,16 +697,19 @@ def check_screen_and_scratch(run) -> None:
     placed: dict[str, object] = {}
     with tempfile.TemporaryDirectory() as tmp:
         script = Path(tmp) / 'probe.sh'
-        script.write_text(f'SELF=a-helper-it-sourced.sh; source "{SRC}/main/tier.sh"; TMP_DIR="{tmp}"\n'
+        script.write_text(f'SELF=a-helper-it-sourced.sh; source "{SRC}/main/tier.sh"; TMP_DIR="$PROBE_TMP"\n'
                           'f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]\n')
-        for case, env, under in (('dispatched', {'CORPUS_YOGA_ACT': 'probe verb'}, 'probe/verb'), ('undispatched', {}, 'probe')):
-            environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_ACT'} | env
+        for case, env, under in (('dispatched', {'CORPUS_YOGA_ACT': 'probe verb'}, 'probe.verb'), ('undispatched', {}, 'probe')):
+            under_tmp = Path(tmp) / case
+            under_tmp.mkdir()
+            environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_ACT'} | env | {'PROBE_TMP': str(under_tmp)}
             made = subprocess.run(['bash', str(script)], capture_output=True, text=True, timeout=30, env=environment)
             lines = made.stdout.split()
-            ok = made.returncode == 0 and len(lines) == 3 and all(line.startswith(f'{tmp}/{under}/probe.{lines[2]}.') for line in lines[:2])
+            ok = (made.returncode == 0 and len(lines) == 3 and all(line.startswith(f'{under_tmp}/{under}.probe.{lines[2]}.') for line in lines[:2])
+                  and sorted(p.name for p in under_tmp.iterdir() if p.is_dir() and not p.name.startswith(f'{under}.probe.')) == [])
             placed[case] = True if ok else f'{made.stdout!r} {made.stderr.strip()[:160]!r}'
     kept = not loose and all(v is True for v in placed.values())
-    run('tmp: a disposable file a script keeps stands under tmp/<command>/<verb>/, or tmp/<script>/ where no command dispatched it, named with its run\'s pid, through the tier\'s scratch_file and scratch_dir alone',
+    run('tmp: a disposable file a script keeps stands directly under tmp/, named <command>.<verb>, or <script> where no command dispatched it, then with its run\'s pid, through the tier\'s scratch_file and scratch_dir alone, no directory made for it',
         kept, None if kept else f'mktemp is called at {", ".join(loose)}' if loose else f'the tier made {placed}',
         check='tmp.run_file_stands_under_its_command')
 
@@ -716,13 +720,19 @@ def check_screen_and_scratch(run) -> None:
         tmp_spec.loader.exec_module(tmp_noun)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            for held in (f'probe/verb/live.{os.getpid()}.aaaaaa', f'probe/verb/left.{gone}.bbbbbb', f'probe/left.{gone}.cccccc', 'forge/merge/a-worktree/file'):
+            for held in (f'probe.verb.live.{os.getpid()}.aaaaaa', f'probe.verb.left.{gone}.bbbbbb', f'probe.left.{gone}.cccccc',
+                         f'probe.verb.work.{gone}.dddddd/file', 'forge/merge/a-worktree/file', 'stray.txt'):
                 (root / held).parent.mkdir(parents=True, exist_ok=True)
                 (root / held).write_text('')
-            found = sorted(p.relative_to(root).as_posix() for p in tmp_noun.orphans(root))
-    named = found == [f'probe/left.{gone}.cccccc', f'probe/verb/left.{gone}.bbbbbb']
-    run('tmp: a working file whose run is gone is an orphan; one whose run lives, or one not named by a run, is not', named,
-        None if named else f'named {found}', check='tmp.dead_run_file_is_named')
+            (root / 'status').mkdir()
+            try:
+                found = sorted(p.relative_to(root).as_posix() for p, _why in tmp_noun.orphans(root, {'forge'}))
+            except Exception as error:   # noqa: BLE001 - the failure IS the finding
+                found = f'raised {type(error).__name__}: {error}'
+    want = [f'probe.left.{gone}.cccccc', f'probe.verb.left.{gone}.bbbbbb', f'probe.verb.work.{gone}.dddddd', 'status', 'stray.txt']
+    named = found == want
+    run('tmp: a working file or directory whose run is gone, and any entry directly under tmp/ that no command declares it keeps there, are orphans; a live run\'s file and a command\'s own directory are not',
+        named, None if named else f'named {found}, where {want}', check='tmp.dead_run_file_is_named')
 
 
 @check(tier='code', says=('command.a_moved_verb_is_a_fault', 'reference.pointer_reads_the_declared_lineage', 'migration.raise_bodies_stand_with_the_record',

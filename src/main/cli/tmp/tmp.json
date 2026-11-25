@@ -1,16 +1,17 @@
 {
-  "summary": "the room's tmp/ - what lasts one run, under the command that runs, tmp/<command>/<verb>/ holding a run's working files, or tmp/<script>/ where no command dispatched the script - the files a run that died left there, and the act that removes them (bare is the status, naming what its cleaner would remove; clean its one janitor)",
+  "summary": "the room's tmp/ - what lasts one run, each working file a script keeps directly under it, named for the act that keeps it, and the directories a command declares it keeps there, the forge's worktrees among them - each entry with its size, what a run that died left, and what no command keeps, and the act that removes them (bare is the status, naming what its cleaner would remove; clean its one janitor)",
   "standing": true,
   "explanation": {
-    "tmp": "the tier whole - how many directories stand directly under tmp/, and their size",
-    "orphans": "each working file a run that died left - named <name>.<pid>.<random> by the run that kept it, its pid held by no process - by its path, with its size, corpus-yoga tmp clean, in now, removing it; an entry not so named is the command's own, whose directory names it",
+    "tmp": "the tier whole - how many entries stand directly under tmp/, and their size",
+    "entries": "each entry directly under tmp/, by name, with its size - a working file named <act>.<name>.<pid>.<random>, or a directory a command declares it keeps there",
+    "orphans": "each orphan by its path, with its size, why, and corpus-yoga tmp clean, in now, removing it - a working file or directory a run that died left, its pid held by no process, and any entry directly under tmp/ but a directory a command's declaration names it keeps there",
     "now": "the room's standing as the tmp noun reads it - the cleaner, what it would do, and each orphan it would remove by path. none where no run that died left a file"
   },
   "phrase": [
     "a working file whose run is gone",
     "absent - no run has kept a working file",
-    "{n} directory(ies), {size}",
-    "{n} directory(ies), {size}, {orphans} orphan(s)"
+    "{n} entry(ies), {size}",
+    "{n} entry(ies), {size}, {orphans} orphan(s)"
   ],
   "target": "src/main/cli/tmp/tmp.py",
   "calculus": "project",

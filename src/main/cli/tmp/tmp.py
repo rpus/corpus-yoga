@@ -2,18 +2,20 @@
 tmp.py (corpus-yoga tmp) - the room's tmp/, what lasts one run, as the cache, the logs and the
 stage have their nouns (issues/1170).
 
-    corpus-yoga tmp                     # status: the tier, each working file a run that died left, and what to run next
-    corpus-yoga tmp clean               # remove the files the status names
+    corpus-yoga tmp                     # status: each entry under tmp/ with its size, each orphan, and what to run next
+    corpus-yoga tmp clean               # remove the orphans the status names
 
-A script keeps a working file only while it runs, through the tier's scratch_file and
-scratch_dir (src/main/tier.sh, issues/906): under tmp/<command>/<verb>/, the act the launcher
-dispatched, or tmp/<script>/ where it dispatched none, named <name>.<pid>.<random> with the
-pid of the run that keeps it. A run that dies before removing its file leaves it there, and
-a file so named whose pid no process holds is an orphan the status names and the cleaner,
-which takes no flag, removes through the one loop every clean verb runs (src/main/cleaner.py).
-An entry not so named is its command's own - the forge's worktrees under tmp/forge - and never
-this noun's.
+A script keeps a working file or directory only while it runs, through the tier's scratch_file
+and scratch_dir (src/main/tier.sh, issues/906): directly under tmp/, named
+<act>.<name>.<pid>.<random> - the act the launcher dispatched, <command>.<verb>, or the running
+script where it dispatched none - with the pid of the run that keeps it, and no directory made for
+it. One whose pid no process holds was left by a run that died, an orphan. A command that keeps a
+directory under tmp/ declares it - the forge's worktrees under tmp/forge, as its merge and rebase
+write - and any other entry directly under tmp/ is an orphan too: no command keeps it. The status
+names each entry with its size and each orphan with why; the cleaner, which takes no flag, removes
+the orphans through the one loop every clean verb runs (src/main/cleaner.py).
 """
+import json
 import os
 import re
 import shutil
@@ -60,26 +62,40 @@ def lives(pid: int) -> bool:
     return True
 
 
-def orphans(root: Path) -> list[Path]:
-    """Each working file under root/<command>/ or root/<command>/<verb>/ whose run is gone: named
-    <name>.<pid>.<random>, its pid held by no process."""
+def keepers() -> set[str]:
+    """The directories a command keeps directly under tmp/, as its declaration's r and w rows name
+    them - tmp/<directory>/..."""
+    kept = set()
+    for declaration in (REPO / 'src' / 'main' / 'cli').glob('*/*.json'):
+        rows = json.loads(declaration.read_text())
+        for row in [*rows.get('r', []), *rows.get('w', [])]:
+            parts = row.split('/')
+            if parts[0] == 'tmp' and len(parts) > 1:
+                kept.add(parts[1])
+    return kept
+
+
+def orphans(root: Path, kept: set[str]) -> list[tuple[Path, str]]:
+    """Each orphan directly under root, with why: a working file or directory named
+    <act>.<name>.<pid>.<random> whose pid no process holds, and any other entry but a directory a
+    command declares it keeps there."""
     if not root.is_dir():
         return []
-    found = []
-    for command in sorted(d for d in root.iterdir() if d.is_dir() and not d.is_symlink()):
-        for entry in sorted(command.iterdir()):
-            beneath = sorted(entry.iterdir()) if entry.is_dir() and not entry.is_symlink() and not RUN_FILE.fullmatch(entry.name) else [entry]
-            for candidate in beneath:
-                named = RUN_FILE.fullmatch(candidate.name)
-                if named and not lives(int(named.group(1))):
-                    found.append(candidate)
+    found: list[tuple[Path, str]] = []
+    for entry in sorted(root.iterdir()):
+        named = RUN_FILE.fullmatch(entry.name)
+        if named:
+            if not lives(int(named.group(1))):
+                found.append((entry, facts.phrase('a working file whose run is gone')))
+        elif not (entry.is_dir() and not entry.is_symlink() and entry.name in kept):
+            found.append((entry, facts.phrase('no command keeps it')))
     return found
 
 
 @dataclass
 class Orphan:
     size: str
-    why: str = facts.phrase('a working file whose run is gone')
+    why: str
     act: facts.Would | None = None
 
 
@@ -89,6 +105,7 @@ class Status:
     what it would remove, by path - the shape the cache's and the logs' statuses have, so that
     the room's one reading, which folds this block, names a file a dead run left."""
     tmp: str = facts.named('tmp')
+    entries: dict[str, str] | None = None         # each directly under tmp/, by name: its size
     orphans: dict[str, Orphan] | None = None
     now: dict | str | None = None
 
@@ -96,13 +113,13 @@ class Status:
 def status_facts() -> Status:
     root = tier.TMP
     if not root.is_dir():
-        return Status(facts.phrase('absent - no run has kept a working file'), {}, facts.phrase('none - nothing to do'))
-    found = {rel: Orphan(human(size_of(p)), act=facts.Would(spell.line('tmp', 'clean'), {rel: 1}))
-             for p in orphans(root) for rel in (p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p),)}
-    directories = sum(1 for d in root.iterdir() if d.is_dir())
-    said = (facts.phrase('{n} directory(ies), {size}, {orphans} orphan(s)', n=directories, size=human(size_of(root)), orphans=len(found)) if found
-            else facts.phrase('{n} directory(ies), {size}', n=directories, size=human(size_of(root))))
-    out = Status(said, found)
+        return Status(facts.phrase('absent - no run has kept a working file'), None, {}, facts.phrase('none - nothing to do'))
+    found = {rel: Orphan(human(size_of(p)), why, facts.Would(spell.line('tmp', 'clean'), {rel: 1}))
+             for p, why in orphans(root, keepers()) for rel in (p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p),)}
+    held = {e.name: human(size_of(e)) for e in sorted(root.iterdir())}
+    said = (facts.phrase('{n} entry(ies), {size}, {orphans} orphan(s)', n=len(held), size=human(size_of(root)), orphans=len(found)) if found
+            else facts.phrase('{n} entry(ies), {size}', n=len(held), size=human(size_of(root))))
+    out = Status(said, held or None, found)
     out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     return out
 
@@ -120,9 +137,8 @@ def _dispose(path: Path) -> str | None:
 
 def entries() -> list[cleaner.Entry]:
     """Everything the janitor acts on: each orphan by its path, with its size."""
-    return [cleaner.Entry('orphan', rel, {'orphan': facts.phrase('a working file whose run is gone'), 'size': human(size_of(p))},
-                          lambda p=p: _dispose(p), rel)
-            for p in orphans(tier.TMP) for rel in (p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p),)]
+    return [cleaner.Entry('orphan', rel, {'orphan': why, 'size': human(size_of(p))}, lambda p=p: _dispose(p), rel)
+            for p, why in orphans(tier.TMP, keepers()) for rel in (p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p),)]
 
 
 def main() -> int:
