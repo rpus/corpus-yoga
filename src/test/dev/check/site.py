@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from gate import (
+    planted_environment,
     REPO_ROOT,
     SRC,
     check,
@@ -116,13 +117,10 @@ def check_site_reads_rpus_co(run) -> None:
         return
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
-        # the remote is a local directory, so nothing leaves the machine; and no variable git exports to a
-        # hook reaches these clones - under the commit hook GIT_INDEX_FILE names the index being
-        # committed, and a planted clone's add and commit wrote into it (reading-room, 2026-11-08)
-        environment = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_NO_SEND' and not k.startswith('GIT_')}
-        environment[tier.DECLARATION] = send.dispatched('src/main/cli/site/sync.json')   # the clone's sends are publish's, run against a planted origin
-        environment.update({'GIT_AUTHOR_NAME': 'gate', 'GIT_AUTHOR_EMAIL': 'gate@localhost', 'GIT_COMMITTER_NAME': 'gate',
-                            'GIT_COMMITTER_EMAIL': 'gate@localhost', 'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_CONFIG_NOSYSTEM': '1'})
+        # the remote is a local directory, so nothing leaves the machine; the clone's sends are
+        # publish's, run against a planted origin
+        environment = planted_environment(**{tier.DECLARATION: send.dispatched('src/main/cli/site/sync.json')})
+        environment.pop('CORPUS_YOGA_NO_SEND', None)
         def git(*words, cwd=root):
             subprocess.run(['git', *words], cwd=cwd, env=environment, check=True, capture_output=True)
         def commit(clone, text):

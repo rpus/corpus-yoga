@@ -1184,7 +1184,8 @@ def check_status_is_the_dry_run(run) -> None:
         check='verbs.status_is_the_dry_run')
 
 
-@check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log', 'gate.checks_hand_no_effect_up'),
+@check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log', 'gate.checks_hand_no_effect_up',
+                         'gate.planted_git_reaches_only_its_repository'),
        on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])
 def check_gate_logs(run) -> None:
     """What a room ran and what its gate ran are told apart: an act run while the gate names a
@@ -1228,6 +1229,35 @@ def check_gate_logs(run) -> None:
     dispatched = sorted(name for name in (facts.ACT, facts.EFFECT) if name in os.environ)
     run("gate: a check sees no act to hand its effect up to, whatever act runs the gate", not dispatched,
         None if not dispatched else f'the checks run with {dispatched}', check='gate.checks_hand_no_effect_up')
+    # A check's git in a repository it plants reaches that repository alone (issues/1150): under the
+    # commit hook git exports GIT_DIR and GIT_INDEX_FILE, naming the repository being committed, and
+    # a planted clone's git inheriting them wrote into it. Held with the two set to a sentinel repository.
+    import tempfile
+    import gate
+    reached: object = 'gate has no planted_environment'
+    if hasattr(gate, 'planted_environment'):
+        bare = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        with tempfile.TemporaryDirectory() as scratch:
+            sentinel, planted_repo = Path(scratch) / 'sentinel', Path(scratch) / 'planted'
+            for repo in (sentinel, planted_repo):
+                subprocess.run(['git', 'init', '-q', str(repo)], check=True, env=bare)
+            (planted_repo / 'file').write_text('planted\n')
+            hooked = {'GIT_DIR': str(sentinel / '.git'), 'GIT_INDEX_FILE': str(sentinel / '.git' / 'index')}
+            kept = {name: os.environ.get(name) for name in hooked}
+            os.environ.update(hooked)
+            try:
+                subprocess.run(['git', '-C', str(planted_repo), 'add', 'file'], env=gate.planted_environment(), capture_output=True)
+            finally:
+                for name, value in kept.items():
+                    if value is None:
+                        os.environ.pop(name, None)
+                    else:
+                        os.environ[name] = value
+            staged = lambda repo: subprocess.run(['git', '-C', str(repo), 'ls-files', '--cached'], capture_output=True, text=True, env=bare).stdout.split()   # noqa: E731
+            reached = (staged(planted_repo), staged(sentinel))
+    held = reached == (['file'], [])
+    run("gate: a check's git in a repository it plants reaches that repository alone, under the commit hook's environment", held,
+        None if held else f'(planted, sentinel) staged {reached!r}, where ([\'file\'], [])', check='gate.planted_git_reaches_only_its_repository')
 
 
 @check(tier='code', says=('logs.no_verb_logs_for_itself',), on=['src/main/cli'])
