@@ -1213,7 +1213,7 @@ src/main/corpus.py,49,comment,src/main/validation_verdict.py,Y,"at the unit's ca
 src/main/corpus.py,97,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
 src/main/corpus.py,452,path_str,rsc/schema,Y,SCHEMA_ROOT = 'rsc/schema'   # <pipeline>/<family as the pipeline declares it>/<version>.json
 src/main/corpus.py,213,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
-src/main/corpus.py,596,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
+src/main/corpus.py,598,comment,src/main/rehearsal.py,Y,"from the rehearsal record (src/main/rehearsal.py): the judgement, its words, and, where"
 src/main/enact.sh,6,comment,src/main/report.sh,Y,"# depth through the printer (src/main/report.sh narrate, issues/805): `- <command>:` before it"
 src/main/enact.sh,34,comment,src/main/report.sh,Y,"# src/main/report.sh, whose narrate these faces say through."
 src/main/export/archive_components.py,22,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/archive_components.py       --export data/input/claude/chat/bulk-export/<batch>
