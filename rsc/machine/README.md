@@ -9,7 +9,7 @@ Two facts about machines, and deliberately no more.
 
 They live apart because they are opposites: the registry is the list every clone
 shares, the binding is the one thing no clone may share. So the binding sits at the
-root among the other machine-local entries (`tmp/cache/`, `data/input/`, `tmp/logs/`, `data/output/`),
+root among the other machine-local entries (`cache/`, `data/input/`, `logs/`, `data/output/`),
 which is what it is — and this directory is left wholly committed.
 
 `src/main/machine.py` reads both and is a library, not a command: `machines()` and

@@ -9,7 +9,7 @@
     }
   ],
   "r": [
-    "tmp/cache",
+    "cache",
     "data/input",
     "rsc/schema"
   ]

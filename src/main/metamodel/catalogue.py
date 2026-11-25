@@ -13,7 +13,7 @@ Usage:
 src/main/latest.py names for the directory; no version is named here, so a mint edits its
 family's directory and changelog alone (issues/986).
 
-Output: JSON to stdout. Redirect to tmp/cache/metamodel/catalogue/<family's address>/<version>.json for review.
+Output: JSON to stdout. Redirect to cache/metamodel/catalogue/<family's address>/<version>.json for review.
 Normally invoked via corpus-yoga metamodel which handles all schemas automatically.
 """
 

@@ -8,7 +8,7 @@ every definition must flatten to, never a source.
 
 `mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes
 nothing (the bare noun IS the status). Only `derive` writes: the two extracted
-tables and the two faces under tmp/cache/mcp/ (the readable faces of the
+tables and the two faces under cache/mcp/ (the readable faces of the
 derivation's inputs and of its output - the consumer and producer schemas of
 face.py, issues/605) and the
 family's version file - and it MINTS (issues/583): when the derivation differs from the
@@ -67,7 +67,7 @@ def _diff(have: str, wanted: str, have_name: str, wanted_name: str) -> str:
 
 
 def _tables_current(declared: dict) -> bool:
-    """Whether tmp/cache/mcp/ holds the tables as extracted now."""
+    """Whether cache/mcp/ holds the tables as extracted now."""
     import tempfile
     with tempfile.TemporaryDirectory() as scratch:
         saved = factoring.CACHE_DIR, factoring.COMPOSITION, factoring.CATEGORIES
@@ -124,7 +124,7 @@ class Family:
     act: facts.Would | None = None
 
 
-FETCHED = tier.TMP / 'reference' / 'fetch' / factoring.SNAPSHOT_DIR.name / factoring.LINEAGE / factoring.WITNESS.name   # what corpus-yoga reference fetch recorded
+FETCHED = tier.FETCH / 'reference' / factoring.SNAPSHOT_DIR.name / factoring.LINEAGE / factoring.WITNESS.name   # what corpus-yoga reference fetch recorded
 
 
 def as_fetched(have: dict, path: Path) -> str | facts.Finding:

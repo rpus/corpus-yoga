@@ -1,0 +1,21 @@
+{
+  "summary": "the room's tmp/ - what lasts one run, under the command that runs, tmp/<command>/<verb>/ holding a run's working files, or tmp/<script>/ where no command dispatched the script - the files a run that died left there, and the act that removes them (bare is the status, naming what its cleaner would remove; clean its one janitor)",
+  "standing": true,
+  "explanation": {
+    "tmp": "the tier whole - how many directories stand directly under tmp/, and their size",
+    "orphans": "each working file a run that died left - named <name>.<pid>.<random> by the run that kept it, its pid held by no process - by its path, with its size, corpus-yoga tmp clean, in now, removing it; an entry not so named is the command's own, whose directory names it",
+    "now": "the room's standing as the tmp noun reads it - the cleaner, what it would do, and each orphan it would remove by path. none where no run that died left a file"
+  },
+  "phrase": [
+    "a working file whose run is gone",
+    "absent - no run has kept a working file",
+    "{n} directory(ies), {size}",
+    "{n} directory(ies), {size}, {orphans} orphan(s)"
+  ],
+  "target": "src/main/cli/tmp/tmp.py",
+  "calculus": "project",
+  "args": [],
+  "r": [
+    "tmp"
+  ]
+}

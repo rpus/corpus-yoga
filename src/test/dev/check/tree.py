@@ -213,7 +213,7 @@ def check_committed_tree(run) -> None:
     fact, so the shape is /Users/ alone. The declared machine names in
     rsc/machine/machines.csv are vocabulary, not machine facts (the one exemption).
     Committed files only: code tier."""
-    roots = ['data', 'tmp', 'ext', 'machine-name.txt']
+    roots = ['cache', 'data', 'ext', 'fetch', 'logs', 'stage', 'tmp', 'machine-name.txt']
     tracked = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached', '--'] + roots,
                              capture_output=True, text=True).stdout.split()
     unignored = [r for r in roots
@@ -398,7 +398,7 @@ def check_spelling(run) -> None:
         if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json'):
             continue
         rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv' or path in GATE_FILES:
+        if rel.parts[0] in xref.IGNORED_ROOTS | {'.git'} or str(rel) == 'rsc/test/xref.csv' or path in GATE_FILES:
             continue
         for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
             m = imperative.search(line)
@@ -411,15 +411,15 @@ def check_spelling(run) -> None:
 
 @check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_the_actors', 'tier.gate_reads_its_own_stage'), on=['src/main', 'src/test/dev/run.sh'])
 def check_tier_contract(run) -> None:
-    """Every data or tmp path under src/main derives from the tier contract:
+    """Every machine-local path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
-    path through the literal segment 'data' or 'tmp' from a root of its own - REPO,
+    path through the literal segment of a machine-local root from a root of its own - REPO,
     parents[3], $REPO_DIR - by hand - a rehearsal is
     the checkout's own code run over other tiers, which such a path would escape."""
-    # a Path built through the literal segment 'data' or 'tmp' from any root-shaped
-    # expression - REPO, repo, parents[3], _root[0] - and the shell's $<ROOT>/data, /tmp
-    py = re.compile(r"/\s*'(data|tmp)'\s*/")
-    sh = re.compile(r'\$\{?[A-Z_]*(DIR|ROOT)\}?/(data|tmp)(/|")')
+    # a Path built through the literal segment of a machine-local root from any root-shaped
+    # expression - REPO, repo, parents[3], _root[0] - and the shell's $<ROOT>/data, /cache and the rest
+    py = re.compile(r"/\s*'(data|cache|logs|tmp|fetch|stage)'\s*/")
+    sh = re.compile(r'\$\{?[A-Z_]*(DIR|ROOT)\}?/(data|cache|logs|tmp|fetch|stage)(/|")')
     found = []
     for f in sorted((SRC / 'main').rglob('*')):
         if f.suffix not in ('.py', '.sh') or f.name in ('tier.py', 'tier.sh') or '__pycache__' in f.parts or 'gen' in f.parts:
@@ -430,42 +430,43 @@ def check_tier_contract(run) -> None:
                 continue
             if pat.search(line):
                 found.append(f'{f.relative_to(REPO_ROOT)}:{i}')
-    run('tier: every data and tmp path under src/main derives from src/main/tier.py or tier.sh', not found,
+    run('tier: every machine-local path under src/main derives from src/main/tier.py or tier.sh', not found,
         ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
         check='tier.paths_from_contract')
 
-    # The stage is one per actor (issues/1133): tmp/stage/usr where no actor is named, tmp/stage/dev
+    # The stage is one per actor (issues/1133): stage/usr where no actor is named, stage/dev
     # where the dev actor is - in python and in a shell sourcing tier.sh alike.
     resolved = {}
     for actor in ('', 'dev'):
         env = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_ACTOR'} | ({'CORPUS_YOGA_ACTOR': actor} if actor else {})
-        python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.TMP_STAGE)', str(SRC / 'main')],
+        python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.STAGE)', str(SRC / 'main')],
                                      capture_output=True, text=True, env=env).stdout.strip()
-        shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$TMP_STAGE"', '_', str(SRC / 'main' / 'tier.sh')],
+        shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$STAGE_DIR"', '_', str(SRC / 'main' / 'tier.sh')],
                                     capture_output=True, text=True, env=env).stdout.strip()
         resolved[actor or 'none named'] = sorted({Path(python_side).relative_to(REPO_ROOT).as_posix() if python_side else '?',
                                                   Path(shell_side).relative_to(REPO_ROOT).as_posix() if shell_side else '?'})
-    want = {'none named': ['tmp/stage/usr'], 'dev': ['tmp/stage/dev']}
-    run("tier: the stage is the actor's, tmp/stage/usr where none is named and tmp/stage/dev for the dev actor, in python and the shell alike",
+    want = {'none named': ['stage/usr'], 'dev': ['stage/dev']}
+    run("tier: the stage is the actor's, stage/usr where none is named and stage/dev for the dev actor, in python and the shell alike",
         resolved == want, None if resolved == want else f'the stage resolved as {resolved}', check='tier.stage_is_the_actors')
 
     # The dev gate reads its own stage, never the usr actor's (issues/1134): as the gate runs - src/test/dev/run.sh
-    # makes tmp/stage/dev and names the dev actor - data, tmp and the stage resolve beneath tmp/stage/dev,
+    # makes stage/dev and names the dev actor - data, cache, logs, tmp and the stage resolve beneath stage/dev,
     # in this process and in a shell sourcing tier.sh, and its input is empty and read-only.
     import tier
-    stage = REPO_ROOT / 'tmp' / 'stage' / 'dev'
-    shell_side = subprocess.run(['bash', '-c', 'source "$1"; printf "%s\\n" "$DATA_DIR" "$TMP_DIR" "$TMP_STAGE"', '_', str(SRC / 'main' / 'tier.sh')],
+    stage = REPO_ROOT / 'stage' / 'dev'
+    shell_side = subprocess.run(['bash', '-c', 'source "$1"; printf "%s\\n" "$DATA_DIR" "$TMP_DIR" "$STAGE_DIR" "$CACHE_ROOT" "$LOGS_ROOT"', '_', str(SRC / 'main' / 'tier.sh')],
                                 capture_output=True, text=True).stdout.split()
-    sides = {'DATA': tier.DATA, 'TMP': tier.TMP, 'TMP_STAGE': tier.TMP_STAGE, **dict(zip(('DATA_DIR', 'TMP_DIR', 'TMP_STAGE (shell)'), shell_side))}
+    sides = {'DATA': tier.DATA, 'TMP': tier.TMP, 'CACHE': tier.CACHE, 'LOGS_ROOT': tier.LOGS_ROOT, 'STAGE': tier.STAGE,
+             **dict(zip(('DATA_DIR', 'TMP_DIR', 'STAGE_DIR', 'CACHE_ROOT', 'LOGS_ROOT (shell)'), shell_side))}
     outside = [f'{name} {Path(path).relative_to(REPO_ROOT) if Path(path).is_relative_to(REPO_ROOT) else path}'
                for name, path in sides.items() if not Path(path).is_relative_to(stage)]
     held = sorted(p.name for p in (stage / 'input').iterdir()) if (stage / 'input').is_dir() else None
     writable = (stage / 'input').is_dir() and os.access(stage / 'input', os.W_OK)
-    why = ('; '.join(outside) + ' - outside tmp/stage/dev' if outside else
-           'tmp/stage/dev/input is absent' if held is None else
-           f'tmp/stage/dev/input holds {held}' if held else
-           'tmp/stage/dev/input is writable' if writable else None)
-    run("tier: as the dev gate runs, data, tmp and the stage are its own, tmp/stage/dev, whose input is empty and read-only", why is None, why,
+    why = ('; '.join(outside) + ' - outside stage/dev' if outside else
+           'stage/dev/input is absent' if held is None else
+           f'stage/dev/input holds {held}' if held else
+           'stage/dev/input is writable' if writable else None)
+    run("tier: as the dev gate runs, data, tmp and the stage are its own, stage/dev, whose input is empty and read-only", why is None, why,
         check='tier.gate_reads_its_own_stage')
 
 

@@ -1,11 +1,11 @@
 {
-  "help": "remove what the status reads as the store's surplus - what it names, so the verb takes no flag - each duplicate of either species - identical to another unit of its kind, or contained by one by the kind's measure - with what only it feeds, its members, its record and its shadow under tmp/cache, the holder kept; each orphaned shadow, the cache's derivation of a unit the store no longer holds; and each surplus file, a file inside a held unit that its measure does not read, which no capture wrote. What to run next and the verdict follow the lines",
+  "help": "remove what the status reads as the store's surplus - what it names, so the verb takes no flag - each duplicate of either species - identical to another unit of its kind, or contained by one by the kind's measure - with what only it feeds, its members, its record and its shadow under cache, the holder kept; each orphaned shadow, the cache's derivation of a unit the store no longer holds; and each surplus file, a file inside a held unit that its measure does not read, which no capture wrote. What to run next and the verdict follow the lines",
   "would": "would remove",
   "modality": "MAY",
   "args": [],
   "r": [
     "data/input",
-    "tmp/cache",
+    "cache",
     "ext/mnt/claude/code/machine-transport",
     "ext/mnt/gemini/code/machine-transport",
     "rsc/provider/providers.csv",
@@ -14,6 +14,6 @@
   ],
   "consumes": [
     "data/input",
-    "tmp/cache"
+    "cache"
   ]
 }

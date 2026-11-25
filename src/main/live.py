@@ -26,7 +26,7 @@ REPO = _root[0]
 
 transport = importlib.import_module('transport')   # src/main/cli/agent/transport.py, by the path inserted above
 
-TIERS = {'staged': corpus.STAGE, 'held': corpus.STORE}   # what each tier's copy is called, and the tier's root
+TIERS = {'staged': corpus.STAGED, 'held': corpus.HELD}   # what each tier's copy is called, and the tier's root
 
 
 @dataclass
@@ -92,7 +92,7 @@ def live_addresses() -> frozenset[Path]:
         mount, adapter = registry.mount(row), transport.adapter(name)
         if mount is None or adapter is None or not mount.is_dir():
             continue
-        under = transport.store(name).relative_to(corpus.STORE) / room
+        under = transport.store(name).relative_to(corpus.HELD) / room
         for s in adapter.live_sessions(mount):
             live.add(under / s.project / s.path.name)
     return frozenset(live)
@@ -165,7 +165,7 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             if live is not None and live.is_dir():   # mount links only a live store this machine holds
                 absent.append(mount.relative_to(REPO).as_posix())
             continue
-        under = transport.store(name).relative_to(corpus.STORE) / room
+        under = transport.store(name).relative_to(corpus.HELD) / room
         roots = {tier: root / under for tier, root in TIERS.items()}
         rows.extend(sessions(name, adapter, mount, roots))
     return rows, absent

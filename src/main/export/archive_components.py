@@ -1,18 +1,18 @@
 """
 archive_components.py — copy the non-conversation components of a bulk export
-(memories.json, projects/, users.json) verbatim into the batch's tmp/cache/ directory.
+(memories.json, projects/, users.json) verbatim into the batch's cache/ directory.
 
 A bulk export is a synchronised snapshot of FOUR components. The pipeline
-derives everything conversations-related into tmp/cache/export/<batch>/ (json/,
+derives everything conversations-related into cache/export/<batch>/ (json/,
 markdown/, extracted_*, presentation/), but the other three components used to
 exist only inside data/input/. Copying them beside the derived content makes the cache
 batch directory the complete processed record of the snapshot — one root to
 read, index, or serve any component. Copies are byte-verbatim: these are
 data, not projections (bulk exports are the only log of chat memories).
 
-    tmp/cache/export/<batch>/memories/memories.json
-    tmp/cache/export/<batch>/projects/<uuid>.json
-    tmp/cache/export/<batch>/users/users.json
+    cache/export/<batch>/memories/memories.json
+    cache/export/<batch>/projects/<uuid>.json
+    cache/export/<batch>/users/users.json
 
 This stage owns those three subtrees (wiped and rewritten each run). A missing
 component in the export is reported and skipped, not an error (older export
@@ -29,7 +29,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-CACHE_DIR = tier.TMP / 'cache' / 'export'
+CACHE_DIR = tier.CACHE / 'export'
 
 COMPONENTS = ['memories.json', 'projects', 'users.json']
 

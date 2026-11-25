@@ -16,7 +16,7 @@
 # `git add -p` hunk destroys it with nothing to restore from. The artifacts it rewrites
 # (run.log, xref.csv) are yours to stage; stale, it refuses and says so.
 #
-# Sections replay from tmp/cache/test/ when their declared SUBJECT (the files they
+# Sections replay from cache/test/ when their declared SUBJECT (the files they
 # read) is stat-unchanged (issues/68). run.py checks (tree -> results; a check writes no
 # artifacts), then renders every surface — the committed log, the terminal report,
 # the machine-local copy, and the xref table — as a pure function of the results.
@@ -126,14 +126,14 @@ main() {
   done
   set -- ${forward[@]+"${forward[@]}"}
 
-  mkdir -p "$REPO_DIR/tmp/cache"
-  # The dev gate runs over its own stage, tmp/stage/dev (issues/1134): an input made empty and
+  mkdir -p "$REPO_DIR/cache"
+  # The dev gate runs over its own stage, stage/dev (issues/1134): an input made empty and
   # read-only here, so that nothing is staged into it, and a scratch whose data/input is that input -
-  # the dev actor's data and tmp - so that no check reads what the usr gate or a usr act produced.
-  local stage="$REPO_DIR/tmp/stage/dev"
+  # the dev actor's data, cache, logs and tmp - so that no check reads what the usr gate or a usr act produced.
+  local stage="$REPO_DIR/stage/dev"
   [[ ! -d "$stage/input" ]] || chmod u+w "$stage/input"
   rm -rf "$stage"
-  mkdir -p "$stage/input" "$stage/scratch/data/output" "$stage/scratch/tmp"
+  mkdir -p "$stage/input" "$stage/scratch/data/output" "$stage/scratch/cache" "$stage/scratch/tmp"
   ln -s ../../input "$stage/scratch/data/input"
   chmod a-w "$stage/input"
   export CORPUS_YOGA_ACTOR=dev
@@ -143,7 +143,7 @@ main() {
   # written only when their bytes differ from disk, and a write stands only once
   # a genuinely fresh recomputation agrees with it — at most three runs inside
   # this one invocation, faulting if the results will not settle. The full
-  # report goes beside the record as tmp/logs/test/run/<stamp>.report, the terminal tail prints here, and
+  # report goes beside the record as logs/test/run/<stamp>.report, the terminal tail prints here, and
   # the exit code is the verdict.
   local rc=0
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/run.py" "$@" || rc=$?

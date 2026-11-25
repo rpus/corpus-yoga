@@ -1,7 +1,7 @@
 """
 frontier.py - the corpus's shape as the data gate reads it: the pipelines and
 their declared facts (pipelines()), each pipeline's subject dirs under its
-tmp/cache workshop (subject_dirs), and a family's versions in numeric order
+cache workshop (subject_dirs), and a family's versions in numeric order
 (sorted_versions). Read-only. The frontier verdict itself - every datum
 validates at its family's latest version - is the audit's (issues/557,
 src/main/validation_audit.py), stated per datum from the latest version's log.

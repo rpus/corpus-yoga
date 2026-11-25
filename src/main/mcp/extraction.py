@@ -6,7 +6,7 @@ constants. Read at every derive from the committed rsc/reference/mcp/<lineage>/s
 through the parser generated from the house TypeScript grammar
 (rsc/rpus/grammar/TypeScript, generated under src/gen/grammar/TypeScript by
 `corpus-yoga grammar generate`); the tables the factoring derives from it are written
-under tmp/cache/mcp/ as the readable face of the derivation's inputs, and are never
+under cache/mcp/ as the readable face of the derivation's inputs, and are never
 hand-written.
 
 Rules:

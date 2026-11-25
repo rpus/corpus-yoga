@@ -24,7 +24,7 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, fact, may_replace, project_key, relate, strings
+from transport import LIVE, STAGED, HELD, Log, Relation, Session, fact, may_replace, project_key, relate, strings
 
 SELF = 'src/main/cli/agent/gemini/harness.py'
 _file = Path(__file__).resolve()
@@ -156,7 +156,7 @@ def _capture_session(mount: Path, session: Session, summary: dict, dest: Path, h
     address = f'{session.project}/{session.id}/'
     facts: dict[str, object] = {}
     against_store = not dest.is_dir() and held.is_dir()
-    base, base_root = (held, STORE) if against_store else (dest, STAGE)
+    base, base_root = (held, HELD) if against_store else (dest, STAGED)
     written = conflict = advanced = False
     for name in TRANSCRIPTS:
         src = _logs(session.path) / name
@@ -209,7 +209,7 @@ def capture(mount: Path, outbox: Path, held: Path, uuid8: str | None) -> Log:
         if len(matches) > 1:
             sys.exit(f'error: {uuid8!r} is ambiguous here - matches: ' + ', '.join(s.id[:8] for s in matches))
         sessions = matches
-    log = Log(STAGE)
+    log = Log(STAGED)
     for s in sessions:
         _capture_session(mount, s, summaries[s.id], outbox / s.project / s.id, held / s.project / s.id, log)
     return log

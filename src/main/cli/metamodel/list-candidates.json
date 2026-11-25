@@ -7,9 +7,9 @@
     "rsc/schema",
     "rsc/metamodel",
     "data/input",
-    "tmp/cache"
+    "cache"
   ],
   "w": [
-    "tmp/cache/metamodel"
+    "cache/metamodel"
   ]
 }

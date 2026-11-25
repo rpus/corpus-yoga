@@ -54,7 +54,7 @@
     },
     "log": {
       "enum": ["self"],
-      "description": "This verb writes its own run log under tmp/logs/<command>/<verb>/, so the dispatcher's derived logging (issues/453: a verb with declared w or sends leaves an anchored log) stands down for it."
+      "description": "This verb writes its own run log under logs/<command>/<verb>/, so the dispatcher's derived logging (issues/453: a verb with declared w or sends leaves an anchored log) stands down for it."
     },
     "args": {
       "type": "array",
@@ -86,7 +86,7 @@
       "items": {
         "type": "string"
       },
-      "description": "Consumes (issues/687): repo-relative path prefixes this declaration removes after reading - a dequeue, the fourth row of the triad. A consumed prefix is another command's to write: the room's stage, tmp/stage/usr/input, which the captures fill and the promote verbs take from, the orphan cache subtrees the cleaner removes. effects.writers_disjoint holds w prefixes disjoint across commands; a consumes prefix overlaps a producer's w by nature and is held instead to be read by the same declaration."
+      "description": "Consumes (issues/687): repo-relative path prefixes this declaration removes after reading - a dequeue, the fourth row of the triad. A consumed prefix is another command's to write: the room's stage, stage/usr/input, which the captures fill and the promote verbs take from, the orphan cache subtrees the cleaner removes. effects.writers_disjoint holds w prefixes disjoint across commands; a consumes prefix overlaps a producer's w by nature and is held instead to be read by the same declaration."
     },
     "x": {
       "type": "array",

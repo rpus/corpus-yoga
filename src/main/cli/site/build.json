@@ -10,7 +10,7 @@
     "data/output/artifacts/claude/chat/downloaded"
   ],
   "w": [
-    "tmp/cache/site",
+    "cache/site",
     "data/output/site"
   ]
 }

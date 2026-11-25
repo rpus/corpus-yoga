@@ -1,22 +1,21 @@
 {
-  "summary": "the rebuildable tmp/cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; each subtree's own producer, which rsc/cache_io.csv names, rebuilds it",
+  "summary": "the rebuildable cache/ tier - bare is the status, naming each orphaned entry and the act that removes it; clean removes them and takes no flag; each subtree's own producer, which rsc/cache_io.csv names, rebuilds it",
   "standing": true,
   "phrase": [
     "no current step writes or reads it",
     "bytecode whose source no longer stands",
-    "scratch whose run is gone",
     "{n} subtree(s) present",
     "{n} subtree(s) present, {orphans} orphan(s)",
     "{verb} is no verb it takes - {verbs} (bare is the status; corpus-yoga cache <verb> -h says its flags)"
   ],
   "explanation": {
-    "orphans": "each entry under tmp/cache that no current step writes or reads, by its path, with its size, corpus-yoga cache clean, in now, removing it - a former output whose producer moved or was renamed - and, inside the subtrees the registry owns, bytecode whose source no longer stands and scratch whose run is gone",
-    "now": "the room's standing as the cache reads it - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where nothing under tmp/cache is an orphan"
+    "orphans": "each entry under cache that no current step writes or reads, by its path, with its size, corpus-yoga cache clean, in now, removing it - a former output whose producer moved or was renamed - and, inside the subtrees the registry owns, bytecode whose source no longer stands",
+    "now": "the room's standing as the cache reads it - the cleaner, what it would do, and each orphan it would remove by path; the workflow's step, which remedies nothing. none where nothing under cache is an orphan"
   },
   "target": "src/main/cli/cache/cache.py",
   "calculus": "project",
   "args": [],
   "r": [
-    "tmp/cache"
+    "cache"
   ]
 }

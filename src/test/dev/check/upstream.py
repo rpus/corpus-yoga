@@ -95,7 +95,7 @@ def check_reference(run) -> None:
             None if not undeclared and not unheld else
             '; '.join([f'{project.relative_to(REPO_ROOT)}/{d} has no provenance.csv row' for d in undeclared]
                       + [f'provenance.csv names {d} but {project.relative_to(REPO_ROOT)}/{d}/schema.json is absent - '
-                         'corpus-yoga reference fetch records it under tmp/reference/fetch, and a commit copies it in' for d in unheld]),
+                         'corpus-yoga reference fetch records it under fetch/reference, and a commit copies it in' for d in unheld]),
             check='reference.lineage_declared')
         for row in rows:
             path = project / row['lineage'] / row['file']
@@ -103,7 +103,7 @@ def check_reference(run) -> None:
             local = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
             run(f'reference: {rel} verbatim (bytes hash to the pinned SHA256)', local == row['sha256'],
                 None if local == row['sha256'] else
-                (f'{rel} is absent - corpus-yoga reference fetch records it under tmp/reference/fetch, and a commit copies it in' if local is None else
+                (f'{rel} is absent - corpus-yoga reference fetch records it under fetch/reference, and a commit copies it in' if local is None else
                  f'{rel} hashes {local}, provenance.csv pins {row["sha256"]} - the committed file is not the pinned upstream file'),
                 check='reference.verbatim')
         for lineage in declared:
@@ -210,7 +210,7 @@ def check_upstream_chain(run) -> None:
     reads, the parser it needs, the family and cache it writes, its witness and its arbiter
     (issues/1053) - and the family stands at the lineage's address, its latest changelog section
     naming the upstream commit (issues/1055). Upstream reaches a room by `corpus-yoga reference
-    fetch`, into tmp/reference/fetch; the reference's status reads that record and sends nothing,
+    fetch`, into fetch/reference; the reference's status reads that record and sends nothing,
     and the mcp status judges upstream's schema.json as fetched against the committed version
     (issues/1054). The fixtures are synthetic: a project and a fetch record under a temporary root."""
     import importlib.util

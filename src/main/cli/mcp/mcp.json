@@ -30,7 +30,7 @@
   "r": [
     "rsc/reference/mcp",
     "src/main/mcp/derivation.json",
-    "tmp/reference/fetch",
+    "fetch/reference",
     "rsc/schema/mcp"
   ]
 }

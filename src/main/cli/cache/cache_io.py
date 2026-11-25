@@ -1,16 +1,16 @@
 """
-cache_io.py — the reader for rsc/cache_io.csv, the declared tmp/cache/ IO registry.
+cache_io.py — the reader for rsc/cache_io.csv, the declared cache/ IO registry.
 
-tmp/cache/ is the cache tier: every LIVE subtree is written and/or read by the
-machinery. This registry declares, per tmp/cache/ subtree, WHO writes it (its
+cache/ is the cache tier: every LIVE subtree is written and/or read by the
+machinery. This registry declares, per cache/ subtree, WHO writes it (its
 producer command) and WHO reads it (machinery consumers, or `external:<who>`
-for a human/browser/shell). Paths are REPO-RELATIVE (`tmp/cache/…`), the real thing
+for a human/browser/shell). Paths are REPO-RELATIVE (`cache/…`), the real thing
 you can cd to or rm. Two consumers share it:
 
-  clean  — a tmp/cache/ subtree ABSENT from the registry is residue (neither written
+  clean  — a cache/ subtree ABSENT from the registry is residue (neither written
            nor read): removable (corpus-yoga cache clean).
   check  — `corpus-yoga test run`'s check_cache_io blocks the catastrophe: a path READ with
-           no WRITER (a tmp/cache/ dependency nothing produces) breaks the "tmp/cache/ is
+           no WRITER (a cache/ dependency nothing produces) breaks the "cache/ is
            reproducible from data/input/" contract. Written-but-not-read is fine (a
            terminal output — a page a browser reads); only the read side,
            lacking a writer, is fatal.
@@ -67,13 +67,13 @@ def rows() -> list[dict]:
 
 
 def owned_paths() -> set[str]:
-    """The repo-relative subtrees (`tmp/cache/…`) the machinery writes and/or reads —
+    """The repo-relative subtrees (`cache/…`) the machinery writes and/or reads —
     clean's keep-set; anything else on disk is residue."""
     return {r['cache_path'] for r in rows()}
 
 
 def path_for(pipeline: str) -> str:
-    """The repo-relative path (`tmp/cache/…`) a pipeline writes — the ONE authority for
+    """The repo-relative path (`cache/…`) a pipeline writes — the ONE authority for
     it, so PIPELINES derives its cache_output from here rather than restating it.
     Raises loudly if a pipeline has no row (a pipeline unbuildable without its
     cache_io declaration is the point)."""
@@ -88,28 +88,7 @@ def pipelines() -> set[str]:
     return {r['pipeline'] for r in rows() if r['pipeline']}
 
 
-SCRATCH = 'tmp/cache/scratch'   # where a script keeps what it needs only while it runs (src/main/tier.sh, issues/906)
-
-
-def dead_scratch(root: Path) -> list[Path]:
-    """The scratch entries whose run is gone (issues/906): an entry is named <name>.<pid>.<random>
-    by the run that keeps it, so one whose pid no process holds - or that carries none - was
-    left by a run that died before removing it."""
-    def lives(entry: Path) -> bool:
-        parts = entry.name.split('.')
-        if len(parts) < 3 or not parts[-2].isdigit():
-            return False
-        try:
-            os.kill(int(parts[-2]), 0)
-        except ProcessLookupError:
-            return False
-        except PermissionError:
-            return True
-        return True
-    return [entry for entry in sorted(root.iterdir()) if not lives(entry)] if root.is_dir() else []
-
-
-BYTECODE = 'tmp/cache/python'   # where every python the launcher starts keeps its bytecode (src/import_roots.sh, issues/1052)
+BYTECODE = 'cache/python'   # where every python the launcher starts keeps its bytecode (src/import_roots.sh, issues/1052)
 
 
 def stale_bytecode(prefix: Path) -> list[Path]:
@@ -137,7 +116,7 @@ def stale_bytecode(prefix: Path) -> list[Path]:
 
 
 def orphans(root: Path) -> list[Path]:
-    """The tmp/cache/ entries the machinery neither writes nor reads (issues/865): an entry is
+    """The cache/ entries the machinery neither writes nor reads (issues/865): an entry is
     kept when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (never
     descended into), or an ancestor of one (descended to reach the owned child); every
     other entry is an orphan, returned without descending. Paths compare repo-relative,

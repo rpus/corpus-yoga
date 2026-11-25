@@ -12,7 +12,7 @@ in the one act. Both faces stamp the Signature from the triad the commit hook us
 derive what they can - the PR's base, the issue's as-at anchor from the forge's main -
 so the body file carries the drafter's sections alone, as the two templates teach them,
 and nothing the forge writes. An open blocker not aimed at refuses a PR's raise as it
-would the merge (issues/482). The body as sent is kept under `tmp/forge/raise/`.
+would the merge (issues/482). The body as sent is kept under `logs/forge/raise/`.
 
 Rebase an open PR onto main with `./corpus-yoga forge rebase <pr>` whenever a test needs main's
 merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and
@@ -102,7 +102,7 @@ conversation, not the record.
 
 Every commit is signed `Signature: machine/provider/session` by the local
 `prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the
-model co-author (it is derivable from the session). Every verb's log under `tmp/logs/`
+model co-author (it is derivable from the session). Every verb's log under `logs/`
 opens with the same triad in its header line, so a log names the session that ran the
 verb as a commit names the session that drafted it; `src/main/provider.py`'s
 `signature()` is the one derivation, and `src/main/provider.sh` its shell face.

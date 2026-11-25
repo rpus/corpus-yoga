@@ -69,7 +69,7 @@ nargs) as per-argument overrides (issues/476) — so every target's `-h` reads t
 whether reached via `corpus-yoga` or run directly, and structure can never be stated twice.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
-data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `corpus-yoga indexing capture` (model
+data lives outside git (durable in `data/output/`, rebuildable in `cache/`): `corpus-yoga indexing capture` (model
 captures) and `corpus-yoga indexing` (user curation). Their format spec and the disposal loop are
 committed in `src/main/cli/readings.md`.
 

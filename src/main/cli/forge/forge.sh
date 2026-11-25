@@ -9,7 +9,7 @@
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge rebase <pr>     # the merge's relocation alone, on the reader's word (issues/1147): refuse, relocate if the base moved, resync a checkout that holds the branch
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
-#   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/usr/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge capture            # deposit the forge's ledger under stage/usr/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
 
 set -euo pipefail
@@ -597,26 +597,23 @@ kept_settle() {  # <worktree> <dest>
   local wt="$1" dest="$2" report
   mkdir -p "$dest"
   [[ -f "$wt/rsc/test/run.log" ]] && cp "$wt/rsc/test/run.log" "$dest/"
-  report="$(find "$wt/tmp/logs/test/run" -name '*.report' -type f 2>/dev/null | sort | tail -1)"   # stamped names: the last is the newest
+  report="$(find "$wt/logs/test/run" -name '*.report' -type f 2>/dev/null | sort | tail -1)"   # stamped names: the last is the newest
   [[ -n "$report" ]] && cp "$report" "$dest/"
   echo "$dest"
 }
 
 # gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/forge/merge for
-# the data gate (issues/937), this checkout's corpus reached by link - data, ext and the
-# machine binding whole, tmp's subtrees each but forge, which holds the worktrees - and the
-# machine-local parsers generated there (issues/597). Prints its path; every halt returns 1.
+# the data gate (issues/937), this checkout's corpus reached by link - each machine-local root
+# whole but tmp, which holds only what lasts one run, the worktrees among it, and the machine
+# binding (issues/1170) - and the machine-local parsers generated there (issues/597). Prints
+# its path; every halt returns 1.
 gate_worktree() {
   local oid="$1" head="$2" wt root
   wt="$TMP_DIR/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-gate-$head"
   mkdir -p "$TMP_DIR/forge/merge"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "$oid" >&2 || return 1
-  for root in data ext machine-name.txt; do
+  for root in cache data ext fetch logs stage machine-name.txt; do
     [[ -e "$REPO_DIR/$root" ]] && ln -s "$REPO_DIR/$root" "$wt/$root"
-  done
-  mkdir -p "$wt/tmp"
-  for root in "$REPO_DIR"/tmp/*/; do
-    [[ -d "$root" && "$(basename "$root")" != forge ]] && ln -s "${root%/}" "$wt/tmp/$(basename "$root")"
   done
   (cd "$wt" && PYTHONDONTWRITEBYTECODE=1 quiet "$wt/corpus-yoga" grammar generate) >&2 \
     || say "the parsers could not be generated in the worktree - the gate below will say what it lacks" >&2
@@ -845,7 +842,7 @@ merge_chain() {
   # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
   # the one full account of what the gate ran, and the terminal is no record
   # the gate's python writes no bytecode (issues/1069): the gate's worktree reaches the checkout's
-  # tmp/cache by link and lives for this one run, so what it wrote there would outlive its
+  # cache by link and lives for this one run, so what it wrote there would outlive its
   # sources as an orphan of the cache
   CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) PYTHONDONTWRITEBYTECODE=1 "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
   gate_rc=${PIPESTATUS[0]}
@@ -854,7 +851,7 @@ merge_chain() {
   rm -f "$verdict"
   if [[ "$gate_rc" -ne 0 ]]; then
     dispose_worktree "$gate_wt"
-    effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under tmp/logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
+    effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
     return 1
   fi
   # The gate regenerates rsc/test/ where the branch's committed artifacts are stale; those

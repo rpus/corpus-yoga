@@ -48,8 +48,8 @@ ARRIVAL_TIMEOUT = 300   # seconds a download may take to arrive and unpack; conv
 
 FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under: fronted once, its login checked
 
-STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
-STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (issues/687)
+HELD = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
+STAGED = tier.STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (issues/687)
 
 
 def derived_data_name(manifest_path: Path) -> str:
@@ -189,11 +189,11 @@ def main(argv: list[str]) -> int:
     manifest = json.loads(manifest_path.read_text())
     files = manifest.get('data_files', [])
     name = derived_data_name(manifest_path)
-    target = STAGE / name
+    target = STAGED / name
     staged_manifest = target.with_name(manifest_path.name)
     print(f'{manifest_path.name}: ' + facts.phrase('{n} file(s), version {version}', n=len(files), version=manifest.get('version')))
     print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
-    if (STORE / name).is_dir():
+    if (HELD / name).is_dir():
         facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('{name}/ is held in shared storage; nothing fetched, no URL spent', name=name))
         return 1
     if target.exists():

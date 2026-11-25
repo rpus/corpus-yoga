@@ -21,9 +21,11 @@
     "rsc/migration",
     "data/input",
     "data/output",
-    "tmp/cache",
-    "tmp/logs",
-    "tmp/stage",
+    "cache",
+    "logs",
+    "stage",
+    "fetch",
+    "tmp",
     "ext"
   ],
   "x": [

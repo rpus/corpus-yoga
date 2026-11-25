@@ -23,7 +23,7 @@ takes them, re-reads the status beneath, and ends with the verdict - DONE only w
 pending step was taken. The apply runs every script with --apply in merge order, whatever
 its bare run said - a script's steps can arise from the one before it - and runs none after
 the first that halts.
-Its record, tmp/logs/migration/apply/<stamp>.log, is the launcher's tee of the whole verb,
+Its record, logs/migration/apply/<stamp>.log, is the launcher's tee of the whole verb,
 header included (issues/708); the declaration's x rows are what make the verb enacting.
 """
 import subprocess
@@ -106,7 +106,7 @@ def status_facts(seen: dict[str, tuple[int, list[str]]] | None = None) -> Status
 
 class Log:
     """What the apply says, line by line. The record of the act is the launcher's tee of the
-    whole verb (issues/708), tmp/logs/migration/apply/<stamp>.log, header included; nothing is
+    whole verb (issues/708), logs/migration/apply/<stamp>.log, header included; nothing is
     written here."""
 
     def __init__(self, apply: bool) -> None:

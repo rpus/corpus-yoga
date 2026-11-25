@@ -96,10 +96,10 @@ def check_declared_families_judge(run) -> None:
     'cache_io.registry_parses',
 ))
 def check_cache_io(run) -> None:
-    """The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
+    """The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
     covers every pipeline's gen root (so clean and rebuild know the pipelines),
-    and — the catastrophe guard — no subtree is READ with no WRITER. A tmp/cache/ path
-    the machinery consumes but nothing produces breaks the 'tmp/cache/ is reproducible
+    and — the catastrophe guard — no subtree is READ with no WRITER. A cache/ path
+    the machinery consumes but nothing produces breaks the 'cache/ is reproducible
     from data/input/' contract: a fresh clone, or `corpus-yoga cache clean`, would strand the
     reader. Written-but-not-read is fine (a terminal output — a page a browser
     reads); only the read side lacking a writer is fatal. Committed registry
@@ -124,10 +124,10 @@ def check_cache_io(run) -> None:
         # read-but-not-written: the catastrophe (see docstring).
         read_no_writer = bool(r['read_by']) and not r['written_by']
         run(f'cache_io: {r["cache_path"]}: read implies a writer', not read_no_writer,
-            'READ but not WRITTEN — a tmp/cache/ dependency nothing produces; name its '
-            'producer in written_by, or the tmp/cache/ contract breaks' if read_no_writer else None, check='cache_io.read_implies_writer')
+            'READ but not WRITTEN — a cache/ dependency nothing produces; name its '
+            'producer in written_by, or the cache/ contract breaks' if read_no_writer else None, check='cache_io.read_implies_writer')
         # Every producer/reader RESOLVES — a rename that strands one (how
-        # tmp/cache/browser/markdown happened) fails here, not silently.
+        # cache/browser/markdown happened) fails here, not silently.
         unresolved = [e for e in r['written_by'] + r['read_by']
                       if not _cache_io_resolves(e, commands)]
         run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,

@@ -14,7 +14,7 @@ import sys
 from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
-from transport import LIVE, STAGE, STORE, Log, Relation, Session, current_key, fact, held_by_peer, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
+from transport import LIVE, STAGED, HELD, Log, Relation, Session, current_key, fact, held_by_peer, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
 
 SELF = 'src/main/cli/agent/claude/harness.py'
 _file = Path(__file__).resolve()
@@ -151,23 +151,23 @@ def _capture_session(src_proj: Path, dest_proj: Path, held_projs: list[Path], se
     peer = held_by_peer(held_projs[0].parent, session.name, data) if relation not in (Relation.IDENTICAL, Relation.AHEAD) else None
     if peer is not None:
         log.say('kept', f'{src_proj.name}/{session.name}',
-                {f"{STORE} holds it as {peer[0]}'s": f'{len(data)} bytes here, {peer[1].stat().st_size} there'}, 'session')
+                {f"{HELD} holds it as {peer[0]}'s": f'{len(data)} bytes here, {peer[1].stat().st_size} there'}, 'session')
         return
     if may_replace(relation):
         staged_log.parent.mkdir(parents=True, exist_ok=True)
         staged_log.write_bytes(data)
     which = outcome(relation)
-    log.say(which, f'{src_proj.name}/{session.name}', fact(relation, data, existing, LIVE, STORE if against_store else STAGE), 'session')
+    log.say(which, f'{src_proj.name}/{session.name}', fact(relation, data, existing, LIVE, HELD if against_store else STAGED), 'session')
     if against_store and which != 'wrote':
         return
-    placed = place_tree(src_proj / session.stem, dest_proj / session.stem, True, LIVE, STAGE)
+    placed = place_tree(src_proj / session.stem, dest_proj / session.stem, True, LIVE, STAGED)
     if placed is not None:
         log.say(placed[0], f'{src_proj.name}/{session.stem}/', placed[1])
 
 
 def capture_move(src_proj: Path, outbox: Path, held: Path, session: Path) -> Log:
     """Mirror ONE named session into the stage: <outbox>/<project>/."""
-    log = Log(STAGE)
+    log = Log(STAGED)
     _capture_session(src_proj, outbox / src_proj.name, [held / k for k in keys_of(src_proj.name)], session, log)
     return log
 
@@ -181,7 +181,7 @@ def capture_all(src_root: Path, outbox: Path, held: Path) -> Log:
     the store untouched (outliving the harness is the point). Safe by the
     prefix lattice per session: silence, fast-forward, ahead-no-op, or a
     per-session CONFLICT - idempotent throughout."""
-    log = Log(STAGE)
+    log = Log(STAGED)
     for proj in _projects(src_root):
         for s in sorted(proj.glob('*.jsonl')):
             _capture_session(proj, outbox / proj.name, [held / k for k in keys_of(proj.name)], s, log)
@@ -201,14 +201,14 @@ def _pull_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool
     if relation is Relation.DIVERGED:
         # a session two rooms continued apart is each room's own (issues/1071): this room's stands,
         # the peer's stays in the store, and the divergence is a fact, withholding nothing
-        log.say('kept', f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, STORE, LIVE), 'session')
+        log.say('kept', f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, HELD, LIVE), 'session')
         return
     if apply and may_replace(relation):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
     which = outcome(relation)
-    log.say(which, f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, STORE, LIVE), 'session')
-    placed = place_tree(bundle_proj / session.stem, held.parent / session.stem, apply, STORE, LIVE)
+    log.say(which, f'{bundle_proj.name}/{session.name}', fact(relation, data, existing, HELD, LIVE), 'session')
+    placed = place_tree(bundle_proj / session.stem, held.parent / session.stem, apply, HELD, LIVE)
     if placed is not None:
         log.say(placed[0], f'{bundle_proj.name}/{session.stem}/', placed[1])
 

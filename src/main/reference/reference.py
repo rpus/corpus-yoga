@@ -6,7 +6,7 @@ file byte-for-byte at the pin its provenance.csv row names.
 
 `reference` is a NOUN: what is held. Upstream is its remote, and reaches a room by
 `fetch` alone (issues/1054): every file upstream publishes, written under
-tmp/reference/fetch/<project>/<lineage>/ with a record beside them, fetched.csv, in
+fetch/reference/<project>/<lineage>/ with a record beside them, fetched.csv, in
 provenance.csv's columns. A bare invocation reads that record against provenance.csv
 and sends nothing: per project, the lineages held, and each file the fetch found
 missing here or drifted from its pin - or that no fetch has recorded what upstream
@@ -23,7 +23,7 @@ are the provenance rows' and the pin is the URL's etag.
 
 Usage:
     corpus-yoga reference         # status: what is held, and what the last fetch found against it
-    corpus-yoga reference fetch   # record what upstream publishes under tmp/reference/fetch
+    corpus-yoga reference fetch   # record what upstream publishes under fetch/reference
 """
 
 import csv
@@ -48,7 +48,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 ROOT = REPO / 'rsc' / 'reference'
-FETCH = tier.TMP / 'reference' / 'fetch'   # what the last fetch recorded of upstream, by project
+FETCH = tier.FETCH / 'reference'   # what the last fetch recorded of upstream, by project
 COLUMNS = ('lineage', 'file', 'url', 'pin', 'sha256')
 DATED = re.compile(r'\d{4}-\d{2}-\d{2}')
 GITHUB_CONTENTS = re.compile(r'https://api\.github\.com/repos/([^/]+)/([^/]+)/contents/(.+)')
@@ -189,7 +189,7 @@ def status() -> int:
 
 def fetch() -> int:
     """Record what upstream publishes, per project (issues/1054): each wanted file's bytes under
-    tmp/reference/fetch/<project>/<lineage>/, and fetched.csv beside them with each file's pin and
+    fetch/reference/<project>/<lineage>/, and fetched.csv beside them with each file's pin and
     hash. Sends; writes nothing under rsc/reference."""
     for project in projects():
         into = FETCH / project.name

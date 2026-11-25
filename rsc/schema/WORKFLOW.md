@@ -67,7 +67,7 @@ moves under them — a root migration, a renamed tier, a retired command:
   output/dashboard/. Minted 2026-07-10" is a true sentence about 2026-07-10 and a false one
   about today; correcting it would falsify the record the entry exists to keep.
 - **Live: the CHANGELOG preamble and the current version's `description` fields.** The
-  preamble above the version history (the shared "each datum directory under `tmp/cache/`
+  preamble above the version history (the shared "each datum directory under `cache/`
   carries a `matrix.md`" line) and the current descriptions state present mechanics, so a
   stale one is simply wrong. Correcting it is `#### Refactored` work per the rule above.
 - **Judgement: a superseded version's prose.** Precedent runs both ways. `RichLink.source`
@@ -112,9 +112,9 @@ src/main/agent/run.sh        --item        data/input/claude/code/machine-transp
 ```
 
 (agent converts each `.jsonl` before validating, so its runnable unit is the
-project run.sh; `validate.sh --session` takes the *tmp/cache/* session dir, not data/input/.)
+project run.sh; `validate.sh --session` takes the *cache/* session dir, not data/input/.)
 
-Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
+Read the validation log in `cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
 ### 2. Mint the new schema version
 
@@ -177,13 +177,13 @@ src/main/agent/run.sh --input data/input/claude/code/machine-transport
 A datum the latest version refuses is, from issues/687, a datum the room has staged and
 cannot promote: the capturing noun's bare status names it, and the mint is tested over the
 room's stage before the merge that licenses its promotion - `corpus-yoga pipeline rehearse`
-runs the checkout's own code over the stage's scratch tiers under tmp/stage/usr/scratch
-(src/main/tier.py) and records what it saw and judged as tmp/stage/usr/rehearsal.json
+runs the checkout's own code over the stage's scratch tiers under stage/usr/scratch
+(src/main/tier.py) and records what it saw and judged as stage/usr/rehearsal.json
 (src/main/rehearsal.py), so the run above is that one over the staged units.
 
 Validation runs each datum against its family's LATEST version only - the latest
 version is the schema, the rest is this file's history (issues/557) - and renders the datum's
-machine-local validation matrix: a `matrix.md` in the datum's directory under `tmp/cache/`,
+machine-local validation matrix: a `matrix.md` in the datum's directory under `cache/`,
 one verdict per family, beside its `validation/` log, written by `validate_versions.py` via
 the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never
 lag it. Older `vN.log` files a previous run left there are history: nothing reads them. Git-ignored, because which data sits on which
@@ -307,7 +307,7 @@ reaches it by the same family-dir grammar as any schema
 (`rsc/reference/mcp#/$defs/…`, resolved against the lineage the derivation declares).
 
 `corpus-yoga reference fetch` records what upstream publishes under
-`tmp/reference/fetch`, and writes nothing under `rsc/reference`; `corpus-yoga
+`fetch/reference`, and writes nothing under `rsc/reference`; `corpus-yoga
 reference` reads that record and says, per project, each file missing here or
 drifted from its pin, sending nothing, and `corpus-yoga mcp` judges upstream's
 `schema.json` as fetched against the committed version. What a fetch brings
@@ -326,7 +326,7 @@ read through the parser generated from `rsc/rpus/grammar/TypeScript` into the fl
 shape upstream's generator would give it, one stated rule per TypeScript form
 (`src/main/mcp/generation.py`), composed over the extends clauses and tagged by
 the categories `src/main/mcp/extraction.py` reads (issues/581, issues/595; the two tables
-faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
+faced under `cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
 beside the version file: `rsc/schema/mcp/2026-07-28/mcpMessage/description.csv` (house
 text for the definitions schema.ts leaves without a JSDoc),
 `rsc/schema/mcp/2026-07-28/mcpMessage/unreachable.csv` (the definitions no message
@@ -344,7 +344,7 @@ from the constant schema.ts exports). Every definition's description ends with i
 layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
 definition the rule cannot place, or an addition row that fits neither reading,
 refuses the derivation. The derive also writes the factoring's two faces under
-`tmp/cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every
+`cache/mcp/` (`src/main/mcp/face.py`, issues/605): the consumer face, every
 definition flat and open, which a party validates what it receives against, and
 the producer face, flat and closed, which it validates what it sends against -
 each holding its law by construction, and each held derivable and valid draft-04
@@ -379,7 +379,7 @@ from committed files only:
 - **leisurely, advisory → `join.csv`**: the naive name scan (definition names in
   ≥2 families' latest versions) surfaces SHARED NAMES — the question, of which
   `name_collision` (the false friend) is one possible answer — and `corpus-yoga metamodel derive`
-  renders them pre-filled at `tmp/cache/metamodel/shared_name_candidates.csv` (path cells
+  renders them pre-filled at `cache/metamodel/shared_name_candidates.csv` (path cells
   computed; `identical` proposed where the shapes are structurally equal, editable);
   a human disposes each by pasting the row into `join.csv` with its
   `relationship` kind, so an "ignore" is a row too and zero means disposed. The kinds

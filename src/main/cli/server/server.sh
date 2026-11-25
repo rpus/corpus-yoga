@@ -22,7 +22,7 @@ source "$REPO_DIR/src/main/tier.sh"
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # shellcheck source=src/main/report.sh
 source "$REPO_DIR/src/main/report.sh"   # effect - what an act reports after its lines (issues/876)
-# The record of the act is the launcher's tee (issues/708), tmp/logs/server/start/<stamp>.log. The
+# The record of the act is the launcher's tee (issues/708), logs/server/start/<stamp>.log. The
 # daemon outlives the act and writes beside it: one immutable artifact per start (issues/370),
 # stamped, colon-free, named <stamp>.daemon by the launcher's stamp, never as the record.
 LOG_FILE="$LOGS_DIR/server/start/$(stamp_of server start).daemon"

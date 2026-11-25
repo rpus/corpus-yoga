@@ -43,7 +43,7 @@
      "type": "string"
     },
     "session_id": {
-     "description": "The session's uuid — the name its harness stores it under (claude: the .jsonl stem; gemini: the session directory), the session's identity everywhere (tmp/cache/ dirs, transported copies, corpus frontmatter).",
+     "description": "The session's uuid — the name its harness stores it under (claude: the .jsonl stem; gemini: the session directory), the session's identity everywhere (cache/ dirs, transported copies, corpus frontmatter).",
      "$ref": "#/definitions/UuidV4"
     },
     "created": {

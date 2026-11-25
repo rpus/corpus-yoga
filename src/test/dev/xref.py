@@ -43,6 +43,7 @@ def _gitignored_roots() -> frozenset:
     return frozenset(roots)
 
 _IGNORED_ROOTS = _gitignored_roots()
+IGNORED_ROOTS = _IGNORED_ROOTS   # the machine-local roots, for every scan that skips them
 SKIP_DIRS  = _IGNORED_ROOTS | {'__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
 SKIP_FILES = {'rsc/test/run.log', 'rsc/test/xref.csv'}
@@ -184,7 +185,7 @@ def looks_like_repo_path(s: str) -> bool:
         if base.endswith(_DOT_EXTS):
             return True
         s = s[2:]
-    # Must be more than a bare fragment like "tmp/cache/data-" with no filename
+    # Must be more than a bare fragment like "cache/data-" with no filename
     if not Path(s).suffix and not any(s.rstrip('/') == p.rstrip('/') for p in REPO_PREFIXES):
         has_name = bool(Path(s).name) and len(Path(s).name) > 3
         if not has_name:

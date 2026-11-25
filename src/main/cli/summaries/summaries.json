@@ -16,7 +16,7 @@
       "type": "<dir>",
       "cardinality": "",
       "help": "atomised batch cache",
-      "default": "tmp/cache/export"
+      "default": "cache/export"
     },
     {
       "name": "--api-capture",

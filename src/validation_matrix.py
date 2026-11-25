@@ -1,7 +1,7 @@
 """
 validation_matrix.py — render a datum's machine-local validation matrix from its verdicts.
 
-Each datum directory under tmp/cache/ whose validation/ holds vN.verdict.json records
+Each datum directory under cache/ whose validation/ holds vN.verdict.json records
 (src/main/validation_verdict.py, issues/701) gets a single sibling matrix.md summarising them (schema × version →
 ✓/✗, bytes). The matrix is derived state: git-ignored, co-located with its datum, and
 written by validation itself (validate_versions.py) whenever the records change — so it can
@@ -42,7 +42,7 @@ def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path |
     named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
     if len(named) > 1 and datum_dir is not None:
         # two providers' families of one name (issues/635): the datum sits under its provider's
-        # directory of the cache, tmp/cache/<pipeline>/<provider>/..., and the family under
+        # directory of the cache, cache/<pipeline>/<provider>/..., and the family under
         # the same segment of the schema root - that one segment, never any component, or a
         # machine or project named for a provider would match both
         parts = datum_dir.parts

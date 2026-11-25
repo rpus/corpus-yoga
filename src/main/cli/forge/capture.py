@@ -4,7 +4,7 @@ The deposit is one stamped directory, data/input/github/forge/gh-CLI/<stamp>/, h
 one file per forge read - the nine below - and nothing about itself: the directory's
 name is the capture's one time label, the repository is the data root's, every count
 is a file's length, and the act's record (room, head, the commands, the verdict) is
-the launcher's run log under tmp/logs/forge/capture/, as for every verb.
+the launcher's run log under logs/forge/capture/, as for every verb.
 
 | file                       | what the forge returned to                                           |
 | -------------------------- | -------------------------------------------------------------------- |
@@ -55,7 +55,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-STORE = tier.TMP_STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (issues/687)
+STAGED = tier.STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (issues/687)
 
 LISTS = [
     ('issues_and_PRs.json', 'repos/{owner}/{repo}/issues?state=all&per_page=100'),
@@ -141,8 +141,8 @@ def main(argv: list[str]) -> int:
     except subprocess.CalledProcessError:
         facts.report(None, facts.act('forge', 'capture') + ': NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
         return 1
-    rel = STORE.relative_to(REPO)
-    target = STORE / stamp
+    rel = STAGED.relative_to(REPO)
+    target = STAGED / stamp
     target.mkdir(parents=True, exist_ok=False)
     for name in ROSTER:
         (target / name).write_bytes(render(got[name]))

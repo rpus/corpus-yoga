@@ -42,7 +42,7 @@
   "args": [],
   "r": [
     "data/input",
-    "tmp/cache",
+    "cache",
     "ext/mnt/claude/code/machine-transport",
     "ext/mnt/gemini/code/machine-transport",
     "rsc/provider/providers.csv",

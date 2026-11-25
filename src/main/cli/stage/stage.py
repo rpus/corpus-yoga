@@ -1,9 +1,9 @@
 """
-stage.py (corpus-yoga stage) - the room's stage, tmp/stage/usr, as the cache has its noun.
+stage.py (corpus-yoga stage) - the room's stage, stage/usr, as the cache has its noun.
 
     corpus-yoga stage                   # status: the input, the scratch, each orphan, the rehearsal record, the units' counts
     corpus-yoga stage clean             # remove what the status names: each orphan, each duplicate of a held unit, each incomplete unit,
-                                        # and tmp/stage/usr whole once no unit stays staged
+                                        # and stage/usr whole once no unit stays staged
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch
 is what the last rehearsal's run derived, replaced whole by the next; rehearsal.json is
@@ -12,10 +12,10 @@ The per-unit relations stay with each capturing noun's bare status and with bare
 corpus-yoga pipeline; this face counts them against the record. The janitor clears its
 tier as corpus-yoga cache clean clears its own: every staged unit identical to the held
 one, a duplicate, already promoted; every unit whose record or payload is absent,
-incomplete; and every entry under tmp/stage/usr that is neither the input, the scratch nor
+incomplete; and every entry under stage/usr that is neither the input, the scratch nor
 the record, an orphan of an earlier layout. The scratch and the record serve the staged units:
 while one stays staged they are the rehearsal's to replace, and once none does the janitor
-removes tmp/stage/usr whole (issues/1127). A unit that is unlicensed or would lose is evidence of
+removes stage/usr whole (issues/1127). A unit that is unlicensed or would lose is evidence of
 another kind and is never the janitor's.
 
 The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (issues/837):
@@ -50,7 +50,7 @@ def _unit(unit: corpus.Unit) -> str | None:
 
 
 def _size(unit: corpus.Unit) -> str:
-    return corpus.human(sum(corpus.size_of(corpus.STAGE / m) for m in unit.members + unit.record if (corpus.STAGE / m).exists()))
+    return corpus.human(sum(corpus.size_of(corpus.STAGED / m) for m in unit.members + unit.record if (corpus.STAGED / m).exists()))
 
 
 def entries() -> list[cleaner.Entry]:
@@ -63,8 +63,8 @@ def entries() -> list[cleaner.Entry]:
         out.append(cleaner.Entry('orphan', name, {'orphan': facts.phrase('neither the input, the scratch nor the record'), 'size': corpus.human(corpus.size_of(e))},
                                  lambda e=e: corpus.dispose(e)))
     remaining = []
-    if corpus.STAGE.is_dir():
-        for unit in corpus.units(corpus.STAGE):
+    if corpus.STAGED.is_dir():
+        for unit in corpus.units(corpus.STAGED):
             if corpus.redundant(unit):
                 out.append(cleaner.Entry('duplicate', unit.address.as_posix(), {'duplicate': facts.phrase('identical to the held unit'), 'size': _size(unit)},
                                          lambda unit=unit: _unit(unit)))
@@ -76,7 +76,7 @@ def entries() -> list[cleaner.Entry]:
             else:
                 remaining.append(unit)
     if corpus.spent(remaining):
-        stage = tier.TMP_STAGE
+        stage = tier.STAGE
         out.append(cleaner.Entry('spent stage', stage.relative_to(REPO).as_posix() if stage.is_relative_to(REPO) else str(stage),
                                  {'spent stage': facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
                                   'size': corpus.human(corpus.size_of(stage))},

@@ -29,7 +29,7 @@
   "calculus": "project",
   "args": [],
   "r": [
-    "tmp/cache",
+    "cache",
     "rsc/schema",
     "rsc/metamodel",
     "data/input"

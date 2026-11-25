@@ -7,7 +7,7 @@ upstream lists, named as upstream names it, each holding `schema.json` and
 change from the lineage before - issues/587). `provenance.csv` pins every file's URL,
 upstream commit and SHA256; `reference.json` names upstream, the lineage listing
 (the dated `schema/` directory) and the files held per lineage. `corpus-yoga reference
-fetch` records what upstream publishes under `tmp/reference/fetch/mcp/`, each
+fetch` records what upstream publishes under `fetch/reference/mcp/`, each
 lineage's files with `fetched.csv` beside them in `provenance.csv`'s columns, and
 writes nothing here; `corpus-yoga reference` reads that record and says each file
 missing here or drifted from its pin, and `corpus-yoga mcp` judges upstream's

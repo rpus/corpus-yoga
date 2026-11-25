@@ -15,11 +15,11 @@ Providers and harnesses: a provider's harness (Claude Code for claude,
 Antigravity for gemini) keeps a live session store of its own shape, mounted at
 ext/mnt/<provider>/code/machine-transport/<machine> per the registry
 (rsc/provider/providers.csv, issues/636, issues/853), the address its units have under
-tmp/stage/usr/input and data/input -
+stage/usr/input and data/input -
 HARNESS-OWNED state the provider expires at will. Each shape is one adapter,
 src/main/cli/agent/<provider>/harness.py, keeping the contract transport.py
 states (issues/633); this driver knows no shape. Transported agents live in the
-STORE, data/input/<provider>/code/machine-transport - a directory inside
+store, data/input/<provider>/code/machine-transport - a directory inside
 data/input, the iCloud tree each room links as data/ by hand, which capture
 creates on its first run - keyed <machine>/<project>/..., the project
 being Claude Code's encoding of the workspace path in every provider's store.
@@ -145,11 +145,11 @@ def own_outbox(provider: str) -> Path | None:
         print(f'{provider}: ' + facts.phrase('{medium} is missing - link data/ to the shared iCloud tree (corpus-yoga status shows the convention), then run this again; skipped',
                                                medium=medium.relative_to(REPO)), file=sys.stderr)
         return None
-    # the outbox is the stage twin of the store, tmp/stage/usr/input/...: a capture writes it,
+    # the outbox is the stage twin of the store, stage/usr/input/...: a capture writes it,
     # and reads of the store only the held unit at the address it would write, the baseline
     # where the stage holds no copy (L10, issues/850); corpus-yoga agent promote relates each
     # staged session to the held one and writes what extends it (issues/687)
-    out = tier.TMP_STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
+    out = tier.STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 

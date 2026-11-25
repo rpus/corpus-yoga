@@ -19,7 +19,7 @@ it sends against the PRODUCER face.
   not name. Its law: every instance the producer face admits, the factoring admits
   (closing only restricts).
 
-Both are written under tmp/cache/mcp/ by `corpus-yoga mcp derive` beside the
+Both are written under cache/mcp/ by `corpus-yoga mcp derive` beside the
 derivation's other faces (rsc/cache_io.csv), never committed: they are readings of
 the committed version file, and the dev gate holds them derivable from it and
 valid draft-04 (mcp.faces_derivable).
@@ -87,7 +87,7 @@ def face(doc: dict, which: str) -> dict:
 
 
 def written(doc: dict) -> list[Path]:
-    """Write both faces under tmp/cache/mcp/."""
+    """Write both faces under cache/mcp/."""
     factoring.CACHE_DIR.mkdir(parents=True, exist_ok=True)
     out = []
     for which in FACES:
@@ -98,7 +98,7 @@ def written(doc: dict) -> list[Path]:
 
 
 def current(doc: dict) -> bool:
-    """Whether tmp/cache/mcp/ holds both faces as derived from doc now."""
+    """Whether cache/mcp/ holds both faces as derived from doc now."""
     return all((factoring.CACHE_DIR / f'{which}.json').is_file()
                and (factoring.CACHE_DIR / f'{which}.json').read_text() == factoring.rendered(face(doc, which))
                for which in FACES)

@@ -10,7 +10,7 @@ flatten it to, one stated rule per TypeScript form. This module composes those
 shapes over the bases schema.ts declares, and adds what the house adds:
 
 - composition (definition, base): schema.ts's `extends`, whole, in declaration order
-  (extraction, faced under tmp/cache/mcp/). A definition is written as allOf
+  (extraction, faced under cache/mcp/). A definition is written as allOf
   [bases..., its own fields]; adding a base's constraints to the definition must
   change nothing (the definition refines it). Where the definition instead
   OVERRIDES a base's property with a conflicting shape (SubscriptionsListenResult
@@ -110,7 +110,7 @@ LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
 PLACEMENT    = FAMILY_DIR / 'placement.csv'
 UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
 ADDITION     = FAMILY_DIR / 'addition.csv'
-CACHE_DIR    = tier.TMP / Path(DECLARED['writes'][1]).relative_to('tmp')   # the extracted tables' readable face (rsc/cache_io.csv)
+CACHE_DIR    = tier.path(DECLARED['writes'][1])   # the extracted tables' readable face (rsc/cache_io.csv)
 COMPOSITION  = CACHE_DIR / 'composition.csv'
 CATEGORIES   = CACHE_DIR / 'category.csv'
 FAMILY       = 'mcpMessage'
@@ -396,7 +396,7 @@ def composition() -> dict[str, list[str]]:
 
 
 def written_tables(declared: dict, tagged: dict) -> list[Path]:
-    """Write the two extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
+    """Write the two extracted tables under cache/mcp/ (QUOTE_ALL, as every
     sibling table) - the readable face of the derivation's inputs; a stale alias.csv
     from before issues/598 is removed."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Convert and validate code session transcripts, from each provider's STORE.
+# Convert and validate code session transcripts, from each provider's sessions in the store.
 #
 # The pipeline sources data/input/<provider>/code/machine-transport — the repo-owned,
 # medium-carried stores (<machine>/<project>/<session>) — for every provider that has a
@@ -26,7 +26,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
-CACHE_DIR="$TMP_DIR/cache/agent"
+CACHE_DIR="$CACHE_ROOT/agent"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -77,10 +77,10 @@ provider_of() {
 }
 
 prune_departed() {
-  # No blanket wipe: the validation logs under tmp/cache/ ARE the memoisation (an
+  # No blanket wipe: the validation logs under cache/ ARE the memoisation (an
   # unchanged session revalidates against nothing), and jsonl_to_json keeps
   # session.json's mtime when content is unchanged for the same reason. cache
-  # derivations die with their STORE datum — and the store is repo-owned, so
+  # derivations die with their datum in the store — and the store is repo-owned, so
   # a departure there was a deliberate disposal, never harness expiry.
   local project_dir="$1" machine="$2" name="$3" provider="$4" held source
   held="$("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir" 2>/dev/null | while IFS= read -r source; do basename "${source%.jsonl}"; done)"

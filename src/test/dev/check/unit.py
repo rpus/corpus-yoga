@@ -32,7 +32,7 @@ def check_rehearsal_record(run) -> None:
         import rehearsal
     except ImportError:
         run('rehearsal: the record is one file, whole, validating against its schema', False,
-            'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under tmp/stage/rehearsal '
+            'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under stage/rehearsal '
             'and no record of what it saw', check='rehearsal.record_is_whole')
         run("rehearsal: a unit's standing to the record is decidable from it", False,
             'there is no record to decide from', check='rehearsal.states_are_decidable')
@@ -239,7 +239,7 @@ def check_unit_state(run) -> None:
     turn = '## Human ({n})\n\nask {n}\n\n---\n\n## Gemini ({n})\n\n* {sep}**answer {n}**\n\n---\n\n'
     page = lambda turns, sep: '# t\n\n' + ''.join(turn.format(n=n, sep=sep) for n in range(1, turns + 1))   # noqa: E731
     planted = {'re-rendered': (page(2, '\n'), page(2, '')), 'byte-equal': (page(2, ''), page(2, '')), 'grown': (page(2, ''), page(3, ''))}
-    kept = {name: getattr(corpus, name) for name in ('STAGE', 'STORE')}
+    kept = {name: getattr(corpus, name) for name in ('STAGED', 'HELD')}
     try:
         with tempfile.TemporaryDirectory() as scratch:
             stage_root, store_root = Path(scratch) / 'stage', Path(scratch) / 'store'
@@ -247,8 +247,8 @@ def check_unit_state(run) -> None:
                 for root, body in ((store_root, held), (stage_root, staged)):
                     (root / gemini.input / name).mkdir(parents=True)
                     (root / gemini.input / name / 't.md').write_text(body)
-            setattr(corpus, 'STAGE', stage_root)
-            setattr(corpus, 'STORE', store_root)
+            setattr(corpus, 'STAGED', stage_root)
+            setattr(corpus, 'HELD', store_root)
             told = {u.address.name: state(u, corpus.relation(u)[0], judgement.VALID) for u in corpus.select(stage_root, gemini)}
             judged = [corpus.Judged(u, corpus.relation(u)[0], '', judgement.VALID, '') for u in corpus.select(stage_root, gemini)]
             promotes = [act for act in corpus.acts_on_staged(judged) if ' promote' in act.line]
@@ -519,7 +519,7 @@ def check_effective_acts(run) -> None:
     import facts
     import transport
     would = getattr(facts, 'would', None)
-    orphan = '/'.join(('tmp', 'logs', 'site', 'one'))
+    orphan = '/'.join(('logs', 'site', 'one'))
     built = (would('corpus-yoga logs clean', {}), would('corpus-yoga logs clean', {orphan: 2})) if callable(would) else None
     try:
         facts.Would('corpus-yoga logs clean', {})
@@ -582,7 +582,7 @@ def check_effective_acts(run) -> None:
 @check(tier='code', says=('python.bytecode_stands_under_tmp_cache', 'migration.bytecode_leaves_src', 'cache.stale_bytecode_is_named'),
        on=['src/import_roots.sh', 'src/run_python_script.sh', 'corpus-yoga', 'rsc/migration', 'src/main/cli/cache', 'rsc/cache_io.csv'])
 def check_bytecode(run) -> None:
-    """Python's bytecode stands under tmp/cache/python, never beside the sources (issues/1052): every
+    """Python's bytecode stands under cache/python, never beside the sources (issues/1052): every
     python the launcher starts is given that prefix; rsc/migration/1052.sh discards the bytecode
     a room's src already holds and retires each directory that held nothing else; and bytecode
     under the prefix whose source no longer stands is an orphan the cache names. The fixtures are
@@ -595,9 +595,9 @@ def check_bytecode(run) -> None:
     import cache_io
     asked = subprocess.run([str(REPO_ROOT / 'src' / 'run_python_script.sh'), '-c', 'import sys; print(sys.pycache_prefix)'],
                            capture_output=True, text=True, cwd=REPO_ROOT, env={**os.environ, 'CORPUS_YOGA_VENV': sys.prefix}, timeout=60)
-    prefix = (REPO_ROOT / 'tmp' / 'cache' / 'python').as_posix()
+    prefix = (REPO_ROOT / 'cache' / 'python').as_posix()
     given = asked.stdout.strip() == prefix
-    run('python: every python the launcher starts keeps its bytecode under tmp/cache/python', given,
+    run('python: every python the launcher starts keeps its bytecode under cache/python', given,
         None if given else f'sys.pycache_prefix is {asked.stdout.strip() or asked.stderr.strip()[:120]!r}, where the prefix is {prefix}',
         check='python.bytecode_stands_under_tmp_cache')
 
@@ -647,15 +647,16 @@ def check_bytecode(run) -> None:
         check='cache.stale_bytecode_is_named')
 
 
-@check(tier='code', says=('agent.status_counts_by_kind', 'scratch.stands_under_tmp_cache', 'cache.dead_scratch_is_named'),
-       on=['src/main/cli/agent', 'src/main/tier.sh', 'src/main/cli/cache', 'rsc/cache_io.csv', 'src'])
+@check(tier='code', says=('agent.status_counts_by_kind', 'tmp.run_file_stands_under_its_command', 'tmp.dead_run_file_is_named'),
+       on=['src/main/cli/agent', 'src/main/tier.sh', 'src/main/cli/tmp', 'src'])
 def check_screen_and_scratch(run) -> None:
     """The agent status counts what it holds by kind and names only what a reader acts on
     (issues/1004): sessions by room and provider, a pull's kept units by kind with their size, the
     units it would write by name - the per-session listing a verb of its own, list-sessions.
-    A disposable file a script keeps stands under tmp/cache/scratch, named with the pid of the
-    run that keeps it, through the tier's scratch_file and scratch_dir alone (issues/906), and the
-    cache names an entry there whose run is gone. The fixtures are synthetic."""
+    A disposable file a script keeps stands under tmp/<command>/<verb>/, the act the launcher
+    dispatched, or tmp/<script>/ where it dispatched none, named with the pid of the run that keeps
+    it, through the tier's scratch_file and scratch_dir alone (issues/906, issues/1170), and the tmp
+    noun names one whose run is gone, and nothing not so named. The fixtures are synthetic."""
     import importlib.util
     import os
     import subprocess
@@ -663,6 +664,7 @@ def check_screen_and_scratch(run) -> None:
     import tempfile
     import cache_io
     import transport
+    tmp_spec = importlib.util.spec_from_file_location('tmp_noun', SRC / 'main' / 'cli' / 'tmp' / 'tmp.py')
     spec = importlib.util.spec_from_file_location('agent_status', SRC / 'main' / 'cli' / 'agent' / 'agent.py')
     assert spec is not None and spec.loader is not None
     agent = importlib.util.module_from_spec(spec)
@@ -691,26 +693,34 @@ def check_screen_and_scratch(run) -> None:
 
     loose = sorted(f'{path.relative_to(REPO_ROOT)}:{number}' for path in SRC.rglob('*.sh') if path.name != 'tier.sh'
                    for number, line in enumerate(path.read_text().splitlines(), 1) if 'mktemp' in line and not line.lstrip().startswith('#'))
+    probe = 'f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]'
+    placed: dict[str, object] = {}
     with tempfile.TemporaryDirectory() as tmp:
-        made = subprocess.run(['bash', '-c', f'source "{SRC}/main/tier.sh"; TMP_DIR="{tmp}"; f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]'],
-                              capture_output=True, text=True, timeout=30)
-        lines = made.stdout.split()
-        placed = (made.returncode == 0 and len(lines) == 3 and all(line.startswith(f'{tmp}/cache/scratch/probe.{lines[2]}.') for line in lines[:2]))
-    kept = not loose and placed
-    run('scratch: a disposable file a script keeps stands under tmp/cache/scratch, named with its run\'s pid, through the tier\'s scratch_file and scratch_dir alone',
-        kept, None if kept else f'mktemp is called at {", ".join(loose)}' if loose else f'the tier made {made.stdout!r} {made.stderr.strip()[:160]!r}',
-        check='scratch.stands_under_tmp_cache')
+        for case, env, under in (('dispatched', {'CORPUS_YOGA_ACT': 'probe verb'}, 'probe/verb'), ('undispatched', {'SELF': '/'.join(('src', 'main', 'probe', 'probe.sh'))}, 'probe')):
+            environment = {k: v for k, v in os.environ.items() if k not in ('CORPUS_YOGA_ACT', 'SELF')} | env
+            made = subprocess.run(['bash', '-c', f'source "{SRC}/main/tier.sh"; TMP_DIR="{tmp}"; {probe}'], capture_output=True, text=True, timeout=30, env=environment)
+            lines = made.stdout.split()
+            ok = made.returncode == 0 and len(lines) == 3 and all(line.startswith(f'{tmp}/{under}/probe.{lines[2]}.') for line in lines[:2])
+            placed[case] = True if ok else f'{made.stdout!r} {made.stderr.strip()[:160]!r}'
+    kept = not loose and all(v is True for v in placed.values())
+    run('tmp: a disposable file a script keeps stands under tmp/<command>/<verb>/, or tmp/<script>/ where no command dispatched it, named with its run\'s pid, through the tier\'s scratch_file and scratch_dir alone',
+        kept, None if kept else f'mktemp is called at {", ".join(loose)}' if loose else f'the tier made {placed}',
+        check='tmp.run_file_stands_under_its_command')
 
     gone = subprocess.run([sys.executable, '-c', 'import os; print(os.getpid())'], capture_output=True, text=True, timeout=30).stdout.strip()
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        (root / f'live.{os.getpid()}.aaaaaa').write_text('')
-        (root / f'left.{gone}.bbbbbb').write_text('')
-        (root / 'unnamed').write_text('')
-        found = sorted(p.name for p in cache_io.dead_scratch(root))
-    named = found == [f'left.{gone}.bbbbbb', 'unnamed']
-    run('cache: a scratch entry whose run is gone is an orphan, and one whose run lives is not', named,
-        None if named else f'named {found}', check='cache.dead_scratch_is_named')
+    found: list[str] | str = 'src/main/cli/tmp/tmp.py is absent'
+    if tmp_spec is not None and tmp_spec.loader is not None and (SRC / 'main' / 'cli' / 'tmp' / 'tmp.py').is_file():
+        tmp_noun = importlib.util.module_from_spec(tmp_spec)
+        tmp_spec.loader.exec_module(tmp_noun)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for held in (f'probe/verb/live.{os.getpid()}.aaaaaa', f'probe/verb/left.{gone}.bbbbbb', f'probe/left.{gone}.cccccc', 'forge/merge/a-worktree/file'):
+                (root / held).parent.mkdir(parents=True, exist_ok=True)
+                (root / held).write_text('')
+            found = sorted(p.relative_to(root).as_posix() for p in tmp_noun.orphans(root))
+    named = found == [f'probe/left.{gone}.cccccc', f'probe/verb/left.{gone}.bbbbbb']
+    run('tmp: a working file whose run is gone is an orphan; one whose run lives, or one not named by a run, is not', named,
+        None if named else f'named {found}', check='tmp.dead_run_file_is_named')
 
 
 @check(tier='code', says=('command.a_moved_verb_is_a_fault', 'reference.pointer_reads_the_declared_lineage', 'migration.raise_bodies_stand_with_the_record',
@@ -750,7 +760,7 @@ def check_sweep(run) -> None:
     assert raise_at is not None and raise_at.loader is not None
     raising = importlib.util.module_from_spec(raise_at)
     raise_at.loader.exec_module(raising)
-    kept = raising.RECORD.as_posix().endswith('/'.join(('tmp', 'logs', 'forge', 'raise')))
+    kept = raising.RECORD.as_posix().endswith('/'.join(('logs', 'forge', 'raise'))) and 'tmp' not in raising.RECORD.relative_to(REPO_ROOT).parts
     with tempfile.TemporaryDirectory() as tmp:
         checkout = Path(tmp) / 'checkout'
         for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):
@@ -771,7 +781,7 @@ def check_sweep(run) -> None:
         stands = sorted(p.name for p in new.iterdir()) if new.is_dir() else []
         moved_bodies = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 2 and applied.returncode == 0 and again.stdout == ''
                         and stands == ['2026-11-11T134618Z.log', '2026-11-11T134619Z.md'] and not old.exists())
-    run("migration: a raise keeps its body under tmp/logs/forge/raise, and rsc/migration/1069.sh moves a room's bodies there and retires tmp/forge/raise",
+    run("migration: a raise keeps its body under logs/forge/raise, and rsc/migration/1069.sh moves a room's bodies there and retires tmp/forge/raise",
         kept and moved_bodies, None if kept and moved_bodies else f'a raise keeps its body under {raising.RECORD}; bare said {bare.stdout!r} {bare.stderr!r}; '
         f'applied said {applied.stdout!r} {applied.stderr!r}; again said {again.stdout!r}; the record holds {stands}', check='migration.raise_bodies_stand_with_the_record')
 
@@ -1123,10 +1133,55 @@ def check_session_continued_apart(run) -> None:
         level, None if level else f'the live reading said {said!r}', check='agent.a_session_continued_apart_is_each_rooms_own')
 
 
+@check(tier='code', says=('migration.roots_named_for_what_they_hold',), on=['rsc/migration'])
+def check_roots_migration(run) -> None:
+    """A room's machine-local files, laid out before issues/1170 under tmp/, take the roots named for
+    what they hold by rsc/migration/1170.sh, even where the new code has already written beside
+    them: the cache, the logs and the stage fold into cache, logs and stage; each provider's chat
+    listing moves to fetch/<provider>/chat/listing.json and upstream's references to
+    fetch/reference; a stage scratch's cache moves beside its data; the dead runs' working files are
+    discarded; and tmp keeps what lasts one run. The fixture is synthetic: a checkout holding a
+    planted room of the old layout, with a log and bytecode the new code wrote."""
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    def under(*parts: str) -> str:
+        return '/'.join(parts)
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1170.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        for held in (under('tmp', 'cache', 'scratch', 'rows.1.abcdef'), under('tmp', 'cache', 'agent', 'a.json'),
+                     under('tmp', 'logs', 'pipeline', 'run', 'a.log'), under('tmp', 'stage', 'usr', 'input', 'u.json'),
+                     under('tmp', 'stage', 'usr', 'scratch', 'tmp', 'cache', 'v.json'), under('tmp', 'browser', 'fetch', 'claude.json'),
+                     under('tmp', 'reference', 'fetch', 'mcp', 's.json'), under('tmp', 'forge', 'merge', 'w', 'f'),
+                     under('logs', 'migration', 'apply', 'now.log'), under('cache', 'python', 'n.pyc')):
+            (checkout / held).parent.mkdir(parents=True, exist_ok=True)
+            (checkout / held).write_text('planted\n')
+        script = checkout / 'rsc/migration/1170.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1170.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
+                      if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
+        want = sorted([under('cache', 'agent', 'a.json'), under('cache', 'python', 'n.pyc'), under('fetch', 'claude', 'chat', 'listing.json'),
+                       under('fetch', 'reference', 'mcp', 's.json'), under('logs', 'migration', 'apply', 'now.log'), under('logs', 'pipeline', 'run', 'a.log'),
+                       under('stage', 'usr', 'input', 'u.json'), under('stage', 'usr', 'scratch', 'cache', 'v.json'), under('tmp', 'forge', 'merge', 'w', 'f')])
+        moved = (bare.returncode == 0 and bare.stdout.strip() != '' and applied.returncode == 0 and again.stdout == '' and left == want)
+        run("migration: rsc/migration/1170.sh moves a room's files to the roots named for what they hold - bare the steps, applied, again nothing",
+            moved, None if moved else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the room holds {left}', check='migration.roots_named_for_what_they_hold')
+
+
 @check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
 def check_spent_stage(run) -> None:
     """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the
-    janitor removes tmp/stage/usr whole, and the status names it with the janitor as its act; while
+    janitor removes stage/usr whole, and the status names it with the janitor as its act; while
     a unit stays staged, neither touches them (issues/1127). Held over a planted stage, the tier's
     paths pointed at it, never the room's."""
     import importlib
@@ -1140,9 +1195,9 @@ def check_spent_stage(run) -> None:
     janitor = importlib.util.module_from_spec(spec)
     sys.modules['stage_janitor'] = janitor
     spec.loader.exec_module(janitor)
-    names = ('TMP_STAGE', 'TMP_STAGE_INPUT', 'TMP_STAGE_SCRATCH', 'TMP_STAGE_REHEARSAL')
+    names = ('STAGE', 'STAGE_INPUT', 'STAGE_SCRATCH', 'STAGE_REHEARSAL')
     kept_tier = {name: getattr(tier, name) for name in names}
-    kept_corpus = {name: getattr(corpus, name) for name in ('STAGE', 'STORE')}
+    kept_corpus = {name: getattr(corpus, name) for name in ('STAGED', 'HELD')}
     said: dict[str, object] = {}
     try:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1156,11 +1211,11 @@ def check_spent_stage(run) -> None:
                     (stage / 'input' / 'awaiting-promotion.txt').write_text('a staged unit\n')
                 store = Path(tmp) / case / 'store'
                 store.mkdir()
-                for name, path in (('TMP_STAGE', stage), ('TMP_STAGE_INPUT', stage / 'input'),
-                                   ('TMP_STAGE_SCRATCH', stage / 'scratch'), ('TMP_STAGE_REHEARSAL', stage / 'rehearsal.json')):
+                for name, path in (('STAGE', stage), ('STAGE_INPUT', stage / 'input'),
+                                   ('STAGE_SCRATCH', stage / 'scratch'), ('STAGE_REHEARSAL', stage / 'rehearsal.json')):
                     setattr(tier, name, path)
-                setattr(corpus, 'STAGE', stage / 'input')
-                setattr(corpus, 'STORE', store)
+                setattr(corpus, 'STAGED', stage / 'input')
+                setattr(corpus, 'HELD', store)
                 try:
                     entries = janitor.entries()
                     named = sorted(corpus.stage_orphans())
@@ -1175,5 +1230,5 @@ def check_spent_stage(run) -> None:
         for name, value in kept_corpus.items():
             setattr(corpus, name, value)
     want = {'spent': (['spent stage'], ['stage'], False), 'held': ([], [], True)}
-    run('stage: once no unit is staged, the janitor removes tmp/stage/usr whole and the status names it; while one is, neither does',
+    run('stage: once no unit is staged, the janitor removes stage/usr whole and the status names it; while one is, neither does',
         said == want, None if said == want else f'(kinds, named, stage left) were {said!r}', check='stage.clean_leaves_no_spent_stage')

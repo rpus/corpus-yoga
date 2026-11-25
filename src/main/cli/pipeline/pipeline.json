@@ -27,13 +27,13 @@
     "usr gate PASS; all pipelines completed",
     "usr gate FAIL; the failing stage(s) are named above",
     "{verb} is no verb it takes - run, rehearse, render, audit (bare is the status)",
-    "tmp/stage/usr/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data and tmp under that directory, its input tmp/stage/usr/input); then tmp/stage/usr/rehearsal.json, the record",
+    "stage/usr/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data, cache, logs and tmp under that directory, its input stage/usr/input); then stage/usr/rehearsal.json, the record",
     "failing stage(s) {names}"
   ],
   "explanation": {
     "browser": "validates each claude API capture and projects it to markdown; a gemini DOM capture's markdown is the terminal artifact, validated against markdownConversation before it is copied into the corpus",
     "export": "validates, extracts, atomises and renders each bulk export",
-    "agent": "converts each session and validates it into tmp/cache/"
+    "agent": "converts each session and validates it into cache/"
   },
   "target": "src/main/cli/pipeline/pipeline.sh",
   "calculus": "atomise validate supersession accumulate project",

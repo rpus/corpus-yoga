@@ -32,7 +32,7 @@
     "rsc/site/index.template.html"
   ],
   "w": [
-    "tmp/cache/indexing",
+    "cache/indexing",
     "data/output/indexing"
   ]
 }

@@ -57,7 +57,7 @@
   "r": [
     "machine-name.txt",
     "rsc/test/run.log",
-    "tmp/logs/test/run"
+    "logs/test/run"
   ],
   "w": [
     "tmp/forge/rebase"

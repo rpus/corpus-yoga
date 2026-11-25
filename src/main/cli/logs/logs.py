@@ -1,12 +1,12 @@
 """
-logs.py (corpus-yoga logs) - the room's logs, tmp/logs, as the cache and the stage have
+logs.py (corpus-yoga logs) - the room's logs, logs, as the cache and the stage have
 their nouns (issues/814).
 
     corpus-yoga logs                    # status: the tier, each orphaned directory, and what to run next
     corpus-yoga logs clean              # remove the orphaned directories the status names
 
-The tier is laid out by the dispatcher (src/main/cli/cli.py): tmp/logs/<command>/ holds
-the bare command's logs, tmp/logs/<command>/<verb>/ each verb's, one stamped log per act -
+The tier is laid out by the dispatcher (src/main/cli/cli.py): logs/<command>/ holds
+the bare command's logs, logs/<command>/<verb>/ each verb's, one stamped log per act -
 the launcher's tee of the whole verb, the one record (issues/708) - beside which a verb keeps
 the artifacts it names by the same stamp: the gate's <stamp>.report, a capture's
 <stamp>.<provider>.progress, a daemon's <stamp>.daemon.
@@ -33,7 +33,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-LOGS = tier.TMP / 'logs'
+LOGS = tier.LOGS_ROOT
 CLI = REPO / 'src' / 'main' / 'cli'
 KINDS = {'orphan': 'orphans'}
 
@@ -57,7 +57,7 @@ def logs_in(path: Path) -> int:
 
 
 def orphans() -> list[tuple[Path, str]]:
-    """Each entry under tmp/logs that no current command or verb writes: a directory of a
+    """Each entry under logs that no current command or verb writes: a directory of a
     command with no declaration under src/main/cli, a verb's directory with no declaration
     beside its command's, a file where only a command's directory belongs, or a directory
     beneath a verb's that no record beside it names by its stamp - a verb keeps its artifacts beside
@@ -108,7 +108,7 @@ class Status:
     """Bare corpus-yoga logs: the tier, each orphan by its path, and under now: the cleaner
     over what it would remove, by path - the shape the cache's and the store's statuses
     have, so that the room's one reading, which folds this block, names an orphaned log directory."""
-    tmp_logs: Tier | str = facts.named('tmp/logs')
+    tmp_logs: Tier | str = facts.named('logs')
     orphans: dict[str, Orphan] | None = None
     now: dict | str | None = None
     logs: str = ''                # the verdict

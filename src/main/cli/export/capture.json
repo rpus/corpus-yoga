@@ -32,10 +32,10 @@
   },
   "r": [
     "data/input/claude/chat/bulk-export",
-    "tmp/stage/usr/input/claude/chat/bulk-export",
+    "stage/usr/input/claude/chat/bulk-export",
     "rsc/naming/export_archive_members.csv"
   ],
   "w": [
-    "tmp/stage/usr/input/claude/chat/bulk-export"
+    "stage/usr/input/claude/chat/bulk-export"
   ]
 }

@@ -1,13 +1,13 @@
 {
-  "help": "remove the orphaned tmp/cache/ entries the status names - those neither written nor read by any registry producer, bytecode whose source no longer stands, and scratch whose run is gone; prints what it will remove, what it did remove, what to run next, and the verdict",
+  "help": "remove the orphaned cache/ entries the status names - those neither written nor read by any registry producer, and bytecode whose source no longer stands; prints what it will remove, what it did remove, what to run next, and the verdict",
   "would": "would remove",
   "modality": "MAY",
   "args": [],
   "r": [
     "rsc/cache_io.csv",
-    "tmp/cache"
+    "cache"
   ],
   "consumes": [
-    "tmp/cache"
+    "cache"
   ]
 }

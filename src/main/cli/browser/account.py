@@ -1,6 +1,6 @@
 """
 account.py - each provider's account as last fetched (corpus-yoga browser fetch records it at
-tmp/browser/fetch/<provider>.json) against the captures: which chats are new or have grown since
+fetch/<provider>/chat/listing.json) against the captures: which chats are new or have grown since
 their capture, each with the capture that brings it level. Read by bare `corpus-yoga browser`;
 reads, never sends.
 
@@ -26,7 +26,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-RECORD = tier.TMP / 'browser' / 'fetch'   # <provider>.json, the account as last fetched
+def record(provider: str) -> Path:
+    """The provider's chat listing as last fetched, at the address of its chats in the store."""
+    return tier.FETCH / provider / 'chat' / 'listing.json'
 
 
 @dataclass

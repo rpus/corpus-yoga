@@ -20,7 +20,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/export/claude"
-CACHE_DIR="$TMP_DIR/cache/export"
+CACHE_DIR="$CACHE_ROOT/export"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_emit — next-free dispatch (issues/395)

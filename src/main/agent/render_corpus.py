@@ -1,6 +1,6 @@
 """
 render_corpus.py — render every projected session conversation
-(tmp/cache/agent/<provider>/<machine>/<project>/<session>/conversation.json, the
+(cache/agent/<provider>/<machine>/<project>/<session>/conversation.json, the
 sessionConversation data) into the served corpus, each provider's under its own root:
 data/output/markdown/<provider>/code/conversations/<ordinal>-<slug>.md. Machines dedupe: the same
 session held by several machines renders once, from its maximal copy.
@@ -75,12 +75,12 @@ def main() -> int:
     ap.add_argument('--out-root', default=str(tier.DATA / 'output' / 'markdown'))
     args = ap.parse_args()
 
-    cache = tier.TMP / 'cache' / 'agent'
+    cache = tier.CACHE / 'agent'
     rendered = 0
     for provider_dir in sorted(d for d in cache.glob('*') if d.is_dir()):
         rendered += render_provider(provider_dir, Path(args.out_root) / provider_dir.name / 'code' / 'conversations')
     if not rendered:
-        print('code: no projected sessions under tmp/cache/agent — nothing to render')
+        print('code: no projected sessions under cache/agent — nothing to render')
     return 0
 
 

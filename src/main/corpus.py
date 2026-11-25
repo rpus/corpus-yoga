@@ -4,11 +4,11 @@ of its address, whether the pipelines have found it valid, and its promotion int
 storage (issues/687). The home rsc/CALCULUS.md's roadmap names for the Mergeable protocol; this is
 its first face, promotion, and the four older comparisons it names stand as they are.
 
-THE STAGE - the room's stage is one root, tmp/stage/usr, the usr actor's (src/main/tier.py, issues/702,
-issues/1133): tmp/stage/usr/input is what the captures write, at the address each unit will have under data/input;
-tmp/stage/usr/scratch is what the last rehearsal's run derived - a data tier whose input links
-to tmp/stage/usr/input and whose output is its preview, a tmp tier with the validation -
-replaced whole by the next run; and tmp/stage/usr/rehearsal.json is the rehearsal record, one
+THE STAGE - the room's stage is one root, stage/usr, the usr actor's (src/main/tier.py, issues/702,
+issues/1133): stage/usr/input is what the captures write, at the address each unit will have under data/input;
+stage/usr/scratch is what the last rehearsal's run derived - a data tier whose input links
+to stage/usr/input and whose output is its preview, a tmp tier with the validation -
+replaced whole by the next run; and stage/usr/rehearsal.json is the rehearsal record, one
 file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). A capture writes the
 stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
@@ -62,13 +62,13 @@ PROMOTE - each capturing noun has the verb: what `corpus-yoga browser capture` s
 `corpus-yoga browser promote` promotes, over the same extent words (--provider <p> |
 --all, --id <prefix>); agent, export and forge likewise. A noun's units are the staged
 units under the roots its capture declares it writes (src/main/cli/<noun>/capture.json's
-w rows under tmp/stage/usr/input). Every staged unit gets its verdict; the relation refuses
+w rows under stage/usr/input). Every staged unit gets its verdict; the relation refuses
 only where the held copy would lose something (AHEAD, DIVERGED). Promotion is a copy,
 never a move: the unit's members are written over the held ones by address, byte-equal
 being silence, and the stage is never written by promote - the captures own it, and
 `corpus-yoga stage clean` is its one janitor, removing the units the store holds
 byte-equal. A promoted unit's verdict stays in the record and the scratch, and the plain
-run judges the promoted datum again from the same bytes - two hands on tmp/cache would
+run judges the promoted datum again from the same bytes - two hands on cache would
 break L6 as effects.writers_disjoint holds it. Each noun's bare status,
 bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 """
@@ -100,9 +100,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
+STAGED = tier.STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)
-STORE = tier.DATA / 'input'
+HELD = tier.DATA / 'input'
 PIPELINE_ROOT = REPO / 'src' / 'main'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
 NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote
@@ -112,7 +112,7 @@ NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each
 
 @dataclass
 class Unit:
-    address: Path                 # relative to the input root (data/input or tmp/stage/usr/input)
+    address: Path                 # relative to the input root (data/input or stage/usr/input)
     members: list[Path]           # the paths that make it: its directory, or its file and companion
     files: list[Path]             # every file under the members
     selected: list[Path]          # the files the glob selected - what the measure reads
@@ -138,8 +138,8 @@ class Unit:
         validation: what the rehearsal record reduces from."""
         if self.pipeline is None:
             return None
-        rel = Path(cache_io.path_for(self.pipeline)).relative_to('tmp/cache')
-        return tier.SCRATCH_TMP / 'cache' / rel / (self.provider or '') / Path(*self.subject)
+        rel = Path(cache_io.path_for(self.pipeline)).relative_to('cache')
+        return tier.SCRATCH_CACHE / rel / (self.provider or '') / Path(*self.subject)
 
 
 def pipelines() -> dict[str, dict]:
@@ -440,10 +440,10 @@ def derive(staged, held, leq: Callable) -> Relation:
 def relation(unit: Unit) -> tuple[Relation, str]:
     """Where the staged unit stands to the held one, and the measure's own words."""
     value, leq, words = MEASURE[unit.measure]
-    staged = value(STAGE, unit)
+    staged = value(STAGED, unit)
     if staged is None:
         return Relation.DIVERGED, f'the staged unit holds nothing its measure ({unit.measure}) reads'
-    held = value(STORE, unit)
+    held = value(HELD, unit)
     return derive(staged, held, leq), words(staged, held, unit)
 
 
@@ -499,10 +499,10 @@ def _judged_digest(pipeline: str, family: str, version: str, schema_sha256: str)
 def own_digests(unit: Unit) -> set[str]:
     """What a verdict on this staged unit can name as its datum: each file's digest, and
     the digest of the unit's tree as run.sh records a converted directory's source."""
-    own = {_digest((STAGE / rel).read_bytes()) for rel in unit.files}
-    root = STAGE / unit.path
+    own = {_digest((STAGED / rel).read_bytes()) for rel in unit.files}
+    root = STAGED / unit.path
     if root.is_dir():
-        lines = ''.join(f'{rel.relative_to(unit.path).as_posix()} {_digest((STAGE / rel).read_bytes())}\n'
+        lines = ''.join(f'{rel.relative_to(unit.path).as_posix()} {_digest((STAGED / rel).read_bytes())}\n'
                         for rel in unit.files if rel.is_relative_to(unit.path))
         own.add(_digest(lines.encode()))
     return own
@@ -669,9 +669,9 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
 # -- promote -------------------------------------------------------------------------------
 
 def roots_of(noun: str) -> list[Path]:
-    """The stage roots a noun's capture declares it writes, relative to tmp/stage/usr/input."""
+    """The stage roots a noun's capture declares it writes, relative to stage/usr/input."""
     decl = json.loads((CLI_ROOT / noun / 'capture.json').read_text())
-    return [Path(w.removeprefix('tmp/stage/usr/input/')) for w in decl.get('w', []) if w.startswith('tmp/stage/usr/input/')]
+    return [Path(w.removeprefix('stage/usr/input/')) for w in decl.get('w', []) if w.startswith('stage/usr/input/')]
 
 
 def noun_of(unit: Unit) -> str | None:
@@ -726,7 +726,7 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
     other, and a unit whose relation refuses it is still judged, so that the rehearsal's
     counts are of every unit."""
     rows = []
-    for unit in (units(STAGE) if selected is None else selected):
+    for unit in (units(STAGED) if selected is None else selected):
         rel, detail = relation(unit)
         if unit.missing:
             if unit.members and not unit.files:          # a directory the selection names with nothing under it (issues/988)
@@ -756,12 +756,12 @@ INCOMPLETE = '{n} member(s) the record lists are not in the payload'
 def incomplete() -> list[Unit]:
     """The staged units whose record or payload is absent, or whose payload lacks what the
     record lists - never a rehearsal's input, always the janitor's (issues/721)."""
-    return [u for u in units(STAGE) if u.missing] if STAGE.is_dir() else []
+    return [u for u in units(STAGED) if u.missing] if STAGED.is_dir() else []
 
 
 def whole() -> list[Unit]:
     """The staged units a rehearsal judges: every unit that is not incomplete (issues/996)."""
-    return [u for u in units(STAGE) if not u.missing] if STAGE.is_dir() else []
+    return [u for u in units(STAGED) if not u.missing] if STAGED.is_dir() else []
 
 
 @dataclass(frozen=True)
@@ -845,7 +845,7 @@ def extent(noun: str, provider: str | None, everything: bool, unit_id: str | Non
         roots = mine
     elif not everything and any(r.parts[0] in ('claude', 'gemini') for r in roots) and len({r.parts[0] for r in roots}) > 1:
         sys.exit(f'error: corpus-yoga {noun} promote names its extent: --all, --provider <p>, or --provider <p> --id <prefix>')
-    chosen = [u for u in units(STAGE) if any(u.address.is_relative_to(r) for r in roots)]
+    chosen = [u for u in units(STAGED) if any(u.address.is_relative_to(r) for r in roots)]
     if unit_id is None:
         return chosen
     hits = [u for u in chosen if any(part.startswith(unit_id) for part in u.address.parts[1:])]
@@ -883,7 +883,7 @@ def redundant(unit: Unit) -> bool:
     if not unit.members or unit.missing:
         return False
     for rel in unit.members:
-        staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
+        staged, held = _tree_files(STAGED / rel), _tree_files(HELD / rel)
         if not held or not staged.keys() <= held.keys():   # an empty staged member and an absent held one are not the same thing
             return False
         if unit.measure in MIRRORS and staged.keys() != held.keys():
@@ -902,9 +902,9 @@ def _copy(unit: Unit) -> int:
     stage is not written. Returns the files written or removed."""
     changed = 0
     for rel in unit.members:
-        staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
+        staged, held = _tree_files(STAGED / rel), _tree_files(HELD / rel)
         for key, src in staged.items():
-            dst = (STORE / rel) if key == '' else (STORE / rel / key)
+            dst = (HELD / rel) if key == '' else (HELD / rel / key)
             if key in held and held[key].read_bytes() == src.read_bytes():
                 continue
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -960,21 +960,21 @@ def shadow(unit: Unit) -> Path | None:
     it - what only the unit feeds, and goes with it (issues/744)."""
     if unit.pipeline is None:
         return None
-    rel = Path(cache_io.path_for(unit.pipeline)).relative_to('tmp/cache')
-    return tier.TMP / 'cache' / rel / (unit.provider or '') / Path(*unit.subject)
+    rel = Path(cache_io.path_for(unit.pipeline)).relative_to('cache')
+    return tier.CACHE / rel / (unit.provider or '') / Path(*unit.subject)
 
 
 def orphaned_shadows() -> list[Path]:
     """Every directory under the cache at a held kind's depth that is no held unit's shadow:
     the derivation of a unit the store no longer holds, which would pass for one (issues/744)."""
-    held = [u for u in units(STORE) if u.pipeline is not None]
+    held = [u for u in units(HELD) if u.pipeline is not None]
     shadows = {shadow(u) for u in held}
     depths: dict[tuple, int] = {}
     for u in held:
         depths[(u.pipeline, u.provider)] = len(u.subject)
     out: list[Path] = []
     for (pipeline, provider), depth in sorted(depths.items(), key=lambda kv: (kv[0][0], kv[0][1] or '')):
-        root = tier.TMP / 'cache' / Path(cache_io.path_for(pipeline)).relative_to('tmp/cache') / (provider or '')
+        root = tier.CACHE / Path(cache_io.path_for(pipeline)).relative_to('cache') / (provider or '')
         if not root.is_dir():
             continue
         out += [d for d in sorted(root.glob('/'.join(['*'] * depth))) if d.is_dir() and d not in shadows]
@@ -985,12 +985,12 @@ def remove(unit: Unit) -> None:
     """Take the unit out of the stage - the janitor's act (corpus-yoga stage clean), never
     promotion's. Its record goes with it."""
     for rel in unit.members + unit.record:
-        s = STAGE / rel
+        s = STAGED / rel
         if s.is_dir():
             shutil.rmtree(s)
         elif s.exists():
             s.unlink()
-    for d in sorted((p for p in STAGE.rglob('*') if p.is_dir()), reverse=True):
+    for d in sorted((p for p in STAGED.rglob('*') if p.is_dir()), reverse=True):
         if not any(d.iterdir()):
             d.rmdir()
 
@@ -1074,24 +1074,24 @@ def human(n: float) -> str:
 
 
 def orphans() -> list[Path]:
-    """What sits under tmp/stage/usr and is neither the input, the scratch nor the record."""
-    stage = tier.TMP_STAGE
-    kept = ('input', 'scratch', tier.TMP_STAGE_REHEARSAL.name)
+    """What sits under stage/usr and is neither the input, the scratch nor the record."""
+    stage = tier.STAGE
+    kept = ('input', 'scratch', tier.STAGE_REHEARSAL.name)
     return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
 
 
 def spent(remaining: list['Unit']) -> bool:
-    """Whether tmp/stage/usr holds anything while no unit stays staged: its input, scratch and
+    """Whether stage/usr holds anything while no unit stays staged: its input, scratch and
     rehearsal record serve only the staged units, so with none they serve nothing (issues/1127)."""
-    stage = tier.TMP_STAGE
+    stage = tier.STAGE
     return not remaining and stage.is_dir() and any(stage.iterdir())
 
 
 def dispose_spent() -> str | None:
-    """Remove tmp/stage/usr whole, as it stands at the act: refused where a unit was staged meanwhile."""
-    if units(STAGE):
+    """Remove stage/usr whole, as it stands at the act: refused where a unit was staged meanwhile."""
+    if units(STAGED):
         return facts.phrase('a unit was staged meanwhile')
-    return dispose(tier.TMP_STAGE)
+    return dispose(tier.STAGE)
 
 
 @dataclass
@@ -1162,18 +1162,18 @@ class StageStatus:
     why and what is unlicensed and why, as facts. It names no act (issues/851): the stage is a
     scratch tier between the live stores and the store, and the store's status, which
     reads both, says what to run next."""
-    tmp_stage: StageTier | str = facts.named('tmp/stage/usr')
+    tmp_stage: StageTier | str = facts.named('stage/usr')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
     invalid: dict[str, object] | None = None         # by the version file that found it so, under rsc/schema, then the reason: how many
     unlicensed: dict[str, object] | None = None      # valid at a version origin/main does not hold: by that version file, then the reason: how many (issues/867)
 
 
 def stage_orphans() -> dict[str, 'Orphan']:
-    """Each orphan under tmp/stage/usr by its path, with the act that removes it - or, where no unit
-    is staged, tmp/stage/usr itself, which the janitor removes whole (issues/1127)."""
-    if spent(units(STAGE)):
-        at = tier.TMP_STAGE.relative_to(REPO).as_posix() if tier.TMP_STAGE.is_relative_to(REPO) else str(tier.TMP_STAGE)
-        return {at: Orphan(human(size_of(tier.TMP_STAGE)), facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
+    """Each orphan under stage/usr by its path, with the act that removes it - or, where no unit
+    is staged, stage/usr itself, which the janitor removes whole (issues/1127)."""
+    if spent(units(STAGED)):
+        at = tier.STAGE.relative_to(REPO).as_posix() if tier.STAGE.is_relative_to(REPO) else str(tier.STAGE)
+        return {at: Orphan(human(size_of(tier.STAGE)), facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
                            facts.Would(spell.line('stage', 'clean'), {at: 1}))}
     return {e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), facts.phrase('nothing reads it'),
                                                     facts.Would(spell.line('stage', 'clean'), {e.relative_to(REPO).as_posix(): 1}))
@@ -1205,14 +1205,14 @@ def stage_facts() -> StageStatus:
     follows an invalid verdict and where its whole
     output is are constant, and the declaration's explanation says them; what the room's
     state allows now is the store's status's to say (issues/851)."""
-    stage = tier.TMP_STAGE
+    stage = tier.STAGE
     if not stage.is_dir():
         return StageStatus(facts.phrase('absent - nothing captured since the last clean, no rehearsal made'))
     rows = survey()
     record = rehearsal.read()
     out = StageStatus(StageTier(
-        input=human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent',
-        scratch=human(size_of(tier.TMP_STAGE_SCRATCH)) if tier.TMP_STAGE_SCRATCH.exists() else 'absent',
+        input=human(size_of(tier.STAGE_INPUT)) if tier.STAGE_INPUT.exists() else 'absent',
+        scratch=human(size_of(tier.STAGE_SCRATCH)) if tier.STAGE_SCRATCH.exists() else 'absent',
         orphans=stage_orphans(),
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
                 else facts.phrase('none - no rehearsal has run') if record is None else record)))
@@ -1303,7 +1303,7 @@ def other_bytes(unit: Unit) -> list[str]:
     holds other bytes."""
     out = []
     for rel in unit.members:
-        staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
+        staged, held = _tree_files(STAGED / rel), _tree_files(HELD / rel)
         for key in sorted(staged):
             if key not in held or staged[key].read_bytes() != held[key].read_bytes():
                 path = rel / key if key else rel
@@ -1366,7 +1366,7 @@ def selection_of(pipeline: str, provider: str | None, kind: str) -> str | None:
 
 def kind_of(unit: Unit) -> str:
     """What a count of the unit is a count of: its selection, as the path under the input
-    root - tmp/stage/usr/input, or data/input - that the pipeline's declaration selects it by,
+    root - stage/usr/input, or data/input - that the pipeline's declaration selects it by,
     the store's input with the provider filled in and the glob after it; a unit no
     declaration selects is counted by its own address."""
     return unit.selection or unit.address.as_posix()
@@ -1507,7 +1507,7 @@ class StoreStatus:
     live: dict | str | None = None            # the live stores this room mounts against the fuller of the staged and the held copy (src/main/live.py, issues/851)
     staged: dict[str, Promotion] | str | None = None   # the stage against the store, by selection (issues/842)
     re_rendered: dict[str, dict[str, str]] | None = field(default=None, metadata={'key': 're-rendered'})   # by selection, then address: the same by the measure, other bytes (issues/1138)
-    stage_orphans: dict[str, 'Orphan'] | None = None   # by path: what under tmp/stage/usr nothing reads, with the act that removes it
+    stage_orphans: dict[str, 'Orphan'] | None = None   # by path: what under stage/usr nothing reads, with the act that removes it
     would_lose: dict[str, object] | None = None   # by selection, by the relation's words: how many the held copy would lose by (issues/867)
     now: dict | str | None = None   # the store's standing: every act its body names, gathered (issues/1028)
 
@@ -1517,31 +1517,31 @@ def store_facts(live: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, 
     shared storage holds, by what each count is of, with anything no pipeline selects and
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
     nothing. Returns (the facts, units held, duplicates)."""
-    if not STORE.is_dir():
+    if not HELD.is_dir():
         return StoreStatus(facts.phrase('absent - this workspace holds no store')), 0, 0
-    held = units(STORE)
+    held = units(HELD)
     kinds: dict[str, int] = {}
     for unit in held:
         kinds[kind_of(unit)] = kinds.get(kind_of(unit), 0) + 1
     stray: dict[str, Stray] = {}
     for unit in held:
         if unit.pipeline is None and noun_of(unit) is None:
-            stray[unit.address.as_posix()] = Stray(human(size_of(STORE / unit.address)),
+            stray[unit.address.as_posix()] = Stray(human(size_of(HELD / unit.address)),
                                                    facts.phrase('no pipeline selects it and no capturing noun writes there'))
         elif not unit.members and unit.record:
-            stray[unit.record[0].as_posix()] = Stray(human(size_of(STORE / unit.record[0])),
+            stray[unit.record[0].as_posix()] = Stray(human(size_of(HELD / unit.record[0])),
                                                      facts.phrase('the record of a unit the store does not hold'))
-    twice = held_twice(STORE, live)
-    extra = {rel.as_posix(): Surplus(human(size_of(STORE / rel)), f'{unit.path.name}.json',
+    twice = held_twice(HELD, live)
+    extra = {rel.as_posix(): Surplus(human(size_of(HELD / rel)), f'{unit.path.name}.json',
                                      facts.Would(spell.line('store', 'clean'), {kind_of(unit): 1}))
-             for unit, rel in surplus(STORE)}
+             for unit, rel in surplus(HELD)}
     return StoreStatus(
-        Held(human(size_of(STORE)), sum(len(u.files) for u in held), len(held)),
+        Held(human(size_of(HELD)), sum(len(u.files) for u in held), len(held)),
         held=dict(sorted(kinds.items())), stray=stray, surplus=extra,
         orphaned_shadows={d.relative_to(REPO).as_posix(): Orphan(human(size_of(d)), facts.phrase('the store holds no unit it derives from'),
                                                                  facts.Would(spell.line('store', 'clean'), {'/'.join(d.relative_to(REPO).as_posix().split('/')[:3]): 1}))
                           for d in orphaned_shadows()},
-        duplicates={d.unit.address.as_posix(): HeldTwice(d, human(size_of(STORE / d.unit.path)), human(size_of(STORE / d.holder.path)))
+        duplicates={d.unit.address.as_posix(): HeldTwice(d, human(size_of(HELD / d.unit.path)), human(size_of(HELD / d.holder.path)))
                     for d in twice},
     ), len(held), len(twice)
 
@@ -1577,13 +1577,13 @@ def pairs_facts(noun: str) -> Pairs:
     for store in stores():
         if '<star>' not in store.companion or not any(store.input.is_relative_to(r) for r in roots):
             continue
-        for unit in select(STORE, store):
+        for unit in select(HELD, store):
             out.held[unit.address.name] = Paired(
                 payload=f'{unit.members[0].name}/' if unit.members else None,
                 record=unit.record[0].name if unit.record else None,
                 note=facts.phrase("nothing reads the record - a record is the stage's") if unit.record else None)
-        for unit in select(STAGE, store):
-            present = ' and '.join(p.name + ('/' if (STAGE / p).is_dir() else '') for p in unit.members + unit.record)
+        for unit in select(STAGED, store):
+            present = ' and '.join(p.name + ('/' if (STAGED / p).is_dir() else '') for p in unit.members + unit.record)
             if not unit.missing:
                 out.staged[unit.address.name] = Paired(standing=facts.phrase('complete - {present}', present=present))
                 continue
@@ -1595,7 +1595,7 @@ def pairs_facts(noun: str) -> Pairs:
             item = Paired(standing=facts.phrase('unpaired - {present} with no {missing} beside it', present=present,
                                                   missing=', '.join(unit.missing)))
             if not unit.members and _declares(noun, 'capture', '--manifest'):
-                where = (STAGE / unit.record[0]).relative_to(REPO)
+                where = (STAGED / unit.record[0]).relative_to(REPO)
                 item.act = facts.Would(spell.line(noun, 'capture', manifest=str(where)), {unit.address.name: 1})
             out.staged[unit.address.name] = item
     return out
@@ -1627,7 +1627,7 @@ def report_facts(noun: str | None) -> StageReport:
     the rehearsal for an unjudged unit, the janitor for an incomplete one. Its relation to
     the held unit is the store's to say and the promote's to act on (issues/842). The counts are
     `corpus-yoga stage`'s to say. Writes nothing."""
-    rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
+    rows = survey([u for u in units(STAGED) if noun is None or noun_of(u) == noun])
     record = rehearsal.read()
     staged: dict[str, Staged] = {}
     for row in rows:
@@ -1648,7 +1648,7 @@ def held_rows() -> list[tuple[str, str, str, int, str, str]]:
     """What each pipeline holds, a row per store and kind it declares: pipeline, provider,
     kind, the units held, the store's address, and the capturing noun that writes there.
     The store's own reading, for a reader in another language (issues/771)."""
-    found = units(STORE) if STORE.is_dir() else []
+    found = units(HELD) if HELD.is_dir() else []
     out = []
     for store in stores():
         noun = next((n for n in NOUNS if any(store.input.is_relative_to(r) for r in roots_of(n))), '')
@@ -1680,7 +1680,7 @@ def main(argv: list[str]) -> int:
         for row in held_rows():
             print('\t'.join(str(cell) for cell in row))
         return 0
-    print(len(units(STAGE)))
+    print(len(units(STAGED)))
     return 0
 
 

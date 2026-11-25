@@ -1,16 +1,16 @@
 """
 metamodel.py — per-schema definition catalogues, candidates for rsc/metamodel/metamodel.json.
-Output: tmp/cache/metamodel/catalogue/<family's address under rsc/schema>/v{N}.json for each
+Output: cache/metamodel/catalogue/<family's address under rsc/schema>/v{N}.json for each
 versioned schema, keyed as rsc/metamodel/metamodel.json keys a family (issues/672), so two providers'
 families of one name are two catalogues. rsc/metamodel/metamodel.json is hand-curated from these.
 
 `metamodel` is a NOUN: the catalogues. A bare invocation shows their current state and
 writes nothing (so there is no `status` verb — the bare noun IS the status). Only
-the `derive` verb writes: it brings tmp/cache/metamodel into agreement with the schemas, and
+the `derive` verb writes: it brings cache/metamodel into agreement with the schemas, and
 re-running is silence (L1).
 
 Usage:
-    corpus-yoga metamodel         # status: which catalogues exist under tmp/cache/metamodel/catalogue/
+    corpus-yoga metamodel         # status: which catalogues exist under cache/metamodel/catalogue/
     corpus-yoga metamodel derive    # (re-)generate every catalogue to agree with the schemas, and
                               # remove each one no schema version derives
 """
@@ -38,7 +38,7 @@ REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
-OUT_DIR    = tier.TMP / 'cache' / 'metamodel'
+OUT_DIR    = tier.CACHE / 'metamodel'
 
 
 def _sorted_versions(schema_dir: Path) -> list[Path]:
@@ -139,7 +139,7 @@ def curation_report() -> tuple[Table, Join]:
             facts.phrase('no longer holds at latest - {cells}', cells=cells),
             facts.Would(spell.line('metamodel', 'list-candidates'), {f'row {line}': 1}))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                    tier.TMP / 'cache' / 'export')
+                    tier.CACHE / 'export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             rows[f'row {line} ({kind})'] = facts.Finding(
@@ -152,7 +152,7 @@ def curation_report() -> tuple[Table, Join]:
 
 
 def derive() -> None:
-    """The verb: bring tmp/cache/metamodel into agreement with the schemas by (re-)generating
+    """The verb: bring cache/metamodel into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
     written = removed = 0
     for name, schema, target in _catalogues():
@@ -195,7 +195,7 @@ def render_collision_worksheet() -> None:
         return   # content-keyed (issues/494): current means no write and nothing said
     path.write_bytes(buf.getvalue().encode())   # bytes: csv's CRLF must survive the compare
     proposed = sum(1 for r in rows if r['relationship'])
-    print(f'  ✓ tmp/cache/metamodel/shared_name_candidates.csv ({len(rows)} undisposed, '
+    print(f'  ✓ cache/metamodel/shared_name_candidates.csv ({len(rows)} undisposed, '
           f'{proposed} with a machine proposal)')
 
 
@@ -209,14 +209,14 @@ class Catalogue:
 
 @dataclass
 class Status:
-    catalogue: Catalogue = facts.named('tmp/cache/metamodel/catalogue')
+    catalogue: Catalogue = facts.named('cache/metamodel/catalogue')
     table: Table = facts.named('rsc/metamodel/metamodel.json')
     join: Join = facts.named('rsc/metamodel/join.csv')
 
 
 def status() -> None:
     """The bare-noun default: show current state, write nothing. Reports which
-    catalogues tmp/cache/metamodel/ already holds and which a `project` would still
+    catalogues cache/metamodel/ already holds and which a `project` would still
     mint, then the metamodel.json disposal queue."""
     present, missing = [], []
     for _name, _schema, target in _catalogues():
@@ -230,7 +230,7 @@ def status() -> None:
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
                   not_yet_projected=len(missing) or None,
-                  act=facts.would(spell.line('metamodel', 'derive'), {'tmp/cache/metamodel': len(missing) + len(underived)})),
+                  act=facts.would(spell.line('metamodel', 'derive'), {'cache/metamodel': len(missing) + len(underived)})),
         table, join))
 
 
@@ -248,7 +248,7 @@ def list_candidates() -> None:
     for line, kind, cells in identity_violations():
         print('  falsified identity edge: ' + facts.phrase('row {line} ({kind}) - {cells} - re-judge the kind in rsc/metamodel/join.csv or restore the identity', line=line, kind=kind, cells=cells))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                    tier.TMP / 'cache' / 'export')
+                    tier.CACHE / 'export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print('  falsified emptiness edge: ' + facts.phrase('row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/metamodel/join.csv', line=line, kind=kind, cell=cell, datum=datum))

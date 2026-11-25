@@ -960,8 +960,8 @@ def check_forge_aim(run) -> None:
             worktree, dest = Path(scratch) / 'wt', Path(scratch) / 'kept'
             (worktree / 'rsc' / 'test').mkdir(parents=True)
             (worktree / 'rsc' / 'test' / 'run.log').write_text('  ✗ some.check\n')
-            (worktree / 'tmp' / 'logs' / 'test' / 'run').mkdir(parents=True)
-            (worktree / 'tmp' / 'logs' / 'test' / 'run' / 'x.report').write_text('the report\n')
+            (worktree / 'logs' / 'test' / 'run').mkdir(parents=True)
+            (worktree / 'logs' / 'test' / 'run' / 'x.report').write_text('the report\n')
             subprocess.run(['bash', '-c', 'source "$1"; kept_settle "$2" "$3" >/dev/null', '_', str(forge_sh), str(worktree), str(dest)],
                            capture_output=True, text=True, cwd=REPO_ROOT, env=planted)
             kept = sorted((p.name, p.read_text()) for p in dest.iterdir()) if dest.is_dir() else 'nothing kept'

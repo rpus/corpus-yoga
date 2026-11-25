@@ -14,6 +14,6 @@
   "args": [],
   "r": [
     "rsc/reference",
-    "tmp/reference/fetch"
+    "fetch/reference"
   ]
 }

@@ -79,6 +79,34 @@ dispose() {
   if (( APPLY )); then rm -r "$dir"; else MOVED+=("$dir"); fi
 }
 
+# fold <from> <to>: every file and link under a directory at a former address, moved to the same
+# place under its current one, which may already stand - the new code writes there before the room
+# migrates. A file standing at both halts with the pair named, before anything moves; the emptied
+# directories at the former address are removed.
+fold() {
+  local from="$1" to="$2" file rel gone n=0
+  [[ -d "$from" && ! -L "$from" ]] || return 0
+  while IFS= read -r -d '' file; do
+    for gone in ${MOVED[@]+"${MOVED[@]}"}; do [[ "$file" == "$gone"/* ]] && continue 2; done
+    rel="${file#"$from"/}"
+    if [[ -e "$to/$rel" || -L "$to/$rel" ]]; then
+      echo "FAIL: $file and $to/$rel both exist - resolve by hand, then run $SELF again" >&2
+      exit 1
+    fi
+    n=$((n + 1))
+  done < <(find "$from" \( -type f -o -type l \) -print0)
+  echo "fold $from into $to - $n file(s)"
+  if (( APPLY )); then
+    while IFS= read -r -d '' file; do
+      rel="${file#"$from"/}"
+      mkdir -p "$(dirname "$to/$rel")" && mv "$file" "$to/$rel"
+    done < <(find "$from" \( -type f -o -type l \) -print0)
+    find "$from" -depth -type d -empty -delete
+  else
+    MOVED+=("$from"); ARRIVED+=("$to")
+  fi
+}
+
 # retire <directory>: a directory nothing writes any more, removed once empty - bare,
 # once the moves stated above it would have emptied it; a directory still holding
 # files is named and left. Finder's .DS_Store is no file of it: Finder writes one into

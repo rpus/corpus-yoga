@@ -1,5 +1,5 @@
 {
-  "help": "derive tmp/cache/indexing/candidate-semantic-concepts.txt (the candidates of undisposed concepts, each with the aliases that anchor it in a conversation turn; a concept no turn phrases is named, not queued)",
+  "help": "derive cache/indexing/candidate-semantic-concepts.txt (the candidates of undisposed concepts, each with the aliases that anchor it in a conversation turn; a concept no turn phrases is named, not queued)",
   "would": "would derive",
   "modality": "MAY",
   "args": [
@@ -15,6 +15,6 @@
     "data/output/markdown"
   ],
   "w": [
-    "tmp/cache/indexing"
+    "cache/indexing"
   ]
 }

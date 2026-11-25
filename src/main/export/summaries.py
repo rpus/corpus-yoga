@@ -32,7 +32,7 @@ re-running is silence on disk.
 
 Usage (bare = status, the verb writes — the memories shape):
   src/run_python_script.sh src/main/export/summaries.py [deposit] \\
-      [--export-cache tmp/cache/export] [--api-capture data/input/claude/chat/API-capture] \\
+      [--export-cache cache/export] [--api-capture data/input/claude/chat/API-capture] \\
       [--conversations-output data/output/markdown/claude/chat/conversations] \\
       [--summaries-output data/output/markdown/claude/chat/summaries]
 """
