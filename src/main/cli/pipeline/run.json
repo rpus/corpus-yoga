@@ -19,7 +19,8 @@
       "name": "--plan",
       "type": "",
       "cardinality": "",
-      "help": "print the ordered step plan; run nothing"
+      "help": "print the ordered step plan; run nothing",
+      "face": "read"
     }
   ],
   "sends": {

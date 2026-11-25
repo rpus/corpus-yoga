@@ -482,8 +482,8 @@ PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
 def enacting(row: dict, rest: list[str]) -> dict | None:
     """The verb's declaration where the invocation is an act - a verb with declared w,
     consumes, x or sends (issues/708): it writes, dequeues, runs something or reaches outside
-    the tree - not a help face; None for a read face, which leaves no log and gets no
-    reply."""
+    the tree - not a help face, nor a form an argument declares a read face (issues/1167); None
+    for a read face, which leaves no log and gets no reply."""
     verb = rest[0] if rest else ''
     declaration = CLI / row['command'] / f'{verb}.json'
     if not verb or verb.startswith('-') or not declaration.exists():
@@ -491,6 +491,8 @@ def enacting(row: dict, rest: list[str]) -> dict | None:
     if any(t in ('-h', '--help') for t in rest):
         return None  # a help invocation is a read-only face, log-free by construction (issues/474)
     d = json.loads(declaration.read_text())
+    if any(arg.get('face') == 'read' and arg['name'] in rest for arg in d.get('args', [])):
+        return None  # a form declared a read face writes nothing: no log, no reply (issues/1167)
     return d if (d.get('w') or d.get('consumes') or d.get('x') or d.get('sends')) else None
 
 

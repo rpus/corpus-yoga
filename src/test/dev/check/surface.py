@@ -1185,7 +1185,8 @@ def check_status_is_the_dry_run(run) -> None:
 
 
 @check(tier='code', says=('logs.gate_acts_beneath_their_check', 'logs.each_check_has_its_log', 'gate.checks_hand_no_effect_up',
-                         'gate.planted_git_reaches_only_its_repository', 'gate.one_check_runs_alone'),
+                         'gate.planted_git_reaches_only_its_repository', 'gate.one_check_runs_alone',
+                         'cli.a_read_form_gets_no_reply'),
        on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/cli/cli.py', 'src/main/facts.py', 'src/test/dev/run.py'])
 def check_gate_logs(run) -> None:
     """What a room ran and what its gate ran are told apart: an act run while the gate names a
@@ -1284,6 +1285,22 @@ def check_gate_logs(run) -> None:
         None if ran_alone else f'--check ran sections {sections} with exit {alone.returncode} ({alone.stderr.strip()[-160:]!r}); '
         f'an unknown name exited {unknown.returncode} ({unknown.stderr.strip()[-120:]!r}); the artifacts {"unchanged" if before == after else "CHANGED"}',
         check='gate.one_check_runs_alone')
+
+    # A form that writes nothing is a read face (issues/1167): an argument declared `face: read`
+    # makes the invocation carrying it one - no run log, no reply of the room's status after it.
+    # test run --check is held through the launcher's decision alone, since running it here would
+    # rebuild the dev stage this gate runs on; pipeline run --plan through the launcher itself.
+    rows = {row['command']: row for row in cli.commands()}
+    judged = (cli.enacting(rows['test'], ['run', '--check', 'stage.export_is_one_unit']) is None,
+              cli.enacting(rows['test'], ['run']) is not None)
+    planned = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'pipeline', 'run', '--plan'], capture_output=True, text=True,
+                             cwd=REPO_ROOT, timeout=120, env={k: v for k, v in os.environ.items() if k not in ('CORPUS_YOGA_ACT', 'CORPUS_YOGA_EFFECT')})
+    said = [line for line in planned.stdout.splitlines() if line.strip()]
+    replied = any(line.startswith('now:') for line in said) or any(line.startswith('pipeline run — ') for line in said)
+    read = judged == (True, True) and planned.returncode == 0 and not replied and bool(said)
+    run('cli: a form declared a read face gets no run log and no reply', read,
+        None if read else f'enacting judged (--check a read face, bare run an act) as {judged}; pipeline run --plan exited {planned.returncode}, '
+        f'its first line {said[:1]!r}, its last {said[-1:]!r}', check='cli.a_read_form_gets_no_reply')
 
 
 @check(tier='code', says=('logs.no_verb_logs_for_itself',), on=['src/main/cli'])

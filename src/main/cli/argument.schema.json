@@ -24,6 +24,13 @@
       "minLength": 1,
       "description": "The wording argparse shows for this argument; the declaration owns structure and words alike (issues/477)."
     },
+    "face": {
+      "type": "string",
+      "enum": [
+        "read"
+      ],
+      "description": "read: an invocation carrying this argument is a read face of a verb that otherwise acts - it writes nothing, so the launcher neither logs it nor replies with the room's status after it (issues/1167)."
+    },
     "default": {
       "type": "string",
       "description": "What an omitted argument means, as data (issues/477): a path-typed argument's default is repo-relative and resolves against the root at parser build; any other passes verbatim. Shown in the generated help as declared, so no help prose restates it."
