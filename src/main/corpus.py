@@ -1037,19 +1037,20 @@ def promote(noun: str, selected: list[Unit]) -> int:
     left: dict[str, int] = {s: 0 for s in STATES if s not in PROMOTED}
     for row in rows:
         line = _unit_line(row.unit, row.relation, row.detail)
+        stood = row.state   # read before the copy: a re-rendered unit is byte-equal to the held one after it (issues/1157)
         if row.promotable:
             n = _copy(row.unit)
             if n:
-                heading = 're-rendered, promoted' if row.state == 're-rendered' else 'promoted'
+                heading = 're-rendered, promoted' if stood == 're-rendered' else 'promoted'
                 groups.setdefault(f'{heading} - {row.words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
                 written += 1
-                re_rendered += row.state == 're-rendered'
+                re_rendered += stood == 're-rendered'
             else:
                 groups.setdefault(f'held already, byte-equal - {row.words}', []).append(line)
                 unchanged += 1
         else:
             groups.setdefault(_heading(row.unit, row.relation, row.judgement, row.words), []).append(line)
-            left[row.state] += 1
+            left[stood] += 1
     say(groups)
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
     undone = sum(left.values())

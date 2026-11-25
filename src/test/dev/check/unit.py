@@ -186,6 +186,7 @@ def check_unit_companion(run) -> None:
     'stage.recapture_names_a_full_id',
     'stage.re_rendered_is_told_apart',
     'stage.re_rendered_promote_says_so',
+    'stage.promote_counts_by_the_state_before_the_copy',
     'stage.rehearsal_offered_where_judged_elsewhere',
     'stage.states_are_told_apart',
 ))
@@ -258,6 +259,20 @@ def check_unit_state(run) -> None:
             except TypeError as error:
                 rehearsals, refused = [], f'raised {error}'
             kind = corpus.kind_of(judged[0].unit) if judged else None
+            # the promote over the same units, each judged valid: its verdict counts each by the state
+            # it stood in before the copy (issues/1157)
+            import contextlib
+            import io
+            kept_survey = corpus.survey
+            setattr(corpus, 'survey', lambda selected=None: [corpus.Judged(u, corpus.relation(u)[0], '', judgement.VALID, 'valid')
+                                                             for u in corpus.select(stage_root, gemini)])
+            printed = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(printed):
+                    corpus.promote('browser', [])
+            finally:
+                setattr(corpus, 'survey', kept_survey)
+            promoted = next((line.strip() for line in printed.getvalue().splitlines() if 'browser promote:' in line), '')
     finally:
         for name, value in kept.items():
             setattr(corpus, name, value)
@@ -272,6 +287,10 @@ def check_unit_state(run) -> None:
     run("stage: the promote a status offers counts the re-rendered apart from the promotable", offered == want_offer,
         None if offered == want_offer else f'the promote is offered over {offered}, where it is {want_offer}',
         check='stage.re_rendered_promote_says_so')
+    counted_before = 'promoted 2, of them re-rendered 1, held already 1,' in promoted
+    run("stage: a promote counts each unit by the state it stood in before the copy", counted_before,
+        None if counted_before else f'the promote over one re-rendered, one byte-equal and one grown unit ended {promoted!r}',
+        check='stage.promote_counts_by_the_state_before_the_copy')
     # A verdict recorded at another commit than the checkout's is offered a rehearsal, valid or
     # invalid, saying the commit; one with no standing verdict says why (issues/1143).
     judged_at = getattr(corpus, 'judged_at', None)
