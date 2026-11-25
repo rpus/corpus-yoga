@@ -573,7 +573,7 @@ relocated() {  # <verb> <base> <head> <old-sha>
     || say "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
   (cd "$wt" && labour "$wt/src/test/dev/run.sh" --settle) >&2 \
     || { local kept_at
-         kept_at="$(kept_settle "$wt" "$TMP_DIR/forge/$verb/$(basename "$wt")-settle")"
+         kept_at="$(kept_settle "$wt" "$LOGS_DIR/forge/$verb/$(stamp_of forge "$verb")")"
          say "relocation halted - the settle run failed; a red check on the relocated head is a real failure - its run.log and report are kept at {kept}" kept="${kept_at#"$REPO_DIR/"}" >&2
          dispose; return 1; }
   if [[ -n "$(git -C "$wt" status --porcelain rsc/test/)" ]]; then
@@ -590,7 +590,8 @@ relocated() {  # <verb> <base> <head> <old-sha>
   echo "$oid"
 }
 
-# kept_settle <worktree> <dest>: a red settle's evidence kept before its worktree is disposed of
+# kept_settle <worktree> <dest>: a red settle's evidence kept before its worktree is disposed of -
+# beside the act's record, under the act's stamp, since it outlives the act (issues/1170)
 # (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest
 # report the run wrote beside it - so that the halt says where to read what failed. Prints <dest>.
 kept_settle() {  # <worktree> <dest>

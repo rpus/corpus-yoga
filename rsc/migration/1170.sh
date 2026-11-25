@@ -6,7 +6,9 @@
 # references from tmp/reference/fetch to fetch/reference; a stage scratch's cache and logs, kept
 # under its tmp, move beside its data; tmp/cache/scratch, the working files of runs long gone, is
 # discarded, and so is tmp/cache/python, the bytecode python rebuilds, which the new code has already
-# written again under cache/python. tmp keeps what lasts one run.
+# written again under cache/python. A red settle's run.log and report, which the forge kept under
+# tmp/forge/<verb>/, move beside the forge's records, under logs/forge/<verb>/. tmp keeps what
+# lasts one run.
 set -euo pipefail
 SELF='rsc/migration/1170.sh'
 # shellcheck source=rsc/migration/step.sh
@@ -31,3 +33,8 @@ retire tmp/browser/fetch
 retire tmp/browser
 move tmp/reference/fetch fetch/reference
 retire tmp/reference
+for kept in tmp/forge/merge/*-settle tmp/forge/rebase/*-settle; do
+  [[ -d "$kept" ]] || continue
+  verb="${kept#tmp/forge/}"
+  move "$kept" "logs/forge/${verb%%/*}/${kept##*/}"
+done

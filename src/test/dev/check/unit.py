@@ -1153,7 +1153,8 @@ def check_roots_migration(run) -> None:
     listing moves to fetch/<provider>/chat/listing.json and upstream's references to
     fetch/reference; a stage scratch's cache moves beside its data; the dead runs' working files and
     the bytecode python rebuilds are discarded, the new code having written the same bytecode beside
-    them; and tmp keeps what lasts one run. The fixture is synthetic: a checkout holding a
+    them; a red settle's evidence the forge kept moves beside the forge's records; and tmp keeps what
+    lasts one run. The fixture is synthetic: a checkout holding a
     planted room of the old layout, with a log and bytecode the new code wrote."""
     import os
     import shutil
@@ -1172,7 +1173,8 @@ def check_roots_migration(run) -> None:
                      under('tmp', 'stage', 'usr', 'scratch', 'tmp', 'cache', 'v.json'), under('tmp', 'browser', 'fetch', 'claude.json'),
                      under('tmp', 'reference', 'fetch', 'mcp', 's.json'), under('tmp', 'forge', 'merge', 'w', 'f'),
                      under('logs', 'migration', 'apply', 'now.log'), under('cache', 'python', 'n.pyc'),
-                     under('tmp', 'cache', 'python', 'n.pyc'), under('tmp', 'cache', 'python', 'old.pyc')):
+                     under('tmp', 'cache', 'python', 'n.pyc'), under('tmp', 'cache', 'python', 'old.pyc'),
+                     under('tmp', 'forge', 'merge', 'w-settle', 'run.log')):
             (checkout / held).parent.mkdir(parents=True, exist_ok=True)
             (checkout / held).write_text('planted\n')
         script = checkout / 'rsc/migration/1170.sh'
@@ -1184,7 +1186,8 @@ def check_roots_migration(run) -> None:
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
                       if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
         want = sorted([under('cache', 'agent', 'a.json'), under('cache', 'python', 'n.pyc'), under('fetch', 'claude', 'chat', 'listing.json'),
-                       under('fetch', 'reference', 'mcp', 's.json'), under('logs', 'migration', 'apply', 'now.log'), under('logs', 'pipeline', 'run', 'a.log'),
+                       under('fetch', 'reference', 'mcp', 's.json'), under('logs', 'forge', 'merge', 'w-settle', 'run.log'),
+                       under('logs', 'migration', 'apply', 'now.log'), under('logs', 'pipeline', 'run', 'a.log'),
                        under('stage', 'usr', 'input', 'u.json'), under('stage', 'usr', 'scratch', 'cache', 'v.json'), under('tmp', 'forge', 'merge', 'w', 'f')])
         moved = (bare.returncode == 0 and bare.stdout.strip() != '' and applied.returncode == 0 and again.stdout == '' and left == want)
         run("migration: rsc/migration/1170.sh moves a room's files to the roots named for what they hold - bare the steps, applied, again nothing",
