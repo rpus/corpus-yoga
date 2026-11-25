@@ -923,23 +923,31 @@ def check_forge_aim(run) -> None:
         git(mover, 'checkout', '-q', '-b', 'feature', 'origin/feature')
         subprocess.run(['git', '-C', str(mover), 'rebase', '-q', 'main'], check=True, capture_output=True, env=quiet)
         git(mover, 'push', '-q', '--force', 'origin', 'feature')
+        # a second relocation, so the reader's copy - never brought level - is stale by two, and is
+        # no ancestor of any head the forge has held since (issues/1153)
+        git(mover, 'checkout', '-q', 'main'); commit(mover, 'moved again'); git(mover, 'push', '-q', 'origin', 'main')
+        git(mover, 'checkout', '-q', 'feature')
+        subprocess.run(['git', '-C', str(mover), 'rebase', '-q', 'main'], check=True, capture_output=True, env=quiet)
+        git(mover, 'push', '-q', '--force', 'origin', 'feature')
         git(reader, 'fetch', '-q', 'origin')
         new = git(reader, 'rev-parse', 'refs/remotes/origin/feature')
         if re.search(r'^level_local\(\)', forge_sh.read_text(), re.M) and re.search(r'^pr_behind\(\)', forge_sh.read_text(), re.M):
             def call(script: str) -> str:
                 return subprocess.run(['bash', '-c', f'source "$1"; {script}', '_', str(forge_sh)], capture_output=True, text=True, cwd=REPO_ROOT, env=planted).stdout
-            said = call(f'level_local "{reader}" feature {old} main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
-            leveled['level'] = (said[-1] if said else '', git(reader, 'rev-parse', 'refs/heads/feature') == new)
+            def fate() -> str:
+                said = call(f'level_local "{reader}" feature main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
+                return said[-1] if said else ''
+            leveled['level'] = (fate(), git(reader, 'rev-parse', 'refs/heads/feature') == new)
+            leveled['same'] = (fate(), git(reader, 'rev-parse', 'refs/heads/feature') == new)
             git(reader, 'branch', '-q', '-f', 'feature', old); git(reader, 'checkout', '-q', 'feature'); commit(reader, 'unpushed'); git(reader, 'checkout', '-q', 'main')
             held = git(reader, 'rev-parse', 'refs/heads/feature')
-            said = call(f'level_local "{reader}" feature {old} main >/dev/null; echo "$PR_LOCAL"').strip().splitlines()
-            leveled['kept'] = (said[-1] if said else '', git(reader, 'rev-parse', 'refs/heads/feature') == held)
+            leveled['kept'] = (fate(), git(reader, 'rev-parse', 'refs/heads/feature') == held)
             behind = call(f'pr_behind "{reader}" main {old} && echo behind || echo level').strip()
             standing = call(f'pr_behind "{reader}" main {new} && echo behind || echo level').strip()
             leveled['behind'] = (behind, standing)
         else:
             leveled['steps'] = 'forge.sh has no level_local or no pr_behind'
-    want_level = {'level': ('level', True), 'kept': ('kept', True), 'behind': ('behind', 'level')}
+    want_level = {'level': ('level', True), 'same': ('same', True), 'kept': ('kept', True), 'behind': ('behind', 'level')}
     run('forge: a relocation brings every local copy of the branch level, and a PR is behind its base by the forge\'s head', leveled == want_level,
         None if leveled == want_level else f'read {leveled}, where {want_level}', check='forge.relocation_levels_every_local_copy')
 

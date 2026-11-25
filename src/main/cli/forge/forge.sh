@@ -443,10 +443,10 @@ pr_final_head() {  # <pr-number>
 
 # One patch-id per commit of a range, rsc/test/ aside (the settle regenerates it);
 # a commit touching nothing else yields an empty line.
-patch_ids() {  # <range>
-  local sha
-  for sha in $(git -C "$REPO_DIR" rev-list "$1"); do
-    git -C "$REPO_DIR" show "$sha" --format= -- . ':!rsc/test' | git patch-id --stable | cut -d' ' -f1
+patch_ids() {  # <range> [<repo>]
+  local sha repo="${2:-$REPO_DIR}"
+  for sha in $(git -C "$repo" rev-list "$1"); do
+    git -C "$repo" show "$sha" --format= -- . ':!rsc/test' | git patch-id --stable | cut -d' ' -f1
     echo
   done | awk 'NF' | sort -u
 }
@@ -657,7 +657,7 @@ relocate() {  # <verb>
   PR_MOVED=0
   (cd "$REPO_DIR" && send enact fetch "$base" "$head")     || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the fetch failed")"; return 1; }
   if [[ "$PR_HERE" == "$head" ]]; then
-    git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { effect "$(act forge "$verb"): NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
+    holds_nothing_new "$REPO_DIR" "refs/heads/$head" "refs/remotes/origin/$head"       || { effect "$(act forge "$verb"): NOT DONE - $(phrase "local {head} holds commits origin/{head} does not; push them first" head="$head")"; return 1; }
   fi
   PR_FROM="$(git -C "$REPO_DIR" merge-base "refs/remotes/origin/$base" "refs/remotes/origin/$head")"
   # The head is the verb's OWN sha (issues/488): the head fetched here, or the head the
@@ -667,28 +667,48 @@ relocate() {  # <verb>
   PR_OID="$(git -C "$REPO_DIR" rev-parse "refs/remotes/origin/$head")"
   if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
     say "base unmoved - origin/{head} already stands on origin/{base}; nothing to relocate" head="$head" base="$base"
+    level_local "$REPO_DIR" "$head" "$PR_HERE" \
+      || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not" head="$head")"; return 1; }
     return 0
   fi
   old_sha="$(cd "$REPO_DIR" && send quote lease "refs/heads/$head" | cut -f1)"
   [[ -n "$old_sha" ]] || { effect "$(act forge "$verb"): NOT DONE - $(phrase "origin has no refs/heads/{head} to lease against" head="$head")"; return 1; }
   PR_OID="$(relocated "$verb" "$base" "$head" "$old_sha")" || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the relocation halted; its last line above names where")"; return 1; }
   PR_MOVED=1
-  level_local "$REPO_DIR" "$head" "$old_sha" "$PR_HERE" \
+  level_local "$REPO_DIR" "$head" "$PR_HERE" \
     || { effect "$(act forge "$verb"): NOT DONE - $(phrase "the resync failed; origin/{head} is the relocated copy, this checkout's {head} is not" head="$head")"; return 1; }
 }
 
-# level_local <repo> <head> <old-sha> <here>: every local copy of a relocated branch brought level
-# with the forge's new head (issues/1147) - reset where the checkout is on it, moved where it is
-# not - by reset, never by pull, which would merge the old commits with their replays; a copy
-# holding commits the forge's old head did not is left as it was, since moving it would lose them.
-# Sets PR_LOCAL: resynced, level, kept, or none where the clone holds no local copy.
-level_local() {  # <repo> <head> <old-sha> <here>
-  local repo="$1" head="$2" old_sha="$3" here="$4"
+# holds_nothing_new <repo> <local-ref> <forge-ref>: whether every commit of the local copy beyond the
+# forge's head has a twin there by patch, rsc/test/ aside (issues/1153) - the test relocation_point
+# makes - so that a copy left behind by any number of relocations, each a rewrite, is known to hold
+# nothing of its own, and one holding a commit the forge does not is known to.
+holds_nothing_new() {  # <repo> <local-ref> <forge-ref>
+  local repo="$1" local_ref="$2" forge_ref="$3" merge_base forge_ids id
+  merge_base="$(git -C "$repo" merge-base "$local_ref" "$forge_ref" 2>/dev/null)" || return 1
+  forge_ids="$(patch_ids "$merge_base..$forge_ref" "$repo")"
+  for id in $(patch_ids "$forge_ref..$local_ref" "$repo"); do
+    grep -qx "$id" <<< "$forge_ids" || return 1
+  done
+}
+
+# level_local <repo> <head> <here>: every local copy of a relocated branch brought level with the
+# forge's head (issues/1147) - reset where the checkout is on it, moved where it is not - by reset,
+# never by pull, which would merge the old commits with their replays; a copy holding a commit the
+# forge does not, by patch (issues/1153), is left as it was, since moving it would lose it.
+# Sets PR_LOCAL: resynced, level, same where it stands there already, kept, or none where the
+# clone holds no local copy.
+level_local() {  # <repo> <head> <here>
+  local repo="$1" head="$2" here="$3"
   PR_LOCAL=none
   git -C "$repo" show-ref --verify --quiet "refs/heads/$head" || return 0
-  if ! git -C "$repo" merge-base --is-ancestor "refs/heads/$head" "$old_sha" 2>/dev/null; then
+  if [[ "$(git -C "$repo" rev-parse "refs/heads/$head")" == "$(git -C "$repo" rev-parse "refs/remotes/origin/$head")" ]]; then
+    PR_LOCAL=same
+    return 0
+  fi
+  if ! holds_nothing_new "$repo" "refs/heads/$head" "refs/remotes/origin/$head"; then
     PR_LOCAL=kept
-    say "the local {head} holds commits the forge's old head {old} did not - left as it was" head="$head" old="${old_sha:0:8}"
+    say "the local {head} holds commits the forge's head does not - left as it was" head="$head"
     return 0
   fi
   if [[ "$here" == "$head" ]]; then
@@ -743,17 +763,19 @@ rebase_chain() {
 # contract between the tree that rebased and the tree rebased onto, and do not change.
 rebase_concluded() {  # <head> <base> <from> <oid> <moved> <local>
   local PR_HEAD="$1" PR_BASE="$2" PR_FROM="$3" PR_OID="$4" PR_MOVED="$5" PR_LOCAL="$6"
-  if (( ! PR_MOVED )); then
-    effect "$(act forge rebase): DONE - $(phrase "origin/{head} already stands on origin/{base}; nothing to relocate" head="$PR_HEAD" base="$PR_BASE")"
+  local stands
+  if (( PR_MOVED )); then
+    stands="$(phrase "{head} relocated from {from} onto origin/{base} as {oid}" head="$PR_HEAD" from="${PR_FROM:0:8}" base="$PR_BASE" oid="${PR_OID:0:8}")"
   else
-    local moved_to; moved_to="$(phrase "{head} relocated from {from} onto origin/{base} as {oid}" head="$PR_HEAD" from="${PR_FROM:0:8}" base="$PR_BASE" oid="${PR_OID:0:8}")"
-    case "$PR_LOCAL" in
-      resynced) effect "$(act forge rebase): DONE - $moved_to; $(phrase "this checkout resynced on it")" ;;
-      level)    effect "$(act forge rebase): DONE - $moved_to; $(phrase "the local {head} brought level with it" head="$PR_HEAD")" ;;
-      kept)     effect "$(act forge rebase): DONE - $moved_to; $(phrase "the local {head} holds commits the forge's old head did not, and was left as it was" head="$PR_HEAD")" ;;
-      *)        effect "$(act forge rebase): DONE - $moved_to; $(phrase "this clone holds no local {head}" head="$PR_HEAD")" ;;
-    esac
+    stands="$(phrase "origin/{head} already stands on origin/{base}; nothing to relocate" head="$PR_HEAD" base="$PR_BASE")"
   fi
+  case "$PR_LOCAL" in
+    resynced) effect "$(act forge rebase): DONE - $stands; $(phrase "this checkout resynced on it")" ;;
+    level)    effect "$(act forge rebase): DONE - $stands; $(phrase "the local {head} brought level with it" head="$PR_HEAD")" ;;
+    same)     effect "$(act forge rebase): DONE - $stands; $(phrase "the local {head} stands there already" head="$PR_HEAD")" ;;
+    kept)     effect "$(act forge rebase): DONE - $stands; $(phrase "the local {head} holds commits the forge's head does not, and was left as it was" head="$PR_HEAD")" ;;
+    *)        effect "$(act forge rebase): DONE - $stands; $(phrase "this clone holds no local {head}" head="$PR_HEAD")" ;;
+  esac
 }
 
 merge_chain() {
