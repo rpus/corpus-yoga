@@ -38,6 +38,7 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"   # -h and the refusal of undeclar
 source "$MAIN_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-5-5}"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
+REPLY_SHAPE_SCRIPT="$REPO_DIR/src/main/indexing/reply_shape.py"   # the shape a table is asked for in, from its family (issues/1161)
 
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
 # The default source is the projected corpus itself (data/output/markdown — every source's
@@ -67,26 +68,34 @@ for n, stem, title, cid in corpus_index('$src'):
   fi
 }
 
-# capture_table <columns_json> <column_semantics> <task> <data> <table> → prints {columns, rows} JSON
-# column_semantics: one line per column — "name: what it means". The reply is kept beside the
-# run's record, <stamp>.<table>.reply.json, since a paid call is not repeated for free.
-capture_table() {
-  local columns="$1" semantics="$2" task="$3" data="$4" table="$5"
-  local request response kept
-  request="$(jq -n \
+# table_request <columns_json> <column_semantics> <task> <data> <reply_schema> → prints the request body:
+# the table's shape travels as output_config.format (issues/1161), so the API returns its rows
+# typed, and the prompt says what each column means, never what JSON is.
+table_request() {
+  local columns="$1" semantics="$2" task="$3" data="$4" schema="$5"
+  jq -n \
     --arg model  "$MODEL" \
-    --arg user   "Table schema — columns: $columns
+    --arg user   "Columns: $columns
 Column semantics:
 $semantics
 
 Task: $task
 
-$data
-
-Return a JSON object with exactly two keys: \"columns\" (the schema array above) and \"rows\" (array of arrays). No markdown, no prose, no code fences. Start with { and end with }." \
+$data" \
+    --argjson schema "$schema" \
     '{model: $model, max_tokens: 4096,
-      system: "You are a data analyst. Return only valid JSON.",
-      messages: [{role: "user", content: $user}]}')"
+      system: "You are a data analyst.",
+      output_config: {format: {type: "json_schema", schema: $schema}},
+      messages: [{role: "user", content: $user}]}'
+}
+
+# capture_table <columns_json> <column_semantics> <task> <data> <table> <reply_schema> → prints {columns, rows} JSON
+# column_semantics: one line per column — "name: what it means". The reply is kept beside the
+# run's record, <stamp>.<table>.reply.json, since a paid call is not repeated for free.
+capture_table() {
+  local columns="$1" semantics="$2" task="$3" data="$4" table="$5" schema="$6"
+  local request response kept
+  request="$(table_request "$columns" "$semantics" "$task" "$data" "$schema")"
   # the key rides a file descriptor and the request stdin, so that the narrated command names
   # neither the secret nor the corpus; a reading takes longer than a probe, so its bound is
   # ten minutes unless the reader names another
@@ -115,7 +124,8 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
       table="$table" blocks="$(jq -r '[.content[]?.type] | join(", ")' <<< "$response")" kept="${kept#"$REPO_DIR/"}")" >&2
     return 1
   fi
-  printf '%s\n' "$text"
+  # the reply is the table's rows as objects, typed by the shape sent; the table stores them as arrays
+  printf '%s\n' "$text" | "$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" table "$columns"
 }
 
 # ── per-table capture functions ───────────────────────────────────────────────
@@ -144,13 +154,19 @@ print(', '.join(r[0] for r in json.loads(m.group(1))['rows']))
 # before we spend, not silently or mid-run.
 capture_chat_categories() {
   local conv="$1" chats="$2" categories="$3" out_file="$4" text
+  # asked for otherwise than stored: a conversation by its number in the list, rekeyed to its id
+  # below, and a category from the authored palette, so none outside it can come back
+  local shape
+  shape="$("$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" schema chatCategories '["chat", "category"]' \
+    'chat={"type": "integer", "description": "the number of the conversation in the list"}' \
+    "category=$(jq -nc --arg names "$categories" '{type: "string", enum: ($names | split(", "))}')")" || return 1
   text="$(capture_table \
     '["chat", "category"]' \
     'chat: integer index of the conversation (from the list below)
 category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
-$chats" chat-categories)" || return 1
+$chats" chat-categories "$shape")" || return 1
   printf '%s\n' "$text" \
     | "$REPO_DIR/src/run_python_script.sh" "$MAIN_DIR/rekey_chats.py" --to-id --conversations "$conv" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
@@ -161,7 +177,8 @@ $chats" chat-categories)" || return 1
 # concept tagged with the provider(s) it is salient in (from the chat list's [source]
 # markers) — the dimension behind the dashboard's provider toggle (schema v2)
 capture_concepts_to() {
-  local chats="$1" out_file="$2" text
+  local chats="$1" out_file="$2" text shape
+  shape="$("$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" schema semanticConcepts '["word", "count", "provider"]')" || return 1
   text="$(capture_table \
     '["word", "count", "provider"]' \
     'word: key concept or theme (word or short phrase)
@@ -169,7 +186,7 @@ count: salience weight (not raw frequency); scale so the top concept = 100
 provider: which provider the concept is salient in — "claude", "gemini", or "both", from the [source] markers in the conversation list (a list without markers is all claude)' \
     'Generate a weighted list of 20-50 key concepts and themes across all conversations, tagging each concept with the provider(s) whose conversations it is salient in.' \
     "Conversations:
-$chats" semantic-concepts)" || return 1
+$chats" semantic-concepts "$shape")" || return 1
   printf '%s\n' "$text" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_file"
@@ -187,8 +204,10 @@ validate_capture() {
   schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/indexing/$family"/v*.json | sort -V | tail -1)"
   verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
   [[ "$verdict" == 'Valid!' ]] || {
-    echo "corpus-yoga indexing capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
     printf '%s\n' "$verdict" >&2
+    effect "$(act indexing capture): NOT DONE - $(phrase "the reading fails {family} {version} at {fault}; staged in {stage}, not promoted" \
+      family="$family" version="$(basename "$schema" .json)" \
+      fault="$("$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" fault "$file" "$schema")" stage="tmp/cache/indexing")"
     exit 1
   }
 }

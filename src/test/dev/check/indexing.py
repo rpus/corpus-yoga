@@ -26,7 +26,7 @@ def check_reply_without_text(run) -> None:
         canned.write_text(json.dumps(reply))
         logs = Path(tmp) / 'logs'
         script = ('canned="$2"; source "$1"; send() { cat "$canned"; }; LOGS_DIR="$3"; '
-                  "set +e; capture_table '[\"chat\"]' 'chat: x' 'task' 'data' chat-categories; echo \"rc=$?\"")   # capture.sh sets -e
+                  "set +e; capture_table '[\"chat\"]' 'chat: x' 'task' 'data' chat-categories '{\"type\": \"object\"}'; echo \"rc=$?\"")   # capture.sh sets -e
         env = {k: v for k, v in os.environ.items() if k not in ('ANTHROPIC_API_KEY', 'CORPUS_YOGA_ACT', 'CORPUS_YOGA_STAMP')}
         env.update(CORPUS_YOGA_NO_SEND='1', ANTHROPIC_API_KEY='stand-in')
         done = subprocess.run(['bash', '-c', script, '_', str(SRC / 'main' / 'indexing' / 'capture.sh'), str(canned), str(logs)],
@@ -42,7 +42,7 @@ def check_reply_without_text(run) -> None:
 
     # A reply whose text stands after another block is read from its text block (issues/1121).
     reply = {'content': [{'type': 'thinking', 'thinking': 'weighing the categories'},
-                         {'type': 'text', 'text': '{"columns": ["chat"], "rows": [[1]]}'}], 'stop_reason': 'end_turn'}
+                         {'type': 'text', 'text': '{"rows": [{"chat": 1}]}'}], 'stop_reason': 'end_turn'}
     with tempfile.TemporaryDirectory() as tmp:
         canned = Path(tmp) / 'reply.json'
         canned.write_text(json.dumps(reply))
@@ -52,6 +52,72 @@ def check_reply_without_text(run) -> None:
     run('indexing: a reply\'s text is read from its text block, wherever it stands', read,
         None if read else f'stdout {done.stdout.strip()[-160:]!r}; stderr {done.stderr.strip()[-160:]!r}',
         check='indexing.reply_text_read_wherever_it_stands')
+
+
+@check(tier='code', says=('indexing.request_carries_the_table_shape', 'indexing.refused_reading_says_why'),
+       on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])
+def check_reply_shape(run) -> None:
+    """The capture sends the API the shape of the table it asks for (issues/1161): taken from the
+    table's schema family, with nothing the API's structured outputs refuse, so the rows come
+    back typed; the categories table asks for the conversation's number and a palette category.
+    A reading that still fails its family ends on one verdict naming the column."""
+    shaper = SRC / 'main' / 'indexing' / 'reply_shape.py'
+    launcher = SRC / 'run_python_script.sh'
+    refused_keywords = {'minimum', 'maximum', 'minLength', 'maxLength', 'minItems', 'maxItems', 'additionalItems', 'pattern', 'multipleOf'}
+
+    def shape(*words: str) -> object:
+        done = subprocess.run([str(launcher), str(shaper), 'schema', *words], capture_output=True, text=True, cwd=REPO_ROOT, timeout=60)
+        return json.loads(done.stdout) if done.returncode == 0 and done.stdout.strip() else f'exit {done.returncode}: {done.stderr.strip()[-160:]}'
+
+    def keywords(node) -> set:
+        if isinstance(node, dict):
+            return set(node) | set().union(*(keywords(v) for v in node.values()))
+        if isinstance(node, list):
+            return set().union(*(keywords(v) for v in node)) if node else set()
+        return set()
+
+    def columns_of(said) -> dict:
+        try:
+            return said['properties']['rows']['items']['properties']
+        except (TypeError, KeyError):
+            return {}
+    concepts = shape('semanticConcepts', '["word", "count", "provider"]') if shaper.is_file() else 'no reply_shape.py'
+    categories = shape('chatCategories', '["chat", "category"]', 'chat={"type": "integer"}',
+                       'category={"type": "string", "enum": ["one", "two"]}') if shaper.is_file() else 'no reply_shape.py'
+    concept_columns, category_columns = columns_of(concepts), columns_of(categories)
+    shaped = (concept_columns.get('count', {}).get('type') == 'integer'
+              and concept_columns.get('provider', {}).get('enum') == ['claude', 'gemini', 'both']
+              and concept_columns.get('word', {}).get('type') == 'string'
+              and not keywords(concepts) & refused_keywords
+              and category_columns.get('chat', {}).get('type') == 'integer'
+              and category_columns.get('category', {}).get('enum') == ['one', 'two'])
+    env = {k: v for k, v in os.environ.items() if k not in ('ANTHROPIC_API_KEY', 'CORPUS_YOGA_ACT', 'CORPUS_YOGA_STAMP')}
+    env.update(CORPUS_YOGA_NO_SEND='1')
+    capture_sh = str(SRC / 'main' / 'indexing' / 'capture.sh')
+    body: object = ''
+    if isinstance(concepts, dict):
+        done = subprocess.run(['bash', '-c', 'source "$1"; table_request \'["word"]\' "word: x" task data "$2"', '_', capture_sh, json.dumps(concepts)],
+                              capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=60)
+        try:
+            body = json.loads(done.stdout)
+        except ValueError:
+            body = done.stdout.strip()[-200:] + done.stderr.strip()[-200:]
+    sent = (isinstance(body, dict) and body.get('output_config', {}).get('format') == {'type': 'json_schema', 'schema': concepts}
+            and 'valid JSON' not in json.dumps(body))
+    ok = shaped and sent
+    run('indexing: the capture sends the shape of the table it asks for, from the table\'s family', ok,
+        None if ok else f'the concepts shape {str(concepts)[:300]}; the categories shape {str(categories)[:200]}; the request {str(body)[:300]}',
+        check='indexing.request_carries_the_table_shape')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        staged = Path(tmp) / 'inferred-semantic-concepts.json'
+        staged.write_text(json.dumps({'columns': ['word', 'count', 'provider'], 'rows': [['category theory', '100', 'both']]}))
+        done = subprocess.run(['bash', '-c', 'source "$1"; validate_capture "$2" semanticConcepts', '_', capture_sh, str(staged)],
+                              capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=60)
+    verdict = next((line.strip() for line in done.stdout.splitlines() if 'indexing capture: NOT DONE' in line), '')
+    says = verdict.startswith('indexing capture: NOT DONE - the reading fails semanticConcepts v2 at rows/0/count') and 'not promoted' in verdict
+    run('indexing: a reading that fails its family ends on a verdict naming the column', says,
+        None if says else f'the capture ended {verdict or done.stdout.strip()[-200:]!r}', check='indexing.refused_reading_says_why')
 
 
 @check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/main/cli/indexing'])
