@@ -1141,8 +1141,9 @@ def check_roots_migration(run) -> None:
     what they hold by rsc/migration/1170.sh, even where the new code has already written beside
     them: the cache, the logs and the stage fold into cache, logs and stage; each provider's chat
     listing moves to fetch/<provider>/chat/listing.json and upstream's references to
-    fetch/reference; a stage scratch's cache moves beside its data; the dead runs' working files are
-    discarded; and tmp keeps what lasts one run. The fixture is synthetic: a checkout holding a
+    fetch/reference; a stage scratch's cache moves beside its data; the dead runs' working files and
+    the bytecode python rebuilds are discarded, the new code having written the same bytecode beside
+    them; and tmp keeps what lasts one run. The fixture is synthetic: a checkout holding a
     planted room of the old layout, with a log and bytecode the new code wrote."""
     import os
     import shutil
@@ -1160,7 +1161,8 @@ def check_roots_migration(run) -> None:
                      under('tmp', 'logs', 'pipeline', 'run', 'a.log'), under('tmp', 'stage', 'usr', 'input', 'u.json'),
                      under('tmp', 'stage', 'usr', 'scratch', 'tmp', 'cache', 'v.json'), under('tmp', 'browser', 'fetch', 'claude.json'),
                      under('tmp', 'reference', 'fetch', 'mcp', 's.json'), under('tmp', 'forge', 'merge', 'w', 'f'),
-                     under('logs', 'migration', 'apply', 'now.log'), under('cache', 'python', 'n.pyc')):
+                     under('logs', 'migration', 'apply', 'now.log'), under('cache', 'python', 'n.pyc'),
+                     under('tmp', 'cache', 'python', 'n.pyc'), under('tmp', 'cache', 'python', 'old.pyc')):
             (checkout / held).parent.mkdir(parents=True, exist_ok=True)
             (checkout / held).write_text('planted\n')
         script = checkout / 'rsc/migration/1170.sh'

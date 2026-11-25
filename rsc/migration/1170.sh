@@ -4,14 +4,16 @@
 # having begun to write there; each provider's chat listing moves from tmp/browser/fetch to
 # fetch/<provider>/chat/listing.json, at its chats' address in the store, and upstream's
 # references from tmp/reference/fetch to fetch/reference; a stage scratch's cache and logs, kept
-# under its tmp, move beside its data; and tmp/cache/scratch, the working files of runs long gone,
-# is discarded. tmp keeps what lasts one run.
+# under its tmp, move beside its data; tmp/cache/scratch, the working files of runs long gone, is
+# discarded, and so is tmp/cache/python, the bytecode python rebuilds, which the new code has already
+# written again under cache/python. tmp keeps what lasts one run.
 set -euo pipefail
 SELF='rsc/migration/1170.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 
 discard tmp/cache/scratch
+discard tmp/cache/python
 for scratch in tmp/stage/*/scratch; do
   [[ -d "$scratch" ]] || continue
   move "$scratch/tmp/cache" "$scratch/cache"
