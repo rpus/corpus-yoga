@@ -95,6 +95,9 @@
         },
         {
           "$ref": "#/definitions/ApiRequestRecord"
+        },
+        {
+          "$ref": "#/definitions/DataFlowRecordsRecord"
         }
       ]
     },
@@ -940,6 +943,44 @@
         }
       }
     },
+    "DataFlowRecordsRecord": {
+      "title": "DataFlowRecordsRecord",
+      "description": "A record Claude Code 2.1.331 writes through a session, each carrying a list of entries that name a response or an event. Observed on reading-room in session 380a1912-9383-46d7-8203-2b8d527eb727, staged 2026-11-25: 400 records of 3,070 lines, the first at line 11, none in any session held before. Read as the harness's record of which responses and events fed which - a reading of one session, which an entry naming anything but a response or an event would contradict. Undeclared before v31.",
+      "type": "object",
+      "required": [
+        "type",
+        "v",
+        "sessionId",
+        "records"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "data-flow-records"
+          ],
+          "description": "(discriminator)"
+        },
+        "v": {
+          "type": "integer",
+          "enum": [
+            1
+          ],
+          "description": "The version of the record's own shape, 1 on all 400 records; a record of another version is refused, so that a new shape asks for a new version of this family."
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DataFlowEntry"
+          },
+          "description": "Empty on 4 of the 400 records, one entry on the rest."
+        }
+      }
+    },
     "TurnBase": {
       "title": "TurnBase",
       "description": "Fields shared by all turn-like records: user, assistant, attachment, and system. Carries the session envelope \u2014 context about the environment in which the turn occurred. No additionalProperties: false because this schema is used in allOf alongside subtype schemas that add further properties; in draft-4, additionalProperties on a base schema does not see properties defined in sibling allOf/oneOf schemas.",
@@ -1683,6 +1724,21 @@
         }
       }
     },
+    "DataFlowEntry": {
+      "title": "DataFlowEntry",
+      "description": "One entry of a data-flow-records record: a response, or an event by the tool it ran or what it touched.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/DataFlowResponseEntry"
+        },
+        {
+          "$ref": "#/definitions/DataFlowToolEntry"
+        },
+        {
+          "$ref": "#/definitions/DataFlowTouchEntry"
+        }
+      ]
+    },
     "Entrypoint": {
       "title": "Entrypoint",
       "description": "The Claude Code surface that created this record. Observed values: \"cli\" (terminal), \"claude-vscode\" (VS Code extension). Likely an open set as new integrations are added.",
@@ -2062,6 +2118,82 @@
         }
       }
     },
+    "DataFlowResponseEntry": {
+      "title": "DataFlowResponseEntry",
+      "description": "A response of the model, and the earlier responses it lists. Observed 396 times: once alone, the session's first, and 395 times listing one earlier response.",
+      "type": "object",
+      "required": [
+        "response_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "response_id": {
+          "$ref": "#/definitions/ResponseId"
+        },
+        "listed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResponseId"
+          }
+        }
+      }
+    },
+    "DataFlowToolEntry": {
+      "title": "DataFlowToolEntry",
+      "description": "An event and the tool it ran. Observed twice, tool_name HookText and Read.",
+      "type": "object",
+      "required": [
+        "event_id",
+        "tool_name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "$ref": "#/definitions/EventId"
+        },
+        "tool_name": {
+          "type": "string"
+        }
+      }
+    },
+    "DataFlowTouchEntry": {
+      "title": "DataFlowTouchEntry",
+      "description": "An event and what it touched. Observed once, a write to the session's local instructions memory.",
+      "type": "object",
+      "required": [
+        "event_id",
+        "touched"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "$ref": "#/definitions/EventId"
+        },
+        "touched": {
+          "type": "object",
+          "required": [
+            "kind",
+            "id",
+            "action"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string",
+              "description": "memory on the one entry observed."
+            },
+            "id": {
+              "type": "string",
+              "description": "local_instructions_ and the session's uuid on the one entry observed."
+            },
+            "action": {
+              "type": "string",
+              "description": "write on the one entry observed."
+            }
+          }
+        }
+      }
+    },
     "MessageContent": {
       "title": "MessageContent",
       "description": "The content of a message. Either a plain string (simple text prompt) or an array of typed content blocks. The string form is observed for short user prompts; the array form is used when the message contains structured blocks (tool calls, thinking, etc.).",
@@ -2280,6 +2412,18 @@
           "type": "string"
         }
       }
+    },
+    "ResponseId": {
+      "title": "ResponseId",
+      "description": "A response of the model by its id, msg_ and 24 letters and digits; every response_id and listed entry of the 400 data-flow-records records of reading-room's session 380a1912, 2026-11-25.",
+      "type": "string",
+      "pattern": "^msg_[0-9A-Za-z]{24}$"
+    },
+    "EventId": {
+      "title": "EventId",
+      "description": "An event of the harness by its id, event_ and a version 4 uuid; every event_id of the same records.",
+      "type": "string",
+      "pattern": "^event_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     },
     "ContentBlock": {
       "title": "ContentBlock",

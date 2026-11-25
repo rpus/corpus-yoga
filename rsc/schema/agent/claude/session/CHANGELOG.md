@@ -6,6 +6,41 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v31
+
+A session records which responses and events fed which. Reading-room's live session
+`380a1912-9383-46d7-8203-2b8d527eb727`, of Claude Code 2.1.331, staged by `corpus-yoga agent
+capture` and refused at v30 by the rehearsal of 2026-11-25T103040Z at its record 10, writes 400
+records of a kind the union did not list, the first at line 11 of its 3,070 when read:
+`{"type": "data-flow-records", "v": 1, "sessionId": "380a1912-…", "records": [...]}`. Every one
+has those four keys and `v` 1; `records` is empty on 4 and holds one entry on the rest, of three
+shapes - `{response_id}` once, the session's first; `{response_id, listed}` on 395, `listed` one
+earlier response id; `{event_id, tool_name}` twice, HookText and Read; and `{event_id, touched}`
+once, `{kind: "memory", id: "local_instructions_380a1912-…", action: "write"}`. Every response id
+is `msg_` and 24 letters and digits, every event id `event_` and a version 4 uuid. No session held
+on reading-room carries the kind (issues/1155). That it is the harness's record of which responses
+and events fed which is a reading of one session, which an entry naming anything else would test.
+
+Validated on reading-room, 2026-11-25, over the rehearsal's conversion of the staged session and
+the 24 held sessions' conversions: v30 refuses the staged one at record 10 and admits the 24; v31
+admits all 25. v31 adds one record kind and narrows nothing, so every datum v30 admits, v31 admits.
+
+### Replaces
+
+v30
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Record`: admits `DataFlowRecordsRecord` - `type` "data-flow-records", `v` 1, `sessionId` a `UuidV4`, and `records`, an array of `DataFlowEntry`: a `DataFlowResponseEntry` (`response_id` and an optional `listed`, each a `ResponseId`), a `DataFlowToolEntry` (`event_id`, an `EventId`, and `tool_name`) or a `DataFlowTouchEntry` (`event_id` and `touched`, of `kind`, `id` and `action`), each closed.
+
+#### Refactored
+
+None.
+
 ## v30
 
 A turn can come from another agent of the session. Reading-room's session
