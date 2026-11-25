@@ -616,7 +616,7 @@ rsc/migration/1090.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/
 rsc/migration/1133.sh,2,comment,rsc/migration/1133.sh,Y,"# rsc/migration/1133.sh - the stage is one per actor, the reader's at tmp/stage/usr (issues/1133):"
 rsc/migration/1133.sh,9,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1170.sh,2,comment,rsc/migration/1170.sh,Y,# rsc/migration/1170.sh - the machine-local roots are named for what they hold (issues/1170):
-rsc/migration/1170.sh,14,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1170.sh,15,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
 rsc/migration/README.md,8,doc,rsc/migration/step.sh,Y,"issue carries that move, as the steps rsc/migration/step.sh declares."
 rsc/migration/README.md,13,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
@@ -1011,11 +1011,11 @@ src/main/cli/forge/forge.sh,86,comment,src/main/cli/forge/superseded-heads.graph
 src/main/cli/forge/forge.sh,306,comment,src/main/cleaner.py,Y,"# count <n> <singular> <plural>: a verdict's count of one kind, as src/main/cleaner.py says it."
 src/main/cli/forge/forge.sh,313,comment,src/main/cleaner.py,Y,"# every clean verb prints (src/main/cleaner.py): will remove: over the entries, did or"
 src/main/cli/forge/forge.sh,431,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
-src/main/cli/forge/forge.sh,571,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,595,comment,rsc/test/run.log,Y,"# (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest"
-src/main/cli/forge/forge.sh,632,comment,rsc/test/run.log,Y,"# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,"
-src/main/cli/forge/forge.sh,791,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
-src/main/cli/forge/forge.sh,973,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,570,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
+src/main/cli/forge/forge.sh,594,comment,rsc/test/run.log,Y,"# (issues/1147) - the worktree's rsc/test/run.log, which names each failing check, and the newest"
+src/main/cli/forge/forge.sh,630,comment,rsc/test/run.log,Y,"# usually a red gate's own findings in rsc/test/run.log, evidence left where the gate wrote it,"
+src/main/cli/forge/forge.sh,789,comment,src/main/cli/forge/aim.py,Y,"# The aimed set is read in the aim's one grammar (src/main/cli/forge/aim.py, issues/884): one"
+src/main/cli/forge/forge.sh,971,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/merge.json,94,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/forge/raise.py,4,comment,src/main/cli/forge/aim.py,Y,"per issue, in src/main/cli/forge/aim.py's grammar; every open blocker of an aimed issue is"
 src/main/cli/forge/raise.py,6,comment,src/main/cli/forge/should.py,Y,held to src/main/cli/forge/should.py's grammar; the as-at anchor is derived from the
@@ -1657,13 +1657,13 @@ src/test/dev/check/unit.py,1071,path_str,rsc/migration/1090.sh,Y,script = checko
 src/test/dev/check/unit.py,1046,path_str,rsc/migration/step.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
 src/test/dev/check/unit.py,1046,path_str,rsc/migration/1090.sh,Y,"@check(tier='code', says=('migration.agent_memory_is_disposed',), on=['rsc/migration/step.sh', 'rsc/migration/1090.sh'])"
 src/test/dev/check/unit.py,1091,path_str,src/main/cli/agent,Y,"@check(tier='code', says=('agent.a_session_continued_apart_is_each_rooms_own',), on=['src/main/cli/agent'])"
-src/test/dev/check/unit.py,1167,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1170.sh'):"
-src/test/dev/check/unit.py,1167,path_str,rsc/migration/1170.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1170.sh'):"
-src/test/dev/check/unit.py,1180,path_str,rsc/migration/1170.sh,Y,script = checkout / 'rsc/migration/1170.sh'
+src/test/dev/check/unit.py,1168,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1170.sh'):"
+src/test/dev/check/unit.py,1168,path_str,rsc/migration/1170.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1170.sh'):"
+src/test/dev/check/unit.py,1182,path_str,rsc/migration/1170.sh,Y,script = checkout / 'rsc/migration/1170.sh'
 src/test/dev/check/unit.py,1148,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.roots_named_for_what_they_hold',), on=['rsc/migration'])"
-src/test/dev/check/unit.py,1198,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1198,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1198,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1201,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1201,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1201,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
 src/test/dev/check/unit.py,35,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under stage/rehearsal '
 src/test/dev/check/unit.py,222,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,531,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1676,7 +1676,7 @@ src/test/dev/check/unit.py,572,path_str,rsc/migration/1063.sh,Y,"return subproce
 src/test/dev/check/unit.py,621,path_str,rsc/migration/1052.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')"
 src/test/dev/check/unit.py,790,path_str,rsc/migration/1069.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')"
 src/test/dev/check/unit.py,1074,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
-src/test/dev/check/unit.py,1183,path_str,rsc/migration/1170.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1170.sh is absent')"
+src/test/dev/check/unit.py,1185,path_str,rsc/migration/1170.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1170.sh is absent')"
 src/test/dev/check/unit.py,1013,path_str,rsc/migration,Y,"done = subprocess.run([str(checkout / 'rsc/migration' / name), '--apply'], capture_output=True, text=True, env=env, cwd="
 src/test/dev/check/upstream.py,180,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,209,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"

@@ -505,7 +505,7 @@ relocation_point() {  # <base-ref> <head-ref>
 }
 
 # The relocation of a moved base (issues/507, issues/585): in a detached worktree of its own
-# under tmp/forge/<verb>/ - the merge's or the rebase's (issues/1147) - never in the invoking checkout - so a halt or an
+# under tmp/, named for the act, the merge's or the rebase's (issues/1147, issues/1170) - never in the invoking checkout - so a halt or an
 # interruption leaves the checkout as found. Replays only the branch's own commits
 # (relocation_point), takes an rsc/test/ conflict wholesale (the syntactic class,
 # CONTRIBUTING.md), settles the artifacts by the gate's own regeneration, commits
@@ -515,12 +515,11 @@ relocation_point() {  # <base-ref> <head-ref>
 relocated() {  # <verb> <base> <head> <old-sha>
   local verb="$1" base="$2" head="$3" old_sha="$4"
   local wt onto held own merged_pr conflicted guard=0 oid
-  wt="$TMP_DIR/forge/$verb/$(date -u '+%Y-%m-%dT%H%M%SZ')-$head"
+  wt="$(scratch_dir worktree)"
   dispose() {
     git -C "$REPO_DIR" worktree remove --force "$wt" >/dev/null 2>&1 || true
     git -C "$REPO_DIR" worktree prune >/dev/null 2>&1 || true
   }
-  mkdir -p "$TMP_DIR/forge/$verb"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "refs/remotes/origin/$head" >&2 \
     || { say "relocation halted - could not open a worktree at origin/{head}" head="$head" >&2; return 1; }
   # A paused rebase is an EXPECTED state, not a failure (issues/485): the attempt
@@ -603,15 +602,14 @@ kept_settle() {  # <worktree> <dest>
   echo "$dest"
 }
 
-# gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/forge/merge for
+# gate_worktree <head-sha> <head>: a detached worktree of the head under tmp/, named for the act, for
 # the data gate (issues/937), this checkout's corpus reached by link - each machine-local root
 # whole but tmp, which holds only what lasts one run, the worktrees among it, and the machine
 # binding (issues/1170) - and the machine-local parsers generated there (issues/597). Prints
 # its path; every halt returns 1.
 gate_worktree() {
   local oid="$1" head="$2" wt root
-  wt="$TMP_DIR/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-gate-$head"
-  mkdir -p "$TMP_DIR/forge/merge"
+  wt="$(scratch_dir gate)"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "$oid" >&2 || return 1
   for root in cache data ext fetch logs stage machine-name.txt; do
     [[ -e "$REPO_DIR/$root" ]] && ln -s "$REPO_DIR/$root" "$wt/$root"
@@ -826,7 +824,7 @@ merge_chain() {
   relocate merge || return 1
   oid="$PR_OID" moved="$PR_MOVED"
   # The data gate (issues/541, issues/549, issues/937): corpus-yoga pipeline run at the head being
-  # merged, in a detached worktree of its own under tmp/forge/merge - the head's code over
+  # merged, in a detached worktree of its own under tmp/, named for the act - the head's code over
   # this checkout's corpus, reached by link - so that this checkout stands where it stood
   # until the fast-forward, and the faces this process calls are the tree's it read.
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates

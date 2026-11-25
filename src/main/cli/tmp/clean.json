@@ -1,5 +1,5 @@
 {
-  "help": "remove the orphans the status names - each working file a run that died left directly under tmp/, named with that run's pid, and each entry there that no command declares it keeps; the verb takes no flag, and prints what it will remove, what it did remove, what to run next, and the verdict",
+  "help": "remove the orphans the status names - each entry directly under tmp/ but a live run's own, what a run that died left, named with its pid, and anything no run keeps - pruning git's record of a worktree it removes; the verb takes no flag, and prints what it will remove, what it did remove, what to run next, and the verdict",
   "would": "would remove",
   "modality": "MAY",
   "args": [],
@@ -8,5 +8,8 @@
   ],
   "consumes": [
     "tmp"
+  ],
+  "x": [
+    "git"
   ]
 }

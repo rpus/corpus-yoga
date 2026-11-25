@@ -39,7 +39,7 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `fetch/` | what an outside source last returned - `fetch/<provider>/chat/listing.json`, each provider's chats; `fetch/reference/`, upstream's references | local | none - `corpus-yoga browser fetch --provider <provider>` and `corpus-yoga reference fetch` read them again |
 | `logs/` | run history | local | disposable - `corpus-yoga logs` names the directories of commands and verbs that no longer exist, and `corpus-yoga logs clean` is the tier's janitor |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
-| `tmp/` | what lasts one run - a run's working files directly under it, `<command>.<verb>.<name>.<pid>.<random>`; `tmp/forge/`, the merge's and rebase's worktrees | local | none - `corpus-yoga tmp` names what a run that died left and what no command keeps, and `corpus-yoga tmp clean` is the tier's janitor |
+| `tmp/` | what lasts one run, empty when nothing runs - each working file, directory or worktree a run keeps directly under it, `<command>.<verb>.<name>.<pid>.<random>` | local | none - `corpus-yoga tmp` names every entry but a live run's own, and `corpus-yoga tmp clean` is the tier's janitor |
 
 A capture writes to `stage/usr/input/`, at the address its unit will have under
 `data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):

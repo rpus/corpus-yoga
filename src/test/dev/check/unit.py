@@ -656,8 +656,8 @@ def check_screen_and_scratch(run) -> None:
     A disposable file a script keeps stands directly under tmp/, named for the act the launcher
     dispatched, <command>.<verb>, or the running script where it dispatched none, then with the pid of
     the run that keeps it, through the tier's scratch_file and scratch_dir alone, no directory made
-    for it to be left empty (issues/906, issues/1170); and the tmp noun names one whose run is gone,
-    and any entry no command declares it keeps under tmp/. The fixtures are synthetic."""
+    for it to be left empty (issues/906, issues/1170); and the tmp noun names every entry under tmp/
+    but a live run's own. The fixtures are synthetic."""
     import importlib.util
     import os
     import subprocess
@@ -726,12 +726,12 @@ def check_screen_and_scratch(run) -> None:
                 (root / held).write_text('')
             (root / 'status').mkdir()
             try:
-                found = sorted(p.relative_to(root).as_posix() for p, _why in tmp_noun.orphans(root, {'forge'}))
+                found = sorted(p.relative_to(root).as_posix() for p, _why in tmp_noun.orphans(root))
             except Exception as error:   # noqa: BLE001 - the failure IS the finding
                 found = f'raised {type(error).__name__}: {error}'
-    want = [f'probe.left.{gone}.cccccc', f'probe.verb.left.{gone}.bbbbbb', f'probe.verb.work.{gone}.dddddd', 'status', 'stray.txt']
+    want = ['forge', f'probe.left.{gone}.cccccc', f'probe.verb.left.{gone}.bbbbbb', f'probe.verb.work.{gone}.dddddd', 'status', 'stray.txt']
     named = found == want
-    run('tmp: a working file or directory whose run is gone, and any entry directly under tmp/ that no command declares it keeps there, are orphans; a live run\'s file and a command\'s own directory are not',
+    run('tmp: every entry directly under tmp/ but a live run\'s own is an orphan - a working file or directory whose run is gone, and anything no run keeps',
         named, None if named else f'named {found}, where {want}', check='tmp.dead_run_file_is_named')
 
 
@@ -1153,8 +1153,9 @@ def check_roots_migration(run) -> None:
     listing moves to fetch/<provider>/chat/listing.json and upstream's references to
     fetch/reference; a stage scratch's cache moves beside its data; the dead runs' working files and
     the bytecode python rebuilds are discarded, the new code having written the same bytecode beside
-    them; a red settle's evidence the forge kept moves beside the forge's records; and tmp keeps what
-    lasts one run. The fixture is synthetic: a checkout holding a
+    them; a red settle's evidence the forge kept moves beside the record of the act that kept it - the
+    latest whose stamp is not after the worktree's - named by that act's stamp, as the logs noun reads
+    it; and tmp keeps what lasts one run. The fixture is synthetic: a checkout holding a
     planted room of the old layout, with a log and bytecode the new code wrote."""
     import os
     import shutil
@@ -1174,7 +1175,8 @@ def check_roots_migration(run) -> None:
                      under('tmp', 'reference', 'fetch', 'mcp', 's.json'), under('tmp', 'forge', 'merge', 'w', 'f'),
                      under('logs', 'migration', 'apply', 'now.log'), under('cache', 'python', 'n.pyc'),
                      under('tmp', 'cache', 'python', 'n.pyc'), under('tmp', 'cache', 'python', 'old.pyc'),
-                     under('tmp', 'forge', 'merge', 'w-settle', 'run.log')):
+                     under('tmp', 'forge', 'merge', '2026-11-24T222849Z-head-settle', 'run.log'),
+                     under('tmp', 'logs', 'forge', 'merge', '2026-11-24T222840Z.log'), under('tmp', 'logs', 'forge', 'merge', '2026-11-24T222900Z.log')):
             (checkout / held).parent.mkdir(parents=True, exist_ok=True)
             (checkout / held).write_text('planted\n')
         script = checkout / 'rsc/migration/1170.sh'
@@ -1186,7 +1188,8 @@ def check_roots_migration(run) -> None:
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
                       if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
         want = sorted([under('cache', 'agent', 'a.json'), under('cache', 'python', 'n.pyc'), under('fetch', 'claude', 'chat', 'listing.json'),
-                       under('fetch', 'reference', 'mcp', 's.json'), under('logs', 'forge', 'merge', 'w-settle', 'run.log'),
+                       under('fetch', 'reference', 'mcp', 's.json'), under('logs', 'forge', 'merge', '2026-11-24T222840Z', 'run.log'),
+                       under('logs', 'forge', 'merge', '2026-11-24T222840Z.log'), under('logs', 'forge', 'merge', '2026-11-24T222900Z.log'),
                        under('logs', 'migration', 'apply', 'now.log'), under('logs', 'pipeline', 'run', 'a.log'),
                        under('stage', 'usr', 'input', 'u.json'), under('stage', 'usr', 'scratch', 'cache', 'v.json'), under('tmp', 'forge', 'merge', 'w', 'f')])
         moved = (bare.returncode == 0 and bare.stdout.strip() != '' and applied.returncode == 0 and again.stdout == '' and left == want)

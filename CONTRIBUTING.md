@@ -16,7 +16,7 @@ would the merge (issues/482). The body as sent is kept under `logs/forge/raise/`
 
 Rebase an open PR onto main with `./corpus-yoga forge rebase <pr>` whenever a test needs main's
 merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and
-relocation, by the steps the merge takes - in a detached worktree under `tmp/forge/rebase/`,
+relocation, by the steps the merge takes - in a detached worktree under `tmp/`, named for the act,
 `rsc/test/` conflicts taken by the syntactic rule below, any other halting with the branch and
 this checkout as found, to be settled by hand - and every local copy of the branch brought
 level with the relocated head, by reset, never by pull, which would merge the old commits with
@@ -25,14 +25,14 @@ nothing the merge does after it.
 
 Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (issues/483). It is a straight
 line of echoed commands — refuse, relocate if the base moved (in a detached worktree
-under `tmp/forge/merge/`, never in this checkout - issues/507), stand at the head and run
+under `tmp/`, never in this checkout - issues/507), stand at the head and run
 the data gate, flip the body, squash pinned to the head every check saw, converge this
 checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
 declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and
 `corpus-yoga forge push`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
 (which opens on the commit gate): the merge runs it at the head being merged in a detached
-worktree of its own under `tmp/forge/merge`, the head's code over this checkout's corpus
+worktree of its own under `tmp/`, the head's code over this checkout's corpus
 reached by link, and halts on red with the worktree disposed of and one last word naming
 the halt (issues/541, issues/549, issues/601, issues/937); this checkout stands where it stood until
 the fast-forward. Run the merge from any clean checkout of this repo - the corpus is what the
