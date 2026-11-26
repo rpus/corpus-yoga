@@ -1,5 +1,6 @@
 """pipeline.py - the dev gate's checks of the pipelines: declarations, judges, caches, captures and the corpus format."""
 import io
+import subprocess
 from pathlib import Path
 
 from gate import (
@@ -242,6 +243,35 @@ def check_run_reads_one_unit(run) -> None:
         '; '.join([f'{path} is not written where an earlier capture stands beside it' for path in moved]
                   + [f'{path} holds other bytes where an earlier capture stands beside it' for path in changed]),
         check='pipeline.run_reads_one_unit')
+
+
+@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehearsal_is_the_run_aimed_at_the_stage',))
+def check_rehearsal_is_the_run(run) -> None:
+    """The rehearsal is the pipeline run aimed at the stage (issues/1165): `corpus-yoga pipeline run
+    --stage-rehearsal`, the flag exclusive of a pipeline and so of an item, which only a pipeline
+    precedes - its form says so, the declared parser takes the flag alone and a pipeline with its item,
+    and refuses the flag beside a pipeline - and `pipeline rehearse` is no verb. Held over the
+    declarations and the parser built from them; no pipeline runs."""
+    import contextlib
+    import io as _io
+    import spell
+    from declared_parser import command_parser
+    form = next((line.split('form: ', 1)[1] for line in subprocess.run(
+        [str(REPO_ROOT / 'corpus-yoga'), 'pipeline', '-h'], capture_output=True, text=True, cwd=REPO_ROOT, timeout=60).stdout.splitlines()
+        if line.strip().startswith('form: corpus-yoga pipeline run')), None)
+    def parses(*argv: str) -> bool:
+        with contextlib.redirect_stderr(_io.StringIO()):
+            try:
+                command_parser('pipeline').parse_args(list(argv))
+            except SystemExit:
+                return False
+        return True
+    said = {'form': form, 'flag alone': parses('run', '--stage-rehearsal'), 'a pipeline and its item': parses('run', 'browser', 'x'),
+            'the flag beside a pipeline': parses('run', '--stage-rehearsal', 'browser'), 'rehearse a verb': 'rehearse' in spell.verbs('pipeline')}
+    want = {'form': 'corpus-yoga pipeline run [<pipeline> | --stage-rehearsal] [<item>] [--plan]', 'flag alone': True,
+            'a pipeline and its item': True, 'the flag beside a pipeline': False, 'rehearse a verb': False}
+    run('pipeline: the rehearsal is corpus-yoga pipeline run --stage-rehearsal, exclusive of a pipeline and its item, and rehearse is no verb',
+        said == want, None if said == want else f'it holds {said}, where {want}', check='pipeline.rehearsal_is_the_run_aimed_at_the_stage')
 
 
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])

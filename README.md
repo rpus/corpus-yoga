@@ -36,7 +36,7 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `cache/` | cache | local | none — each subtree's producer, which the registry (`rsc/cache_io.csv`) names, rebuilds it |
-| `stage/` | captured, rehearsed, not yet promoted | local | laid out as the checkout is: `data/input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `data/output/`, `cache/`, `logs/` and `rehearsal.json`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
+| `stage/` | captured, rehearsed, not yet promoted | local | laid out as the checkout is: `data/input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `data/output/`, `cache/`, `logs/` and `rehearsal.json`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline run --stage-rehearsal`; `corpus-yoga stage clean` is the tier's janitor |
 | `fetch/` | what an outside source last returned - `fetch/<provider>/chat/listing.json`, each provider's chats; `fetch/reference/`, upstream's references | local | none - `corpus-yoga browser fetch --provider <provider>` and `corpus-yoga reference fetch` read them again |
 | `logs/` | run history | local | disposable - `corpus-yoga logs` names the directories of commands and verbs that no longer exist, and `corpus-yoga logs clean` is the tier's janitor |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
@@ -46,7 +46,7 @@ A capture writes to `stage/data/input/`, at the address its unit will have under
 `data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
 every script reads its data, cache, logs and tmp under one root, the checkout's, or the stage,
 `stage/`, laid out as the checkout is, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's stamp, and
-`corpus-yoga pipeline rehearse` is the checkout's own code run under that name, its input
+`corpus-yoga pipeline run --stage-rehearsal` is the checkout's own code run under that name, its input
 `stage/data/input/`, judging the staged units there and writing the stage's `data/output/`,
 `cache/` and `logs/` alone; what it saw and judged it then writes whole as the rehearsal record,
 `stage/rehearsal.json` (`src/main/rehearsal.py`, its shape
@@ -58,7 +58,7 @@ relates to the held one without loss - new, identical, extends, never ahead or d
 and every family its pipeline declares finds it valid at origin/main's version; the rest
 it names (issues/687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
 stage clean` removes the units the store holds byte-equal.
-So: `browser capture --provider claude`, `pipeline rehearse`, `browser promote
+So: `browser capture --provider claude`, `pipeline run --stage-rehearsal`, `browser promote
 --provider claude`, `pipeline run browser`; `corpus-yoga stage` reports the tier, and
 each noun's bare status the units; `corpus-yoga store` reads shared storage in the same
 terms - what is held, what is duplicated, and what the stage holds against it; the

@@ -10,7 +10,7 @@ stage/data/output, stage/cache and stage/logs are what the last rehearsal's run 
 preview and its validation, laid out as the checkout's (issues/1163) - replaced whole by the next
 run; and stage/rehearsal.json is the rehearsal record, one
 file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). A capture writes the
-stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
+stage's input and reads nothing (L10). `corpus-yoga pipeline run --stage-rehearsal`
 (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
 CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the stage as its root, so
 it judges the staged units alone and writes the stage's derived tiers and the record alone.
@@ -1283,9 +1283,9 @@ def acts_on_staged(rows: list[Judged], elsewhere: str | None | bool = True) -> l
     for row in rows:
         kind = kind_of(row.unit)
         if row.state == 'unjudged':
-            acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: {NOT_JUDGED[row.judgement]: 1}}))
+            acts.append(facts.Would(spell.line('pipeline', 'run', stage_rehearsal=True), {kind: {NOT_JUDGED[row.judgement]: 1}}))
         elif elsewhere and row.judgement in JUDGED:
-            acts.append(facts.Would(spell.line('pipeline', 'rehearse'), {kind: {facts.phrase('judged at {commit}', commit=elsewhere): 1}}))
+            acts.append(facts.Would(spell.line('pipeline', 'run', stage_rehearsal=True), {kind: {facts.phrase('judged at {commit}', commit=elsewhere): 1}}))
         if row.state in ('promotable', 're-rendered') and (noun := noun_of(row.unit)) is not None:
             acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: {row.state: 1}}))
         if row.state == 'incomplete' and (again := recapture_of(row.unit)):

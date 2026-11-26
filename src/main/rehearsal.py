@@ -5,7 +5,7 @@ last rehearsal saw and judged, whole.
     rehearsal.py begin <stamp>          # before the run: the extent, every staged unit's digests, under the stage's tmp
     rehearsal.py end <stamp> <exit>     # after the run: the record, reduced from the extent and the stage's verdicts, written whole
 
-A rehearsal is corpus-yoga pipeline rehearse (src/main/cli/pipeline/rehearse.sh): the
+A rehearsal is corpus-yoga pipeline run --stage-rehearsal (src/main/cli/pipeline/rehearse.sh): the
 checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract
 (src/main/tier.py) resolves to the stage as its root, laid out as the checkout is - data/input
 what the captures wrote, data/output the preview, cache the validation, the last two replaced
@@ -51,7 +51,7 @@ REPO = _root[0]
 RECORD = tier.STAGE_REHEARSAL
 SCHEMA = REPO / 'src' / 'main' / 'rehearsal.schema.json'
 EXTENT = tier.STAGE_TMP / 'extent.json'      # what begin writes and end reads: the units as the run began
-COMMAND = spell.line('pipeline', 'rehearse')
+COMMAND = spell.line('pipeline', 'run', stage_rehearsal=True)
 
 
 def _rel(path: Path) -> str:
@@ -168,7 +168,7 @@ def outcome(stamp: str, record: dict, owed: set[str], exit_code: int) -> tuple[i
     saw = (f'rehearsal {stamp} saw {len(units)} unit(s), judged {judged}'
            + (f', {unowed} judged by no family' if unowed else '') + f' - the record is {_rel(RECORD)}')
     ran = '' if exit_code == 0 else f'; the run exited {exit_code}'
-    act = facts.act('pipeline', 'rehearse')
+    act = facts.act('pipeline', 'run')
     if unjudged:
         return 1, f'{act}: NOT DONE - {saw}{ran} - {len(unjudged)} unit(s) a family judges hold no verdict - {", ".join(unjudged)}'
     return 0, f'{act}: DONE - {saw}{ran}'
@@ -178,14 +178,14 @@ def end(stamp: str, exit_code: int) -> int:
     import corpus
     seen = json.loads(EXTENT.read_text()) if EXTENT.is_file() else None
     if not isinstance(seen, dict) or seen.get('stamp') != stamp:
-        facts.report(None, facts.act('pipeline', 'rehearse') + f': NOT DONE - {_rel(EXTENT)} is not the extent of rehearsal {stamp}; no record written')
+        facts.report(None, facts.act('pipeline', 'run') + f': NOT DONE - {_rel(EXTENT)} is not the extent of rehearsal {stamp}; no record written')
         return 1
     units = corpus.whole()                 # an incomplete unit is passed over, never judged (issues/996)
     record = reduce(stamp, _git('rev-parse', '--short', 'HEAD') or '(no git)', len(_git('status', '--porcelain').splitlines()),
                     provider.signature(), exit_code, seen['units'], units, lambda u: u.cache, corpus.family_of)
     bad = faults(record)
     if bad:
-        facts.report(None, facts.act('pipeline', 'rehearse') + f': NOT DONE - the record does not validate against {_rel(SCHEMA)} - {bad[0]}; no record written')
+        facts.report(None, facts.act('pipeline', 'run') + f': NOT DONE - the record does not validate against {_rel(SCHEMA)} - {bad[0]}; no record written')
         return 1
     write(record)
     # what an act reports (issues/801, issues/896): its effect and its record; the launcher replies
