@@ -79,6 +79,12 @@ REBOUND = ('data', 'cache', 'logs', 'tmp')   # the roots a rehearsal and the dev
 LOGS = REPO / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else LOGS_ROOT
 
 
+def pipeline_cache(pipeline: str) -> Path:
+    """A pipeline's cache, beneath the command that writes it, cache/pipeline/<pipeline> (issues/1181) -
+    rsc/cache_io.csv's row for it, which the dev gate holds equal."""
+    return CACHE / 'pipeline' / pipeline
+
+
 def path(declared: str) -> Path:
     """A declared repo-relative path - data/..., cache/..., logs/..., tmp/... as the
     declarations and rsc/cache_io.csv spell them - under the tiers in force; stage/... under the

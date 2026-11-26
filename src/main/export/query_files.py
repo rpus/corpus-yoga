@@ -31,7 +31,7 @@ import tier  # the tiers, one home (issues/702)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-CACHE_DIR    = tier.CACHE / 'export'
+CACHE_DIR    = tier.pipeline_cache('export')
 
 QUERIES: list[tuple[str, str, str]] = [
     (

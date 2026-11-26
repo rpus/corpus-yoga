@@ -15,8 +15,8 @@
     "rsc/schema"
   ],
   "w": [
-    "cache/browser",
-    "cache/export",
-    "cache/agent"
+    "cache/pipeline/browser",
+    "cache/pipeline/export",
+    "cache/pipeline/agent"
   ]
 }

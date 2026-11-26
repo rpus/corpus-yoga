@@ -51,9 +51,9 @@
     "machine-name.txt"
   ],
   "w": [
-    "cache/browser",
-    "cache/export",
-    "cache/agent",
+    "cache/pipeline/browser",
+    "cache/pipeline/export",
+    "cache/pipeline/agent",
     "stage/rehearsal.json",
     "stage/data/output",
     "stage/cache",

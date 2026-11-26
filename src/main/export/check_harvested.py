@@ -30,7 +30,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-CACHE_DIR = tier.CACHE / 'export'
+CACHE_DIR = tier.pipeline_cache('export')
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',

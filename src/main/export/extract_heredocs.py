@@ -188,7 +188,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 
 SCRIPT_DIR     = Path(__file__).resolve().parent
-CACHE_DIR     = tier.CACHE / 'export'
+CACHE_DIR     = tier.pipeline_cache('export')
 
 
 def main():

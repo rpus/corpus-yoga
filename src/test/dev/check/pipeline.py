@@ -95,6 +95,8 @@ def check_declared_families_judge(run) -> None:
     'cache_io.pipeline_tags_match',
     'cache_io.read_implies_writer',
     'cache_io.registry_parses',
+    'cache_io.subtree_named_for_its_writer',
+    'cache_io.pipeline_cache_is_the_registrys',
 ))
 def check_cache_io(run) -> None:
     """The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
@@ -133,6 +135,30 @@ def check_cache_io(run) -> None:
                       if not _cache_io_resolves(e, commands)]
         run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,
             f'unresolved: {", ".join(unresolved)}' if unresolved else None, check='cache_io.paths_resolve')
+        # A subtree is the command that writes it (issues/1181), as logs/<command>/ is: every writer's
+        # command is the subtree's name, and a subtree no command writes is named for no command.
+        subtree = r['cache_path'].split('/')[1]
+        writers = {e.split()[1] for e in r['written_by'] if e.startswith('corpus-yoga ')}
+        named = writers == {subtree} if r['written_by'] else subtree not in commands
+        run(f'cache_io: {r["cache_path"]}: the subtree is named for the command that writes it', named,
+            None if named else (f'written by corpus-yoga {", ".join(sorted(writers))}, named {subtree}' if r['written_by']
+                                else f'no command writes it, and corpus-yoga {subtree} is a command'),
+            check='cache_io.subtree_named_for_its_writer')
+
+    # A pipeline's cache is where the tier contract puts it, and the registry says so (issues/1181): the
+    # scripts reach it through tier.pipeline_cache and tier.sh's pipeline_cache, never by hand.
+    import tier
+    import subprocess as _subprocess
+    placed = {}
+    for name in sorted(PIPELINES):
+        python_side = getattr(tier, 'pipeline_cache', None)
+        shell_side = _subprocess.run(['bash', '-c', 'source "$1"; pipeline_cache "$2"', '_', str(SRC / 'main' / 'tier.sh'), name],
+                                     capture_output=True, text=True).stdout.strip()
+        placed[name] = sorted({Path(python_side(name)).relative_to(tier.DATA_ROOT).as_posix() if python_side else '?',
+                               Path(shell_side).relative_to(tier.DATA_ROOT).as_posix() if shell_side else '?'})
+    want = {name: [tier.path(cache_io.path_for(name)).relative_to(tier.DATA_ROOT).as_posix()] for name in sorted(PIPELINES)}
+    run("cache_io: each pipeline's cache is the registry's, in python and the shell alike", placed == want,
+        None if placed == want else f'they resolve as {placed}, where the registry says {want}', check='cache_io.pipeline_cache_is_the_registrys')
 
 
 @check(tier='code', says=('accumulate.trajectory_contract',), on=['src'])

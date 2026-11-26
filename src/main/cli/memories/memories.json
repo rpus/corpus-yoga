@@ -20,7 +20,7 @@
       "type": "<dir>",
       "cardinality": "",
       "help": "atomised batch cache - the archived memory-state source",
-      "default": "cache/export"
+      "default": "cache/pipeline/export"
     },
     {
       "name": "--memories-output",

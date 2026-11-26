@@ -28,7 +28,7 @@ export.
 
 Usage (wired into src/main/cli/pipeline/pipeline.sh after the per-batch stages):
     src/run_python_script.sh src/main/export/memories.py \
-      [--export-cache cache/export] [--memories-output data/output/memories] \
+      [--export-cache cache/pipeline/export] [--memories-output data/output/memories] \
       [--markdown data/output/markdown/claude/chat/memories]
 """
 import csv

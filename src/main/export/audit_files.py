@@ -1,7 +1,7 @@
 """
 audit_files.py — Full-outer-join file audit for one export.
 
-Writes a CSV to cache/export/<export>/audit_queries/files_audit.csv with one row per
+Writes a CSV to cache/pipeline/export/<export>/audit_queries/files_audit.csv with one row per
 (source, file-path) covering every file known about for the export across five
 sources:
 
@@ -79,7 +79,7 @@ REPO = _root[0]
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-CACHE_DIR    = tier.CACHE / 'export'
+CACHE_DIR    = tier.pipeline_cache('export')
 
 
 def compare(src_path, dl_path):
