@@ -131,8 +131,8 @@ def check_cli_surface(run) -> None:
     and implementation share a stem — the repo idiom), every subcommand VERB it
     advertises appears in the target's own --help (the live dispatch surface —
     a source grep is vacuous for ordinary words like build/accept), and every command
-    a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-    output (which is itself the executing list, so the chain cannot drift, and a step
+    a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh run --plan
+    or collate --plan output (which is itself the executing list, so the chain cannot drift, and a step
     cannot quietly drop to a bare noun that the bare=status convention no-ops). Committed
     files and the deterministic plan only, so deterministic on any clone:
     code tier."""
@@ -547,8 +547,9 @@ def check_cli_surface(run) -> None:
     # one place the whole program is listed, and a bare label does not resolve there:
     # `validate` names a file in more than one pipeline. The line carries the path, so a reader needs
     # no rule about which namespace a label is in.
-    plan = subprocess.run([str(CLI / 'pipeline' / 'pipeline.sh'), 'run', '--plan'],
-                          capture_output=True, text=True, cwd=REPO_ROOT).stdout
+    plan = ''.join(subprocess.run([str(CLI / 'pipeline' / 'pipeline.sh'), verb, '--plan'],
+                                  capture_output=True, text=True, cwd=REPO_ROOT).stdout
+                   for verb in ('run', 'collate'))
     # A STEP LINE is identified by its SHAPE, not by what it happens to carry: plan_line
     # pads the label into a column, so a line with a gap of two or more spaces between two
     # non-space tokens is a step. Selecting instead on "carries a src/ path" would let a
@@ -823,14 +824,15 @@ def check_cli_surface(run) -> None:
         law='G20', check='cli.block_identity_stable')
 
     # The run pipeline's command-backed steps (the declared `step`). Each must
-    # appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+    # appear in `pipeline.sh run --plan` or `collate --plan` as a line naming the COMMAND and its VERB — so the
     # plan speaks the command surface a reader would type, and a step can never invoke
     # a noun bare, which the bare-noun=status convention silently turns into a no-op.
     stepped = cli.steps()
     if not stepped:
         return
-    plan = subprocess.run([str(CLI / 'pipeline' / 'pipeline.sh'), '--plan'],
-                          capture_output=True, text=True, cwd=REPO_ROOT).stdout
+    plan = ''.join(subprocess.run([str(CLI / 'pipeline' / 'pipeline.sh'), verb, '--plan'],
+                                  capture_output=True, text=True, cwd=REPO_ROOT).stdout
+                   for verb in ('run', 'collate'))
     for s in stepped:
         cmd, sub = s['command'], s['subcommand']
         # the plan line is the step label then its non-path args (steps.sh): the label
@@ -839,7 +841,7 @@ def check_cli_surface(run) -> None:
         # line is typeable — so the invocation it must name is the command form
         ok = bool(re.search(rf'^\s*(corpus-yoga )?{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
-            None if ok else f'no `{cmd} … {sub}` line in `src/main/cli/pipeline/pipeline.sh --plan` — a bare '
+            None if ok else f'no `{cmd} … {sub}` line in `src/main/cli/pipeline/pipeline.sh run|collate --plan` — a bare '
             f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')
 
 
@@ -982,7 +984,7 @@ def check_cli_exclusive_classes(run) -> None:
 def check_effects(run):
     """The rwx triad's first gate: every declared w prefix is
     claimed by at most one COMMAND — exactly or by containment. Any verb carrying a
-    step tag may nest inside `pipeline run`'s w (the pipeline writes through its
+    step tag may nest inside `pipeline run`'s or `pipeline collate`'s w (the pipeline writes through its
     steps); verbs of one command
     share its workshop; every other containment is two hands on one file."""
     cli_root = CLI  # noqa: kept as a local name for the checks below
@@ -993,7 +995,7 @@ def check_effects(run):
         owner = f'{f.parent.name} {f.stem}' if f.stem != f.parent.name else f.parent.name
         for w in d.get('w', []):
             claims.append((owner, w.rstrip('/'), bool(d.get('step')),
-                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name))
+                           (f.parent.name, f.stem) in (('pipeline', 'run'), ('pipeline', 'collate')), f.parent.name))
         # a consumed prefix is a dequeue from another command's w (issues/687): no claim on
         # the file, but the consumer reads what it removes - held here
         for c in d.get('consumes', []):

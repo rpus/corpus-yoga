@@ -12,9 +12,10 @@
 # Usage:
 #   src/main/agent/run.sh --item  <path>   # one project: data/input/<provider>/code/machine-transport/<machine>/<project>
 #   src/main/agent/run.sh --input <path>   # the stores: data/input/<provider>/code/machine-transport, <provider> literal or named
+#   src/main/agent/run.sh --input <path> --collate   # the cache against the stores, then the corpus over every session
 #   src/main/agent/run.sh --plan   # print the ordered step list; run nothing
 #
-# The step lists below (machine_housekeeping, run_one, corpus) are the
+# The step lists below (run_one, machine_housekeeping, project_housekeeping, corpus) are the
 # ONE authority on order: --plan prints exactly the lists that execute (see
 # src/main/steps.sh).
 
@@ -35,11 +36,13 @@ parse_args() {
   code_project=""
   code_projects=""
   plan="0"
+  collate="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --item)  code_project="$2";  shift 2 ;;
       --input) code_projects="$2"; shift 2 ;;
       --plan)          plan="1";           shift   ;;
+      --collate)       collate="1";        shift   ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
@@ -174,17 +177,13 @@ TASK
 
 corpus() {
   step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
-  # the Signatures on main against the store's sessions (issues/631): the store of record is the
-  # checkout's, and a rehearsal's tiers are the stage's, so a rehearsal does not run it
-  local outside=1
-  [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]] && outside=0
-  step_if_ok "$outside" 'outside a rehearsal' agent "$REPO_DIR/src/run_python_script.sh" \
+  # the Signatures on main against the store's sessions (issues/631)
+  step_ok agent "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/cli/agent/agent.py" list-drafters
 }
 
-# The whole run over the given store project dirs, in four dispatched phases
-# (issues/395): housekeeping (serial: it prunes the cache the phases fill), then
-# conversions, then every datum-version pair, then the per-datum roll-ups.
+# The whole run over the given store project dirs, in three dispatched phases
+# (issues/395): conversions, then every datum-version pair, then the per-datum roll-ups.
 # Enumeration is capacity-blind; enumeration order is listing order, and
 # dispatch_emit restores it, so CORPUS_YOGA_JOBS=1 and =N emit identical bytes.
 run_store() {
@@ -197,7 +196,6 @@ run_store() {
     name="$(basename "${project_dir%/}")"
     provider="$(provider_of "$project_dir")"
     echo "$provider/$machine/$name"
-    project_housekeeping "$project_dir" "$machine" "$name" "$provider"
     local found=0
     while IFS= read -r jsonl; do
       [[ -n "$jsonl" ]] || continue
@@ -240,21 +238,24 @@ run_store() {
 
 print_plan() {
   local provider mechanism
-  echo "agent steps — once per provider, against its store root:"
-  machine_housekeeping '<store-root>' '<provider>'
-  echo "then per machine/project directory:"
-  project_housekeeping '<project-dir>' '<machine>' '<project>' '<provider>'
+  if [[ "$collate" == "1" ]]; then
+    echo "agent steps — collate mode (--collate), once per provider, against its store root:"
+    machine_housekeeping '<store-root>' '<provider>'
+    echo "then per machine/project directory:"
+    project_housekeeping '<project-dir>' '<machine>' '<project>' '<provider>'
+    echo "then once, after all projects:"
+    corpus
+    return
+  fi
   for mechanism in "$SCRIPT_DIR"/*/list_sessions.sh; do
     provider="$(basename "$(dirname "$mechanism")")"
-    echo "then per $provider session, dispatched to the next free worker (issues/395):"
+    echo "agent steps — per $provider session, dispatched to the next free worker (issues/395):"
     run_one '<session>' '<machine>' '<project>' "$provider"
   done
   echo "then per datum-version pair across the run, dispatched likewise:"
   validate_one_pair "$(printf '<input>\t<schema-file>\t<log-dir>\t<label>')"
   echo "then per datum, the family roll-up, dispatched likewise:"
   rollup_one "$(printf 'session\t<provider>\t<session-dir>')"
-  echo "then once, after all projects:"
-  corpus
 }
 
 main() {
@@ -266,7 +267,6 @@ main() {
     local project_dir
     project_dir="$(cd "$code_project" && pwd)"
     run_store "$project_dir"
-    corpus
     return 0
   fi
 
@@ -282,7 +282,7 @@ main() {
     fi
     stores=$((stores + 1))
     store_root="$(cd "$store" && pwd)"
-    machine_housekeeping "$store_root" "$provider"
+    [[ "$collate" == "0" ]] || machine_housekeeping "$store_root" "$provider"
     for machine_dir in "$store_root"/*/; do
       [[ -d "$machine_dir" ]] || continue
       for project_dir in "${machine_dir%/}"/*/; do
@@ -292,10 +292,14 @@ main() {
     done
   done
   if [[ "$stores" == "0" ]]; then exit 0; fi
-  if [[ ${#project_dirs[@]} -gt 0 ]]; then
+  if [[ "$collate" == "1" ]]; then
+    for project_dir in ${project_dirs[@]+"${project_dirs[@]}"}; do
+      project_housekeeping "$project_dir" "$(basename "$(dirname "$project_dir")")" "$(basename "$project_dir")" "$(provider_of "$project_dir")"
+    done
+    corpus
+  elif [[ ${#project_dirs[@]} -gt 0 ]]; then
     run_store "${project_dirs[@]}"
   fi
-  corpus
 }
 
 main "$@"

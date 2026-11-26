@@ -123,7 +123,7 @@
     "merged as {landed}, but this checkout did not converge; the last NOT-done line above names where",
     "the squash's reply was lost, and the forge holds pull/{pr} merged - concluded as merged",
     "could not open a worktree at {head} for the data gate",
-    "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under logs/test/run/ name the findings)",
+    "data gate red at {head} in pipeline {verb} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under logs/test/run/ name the findings)",
     "data gate green at {head} but it left rsc/test/ changed - the branch's committed artifacts are stale; run corpus-yoga test run on it and push",
     "the parsers could not be generated in the worktree - the gate below will say what it lacks",
     "data gate green at {head}",

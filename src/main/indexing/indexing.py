@@ -731,7 +731,7 @@ def main():
         # A machine with no corpus skips, stated (issues/406): this step must not be the one
         # that presumes its input into existence and tracebacks.
         if not root.is_dir():
-            facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline run projects', root=root.relative_to(REPO)))
+            facts.report(None, facts.act('indexing', 'build') + ': DONE - ' + facts.phrase('skipped; no corpus at {root}, which corpus-yoga pipeline collate projects', root=root.relative_to(REPO)))
             return
         out = INDEXED_FILE.relative_to(REPO) if INDEXED_FILE.is_relative_to(REPO) else INDEXED_FILE
         if index_is_current(root, accepted_path):

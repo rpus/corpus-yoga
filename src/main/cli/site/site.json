@@ -71,7 +71,7 @@
     "{value} ({difference})",
     "{value} (was {old})",
     "{n} more",
-    "{placed} page(s) placed; index.html skipped - no projected corpus under {root}, which corpus-yoga pipeline run projects",
+    "{placed} page(s) placed; index.html skipped - no projected corpus under {root}, which corpus-yoga pipeline collate projects",
     "{placed} page(s) placed; index.html already current",
     "no effect; data/output/site/ already holds rsc/site/ and the corpus page as built",
     "{placed} page(s) placed; {page} written",

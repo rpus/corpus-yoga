@@ -16,7 +16,8 @@ the corpus more fully than the provider does.
 ./corpus-yoga status                 # read-only: whether everything is well, and what needs doing
 ./corpus-yoga walkthrough            # walk the room's state: n next, m members, v value, b back, x runs the command it stands on
 ./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, stage/usr/input/
-./corpus-yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
+./corpus-yoga pipeline run           # the usr gate's first half: each unit validated and extracted on its own (--plan previews)
+./corpus-yoga pipeline collate       # its second half: the markdown, the deposits and the audit, over the whole corpus
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
 ./corpus-yoga indexing capture       # PAID: the model reads the conversation titles for the index tables
 ./corpus-yoga indexing build         # the judged index, once you have accepted or rejected each proposal
@@ -137,7 +138,7 @@ dev gate is complete over exactly that, so the private corpus is never in the
 agent's need or extent - need-to-know by construction, not by policy. An **owner**
 merges, prunes, and keeps the forge's declared
 settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-`corpus-yoga pipeline run` is the **usr gate** — it arbitrates that the verbs run over a
+`corpus-yoga pipeline run`, then `corpus-yoga pipeline collate`, is the **usr gate** — it arbitrates that the verbs run over a
 corpus, which the dev gate, blind to data by design, cannot; every act that touches
 the corpus runs in the owner's room, under the owner's hands.
 

@@ -134,7 +134,7 @@ def main() -> int:
     if not entries:
         # a room with no corpus skips, stated (issues/406, issues/494): the run's step must not fail
         rel = md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root
-        facts.report(None, facts.act('site', 'build') + ': DONE - ' + facts.phrase('{placed} page(s) placed; index.html skipped - no projected corpus under {root}, which corpus-yoga pipeline run projects', placed=args.placed, root=rel))
+        facts.report(None, facts.act('site', 'build') + ': DONE - ' + facts.phrase('{placed} page(s) placed; index.html skipped - no projected corpus under {root}, which corpus-yoga pipeline collate projects', placed=args.placed, root=rel))
         return 0
 
     shutil.rmtree(out_dir, ignore_errors=True)

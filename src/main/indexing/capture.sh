@@ -394,7 +394,7 @@ capture() {
   # logs/indexing/capture/<stamp>.log, header included - nothing is written here.
   local conv
   conv="${conversations:-$(corpus_conversations || true)}"
-  [[ -n "$conv" && -e "$conv" ]] || { effect "$(act indexing capture): NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline run projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline run" "projects the corpus"; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { effect "$(act indexing capture): NOT DONE - no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth); corpus-yoga pipeline collate projects it, or --conversations names a markdown corpus dir, a json/ dir or a conversations.json" "corpus-yoga pipeline collate" "projects the corpus"; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
   capture_dashboard "$conv" "$only"

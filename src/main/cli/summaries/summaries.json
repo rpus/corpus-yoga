@@ -3,7 +3,7 @@
   "standing": true,
   "phrase": [
     "{n} twin deposit(s) in the summaries store - byte-identical to their nearest earlier sibling, which the deposit rule never writes",
-    "skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run browser makes",
+    "skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline collate browser makes",
     "existing deposit differs from this derivation - left untouched (deposits are immutable); investigate",
     "{deposited} reading(s) deposited, {unchanged} already held, {renamed} folder(s) renamed, under {root}",
     "{n} CONFLICT(S)"

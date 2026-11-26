@@ -57,9 +57,10 @@ def owed_runs() -> dict[str, facts.Would]:
 
 
 def steps_of(name: str, prep: str | None) -> list[str]:
-    """The steps the pipeline's plan names (`run.sh --plan`, the one authority on their
-    order), the prep step pipeline.sh runs before them first."""
-    plan = subprocess.run([str(PIPELINE_ROOT / name / 'run.sh'), '--plan'], capture_output=True, text=True, cwd=REPO).stdout
+    """The steps the pipeline's plans name (`run.sh --plan`, then `run.sh --plan --collate`, the one
+    authority on their order), the prep step pipeline.sh runs before them first."""
+    plan = ''.join(subprocess.run([str(PIPELINE_ROOT / name / 'run.sh'), '--plan', *mode], capture_output=True, text=True, cwd=REPO).stdout
+                   for mode in ([], ['--collate']))
     steps = [prep] if prep else []
     for line in plan.splitlines():
         if line.startswith('  ') and not line.rstrip().endswith(':'):

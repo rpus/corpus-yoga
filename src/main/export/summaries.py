@@ -222,7 +222,7 @@ def main():
         # (or a corpus-less clone) — depositing under fallback names would file
         # readings wrongly and then hold them immutable. Skip, loudly.
         conversations = Path(args.conversations_output)
-        facts.report(None, facts.act('summaries', 'deposit') + ': DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline run browser makes',
+        facts.report(None, facts.act('summaries', 'deposit') + ': DONE - ' + facts.phrase('skipped; no projected conversations under {path}; deposits key on the projection, which corpus-yoga pipeline collate browser makes',
                                                                        path=conversations.relative_to(REPO) if conversations.is_relative_to(REPO) else conversations))
         return 0
     readings = readings_by_uuid(Path(args.export_cache))
