@@ -23,8 +23,8 @@
     }
   ],
   "r": [
-    "stage/input/claude/code/machine-transport",
-    "stage/input/gemini/code/machine-transport",
+    "stage/data/input/claude/code/machine-transport",
+    "stage/data/input/gemini/code/machine-transport",
     "data/input/claude/code/machine-transport",
     "data/input/gemini/code/machine-transport",
     "stage/rehearsal.json"

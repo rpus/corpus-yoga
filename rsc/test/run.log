@@ -1,4 +1,4 @@
-run.py: code+schema 1973/1973
+run.py: code+schema 1975/1975
 
 
 check_reply_without_text: |
@@ -315,6 +315,7 @@ check_spelling: |
 check_tier_contract: |
   ✓ tier.paths_from_contract
   ✓ tier.stage_is_one_directory
+  ✓ tier.stage_mirrors_the_checkout
   ✓ tier.dev_gate_keeps_its_data_under_tmp
 
 check_table_widths: |
@@ -401,6 +402,9 @@ check_roots_migration: |
 
 check_stage_migration: |
   ✓ migration.stage_is_one_directory
+
+check_stage_layout_migration: |
+  ✓ migration.stage_mirrors_the_checkout
 
 check_spent_stage: |
   ✓ stage.clean_leaves_no_spent_stage
@@ -732,7 +736,7 @@ stages:
     tier: code
     line: "310"
   check_tier_contract:
-    passes: 3
+    passes: 4
     failures: 0
     tier: code
     line: "315"
@@ -740,145 +744,150 @@ stages:
     passes: 1
     failures: 0
     tier: code
-    line: "320"
+    line: "321"
   check_rehearsal_record:
     passes: 4
     failures: 0
     tier: code
-    line: "323"
+    line: "324"
   check_unit_companion:
     passes: 1
     failures: 0
     tier: code
-    line: "329"
+    line: "330"
   check_unit_state:
     passes: 10
     failures: 0
     tier: code
-    line: "332"
+    line: "333"
   check_store:
     passes: 3
     failures: 0
     tier: code
-    line: "343"
+    line: "344"
   check_export_atoms:
     passes: 1
     failures: 0
     tier: code
-    line: "348"
+    line: "349"
   check_renamed_checkout:
     passes: 3
     failures: 0
     tier: code
-    line: "351"
+    line: "352"
   check_effective_acts:
     passes: 4
     failures: 0
     tier: code
-    line: "355"
+    line: "356"
   check_bytecode:
     passes: 3
     failures: 0
     tier: code
-    line: "360"
+    line: "361"
   check_screen_and_scratch:
     passes: 3
     failures: 0
     tier: code
-    line: "365"
+    line: "366"
   check_sweep:
     passes: 5
     failures: 0
     tier: code
-    line: "370"
+    line: "371"
   check_rooms_settle_each_with_its_own_memory:
     passes: 4
     failures: 0
     tier: code
-    line: "377"
+    line: "378"
   check_effect_lines_and_unprojected_page:
     passes: 2
     failures: 0
     tier: code
-    line: "380"
+    line: "381"
   check_migration_merge_order:
     passes: 3
     failures: 0
     tier: code
-    line: "384"
+    line: "385"
   check_migration_idempotent:
     passes: 1
     failures: 0
     tier: code
-    line: "387"
+    line: "388"
   check_migration_status_relays_steps:
     passes: 1
     failures: 0
     tier: code
-    line: "390"
+    line: "391"
   check_agent_memory_disposed:
     passes: 1
     failures: 0
     tier: code
-    line: "393"
+    line: "394"
   check_session_continued_apart:
     passes: 3
     failures: 0
     tier: code
-    line: "396"
+    line: "397"
   check_roots_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "399"
+    line: "400"
   check_stage_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "402"
+    line: "403"
+  check_stage_layout_migration:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "406"
   check_spent_stage:
     passes: 1
     failures: 0
     tier: code
-    line: "405"
+    line: "409"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "408"
+    line: "412"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "411"
+    line: "415"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "417"
+    line: "421"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "423"
+    line: "427"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "426"
+    line: "430"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "431"
+    line: "435"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "445"
+    line: "449"
 
-checks[code+schema]: 272 types, 1973/1973 invocations passing
-checks[code]: 214 types, 1258/1258 invocations passing
+checks[code+schema]: 274 types, 1975/1975 invocations passing
+checks[code]: 216 types, 1260/1260 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1973/1973 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
+dev gate: PASS - code+schema 1975/1975 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate

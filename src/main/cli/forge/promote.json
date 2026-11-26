@@ -4,7 +4,7 @@
   "modality": "MAY",
   "args": [],
   "r": [
-    "stage/input/github/forge/gh-CLI",
+    "stage/data/input/github/forge/gh-CLI",
     "data/input/github/forge/gh-CLI",
     "stage/rehearsal.json"
   ],

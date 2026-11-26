@@ -619,6 +619,8 @@ rsc/migration/1090.sh,2,comment,rsc/migration/1090.sh,Y,# rsc/migration/1090.sh 
 rsc/migration/1090.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1133.sh,2,comment,rsc/migration/1133.sh,Y,"# rsc/migration/1133.sh - the stage is one per actor, the reader's at tmp/stage/usr (issues/1133):"
 rsc/migration/1133.sh,9,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1163.sh,2,comment,rsc/migration/1163.sh,Y,"# rsc/migration/1163.sh - the stage is laid out as the checkout is (issues/1163): its input, at"
+rsc/migration/1163.sh,9,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1170.sh,2,comment,rsc/migration/1170.sh,Y,# rsc/migration/1170.sh - the machine-local roots are named for what they hold (issues/1170):
 rsc/migration/1170.sh,15,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1171.sh,2,comment,rsc/migration/1171.sh,Y,"# rsc/migration/1171.sh - the stage is one directory, stage/ (issues/1171): the room's stage, laid out"
@@ -881,7 +883,7 @@ src/main/agent/write_if_changed.py,10,path_str,src/main/agent/write_if_changed.p
 src/main/browser/audit.py,4,comment,src/main/cli/browser/account.py,Y,(src/main/cli/browser/account.py).
 src/main/browser/audit.py,13,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser/audit.py
 src/main/browser/audit.py,13,comment,src/main/browser/audit.py,Y,src/run_python_script.sh src/main/browser/audit.py
-src/main/browser/audit.py,16,comment,src/main/tier.py,Y,"data/output/markdown - the checkout's, or a rehearsal's scratch (src/main/tier.py)."
+src/main/browser/audit.py,16,comment,src/main/tier.py,Y,"data/output/markdown - the checkout's, or the stage's in a rehearsal (src/main/tier.py)."
 src/main/browser/audit.py,28,path_str,src/main/browser/audit.py,Y,SELF = 'src/main/browser/audit.py'
 src/main/browser/claude/validate.sh,5,comment,src/main/browser/claude/validate.sh,Y,#   src/main/browser/claude/validate.sh --capture <path/to/uuid-directory>
 src/main/browser/claude/validate.sh,6,comment,src/main/browser/claude/validate.sh,Y,#   src/main/browser/claude/validate.sh --api-capture <path/to/API-capture-root>
@@ -1081,7 +1083,7 @@ src/main/cli/pipeline/pipeline.sh,43,comment,src/main/provider.sh,Y,# shellcheck
 src/main/cli/pipeline/pipeline.sh,394,comment,rsc/CALCULUS.md,Y,# Membership: L9 - Currency (rsc/CALCULUS.md). The index and the corpus page are built
 src/main/cli/pipeline/pipeline.sh,429,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/pipeline/rehearse.sh,18,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the scratch tiers, stage/scratch, so"
+src/main/cli/pipeline/rehearse.sh,18,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the stage as the root, laid out as the checkout is"
 src/main/cli/pipeline/rehearse.sh,23,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
 src/main/cli/pipeline/rehearse.sh,34,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/pipeline/rehearse.sh,36,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
@@ -1375,7 +1377,7 @@ src/main/provider.sh,2,comment,src/main/provider.py,Y,# provider.sh — the shel
 src/main/provider.sh,7,comment,src/run_python_script.sh,Y,# The derivation runs the venv's python through src/run_python_script.sh (issues/478); where that
 src/main/reference/reference.py,44,path_str,src/main/reference/reference.py,Y,SELF = 'src/main/reference/reference.py'
 src/main/rehearsal.py,8,comment,src/main/cli/pipeline/rehearse.sh,Y,A rehearsal is corpus-yoga pipeline rehearse (src/main/cli/pipeline/rehearse.sh): the
-src/main/rehearsal.py,10,comment,src/main/tier.py,Y,"(src/main/tier.py) resolves to the scratch tiers, stage/scratch, replaced whole by each"
+src/main/rehearsal.py,10,comment,src/main/tier.py,Y,"(src/main/tier.py) resolves to the stage as its root, laid out as the checkout is - data/input"
 src/main/rehearsal.py,17,comment,src/main/validation_verdict.py,Y,"(src/main/validation_verdict.py), with the validator's whole output where it refused. The"
 src/main/rehearsal.py,20,comment,src/main/rehearsal.schema.json,Y,"src/main/rehearsal.schema.json, held on every write and every read: what does not"
 src/main/rehearsal.py,28,comment,src/main/corpus.py,Y,"A unit's standing to the record is decidable from it (src/main/corpus.py, `verdict`):"
@@ -1401,10 +1403,10 @@ src/main/standing.py,5,comment,src/main/cli/status/report.py,Y,"corpus-yoga stat
 src/main/standing.py,6,comment,src/main/reply.py,Y,"reply says after every act (src/main/reply.py, issues/1016). No noun's status runs another,"
 src/main/steps.sh,28,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/steps.sh,35,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/tier.py,17,comment,src/main/rehearsal.py,Y,"what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). SCRATCH_CACHE is the"
-src/main/tier.py,19,comment,src/main/tier.sh,Y,src/main/tier.sh is the shell twin. The dev gate holds that no other script under
-src/main/tier.py,25,path_str,src/main/tier.py,Y,SELF = 'src/main/tier.py'
-src/main/tier.py,82,comment,rsc/cache_io.csv,Y,declarations and rsc/cache_io.csv spell them - under the tiers in force; stage/... under the
+src/main/tier.py,18,comment,src/main/rehearsal.py,Y,"judged (src/main/rehearsal.py, issues/815). STAGE_CACHE is the stage's cache whatever tiers are"
+src/main/tier.py,20,comment,src/main/tier.sh,Y,src/main/tier.sh is the shell twin. The dev gate holds that no other script under
+src/main/tier.py,26,path_str,src/main/tier.py,Y,SELF = 'src/main/tier.py'
+src/main/tier.py,84,comment,rsc/cache_io.csv,Y,declarations and rsc/cache_io.csv spell them - under the tiers in force; stage/... under the
 src/main/tier.sh,2,comment,src/main/tier.py,Y,"# tier.sh — the tiers as a declared contract (issues/702), the shell twin of src/main/tier.py."
 src/main/tier.sh,7,comment,src/main/tier.py,Y,"# stamp_of and record_of, and only by the act they name - src/main/tier.py, issues/708, issues/912)"
 src/main/validate.py,3,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
@@ -1583,8 +1585,8 @@ src/test/dev/check/tree.py,322,path_str,src/main,Y,"@check(tier='code', on=['src
 src/test/dev/check/tree.py,322,path_str,src/test,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
 src/test/dev/check/tree.py,322,path_str,rsc/CALCULUS.md,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
 src/test/dev/check/tree.py,322,path_str,rsc/schema/WORKFLOW.md,Y,"@check(tier='code', on=['src/main', 'src/test', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/sch"
-src/test/dev/check/tree.py,423,path_str,src/main,Y,"@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.dev_gate_keeps_its_data_under"
-src/test/dev/check/tree.py,423,path_str,src/test/dev/run.sh,Y,"@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.dev_gate_keeps_its_data_under"
+src/test/dev/check/tree.py,423,path_str,src/main,Y,"@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.stage_mirrors_the_checkout', "
+src/test/dev/check/tree.py,423,path_str,src/test/dev/run.sh,Y,"@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.stage_mirrors_the_checkout', "
 src/test/dev/check/tree.py,342,path_str,src/main/spell.py,Y,"'src/main/spell.py does not exist: every site types its command', law='G17', check='command.every_spelling_is_declared')"
 src/test/dev/check/tree.py,377,path_str,rsc/CALCULUS.md,Y,"files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORK"
 src/test/dev/check/tree.py,377,path_str,rsc/schema/WORKFLOW.md,Y,"files += [REPO_ROOT / name for name in ('README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'rsc/CALCULUS.md', 'rsc/schema/WORK"
@@ -1603,6 +1605,7 @@ src/test/dev/check/unit.py,927,comment,rsc/migration/1052.sh,Y,"which main held 
 src/test/dev/check/unit.py,1049,comment,rsc/migration/1090.sh,Y,rsc/migration/1090.sh disposes of the agent memory the store and the stage hold (issues/1090):
 src/test/dev/check/unit.py,1152,comment,rsc/migration/1170.sh,Y,"what they hold by rsc/migration/1170.sh, even where the new code has already written beside"
 src/test/dev/check/unit.py,1205,comment,rsc/migration/1171.sh,Y,"rsc/migration/1171.sh - its input, scratch and rehearsal record one level up - and stage/dev,"
+src/test/dev/check/unit.py,1254,comment,rsc/migration/1163.sh,Y,"checkout's layout by rsc/migration/1163.sh: the input folded into stage/data/input, the"
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1675,9 +1678,13 @@ src/test/dev/check/unit.py,1218,path_str,rsc/migration/step.sh,Y,"for part in ('
 src/test/dev/check/unit.py,1218,path_str,rsc/migration/1171.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1171.sh'):"
 src/test/dev/check/unit.py,1232,path_str,rsc/migration/1171.sh,Y,script = checkout / 'rsc/migration/1171.sh'
 src/test/dev/check/unit.py,1202,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.stage_is_one_directory',), on=['rsc/migration'])"
-src/test/dev/check/unit.py,1250,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1250,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1250,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1266,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1163.sh'):"
+src/test/dev/check/unit.py,1266,path_str,rsc/migration/1163.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1163.sh'):"
+src/test/dev/check/unit.py,1277,path_str,rsc/migration/1163.sh,Y,script = checkout / 'rsc/migration/1163.sh'
+src/test/dev/check/unit.py,1250,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.stage_mirrors_the_checkout',), on=['rsc/migration'])"
+src/test/dev/check/unit.py,1294,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1294,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1294,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
 src/test/dev/check/unit.py,35,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under stage/rehearsal '
 src/test/dev/check/unit.py,222,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,531,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1692,6 +1699,7 @@ src/test/dev/check/unit.py,791,path_str,rsc/migration/1069.sh,Y,"return subproce
 src/test/dev/check/unit.py,1075,path_str,rsc/migration/1090.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')"
 src/test/dev/check/unit.py,1186,path_str,rsc/migration/1170.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1170.sh is absent')"
 src/test/dev/check/unit.py,1235,path_str,rsc/migration/1171.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1171.sh is absent')"
+src/test/dev/check/unit.py,1280,path_str,rsc/migration/1163.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1163.sh is absent')"
 src/test/dev/check/unit.py,1014,path_str,rsc/migration,Y,"done = subprocess.run([str(checkout / 'rsc/migration' / name), '--apply'], capture_output=True, text=True, env=env, cwd="
 src/test/dev/check/upstream.py,180,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,209,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"
@@ -1757,7 +1765,7 @@ src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--f
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/dev/run.sh,87,comment,rsc/test/pre-commit-hook.sh,Y,"# The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an"
-src/test/dev/run.sh,134,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
+src/test/dev/run.sh,135,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/test/dev/run.sh,144,comment,rsc/test/run.log,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
 src/test/dev/run.sh,144,comment,rsc/test/xref.csv,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
 src/test/dev/run.sh,171,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh

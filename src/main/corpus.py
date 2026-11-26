@@ -5,15 +5,15 @@ storage (issues/687). The home rsc/CALCULUS.md's roadmap names for the Mergeable
 its first face, promotion, and the four older comparisons it names stand as they are.
 
 THE STAGE - the room's stage is one root, stage/ (src/main/tier.py, issues/702,
-issues/1171): stage/input is what the captures write, at the address each unit will have under data/input;
-stage/scratch is what the last rehearsal's run derived - a data tier whose input links
-to stage/input and whose output is its preview, a tmp tier with the validation -
-replaced whole by the next run; and stage/rehearsal.json is the rehearsal record, one
+issues/1171): stage/data/input is what the captures write, at the address each unit will have under data/input;
+stage/data/output, stage/cache and stage/logs are what the last rehearsal's run derived - its
+preview and its validation, laid out as the checkout's (issues/1163) - replaced whole by the next
+run; and stage/rehearsal.json is the rehearsal record, one
 file, what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). A capture writes the
 stage's input and reads nothing (L10). `corpus-yoga pipeline rehearse`
 (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
-CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the scratch tiers, so
-it judges the staged units alone and writes the scratch and the record alone.
+CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to the stage as its root, so
+it judges the staged units alone and writes the stage's derived tiers and the record alone.
 
 UNIT - what a pipeline's declaration selects (src/main/<pipeline>/pipeline.json):
 under the declared input of each provider, every match of input_glob or extra_input_glob,
@@ -45,7 +45,7 @@ else:
     whole           held whole or not at all: identical, else diverged
 
 VERDICT - the pipelines are the one validator, and a rehearsal is where they judge the
-stage: each datum's verdict is what the validation step wrote under the scratch's cache
+stage: each datum's verdict is what the validation step wrote under the stage's cache
 at the unit's cache address (src/main/validation_verdict.py, issues/701), at the family's latest
 version, and the rehearsal record holds it with the digests of every unit the run began
 over. Every verb reads the record, so the last rehearsal is the judgement of every unit.
@@ -62,12 +62,12 @@ PROMOTE - each capturing noun has the verb: what `corpus-yoga browser capture` s
 `corpus-yoga browser promote` promotes, over the same extent words (--provider <p> |
 --all, --id <prefix>); agent, export and forge likewise. A noun's units are the staged
 units under the roots its capture declares it writes (src/main/cli/<noun>/capture.json's
-w rows under stage/input). Every staged unit gets its verdict; the relation refuses
+w rows under stage/data/input). Every staged unit gets its verdict; the relation refuses
 only where the held copy would lose something (AHEAD, DIVERGED). Promotion is a copy,
 never a move: the unit's members are written over the held ones by address, byte-equal
 being silence, and the stage is never written by promote - the captures own it, and
 `corpus-yoga stage clean` is its one janitor, removing the units the store holds
-byte-equal. A promoted unit's verdict stays in the record and the scratch, and the plain
+byte-equal. A promoted unit's verdict stays in the record and the stage's cache, and the plain
 run judges the promoted datum again from the same bytes - two hands on cache would
 break L6 as effects.writers_disjoint holds it. Each noun's bare status,
 bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
@@ -112,7 +112,7 @@ NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each
 
 @dataclass
 class Unit:
-    address: Path                 # relative to the input root (data/input or stage/input)
+    address: Path                 # relative to the input root (data/input or stage/data/input)
     members: list[Path]           # the paths that make it: its directory, or its file and companion
     files: list[Path]             # every file under the members
     selected: list[Path]          # the files the glob selected - what the measure reads
@@ -134,12 +134,12 @@ class Unit:
 
     @property
     def cache(self) -> Path | None:
-        """The datum's address under the scratch tiers' cache, where the last run wrote its
+        """The datum's address under the stage's cache, where the last run wrote its
         validation: what the rehearsal record reduces from."""
         if self.pipeline is None:
             return None
         rel = Path(cache_io.path_for(self.pipeline)).relative_to('cache')
-        return tier.SCRATCH_CACHE / rel / (self.provider or '') / Path(*self.subject)
+        return tier.STAGE_CACHE / rel / (self.provider or '') / Path(*self.subject)
 
 
 def pipelines() -> dict[str, dict]:
@@ -669,9 +669,9 @@ def verdict(unit: Unit, record: dict | str | None = None, own: set[str] | None =
 # -- promote -------------------------------------------------------------------------------
 
 def roots_of(noun: str) -> list[Path]:
-    """The stage roots a noun's capture declares it writes, relative to stage/input."""
+    """The stage roots a noun's capture declares it writes, relative to stage/data/input."""
     decl = json.loads((CLI_ROOT / noun / 'capture.json').read_text())
-    return [Path(w.removeprefix('stage/input/')) for w in decl.get('w', []) if w.startswith('stage/input/')]
+    return [Path(w.removeprefix('stage/data/input/')) for w in decl.get('w', []) if w.startswith('stage/data/input/')]
 
 
 def noun_of(unit: Unit) -> str | None:
@@ -1074,14 +1074,17 @@ def human(n: float) -> str:
 
 
 def orphans() -> list[Path]:
-    """What sits under stage and is neither the input, the scratch nor the record."""
+    """What sits under stage and is neither its data's input or output, its cache, its logs nor the
+    record - laid out as the checkout is (issues/1163)."""
     stage = tier.STAGE
-    kept = ('input', 'scratch', tier.STAGE_REHEARSAL.name)
-    return [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
+    kept = ('data', 'cache', 'logs', tier.STAGE_REHEARSAL.name)
+    top = [e for e in sorted(stage.iterdir()) if e.name not in kept] if stage.is_dir() else []
+    data = stage / 'data'
+    return top + ([e for e in sorted(data.iterdir()) if e not in (tier.STAGE_INPUT, tier.STAGE_OUTPUT)] if data.is_dir() else [])
 
 
 def spent(remaining: list['Unit']) -> bool:
-    """Whether stage holds anything while no unit stays staged: its input, scratch and
+    """Whether stage holds anything while no unit stays staged: its input, output, cache, logs and
     rehearsal record serve only the staged units, so with none they serve nothing (issues/1127)."""
     stage = tier.STAGE
     return not remaining and stage.is_dir() and any(stage.iterdir())
@@ -1118,7 +1121,8 @@ class Rehearsal:
 @dataclass
 class StageTier:
     input: str                    # the staged input's size, or that it is absent
-    scratch: str                  # the last run's derived tiers' size, or that they are absent
+    output: str                   # the last run's output's size, or that it is absent
+    cache: str                    # the last run's cache's size, or that it is absent
     orphans: dict[str, Orphan]    # by path
     record: Rehearsal | str = facts.named('rehearsal.json')   # the record, or why there is none
 
@@ -1160,7 +1164,7 @@ def judged_as(row: Judged) -> str:
 class StageStatus:
     """Bare corpus-yoga stage: the tier's state as a report, ending on what is invalid and
     why and what is unlicensed and why, as facts. It names no act (issues/851): the stage is a
-    scratch tier between the live stores and the store, and the store's status, which
+    waiting tier between the live stores and the store, and the store's status, which
     reads both, says what to run next."""
     tmp_stage: StageTier | str = facts.named('stage')
     units: dict[str, Kind] | str | None = None       # by selection, a path under the input root: the judgement's counts
@@ -1173,7 +1177,7 @@ def stage_orphans() -> dict[str, 'Orphan']:
     is staged, stage itself, which the janitor removes whole (issues/1127)."""
     if spent(units(STAGED)):
         at = tier.STAGE.relative_to(REPO).as_posix() if tier.STAGE.is_relative_to(REPO) else str(tier.STAGE)
-        return {at: Orphan(human(size_of(tier.STAGE)), facts.phrase('no unit is staged - its input, scratch and rehearsal record serve none'),
+        return {at: Orphan(human(size_of(tier.STAGE)), facts.phrase('no unit is staged - its input, output, cache, logs and rehearsal record serve none'),
                            facts.Would(spell.line('stage', 'clean'), {at: 1}))}
     return {e.relative_to(REPO).as_posix(): Orphan(human(size_of(e)), facts.phrase('nothing reads it'),
                                                     facts.Would(spell.line('stage', 'clean'), {e.relative_to(REPO).as_posix(): 1}))
@@ -1196,7 +1200,7 @@ def rehearsal_facts(record: dict, rows: list[Judged]) -> Rehearsal:
 
 
 def stage_facts() -> StageStatus:
-    """Bare corpus-yoga stage as facts (issues/741, issues/759, issues/822): the input's size, the scratch's,
+    """Bare corpus-yoga stage as facts (issues/741, issues/759, issues/822): the input's size, the output's and the cache's,
     each orphan with the janitor as its act, the rehearsal record's anchor with the units
     by what it found of them, the units by kind with each kind's counts, then what is
     invalid by the version file that found it so - its path, relative to rsc/schema,
@@ -1212,7 +1216,8 @@ def stage_facts() -> StageStatus:
     record = rehearsal.read()
     out = StageStatus(StageTier(
         input=human(size_of(tier.STAGE_INPUT)) if tier.STAGE_INPUT.exists() else 'absent',
-        scratch=human(size_of(tier.STAGE_SCRATCH)) if tier.STAGE_SCRATCH.exists() else 'absent',
+        output=human(size_of(tier.STAGE_OUTPUT)) if tier.STAGE_OUTPUT.exists() else 'absent',
+        cache=human(size_of(tier.STAGE_CACHE)) if tier.STAGE_CACHE.exists() else 'absent',
         orphans=stage_orphans(),
         record=(rehearsal_facts(record, rows) if isinstance(record, dict)
                 else facts.phrase('none - no rehearsal has run') if record is None else record)))
@@ -1366,7 +1371,7 @@ def selection_of(pipeline: str, provider: str | None, kind: str) -> str | None:
 
 def kind_of(unit: Unit) -> str:
     """What a count of the unit is a count of: its selection, as the path under the input
-    root - stage/input, or data/input - that the pipeline's declaration selects it by,
+    root - stage/data/input, or data/input - that the pipeline's declaration selects it by,
     the store's input with the provider filled in and the glob after it; a unit no
     declaration selects is counted by its own address."""
     return unit.selection or unit.address.as_posix()

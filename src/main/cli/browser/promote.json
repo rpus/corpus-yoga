@@ -23,8 +23,8 @@
     }
   ],
   "r": [
-    "stage/input/claude/chat/API-capture",
-    "stage/input/gemini/chat/DOM-capture",
+    "stage/data/input/claude/chat/API-capture",
+    "stage/data/input/gemini/chat/DOM-capture",
     "data/input/claude/chat/API-capture",
     "data/input/gemini/chat/DOM-capture",
     "stage/rehearsal.json"
