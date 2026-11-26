@@ -204,7 +204,6 @@ class Catalogue:
     present: str                  # the catalogues the cache holds, of those the schema tree derives
     underived: str | None = None
     not_yet_projected: int | None = None
-    act: facts.Would | None = None
 
 
 @dataclass
@@ -216,8 +215,9 @@ class Status:
 
 def status() -> None:
     """The bare-noun default: show current state, write nothing. Reports which
-    catalogues cache/metamodel/ already holds and which a `project` would still
-    mint, then the metamodel.json disposal queue."""
+    catalogues cache/metamodel/ already holds and which a derive would still mint,
+    offering no act: the catalogues are a reading aid for a schema mint, which an agent
+    makes in its worktree (rsc/schema/WORKFLOW.md), then the metamodel.json disposal queue."""
     present, missing = [], []
     for _name, _schema, target in _catalogues():
         (present if target.exists() else missing).append(str(target.relative_to(CATALOGUE_DIR)))
@@ -229,8 +229,7 @@ def status() -> None:
     facts.say_standing(Status(
         Catalogue(f'{len(present)}/{total}',
                   underived=facts.phrase('{n} file(s) no schema version derives', n=len(underived)) if underived else None,
-                  not_yet_projected=len(missing) or None,
-                  act=facts.would(spell.line('metamodel', 'derive'), {'cache/metamodel': len(missing) + len(underived)})),
+                  not_yet_projected=len(missing) or None),
         table, join))
 
 

@@ -63,18 +63,18 @@ run_one() {
   # output subtree. A blanket wipe would destroy the validation memoisation logs,
   # forcing full revalidation every run. (The paid captures are out of reach either
   # way — they live in data/output/indexing/, not under cache/.)
-  step validate           "$SCRIPT_DIR/validate.sh" --export "$batch"
+  map step validate           "$SCRIPT_DIR/validate.sh" --export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
   # users) verbatim into cache/<batch>/ — the cache dir is then the complete record of
   # the four-component snapshot
-  step archive_components "$REPO_DIR/src/run_python_script.sh" \
+  map step archive_components "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/archive_components.py" --export "$batch"
-  step extract_files      "$SCRIPT_DIR/extract_files.sh" --export "$batch"
-  step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --export "$batch"
-  step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
+  map step extract_files      "$SCRIPT_DIR/extract_files.sh" --export "$batch"
+  map step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --export "$batch"
+  map step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
   # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces
   # (validated vs the Conversation definition)
-  step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
+  map step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
 }
 
@@ -86,19 +86,19 @@ collate_one() {
   if [[ -d "$API_CAPTURE" ]]; then have_captures="1"; fi
   # project_markdown: the atomised pieces rendered to markdown/, beside this batch's
   # validation/ output, each frontmatter saying how current it is against the live captures
-  step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
+  reduce step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/project_markdown.py" --bulk-export "$batch"
   # inference is not per-batch: the dashboard's captures are the durable
   # single-source data/output/indexing/ (refreshed deliberately by `corpus-yoga indexing
   # capture`), which present reads. Nothing paid runs on every export.
-  step present            "$SCRIPT_DIR/present.sh" --export "$batch"
+  reduce step present            "$SCRIPT_DIR/present.sh" --export "$batch"
   # compare_sources: the append-only invariant across export surfaces (issues/535, the
   # dev gate's former cross_sources check, spoken here once): a conversation in
   # both a bulk export and the live captures projects to identical turns, or the
   # export is a prefix of the capture (it progressed after the snapshot). The
   # capture being a prefix of the EXPORT is a stale capture; divergence inside the
   # shared prefix is a projection defect or corruption - both FAIL and gate.
-  step_if "$have_captures" 'when live captures exist' \
+  reduce step_if "$have_captures" 'when live captures exist' \
        compare_sources    "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/compare_sources.py" \
     --api-capture "$API_CAPTURE" --bulk-export "$batch"
@@ -118,7 +118,7 @@ run_tail() {
   # is mutable and lossy between exports, and bulk exports are its only log) and the
   # timeline renders to data/output/markdown/claude/chat/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
-  step memories "$REPO_DIR/src/run_python_script.sh" \
+  reduce step memories "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/memories.py" deposit
   # summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
@@ -126,14 +126,14 @@ run_tail() {
   # data/output/markdown/claude/chat/summaries/<conversation>/ (export-snapshot-time-keyed,
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
-  step summaries "$REPO_DIR/src/run_python_script.sh" \
+  reduce step summaries "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/summaries.py" deposit
   # compare_captures: the latest batch against the live-capture corpus per
   # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
   # conversations to recapture in place. Divergence is a fact, not an error. Whether an
   # earlier batch is held whole within a later one is the store's reading, by the
   # export's atoms (issues/743), and its disposal the store's janitor in the corpus tail (issues/744).
-  step_ok compare_captures "$REPO_DIR/src/run_python_script.sh" \
+  reduce step_ok compare_captures "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_captures.py" --api-capture "$API_CAPTURE"
 }
 

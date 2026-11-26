@@ -865,9 +865,9 @@ src/main/agent/run.sh,89,call,src/main/agent,Y,"held=""$(""$SCRIPT_DIR/$provider
 src/main/agent/run.sh,146,path_str,src/main/agent,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
 src/main/agent/run.sh,147,path_str,src/main/agent,Y,"name=""$(basename ""$project_dir"")"""
 src/main/agent/run.sh,150,call,src/main/agent,Y,"run_one ""$source"" ""$machine"" ""$name"" ""$provider"""
-src/main/agent/run.sh,174,call,src/main/agent/validate.sh,Y,"session) step validate ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
-src/main/agent/run.sh,174,call,src/main/agent,Y,"session) step validate ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
-src/main/agent/run.sh,179,call,src/main/agent/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
+src/main/agent/run.sh,174,call,src/main/agent/validate.sh,Y,"session) map step validate ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
+src/main/agent/run.sh,174,call,src/main/agent,Y,"session) map step validate ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
+src/main/agent/run.sh,179,call,src/main/agent/render_corpus.py,Y,"reduce step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
 src/main/agent/run.sh,197,path_str,src/main/agent,Y,"provider=""$(provider_of ""$project_dir"")"""
 src/main/agent/run.sh,204,call,src/main/agent,Y,"done < <(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"")"
 src/main/agent/run.sh,218,path_str,src/main/agent,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
@@ -917,11 +917,11 @@ src/main/browser/run.sh,14,comment,src/main/steps.sh,Y,# prints exactly the list
 src/main/browser/run.sh,22,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/browser/run.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser/run.sh,33,path_str,src/main/browser/pipeline.json,Y,"input_root=""$(tier_path ""$(jq -r .input ""$SCRIPT_DIR/pipeline.json"")"")"""
-src/main/browser/run.sh,53,call,src/main/browser/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --capture ""$input_dir"""
-src/main/browser/run.sh,70,call,src/main/browser/claude/validate.sh,Y,"step_if ""$has_api"" ""where claude's API captures stand"" validate ""$SCRIPT_DIR/claude/validate.sh"" --api-capture ""$root"""
-src/main/browser/run.sh,72,call,src/main/browser/gemini/validate.sh,Y,"step_if ""$has_dom"" ""where gemini's DOM captures stand"" validate_gemini ""$SCRIPT_DIR/gemini/validate.sh"" --dom-capture ""$"
+src/main/browser/run.sh,53,call,src/main/browser/claude/validate.sh,Y,"map step validate ""$SCRIPT_DIR/claude/validate.sh"" --capture ""$input_dir"""
+src/main/browser/run.sh,70,call,src/main/browser/claude/validate.sh,Y,"map step_if ""$has_api"" ""where claude's API captures stand"" validate ""$SCRIPT_DIR/claude/validate.sh"" --api-capture ""$roo"
+src/main/browser/run.sh,72,call,src/main/browser/gemini/validate.sh,Y,"map step_if ""$has_dom"" ""where gemini's DOM captures stand"" validate_gemini ""$SCRIPT_DIR/gemini/validate.sh"" --dom-captur"
 src/main/browser/run.sh,85,call,src/main/browser/gemini/project_markdown.py,Y,"""$SCRIPT_DIR/gemini/project_markdown.py"" --dom-capture ""$dom_root"""
-src/main/browser/run.sh,89,call,src/main/browser/audit.py,Y,"step_ok audit     ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit.py"""
+src/main/browser/run.sh,89,call,src/main/browser/audit.py,Y,"reduce step_ok audit     ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit.py"""
 src/main/browser/run.sh,113,path_str,src/main/browser/pipeline.json,Y,"api_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" claude)"""
 src/main/browser/run.sh,114,path_str,src/main/browser/pipeline.json,Y,"dom_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" gemini)"""
 src/main/cli/README.md,3,doc,src/main/cli/cli.py,Y,This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
@@ -1076,7 +1076,7 @@ src/main/cli/migration/migration.py,37,path_str,src/main/cli/migration/migration
 src/main/cli/parse_argv.py,28,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/parse_argv.sh,28,comment,src/import_roots.sh,Y,# shellcheck source=src/import_roots.sh
 src/main/cli/pipeline/audit.json,14,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/pipeline/pipeline.json,38,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
+src/main/cli/pipeline/pipeline.json,36,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
 src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,21,comment,src/main/pipeline.schema.json,Y,"# (schemas, input root, globs), typed by src/main/pipeline.schema.json."
 src/main/cli/pipeline/pipeline.sh,31,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1086,15 +1086,15 @@ src/main/cli/pipeline/pipeline.sh,37,comment,src/main/cli/parse_argv.sh,Y,# shel
 src/main/cli/pipeline/pipeline.sh,39,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/pipeline/pipeline.sh,41,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/pipeline/pipeline.sh,43,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
-src/main/cli/pipeline/pipeline.sh,394,comment,rsc/CALCULUS.md,Y,# Membership: L9 - Currency (rsc/CALCULUS.md). The index and the corpus page are built
-src/main/cli/pipeline/pipeline.sh,429,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,339,comment,rsc/CALCULUS.md,Y,# Membership: L9 - Currency (rsc/CALCULUS.md). The index and the corpus page are built
+src/main/cli/pipeline/pipeline.sh,367,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.sh,18,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the stage as the root, laid out as the checkout is"
 src/main/cli/pipeline/rehearse.sh,23,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
 src/main/cli/pipeline/rehearse.sh,34,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/pipeline/rehearse.sh,36,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/pipeline/rehearse.sh,38,comment,src/main/report.sh,Y,# shellcheck source=src/main/report.sh
 src/main/cli/pipeline/render.json,15,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/pipeline/status.py,18,path_str,src/main/cli/pipeline/status.py,Y,SELF = 'src/main/cli/pipeline/status.py'
+src/main/cli/pipeline/status.py,17,path_str,src/main/cli/pipeline/status.py,Y,SELF = 'src/main/cli/pipeline/status.py'
 src/main/cli/pipeline/tail.py,10,comment,src/main/cli/pipeline/pipeline.sh,Y,"stdin: one row per line, `<stage>\t<line>`, as src/main/cli/pipeline/pipeline.sh reads them"
 src/main/cli/pipeline/tail.py,18,path_str,src/main/cli/pipeline/tail.py,Y,SELF = 'src/main/cli/pipeline/tail.py'
 src/main/cli/readings.md,11,doc,rsc/schema/indexing/semanticConcepts,Y,- `inferred-semantic-concepts.json` — `rsc/schema/indexing/semanticConcepts/` (latest
@@ -1268,8 +1268,6 @@ src/main/export/present.sh,79,call,src/main/export/update_title.py,Y,"""$REPO_DI
 src/main/export/present.sh,140,call,src/main/export/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
 src/main/export/query_files.py,9,comment,src/main/export/query_files.py,Y,python src/main/export/query_files.py --export  <path-to-export>
 src/main/export/query_files.py,10,comment,src/main/export/query_files.py,Y,python src/main/export/query_files.py --exports <path-to-exports>
-src/main/export/require_export.sh,16,comment,src/main/export/require_export.sh,Y,#   src/main/export/require_export.sh
-src/main/export/require_export.sh,24,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/export/run.sh,5,comment,src/main/export/run.sh,Y,#   src/main/export/run.sh --item  data/input/claude/chat/bulk-export/data-<...>
 src/main/export/run.sh,6,comment,src/main/export/run.sh,Y,#   src/main/export/run.sh --input data/input/claude/chat/bulk-export
 src/main/export/run.sh,7,comment,src/main/export/run.sh,Y,#   src/main/export/run.sh --input data/input/claude/chat/bulk-export --collate
@@ -1277,13 +1275,13 @@ src/main/export/run.sh,8,comment,src/main/export/run.sh,Y,#   src/main/export/ru
 src/main/export/run.sh,12,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
 src/main/export/run.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/export/run.sh,23,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/export/run.sh,66,call,src/main/export/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --export ""$batch"""
+src/main/export/run.sh,66,call,src/main/export/validate.sh,Y,"map step validate           ""$SCRIPT_DIR/validate.sh"" --export ""$batch"""
 src/main/export/run.sh,71,call,src/main/export/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --export ""$batch"""
-src/main/export/run.sh,72,call,src/main/export/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --export ""$batch"""
-src/main/export/run.sh,73,call,src/main/export/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --export ""$batch"""
-src/main/export/run.sh,74,call,src/main/export/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --export ""$batch"""
+src/main/export/run.sh,72,call,src/main/export/extract_files.sh,Y,"map step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --export ""$batch"""
+src/main/export/run.sh,73,call,src/main/export/extract_heredocs.sh,Y,"map step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --export ""$batch"""
+src/main/export/run.sh,74,call,src/main/export/audit_files.sh,Y,"map step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --export ""$batch"""
 src/main/export/run.sh,78,call,src/main/export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
-src/main/export/run.sh,94,call,src/main/export/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --export ""$batch"""
+src/main/export/run.sh,94,call,src/main/export/present.sh,Y,"reduce step present            ""$SCRIPT_DIR/present.sh"" --export ""$batch"""
 src/main/export/run.sh,122,call,src/main/export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" deposit"
 src/main/export/run.sh,130,call,src/main/export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" deposit"
 src/main/export/run.sh,137,call,src/main/export/compare_captures.py,Y,"""$SCRIPT_DIR/compare_captures.py"" --api-capture ""$API_CAPTURE"""
@@ -1357,8 +1355,9 @@ src/main/metamodel/metamodel.py,4,comment,rsc/metamodel/metamodel.json,Y,"versio
 src/main/metamodel/metamodel.py,5,comment,rsc/metamodel/metamodel.json,Y,families of one name are two catalogues. rsc/metamodel/metamodel.json is hand-curated from these.
 src/main/metamodel/metamodel.py,32,path_str,src/main/metamodel/metamodel.py,Y,SELF = 'src/main/metamodel/metamodel.py'
 src/main/metamodel/metamodel.py,97,comment,rsc/metamodel/join.csv,Y,"The standing of rsc/metamodel/join.csv: the shared names' disposal, each row that no"
-src/main/metamodel/metamodel.py,213,path_str,rsc/metamodel/metamodel.json,Y,table: Table = facts.named('rsc/metamodel/metamodel.json')
-src/main/metamodel/metamodel.py,214,path_str,rsc/metamodel/join.csv,Y,join: Join = facts.named('rsc/metamodel/join.csv')
+src/main/metamodel/metamodel.py,220,comment,rsc/schema/WORKFLOW.md,Y,"makes in its worktree (rsc/schema/WORKFLOW.md), then the metamodel.json disposal queue."
+src/main/metamodel/metamodel.py,212,path_str,rsc/metamodel/metamodel.json,Y,table: Table = facts.named('rsc/metamodel/metamodel.json')
+src/main/metamodel/metamodel.py,213,path_str,rsc/metamodel/join.csv,Y,join: Join = facts.named('rsc/metamodel/join.csv')
 src/main/metamodel/metamodel.py,124,path_str,rsc/metamodel/metamodel.json,Y,"['rsc/metamodel/metamodel.json', 'rsc/metamodel/rejected.txt'])"
 src/main/metamodel/metamodel.py,124,path_str,rsc/metamodel/rejected.txt,Y,"['rsc/metamodel/metamodel.json', 'rsc/metamodel/rejected.txt'])"
 src/main/metamodel/metamodel.py,127,path_str,rsc/metamodel/join.csv,Y,"['rsc/metamodel/join.csv', 'rsc/metamodel/metamodel.json']) for name in orphans} or 'none',"
@@ -1404,8 +1403,8 @@ src/main/send.sh,5,comment,src/main/report.sh,Y,"# src/main/report.sh and src/ma
 src/main/send.sh,5,comment,src/main/enact.sh,Y,"# src/main/report.sh and src/main/enact.sh, whose faces it runs through."
 src/main/standing.py,5,comment,src/main/cli/status/report.py,Y,"corpus-yoga status says as its now: (src/main/cli/status/report.py), which the launcher's"
 src/main/standing.py,6,comment,src/main/reply.py,Y,"reply says after every act (src/main/reply.py, issues/1016). No noun's status runs another,"
-src/main/steps.sh,28,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
-src/main/steps.sh,35,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/steps.sh,30,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
+src/main/steps.sh,37,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/tier.py,18,comment,src/main/rehearsal.py,Y,"judged (src/main/rehearsal.py, issues/815). STAGE_CACHE is the stage's cache whatever tiers are"
 src/main/tier.py,20,comment,src/main/tier.sh,Y,src/main/tier.sh is the shell twin. The dev gate holds that no other script under
 src/main/tier.py,26,path_str,src/main/tier.py,Y,SELF = 'src/main/tier.py'
@@ -1476,20 +1475,25 @@ src/test/dev/check/pipeline.py,209,path_str,src/main,Y,"@check(tier='code', on=[
 src/test/dev/check/pipeline.py,274,path_str,src/main/cli/pipeline,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
 src/test/dev/check/pipeline.py,274,path_str,src/declared_parser.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
 src/test/dev/check/pipeline.py,274,path_str,src/main/cli/cli.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
-src/test/dev/check/pipeline.py,315,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
-src/test/dev/check/pipeline.py,303,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
-src/test/dev/check/pipeline.py,391,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,391,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,303,path_str,src/main/cli/pipeline,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/main/steps.sh', 'src/main/browser', 'src/main/export', 'src/main/a"
+src/test/dev/check/pipeline.py,303,path_str,src/main/steps.sh,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/main/steps.sh', 'src/main/browser', 'src/main/export', 'src/main/a"
+src/test/dev/check/pipeline.py,303,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/main/steps.sh', 'src/main/browser', 'src/main/export', 'src/main/a"
+src/test/dev/check/pipeline.py,303,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/main/steps.sh', 'src/main/browser', 'src/main/export', 'src/main/a"
+src/test/dev/check/pipeline.py,303,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/main/steps.sh', 'src/main/browser', 'src/main/export', 'src/main/a"
+src/test/dev/check/pipeline.py,333,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
+src/test/dev/check/pipeline.py,321,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
+src/test/dev/check/pipeline.py,409,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,409,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/room.py,650,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
 src/test/dev/check/room.py,667,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,667,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
@@ -1965,7 +1969,6 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/test/xref.json,Y,
 ,,,src/main/cli/walkthrough/walkthrough.json,Y,
 ,,,src/main/enact.py,Y,
-,,self_only,src/main/export/require_export.sh,Y,
 ,,self_only,src/main/export/vintage.py,Y,
 ,,,src/main/format_table.py,Y,
 ,,self_only,src/main/indexing/reply_shape.py,Y,

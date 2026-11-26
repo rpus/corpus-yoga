@@ -1,7 +1,6 @@
 """
 status.py - bare `corpus-yoga pipeline`: each pipeline by its declaration and the steps its
-plan names, read as rows on stdin from pipeline.sh (`pipeline <name> <prep step or ->`,
-tab-separated), then the stage's every unit by its facts, as one shape (issues/759, issues/800).
+plan names, read as rows on stdin from pipeline.sh (`pipeline <name>`, tab-separated), then the stage's every unit by its facts, as one shape (issues/759, issues/800).
 Reads; writes nothing.
 """
 import json
@@ -56,12 +55,12 @@ def owed_runs() -> dict[str, facts.Would]:
     return out
 
 
-def steps_of(name: str, prep: str | None) -> list[str]:
+def steps_of(name: str) -> list[str]:
     """The steps the pipeline's plans name (`run.sh --plan`, then `run.sh --plan --collate`, the one
-    authority on their order), the prep step pipeline.sh runs before them first."""
+    authority on their order)."""
     plan = ''.join(subprocess.run([str(PIPELINE_ROOT / name / 'run.sh'), '--plan', *mode], capture_output=True, text=True, cwd=REPO).stdout
                    for mode in ([], ['--collate']))
-    steps = [prep] if prep else []
+    steps: list[str] = []
     for line in plan.splitlines():
         if line.startswith('  ') and not line.rstrip().endswith(':'):
             words = line.split()
@@ -76,7 +75,7 @@ def one_or_each(by_provider: dict[str, str]):
     return next(iter(by_provider.values())) if len(set(by_provider.values())) == 1 else by_provider
 
 
-def pipeline(name: str, prep: str | None) -> Pipeline:
+def pipeline(name: str) -> Pipeline:
     declared = json.loads((PIPELINE_ROOT / name / 'pipeline.json').read_text())
     providers = declared.get('provider')
     if providers:
@@ -85,12 +84,12 @@ def pipeline(name: str, prep: str | None) -> Pipeline:
     else:
         unit, measure = declared.get('unit'), declared.get('measure')
     return Pipeline(declared['input'], list(providers) if providers else None, unit or None, measure or None,
-                    declared['schemas'], steps_of(name, prep))
+                    declared['schemas'], steps_of(name))
 
 
 def main() -> int:
-    rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.count('\t') == 2]
-    pipelines = {name: pipeline(name, None if prep == '-' else prep) for kind, name, prep in rows if kind == 'pipeline'}
+    rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.count('\t') == 1]
+    pipelines = {name: pipeline(name) for kind, name in rows if kind == 'pipeline'}
     report = corpus.report_facts(None)
     for name, run in owed_runs().items():
         if name in pipelines:
