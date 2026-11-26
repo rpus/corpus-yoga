@@ -98,6 +98,9 @@
         },
         {
           "$ref": "#/definitions/DataFlowRecordsRecord"
+        },
+        {
+          "$ref": "#/definitions/DerivedFromRecord"
         }
       ]
     },
@@ -914,6 +917,13 @@
         "params": {
           "$ref": "#/definitions/ApiRequestParams"
         },
+        "thread": {
+          "$ref": "#/definitions/ApiRequestThread"
+        },
+        "echoWireToolInputs": {
+          "type": "boolean",
+          "description": "true on all 387 api-request records of reading-room's session c47d8eb9, Claude Code 2.1.332; absent on every record of 2.1.331 and earlier."
+        },
         "base": {
           "description": "The id of the api-request record before this one. Absent on the first record observed, present and equal to the previous record's id on the other 28.",
           "$ref": "#/definitions/UuidV4"
@@ -972,12 +982,54 @@
         "sessionId": {
           "$ref": "#/definitions/UuidV4"
         },
+        "snapshot": {
+          "type": "boolean",
+          "description": "true on the one record of each of two sessions that carries it (reading-room, 2026-11-26), a few records after the session's derived-from record; read as the data flow restated across a compaction - a reading of two records. Absent on the other 1,124."
+        },
         "records": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/DataFlowEntry"
           },
           "description": "Empty on 1 of the 485 records, one entry on 479, two on 5."
+        }
+      }
+    },
+    "DerivedFromRecord": {
+      "title": "DerivedFromRecord",
+      "description": "A record naming the sessions a session derives from and how, written once in each of two sessions on reading-room, staged 2026-11-26 and rehearsed at 2026-11-26T115120Z: record 5283 of 380a1912-9383-46d7-8203-2b8d527eb727 and record 2363 of c47d8eb9-e7e5-463a-9933-86d8e60f5bdf, none in any of the 25 sessions held before. Each names its own session, by compact. Read as the harness's mark that a session continues from one it compacted - a reading of two records, which a via other than compact or an id naming another session would contradict. Undeclared before v32.",
+      "type": "object",
+      "required": [
+        "type",
+        "v",
+        "sessionId",
+        "sessions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "derived-from"
+          ],
+          "description": "(discriminator)"
+        },
+        "v": {
+          "type": "integer",
+          "enum": [
+            1
+          ],
+          "description": "The version of the record's own shape, 1 on both records; a record of another version is refused, so that a new shape asks for a new version of this family."
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DerivedFromSession"
+          },
+          "description": "One entry on both records."
         }
       }
     },
@@ -1698,6 +1750,18 @@
         }
       }
     },
+    "ApiRequestThread": {
+      "title": "ApiRequestThread",
+      "description": "The request's place in a thread of messages: a create, or a continue naming the response it follows. Observed on all 387 api-request records of reading-room's session c47d8eb9 (Claude Code 2.1.332, staged 2026-11-26), 15 creates and 372 continues, the records' params.betas listing message-threads-2026-08-12. Read as the request's place in a server-side message thread, which that beta names - a reading of one session, which a continue naming no earlier response would contradict.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ApiRequestThreadCreate"
+        },
+        {
+          "$ref": "#/definitions/ApiRequestThreadContinue"
+        }
+      ]
+    },
     "CacheControlEntry": {
       "title": "CacheControlEntry",
       "description": "One cache control setting of an api-request record: where in the request, and what. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: three per record.",
@@ -1726,7 +1790,7 @@
     },
     "DataFlowEntry": {
       "title": "DataFlowEntry",
-      "description": "One entry of a data-flow-records record: a response, or an event by the tool it ran, what it touched or its source.",
+      "description": "One entry of a data-flow-records record: a response, or an event by the tool it ran, what it touched or its source, or a tool use by its id.",
       "oneOf": [
         {
           "$ref": "#/definitions/DataFlowResponseEntry"
@@ -1739,8 +1803,35 @@
         },
         {
           "$ref": "#/definitions/DataFlowSourceEntry"
+        },
+        {
+          "$ref": "#/definitions/DataFlowToolUseEntry"
         }
       ]
+    },
+    "DerivedFromSession": {
+      "title": "DerivedFromSession",
+      "description": "A session a session derives from, its kind, and how. Observed twice, each naming the session that holds it.",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "via"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "type": {
+          "type": "string",
+          "description": "claude_code_session on both entries observed."
+        },
+        "via": {
+          "type": "string",
+          "description": "compact on both entries observed."
+        }
+      }
     },
     "Entrypoint": {
       "title": "Entrypoint",
@@ -2097,6 +2188,46 @@
         }
       }
     },
+    "ApiRequestThreadCreate": {
+      "title": "ApiRequestThreadCreate",
+      "description": "A request that opens a thread. Observed 15 times.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "create"
+          ],
+          "description": "(discriminator)"
+        }
+      }
+    },
+    "ApiRequestThreadContinue": {
+      "title": "ApiRequestThreadContinue",
+      "description": "A request that continues a thread after a response. Observed 372 times.",
+      "type": "object",
+      "required": [
+        "type",
+        "previous_message_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "continue"
+          ],
+          "description": "(discriminator)"
+        },
+        "previous_message_id": {
+          "$ref": "#/definitions/ResponseId"
+        }
+      }
+    },
     "CacheControlValue": {
       "title": "CacheControlValue",
       "description": "A cache control value. Observed in home-room's session 67f2899c under Claude Code 2.1.300, staged 2026-10-15: type \"ephemeral\" and ttl \"1h\" on all 87, scope \"global\" on 29.",
@@ -2230,6 +2361,24 @@
               "description": "null on the one entry observed."
             }
           }
+        }
+      }
+    },
+    "DataFlowToolUseEntry": {
+      "title": "DataFlowToolUseEntry",
+      "description": "A tool use by its id and the tool it ran. Observed 749 times, on the two snapshot records alone: tool_name Bash, Write, Edit, Read, Skill or ToolSearch.",
+      "type": "object",
+      "required": [
+        "tool_name",
+        "tool_use_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tool_name": {
+          "type": "string"
+        },
+        "tool_use_id": {
+          "$ref": "#/definitions/ToolUseId"
         }
       }
     },
@@ -2463,6 +2612,12 @@
       "description": "An event of the harness by its id, event_ and a version 4 uuid; every event_id of the same records.",
       "type": "string",
       "pattern": "^event_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "ToolUseId": {
+      "title": "ToolUseId",
+      "description": "A tool use by its id, toolu_ and 24 letters and digits; every tool_use_id of the 749 DataFlowToolUseEntry entries of reading-room's sessions 380a1912 and c47d8eb9, 2026-11-26. A tool_use block's own id is typed a plain string, as before.",
+      "type": "string",
+      "pattern": "^toolu_[0-9A-Za-z]{24}$"
     },
     "ContentBlock": {
       "title": "ContentBlock",
