@@ -115,11 +115,11 @@ prune_departed_projects() {
 }
 
 machine_housekeeping() {
-  step prune_departed_gen prune_departed_projects "$1" "$2"
+  reduce step prune_departed_gen prune_departed_projects "$1" "$2"
 }
 
 project_housekeeping() {
-  step prune_departed_sessions prune_departed "$1" "$2" "$3" "$4"
+  reduce step prune_departed_sessions prune_departed "$1" "$2" "$3" "$4"
 }
 
 run_one() {
@@ -128,9 +128,9 @@ run_one() {
   local source="$1" machine="$2" project_name="$3" provider="$4"
   local session; session="$(basename "${source%.jsonl}")"
   local out_dir="$CACHE_DIR/$provider/$machine/$project_name/$session"
-  step ensure_session_dir   mkdir -p "$out_dir"
-  step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json" || return 1
-  step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
+  map step ensure_session_dir   mkdir -p "$out_dir"
+  map step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json" || return 1
+  map step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
 }
 
 # ── Dispatch workers (issues/395): one task each, machine/project derived from the
@@ -158,7 +158,7 @@ validate_one_pair() {
   IFS="$(printf '\t')" read -r input schema log_dir label <<TASK
 $1
 TASK
-  step validate_pair "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
+  map step validate_pair "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
     --pair "$input" "$schema" "$log_dir" "$label"
 }
 
@@ -171,14 +171,14 @@ rollup_one() {
 $1
 TASK
   case "$kind" in
-    session) step validate "$SCRIPT_DIR/validate.sh" --provider "$provider" --session "$dir" ;;
+    session) map step validate "$SCRIPT_DIR/validate.sh" --provider "$provider" --session "$dir" ;;
   esac
 }
 
 corpus() {
-  step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
+  reduce step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
   # the Signatures on main against the store's sessions (issues/631)
-  step_ok agent "$REPO_DIR/src/run_python_script.sh" \
+  reduce step_ok agent "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/cli/agent/agent.py" list-drafters
 }
 

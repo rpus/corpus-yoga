@@ -50,7 +50,7 @@ parse_args() {
 
 run_one() {
   local input_dir="${1%/}"
-  step validate "$SCRIPT_DIR/claude/validate.sh" --capture "$input_dir"
+  map step validate "$SCRIPT_DIR/claude/validate.sh" --capture "$input_dir"
 }
 
 # each provider's steps run where that provider's captures stand (issues/965): a room
@@ -67,26 +67,26 @@ run_corpus() {
   held "$root" "$dom_root"
   # validate: announces itself once and folds the all-current captures into one
   # summary line, so a 95-capture steady state is one line
-  step_if "$has_api" "where claude's API captures stand" validate "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
+  map step_if "$has_api" "where claude's API captures stand" validate "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
   # gemini: each scrape lifted and judged against the markdownConversation family
-  step_if "$has_dom" "where gemini's DOM captures stand" validate_gemini "$SCRIPT_DIR/gemini/validate.sh" --dom-capture "$dom_root"
+  map step_if "$has_dom" "where gemini's DOM captures stand" validate_gemini "$SCRIPT_DIR/gemini/validate.sh" --dom-capture "$dom_root"
 }
 
 collate_corpus() {
   local root="${1%/}" dom_root="${2%/}" has_api has_dom
   held "$root" "$dom_root"
   # project_markdown: render api JSON -> markdown, each named for its place among them all
-  step_if "$has_api" "where claude's API captures stand" project_markdown "$REPO_DIR/src/run_python_script.sh" \
+  reduce step_if "$has_api" "where claude's API captures stand" project_markdown "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/project_markdown.py" --api-capture "$root"
   # gemini: each scrape copied into the presentation tree beside claude's projections
   # (data/output/markdown/{claude,gemini}), anchoring each turn heading; a slug collision
   # gets the conversation id prefixed.
-  step_if "$has_dom" "where gemini's DOM captures stand" gemini_project_markdown "$REPO_DIR/src/run_python_script.sh" \
+  reduce step_if "$has_dom" "where gemini's DOM captures stand" gemini_project_markdown "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/gemini/project_markdown.py" --dom-capture "$dom_root"
   # audit: capture-health report against the fresh projections — findings
   # inform, never gate: severity attaches to the RECORD, and the record was already
   # schema-validated by the run
-  step_ok audit     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit.py"
+  reduce step_ok audit     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit.py"
 }
 
 print_plan() {

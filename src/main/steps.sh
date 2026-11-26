@@ -18,6 +18,8 @@
 #   step_if    <guard> <note> <name> <cmd...>     # runs iff guard is "1"
 #   step_ok    <name> <cmd...>                    # informational: never gates
 #   step_if_ok <guard> <note> <name> <cmd...>     # both of the above
+#   map    <any step call>                        # the step maps one unit: reads it, writes its outputs
+#   reduce <any step call>                        # the step reduces over all units (issues/1191)
 #   steps_verdict                                 # ends a body errexit does not stop:
 #                                                 # non-zero iff a gating step was
 #   resolve_input <path> <pipeline.json> <provider>  # <provider> and <qualifier> in a
@@ -82,10 +84,19 @@ plan_impl() {
 plan_line() {
   local caller="$1" name="$2"; shift 2
   local cmd="$1"; shift
-  local impl
+  local impl kind=''
   impl="$(plan_impl "$caller" "$cmd" "$@")"
-  printf '  %-58s %s' "$(step_label "$name" "$@")" "$impl"
+  case "${STEP_KIND:-}" in
+    map) kind=' (map - one unit)' ;;
+    reduce) kind=' (reduce - all units)' ;;
+  esac
+  printf '  %-58s %s%s' "$(step_label "$name" "$@")" "$impl" "$kind"
 }
+
+# map <step call>, reduce <step call>: the call as it stands, its plan line saying whether the step
+# maps one unit - reads it and writes its outputs - or reduces over all of them (issues/1191)
+map() { STEP_KIND=map STEP_CALLER="${BASH_SOURCE[1]}" "$@"; }
+reduce() { STEP_KIND=reduce STEP_CALLER="${BASH_SOURCE[1]}" "$@"; }
 
 # the step as the plan names it: the name, as the corpus-yoga command where it is one,
 # with its non-path arguments (issues/45)
@@ -131,13 +142,13 @@ step_gated() {
 
 step() {
   local name="$1"; shift
-  if [[ "${plan:-0}" == "1" ]]; then plan_line "${BASH_SOURCE[1]}" "$name" "$@"; echo; return 0; fi
+  if [[ "${plan:-0}" == "1" ]]; then plan_line "${STEP_CALLER:-${BASH_SOURCE[1]}}" "$name" "$@"; echo; return 0; fi
   step_gated "$name" "$@"
 }
 
 step_if() {
   local guard="$1" note="$2" name="$3"; shift 3
-  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@") (only $note)"; return 0; fi
+  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${STEP_CALLER:-${BASH_SOURCE[1]}}" "$name" "$@") (only $note)"; return 0; fi
   if [[ "$guard" != "1" ]]; then return 0; fi
   step_gated "$name" "$@"
 }
@@ -154,13 +165,13 @@ steps_verdict() {
 
 step_ok() {
   local name="$1"; shift
-  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@") (informational; never gates)"; return 0; fi
+  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${STEP_CALLER:-${BASH_SOURCE[1]}}" "$name" "$@") (informational; never gates)"; return 0; fi
   CORPUS_YOGA_DECLARATION="$(step_declaration "$name" "${@:2}")" "$@" || true
 }
 
 step_if_ok() {
   local guard="$1" note="$2" name="$3"; shift 3
-  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@") (only $note; informational; never gates)"; return 0; fi
+  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${STEP_CALLER:-${BASH_SOURCE[1]}}" "$name" "$@") (only $note; informational; never gates)"; return 0; fi
   if [[ "$guard" != "1" ]]; then return 0; fi
   CORPUS_YOGA_DECLARATION="$(step_declaration "$name" "${@:2}")" "$@" || true
 }

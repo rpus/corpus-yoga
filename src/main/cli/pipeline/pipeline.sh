@@ -70,12 +70,11 @@ input_of() {
 # is the same work as `corpus-yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  # the rows (issues/759, issues/800): each pipeline with its prep step where it has one, which status.py
-  # says by its declaration and its plan, with the stage's units as one shape
-  local name prep
+  # the rows (issues/759, issues/800): each pipeline, which status.py says by its declaration and
+  # its plan, with the stage's units as one shape
+  local name
   for name in $(pipelines); do
-    prep="$(prep_step "$name" 2>/dev/null)" && prep="${prep%.sh}" || prep="-"
-    printf 'pipeline\t%s\t%s\n' "$name" "$prep"
+    printf 'pipeline\t%s\n' "$name"
   done | "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/pipeline/status.py"
 }
 
@@ -167,43 +166,6 @@ install_deps() {
   send labour requirements "$REPO_ROOT/src/requirements.txt"
 }
 
-# Which pipelines have a prep step, and what each is called. DECLARED, not globbed for a
-# shared filename: export requires an input; browser' is a CAPTURE, the
-# `corpus-yoga browser` target, which a pipeline run must never perform, and the live
-# mount agent once linked here is the agent command's (corpus-yoga agent mount,
-# issues/636) - a pipeline reads the store, never the mount. Globbing one name listed a prep
-# phase for browser that `run` has never executed, which is a status line
-# stating something untrue about what the command does.
-prep_step() {
-  case "$1" in
-    export) echo require_export.sh ;;
-    *)            return 1 ;;
-  esac
-}
-
-# The prep step as `step` takes it: the operation, then the file that IS the command
-# (plan_impl's second shape). Read by the run and by the plan, so the line printed is the
-# call made — the property `step` exists to give every other phase.
-prep_call() {
-  local script
-  script="$(prep_step "$1")" || return 1
-  echo "${script%.sh} $REPO_ROOT/src/main/$1/$script"
-}
-
-prep_pipeline() {
-  local name="$1"; shift
-  local rc=0 op impl pair
-  # The failure has to be caught on prep_call, not on `read`: a herestring always supplies
-  # a newline, so `read` succeeds on empty input and would hand `step` two empty arguments.
-  pair="$(prep_call "$name")" || { section_open "prep: $name" "$(phrase "no prep step for {name}" name="$name")"; return 0; }
-  read -r op impl <<< "$pair"
-  section_open "prep: $name" "$op ${impl#"$REPO_ROOT/"}"
-  ( step "$op" "$impl" "$@" ) 2>&1 | indented
-  rc=${PIPESTATUS[0]}
-  echo ""
-  return "$rc"
-}
-
 run_pipeline() {
   local name="$1"; shift
   section_open "$name" "src/main/$name/run.sh --input $(input_of "$name")${collating:+ --collate}"
@@ -234,8 +196,7 @@ run_pipeline_safe() {
 
 # The one reader of a banner's section name, shared by every awk walk below so
 # they cannot disagree about what a section is called: `── <name> ─…` names <name>,
-# and `── prep: <pipeline> ─…` names `prep: <pipeline>` - a prep is its own section
-# and its own row (issues/547: every non-zero exit states an atom, prep included).
+# names nothing else.
 # shellcheck disable=SC2016  # awk field references, not shell expansions
 # A section of the log is a key with a literal block scalar, `<name>: |` at the narration depth,
 # its lines indented beneath (issues/755): the log is one YAML document, and a section loads
@@ -294,7 +255,7 @@ section_has_fail() {
 
 # The error:/FAIL: lines from one failed pipeline's section of the log — so the
 # tail can QUOTE the failure, not send the reader scrolling. Sections are
-# delimited by the "── <name> ─…" headers prep_pipeline/run_pipeline print;
+# delimited by the "── <name> ─…" headers run_pipeline prints;
 # by tail time those lines are long flushed through the tee.
 # The sections whose ATOMS fail them - same walk as atom_table, so the two can
 # never disagree about what a section contains. The run has ONE failure notion
@@ -322,8 +283,8 @@ section_error_lines() {
   ' "$LOG_FILE"
 }
 
-# The tail is a TABLE: one row per STAGE of the run — the tests, the three pipelines, each
-# prep, and the corpus reduce — counting the atoms that occurred inside it. A
+# The tail is a TABLE: one row per STAGE of the run — the tests, the three pipelines and, in a
+# collate, the corpus reduce — counting the atoms that occurred inside it. A
 # stage is a phase of the RUN, not a paragraph of the log: `browser` is what you
 # type after `corpus-yoga pipeline run` to do that stage alone, and the banner is merely how the
 # log marks where it began. Two facts about one
@@ -364,22 +325,6 @@ rows = [line.split("\t") for line in sys.stdin.read().splitlines() if line]
 print("\n".join(facts.lines({"stages": {name: {"failures": int(fails), "line": int(at)} for name, fails, at in rows}}, facts.depth())))' || true
 }
 
-# A prep that exits non-zero states its atom like any stage (issues/547), in its own
-# section `prep: <name>`, carrying the remedy the verdict once looked up by name.
-prep_pipeline_safe() {
-  local name="$1"; shift
-  if ! prep_pipeline "$name" "$@"; then
-    if ! section_has_fail "prep: $name"; then
-      local last
-      last="$(section_last_words "prep: $name")"
-      atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section="prep: $name" last="${last:-(no output)}")"
-      case "$name" in
-        export) atom "    $(phrase "populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/export/require_export.sh --help)")" ;;
-      esac
-    fi
-  fi
-}
-
 # The record of the run is the launcher's tee (issues/708), where the launcher dispatched this
 # run; the stage anchors above read it back, and nothing here writes into it (issues/912). A run
 # no launcher dispatched - the merge's gating step, a direct call - keeps a disposable copy
@@ -400,24 +345,17 @@ run_corpus_tail() {
   # ran last — the table reads sections, and a reduce over everything is a section.
   # Not under --plan: the plan lists STEPS, and a banner is a log boundary, not a step —
   # the line above it ("then once, over the whole corpus") already says the same thing.
-  STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
-  if [[ -z "$collating" ]]; then
-    # the model catalogues, refreshed before anything probes them; content-keyed, so an
-    # unchanged corpus writes nothing
-    step metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py" derive
-    steps_verdict
-    return
-  fi
+  STEPS_FAILED=''   # this body's record alone
   # The data gate's own validation judgments (issues/535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
   # a run of one pipeline audits that pipeline: the audit takes the name (pull/545), and a
   # whole-cache audit after one pipeline's run would judge the others' unrefreshed records
-  step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
+  reduce step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
   # The room's statuses, read over the state this run produced (issues/1134): every standing noun's
   # whole status, each read once - indexing's the paid captures' lag, site's the corpus page's,
   # metamodel's the schema frontier's among them, each its L9 currency mechanism (issues/409) - with
   # a status that does not read as facts said under FAIL. step_ok: informs, never gates.
-  step_ok status "$REPO_ROOT/src/main/cli/status/status.sh" --show-all
+  reduce step_ok status "$REPO_ROOT/src/main/cli/status/status.sh" --show-all
   # what the store no longer needs - its duplicates, surplus and orphaned shadows - is its
   # status's reading, carried by corpus-yoga status (issues/844); the run reads it no more.
   # run in a pipeline (main's tee), where errexit is silent: the gating steps' failures
@@ -427,7 +365,7 @@ run_corpus_tail() {
 
 # The pipelines' own --plan output is the one authority on their step order
 # (each prints exactly the step list it executes — see src/main/steps.sh);
-# only this script's own frame (tooling, preps, tail) is narrated here, beside
+# only this script's own frame (tooling, tail) is narrated here, beside
 # the main() that performs it.
 print_plan() {
   # The plan of THIS invocation: --only filters to its pipeline, and the
@@ -436,21 +374,22 @@ print_plan() {
   # previews exactly that call.
   echo "corpus-yoga pipeline $verb${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
   echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
-  [[ -n "$collating" ]] || ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
+  [[ -n "$collating" ]] || ( plan=1; step test "$REPO_ROOT/src/main/cli/test/test.sh" run )
   if should_run browser; then
     "$REPO_ROOT/src/main/browser/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
   fi
   if should_run export; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
-    [[ -n "$collating" ]] || ( plan=1; pair="$(prep_call export)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
     "$REPO_ROOT/src/main/export/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
   fi
   if should_run agent; then
     "$REPO_ROOT/src/main/agent/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
   fi
-  echo "  $(phrase "then once, over the whole corpus"):"
-  # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
-  ( plan=1; run_corpus_tail ) | sed 's/^/  /'
+  if [[ -n "$collating" ]]; then
+    echo "  $(phrase "then once, over the whole corpus"):"
+    # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
+    ( plan=1; run_corpus_tail ) | sed 's/^/  /'
+  fi
   echo "  tail: $(phrase "one row per stage - its FAIL count (every non-zero exit states an atom) and where it begins in the log; failing stages with their error and FAIL lines quoted; the outputs line; log path")"
 }
 
@@ -508,12 +447,12 @@ run_pipelines() {
   # then the product judgments over the corpus. Its section is counted by the
   # stage table like any other; a red commit gate is a failing stage, and the
   # run continues so the product half of the report still speaks.
-  section_open tests src/test/dev/run.sh
+  section_open tests "corpus-yoga test run"
   local tests_rc=0
   if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
     atom "$(phrase "skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)")"
   else
-    ( step tests "$REPO_ROOT/src/test/dev/run.sh" ) 2>&1 | indented
+    ( step test "$REPO_ROOT/src/main/cli/test/test.sh" run ) 2>&1 | indented
     tests_rc=${PIPESTATUS[0]}
   fi
   if (( tests_rc != 0 )) && ! section_has_fail "tests"; then
@@ -535,14 +474,12 @@ run_pipelines() {
   fi
 
   if should_run export; then
-    prep_pipeline_safe export
     run_pipeline_safe  export "$(tier_path "$(input_of export)")"
   fi
 
   if should_run agent; then
     run_pipeline_safe  agent "$(tier_path "$(input_of agent)")"
   fi
-  corpus_section
 }
 
 # The steps that read the whole corpus, each pipeline's in the run's order - browser's markdown

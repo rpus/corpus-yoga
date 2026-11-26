@@ -300,6 +300,24 @@ def check_rehearsal_is_the_run(run) -> None:
         said == want, None if said == want else f'it holds {said}, where {want}', check='pipeline.rehearsal_is_the_run_aimed_at_the_stage')
 
 
+@check(tier='code', on=['src/main/cli/pipeline', 'src/main/steps.sh', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=('pipeline.plan_says_map_or_reduce',))
+def check_plan_says_map_or_reduce(run) -> None:
+    """Each plan says of every step whether it maps one unit or reduces over all of them (issues/1191):
+    every step of `corpus-yoga pipeline run --plan` maps, every step of `collate --plan` reduces, and the
+    run's one other line is the dev gate it opens on, over src/ and rsc/. Read from the plans as
+    printed, which are the step lists that execute."""
+    import re
+    def steps(verb: str) -> list[str]:
+        plan = subprocess.run([str(SRC / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), verb, '--plan'],
+                              capture_output=True, text=True, cwd=REPO_ROOT, timeout=120).stdout
+        return [line.strip() for line in plan.splitlines() if re.search(r'\S {2,}\S', line) and not line.strip().startswith(('tooling:', 'tail:'))]
+    unmarked = ([f'run: {line[:60]}' for line in steps('run') if '(map - one unit' not in line and not line.startswith('corpus-yoga test run ')]
+                + [f'collate: {line[:60]}' for line in steps('collate') if '(reduce - all units' not in line])
+    run('pipeline: every step of the run maps one unit and every step of the collate reduces over all, as each plan says', not unmarked,
+        '; '.join(unmarked[:6]) + (f'; ... {len(unmarked)} in all' if len(unmarked) > 6 else '') if unmarked else None,
+        check='pipeline.plan_says_map_or_reduce')
+
+
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])
 def check_capture_prefix(run) -> None:
     """A browser capture by id files its unit under the conversation's full uuid: a
