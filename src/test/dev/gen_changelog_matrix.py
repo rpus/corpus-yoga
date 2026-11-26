@@ -45,22 +45,22 @@ def main():
     schema_parent_dir = RSC_SCHEMA / args.pipeline
 
     facts = json.loads((REPO_ROOT / 'src' / 'main' / args.pipeline / 'pipeline.json').read_text())
-    dirs = [d for source in sources(args.pipeline, facts)
-            for d in datum_dirs(source.cache_root, pipeline.subject_depth)]
+    roots = [source.cache_root for source in sources(args.pipeline, facts)]
+    dirs = [(root, d) for root in roots for d in datum_dirs(root, pipeline.subject_depth)]
     if not dirs:
-        sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
+        sys.exit(f'no validated data under {", ".join(str(r.relative_to(REPO_ROOT)) if r.is_relative_to(REPO_ROOT) else str(r) for r in roots)} — '
                  f'→ run: corpus-yoga pipeline run {args.pipeline}')
 
     if args.write:
-        for datum_dir in dirs:
+        for _root, datum_dir in dirs:
             mfile = write_matrix(datum_dir, schema_parent_dir)
             if mfile:
                 print(f'Wrote {mfile.relative_to(REPO_ROOT)}')
     else:
         print('| Datum ' + HEADER[0])
         print('| --- ' + HEADER[1])
-        for datum_dir in dirs:
-            subject = ' / '.join(datum_dir.relative_to(pipeline.cache_output).parts)
+        for root, datum_dir in dirs:
+            subject = ' / '.join(datum_dir.relative_to(next(p for p in root.parents if p.name == 'pipeline')).parts)
             for line in render_rows(datum_dir, schema_parent_dir):
                 print(f'| `{subject}` {line}')
 

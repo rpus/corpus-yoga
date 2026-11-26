@@ -1,6 +1,6 @@
 """
 render_corpus.py — render every projected session conversation
-(cache/pipeline/agent/<provider>/<machine>/<project>/<session>/conversation.json, the
+(cache/pipeline/<provider>/code/machine-transport/<machine>/<project>/<session>/conversation.json, the
 sessionConversation data) into the served corpus, each provider's under its own root:
 data/output/markdown/<provider>/code/conversations/<ordinal>-<slug>.md. Machines dedupe: the same
 session held by several machines renders once, from its maximal copy.
@@ -27,6 +27,7 @@ import json
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 from markdown_projection import MD033_PRAGMA, REPO, assign_name, deposit
 
 SELF = 'src/main/agent/render_corpus.py'
@@ -75,18 +76,17 @@ def main() -> int:
     ap.add_argument('--out-root', default=str(tier.DATA / 'output' / 'markdown'))
     args = ap.parse_args()
 
-    cache = tier.pipeline_cache('agent')
     rendered = 0
-    for provider_dir in sorted(d for d in cache.glob('*') if d.is_dir()):
-        rendered += render_provider(provider_dir, Path(args.out_root) / provider_dir.name / 'code' / 'conversations')
+    for store in (s for s in corpus.stores() if s.pipeline == 'agent'):
+        rendered += render_provider(str(store.provider), corpus.store_cache('agent', store.provider),
+                                    Path(args.out_root) / str(store.provider) / 'code' / 'conversations')
     if not rendered:
-        print('code: no projected sessions under cache/pipeline/agent — nothing to render')
+        print('code: no projected sessions under the agent stores\' caches — nothing to render')
     return 0
 
 
-def render_provider(cache: Path, out: Path) -> int:
-    """One provider's sessions into its corpus root; returns how many rendered."""
-    provider = cache.name
+def render_provider(provider: str, cache: Path, out: Path) -> int:
+    """One provider's sessions, under its store's cache, into its corpus root; returns how many rendered."""
     # One file per SESSION, across machines: several machines may hold the same
     # session (cache is keyed <machine>/<project>/<session>); the maximal copy
     # renders — most turns, then latest activity — since by the prefix

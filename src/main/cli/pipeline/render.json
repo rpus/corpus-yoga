@@ -15,8 +15,10 @@
     "rsc/schema"
   ],
   "w": [
-    "cache/pipeline/browser",
-    "cache/pipeline/export",
-    "cache/pipeline/agent"
+    "cache/pipeline/claude/chat/API-capture",
+    "cache/pipeline/gemini/chat/DOM-capture",
+    "cache/pipeline/claude/chat/bulk-export",
+    "cache/pipeline/claude/code/machine-transport",
+    "cache/pipeline/gemini/code/machine-transport"
   ]
 }

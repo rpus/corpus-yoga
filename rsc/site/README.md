@@ -17,7 +17,7 @@ all of it, and each file here says by its name what the build does with it (issu
   index and the categories, and writes `data/output/site/index.html`, its URL
   position.
   The per-batch pages (`present.sh`) fill the same template and stay in the
-  workshop under `cache/pipeline/export/<batch>/presentation/`. A finished page
+  workshop under `cache/pipeline/claude/chat/bulk-export/<batch>/presentation/`. A finished page
   fetches nothing at runtime: this repo only ever projects the corpus as it
   stands in `data/input/`.
 

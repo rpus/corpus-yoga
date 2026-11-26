@@ -19,14 +19,13 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser/claude/apiConversation"
 LEAN_SCHEMA_DIR="$REPO_DIR/rsc/schema/browser/markdownConversation"   # the core both providers share (issues/965)
-CACHE_DIR="$(pipeline_cache browser)/claude"
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (issues/395)
 
 validate_conversation() {
   local uuid_dir="${1%/}"
   local uuid; uuid="$(basename "$uuid_dir")"
-  local out_dir="$CACHE_DIR/$uuid"
+  local out_dir; out_dir="$(cache_of "$uuid_dir")"
 
   # Return the validator's own rc explicitly: corpus mode calls this inside a
   # $(…) with a tested exit status, a context where set -e is suspended — an

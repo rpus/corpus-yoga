@@ -2,7 +2,7 @@
 present_corpus.py — render THE CORPUS dashboard: data/output/site/index.html.
 
 The batch presenter (present.sh) renders ONE EXPORT's presentation under
-cache/pipeline/export/<batch>/presentation — an export artifact, honestly filed under
+cache/pipeline/claude/chat/bulk-export/<batch>/presentation — an export artifact, honestly filed under
 its export. This is the corpus one: the keys are corpus_index's 1..N ordinals
 over data/output/markdown (every source, claude first — the same numbers the book index,
 the NN- filenames, and rekey_chats speak), the concept table is the judged index

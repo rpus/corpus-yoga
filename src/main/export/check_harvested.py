@@ -20,6 +20,7 @@ import json
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 from markdown_projection import slug
 from library import find as find_library_dir
 
@@ -30,7 +31,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-CACHE_DIR = tier.pipeline_cache('export')
+CACHE_DIR = corpus.store_cache('export')
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',

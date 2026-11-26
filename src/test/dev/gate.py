@@ -92,10 +92,6 @@ class Pipeline:
         return RSC_SCHEMA / self.name / self.schemas[0] / 'CHANGELOG.md'
 
     @property
-    def cache_output(self) -> Path:
-        return REPO_ROOT / cache_io.path_for(self.name)
-
-    @property
     def fix_item_cmd(self) -> str:
         # Per-item remedy command; takes the pipeline's TOP-LEVEL data/input/ entry (see _fix_item_cmd).
         return f'corpus-yoga pipeline run {self.name}'

@@ -114,7 +114,7 @@ def check_cache_io(run) -> None:
         return
     run('cache_io: registry parses: rsc/cache_io.csv', True, check='cache_io.registry_parses')
 
-    # Pipeline.cache_output derives from cache_io.path_for(), so a pipeline
+    # each pipeline's stores have their caches registered (the check below), so a pipeline
     # missing its row fails loudly at first use; this catches the reverse — a
     # pipeline TAG in cache_io naming no real pipeline (or a mismatch either way).
     tagged = cache_io.pipelines()
@@ -145,20 +145,16 @@ def check_cache_io(run) -> None:
                                 else f'no command writes it, and corpus-yoga {subtree} is a command'),
             check='cache_io.subtree_named_for_its_writer')
 
-    # A pipeline's cache is where the tier contract puts it, and the registry says so (issues/1181): the
-    # scripts reach it through tier.pipeline_cache and tier.sh's pipeline_cache, never by hand.
+    # Every store's cache is a row of the registry, tagged with its pipeline, and every tagged row a
+    # store's cache (issues/1181, issues/1192): the cache each unit's output stands under, at its
+    # store's own input address, is the cache clean keeps and the rebuild knows.
+    import corpus
     import tier
-    import subprocess as _subprocess
-    placed = {}
-    for name in sorted(PIPELINES):
-        python_side = getattr(tier, 'pipeline_cache', None)
-        shell_side = _subprocess.run(['bash', '-c', 'source "$1"; pipeline_cache "$2"', '_', str(SRC / 'main' / 'tier.sh'), name],
-                                     capture_output=True, text=True).stdout.strip()
-        placed[name] = sorted({Path(python_side(name)).relative_to(tier.DATA_ROOT).as_posix() if python_side else '?',
-                               Path(shell_side).relative_to(tier.DATA_ROOT).as_posix() if shell_side else '?'})
-    want = {name: [tier.path(cache_io.path_for(name)).relative_to(tier.DATA_ROOT).as_posix()] for name in sorted(PIPELINES)}
-    run("cache_io: each pipeline's cache is the registry's, in python and the shell alike", placed == want,
-        None if placed == want else f'they resolve as {placed}, where the registry says {want}', check='cache_io.pipeline_cache_is_the_registrys')
+    stored = sorted((store.pipeline, corpus.store_cache(store.pipeline, store.provider).relative_to(tier.DATA_ROOT).as_posix())
+                    for store in corpus.stores())
+    registered = sorted((r['pipeline'], r['cache_path']) for r in rows if r['pipeline'])
+    run("cache_io: each store's cache is a registry row tagged with its pipeline, and each tagged row a store's cache", stored == registered,
+        None if stored == registered else f'the stores cache at {stored}, where the registry says {registered}', check='cache_io.pipeline_cache_is_the_registrys')
 
 
 @check(tier='code', says=('accumulate.trajectory_contract',), on=['src'])
@@ -316,6 +312,30 @@ def check_plan_says_map_or_reduce(run) -> None:
     run('pipeline: every step of the run maps one unit and every step of the collate reduces over all, as each plan says', not unmarked,
         '; '.join(unmarked[:6]) + (f'; ... {len(unmarked)} in all' if len(unmarked) > 6 else '') if unmarked else None,
         check='pipeline.plan_says_map_or_reduce')
+
+
+@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its_input_address',))
+def check_unit_cache_address(run) -> None:
+    """Each unit's run output stands at the unit's own input address under cache/pipeline (issues/1192):
+    for a unit of every store, in python and the shell alike, its cache is its path under the input tree,
+    a session's .jsonl dropped, re-rooted at cache/pipeline - so that a unit's input and what the run
+    derived from it are one relative path under two roots."""
+    import corpus
+    import tier
+    said, want = {}, {}
+    for store in corpus.stores():
+        unit = store.input / ('m/p/s.jsonl' if store.pipeline == 'agent' and store.provider == 'claude' else 'u')
+        path = tier.DATA / 'input' / unit
+        cache_of = getattr(tier, 'cache_of', None)
+        python_side = cache_of(path).relative_to(tier.DATA_ROOT).as_posix() if cache_of else '?'
+        shell_side = subprocess.run(['bash', '-c', 'source "$1"; cache_of "$2"', '_', str(SRC / 'main' / 'tier.sh'), str(path)],
+                                    capture_output=True, text=True).stdout.strip()
+        shell_side = Path(shell_side).relative_to(tier.DATA_ROOT).as_posix() if shell_side.startswith('/') else '?'
+        key = f'{store.pipeline}/{store.provider}'
+        said[key] = sorted({python_side, shell_side})
+        want[key] = [('cache/pipeline' / unit.with_suffix('') if unit.suffix == '.jsonl' else Path('cache/pipeline') / unit).as_posix()]
+    run("pipeline: each unit's run output stands at its own input address under cache/pipeline, in python and the shell alike",
+        said == want, None if said == want else f'it resolves as {said}, where {want}', check='pipeline.unit_cache_at_its_input_address')
 
 
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])

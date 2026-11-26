@@ -72,17 +72,6 @@ def owned_paths() -> set[str]:
     return {r['cache_path'] for r in rows()}
 
 
-def path_for(pipeline: str) -> str:
-    """The repo-relative path (`cache/…`) a pipeline writes — the ONE authority for
-    it, so PIPELINES derives its cache_output from here rather than restating it.
-    Raises loudly if a pipeline has no row (a pipeline unbuildable without its
-    cache_io declaration is the point)."""
-    matches = [r['cache_path'] for r in rows() if r['pipeline'] == pipeline]
-    if len(matches) != 1:
-        raise ValueError(f'{REGISTRY.name}: pipeline {pipeline!r} has {len(matches)} rows, expected 1')
-    return matches[0]
-
-
 def pipelines() -> set[str]:
     """The pipeline names the registry tags — cross-checked against PIPELINES."""
     return {r['pipeline'] for r in rows() if r['pipeline']}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The BATCH presenter: one export's presentation under its own directory
-# (cache/pipeline/export/<batch>/presentation — an export artifact, honestly filed).
+# (cache/pipeline/claude/chat/bulk-export/<batch>/presentation — an export artifact, honestly filed).
 # The corpus page is src/main/present_corpus.py's (corpus-yoga site build).
 # Run from the repo root, e.g.:
 #   src/main/export/present.sh --export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
@@ -14,7 +14,6 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
-CACHE_DIR="$(pipeline_cache export)"
 TEMPLATE="$REPO_DIR/rsc/site/index.template.html"
 WORD_FREQ_SCRIPT="$REPO_DIR/src/main/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
@@ -98,7 +97,7 @@ present_export() {
   local chat_export="${1%/}"
   local name
   name="$(basename "$chat_export")"
-  local out_dir="$CACHE_DIR/$name/presentation"
+  local out_dir; out_dir="$(cache_of "$chat_export")/presentation"
   local conv="$chat_export/conversations.json"
   local out="$out_dir/index.html"
 

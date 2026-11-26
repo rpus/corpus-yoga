@@ -18,14 +18,13 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
 LEAN_SCHEMA_DIR="$REPO_DIR/rsc/schema/browser/markdownConversation"   # the core both providers share (issues/965)
-CACHE_DIR="$(pipeline_cache browser)/gemini"
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (issues/395)
 
 validate_conversation() {
   local id_dir="${1%/}"
   local id; id="$(basename "$id_dir")"
-  local out_dir="$CACHE_DIR/$id"
+  local out_dir; out_dir="$(cache_of "$id_dir")"
   local found=0 rc=0
   for md in "$id_dir"/*.md; do
     [[ -f "$md" ]] || continue

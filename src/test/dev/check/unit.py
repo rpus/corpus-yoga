@@ -1368,6 +1368,49 @@ def check_indexing_judgement_migration(run) -> None:
             f'again said {again.stdout!r}; the room holds {left}', check='migration.indexing_judgement_retired')
 
 
+@check(tier='code', says=('migration.unit_cache_at_its_input_address',), on=['rsc/migration'])
+def check_unit_cache_migration(run) -> None:
+    """A room's pipeline caches, laid out before issues/1192 beneath each pipeline's name, take each
+    unit's own input address under cache/pipeline by rsc/migration/1192.sh - browser's claude and
+    gemini captures, agent's claude and gemini sessions, export's batches - the room's and the stage's
+    alike, folded where the new code has already written. The fixture is synthetic: a planted room."""
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    def under(*parts: str) -> str:
+        return '/'.join(parts)
+    moves = [(under('browser', 'claude', 'u', 'matrix.md'), under('claude', 'chat', 'API-capture', 'u', 'matrix.md')),
+             (under('browser', 'gemini', 'g', 'matrix.md'), under('gemini', 'chat', 'DOM-capture', 'g', 'matrix.md')),
+             (under('agent', 'claude', 'm', 'p', 's', 'session.json'), under('claude', 'code', 'machine-transport', 'm', 'p', 's', 'session.json')),
+             (under('agent', 'gemini', 'm', 'p', 's', 'session.json'), under('gemini', 'code', 'machine-transport', 'm', 'p', 's', 'session.json')),
+             (under('export', 'data-1', 'json', 'c.json'), under('claude', 'chat', 'bulk-export', 'data-1', 'json', 'c.json'))]
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1192.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        for root in ('cache/pipeline', 'stage/cache/pipeline'):
+            for old, _ in moves:
+                (checkout / root / old).parent.mkdir(parents=True, exist_ok=True)
+                (checkout / root / old).write_text('planted\n')
+        (checkout / 'cache' / 'metamodel').mkdir(parents=True)
+        (checkout / 'cache' / 'metamodel' / 'x.json').write_text('planted\n')
+        script = checkout / 'rsc/migration/1192.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1192.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*') if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
+        want = sorted([f'{root}/{new}' for root in ('cache/pipeline', 'stage/cache/pipeline') for _, new in moves] + ['cache/metamodel/x.json'])
+        moved = (bare.returncode == 0 and bare.stdout.strip() != '' and applied.returncode == 0 and again.stdout == '' and left == want)
+        run("migration: rsc/migration/1192.sh moves each unit's run output to its own input address under cache/pipeline, the stage's alike - bare the steps, applied, again nothing",
+            moved, None if moved else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the room holds {left}', check='migration.unit_cache_at_its_input_address')
+
+
 @check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
 def check_spent_stage(run) -> None:
     """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the

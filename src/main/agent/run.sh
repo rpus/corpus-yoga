@@ -27,7 +27,6 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
-CACHE_DIR="$(pipeline_cache agent)"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -79,6 +78,12 @@ provider_of() {
   echo "${head##*/}"
 }
 
+# store_cache <provider>: the provider's store root as its declaration states it, re-rooted under
+# cache/pipeline (issues/1192) - every session's cache beneath it at the session's own address
+store_cache() {
+  cache_of "$(resolve_input "$(tier_path "$(jq -r .input "$SCRIPT_DIR/pipeline.json")")" "$SCRIPT_DIR/pipeline.json" "$1")"
+}
+
 prune_departed() {
   # No blanket wipe: the validation logs under cache/ ARE the memoisation (an
   # unchanged session revalidates against nothing), and jsonl_to_json keeps
@@ -87,7 +92,7 @@ prune_departed() {
   # a departure there was a deliberate disposal, never harness expiry.
   local project_dir="$1" machine="$2" name="$3" provider="$4" held source
   held="$("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir" 2>/dev/null | while IFS= read -r source; do basename "${source%.jsonl}"; done)"
-  for existing in "$CACHE_DIR/$provider/$machine/$name"/*/; do
+  for existing in "$(store_cache "$provider")/$machine/$name"/*/; do
     [[ -d "$existing" ]] || continue
     local sess; sess="$(basename "${existing%/}")"
     grep -qx -- "$sess" <<< "$held" || rm -rf "${existing:?}"
@@ -99,7 +104,7 @@ prune_departed_projects() {
   # provider that is not a machine in its store (a removed machine) dies too — every
   # cache path mirrors a store path or goes.
   local store_root="$1" provider="$2"
-  for machine_dir in "$CACHE_DIR/$provider"/*/; do
+  for machine_dir in "$(store_cache "$provider")"/*/; do
     [[ -d "$machine_dir" ]] || continue
     local machine; machine="$(basename "${machine_dir%/}")"
     if [[ ! -d "${store_root%/}/$machine" ]]; then
@@ -127,7 +132,7 @@ run_one() {
   # per datum-version pair (issues/395), then rolled up per datum.
   local source="$1" machine="$2" project_name="$3" provider="$4"
   local session; session="$(basename "${source%.jsonl}")"
-  local out_dir="$CACHE_DIR/$provider/$machine/$project_name/$session"
+  local out_dir; out_dir="$(store_cache "$provider")/$machine/$project_name/$session"
   map step ensure_session_dir   mkdir -p "$out_dir"
   map step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json" || return 1
   map step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
@@ -219,7 +224,7 @@ run_store() {
     name="$(basename "$project_dir")"
     session="$(basename "${jsonl%.jsonl}")"
     provider="$(provider_of "$jsonl")"
-    out_dir="$CACHE_DIR/$provider/$machine/$name/$session"
+    out_dir="$(store_cache "$provider")/$machine/$name/$session"
     while IFS= read -r line; do
       pairs+=("$line")
     done < <("$SCRIPT_DIR/validate.sh" --enumerate --provider "$provider" --session "$out_dir")

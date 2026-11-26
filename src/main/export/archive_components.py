@@ -3,16 +3,16 @@ archive_components.py — copy the non-conversation components of a bulk export
 (memories.json, projects/, users.json) verbatim into the batch's cache/ directory.
 
 A bulk export is a synchronised snapshot of FOUR components. The pipeline
-derives everything conversations-related into cache/pipeline/export/<batch>/ (json/,
+derives everything conversations-related into cache/pipeline/claude/chat/bulk-export/<batch>/ (json/,
 markdown/, extracted_*, presentation/), but the other three components used to
 exist only inside data/input/. Copying them beside the derived content makes the cache
 batch directory the complete processed record of the snapshot — one root to
 read, index, or serve any component. Copies are byte-verbatim: these are
 data, not projections (bulk exports are the only log of chat memories).
 
-    cache/pipeline/export/<batch>/memories/memories.json
-    cache/pipeline/export/<batch>/projects/<uuid>.json
-    cache/pipeline/export/<batch>/users/users.json
+    cache/pipeline/claude/chat/bulk-export/<batch>/memories/memories.json
+    cache/pipeline/claude/chat/bulk-export/<batch>/projects/<uuid>.json
+    cache/pipeline/claude/chat/bulk-export/<batch>/users/users.json
 
 This stage owns those three subtrees (wiped and rewritten each run). A missing
 component in the export is reported and skipped, not an error (older export
@@ -27,9 +27,10 @@ import shutil
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-CACHE_DIR = tier.pipeline_cache('export')
+CACHE_DIR = corpus.store_cache('export')
 
 COMPONENTS = ['memories.json', 'projects', 'users.json']
 

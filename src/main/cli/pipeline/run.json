@@ -51,9 +51,11 @@
     "machine-name.txt"
   ],
   "w": [
-    "cache/pipeline/browser",
-    "cache/pipeline/export",
-    "cache/pipeline/agent",
+    "cache/pipeline/claude/chat/API-capture",
+    "cache/pipeline/gemini/chat/DOM-capture",
+    "cache/pipeline/claude/chat/bulk-export",
+    "cache/pipeline/claude/code/machine-transport",
+    "cache/pipeline/gemini/code/machine-transport",
     "stage/rehearsal.json",
     "stage/data/output",
     "stage/cache",
