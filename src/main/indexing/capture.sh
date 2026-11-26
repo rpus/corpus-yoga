@@ -114,7 +114,7 @@ capture_table() {
   local stop; stop="$(jq -r '.stop_reason // "unknown"' <<< "$response")"
   if [[ "$stop" != "end_turn" ]]; then
     echo "corpus-yoga indexing capture: the model stopped with stop_reason=$stop (not end_turn) — " \
-         "the reading is incomplete and is NOT promoted" >&2
+         "the reading is incomplete and is NOT deposited" >&2
     return 1
   fi
   local text
@@ -205,7 +205,7 @@ validate_capture() {
   verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
   [[ "$verdict" == 'Valid!' ]] || {
     printf '%s\n' "$verdict" >&2
-    effect "$(act indexing capture): NOT DONE - $(phrase "the reading fails {family} {version} at {fault}; staged in {stage}, not promoted" \
+    effect "$(act indexing capture): NOT DONE - $(phrase "the reading fails {family} {version} at {fault}; staged in {stage}, not deposited" \
       family="$family" version="$(basename "$schema" .json)" \
       fault="$("$REPO_DIR/src/run_python_script.sh" "$REPLY_SHAPE_SCRIPT" fault "$file" "$schema")" stage="cache/indexing")"
     exit 1
@@ -267,15 +267,14 @@ coverage_report() {
 #
 # capture is DERIVE-then-DEPOSIT: both readings are captured into cache/indexing
 # (the workshop, git-ignored, corpus-scoped like cache/indexing) and validated there, then
-# PROMOTED into the durable data/output/indexing/ only once both succeed. A failed or
-# malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
-# untouched; set -e aborts before the promotion step. Promotion is `mv` (an atomic
-# rename within the repo's one filesystem), the two adjacent so the mixed-vintage
-# window is two syscalls rather than a paid API round-trip.
+# deposited together, under the act's stamp, in data/output/indexing/capture/<stamp>/, only once
+# both succeed (issues/1185). A failed or malformed capture — bad key, 529, non-JSON, empty
+# rows — deposits nothing; set -e aborts before the deposit. Nothing a capture does changes the
+# capture in use: corpus-yoga indexing adopt does.
 # capture_dashboard <conversations_json> <only> — <only> is "" (both),
 # "semantic-concepts", or "chat-categories". Whatever is requested is captured and
-# validated in cache/ FIRST, then all of it promoted — so the default two-file refresh
-# never leaves the durable pair at mixed vintages if the second capture fails.
+# validated in cache/ FIRST, then all of it deposited — so a deposit never holds
+# one table of a capture whose second failed.
 capture_dashboard() {
   local conv="$1" only="${2:-}"
   # corpus-scoped staging (like cache/indexing): the capture is a reading of the
@@ -298,10 +297,10 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → cache/indexing (promoted to data/output/indexing/ on success)"
+  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → cache/indexing (deposited in data/output/indexing/capture/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json" \
-      || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is promoted" table=semantic-concepts)"; exit 1; }
+      || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is deposited" table=semantic-concepts)"; exit 1; }
     validate_capture "$stage/inferred-semantic-concepts.json" semanticConcepts
     echo "  ✓ inferred-semantic-concepts.json ($(jq '.rows | length' "$stage/inferred-semantic-concepts.json") concepts)"
     # What the call bought, judged now (issues/644): the index's own scan says which concepts
@@ -311,7 +310,7 @@ capture_dashboard() {
   fi
   if [[ "$want_categories" == 1 ]]; then
     capture_chat_categories "$conv" "$chats" "$categories" "$stage/inferred-chat-categories.json" \
-      || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is promoted" table=chat-categories)"; exit 1; }
+      || { effect "$(act indexing capture): NOT DONE - $(phrase "the {table} reading is not written; the line above says why, and nothing is deposited" table=chat-categories)"; exit 1; }
     validate_capture "$stage/inferred-chat-categories.json" chatCategories
     # Every assigned category MUST be an authored palette name, else present.sh's hue
     # lookup misses and those chats render uncoloured — the join's real dependency, which
@@ -321,7 +320,7 @@ capture_dashboard() {
       ($pal | split(", ")) as $ok
       | [.rows[][1]] | unique | map(select(. as $c | ($ok | index($c)) == null)) | join(", ")
     ' "$stage/inferred-chat-categories.json")"
-    [[ -z "$off" ]] || { echo "corpus-yoga indexing capture: chat-categories assigns off-palette categories ($off) — not promoted. Palette: $categories" >&2; exit 1; }
+    [[ -z "$off" ]] || { echo "corpus-yoga indexing capture: chat-categories assigns off-palette categories ($off) — not deposited. Palette: $categories" >&2; exit 1; }
     # The TRAILING extent (G19): the same exact join taken of the staged file, so it can be
     # compared with the leading one. A row count cannot do this job — it counted 125 while
     # the corpus held 137 and printed a ✓ beside it.
@@ -342,8 +341,7 @@ capture_dashboard() {
           read -r before_captured _ _ _ <<< "$b"
         fi
         if [[ "$captured" -lt "$before_captured" ]]; then
-          effect "$(act indexing capture): NOT DONE - coverage would fall from $before_captured to $captured; not promoted, the staged reading left in ${stage#"$REPO_DIR/"} for inspection"
-          return 1
+          echo "  ⚠ coverage $captured, where the capture in use covers $before_captured - deposited all the same; adopting it is the reader's choice"
         fi
       fi
     else
@@ -352,9 +350,14 @@ capture_dashboard() {
     fi
   fi
 
-  [[ "$want_concepts"   == 1 ]] && mv "$stage/inferred-semantic-concepts.json" "$dest/inferred-semantic-concepts.json"
-  [[ "$want_categories" == 1 ]] && mv "$stage/inferred-chat-categories.json"   "$dest/inferred-chat-categories.json"
-  effect "$(act indexing capture): DONE - promoted into data/output/indexing/ as inferred-semantic-concepts.json and inferred-chat-categories.json, which both machines share"
+  # deposited beside every earlier capture, under this act's stamp, the capture in use left as it
+  # stands (issues/1185): corpus-yoga indexing adopt makes it the one in use
+  local names=() deposited
+  [[ "$want_concepts"   == 1 ]] && names+=(inferred-semantic-concepts.json)
+  [[ "$want_categories" == 1 ]] && names+=(inferred-chat-categories.json)
+  deposited="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; import indexing; print(indexing.deposit(Path(sys.argv[1]), sys.argv[2], sys.argv[3:]))' \
+    "$stage" "$(stamp_of indexing capture)" "${names[@]}")"
+  effect "$(act indexing capture): DONE - deposited in ${deposited#"$REPO_DIR/"}; the capture in use stands until corpus-yoga indexing adopt names this one"
 }
 
 # ── the capture source ────────────────────────────────────────────────────────

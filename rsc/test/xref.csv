@@ -32,47 +32,47 @@ CONTRIBUTING.md,126,doc,src/test/dev/run.py,Y,"branches changing what a check *a
 CONTRIBUTING.md,127,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
 CONTRIBUTING.md,129,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
 README.md,14,doc,src/main/cli/status/status.sh,Y,"./src/main/cli/status/status.sh satisfy           # pre-venv, once: mint the venv (bare, the same report read-only)"
-README.md,36,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,36,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,38,doc,rsc/cache_io.csv,Y,"| `cache/` | cache | local | none — each subtree's producer, which the registry (`rsc/cache_io.csv`) names, rebuilds it "
-README.md,46,doc,src/main/tier.py,Y,"`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):"
-README.md,52,doc,src/main/rehearsal.py,Y,"`stage/rehearsal.json` (`src/main/rehearsal.py`, its shape"
-README.md,53,doc,src/main/rehearsal.schema.json,Y,"`src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote"
-README.md,89,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,90,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
-README.md,91,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
-README.md,91,doc,rsc/schema/mcp/2026-07-28/mcpMessage,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
-README.md,91,doc,src/main/mcp/derivation.json,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
-README.md,91,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
-README.md,91,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
-README.md,91,doc,rsc/reference,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
-README.md,92,doc,rsc/metamodel/metamodel.json,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
-README.md,92,doc,rsc/metamodel/metamodel.schema.json,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
-README.md,92,doc,rsc/metamodel/join.csv,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
-README.md,92,doc,rsc/metamodel/join_kinds.csv,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
-README.md,92,doc,rsc/metamodel/rejected.txt,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
-README.md,92,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
-README.md,93,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
-README.md,94,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,94,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,94,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,94,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,95,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
-README.md,95,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
-README.md,95,doc,rsc/naming/checkout_paths.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
-README.md,96,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, cache, ext/mnt): `rsc/migration/<issue>.sh`, one per cau"
-README.md,97,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
-README.md,98,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,99,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,100,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv`, the default branch"
-README.md,101,doc,src/test/dev/check,Y,"- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yo"
-README.md,101,doc,src/test/dev/run.py,Y,"- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yo"
-README.md,109,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,121,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh satisfy` creates the
-README.md,122,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
-README.md,140,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,147,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,147,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,37,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,37,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,39,doc,rsc/cache_io.csv,Y,"| `cache/` | cache | local | none — each subtree's producer, which the registry (`rsc/cache_io.csv`) names, rebuilds it "
+README.md,47,doc,src/main/tier.py,Y,"`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):"
+README.md,53,doc,src/main/rehearsal.py,Y,"`stage/rehearsal.json` (`src/main/rehearsal.py`, its shape"
+README.md,54,doc,src/main/rehearsal.schema.json,Y,"`src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote"
+README.md,90,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,91,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
+README.md,92,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
+README.md,92,doc,rsc/schema/mcp/2026-07-28/mcpMessage,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
+README.md,92,doc,src/main/mcp/derivation.json,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
+README.md,92,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
+README.md,92,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
+README.md,92,doc,rsc/reference,Y,- every data shape: `rsc/schema/<writer>/[<provider>/|<lineage>/]<family>/vN.json` - a family sits at the path of the co
+README.md,93,doc,rsc/metamodel/metamodel.json,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
+README.md,93,doc,rsc/metamodel/metamodel.schema.json,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
+README.md,93,doc,rsc/metamodel/join.csv,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
+README.md,93,doc,rsc/metamodel/join_kinds.csv,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
+README.md,93,doc,rsc/metamodel/rejected.txt,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
+README.md,93,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/metamodel/metamodel.json`, the table of shared types across the families (name, descripti"
+README.md,94,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
+README.md,95,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,95,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,95,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,95,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,96,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
+README.md,96,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
+README.md,96,doc,rsc/naming/checkout_paths.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`; the checko"
+README.md,97,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, cache, ext/mnt): `rsc/migration/<issue>.sh`, one per cau"
+README.md,98,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
+README.md,99,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,100,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,101,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv`, the default branch"
+README.md,102,doc,src/test/dev/check,Y,"- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yo"
+README.md,102,doc,src/test/dev/run.py,Y,"- the checks: `src/test/dev/check/`, run by `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yo"
+README.md,110,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,123,doc,src/main/cli/status/status.sh,Y,`jq` and Python 3; `./src/main/cli/status/status.sh satisfy` creates the
+README.md,124,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -"
+README.md,142,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,149,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,149,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/browser,Y,"""src/main/browser"","
 pyrightconfig.json,9,path_str,src/main/export,Y,"""src/main/export"","
@@ -1045,7 +1045,7 @@ src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""t
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/indexing/capture.json,31,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
 src/main/cli/indexing/capture.json,32,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
-src/main/cli/indexing/indexing.json,55,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
+src/main/cli/indexing/indexing.json,59,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
 src/main/cli/mcp/derive.json,8,path_str,src/main/mcp/derivation.json,Y,"""src/main/mcp/derivation.json"","
 src/main/cli/mcp/mcp.json,27,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/mcp.json,32,path_str,src/main/mcp/derivation.json,Y,"""src/main/mcp/derivation.json"","
@@ -1072,7 +1072,7 @@ src/main/cli/migration/migration.py,37,path_str,src/main/cli/migration/migration
 src/main/cli/parse_argv.py,28,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/parse_argv.sh,28,comment,src/import_roots.sh,Y,# shellcheck source=src/import_roots.sh
 src/main/cli/pipeline/audit.json,14,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/pipeline/pipeline.json,39,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
+src/main/cli/pipeline/pipeline.json,38,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
 src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,21,comment,src/main/pipeline.schema.json,Y,"# (schemas, input root, globs), typed by src/main/pipeline.schema.json."
 src/main/cli/pipeline/pipeline.sh,31,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1313,8 +1313,8 @@ src/main/indexing/capture.sh,134,comment,rsc/site/index.template.html,Y,"# inlin
 src/main/indexing/indexing.py,19,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/indexing/indexing.py,53,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
 src/main/indexing/indexing.py,288,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
-src/main/indexing/indexing.py,361,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-src/main/indexing/indexing.py,668,comment,src/main/corpus_shape.sh,Y,"shape's one home, src/main/corpus_shape.sh."
+src/main/indexing/indexing.py,423,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
+src/main/indexing/indexing.py,735,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
 src/main/indexing/reply_shape.py,20,path_str,src/main/indexing/reply_shape.py,Y,SELF = 'src/main/indexing/reply_shape.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
@@ -1440,12 +1440,15 @@ src/test/dev/check/indexing.py,58,path_str,src/main/cli/indexing,Y,"on=['src/mai
 src/test/dev/check/indexing.py,123,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
 src/test/dev/check/indexing.py,123,path_str,src/main/facts.py,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
 src/test/dev/check/indexing.py,123,path_str,src/main/cli/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,192,path_str,src/main/indexing/indexing.py,Y,"'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',"
+src/test/dev/check/indexing.py,193,path_str,src/main/indexing/indexing.py,Y,"'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',"
 src/test/dev/check/indexing.py,180,path_str,src/main/indexing,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
 src/test/dev/check/indexing.py,180,path_str,src/main/cli/server/book_index.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
 src/test/dev/check/indexing.py,180,path_str,src/main/present_corpus.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
 src/test/dev/check/indexing.py,180,path_str,src/main/cli/pipeline,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
 src/test/dev/check/indexing.py,180,path_str,src/main/cli/site,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,255,path_str,src/main/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replac"
+src/test/dev/check/indexing.py,255,path_str,src/main/cli/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replac"
+src/test/dev/check/indexing.py,286,path_str,src/main/indexing/indexing.py,Y,"said['verbs'] = 'src/main/indexing/indexing.py has no deposit, adopt and in_use'"
 src/test/dev/check/join.py,70,comment,rsc/metamodel/metamodel.json,Y,"rsc/metamodel/metamodel.json is the table of documented shared types - a name, its"
 src/test/dev/check/join.py,71,comment,rsc/metamodel/metamodel.schema.json,Y,"description, its occurrences by family - and rsc/metamodel/metamodel.schema.json is"
 src/test/dev/check/join.py,144,comment,rsc/metamodel/rejected.txt,Y,covered by a rejection in rsc/metamodel/rejected.txt. One check per
@@ -1911,6 +1914,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/cli/forge/status.py,Y,
 ,,,src/main/cli/grammar/generate.json,Y,
 ,,,src/main/cli/indexing/accept.json,Y,
+,,,src/main/cli/indexing/adopt.json,Y,
 ,,,src/main/cli/indexing/build.json,Y,
 ,,,src/main/cli/indexing/capture.json,Y,
 ,,,src/main/cli/indexing/indexing.json,Y,

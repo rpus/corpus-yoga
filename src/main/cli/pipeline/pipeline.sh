@@ -605,8 +605,6 @@ verdict() {
   # artifact-staleness check, at the next commit, in the dev-actor's hands (issues/342).
   if [[ -n "$collating" ]]; then
     pair outputs data/output/markdown
-  else
-    pair next "corpus-yoga pipeline collate${only:+ $only} - $(phrase "the steps that read the whole corpus, its markdown among them")"
   fi
   if [[ -n "$RECORD" ]]; then pair Log "${RECORD#"$REPO_ROOT/"}"; fi
   # what an act reports (issues/876, issues/896): the usr gate's own verdict stands above; the act's

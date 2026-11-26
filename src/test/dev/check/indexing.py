@@ -115,7 +115,7 @@ def check_reply_shape(run) -> None:
         done = subprocess.run(['bash', '-c', 'source "$1"; validate_capture "$2" semanticConcepts', '_', capture_sh, str(staged)],
                               capture_output=True, text=True, cwd=REPO_ROOT, env=env, timeout=60)
     verdict = next((line.strip() for line in done.stdout.splitlines() if 'indexing capture: NOT DONE' in line), '')
-    says = verdict.startswith('indexing capture: NOT DONE - the reading fails semanticConcepts v2 at rows/0/count') and 'not promoted' in verdict
+    says = verdict.startswith('indexing capture: NOT DONE - the reading fails semanticConcepts v2 at rows/0/count') and 'not deposited' in verdict
     run('indexing: a reading that fails its family ends on a verdict naming the column', says,
         None if says else f'the capture ended {verdict or done.stdout.strip()[-200:]!r}', check='indexing.refused_reading_says_why')
 
@@ -179,20 +179,21 @@ def check_listed_queue_offers_disposal(run) -> None:
                           'server.book_index_is_written_from_the_judged_index', 'site.concepts_are_the_judged_index'),
        on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'src/main/cli/site'])
 def check_judged_index(run) -> None:
-    """The server's book index and the site's corpus page are built only from a current capture
-    the reader has judged (issues/1125): the judged index waits on the paid capture, then on the
-    reader's judgement, then on its build, in that order; the server's index.md and the page's
+    """The server's book index and the site's corpus page are built only from the capture in use as
+    the reader has judged it (issues/1125): the judged index waits on the reader's judgement, then
+    on its build, in that order - a capture is no step before them, taken at any time and replacing
+    nothing until adopted (issues/1185); the server's index.md and the page's
     concept table are both written from it; and no pipeline run builds any of them. Held over a
     planted capture, disposal record and corpus, never the room's."""
     import importlib
     indexing = importlib.import_module('indexing')
     waits_on = getattr(indexing, 'waits_on', None)
     if waits_on is None:
-        run('indexing: the judged index waits on the capture, then the judgement, then its build', False,
+        run('indexing: the judged index waits on the judgement, then its build', False,
             'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',
             check='indexing.judged_index_waits_in_order')
     else:
-        kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'INDEXED_FILE', 'capture_lag')}
+        kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'INDEXED_FILE')}
         said = []
         try:
             with tempfile.TemporaryDirectory() as tmp:
@@ -206,11 +207,7 @@ def check_judged_index(run) -> None:
                 accepted, rejected = root / 'accepted-semantic-concepts.txt', root / 'rejected-semantic-concepts.txt'
                 setattr(indexing, 'INFERRED_FILE', inferred)
                 setattr(indexing, 'INDEXED_FILE', root / 'indexed-semantic-concepts.json')
-                lag = [3]
-                setattr(indexing, 'capture_lag', lambda: lag[0])
                 markdown = root / 'markdown'
-                said.append(waits_on(accepted, rejected, markdown))
-                lag[0] = 0
                 said.append(waits_on(accepted, rejected, markdown))
                 accepted.write_text('quasiparticles\n')
                 said.append(waits_on(accepted, rejected, markdown))
@@ -222,10 +219,9 @@ def check_judged_index(run) -> None:
         finally:
             for name, value in kept.items():
                 setattr(indexing, name, value)
-        want = ['waits on the paid capture - corpus-yoga indexing capture',
-                "waits on the reader's judgement of 1 concept(s) - corpus-yoga indexing",
+        want = ["waits on the reader's judgement of 1 concept(s) - corpus-yoga indexing",
                 'waits on corpus-yoga indexing build', None, 'waits on corpus-yoga indexing build']
-        run('indexing: the judged index waits on the capture, then the judgement, then its build - and again once the corpus moves',
+        run('indexing: the judged index waits on the judgement, then its build - and again once the corpus moves',
             said == want, None if said == want else f'waited on {said!r}', check='indexing.judged_index_waits_in_order')
 
         physics, matter = (f'{provider}/chat/conversations/01-{name}.md' for provider, name in (('claude', 'physics'), ('gemini', 'matter')))
@@ -254,3 +250,53 @@ def check_judged_index(run) -> None:
              if re.search(r'\b(indexing|server|site)\b\S*\s+.*\b(build|render|assemble)\b', line)]
     run('pipeline: no run or collate builds the index, the book index or the corpus page', not built,
         None if not built else f'the plan builds them: {built!r}', check='indexing.no_run_builds_the_index_or_the_page')
+
+
+@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replaced',))
+def check_capture_adopted(run) -> None:
+    """A paid capture replaces nothing (issues/1185): it is deposited under its stamp beside every
+    earlier one, the capture in use - the pair accept, reject, build and the site read - left as it
+    stands, and said as one from before deposits where no deposit holds it; `corpus-yoga indexing
+    adopt <stamp>` makes a deposit the capture in use, which the status then names by its stamp.
+    Held over planted files, the module's paths pointed at them, never the room's."""
+    import importlib
+    import json
+    import tempfile
+    indexing = importlib.import_module('indexing')
+    names = ('INFERRED_FILE', 'CATEGORIES_FILE', 'CAPTURES_DIR')
+    kept = {name: getattr(indexing, name, None) for name in names}
+    said: dict[str, object] = {}
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / 'indexing'
+            root.mkdir()
+            concepts, categories = root / 'inferred-semantic-concepts.json', root / 'inferred-chat-categories.json'
+            def table(rows: list) -> str:
+                return json.dumps({'columns': ['a', 'b'], 'rows': rows}) + '\n'
+            concepts.write_text(table([['old concept', 1]]))
+            categories.write_text(table([['c1', 'practical']]))
+            staged = Path(tmp) / 'staged'
+            staged.mkdir()
+            (staged / concepts.name).write_text(table([['new concept', 2]]))
+            (staged / categories.name).write_text(table([['c1', 'creative'], ['c2', 'practical']]))
+            for name, value in zip(names, (concepts, categories, root / 'capture')):
+                setattr(indexing, name, value)
+            deposit, adopt, in_use = (getattr(indexing, f, None) for f in ('deposit', 'adopt', 'in_use'))
+            if not (deposit and adopt and in_use):
+                said['verbs'] = 'src/main/indexing/indexing.py has no deposit, adopt and in_use'
+            else:
+                deposit(staged, '2026-11-26T000000Z')
+                said['deposited'] = sorted(p.name for p in (root / 'capture' / '2026-11-26T000000Z').iterdir())
+                said['left in use'] = json.loads(concepts.read_text())['rows']
+                said['before'] = in_use()
+                adopt('2026-11-26T000000Z')
+                said['adopted'] = (json.loads(concepts.read_text())['rows'], json.loads(categories.read_text())['rows'])
+                said['after'] = in_use()
+    finally:
+        for name, value in kept.items():
+            if value is not None:
+                setattr(indexing, name, value)
+    want = {'deposited': ['inferred-chat-categories.json', 'inferred-semantic-concepts.json'], 'left in use': [['old concept', 1]],
+            'before': None, 'adopted': ([['new concept', 2]], [['c1', 'creative'], ['c2', 'practical']]), 'after': '2026-11-26T000000Z'}
+    run('indexing: a capture is deposited beside every earlier one and replaces the capture in use only when adopted',
+        said == want, None if said == want else f'it held {said}, where {want}', check='indexing.a_capture_is_adopted_never_replaced')

@@ -297,8 +297,8 @@ def conversation_count() -> int:
 
 
 def capture_lag() -> int:
-    """How many conversations the paid capture does not cover - every one where no concept
-    capture is held."""
+    """How many conversations the capture in use does not cover - every one where no concept
+    capture is in use."""
     import json
     categories = tier.DATA / 'output' / 'indexing' / 'inferred-chat-categories.json'
     covered = len(json.loads(categories.read_text()).get('rows', [])) if categories.is_file() and inferred_concepts() else 0
@@ -310,8 +310,6 @@ def waits_on(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> s
     waits on - the paid capture, the reader's judgement, the build - or None where the index
     is built from a current capture the reader has judged. The server's and the site's builds
     are offered only where this is None."""
-    if capture_lag():
-        return facts.phrase('waits on the paid capture - corpus-yoga indexing capture')
     anchored, _ = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     if anchored:
         return facts.phrase("waits on the reader's judgement of {n} concept(s) - corpus-yoga indexing", n=len(anchored))
@@ -337,7 +335,71 @@ STOPWORDS = frozenset(
     every each both again true false none non within without across against""".split())
 
 
-INFERRED_FILE = tier.DATA / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
+INFERRED_FILE = tier.DATA / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the capture in use: the model's proposals (read)
+CATEGORIES_FILE = tier.DATA / 'output' / 'indexing' / 'inferred-chat-categories.json'  # the capture in use: each conversation's category
+CAPTURES_DIR = tier.DATA / 'output' / 'indexing' / 'capture'   # every paid capture, deposited under its stamp (issues/1185)
+
+
+def deposit(staged: Path, stamp: str, names: list[str] | None = None) -> Path:
+    """A paid capture's tables, moved from where the capture validated them into their own
+    deposit, data/output/indexing/capture/<stamp>/, beside every earlier one - the capture in
+    use left as it stands (issues/1185). `names` are the tables this capture took."""
+    import shutil
+    dest = CAPTURES_DIR / stamp
+    dest.mkdir(parents=True, exist_ok=False)
+    for name in names or [INFERRED_FILE.name, CATEGORIES_FILE.name]:
+        if (staged / name).is_file():
+            shutil.move(staged / name, dest / name)
+    return dest
+
+
+def deposits() -> list[str]:
+    """Every deposited capture by its stamp, oldest first."""
+    return sorted(d.name for d in CAPTURES_DIR.iterdir() if d.is_dir()) if CAPTURES_DIR.is_dir() else []
+
+
+def in_use() -> str | None:
+    """The stamp of the deposit the capture in use is - every table it holds the same bytes as the
+    one in use - newest first; None where no deposit is (a capture from before deposits, or none)."""
+    for stamp in reversed(deposits()):
+        tables = [t for t in (CAPTURES_DIR / stamp).iterdir() if t.is_file()]
+        held = {INFERRED_FILE.name: INFERRED_FILE, CATEGORIES_FILE.name: CATEGORIES_FILE}
+        if tables and all(t.name in held and held[t.name].is_file() and held[t.name].read_bytes() == t.read_bytes() for t in tables):
+            return stamp
+    return None
+
+
+def adopt(stamp: str) -> list[str]:
+    """The deposit made the capture in use: each table it holds copied over the one in use."""
+    import shutil
+    took = []
+    for table in sorted((CAPTURES_DIR / stamp).iterdir()):
+        target = {INFERRED_FILE.name: INFERRED_FILE, CATEGORIES_FILE.name: CATEGORIES_FILE}.get(table.name)
+        if target is not None:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(table, target)
+            took.append(table.name)
+    return took
+
+
+def _rows(path: Path) -> list:
+    import json
+    return json.loads(path.read_text()).get('rows', []) if path.is_file() else []
+
+
+def changes(stamp: str) -> dict[str, int]:
+    """What adopting the deposit would change against the capture in use: the concepts it adds and
+    drops, and the conversations whose category it moves or gives for the first time."""
+    dest = CAPTURES_DIR / stamp
+    out: dict[str, int] = {}
+    if (dest / INFERRED_FILE.name).is_file():
+        new, old = {r[0] for r in _rows(dest / INFERRED_FILE.name)}, {r[0] for r in _rows(INFERRED_FILE)}
+        out['concepts added'], out['concepts dropped'] = len(new - old), len(old - new)
+    if (dest / CATEGORIES_FILE.name).is_file():
+        new, old = {r[0]: r[1] for r in _rows(dest / CATEGORIES_FILE.name)}, {r[0]: r[1] for r in _rows(CATEGORIES_FILE)}
+        out['categories moved'] = sum(1 for c, k in new.items() if c in old and old[c] != k)
+        out['conversations newly categorised'] = sum(1 for c in new if c not in old)
+    return out
 CANDIDATES_TXT = tier.CACHE / 'indexing' / 'candidate-semantic-concepts.txt'
 
 
@@ -588,11 +650,11 @@ class Indexing:
     index: Index | None = None
 
 
-def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: int = 0) -> Indexing:
+def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Indexing:
     """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`) as facts
-    (issues/753, issues/759). Each act is offered only once every step before it stands: none
-    while the paid capture lags the corpus by `lag` conversations, the build only once nothing
-    is left to judge."""
+    (issues/753, issues/759): the judgement of the capture in use, and the build only once
+    nothing is left to judge. A capture is no step before them: it can be taken at any time and
+    replaces nothing until it is adopted (issues/1185)."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
@@ -605,8 +667,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: i
         out.orphans = (Orphans(orphans, a_rel.as_posix())
                        if orphans else facts.phrase('none - every accepted headword has a corpus locator'))
     if not inferred_concepts():
-        out.candidates = Candidates(queue=facts.phrase('unknown - no concept capture on this machine'),
-                                    act=facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': 1}))
+        out.candidates = Candidates(queue=facts.phrase('unknown - no capture in use'))
         return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
@@ -615,13 +676,12 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: i
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (issues/644).
-    act = (None if lag or not pending else
+    act = (None if not pending else
            facts.Acts((facts.Would(spell.line('indexing', 'accept', all=True), {a_rel.as_posix(): len(pending)}),
                        facts.Would(spell.line('indexing', 'reject', all=True), {r_rel.as_posix(): len(pending)})))
            if listed_queue_is_current(queue_text(anchored)) else
            facts.Would(spell.line('indexing', 'list-candidates'), {'cache/indexing/candidate-semantic-concepts.txt': len(pending)}))
-    out.candidates = (Candidates(undisposed=pending, act=act,
-                                 queue=facts.phrase('waits on the paid capture - corpus-yoga indexing capture') if lag else None)
+    out.candidates = (Candidates(undisposed=pending, act=act)
                       if pending else facts.phrase('none - fully disposed'))
     if unanchorable:
         out.unanchorable = Unanchorable([c for c, _ in unanchorable])
@@ -629,8 +689,6 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: i
         return out
     if current:
         out.index = Index(facts.phrase('current - built from the accepted record and the corpus as they stand'))
-    elif lag:
-        out.index = Index(facts.phrase('waits on the paid capture - corpus-yoga indexing capture'))
     elif pending:
         out.index = Index(facts.phrase("waits on the reader's judgement of {n} concept(s) - corpus-yoga indexing", n=len(pending)))
     else:
@@ -641,19 +699,28 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path, lag: i
 
 @dataclass
 class Currency:
-    """The paid captures against the corpus they read."""
+    """The capture in use against the corpus it reads."""
     conversations: int
-    covered_by_the_captures: int
-    lag: str | None = None
+    covered_by_the_capture_in_use: int
+    act: facts.Would | None = None
+
+
+@dataclass
+class Pending:
+    """The deposited captures not adopted, by stamp, with what adopting each would change, and
+    the act that adopts the newest."""
+    captures: dict[str, dict[str, int]]
     act: facts.Would | None = None
 
 
 @dataclass
 class Captures:
-    """The paid model captures held: the concept proposals the candidates are drawn from,
-    the categories the site build colours by."""
-    paid_captures: dict[str, str]
+    """The paid captures: the one in use - the concept proposals the candidates are drawn from,
+    the categories the site build colours by - and every other one deposited (issues/1185)."""
+    in_use: str
+    tables: dict[str, str]
     corpus: Currency | None = None
+    deposited: Pending | str | None = None
 
 
 @dataclass
@@ -663,26 +730,23 @@ class Status:
 
 
 def captures() -> Captures:
-    """The paid captures' standing, and how far the paid layer lags the corpus (L9: the
-    captures are paid, so no run step keeps them fresh). The corpus is counted by its
-    shape's one home, src/main/corpus_shape.sh."""
-    import json
-    held_dir = tier.DATA / 'output' / 'indexing'
-    rows: dict[str, int | None] = {}
-    for name in ('inferred-semantic-concepts.json', 'inferred-chat-categories.json'):
-        path = held_dir / name
-        rows[name] = len(json.loads(path.read_text()).get('rows', [])) if path.is_file() else None
-    out = Captures({name: facts.phrase('not captured yet') if n is None else facts.phrase('{n} rows', n=n) for name, n in rows.items()})
-    corpus = tier.DATA / 'output' / 'markdown'
-    if not corpus.is_dir():
-        return out                # L8: no corpus yet - nothing to be current against
-    n, m = conversation_count(), rows['inferred-chat-categories.json'] or 0
-    if n > 0:
-        # a lag is a notice, never a failure (issues/675): no verb failed, and only the reader's paid act clears it
-        out.corpus = Currency(n, m)
-        if m < n:
-            out.corpus.lag = facts.phrase('the paid layer lags the corpus')
-            out.corpus.act = facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': n - m})
+    """The paid captures' standing: the capture in use, by its stamp where a deposit holds it, what
+    it covers of the corpus, and each capture deposited and not adopted with what adopting it would
+    change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."""
+    rows: dict[str, int | None] = {t.name: (len(_rows(t)) if t.is_file() else None) for t in (INFERRED_FILE, CATEGORIES_FILE)}
+    stamp = in_use()
+    out = Captures(stamp or (facts.phrase('none - no capture taken') if all(n is None for n in rows.values())
+                             else facts.phrase('a capture from before deposits')),
+                   {name: facts.phrase('not captured yet') if n is None else facts.phrase('{n} rows', n=n) for name, n in rows.items()})
+    if (tier.DATA / 'output' / 'markdown').is_dir():
+        n = conversation_count()
+        if n > 0:
+            # always offered, paid (issues/1185): a capture is a fresh, non-deterministic reading of
+            # every title, and replaces nothing until it is adopted
+            out.corpus = Currency(n, rows[CATEGORIES_FILE.name] or 0, facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': n}))
+    pending = [d for d in deposits() if d != stamp]
+    out.deposited = (Pending({d: changes(d) for d in pending}, facts.Would(spell.line('indexing', 'adopt', pending[-1]), {pending[-1]: 1}))
+                     if pending else facts.phrase('none but the capture in use'))
     return out
 
 
@@ -725,6 +789,14 @@ def main():
         pending_report(accepted_path, rejected_path)
         facts.report(None, facts.act('indexing', 'reject') + ': DONE - ' + (facts.phrase('the queue disposed as read') if args.all else facts.phrase('{concept} rejected', concept=args.concept)))
         return
+    if args.verb == 'adopt':
+        if args.stamp not in deposits():
+            ap.error(facts.phrase('no capture deposited at {stamp} - corpus-yoga indexing names them', stamp=args.stamp))
+        changed = changes(args.stamp)
+        took = adopt(args.stamp)
+        facts.report(None, facts.act('indexing', 'adopt') + ': DONE - ' + facts.phrase('{stamp} is the capture in use - {tables}; {changed}', stamp=args.stamp,
+                     tables=', '.join(took), changed=', '.join(f'{k} {v}' for k, v in changed.items()) or facts.phrase('nothing changed')))
+        return
     if args.verb == 'build':
         import json
         root = MARKDOWN_DIR
@@ -745,7 +817,7 @@ def main():
 
     # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
     # paid captures' standing (deposits + the paid layer's currency, issues/409)
-    facts.say_standing(Status(status(accepted_path, rejected_path, MARKDOWN_DIR, capture_lag()), captures()))
+    facts.say_standing(Status(status(accepted_path, rejected_path, MARKDOWN_DIR), captures()))
 
 
 if __name__ == '__main__':
