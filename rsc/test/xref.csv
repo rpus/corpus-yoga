@@ -116,7 +116,7 @@ rsc/audit/prompt.md,17,doc,src/test/dev/diagnostics,Y,"- sibling-shape: every fa
 rsc/audit/prompt.md,17,doc,rsc/naming,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/audit/prompt.md,20,doc,.github/ISSUE_TEMPLATE.md,Y,"4. File NEW findings only — a finding already covered by an open sub-issue is not refiled. For EACH new finding, perform"
-rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"cache/browser,browser,corpus-yoga pipeline run browser,src/test/dev/run.py,one directory per provider (issues/635): per-"
+rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"cache/pipeline/browser,browser,corpus-yoga pipeline run browser,src/test/dev/run.py,one directory per provider (issues/6"
 rsc/cache_io.csv,9,path_str,src/test/dev/run.py,Y,"cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribution"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
 rsc/metamodel/join.csv,2,path_str,rsc/schema/export/claude/conversations#/definitions/ContentBlock,Y,"rsc/schema/export/claude/conversations#/definitions/ContentBlock,rsc/schema/agent/claude/session#/definitions/ContentBlo"
@@ -625,6 +625,8 @@ rsc/migration/1170.sh,2,comment,rsc/migration/1170.sh,Y,# rsc/migration/1170.sh 
 rsc/migration/1170.sh,15,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1171.sh,2,comment,rsc/migration/1171.sh,Y,"# rsc/migration/1171.sh - the stage is one directory, stage/ (issues/1171): the room's stage, laid out"
 rsc/migration/1171.sh,9,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1181.sh,2,comment,rsc/migration/1181.sh,Y,# rsc/migration/1181.sh - every subtree of the cache is named for the command that writes it
+rsc/migration/1181.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
 rsc/migration/README.md,8,doc,rsc/migration/step.sh,Y,"issue carries that move, as the steps rsc/migration/step.sh declares."
 rsc/migration/README.md,13,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
@@ -1245,8 +1247,8 @@ src/main/export/extract_heredocs.sh,23,call,src/main/export/extract_heredocs.py,
 src/main/export/library.py,20,comment,rsc/naming/library_dir_vintages.csv,Y,rsc/naming/library_dir_vintages.csv.
 src/main/export/library.py,26,path_str,src/main/export/library.py,Y,SELF = 'src/main/export/library.py'
 src/main/export/memories.py,29,comment,src/main/cli/pipeline/pipeline.sh,Y,Usage (wired into src/main/cli/pipeline/pipeline.sh after the per-batch stages):
-src/main/export/memories.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/memories.py       [--export-cache cache/export] [--memories-output data/output/
-src/main/export/memories.py,30,comment,src/main/export/memories.py,Y,src/run_python_script.sh src/main/export/memories.py       [--export-cache cache/export] [--memories-output data/output/
+src/main/export/memories.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/memories.py       [--export-cache cache/pipeline/export] [--memories-output dat
+src/main/export/memories.py,30,comment,src/main/export/memories.py,Y,src/run_python_script.sh src/main/export/memories.py       [--export-cache cache/pipeline/export] [--memories-output dat
 src/main/export/memories.py,48,path_str,src/main/export/memories.py,Y,SELF = 'src/main/export/memories.py'
 src/main/export/memories.py,61,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
 src/main/export/present.sh,4,comment,src/main/present_corpus.py,Y,# The corpus page is src/main/present_corpus.py's (corpus-yoga site build).
@@ -1405,9 +1407,11 @@ src/main/steps.sh,35,comment,src/main/send.sh,Y,# shellcheck source=src/main/sen
 src/main/tier.py,18,comment,src/main/rehearsal.py,Y,"judged (src/main/rehearsal.py, issues/815). STAGE_CACHE is the stage's cache whatever tiers are"
 src/main/tier.py,20,comment,src/main/tier.sh,Y,src/main/tier.sh is the shell twin. The dev gate holds that no other script under
 src/main/tier.py,26,path_str,src/main/tier.py,Y,SELF = 'src/main/tier.py'
-src/main/tier.py,84,comment,rsc/cache_io.csv,Y,declarations and rsc/cache_io.csv spell them - under the tiers in force; stage/... under the
+src/main/tier.py,84,comment,rsc/cache_io.csv,Y,"rsc/cache_io.csv's row for it, which the dev gate holds equal."
+src/main/tier.py,90,comment,rsc/cache_io.csv,Y,declarations and rsc/cache_io.csv spell them - under the tiers in force; stage/... under the
 src/main/tier.sh,2,comment,src/main/tier.py,Y,"# tier.sh — the tiers as a declared contract (issues/702), the shell twin of src/main/tier.py."
 src/main/tier.sh,7,comment,src/main/tier.py,Y,"# stamp_of and record_of, and only by the act they name - src/main/tier.py, issues/708, issues/912)"
+src/main/tier.sh,74,comment,rsc/cache_io.csv,Y,"# cache/pipeline/<pipeline> (issues/1181) - rsc/cache_io.csv's row for it, which the dev gate holds equal."
 src/main/validate.py,3,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,3,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
@@ -1456,32 +1460,32 @@ src/test/dev/check/join.py,132,path_str,rsc/schema,Y,"@check(tier='schema', on=[
 src/test/dev/check/join.py,132,path_str,rsc/metamodel,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/metamodel', 'src'], says=("
 src/test/dev/check/join.py,36,comment,src/main/latest.py,Y,# resolved against its latest version or lineage (src/main/latest.py). No per-column
 src/test/dev/check/pipeline.py,75,path_str,rsc/schema/agent,Y,schema_root = 'rsc/schema/agent/'
-src/test/dev/check/pipeline.py,100,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/dev/check/pipeline.py,140,comment,src/main/export/accumulate.py,Y,The shared accumulate operation (src/main/export/accumulate.py) obeys
-src/test/dev/check/pipeline.py,141,comment,rsc/CALCULUS.md,Y,the contract rsc/CALCULUS.md states: deposit iff
+src/test/dev/check/pipeline.py,102,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
+src/test/dev/check/pipeline.py,166,comment,src/main/export/accumulate.py,Y,The shared accumulate operation (src/main/export/accumulate.py) obeys
+src/test/dev/check/pipeline.py,167,comment,rsc/CALCULUS.md,Y,the contract rsc/CALCULUS.md states: deposit iff
 src/test/dev/check/pipeline.py,19,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
 src/test/dev/check/pipeline.py,19,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
 src/test/dev/check/pipeline.py,19,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
 src/test/dev/check/pipeline.py,19,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
 src/test/dev/check/pipeline.py,93,path_str,rsc/cache_io.csv,Y,"@check(tier='code', on=['src', 'rsc/cache_io.csv'], says=("
-src/test/dev/check/pipeline.py,183,path_str,src/main,Y,"@check(tier='code', on=['src/main'], says=('pipeline.run_reads_one_unit',))"
-src/test/dev/check/pipeline.py,248,path_str,src/main/cli/pipeline,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
-src/test/dev/check/pipeline.py,248,path_str,src/declared_parser.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
-src/test/dev/check/pipeline.py,248,path_str,src/main/cli/cli.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
-src/test/dev/check/pipeline.py,289,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
-src/test/dev/check/pipeline.py,277,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
-src/test/dev/check/pipeline.py,365,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,365,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,209,path_str,src/main,Y,"@check(tier='code', on=['src/main'], says=('pipeline.run_reads_one_unit',))"
+src/test/dev/check/pipeline.py,274,path_str,src/main/cli/pipeline,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
+src/test/dev/check/pipeline.py,274,path_str,src/declared_parser.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
+src/test/dev/check/pipeline.py,274,path_str,src/main/cli/cli.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
+src/test/dev/check/pipeline.py,315,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
+src/test/dev/check/pipeline.py,303,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
+src/test/dev/check/pipeline.py,391,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,391,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/room.py,650,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
 src/test/dev/check/room.py,667,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,667,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
@@ -1608,6 +1612,7 @@ src/test/dev/check/unit.py,1049,comment,rsc/migration/1090.sh,Y,rsc/migration/10
 src/test/dev/check/unit.py,1152,comment,rsc/migration/1170.sh,Y,"what they hold by rsc/migration/1170.sh, even where the new code has already written beside"
 src/test/dev/check/unit.py,1205,comment,rsc/migration/1171.sh,Y,"rsc/migration/1171.sh - its input, scratch and rehearsal record one level up - and stage/dev,"
 src/test/dev/check/unit.py,1254,comment,rsc/migration/1163.sh,Y,"checkout's layout by rsc/migration/1163.sh: the input folded into stage/data/input, the"
+src/test/dev/check/unit.py,1297,comment,rsc/migration/1181.sh,Y,"of the command that writes them, cache/pipeline/<pipeline>, by rsc/migration/1181.sh - the"
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1684,9 +1689,13 @@ src/test/dev/check/unit.py,1266,path_str,rsc/migration/step.sh,Y,"for part in ('
 src/test/dev/check/unit.py,1266,path_str,rsc/migration/1163.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1163.sh'):"
 src/test/dev/check/unit.py,1277,path_str,rsc/migration/1163.sh,Y,script = checkout / 'rsc/migration/1163.sh'
 src/test/dev/check/unit.py,1250,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.stage_mirrors_the_checkout',), on=['rsc/migration'])"
-src/test/dev/check/unit.py,1294,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1294,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1294,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1308,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1181.sh'):"
+src/test/dev/check/unit.py,1308,path_str,rsc/migration/1181.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1181.sh'):"
+src/test/dev/check/unit.py,1317,path_str,rsc/migration/1181.sh,Y,script = checkout / 'rsc/migration/1181.sh'
+src/test/dev/check/unit.py,1294,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.cache_named_for_its_writer',), on=['rsc/migration'])"
+src/test/dev/check/unit.py,1334,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1334,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1334,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
 src/test/dev/check/unit.py,35,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under stage/rehearsal '
 src/test/dev/check/unit.py,222,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,531,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1702,6 +1711,7 @@ src/test/dev/check/unit.py,1075,path_str,rsc/migration/1090.sh,Y,"return subproc
 src/test/dev/check/unit.py,1186,path_str,rsc/migration/1170.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1170.sh is absent')"
 src/test/dev/check/unit.py,1235,path_str,rsc/migration/1171.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1171.sh is absent')"
 src/test/dev/check/unit.py,1280,path_str,rsc/migration/1163.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1163.sh is absent')"
+src/test/dev/check/unit.py,1320,path_str,rsc/migration/1181.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1181.sh is absent')"
 src/test/dev/check/unit.py,1014,path_str,rsc/migration,Y,"done = subprocess.run([str(checkout / 'rsc/migration' / name), '--apply'], capture_output=True, text=True, env=env, cwd="
 src/test/dev/check/upstream.py,180,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,209,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"

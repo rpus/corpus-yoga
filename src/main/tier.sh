@@ -70,6 +70,12 @@ record_of() {
   if [[ "${CORPUS_YOGA_ACT:-}" == "$1 $2" ]]; then echo "${CORPUS_YOGA_LOG:-}"; fi
 }
 
+# pipeline_cache <pipeline>: a pipeline's cache, beneath the command that writes it,
+# cache/pipeline/<pipeline> (issues/1181) - rsc/cache_io.csv's row for it, which the dev gate holds equal.
+pipeline_cache() {
+  echo "$CACHE_ROOT/pipeline/$1"
+}
+
 tier_path() {
   case "$1" in
     data|data/*|cache|cache/*|logs|logs/*|tmp|tmp/*) echo "$DATA_ROOT/$1" ;;

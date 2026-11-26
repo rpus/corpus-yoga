@@ -41,8 +41,8 @@
     "machine-name.txt"
   ],
   "w": [
-    "cache/export",
-    "cache/agent",
+    "cache/pipeline/export",
+    "cache/pipeline/agent",
     "data/output/markdown/claude",
     "data/output/markdown/gemini",
     "data/output/memories"
