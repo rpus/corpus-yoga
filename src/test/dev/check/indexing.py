@@ -247,9 +247,10 @@ def check_judged_index(run) -> None:
         run('site: the page\'s concepts are the judged index - each located headword by its turns and their providers',
             table == want_table, None if table == want_table else f'the table was {table!r}', check='site.concepts_are_the_judged_index')
 
-    plan = subprocess.run([str(SRC / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), '--plan'],
-                          capture_output=True, text=True, cwd=REPO_ROOT, timeout=120).stdout
+    plan = ''.join(subprocess.run([str(SRC / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), verb, '--plan'],
+                                  capture_output=True, text=True, cwd=REPO_ROOT, timeout=120).stdout
+                   for verb in ('run', 'collate'))
     built = [line.strip() for line in plan.splitlines()
              if re.search(r'\b(indexing|server|site)\b\S*\s+.*\b(build|render|assemble)\b', line)]
-    run('pipeline: no run builds the index, the book index or the corpus page', not built,
+    run('pipeline: no run or collate builds the index, the book index or the corpus page', not built,
         None if not built else f'the plan builds them: {built!r}', check='indexing.no_run_builds_the_index_or_the_page')

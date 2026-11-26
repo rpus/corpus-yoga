@@ -7,7 +7,9 @@
 #   corpus-yoga pipeline                          # the pipelines this repo has (bare: status)
 #   corpus-yoga pipeline --names                  # their names alone, one per line
 #   corpus-yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
-#                                            # one input item of that one
+#                                            # one input item of that one - each unit on its own
+#     --plan            print the ordered step plan; run nothing
+#   corpus-yoga pipeline collate [<pipeline>]     # the steps that read the whole corpus, after the run
 #     --plan            print the ordered step plan; run nothing
 #   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in stage/usr
 #   corpus-yoga pipeline render [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
@@ -204,9 +206,9 @@ prep_pipeline() {
 
 run_pipeline() {
   local name="$1"; shift
-  section_open "$name" "src/main/$name/run.sh --input $(input_of "$name")"
+  section_open "$name" "src/main/$name/run.sh --input $(input_of "$name")${collating:+ --collate}"
   local rc=0
-  "$REPO_ROOT/src/main/$name/run.sh" --input "$@" 2>&1 | indented
+  "$REPO_ROOT/src/main/$name/run.sh" --input "$@" ${collating:+--collate} 2>&1 | indented
   rc=${PIPESTATUS[0]}
   echo ""
   return "$rc"
@@ -382,8 +384,6 @@ prep_pipeline_safe() {
 # run; the stage anchors above read it back, and nothing here writes into it (issues/912). A run
 # no launcher dispatched - the merge's gating step, a direct call - keeps a disposable copy
 # of its own output for those anchors, named below and removed after, never a log.
-RECORD="$(record_of pipeline run)"
-LOG_FILE="$RECORD"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline -
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -401,9 +401,13 @@ run_corpus_tail() {
   # Not under --plan: the plan lists STEPS, and a banner is a log boundary, not a step —
   # the line above it ("then once, over the whole corpus") already says the same thing.
   STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
-  # the model catalogues, refreshed before anything probes them; content-keyed, so an
-  # unchanged corpus writes nothing
-  step metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py" derive
+  if [[ -z "$collating" ]]; then
+    # the model catalogues, refreshed before anything probes them; content-keyed, so an
+    # unchanged corpus writes nothing
+    step metamodel "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/metamodel/metamodel.py" derive
+    steps_verdict
+    return
+  fi
   # The data gate's own validation judgments (issues/535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
   # a run of one pipeline audits that pipeline: the audit takes the name (pull/545), and a
@@ -430,19 +434,19 @@ print_plan() {
   # capture-sweep line resolves against the flags given instead of staying
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
-  echo "corpus-yoga pipeline run${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
+  echo "corpus-yoga pipeline $verb${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
   echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
-  ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
+  [[ -n "$collating" ]] || ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
   if should_run browser; then
-    "$REPO_ROOT/src/main/browser/run.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/browser/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
   fi
   if should_run export; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
-    ( plan=1; pair="$(prep_call export)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
-    "$REPO_ROOT/src/main/export/run.sh" --plan | sed 's/^/  /'
+    [[ -n "$collating" ]] || ( plan=1; pair="$(prep_call export)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
+    "$REPO_ROOT/src/main/export/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
   fi
   if should_run agent; then
-    "$REPO_ROOT/src/main/agent/run.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/agent/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
   fi
   echo "  $(phrase "then once, over the whole corpus"):"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
@@ -488,6 +492,17 @@ main() {
     return $?
   fi
 
+  if [[ -n "$collating" ]]; then
+    collate_pipelines
+  else
+    run_pipelines
+  fi
+
+  pair 'done' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  verdict
+}
+
+run_pipelines() {
   # The commit gate first (issues/540): the data gate is the superset, so one run in
   # the data room speaks the whole verdict - the hermetic checks over src/rsc,
   # then the product judgments over the corpus. Its section is counted by the
@@ -527,7 +542,21 @@ main() {
   if should_run agent; then
     run_pipeline_safe  agent "$(tier_path "$(input_of agent)")"
   fi
+  corpus_section
+}
 
+# The steps that read the whole corpus, each pipeline's in the run's order - browser's markdown
+# before export's summaries, which key on it - then the reduce over them all.
+collate_pipelines() {
+  local name
+  for name in browser export agent; do
+    should_run "$name" || continue
+    run_pipeline_safe "$name" "$(tier_path "$(input_of "$name")")"
+  done
+  corpus_section
+}
+
+corpus_section() {
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
   # --only run re-indexing the unchanged rest is silence, not distortion
   section_open corpus "$(phrase "then once, over the whole corpus")"
@@ -538,8 +567,9 @@ main() {
     corpus_last="$(section_last_words corpus)"
     atom "FAIL: $(phrase "{section} exited non-zero without stating a finding - its last words are {last}" section=corpus last="${corpus_last:-(no output)}")"
   fi
+}
 
-  pair 'done' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+verdict() {
   # The tail is a TABLE and nothing else: one row per section and its atom count.
   # The body already states every finding where it happened, with
   # the context of its section around it — reprinting those lines here would duplicate the
@@ -573,15 +603,19 @@ main() {
   # served. The data-tier coupling this line once narrated (pipelines move what the
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (issues/342).
-  pair outputs data/output/markdown
+  if [[ -n "$collating" ]]; then
+    pair outputs data/output/markdown
+  else
+    pair next "corpus-yoga pipeline collate${only:+ $only} - $(phrase "the steps that read the whole corpus, its markdown among them")"
+  fi
   if [[ -n "$RECORD" ]]; then pair Log "${RECORD#"$REPO_ROOT/"}"; fi
   # what an act reports (issues/876, issues/896): the usr gate's own verdict stands above; the act's
   # effect line ends the run, or is handed to the launcher where the reader typed it. The
   # verdict must leave this function: callers chain on $?.
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
-    effect "$(act pipeline run): DONE - $(phrase "usr gate PASS; all pipelines completed")"
+    effect "$(act pipeline "$verb"): DONE - $(phrase "usr gate PASS; all pipelines completed")"
   else
-    effect "$(act pipeline run): NOT DONE - $(phrase "usr gate FAIL; the failing stage(s) are named above")"
+    effect "$(act pipeline "$verb"): NOT DONE - $(phrase "usr gate FAIL; the failing stage(s) are named above")"
   fi
   return $(( ${#verdict_failures[@]} > 0 ))
 }
@@ -589,10 +623,13 @@ main() {
 # The noun's own dispatch. Bare is STATUS — read-only, writes nothing, runs no pipeline —
 # which is the convention every other command already keeps and which `run` broke by acting
 # on a bare invocation. `run` is the verb that acts.
+verb=run
+collating=''
 case "${1-}" in
   '')        status; exit 0 ;;
   --names)   pipelines; exit 0 ;;
   run)       shift; parse_argv pipeline run "$@" ;;
+  collate)   shift; parse_argv pipeline collate "$@"; verb=collate; collating=1 ;;
   rehearse)  shift; parse_argv pipeline rehearse "$@"; exec "$REPO_ROOT/src/main/cli/pipeline/rehearse.sh" "$@" ;;
   render)    shift; parse_argv pipeline render "$@"; sync_matrices "$@"; exit $? ;;
   audit)     shift; parse_argv pipeline audit "$@"; "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/validation_audit.py" "$@"; exit $? ;;
@@ -601,19 +638,24 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, rehearse, render, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, collate, rehearse, render, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
 esac
+RECORD="$(record_of pipeline "$verb")"
+LOG_FILE="$RECORD"
 
 # --plan runs before the log exists: it writes nothing, not even a log file.
 # Args are parsed FIRST so the plan previews this exact invocation (the positional
 # filters it; the capture flags resolve their conditional lines).
 parse_args "$@"
+if [[ -n "$collating" && -n "$item" ]]; then
+  echo "corpus-yoga pipeline collate: $(phrase "takes a pipeline, not an item ({item})" item="$item")" >&2; exit 1
+fi
 # shellcheck disable=SC2031  # this reads parse_args' plan; print_plan's subshell plan=1 is deliberately confined
 if [[ -n "$plan" ]]; then print_plan; exit 0; fi
 if [[ -n "$LOG_FILE" ]]; then
   main "$@"
 else
-  LOG_FILE="$(scratch_file pipeline-run)"
+  LOG_FILE="$(scratch_file record)"
   # `set -o pipefail` makes the pipeline's status the first non-zero in it, so main's
   # verdict survives the tee rather than being replaced by tee's own success.
   rc=0

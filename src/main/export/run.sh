@@ -4,9 +4,11 @@
 # Usage:
 #   src/main/export/run.sh --item  data/input/claude/chat/bulk-export/data-<...>
 #   src/main/export/run.sh --input data/input/claude/chat/bulk-export
+#   src/main/export/run.sh --input data/input/claude/chat/bulk-export --collate
 #   src/main/export/run.sh --plan   # print the ordered step list; run nothing
 #
-# The step lists below (run_one, run_tail) are the ONE authority on order:
+# Each batch is read on its own; --collate reads each against the rest of the corpus, then
+# folds them all. The step lists below (run_one, collate_one, run_tail) are the ONE authority on order:
 # --plan prints exactly the lists that execute (see src/main/steps.sh).
 
 set -euo pipefail
@@ -30,11 +32,13 @@ parse_args() {
   chat_export=""
   chat_exports=""
   plan="0"
+  collate="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --item)              chat_export="$2";      shift 2 ;;
       --input)             chat_exports="$2";     shift 2 ;;
       --plan)              plan="1";              shift   ;;
+      --collate)           collate="1";           shift   ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
@@ -59,9 +63,6 @@ run_one() {
   # output subtree. A blanket wipe would destroy the validation memoisation logs,
   # forcing full revalidation every run. (The paid captures are out of reach either
   # way — they live in data/output/indexing/, not under cache/.)
-  local have_captures="0"
-  if [[ -d "$API_CAPTURE" ]]; then have_captures="1"; fi
-
   step validate           "$SCRIPT_DIR/validate.sh" --export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
   # users) verbatim into cache/<batch>/ — the cache dir is then the complete record of
@@ -70,18 +71,27 @@ run_one() {
     "$SCRIPT_DIR/archive_components.py" --export "$batch"
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --export "$batch"
   step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --export "$batch"
+  step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
+  # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces
+  # (validated vs the Conversation definition)
+  step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
+}
+
+# collate_one: one batch read against what else the corpus holds - the paid indexing captures
+# and downloaded artifacts, the live captures - so a batch's result here depends on the rest.
+collate_one() {
+  local batch="${1%/}"
+  local have_captures="0"
+  if [[ -d "$API_CAPTURE" ]]; then have_captures="1"; fi
+  # project_markdown: the atomised pieces rendered to markdown/, beside this batch's
+  # validation/ output, each frontmatter saying how current it is against the live captures
+  step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
+    "$REPO_DIR/src/main/project_markdown.py" --bulk-export "$batch"
   # inference is not per-batch: the dashboard's captures are the durable
   # single-source data/output/indexing/ (refreshed deliberately by `corpus-yoga indexing
   # capture`), which present reads. Nothing paid runs on every export.
   step present            "$SCRIPT_DIR/present.sh" --export "$batch"
-  step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
-  # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces
-  # (validated vs the Conversation definition); project_markdown renders them to
-  # markdown/, beside this batch's validation/ output.
-  step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
-  step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
-    "$REPO_DIR/src/main/project_markdown.py" --bulk-export "$batch"
   # compare_sources: the append-only invariant across export surfaces (issues/535, the
   # dev gate's former cross_sources check, spoken here once): a conversation in
   # both a bulk export and the live captures projects to identical turns, or the
@@ -94,7 +104,7 @@ run_one() {
     --api-capture "$API_CAPTURE" --bulk-export "$batch"
 }
 
-# run_tail: the once-after-all-batches REDUCE — steps that fold the whole corpus rather
+# run_tail: the once-after-all-batches REDUCE of the collate — steps that fold the whole corpus rather
 # than process one snapshot. This is where the corpus-yoga nouns live, and only here: a step is
 # eligible for a command (a declared `step`) iff it is a corpus-wide operation
 # meaningful to invoke standalone — which is precisely the run_tail character. A run_one
@@ -128,8 +138,13 @@ run_tail() {
 }
 
 print_plan() {
-  echo "export steps — per batch (data/input/claude/chat/bulk-export/data-*/ in name order):"
-  run_one '<batch>'
+  if [[ "$collate" == "0" ]]; then
+    echo "export steps — per batch (data/input/claude/chat/bulk-export/data-*/ in name order):"
+    run_one '<batch>'
+    return
+  fi
+  echo "export steps — collate mode (--collate), per batch in name order:"
+  collate_one '<batch>'
   echo "then once, after all batches:"
   run_tail
 }
@@ -141,18 +156,20 @@ main() {
 
   if [[ -n "$chat_export" ]]; then
     run_one "$(cd "$chat_export" && pwd)"
-  else
-    if [[ ! -d "$chat_exports" ]]; then
-      echo "no bulk exports in $chat_exports (download from https://claude.ai/settings/data-privacy-controls)"
-      exit 0
-    fi
-    for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
-      [[ -d "$d" ]] || continue
-      run_one "$d"
-    done
+    return 0
   fi
+  local each=run_one
+  [[ "$collate" == "0" ]] || each=collate_one
+  if [[ ! -d "$chat_exports" ]]; then
+    echo "no bulk exports in $chat_exports (download from https://claude.ai/settings/data-privacy-controls)"
+    exit 0
+  fi
+  for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
+    [[ -d "$d" ]] || continue
+    "$each" "$d"
+  done
 
-  run_tail
+  [[ "$collate" == "0" ]] || run_tail
 }
 
 main "$@"

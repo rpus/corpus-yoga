@@ -31,7 +31,7 @@ checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
 declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and
 `corpus-yoga forge push`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
-(which opens on the commit gate): the merge runs it at the head being merged in a detached
+(which opens on the commit gate), then `corpus-yoga pipeline collate`: the merge runs both at the head being merged in a detached
 worktree of its own under `tmp/`, the head's code over this checkout's corpus
 reached by link, and halts on red with the worktree disposed of and one last word naming
 the halt (issues/541, issues/549, issues/601, issues/937); this checkout stands where it stood until

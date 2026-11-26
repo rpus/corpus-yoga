@@ -351,7 +351,8 @@ def check_status_facts(run) -> None:
     pipeline_said = status_of('pipeline')
     declared_pipelines = sorted(d.name for d in (SRC / 'main').iterdir() if (d / 'pipeline.json').is_file())
     def planned(name: str) -> list[str]:
-        out = subprocess.run([str(SRC / 'main' / name / 'run.sh'), '--plan'], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
+        out = ''.join(subprocess.run([str(SRC / 'main' / name / 'run.sh'), '--plan', *mode], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=120).stdout
+                      for mode in ([], ['--collate']))
         steps: list[str] = []
         for line in out.splitlines():
             if line.startswith('  ') and not line.rstrip().endswith(':'):

@@ -601,7 +601,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         else:
             out.write(f'\ndev gate: PASS - code+schema {det} match the committed expectation; '
                       'nothing here vetoes a commit. What this gate cannot arbitrate - '
-                      'that the verbs run - is the usr gate\'s, corpus-yoga pipeline run\n')
+                      'that the verbs run - is the usr gate\'s, corpus-yoga pipeline run, then corpus-yoga pipeline collate\n')
         # The verdict is the terminal word — no trailing offer after it. The
         # remediation each finding needs is already printed beside it (the
         # gate's "To fix"). We do NOT append a

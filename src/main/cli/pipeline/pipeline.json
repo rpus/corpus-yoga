@@ -26,7 +26,8 @@
     "the failing step prints its error and the path of its own log above",
     "usr gate PASS; all pipelines completed",
     "usr gate FAIL; the failing stage(s) are named above",
-    "{verb} is no verb it takes - run, rehearse, render, audit (bare is the status)",
+    "{verb} is no verb it takes - run, collate, rehearse, render, audit (bare is the status)",
+    "the steps that read the whole corpus, its markdown among them",
     "stage/usr/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data, cache, logs and tmp under that directory, its input stage/usr/input); then stage/usr/rehearsal.json, the record",
     "failing stage(s) {names}"
   ],

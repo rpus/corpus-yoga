@@ -179,6 +179,71 @@ def check_accumulate_contract(run) -> None:
         shutil.rmtree(d, ignore_errors=True)
 
 
+@check(tier='code', on=['src/main'], says=('pipeline.run_reads_one_unit',))
+def check_run_reads_one_unit(run) -> None:
+    """A unit's outputs from corpus-yoga pipeline run are the same whatever corpus it is run in:
+    in a scratch copy of the checkout, the browser pipeline runs over one planted claude capture,
+    then again with an earlier one beside it, and every file the first run wrote the second writes
+    at the same path, with the same bytes - each validation record excepted, which carries its
+    run's time."""
+    import json
+    import os
+    import shutil
+    import subprocess
+    import sys
+    import tempfile
+
+    def conversation(uuid: str, at: str, name: str) -> dict:
+        turn = {'content': [], 'created_at': at, 'updated_at': at, 'attachments': [], 'files': []}
+        return {'uuid': uuid, 'name': name, 'summary': '', 'created_at': at, 'updated_at': at, 'model': 'claude-x',
+                'current_leaf_message_uuid': uuid[:8] + '-m2', 'chat_messages': [
+                    {**turn, 'uuid': uuid[:8] + '-m1', 'parent_message_uuid': '00000000-0000-4000-8000-000000000000',
+                     'sender': 'human', 'text': 'hi'},
+                    {**turn, 'uuid': uuid[:8] + '-m2', 'parent_message_uuid': uuid[:8] + '-m1',
+                     'sender': 'assistant', 'text': 'hello'}]}
+
+    def written(room: Path) -> dict[str, bytes]:
+        found = {}
+        for root in ('data', 'cache'):
+            for path in sorted((room / root).rglob('*')):
+                relative = path.relative_to(room).as_posix()
+                if path.is_file() and not relative.startswith(('data/input/', 'cache/python/')):
+                    found[relative] = b'' if '/validation/' in relative else path.read_bytes()
+        return found
+
+    later = ('aaaaaaaa-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z', 'later chat')
+    earlier = ('bbbbbbbb-0000-4000-8000-000000000000', '2026-01-01T00:00:00.000000Z', 'earlier chat')
+    environment = {name: value for name, value in os.environ.items()
+                   if name not in ('CORPUS_YOGA_ACTOR', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
+    environment['CORPUS_YOGA_VENV'] = sys.prefix
+    runs: list[tuple[dict[str, bytes], list[str]]] = []
+    with tempfile.TemporaryDirectory() as scratch:
+        room = Path(scratch).resolve() / 'room'
+        shutil.copytree(SRC, room / 'src', ignore=shutil.ignore_patterns('__pycache__'))
+        (room / 'rsc').symlink_to(REPO_ROOT / 'rsc')
+        shutil.copy(REPO_ROOT / 'pyrightconfig.json', room / 'pyrightconfig.json')   # the import roots the launcher sets
+        for units in ([later], [later, earlier]):
+            for root in ('data', 'cache'):
+                shutil.rmtree(room / root, ignore_errors=True)
+            for uuid, at, name in units:
+                unit = room / 'data' / 'input' / 'claude' / 'chat' / 'API-capture' / uuid
+                unit.mkdir(parents=True)
+                (unit / 'apiConversation.json').write_text(json.dumps(conversation(uuid, at, name)))
+            ran = subprocess.run([str(room / 'src' / 'main' / 'browser' / 'run.sh')], cwd=room, env=environment,
+                                 capture_output=True, text=True, timeout=300)
+            runs.append((written(room), (ran.stdout + ran.stderr).strip().splitlines()))
+    (alone, words), (beside, _) = runs
+    moved = sorted(path for path in alone if path not in beside)
+    changed = sorted(path for path in alone if path in beside and alone[path] != beside[path])
+    holds = bool(alone) and not moved and not changed
+    run('pipeline: a unit\'s outputs from the run are the same whatever corpus it is run in', holds,
+        None if holds else
+        f'the run over one capture wrote nothing - its last words are {words[-1] if words else "(none)"}' if not alone else
+        '; '.join([f'{path} is not written where an earlier capture stands beside it' for path in moved]
+                  + [f'{path} holds other bytes where an earlier capture stands beside it' for path in changed]),
+        check='pipeline.run_reads_one_unit')
+
+
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])
 def check_capture_prefix(run) -> None:
     """A browser capture by id files its unit under the conversation's full uuid: a

@@ -41,7 +41,7 @@
     "the queue disposed as read",
     "{term} accepted",
     "{concept} rejected",
-    "skipped; no corpus at {root}, which corpus-yoga pipeline run projects",
+    "skipped; no corpus at {root}, which corpus-yoga pipeline collate projects",
     "{path} written; {summary}",
     "{located}/{accepted} headwords located; {locators} turn locators across {conversations} conversations.",
     "waits on the paid capture - corpus-yoga indexing capture",

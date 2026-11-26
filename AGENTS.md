@@ -81,8 +81,8 @@ eighth principle or a smell.
   and exit 0, never a failure.
 - Two gates, named by actor, never "the gate" unqualified: `corpus-yoga test run`
   gates the dev-actor (does the CHANGE work - hermetic, hookable);
-  `corpus-yoga pipeline run` gates the usr-actor (does the PRODUCT work - needs a
-  corpus). Name which gate arbitrates any claim.
+  `corpus-yoga pipeline run`, then `corpus-yoga pipeline collate`, gates the
+  usr-actor (does the PRODUCT work - needs a corpus). Name which gate arbitrates any claim.
 - Keep the README's overview and prerequisites sections current in the same
   change that moves what they describe.
 

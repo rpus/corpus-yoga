@@ -823,8 +823,8 @@ merge_chain() {
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening relocates
   relocate merge || return 1
   oid="$PR_OID" moved="$PR_MOVED"
-  # The data gate (issues/541, issues/549, issues/937): corpus-yoga pipeline run at the head being
-  # merged, in a detached worktree of its own under tmp/, named for the act - the head's code over
+  # The data gate (issues/541, issues/549, issues/937): corpus-yoga pipeline run, then pipeline
+  # collate, at the head being merged, in a detached worktree of its own under tmp/, named for the act - the head's code over
   # this checkout's corpus, reached by link - so that this checkout stands where it stood
   # until the fast-forward, and the faces this process calls are the tree's it read.
   CORPUS_YOGA_NARRATION_DEPTH=$record_depth opening gates
@@ -832,27 +832,29 @@ merge_chain() {
   gate_wt="$(gate_worktree "$oid" "$head")"     || { effect "$(act forge merge): NOT DONE - $(phrase "could not open a worktree at {head} for the data gate" head="${oid:0:8}")"; return 1; }
   # The run reaches the terminal once, through the launcher's tee that keeps this record
   # whole (issues/954); the verdict file is read for the failing stages.
-  local gate_rc=0 verdict stages
-  verdict="$(scratch_file forge-merge)"
-  narrate opening "pipeline run"
-  # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
-  # the run's status is read from the pipeline, never let veto the line.
-  set +e
-  # the run is recorded whole beneath its item (issues/943): its sections, stages and verdict are
-  # the one full account of what the gate ran, and the terminal is no record
-  # the gate's python writes no bytecode (issues/1069): the gate's worktree reaches the checkout's
-  # cache by link and lives for this one run, so what it wrote there would outlive its
-  # sources as an orphan of the cache
-  CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) PYTHONDONTWRITEBYTECODE=1 "$gate_wt/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$verdict"
-  gate_rc=${PIPESTATUS[0]}
-  set -e
-  stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"
-  rm -f "$verdict"
-  if [[ "$gate_rc" -ne 0 ]]; then
-    dispose_worktree "$gate_wt"
-    effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under logs/test/run/ name the findings)" head="${oid:0:8}" stages="${stages:-unstated}")"
-    return 1
-  fi
+  local gate_rc=0 verdict stages gate_verb
+  for gate_verb in run collate; do
+    verdict="$(scratch_file verdict)"
+    narrate opening "pipeline $gate_verb"
+    # Under errexit a red pipeline would end the merge here, verdict unwritten (issues/601):
+    # the run's status is read from the pipeline, never let veto the line.
+    set +e
+    # each is recorded whole beneath its item (issues/943): its sections, stages and verdict are
+    # the one full account of what the gate ran, and the terminal is no record
+    # the gate's python writes no bytecode (issues/1069): the gate's worktree reaches the checkout's
+    # cache by link and lives for this one run, so what it wrote there would outlive its
+    # sources as an orphan of the cache
+    CORPUS_YOGA_NARRATION_DEPTH=$(( record_depth + 3 )) PYTHONDONTWRITEBYTECODE=1 "$gate_wt/src/main/cli/pipeline/pipeline.sh" "$gate_verb" 2>&1 | tee "$verdict"
+    gate_rc=${PIPESTATUS[0]}
+    set -e
+    stages="$(sed -n 's/.*usr gate: FAIL - failing stage(s) //p' "$verdict" | head -1)"
+    rm -f "$verdict"
+    if [[ "$gate_rc" -ne 0 ]]; then
+      dispose_worktree "$gate_wt"
+      effect "$(act forge merge): NOT DONE - $(phrase "data gate red at {head} in pipeline {verb} - usr gate FAIL, failing stage(s) {stages} (the record above and the dev gate's report under logs/test/run/ name the findings)" head="${oid:0:8}" verb="$gate_verb" stages="${stages:-unstated}")"
+      return 1
+    fi
+  done
   # The gate regenerates rsc/test/ where the branch's committed artifacts are stale; those
   # files are derived, and the worktree that holds them is disposed of either way.
   if [[ -n "$(git -C "$gate_wt" status --porcelain)" ]]; then

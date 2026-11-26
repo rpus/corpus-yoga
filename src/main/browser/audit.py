@@ -87,7 +87,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tupl
             facts.phrase('shows exactly {ceiling} human turns - the gemini page renders only the last {ceiling}, so earlier turns are likely missing from this DOM capture', ceiling=RENDER_CEILING),
             facts.Would(spell.line('browser', 'capture', provider='gemini', id=cid), {cid: 1}))
     # The capture against the rendering derived FROM it. gemini has no API, so nothing
-    # else corroborates either one -- and `corpus-yoga pipeline run` rewrites the projection from
+    # else corroborates either one -- and `corpus-yoga pipeline collate` rewrites the projection from
     # the capture every time, so a divergence means the two have already parted company.
     # The capture is a copy plus turn anchors, so they must agree turn for turn.
     if projected_text:

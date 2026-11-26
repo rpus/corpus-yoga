@@ -1,0 +1,57 @@
+{
+  "help": "the steps that read the whole corpus, after corpus-yoga pipeline run - every pipeline's or the one named - the markdown, each conversation named for its place among them all; each export batch read against the live captures and the paid indexing captures; the memories and summaries deposits; the agent cache against the stores and the agent corpus; then the audit of the validation outputs and the room's statuses",
+  "would": "would collate",
+  "modality": "MAY",
+  "args": [
+    {
+      "name": "pipeline",
+      "type": "<pipeline>",
+      "cardinality": "",
+      "help": "one pipeline by name, validated against the pipelines that exist; bare, all of them"
+    },
+    {
+      "name": "--plan",
+      "type": "",
+      "cardinality": "",
+      "help": "print the ordered step plan; run nothing"
+    }
+  ],
+  "sends": {
+    "pip-upgrade": {
+      "runs": "pip install --upgrade pip",
+      "refused": "degrades",
+      "does": [
+        "reaches PyPI on every run to check for an upgrade - refused, skipped with a note"
+      ]
+    },
+    "requirements": {
+      "runs": "pip install -q -r",
+      "refused": "degrades",
+      "does": [
+        "reaches PyPI when the venv lacks packages - refused, skipped, so a fresh venv then fails at first import, visibly"
+      ]
+    }
+  },
+  "r": [
+    "data/input",
+    "data/output/indexing",
+    "data/output/artifacts",
+    "cache",
+    "rsc",
+    "machine-name.txt"
+  ],
+  "w": [
+    "cache/export",
+    "cache/agent",
+    "data/output/markdown/claude",
+    "data/output/markdown/gemini",
+    "data/output/memories"
+  ],
+  "x": [
+    "jq",
+    "git"
+  ],
+  "explanation": {
+    "stages": "the tail's table as facts - each stage the collate performed, with its count of failures (every non-zero exit states an atom, so the count is the stage's verdict) and the line where its banner stands in the log, so that a count turns back into the lines that produced it"
+  }
+}
