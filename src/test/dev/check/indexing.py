@@ -120,76 +120,19 @@ def check_reply_shape(run) -> None:
         None if says else f'the capture ended {verdict or done.stdout.strip()[-200:]!r}', check='indexing.refused_reading_says_why')
 
 
-@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/main/cli/indexing'])
-def check_listed_queue_offers_disposal(run) -> None:
-    """Once the queue is listed as it stands, the indexing status offers accept --all and
-    reject --all, never list-candidates again; a queue listed before it moved, or never
-    listed, is offered list-candidates (issues/1123); and a queue disposed whole, its listing
-    rewritten empty as --all leaves it, is offered no disposal, only the build of the judged
-    index (issues/1125). The status reads a planted capture, disposal records and turn bodies,
-    never the room's."""
-    import importlib.util
-    facts = importlib.import_module('facts')
-    # loaded by path: this check's own module holds the name indexing
-    spec = importlib.util.spec_from_file_location('indexing_status', SRC / 'main' / 'indexing' / 'indexing.py')
-    assert spec is not None and spec.loader is not None
-    indexing = importlib.util.module_from_spec(spec)
-    sys.modules['indexing_status'] = indexing
-    spec.loader.exec_module(indexing)
-    kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'CANDIDATES_TXT', 'INDEXED_FILE', 'turn_bodies') if hasattr(indexing, name)}
-    offered = {}
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        (root / 'markdown').mkdir()
-        inferred, listed = root / 'inferred-semantic-concepts.json', root / 'candidate-semantic-concepts.txt'
-        inferred.write_text(json.dumps({'columns': ['concept'], 'rows': [['quasiparticles'], ['adjunctions']]}))
-        setattr(indexing, 'INFERRED_FILE', inferred)
-        setattr(indexing, 'CANDIDATES_TXT', listed)
-        setattr(indexing, 'INDEXED_FILE', root / 'indexed-semantic-concepts.json')
-        setattr(indexing, 'turn_bodies', lambda _root: ['on quasiparticles and adjunctions'])
-        accepted, rejected = root / 'accepted-semantic-concepts.txt', root / 'rejected-semantic-concepts.txt'
-        try:
-            def offer() -> list[str] | str:
-                try:
-                    now = facts.now_of(indexing.status(accepted, rejected, root / 'markdown'))
-                except Exception as error:   # noqa: BLE001 - the failure IS the finding
-                    return f'raised {type(error).__name__}: {error}'
-                return sorted(command for acts in now.values() for command in acts)
-            offered['unlisted'] = offer()
-            listed.write_text(indexing.candidates_report(accepted, rejected, root / 'markdown'))
-            offered['listed'] = offer()
-            rejected.write_text('adjunctions\n')
-            offered['moved'] = offer()
-            rejected.write_text('adjunctions\nquasiparticles\n')
-            listed.write_text(indexing.candidates_report(accepted, rejected, root / 'markdown'))
-            offered['disposed'] = offer()
-        finally:
-            for name, value in kept.items():
-                setattr(indexing, name, value)
-    expected = {'unlisted': ['corpus-yoga indexing list-candidates'],
-                'listed': ['corpus-yoga indexing accept --all', 'corpus-yoga indexing reject --all'],
-                'moved': ['corpus-yoga indexing list-candidates'],
-                'disposed': ['corpus-yoga indexing build']}
-    ok = offered == expected
-    run('indexing: a queue listed as it stands is offered its disposal, not its listing; a disposed one, the build', ok,
-        None if ok else f'offered {offered!r}', check='indexing.listed_queue_offers_disposal')
-
-
 @check(tier='code', says=('indexing.judged_index_waits_in_order', 'indexing.no_run_builds_the_index_or_the_page',
                           'server.book_index_is_written_from_the_judged_index', 'site.concepts_are_the_judged_index'),
        on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'src/main/cli/site'])
 def check_judged_index(run) -> None:
-    """The server's book index and the site's corpus page are built only from the capture in use as
-    the reader has judged it (issues/1125): the judged index waits on the reader's judgement, then
-    on its build, in that order - a capture is no step before them, taken at any time and replacing
-    nothing until adopted (issues/1185); the server's index.md and the page's
-    concept table are both written from it; and no pipeline run builds any of them. Held over a
-    planted capture, disposal record and corpus, never the room's."""
+    """The server's book index and the site's corpus page are built only from the index of the
+    capture in use (issues/1125, issues/1189): the index waits on its build alone, and again once
+    the corpus moves; the server's index.md and the page's concept table are both written from it;
+    and no pipeline run builds any of them. Held over a planted capture and corpus, never the room's."""
     import importlib
     indexing = importlib.import_module('indexing')
     waits_on = getattr(indexing, 'waits_on', None)
     if waits_on is None:
-        run('indexing: the judged index waits on the judgement, then its build', False,
+        run('indexing: the index waits on its build', False,
             'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',
             check='indexing.judged_index_waits_in_order')
     else:
@@ -204,24 +147,20 @@ def check_judged_index(run) -> None:
                 page.write_text('## Human (1) <a id="h1"></a>\n\non quasiparticles\n\n---\n\n## Claude (1) <a id="a1"></a>\n\nquasiparticles indeed\n\n---\n')
                 inferred = root / 'inferred-semantic-concepts.json'
                 inferred.write_text(json.dumps({'columns': ['word', 'count', 'provider'], 'rows': [['quasiparticles', 9, 'claude']]}))
-                accepted, rejected = root / 'accepted-semantic-concepts.txt', root / 'rejected-semantic-concepts.txt'
                 setattr(indexing, 'INFERRED_FILE', inferred)
                 setattr(indexing, 'INDEXED_FILE', root / 'indexed-semantic-concepts.json')
                 markdown = root / 'markdown'
-                said.append(waits_on(accepted, rejected, markdown))
-                accepted.write_text('quasiparticles\n')
-                said.append(waits_on(accepted, rejected, markdown))
-                built = indexing.indexed(markdown, accepted)
+                said.append(waits_on(markdown))
+                built = indexing.indexed(markdown)
                 indexing.INDEXED_FILE.write_text(json.dumps(built))
-                said.append(waits_on(accepted, rejected, markdown))
+                said.append(waits_on(markdown))
                 page.write_text(page.read_text() + '\n## Human (2) <a id="h2"></a>\n\nmore quasiparticles\n\n---\n')
-                said.append(waits_on(accepted, rejected, markdown))
+                said.append(waits_on(markdown))
         finally:
             for name, value in kept.items():
                 setattr(indexing, name, value)
-        want = ["waits on the reader's judgement of 1 concept(s) - corpus-yoga indexing",
-                'waits on corpus-yoga indexing build', None, 'waits on corpus-yoga indexing build']
-        run('indexing: the judged index waits on the judgement, then its build - and again once the corpus moves',
+        want = ['waits on corpus-yoga indexing build', None, 'waits on corpus-yoga indexing build']
+        run('indexing: the index waits on its build - and again once the corpus moves',
             said == want, None if said == want else f'waited on {said!r}', check='indexing.judged_index_waits_in_order')
 
         physics, matter = (f'{provider}/chat/conversations/01-{name}.md' for provider, name in (('claude', 'physics'), ('gemini', 'matter')))
@@ -233,7 +172,7 @@ def check_judged_index(run) -> None:
         expected = ('## Q\n\n### quasiparticles\n'
                     f'- [01-physics]({physics}#h1) — [H1]({physics}#h1)\n'
                     f'- [01-matter]({matter}#g2) — [G2]({matter}#g2)\n\n'
-                    '---\n\n1/2 headwords located; 2 turn locators across 2 conversations.\n')
+                    '---\n\n1 headword(s); 2 turn locators across 2 conversations.\n')
         ok = text.endswith(expected) and 'zymurgy' not in text
         run('server: the book index is written from the judged index, a headword with no locator left out', ok,
             None if ok else f'wrote {text[-400:]!r}', check='server.book_index_is_written_from_the_judged_index')
@@ -300,3 +239,41 @@ def check_capture_adopted(run) -> None:
             'before': None, 'adopted': ([['new concept', 2]], [['c1', 'creative'], ['c2', 'practical']]), 'after': '2026-11-26T000000Z'}
     run('indexing: a capture is deposited beside every earlier one and replaces the capture in use only when adopted',
         said == want, None if said == want else f'it held {said}, where {want}', check='indexing.a_capture_is_adopted_never_replaced')
+
+
+@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.index_is_the_capture_in_use',))
+def check_index_is_the_capture(run) -> None:
+    """The book index is built from the capture in use, with no candidates to judge (issues/1189):
+    its headwords are the capture's concepts that some conversation turn phrases, each with the
+    phrasings that anchor it, and a concept no turn phrases is left out; and the indexing noun has
+    no verb that lists, accepts or rejects a candidate. Held over a planted capture and corpus,
+    the module's paths pointed at them, never the room's."""
+    import importlib
+    import spell
+    indexing = importlib.import_module('indexing')
+    kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'INDEXED_FILE')}
+    said: dict[str, object] = {}
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            conversations = root / 'markdown' / 'claude' / 'chat' / 'conversations'
+            conversations.mkdir(parents=True)
+            (conversations / '01-physics.md').write_text('## Human (1) <a id="h1"></a>\n\non quasiparticles\n\n---\n\n## Claude (1) <a id="a1"></a>\n\nquasiparticles indeed\n\n---\n')
+            inferred = root / 'inferred-semantic-concepts.json'
+            inferred.write_text(json.dumps({'columns': ['word', 'count', 'provider'],
+                                            'rows': [['quasiparticles', 9, 'claude'], ['repository code review', 2, 'claude']]}))
+            setattr(indexing, 'INFERRED_FILE', inferred)
+            setattr(indexing, 'INDEXED_FILE', root / 'indexed-semantic-concepts.json')
+            try:
+                built = indexing.indexed(root / 'markdown')
+                said['headwords'] = [row[0] for row in built['rows']]
+                said['located'] = [len(row[2]) for row in built['rows']]
+            except Exception as error:   # noqa: BLE001 - the failure IS the finding
+                said['built'] = f'raised {type(error).__name__}: {error}'
+    finally:
+        for name, value in kept.items():
+            setattr(indexing, name, value)
+    said['judging verbs'] = sorted(set(spell.verbs('indexing')) & {'accept', 'reject', 'list-candidates'})
+    want = {'headwords': ['quasiparticles'], 'located': [2], 'judging verbs': []}
+    run('indexing: the book index is the capture in use - its concepts a turn phrases, with no candidate listed, accepted or rejected',
+        said == want, None if said == want else f'it held {said}, where {want}', check='indexing.index_is_the_capture_in_use')

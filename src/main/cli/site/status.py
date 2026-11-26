@@ -142,7 +142,7 @@ def main() -> int:
     due = {name: 1 for name, stands in (('data/output/site/', absent or bool(stale)),
                                          ('index.html', title == 'ABSENT' and not unprojected or lagging or moved)) if stands}
     if due:
-        waits = indexing.waits_on(indexing.ACCEPTED_FILE, indexing.REJECTED_FILE, indexing.MARKDOWN_DIR) if not unprojected else None
+        waits = indexing.waits_on(indexing.MARKDOWN_DIR) if not unprojected else None
         site.build = (Build(waits) if waits is not None else
                       Build(facts.phrase('due - the tree differs from what site build would write'), facts.Would(spell.line('site', 'build'), due)))
     if land and not absent and not refused and not due:

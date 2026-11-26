@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # capture.sh (corpus-yoga indexing capture) — the PAID semantic reading of the corpus:
 # the model reads the conversation list (the numbered titles, provider-marked) for the two index tables, weighted
-# concepts (inferred-semantic-concepts.json — the indexing queue's feedstock) and the
+# concepts (inferred-semantic-concepts.json — the index's headwords once adopted) and the
 # chat-to-category assignment (inferred-chat-categories.json — a categorical index the
 # site build consumes). One paid sweep, one derive-then-deposit bracket.
 #
@@ -305,7 +305,7 @@ capture_dashboard() {
     echo "  ✓ inferred-semantic-concepts.json ($(jq '.rows | length' "$stage/inferred-semantic-concepts.json") concepts)"
     # What the call bought, judged now (issues/644): the index's own scan says which concepts
     # anchor in a conversation turn and by which phrasings; the rest are named here, the
-    # one place their spend is visible, and never reach the queue.
+    # one place their spend is visible, and never reach the index.
     "$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; import indexing; indexing.anchor_report(Path(sys.argv[1]), Path(sys.argv[2]))' "$stage/inferred-semantic-concepts.json" "$conv"
   fi
   if [[ "$want_categories" == 1 ]]; then
