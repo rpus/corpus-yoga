@@ -1,9 +1,9 @@
 """
-stage.py (corpus-yoga stage) - the room's stage, stage/usr, as the cache has its noun.
+stage.py (corpus-yoga stage) - the room's stage, stage/, as the cache has its noun.
 
     corpus-yoga stage                   # status: the input, the scratch, each orphan, the rehearsal record, the units' counts
     corpus-yoga stage clean             # remove what the status names: each orphan, each duplicate of a held unit, each incomplete unit,
-                                        # and stage/usr whole once no unit stays staged
+                                        # and stage whole once no unit stays staged
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write; scratch
 is what the last rehearsal's run derived, replaced whole by the next; rehearsal.json is
@@ -12,10 +12,10 @@ The per-unit relations stay with each capturing noun's bare status and with bare
 corpus-yoga pipeline; this face counts them against the record. The janitor clears its
 tier as corpus-yoga cache clean clears its own: every staged unit identical to the held
 one, a duplicate, already promoted; every unit whose record or payload is absent,
-incomplete; and every entry under stage/usr that is neither the input, the scratch nor
+incomplete; and every entry under stage that is neither the input, the scratch nor
 the record, an orphan of an earlier layout. The scratch and the record serve the staged units:
 while one stays staged they are the rehearsal's to replace, and once none does the janitor
-removes stage/usr whole (issues/1127). A unit that is unlicensed or would lose is evidence of
+removes stage whole (issues/1127). A unit that is unlicensed or would lose is evidence of
 another kind and is never the janitor's.
 
 The janitor's faces are src/main/cleaner.py's, the one loop every clean verb runs (issues/837):

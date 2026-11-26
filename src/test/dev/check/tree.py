@@ -409,7 +409,18 @@ def check_spelling(run) -> None:
         law='G17', check='prescription.names_a_command')
 
 
-@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_the_actors', 'tier.gate_reads_its_own_stage'), on=['src/main', 'src/test/dev/run.sh'])
+def _alive(pid: int) -> bool:
+    """Whether a process holds the pid."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.dev_gate_keeps_its_data_under_tmp'), on=['src/main', 'src/test/dev/run.sh'])
 def check_tier_contract(run) -> None:
     """Every machine-local path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
@@ -434,40 +445,39 @@ def check_tier_contract(run) -> None:
         ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
         check='tier.paths_from_contract')
 
-    # The stage is one per actor (issues/1133): stage/usr where no actor is named, stage/dev
-    # where the dev actor is - in python and in a shell sourcing tier.sh alike.
-    resolved = {}
-    for actor in ('', 'dev'):
-        env = {k: v for k, v in os.environ.items() if k != 'CORPUS_YOGA_ACTOR'} | ({'CORPUS_YOGA_ACTOR': actor} if actor else {})
-        python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.STAGE)', str(SRC / 'main')],
-                                     capture_output=True, text=True, env=env).stdout.strip()
-        shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$STAGE_DIR"', '_', str(SRC / 'main' / 'tier.sh')],
-                                    capture_output=True, text=True, env=env).stdout.strip()
-        resolved[actor or 'none named'] = sorted({Path(python_side).relative_to(REPO_ROOT).as_posix() if python_side else '?',
-                                                  Path(shell_side).relative_to(REPO_ROOT).as_posix() if shell_side else '?'})
-    want = {'none named': ['stage/usr'], 'dev': ['stage/dev']}
-    run("tier: the stage is the actor's, stage/usr where none is named and stage/dev for the dev actor, in python and the shell alike",
-        resolved == want, None if resolved == want else f'the stage resolved as {resolved}', check='tier.stage_is_the_actors')
+    # The stage is one directory, stage/ (issues/1171): no level beneath it names a person or a
+    # gate - in python and in a shell sourcing tier.sh alike, wherever the dev gate is not running.
+    outside_gate = {k: v for k, v in os.environ.items() if not k.startswith('CORPUS_YOGA_') or k == 'CORPUS_YOGA_VENV'}
+    python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.STAGE)', str(SRC / 'main')],
+                                 capture_output=True, text=True, env=outside_gate).stdout.strip()
+    shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$STAGE_DIR"', '_', str(SRC / 'main' / 'tier.sh')],
+                                capture_output=True, text=True, env=outside_gate).stdout.strip()
+    resolved = sorted({Path(side).relative_to(REPO_ROOT).as_posix() if side else '?' for side in (python_side, shell_side)})
+    run('tier: the stage is one directory, stage, in python and the shell alike', resolved == ['stage'],
+        None if resolved == ['stage'] else f'the stage resolved as {resolved}', check='tier.stage_is_one_directory')
 
-    # The dev gate reads its own stage, never the usr actor's (issues/1134): as the gate runs - src/test/dev/run.sh
-    # makes stage/dev and names the dev actor - data, cache, logs, tmp and the stage resolve beneath stage/dev,
-    # in this process and in a shell sourcing tier.sh, and its input is empty and read-only.
+    # The dev gate keeps its data under a root of its own (issues/1171): as the gate runs, data, cache,
+    # logs, tmp and the stage resolve beneath one directory directly under tmp/, named for
+    # corpus-yoga test run and the pid of the run it lasts, in this process and in a shell sourcing
+    # tier.sh, and its input is empty and read-only.
     import tier
-    stage = REPO_ROOT / 'stage' / 'dev'
     shell_side = subprocess.run(['bash', '-c', 'source "$1"; printf "%s\\n" "$DATA_DIR" "$TMP_DIR" "$STAGE_DIR" "$CACHE_ROOT" "$LOGS_ROOT"', '_', str(SRC / 'main' / 'tier.sh')],
                                 capture_output=True, text=True).stdout.split()
     sides = {'DATA': tier.DATA, 'TMP': tier.TMP, 'CACHE': tier.CACHE, 'LOGS_ROOT': tier.LOGS_ROOT, 'STAGE': tier.STAGE,
              **dict(zip(('DATA_DIR', 'TMP_DIR', 'STAGE_DIR', 'CACHE_ROOT', 'LOGS_ROOT (shell)'), shell_side))}
-    outside = [f'{name} {Path(path).relative_to(REPO_ROOT) if Path(path).is_relative_to(REPO_ROOT) else path}'
-               for name, path in sides.items() if not Path(path).is_relative_to(stage)]
-    held = sorted(p.name for p in (stage / 'input').iterdir()) if (stage / 'input').is_dir() else None
-    writable = (stage / 'input').is_dir() and os.access(stage / 'input', os.W_OK)
-    why = ('; '.join(outside) + ' - outside stage/dev' if outside else
-           'stage/dev/input is absent' if held is None else
-           f'stage/dev/input holds {held}' if held else
-           'stage/dev/input is writable' if writable else None)
-    run("tier: as the dev gate runs, data, tmp and the stage are its own, stage/dev, whose input is empty and read-only", why is None, why,
-        check='tier.gate_reads_its_own_stage')
+    roots = {Path(path).relative_to(REPO_ROOT).parts[:2] if Path(path).is_relative_to(REPO_ROOT) else (str(path),) for path in sides.values()}
+    root = REPO_ROOT.joinpath(*next(iter(roots))) if len(roots) == 1 else None
+    named = re.fullmatch(r'test\.run\.[a-z]+\.(\d+)\.[A-Za-z0-9]{6,}', root.name) if root is not None and root.parent == REPO_ROOT / 'tmp' else None
+    held = sorted(p.name for p in (tier.DATA / 'input').iterdir()) if (tier.DATA / 'input').is_dir() else None
+    writable = (tier.DATA / 'input').is_dir() and os.access(tier.DATA / 'input', os.W_OK)
+    why = (f'they resolve beneath {sorted("/".join(r) for r in roots)}, not one directory under tmp/' if root is None or root.parent != REPO_ROOT / 'tmp' else
+           f'tmp/{root.name} is not named test.run.<name>.<pid>.<random>' if named is None else
+           f'tmp/{root.name} names pid {named.group(1)}, which no process holds' if not _alive(int(named.group(1))) else
+           'its data/input is absent' if held is None else
+           f'its data/input holds {held}' if held else
+           'its data/input is writable' if writable else None)
+    run("tier: as the dev gate runs, data, cache, logs, tmp and the stage are beneath one directory under tmp/, named for corpus-yoga test run and its run, whose input is empty and read-only",
+        why is None, why, check='tier.dev_gate_keeps_its_data_under_tmp')
 
 
 @check(tier='code', says=('tree.a_table_row_holds_its_header_fields',), on='TREE')

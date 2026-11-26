@@ -1599,13 +1599,13 @@ def check_walkthrough(run) -> None:
         return out
     summary = walked('/status/help/summary', 'v\nq\n')
     top = walked('', 'q\n')
-    slashed = walked('/stage/status/stage~1usr', 'q\n')
+    slashed = walked('/migration/status/scripts/rsc~1migration~11047.sh', 'q\n')
     astray = walked('/status/help/nonesuch/deeper', 'q\n')
     spaced = '/status/help/explanation/pipeline inputs'
     wants += [
         ('a pointer starts the walk on its spot', summary[0].get('at') == '/status/help/summary' and summary[0].get('key') == 'summary'
          and summary[1].get('value') == declared['summary']),
-        ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'stage/usr' and slashed[0].get('at') == '/stage/status/stage~1usr'),
+        ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'rsc/migration/1047.sh' and slashed[0].get('at') == '/migration/status/scripts/rsc~1migration~11047.sh'),
         ('where no spot stands the longest truncation that does, and the walk says so', astray[0].get('at') == '/status/help'
          and 'the longest part of it that stands is /status/help' in str(astray[0].get('note'))),
         ('its exit is 0 where it went as asked', proc.returncode == 0 and exits.get('/status/help/summary') == 0),

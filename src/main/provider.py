@@ -133,7 +133,7 @@ TRANSPORT = Path('code') / 'machine-transport'    # the channel and the capture 
 
 def address(row: dict[str, str]) -> Path | None:
     """The address this machine's live store has under every tier root - ext/mnt,
-    stage/usr/input and data/input alike (issues/853): <provider>/code/machine-transport/<machine>,
+    stage/input and data/input alike (issues/853): <provider>/code/machine-transport/<machine>,
     the machine this room's binding; None where the row observes no live store."""
     return Path(row['provider']) / TRANSPORT / machine() if row['live_store'] else None
 

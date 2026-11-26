@@ -3,16 +3,15 @@ tier.py - the tiers as a declared contract (issues/702), the one home every scri
 machine-local paths from. Every script computes its code root, REPO, from its own address;
 the only fact it lacks is which layout its tiers are read from, and that is one name:
 CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the stage's scratch root under
-STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or
-stage/<actor>/scratch, and DATA, CACHE, LOGS and TMP are its data, cache, logs and tmp. No path
-is ever passed, only the name the layout resolves, so nothing but a rehearsal can rebind a tier.
-FETCH, what an outside source last returned, and the stage are the room's whatever tiers are in
-force (issues/1170).
+STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or stage/scratch, and DATA,
+CACHE, LOGS and TMP are its data, cache, logs and tmp. FETCH, what an outside source last
+returned, is the room's whatever tiers are in force (issues/1170).
 
-The stage, STAGE, is an actor's, under stage/, named for the actor (issues/1133): the usr
-actor's, stage/usr, every capture, rehearsal, promote and clean, wherever CORPUS_YOGA_ACTOR
-names no other - the dev actor's, stage/dev, being the one other. STAGE_INPUT is what the captures
-write; STAGE_SCRATCH holds only what the last rehearsal's run derived - data/input a
+The stage, STAGE, is one directory, stage/ (issues/1171): every capture, rehearsal, promote and
+clean. While the dev gate runs, CORPUS_YOGA_DEV_GATE names the directory it keeps its own data
+under for the run - under tmp/, named for corpus-yoga test run and the run's pid - and the
+stage and DATA_ROOT both resolve beneath it, so that no check reads or writes what the room's
+acts produced (issues/1134). STAGE_INPUT is what the captures write; STAGE_SCRATCH holds only what the last rehearsal's run derived - data/input a
 link to STAGE_INPUT, data/output its preview, cache its validation - and is
 replaced whole by the next run; STAGE_REHEARSAL is the rehearsal record, one file,
 what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). SCRATCH_CACHE is the
@@ -29,10 +28,8 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-ACTORS = ('usr', 'dev')   # whose a stage is, each its own under stage/
-ACTOR = os.environ.get('CORPUS_YOGA_ACTOR') or 'usr'
-assert ACTOR in ACTORS, f'CORPUS_YOGA_ACTOR names {ACTOR!r}, no actor of {ACTORS}'
-STAGE = REPO / 'stage' / ACTOR    # the actor's stage
+DEV_GATE = Path(os.environ['CORPUS_YOGA_DEV_GATE']) if os.environ.get('CORPUS_YOGA_DEV_GATE') else None   # the dev gate's own data, while it runs
+STAGE = (DEV_GATE or REPO) / 'stage'
 STAGE_INPUT = STAGE / 'input'  # what the captures write
 STAGE_SCRATCH = STAGE / 'scratch'   # data/{input -> ../../input, output}, cache - the last run's, replaced whole
 STAGE_REHEARSAL = STAGE / 'rehearsal.json'   # the rehearsal record, one file
@@ -66,9 +63,9 @@ def record_of(act: str) -> Path | None:
     otherwise - the one reading of CORPUS_YOGA_LOG (issues/912). No verb writes into it."""
     named = os.environ.get(LOG) if dispatched(act) else None
     return Path(named) if named else None
-# a rehearsal's data, cache, logs and tmp are its stage's scratch; so are the dev actor's always,
-# the dev gate reading nothing the usr actor's acts produce (issues/1134)
-DATA_ROOT = STAGE_SCRATCH if REHEARSAL or ACTOR == 'dev' else REPO
+# a rehearsal's data, cache, logs and tmp are its stage's scratch; the dev gate's its own directory,
+# the gate reading nothing the room's acts produce (issues/1134)
+DATA_ROOT = STAGE_SCRATCH if REHEARSAL else DEV_GATE or REPO
 DATA = DATA_ROOT / 'data'
 CACHE = DATA_ROOT / 'cache'
 LOGS_ROOT = DATA_ROOT / 'logs'
@@ -82,9 +79,11 @@ LOGS = REPO / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get
 
 def path(declared: str) -> Path:
     """A declared repo-relative path - data/..., cache/..., logs/..., tmp/... as the
-    declarations and rsc/cache_io.csv spell them - under the tiers in force; fetch/... and
-    stage/... are the room's whatever tiers are in force."""
+    declarations and rsc/cache_io.csv spell them - under the tiers in force; stage/... under the
+    stage in force; fetch/... the room's whatever tiers are in force."""
     parts = Path(declared).parts
     if parts and parts[0] in REBOUND:
         return DATA_ROOT.joinpath(*parts)
+    if parts and parts[0] == 'stage':
+        return STAGE.joinpath(*parts[1:])
     return REPO.joinpath(*parts)

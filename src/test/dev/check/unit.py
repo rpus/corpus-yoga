@@ -772,7 +772,8 @@ def check_sweep(run) -> None:
     assert raise_at is not None and raise_at.loader is not None
     raising = importlib.util.module_from_spec(raise_at)
     raise_at.loader.exec_module(raising)
-    kept = raising.RECORD.as_posix().endswith('/'.join(('logs', 'forge', 'raise'))) and 'tmp' not in raising.RECORD.relative_to(REPO_ROOT).parts
+    import tier
+    kept = raising.RECORD == tier.LOGS_ROOT / 'forge' / 'raise' and not raising.RECORD.is_relative_to(tier.TMP)
     with tempfile.TemporaryDirectory() as tmp:
         checkout = Path(tmp) / 'checkout'
         for part in ('rsc/migration/step.sh', 'rsc/migration/1069.sh'):
@@ -1198,10 +1199,58 @@ def check_roots_migration(run) -> None:
             f'again said {again.stdout!r}; the room holds {left}', check='migration.roots_named_for_what_they_hold')
 
 
+@check(tier='code', says=('migration.stage_is_one_directory',), on=['rsc/migration'])
+def check_stage_migration(run) -> None:
+    """A room's stage, laid out before issues/1171 as stage/usr, becomes stage/ by
+    rsc/migration/1171.sh - its input, scratch and rehearsal record one level up - and stage/dev,
+    the dev gate's, which every gate run made afresh with its input read-only, is discarded
+    with every empty directory it held. The fixture is synthetic: a checkout holding a planted
+    room of the old layout."""
+    import os
+    import shutil
+    import stat
+    import subprocess
+    import tempfile
+    def under(*parts: str) -> str:
+        return '/'.join(parts)
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1171.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        for held in (under('stage', 'usr', 'input', 'claude', 'chat', 'API-capture', 'u', 'apiConversation.json'),
+                     under('stage', 'usr', 'scratch', 'cache', 'v.json'), under('stage', 'usr', 'rehearsal.json'),
+                     under('stage', 'dev', 'scratch', 'cache', 'w.json')):
+            (checkout / held).parent.mkdir(parents=True, exist_ok=True)
+            (checkout / held).write_text('planted\n')
+        for empty in (under('stage', 'dev', 'scratch', 'data', 'output', 'markdown'), under('stage', 'dev', 'scratch', 'tmp'),
+                      under('stage', 'dev', 'input')):
+            (checkout / empty).mkdir(parents=True, exist_ok=True)
+        (checkout / 'stage' / 'dev' / 'scratch' / 'data' / 'input').symlink_to('../../input')
+        (checkout / 'stage' / 'dev' / 'input').chmod(stat.S_IRUSR | stat.S_IXUSR)
+        script = checkout / 'rsc/migration/1171.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1171.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        if (checkout / 'stage' / 'dev' / 'input').is_dir():
+            (checkout / 'stage' / 'dev' / 'input').chmod(stat.S_IRWXU)
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
+                      if (p.is_file() or p.is_symlink() or not any(p.iterdir())) and p.relative_to(checkout).parts[0] != 'rsc')
+        want = sorted([under('stage', 'input', 'claude', 'chat', 'API-capture', 'u', 'apiConversation.json'),
+                       under('stage', 'scratch', 'cache', 'v.json'), under('stage', 'rehearsal.json')])
+        moved = (bare.returncode == 0 and bare.stdout.strip() != '' and applied.returncode == 0 and again.stdout == '' and left == want)
+        run("migration: rsc/migration/1171.sh makes the stage one directory, stage, and discards the dev gate's - bare the steps, applied, again nothing",
+            moved, None if moved else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the room holds {left}', check='migration.stage_is_one_directory')
+
+
 @check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
 def check_spent_stage(run) -> None:
     """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the
-    janitor removes stage/usr whole, and the status names it with the janitor as its act; while
+    janitor removes stage/ whole, and the status names it with the janitor as its act; while
     a unit stays staged, neither touches them (issues/1127). Held over a planted stage, the tier's
     paths pointed at it, never the room's."""
     import importlib
@@ -1250,5 +1299,5 @@ def check_spent_stage(run) -> None:
         for name, value in kept_corpus.items():
             setattr(corpus, name, value)
     want = {'spent': (['spent stage'], ['stage'], False), 'held': ([], [], True)}
-    run('stage: once no unit is staged, the janitor removes stage/usr whole and the status names it; while one is, neither does',
+    run('stage: once no unit is staged, the janitor removes stage/ whole and the status names it; while one is, neither does',
         said == want, None if said == want else f'(kinds, named, stage left) were {said!r}', check='stage.clean_leaves_no_spent_stage')

@@ -1,4 +1,4 @@
-run.py: code+schema 1972/1972
+run.py: code+schema 1973/1973
 
 
 check_reply_without_text: |
@@ -314,8 +314,8 @@ check_spelling: |
 
 check_tier_contract: |
   ✓ tier.paths_from_contract
-  ✓ tier.stage_is_the_actors
-  ✓ tier.gate_reads_its_own_stage
+  ✓ tier.stage_is_one_directory
+  ✓ tier.dev_gate_keeps_its_data_under_tmp
 
 check_table_widths: |
   ✓ tree.a_table_row_holds_its_header_fields
@@ -398,6 +398,9 @@ check_session_continued_apart: |
 
 check_roots_migration: |
   ✓ migration.roots_named_for_what_they_hold
+
+check_stage_migration: |
+  ✓ migration.stage_is_one_directory
 
 check_spent_stage: |
   ✓ stage.clean_leaves_no_spent_stage
@@ -828,49 +831,54 @@ stages:
     failures: 0
     tier: code
     line: "399"
-  check_spent_stage:
+  check_stage_migration:
     passes: 1
     failures: 0
     tier: code
     line: "402"
+  check_spent_stage:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "405"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "405"
+    line: "408"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "408"
+    line: "411"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "414"
+    line: "417"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "420"
+    line: "423"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "423"
+    line: "426"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "428"
+    line: "431"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "442"
+    line: "445"
 
-checks[code+schema]: 271 types, 1972/1972 invocations passing
-checks[code]: 213 types, 1257/1257 invocations passing
+checks[code+schema]: 272 types, 1973/1973 invocations passing
+checks[code]: 214 types, 1258/1258 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1972/1972 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
+dev gate: PASS - code+schema 1973/1973 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate

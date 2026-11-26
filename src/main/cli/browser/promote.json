@@ -23,11 +23,11 @@
     }
   ],
   "r": [
-    "stage/usr/input/claude/chat/API-capture",
-    "stage/usr/input/gemini/chat/DOM-capture",
+    "stage/input/claude/chat/API-capture",
+    "stage/input/gemini/chat/DOM-capture",
     "data/input/claude/chat/API-capture",
     "data/input/gemini/chat/DOM-capture",
-    "stage/usr/rehearsal.json"
+    "stage/rehearsal.json"
   ],
   "w": [
     "data/input/claude/chat/API-capture",
