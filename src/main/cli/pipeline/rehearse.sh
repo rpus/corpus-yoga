@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# rehearse.sh (corpus-yoga pipeline rehearse) — the pipelines over the stage, the checkout's
+# rehearse.sh (corpus-yoga pipeline run --stage-rehearsal) — the pipelines over the stage, the checkout's
 # own code run over the stage as its root, and the record of what it saw and judged
 # (issues/687, issues/702, issues/815).
 #
 # Usage:
-#   corpus-yoga pipeline rehearse   # every pipeline over everything staged
+#   corpus-yoga pipeline run --stage-rehearsal   # every pipeline over everything staged
 #
 # A rehearsal is the stage's judgement, whole: it takes no extent, and its record,
 # stage/rehearsal.json, is the verdict for every staged unit until the next rehearsal
@@ -23,7 +23,7 @@
 # record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every
 # staged unit is taken; after it, the verdicts the run wrote are reduced with them into the
 # record, written whole, with the stamp, the commit, the Signature and the run's exit. The
-# record, logs/pipeline/rehearse/<stamp>.log, the launcher's tee, shares the stamp (issues/708).
+# record, logs/pipeline/run/<stamp>.log, the launcher's tee, shares the stamp (issues/708).
 
 set -euo pipefail
 
@@ -44,16 +44,18 @@ main() {
   # janitor's, never a pipeline's input - and the whole units are judged
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; import corpus; sys.exit(corpus.pass_over())'
   # the rehearsal's stamp is the launcher's where it ran the verb (issues/708), so the record,
-  # logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
-  stamp="$(stamp_of pipeline rehearse)"
+  # logs/pipeline/run/<stamp>.log, and the rehearsal record share it
+  stamp="$(stamp_of pipeline run)"
   rm -rf "$STAGE_OUTPUT" "$STAGE_CACHE" "$STAGE_LOGS" "$STAGE_TMP"
   mkdir -p "$STAGE_INPUT" "$STAGE_OUTPUT" "$STAGE_CACHE" "$STAGE_TMP"
   echo "rehearse: $(phrase "stage - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data, cache, logs and tmp under the stage, its input stage/data/input); then stage/rehearsal.json, the record" stamp="$stamp")"
   echo
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || return 1
   local status=0
+  # the run inside is an act the launcher did not dispatch, so that it keeps its own working record
+  # and says its own verdict beneath the rehearsal's, never the launcher's (issues/912)
   CORPUS_YOGA_REHEARSAL="$stamp" CORPUS_YOGA_NARRATION_DEPTH=$(( ${CORPUS_YOGA_NARRATION_DEPTH:-0} + 1 )) \
-    "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" run || status=$?
+    env -u CORPUS_YOGA_ACT "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" run || status=$?
   echo
   # the rehearsal's exit is its own verdict's (issues/1145): judged whole, whatever the run found
   local judged=0

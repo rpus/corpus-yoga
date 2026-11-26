@@ -1082,7 +1082,6 @@ src/main/cli/pipeline/pipeline.sh,41,comment,src/main/enact.sh,Y,# shellcheck so
 src/main/cli/pipeline/pipeline.sh,43,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/pipeline/pipeline.sh,394,comment,rsc/CALCULUS.md,Y,# Membership: L9 - Currency (rsc/CALCULUS.md). The index and the corpus page are built
 src/main/cli/pipeline/pipeline.sh,429,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/main/cli/pipeline/rehearse.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/pipeline/rehearse.sh,18,comment,src/main/tier.py,Y,"# tier contract (src/main/tier.py) resolves to the stage as the root, laid out as the checkout is"
 src/main/cli/pipeline/rehearse.sh,23,comment,src/main/rehearsal.py,Y,"# record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every"
 src/main/cli/pipeline/rehearse.sh,34,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1376,7 +1375,7 @@ src/main/provider.py,23,path_str,src/main/provider.py,Y,SELF = 'src/main/provide
 src/main/provider.sh,2,comment,src/main/provider.py,Y,# provider.sh — the shell face of src/main/provider.py's signature() (issues/704): the Signature
 src/main/provider.sh,7,comment,src/run_python_script.sh,Y,# The derivation runs the venv's python through src/run_python_script.sh (issues/478); where that
 src/main/reference/reference.py,44,path_str,src/main/reference/reference.py,Y,SELF = 'src/main/reference/reference.py'
-src/main/rehearsal.py,8,comment,src/main/cli/pipeline/rehearse.sh,Y,A rehearsal is corpus-yoga pipeline rehearse (src/main/cli/pipeline/rehearse.sh): the
+src/main/rehearsal.py,8,comment,src/main/cli/pipeline/rehearse.sh,Y,A rehearsal is corpus-yoga pipeline run --stage-rehearsal (src/main/cli/pipeline/rehearse.sh): the
 src/main/rehearsal.py,10,comment,src/main/tier.py,Y,"(src/main/tier.py) resolves to the stage as its root, laid out as the checkout is - data/input"
 src/main/rehearsal.py,17,comment,src/main/validation_verdict.py,Y,"(src/main/validation_verdict.py), with the validator's whole output where it refused. The"
 src/main/rehearsal.py,20,comment,src/main/rehearsal.schema.json,Y,"src/main/rehearsal.schema.json, held on every write and every read: what does not"
@@ -1456,30 +1455,33 @@ src/test/dev/check/join.py,87,path_str,rsc/metamodel,Y,"@check(tier='schema', on
 src/test/dev/check/join.py,132,path_str,rsc/schema,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/metamodel', 'src'], says=("
 src/test/dev/check/join.py,132,path_str,rsc/metamodel,Y,"@check(tier='schema', on=['rsc/schema', 'rsc/metamodel', 'src'], says=("
 src/test/dev/check/join.py,36,comment,src/main/latest.py,Y,# resolved against its latest version or lineage (src/main/latest.py). No per-column
-src/test/dev/check/pipeline.py,74,path_str,rsc/schema/agent,Y,schema_root = 'rsc/schema/agent/'
-src/test/dev/check/pipeline.py,99,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/dev/check/pipeline.py,139,comment,src/main/export/accumulate.py,Y,The shared accumulate operation (src/main/export/accumulate.py) obeys
-src/test/dev/check/pipeline.py,140,comment,rsc/CALCULUS.md,Y,the contract rsc/CALCULUS.md states: deposit iff
-src/test/dev/check/pipeline.py,18,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/pipeline.py,18,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/pipeline.py,18,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/pipeline.py,18,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
-src/test/dev/check/pipeline.py,92,path_str,rsc/cache_io.csv,Y,"@check(tier='code', on=['src', 'rsc/cache_io.csv'], says=("
-src/test/dev/check/pipeline.py,182,path_str,src/main,Y,"@check(tier='code', on=['src/main'], says=('pipeline.run_reads_one_unit',))"
-src/test/dev/check/pipeline.py,259,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
-src/test/dev/check/pipeline.py,247,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
-src/test/dev/check/pipeline.py,335,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,335,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,75,path_str,rsc/schema/agent,Y,schema_root = 'rsc/schema/agent/'
+src/test/dev/check/pipeline.py,100,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
+src/test/dev/check/pipeline.py,140,comment,src/main/export/accumulate.py,Y,The shared accumulate operation (src/main/export/accumulate.py) obeys
+src/test/dev/check/pipeline.py,141,comment,rsc/CALCULUS.md,Y,the contract rsc/CALCULUS.md states: deposit iff
+src/test/dev/check/pipeline.py,19,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/pipeline.py,19,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/pipeline.py,19,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/pipeline.py,19,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'], says=("
+src/test/dev/check/pipeline.py,93,path_str,rsc/cache_io.csv,Y,"@check(tier='code', on=['src', 'rsc/cache_io.csv'], says=("
+src/test/dev/check/pipeline.py,183,path_str,src/main,Y,"@check(tier='code', on=['src/main'], says=('pipeline.run_reads_one_unit',))"
+src/test/dev/check/pipeline.py,248,path_str,src/main/cli/pipeline,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
+src/test/dev/check/pipeline.py,248,path_str,src/declared_parser.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
+src/test/dev/check/pipeline.py,248,path_str,src/main/cli/cli.py,Y,"@check(tier='code', on=['src/main/cli/pipeline', 'src/declared_parser.py', 'src/main/cli/cli.py'], says=('pipeline.rehea"
+src/test/dev/check/pipeline.py,289,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
+src/test/dev/check/pipeline.py,277,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
+src/test/dev/check/pipeline.py,365,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,365,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/room.py,650,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
 src/test/dev/check/room.py,667,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,667,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
@@ -1918,7 +1920,6 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/pipeline/audit.json,Y,
 ,,,src/main/cli/pipeline/collate.json,Y,
 ,,,src/main/cli/pipeline/pipeline.json,Y,
-,,,src/main/cli/pipeline/rehearse.json,Y,
 ,,,src/main/cli/pipeline/render.json,Y,
 ,,,src/main/cli/pipeline/run.json,Y,
 ,,self_only,src/main/cli/pipeline/status.py,Y,

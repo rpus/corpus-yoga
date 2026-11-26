@@ -11,7 +11,7 @@
 #     --plan            print the ordered step plan; run nothing
 #   corpus-yoga pipeline collate [<pipeline>]     # the steps that read the whole corpus, after the run
 #     --plan            print the ordered step plan; run nothing
-#   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in stage
+#   corpus-yoga pipeline run --stage-rehearsal    # every pipeline over everything staged, in stage
 #   corpus-yoga pipeline render [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #
@@ -628,9 +628,14 @@ collating=''
 case "${1-}" in
   '')        status; exit 0 ;;
   --names)   pipelines; exit 0 ;;
-  run)       shift; parse_argv pipeline run "$@" ;;
+  run)       shift; parse_argv pipeline run "$@"
+             # the run aimed at the stage (issues/1165): the rehearsal, whose verdict is its record's
+             if [[ " $* " == *" --stage-rehearsal "* ]]; then
+               rest=(); for arg in "$@"; do [[ "$arg" == --stage-rehearsal ]] || rest+=("$arg"); done
+               [[ " ${rest[*]-} " == *" --plan "* ]] || exec "$REPO_ROOT/src/main/cli/pipeline/rehearse.sh"
+               set -- "${rest[@]}"
+             fi ;;
   collate)   shift; parse_argv pipeline collate "$@"; verb=collate; collating=1 ;;
-  rehearse)  shift; parse_argv pipeline rehearse "$@"; exec "$REPO_ROOT/src/main/cli/pipeline/rehearse.sh" "$@" ;;
   render)    shift; parse_argv pipeline render "$@"; sync_matrices "$@"; exit $? ;;
   audit)     shift; parse_argv pipeline audit "$@"; "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/validation_audit.py" "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
@@ -638,7 +643,7 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, collate, rehearse, render, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: $(phrase "{verb} is no verb it takes - run, collate, render, audit (bare is the status)" verb="${1}")" >&2; exit 1 ;;
 esac
 RECORD="$(record_of pipeline "$verb")"
 LOG_FILE="$RECORD"

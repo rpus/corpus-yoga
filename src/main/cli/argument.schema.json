@@ -17,7 +17,7 @@
     },
     "cardinality": {
       "type": "string",
-      "description": "Empty is optional; `1` is exactly one, required; `*` is any number (a variadic positional tail); `N/<class>` is N over the set quotient by <class>, the mutually-exclusive args sharing that class being one equivalence class."
+      "description": "Empty is optional; `1` is exactly one, required; `*` is any number (a variadic positional tail); `N/<class>` is N over the set quotient by <class>, the mutually-exclusive args sharing that class being one equivalence class; `?/<class>` is at most one of them."
     },
     "help": {
       "type": "string",

@@ -263,7 +263,7 @@ def _render_args(rows: list[dict]) -> str:
     cardinality is a literal count: blank -> optional [x]; a bare count '1' -> required,
     exactly that many x; 'N/<class>' -> N over the SET QUOTIENT <class> — the members
     share that value (one equivalence class) and render as the exclusive choice (a | b),
-    emitted once at the first member."""
+    emitted once at the first member; '?/<class>' at most one of them, [a | b]."""
     pieces, seen = [], set()
     args = [r for r in rows if r['arg-name']]
     for r in args:
@@ -278,7 +278,7 @@ def _render_args(rows: list[dict]) -> str:
             seen.add(card)
             members = ' | '.join(_render_arg(a['arg-name'], a['arg-type'])
                                  for a in args if a['cardinality'] == card)
-            pieces.append(f'({members})')
+            pieces.append(f'[{members}]' if card.startswith('?/') else f'({members})')
         else:  # a bare count -> required
             pieces.append(frag)
     return ' '.join(pieces)
@@ -364,7 +364,7 @@ def _arity(args: list[dict]) -> dict:
     seen: set[str] = set()
     for a in args:
         card = a.get('cardinality', '')
-        if '/' in card:
+        if '/' in card and not card.startswith('?/'):
             if card not in seen:
                 seen.add(card)
                 required.append(' | '.join(m['name'] for m in args if m.get('cardinality', '') == card))

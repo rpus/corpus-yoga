@@ -176,7 +176,7 @@ src/main/agent/run.sh --input data/input/claude/code/machine-transport
 
 A datum the latest version refuses is, from issues/687, a datum the room has staged and
 cannot promote: the capturing noun's bare status names it, and the mint is tested over the
-room's stage before the merge that licenses its promotion - `corpus-yoga pipeline rehearse`
+room's stage before the merge that licenses its promotion - `corpus-yoga pipeline run --stage-rehearsal`
 runs the checkout's own code over the stage, laid out as the checkout is
 (src/main/tier.py) and records what it saw and judged as stage/rehearsal.json
 (src/main/rehearsal.py), so the run above is that one over the staged units.

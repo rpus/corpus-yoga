@@ -1,12 +1,12 @@
 {
-  "help": "run the tests, then every pipeline over data/input/ or the one named, each unit on its own, so that a unit's outputs are the same whatever corpus it is run in; or, for one input item, that item through its pipeline alone - processing only, never acquiring. What reads the whole corpus is corpus-yoga pipeline collate's, which the run's report names after it",
+  "help": "run the tests, then every pipeline over data/input/ or the one named, each unit on its own, so that a unit's outputs are the same whatever corpus it is run in; or, for one input item, that item through its pipeline alone; or, with --stage-rehearsal, every pipeline over the stage - processing only, never acquiring. What reads the whole corpus is corpus-yoga pipeline collate's, which the run's report names after it",
   "would": "would process",
   "modality": "MAY",
   "args": [
     {
       "name": "pipeline",
       "type": "<pipeline>",
-      "cardinality": "",
+      "cardinality": "?/pipeline-run-extent",
       "help": "one pipeline by name, validated against the pipelines that exist; bare, all of them"
     },
     {
@@ -20,6 +20,12 @@
       "type": "",
       "cardinality": "",
       "help": "print the ordered step plan; run nothing"
+    },
+    {
+      "name": "--stage-rehearsal",
+      "type": "",
+      "cardinality": "?/pipeline-run-extent",
+      "help": "the run aimed at the stage, whole and never a part of it - every pipeline over everything staged, with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to the stage as the root, laid out as the checkout is - its input stage/data/input, its stage/data/output, stage/cache and stage/logs made afresh for each run, its stage/tmp gone when the run ends; then the record, stage/rehearsal.json, one file written whole after the run (src/main/rehearsal.py) - the stamp, the commit, the Signature, the run's exit, the digest of every whole staged unit as the run began, an incomplete one passed over, and each unit's verdicts with the validator's output where one is refused - which every promote reads. Its verdict is the record's - DONE once every unit it saw is judged, whatever the judgement - where the run's is NOT DONE wherever a datum is invalid; the tests are the checkout's, and do not run"
     }
   ],
   "sends": {
@@ -40,16 +46,22 @@
   },
   "r": [
     "data/input",
+    "stage/data/input",
     "rsc",
     "machine-name.txt"
   ],
   "w": [
     "cache/browser",
     "cache/export",
-    "cache/agent"
+    "cache/agent",
+    "stage/rehearsal.json",
+    "stage/data/output",
+    "stage/cache",
+    "stage/logs"
   ],
   "x": [
-    "jq"
+    "jq",
+    "git"
   ],
   "explanation": {
     "stages": "the tail's table as facts - each stage the run performed, with its count of failures (every non-zero exit states an atom, so the count is the stage's verdict) and the line where its banner stands in the log, so that a count turns back into the lines that produced it; a pipeline stage runs with the tests before it and corpus after it as corpus-yoga pipeline run <stage>"

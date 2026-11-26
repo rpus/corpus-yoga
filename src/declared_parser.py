@@ -14,7 +14,7 @@ parses too.
 prog is `corpus-yoga <command> [<verb>]`, never the implementing file: the reader is
 shown what they typed. Cardinality speaks arity: blank — optional (nargs='?' as
 a positional, a plain flag); '1' — required; '1/<class>' — the class's members
-form one required mutually exclusive group. A flag with a declared type takes a
+form one required mutually exclusive group; '?/<class>' — one optional group, at most one of them. A flag with a declared type takes a
 value (the type is its metavar); one without is a bare switch. Declared sends
 render as each verb's epilog — an outward call is part of what the invocation
 DOES (issues/29).
@@ -169,7 +169,7 @@ def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
                 kwargs.setdefault('metavar', r['arg-type'])
             if card == '*':
                 kwargs.setdefault('nargs', '*')
-            elif not card:
+            elif not card or card.startswith('?/'):
                 kwargs.setdefault('nargs', '?')
         holder.add_argument(r['arg-name'], **kwargs)  # type: ignore[attr-defined]
 

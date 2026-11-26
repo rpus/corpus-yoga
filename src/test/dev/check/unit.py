@@ -255,7 +255,7 @@ def check_unit_state(run) -> None:
             unseen = [corpus.Judged(u, corpus.relation(u)[0], '', judgement.UNSEEN, '') for u in corpus.select(stage_root, gemini)][:1]
             refused = None
             try:
-                rehearsals = [act for act in corpus.acts_on_staged(judged + unseen, elsewhere='deadbeef') if ' rehearse' in act.line]
+                rehearsals = [act for act in corpus.acts_on_staged(judged + unseen, elsewhere='deadbeef') if act.line.endswith(' --stage-rehearsal')]
             except TypeError as error:
                 rehearsals, refused = [], f'raised {error}'
             kind = corpus.kind_of(judged[0].unit) if judged else None
