@@ -1,5 +1,5 @@
 {
-  "help": "mount the live agent stores at ext/mnt/<provider>/code/machine-transport/<machine>, the address their units have under stage/usr/input and data/input - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; what it would create is corpus-yoga agent's status, stating every move",
+  "help": "mount the live agent stores at ext/mnt/<provider>/code/machine-transport/<machine>, the address their units have under stage/input and data/input - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; what it would create is corpus-yoga agent's status, stating every move",
   "would": "would mount",
   "modality": "MUST",
   "args": [],

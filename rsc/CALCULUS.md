@@ -289,7 +289,7 @@ Each law names its current enforcement (or the incident that taught it).
   page): each is built by its own verb - `indexing build`, then `server build` and
   `site build` - offered by its noun's status only once the step before it stands.
 - **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
-  what its source returned, under a stamp, into the room's stage, `stage/usr/input/`,
+  what its source returned, under a stamp, into the room's stage, `stage/input/`,
   at the address its unit will have under `data/input/`, and reads no other capture
   (issues/687) - of the store it reads the held unit at that one address, the baseline a
   stage that holds no copy lacks, so that a capture writes only what the live store

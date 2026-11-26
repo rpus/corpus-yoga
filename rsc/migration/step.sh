@@ -52,16 +52,17 @@ strip() {
 }
 
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,
-# removed with what it holds; only under tmp/cache, where every file is a derivation some
-# verb rewrites, or a __pycache__ under src, the bytecode python rebuilds under tmp/cache/python
-# (issues/1052).
+# removed with what it holds, its read-only directories made writable first; only under tmp/cache,
+# where every file is a derivation some verb rewrites, a __pycache__ under src, the bytecode python
+# rebuilds under tmp/cache/python (issues/1052), or stage/dev, which every dev gate run made afresh
+# (issues/1171).
 discard() {
   local entry="$1"
-  [[ "$entry" == tmp/cache/* || "$entry" == src/__pycache__ || "$entry" == src/*/__pycache__ ]] \
-    || { echo "FAIL: discard $entry - only an entry under tmp/cache, or a __pycache__ under src, is discarded" >&2; exit 1; }
+  [[ "$entry" == tmp/cache/* || "$entry" == src/__pycache__ || "$entry" == src/*/__pycache__ || "$entry" == stage/dev ]] \
+    || { echo "FAIL: discard $entry - only an entry under tmp/cache, a __pycache__ under src, or stage/dev, is discarded" >&2; exit 1; }
   [[ -e "$entry" && ! -L "$entry" ]] || return 0
   echo "rm -r $entry"
-  if (( APPLY )); then rm -r "$entry"; else MOVED+=("$entry"); fi
+  if (( APPLY )); then chmod -R u+w "$entry" && rm -r "$entry"; else MOVED+=("$entry"); fi
 }
 
 # dispose <directory>: an agent's memory directory the store or the stage holds,

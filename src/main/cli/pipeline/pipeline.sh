@@ -11,7 +11,7 @@
 #     --plan            print the ordered step plan; run nothing
 #   corpus-yoga pipeline collate [<pipeline>]     # the steps that read the whole corpus, after the run
 #     --plan            print the ordered step plan; run nothing
-#   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in stage/usr
+#   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in stage
 #   corpus-yoga pipeline render [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #

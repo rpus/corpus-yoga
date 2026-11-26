@@ -1,5 +1,5 @@
 {
-  "help": "copy this machine's own sessions of every served provider into the stage, stage/usr/input/<provider>/code/machine-transport/<machine>, which corpus-yoga agent promote takes into the store",
+  "help": "copy this machine's own sessions of every served provider into the stage, stage/input/<provider>/code/machine-transport/<machine>, which corpus-yoga agent promote takes into the store",
   "would": "would capture",
   "modality": "MAY",
   "args": [
@@ -30,7 +30,7 @@
     "data/input/gemini/code/machine-transport"
   ],
   "w": [
-    "stage/usr/input/claude/code/machine-transport",
-    "stage/usr/input/gemini/code/machine-transport"
+    "stage/input/claude/code/machine-transport",
+    "stage/input/gemini/code/machine-transport"
   ]
 }

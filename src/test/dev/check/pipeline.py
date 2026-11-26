@@ -214,7 +214,7 @@ def check_run_reads_one_unit(run) -> None:
     later = ('aaaaaaaa-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z', 'later chat')
     earlier = ('bbbbbbbb-0000-4000-8000-000000000000', '2026-01-01T00:00:00.000000Z', 'earlier chat')
     environment = {name: value for name, value in os.environ.items()
-                   if name not in ('CORPUS_YOGA_ACTOR', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
+                   if name not in ('CORPUS_YOGA_DEV_GATE', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
     environment['CORPUS_YOGA_VENV'] = sys.prefix
     runs: list[tuple[dict[str, bytes], list[str]]] = []
     with tempfile.TemporaryDirectory() as scratch:
