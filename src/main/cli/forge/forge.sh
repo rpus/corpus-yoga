@@ -9,7 +9,7 @@
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (issues/483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge rebase <pr>     # the merge's relocation alone, on the reader's word (issues/1147): refuse, relocate if the base moved, resync a checkout that holds the branch
 #   corpus-yoga forge clean           # remove what the status names: deletable branches, stale tracking refs
-#   corpus-yoga forge capture            # deposit the forge's ledger under stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge capture            # deposit the forge's ledger under stage/data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote   # what capture staged, into data/input/github/forge/gh-CLI/
 
 set -euo pipefail

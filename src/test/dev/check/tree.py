@@ -420,7 +420,7 @@ def _alive(pid: int) -> bool:
     return True
 
 
-@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.dev_gate_keeps_its_data_under_tmp'), on=['src/main', 'src/test/dev/run.sh'])
+@check(tier='code', says=('tier.paths_from_contract', 'tier.stage_is_one_directory', 'tier.stage_mirrors_the_checkout', 'tier.dev_gate_keeps_its_data_under_tmp'), on=['src/main', 'src/test/dev/run.sh'])
 def check_tier_contract(run) -> None:
     """Every machine-local path under src/main derives from the tier contract:
     src/main/tier.py and its shell twin are the one home, and no other script builds a
@@ -455,6 +455,20 @@ def check_tier_contract(run) -> None:
     resolved = sorted({Path(side).relative_to(REPO_ROOT).as_posix() if side else '?' for side in (python_side, shell_side)})
     run('tier: the stage is one directory, stage, in python and the shell alike', resolved == ['stage'],
         None if resolved == ['stage'] else f'the stage resolved as {resolved}', check='tier.stage_is_one_directory')
+
+    # The stage is laid out as the checkout is (issues/1163): a rehearsal's data and cache are the
+    # stage's own data/ and cache/, its input the stage's data/input - no scratch, no link.
+    rehearsing = {**outside_gate, 'CORPUS_YOGA_REHEARSAL': 'probe'}
+    python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.DATA, tier.CACHE, tier.STAGE_INPUT)', str(SRC / 'main')],
+                                 capture_output=True, text=True, env=rehearsing).stdout.split()
+    shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$DATA_DIR" "$CACHE_ROOT"', '_', str(SRC / 'main' / 'tier.sh')],
+                                capture_output=True, text=True, env=rehearsing).stdout.split()
+    def at(side: list[str]) -> list[str]:
+        return [Path(p).relative_to(REPO_ROOT).as_posix() if Path(p).is_relative_to(REPO_ROOT) else p for p in side]
+    mirrored = {'python': at(python_side), 'shell': at(shell_side)}
+    want = {'python': ['stage/data', 'stage/cache', 'stage/data/input'], 'shell': ['stage/data', 'stage/cache']}
+    run("tier: a rehearsal's data, cache and input are the stage's data, cache and data/input, laid out as the checkout's, in python and the shell alike",
+        mirrored == want, None if mirrored == want else f'they resolved as {mirrored}', check='tier.stage_mirrors_the_checkout')
 
     # The dev gate keeps its data under a root of its own (issues/1171): as the gate runs, data, cache,
     # logs, tmp and the stage resolve beneath one directory directly under tmp/, named for

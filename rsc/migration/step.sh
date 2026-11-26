@@ -54,15 +54,25 @@ strip() {
 # discard <entry>: a file or directory of rebuildable derivations at a retired address,
 # removed with what it holds, its read-only directories made writable first; only under tmp/cache,
 # where every file is a derivation some verb rewrites, a __pycache__ under src, the bytecode python
-# rebuilds under tmp/cache/python (issues/1052), or stage/dev, which every dev gate run made afresh
-# (issues/1171).
+# rebuilds under tmp/cache/python (issues/1052), stage/dev, which every dev gate run made afresh
+# (issues/1171), or the working files of a finished rehearsal, stage/scratch/tmp and
+# stage/scratch/extent.json (issues/1163).
 discard() {
   local entry="$1"
-  [[ "$entry" == tmp/cache/* || "$entry" == src/__pycache__ || "$entry" == src/*/__pycache__ || "$entry" == stage/dev ]] \
-    || { echo "FAIL: discard $entry - only an entry under tmp/cache, a __pycache__ under src, or stage/dev, is discarded" >&2; exit 1; }
+  [[ "$entry" == tmp/cache/* || "$entry" == src/__pycache__ || "$entry" == src/*/__pycache__ || "$entry" == stage/dev \
+     || "$entry" == stage/scratch/tmp || "$entry" == stage/scratch/extent.json ]] \
+    || { echo "FAIL: discard $entry - only an entry under tmp/cache, a __pycache__ under src, stage/dev or a finished rehearsal's working files is discarded" >&2; exit 1; }
   [[ -e "$entry" && ! -L "$entry" ]] || return 0
   echo "rm -r $entry"
   if (( APPLY )); then chmod -R u+w "$entry" && rm -r "$entry"; else MOVED+=("$entry"); fi
+}
+
+# sever <link>: a symbolic link a retired layout made, removed; what it points at stands.
+sever() {
+  local link="$1"
+  [[ -L "$link" ]] || return 0
+  echo "rm $link"
+  if (( APPLY )); then rm "$link"; else MOVED+=("$link"); fi
 }
 
 # dispose <directory>: an agent's memory directory the store or the stage holds,

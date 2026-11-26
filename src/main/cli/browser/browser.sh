@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into the room's input,
-# stage/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# stage/data/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
 # promote what was captured into data/input/ - the same extent words for both, a bare
 # call of either refused (issues/641). Scope is two independent restrictions, intersected;
 # neither adds: a provider has the mechanisms it has (claude API; gemini DOM).

@@ -15,7 +15,7 @@ the corpus more fully than the provider does.
 ./corpus-yoga                        # suggests what to run next; runs none of it
 ./corpus-yoga status                 # read-only: whether everything is well, and what needs doing
 ./corpus-yoga walkthrough            # walk the room's state: n next, m members, v value, b back, x runs the command it stands on
-./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, stage/input/
+./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, stage/data/input/
 ./corpus-yoga pipeline run           # the usr gate's first half: each unit validated and extracted on its own (--plan previews)
 ./corpus-yoga pipeline collate       # its second half: the markdown, the deposits and the audit, over the whole corpus
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
@@ -36,19 +36,19 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `cache/` | cache | local | none — each subtree's producer, which the registry (`rsc/cache_io.csv`) names, rebuilds it |
-| `stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `scratch/` and `rehearsal.json`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
+| `stage/` | captured, rehearsed, not yet promoted | local | laid out as the checkout is: `data/input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `data/output/`, `cache/`, `logs/` and `rehearsal.json`: a rehearsal's derived tiers and its record of what it saw and judged, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
 | `fetch/` | what an outside source last returned - `fetch/<provider>/chat/listing.json`, each provider's chats; `fetch/reference/`, upstream's references | local | none - `corpus-yoga browser fetch --provider <provider>` and `corpus-yoga reference fetch` read them again |
 | `logs/` | run history | local | disposable - `corpus-yoga logs` names the directories of commands and verbs that no longer exist, and `corpus-yoga logs clean` is the tier's janitor |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 | `tmp/` | what lasts one run, empty when nothing runs - each working file, directory or worktree a run keeps directly under it, `<command>.<verb>.<name>.<pid>.<random>` | local | none - `corpus-yoga tmp` names every entry but a live run's own, and `corpus-yoga tmp clean` is the tier's janitor |
 
-A capture writes to `stage/input/`, at the address its unit will have under
+A capture writes to `stage/data/input/`, at the address its unit will have under
 `data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
-every script reads its data, cache, logs and tmp under one root, the checkout's, or the stage's
-scratch, `stage/scratch/`, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's stamp, and
+every script reads its data, cache, logs and tmp under one root, the checkout's, or the stage,
+`stage/`, laid out as the checkout is, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's stamp, and
 `corpus-yoga pipeline rehearse` is the checkout's own code run under that name, its input
-the shared `stage/input/`, judging the staged units there and writing the scratch
-alone; what it saw and judged it then writes whole as the rehearsal record,
+`stage/data/input/`, judging the staged units there and writing the stage's `data/output/`,
+`cache/` and `logs/` alone; what it saw and judged it then writes whole as the rehearsal record,
 `stage/rehearsal.json` (`src/main/rehearsal.py`, its shape
 `src/main/rehearsal.schema.json`), which the next rehearsal replaces and every promote
 reads. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rehearse.sh (corpus-yoga pipeline rehearse) — the pipelines over the stage, the checkout's
-# own code run over the stage's scratch tiers, and the record of what it saw and judged
+# own code run over the stage as its root, and the record of what it saw and judged
 # (issues/687, issues/702, issues/815).
 #
 # Usage:
@@ -15,11 +15,11 @@
 # The run is the pipeline noun's run, a step of this verb at one narration depth deeper, so that
 # its lines and its effect stand beneath the rehearsal's one verdict (issues/1090), with
 # CORPUS_YOGA_REHEARSAL=<stamp>, the one name the
-# tier contract (src/main/tier.py) resolves to the scratch tiers, stage/scratch, so
-# every script reads and writes the scratch alone: no copy of the code, no copy of the
-# room's cache or output, no link into data/input. The scratch is made afresh for each run -
-# data/input a link to stage/input, the shared tier the captures wrote; data/output the
-# preview of the staged units; cache their validation - and what it holds is grist. The
+# tier contract (src/main/tier.py) resolves to the stage as the root, laid out as the checkout is
+# (issues/1163), so every script reads and writes the stage alone: no copy of the code, no copy
+# of the room's cache or output, no link into data/input. Its data/input is what the captures
+# wrote; its data/output, the preview of the staged units, its cache, their validation, and its
+# logs are made afresh for each run, and what they hold is grist; its tmp is gone when the run ends. The
 # record is what a reader reads (src/main/rehearsal.py): before the run, the digest of every
 # staged unit is taken; after it, the verdicts the run wrote are reduced with them into the
 # record, written whole, with the stamp, the commit, the Signature and the run's exit. The
@@ -46,10 +46,9 @@ main() {
   # the rehearsal's stamp is the launcher's where it ran the verb (issues/708), so the record,
   # logs/pipeline/rehearse/<stamp>.log, and the rehearsal record share it
   stamp="$(stamp_of pipeline rehearse)"
-  rm -rf "$STAGE_SCRATCH"
-  mkdir -p "$STAGE_DIR/input" "$STAGE_SCRATCH/data/output" "$STAGE_SCRATCH/cache" "$STAGE_SCRATCH/tmp"
-  ln -s ../../input "$STAGE_SCRATCH/data/input"   # stage/scratch/data/input -> stage/input
-  echo "rehearse: $(phrase "stage/scratch - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data, cache, logs and tmp under that directory, its input stage/input); then stage/rehearsal.json, the record" stamp="$stamp")"
+  rm -rf "$STAGE_OUTPUT" "$STAGE_CACHE" "$STAGE_LOGS" "$STAGE_TMP"
+  mkdir -p "$STAGE_INPUT" "$STAGE_OUTPUT" "$STAGE_CACHE" "$STAGE_TMP"
+  echo "rehearse: $(phrase "stage - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data, cache, logs and tmp under the stage, its input stage/data/input); then stage/rehearsal.json, the record" stamp="$stamp")"
   echo
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" begin "$stamp" || return 1
   local status=0
@@ -57,7 +56,10 @@ main() {
     "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" run || status=$?
   echo
   # the rehearsal's exit is its own verdict's (issues/1145): judged whole, whatever the run found
-  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status"
+  local judged=0
+  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/rehearsal.py" end "$stamp" "$status" || judged=$?
+  rm -rf "$STAGE_TMP"
+  return "$judged"
 }
 
 main "$@"

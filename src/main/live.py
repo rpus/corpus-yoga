@@ -5,7 +5,7 @@ a link to where the provider's harness writes, at the address its units have und
 other two roots (issues/853) - related to the fuller of the staged copy and the held copy
 of it by the measure the pipeline declares for its kind, the one promotion relates by, so
 that no two readings can disagree. A live thing the store holds level reads as level
-however empty the stage is: the stage is a scratch tier between the live stores and the
+however empty the stage is: the stage is a waiting tier between the live stores and the
 store, and the store's status is where the reading is said. Reads the live stores and both
 tiers; writes nothing.
 """

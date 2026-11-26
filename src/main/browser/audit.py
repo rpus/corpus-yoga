@@ -13,7 +13,7 @@ Usage:
   src/run_python_script.sh src/main/browser/audit.py
 
 The captures are read under the tiers' data/input and the projections under their
-data/output/markdown - the checkout's, or a rehearsal's scratch (src/main/tier.py).
+data/output/markdown - the checkout's, or the stage's in a rehearsal (src/main/tier.py).
 
 Exit status is non-zero iff anything actionable is found.
 """

@@ -1247,6 +1247,50 @@ def check_stage_migration(run) -> None:
             f'again said {again.stdout!r}; the room holds {left}', check='migration.stage_is_one_directory')
 
 
+@check(tier='code', says=('migration.stage_mirrors_the_checkout',), on=['rsc/migration'])
+def check_stage_layout_migration(run) -> None:
+    """A room's stage, laid out before issues/1163 with its input at stage/input and the last
+    rehearsal's run under stage/scratch, its data/input a link to that input, takes the
+    checkout's layout by rsc/migration/1163.sh: the input folded into stage/data/input, the
+    run's output, cache and logs moved to stage/data/output, stage/cache and stage/logs, its
+    working files and the link discarded, and the rehearsal record left where it stands. The
+    fixture is synthetic: a checkout holding a planted room of the old layout."""
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    def under(*parts: str) -> str:
+        return '/'.join(parts)
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1163.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        for held in (under('stage', 'input', 'claude', 'chat', 'API-capture', 'u', 'apiConversation.json'),
+                     under('stage', 'scratch', 'data', 'output', 'markdown', 'm.md'), under('stage', 'scratch', 'cache', 'v.json'),
+                     under('stage', 'scratch', 'logs', 'pipeline', 'run', 'r.log'), under('stage', 'scratch', 'tmp', 'w.1.abcdef'),
+                     under('stage', 'scratch', 'extent.json'), under('stage', 'rehearsal.json')):
+            (checkout / held).parent.mkdir(parents=True, exist_ok=True)
+            (checkout / held).write_text('planted\n')
+        (checkout / 'stage' / 'scratch' / 'data' / 'input').symlink_to('../../input')
+        script = checkout / 'rsc/migration/1163.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1163.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
+                      if (p.is_file() or p.is_symlink() or not any(p.iterdir())) and p.relative_to(checkout).parts[0] != 'rsc')
+        want = sorted([under('stage', 'data', 'input', 'claude', 'chat', 'API-capture', 'u', 'apiConversation.json'),
+                       under('stage', 'data', 'output', 'markdown', 'm.md'), under('stage', 'cache', 'v.json'),
+                       under('stage', 'logs', 'pipeline', 'run', 'r.log'), under('stage', 'rehearsal.json')])
+        moved = (bare.returncode == 0 and bare.stdout.strip() != '' and applied.returncode == 0 and again.stdout == '' and left == want)
+        run("migration: rsc/migration/1163.sh lays the stage out as the checkout is - bare the steps, applied, again nothing",
+            moved, None if moved else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the room holds {left}', check='migration.stage_mirrors_the_checkout')
+
+
 @check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
 def check_spent_stage(run) -> None:
     """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the
@@ -1264,7 +1308,7 @@ def check_spent_stage(run) -> None:
     janitor = importlib.util.module_from_spec(spec)
     sys.modules['stage_janitor'] = janitor
     spec.loader.exec_module(janitor)
-    names = ('STAGE', 'STAGE_INPUT', 'STAGE_SCRATCH', 'STAGE_REHEARSAL')
+    names = ('STAGE', 'STAGE_INPUT', 'STAGE_OUTPUT', 'STAGE_CACHE', 'STAGE_REHEARSAL')
     kept_tier = {name: getattr(tier, name) for name in names}
     kept_corpus = {name: getattr(corpus, name) for name in ('STAGED', 'HELD')}
     said: dict[str, object] = {}
@@ -1272,18 +1316,18 @@ def check_spent_stage(run) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             for case in ('spent', 'held'):
                 stage = Path(tmp) / case / 'stage'
-                (stage / 'input').mkdir(parents=True)
-                (stage / 'scratch' / 'data' / 'output').mkdir(parents=True)
-                (stage / 'scratch' / 'data' / 'output' / 'projected.md').write_text('a projection of a promoted unit\n')
+                (stage / 'data' / 'input').mkdir(parents=True)
+                (stage / 'data' / 'output').mkdir(parents=True)
+                (stage / 'data' / 'output' / 'projected.md').write_text('a projection of a promoted unit\n')
                 (stage / 'rehearsal.json').write_text('{}\n')
                 if case == 'held':
-                    (stage / 'input' / 'awaiting-promotion.txt').write_text('a staged unit\n')
+                    (stage / 'data' / 'input' / 'awaiting-promotion.txt').write_text('a staged unit\n')
                 store = Path(tmp) / case / 'store'
                 store.mkdir()
-                for name, path in (('STAGE', stage), ('STAGE_INPUT', stage / 'input'),
-                                   ('STAGE_SCRATCH', stage / 'scratch'), ('STAGE_REHEARSAL', stage / 'rehearsal.json')):
+                for name, path in (('STAGE', stage), ('STAGE_INPUT', stage / 'data' / 'input'), ('STAGE_OUTPUT', stage / 'data' / 'output'),
+                                   ('STAGE_CACHE', stage / 'cache'), ('STAGE_REHEARSAL', stage / 'rehearsal.json')):
                     setattr(tier, name, path)
-                setattr(corpus, 'STAGED', stage / 'input')
+                setattr(corpus, 'STAGED', stage / 'data' / 'input')
                 setattr(corpus, 'HELD', store)
                 try:
                     entries = janitor.entries()

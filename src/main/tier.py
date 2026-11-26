@@ -2,8 +2,8 @@
 tier.py - the tiers as a declared contract (issues/702), the one home every script derives its
 machine-local paths from. Every script computes its code root, REPO, from its own address;
 the only fact it lacks is which layout its tiers are read from, and that is one name:
-CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the stage's scratch root under
-STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or stage/scratch, and DATA,
+CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the stage as the root, and unset names
+the checkout's. DATA_ROOT is that root, REPO or stage/, and DATA,
 CACHE, LOGS and TMP are its data, cache, logs and tmp. FETCH, what an outside source last
 returned, is the room's whatever tiers are in force (issues/1170).
 
@@ -11,11 +11,12 @@ The stage, STAGE, is one directory, stage/ (issues/1171): every capture, rehears
 clean. While the dev gate runs, CORPUS_YOGA_DEV_GATE names the directory it keeps its own data
 under for the run - under tmp/, named for corpus-yoga test run and the run's pid - and the
 stage and DATA_ROOT both resolve beneath it, so that no check reads or writes what the room's
-acts produced (issues/1134). STAGE_INPUT is what the captures write; STAGE_SCRATCH holds only what the last rehearsal's run derived - data/input a
-link to STAGE_INPUT, data/output its preview, cache its validation - and is
-replaced whole by the next run; STAGE_REHEARSAL is the rehearsal record, one file,
-what the last rehearsal saw and judged (src/main/rehearsal.py, issues/815). SCRATCH_CACHE is the
-scratch's cache whatever tiers are in force, where the record reduces its verdicts from.
+acts produced (issues/1134). The stage is laid out as the checkout is (issues/1163): STAGE_INPUT,
+its data/input, is what the captures write; its data/output, cache and logs are what the last
+rehearsal's run derived, replaced whole by the next run; STAGE_TMP is that run's tmp, gone when
+it ends; STAGE_REHEARSAL is the rehearsal record, one file, what the last rehearsal saw and
+judged (src/main/rehearsal.py, issues/815). STAGE_CACHE is the stage's cache whatever tiers are
+in force, where the record reduces its verdicts from.
 src/main/tier.sh is the shell twin. The dev gate holds that no other script under
 src/main builds a machine-local path from its root by hand.
 """
@@ -30,10 +31,11 @@ REPO = _root[0]
 
 DEV_GATE = Path(os.environ['CORPUS_YOGA_DEV_GATE']) if os.environ.get('CORPUS_YOGA_DEV_GATE') else None   # the dev gate's own data, while it runs
 STAGE = (DEV_GATE or REPO) / 'stage'
-STAGE_INPUT = STAGE / 'input'  # what the captures write
-STAGE_SCRATCH = STAGE / 'scratch'   # data/{input -> ../../input, output}, cache - the last run's, replaced whole
+STAGE_INPUT = STAGE / 'data' / 'input'  # what the captures write
+STAGE_OUTPUT = STAGE / 'data' / 'output'   # the last rehearsal's run's, replaced whole
+STAGE_CACHE = STAGE / 'cache'   # likewise
+STAGE_TMP = STAGE / 'tmp'   # the rehearsal's run's working files, gone when it ends
 STAGE_REHEARSAL = STAGE / 'rehearsal.json'   # the rehearsal record, one file
-SCRATCH_CACHE = STAGE_SCRATCH / 'cache'
 FETCH = REPO / 'fetch'    # what an outside source last returned; a fetch remakes it
 
 REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
@@ -63,9 +65,9 @@ def record_of(act: str) -> Path | None:
     otherwise - the one reading of CORPUS_YOGA_LOG (issues/912). No verb writes into it."""
     named = os.environ.get(LOG) if dispatched(act) else None
     return Path(named) if named else None
-# a rehearsal's data, cache, logs and tmp are its stage's scratch; the dev gate's its own directory,
+# a rehearsal's data, cache, logs and tmp are the stage's own; the dev gate's its own directory,
 # the gate reading nothing the room's acts produce (issues/1134)
-DATA_ROOT = STAGE_SCRATCH if REHEARSAL else DEV_GATE or REPO
+DATA_ROOT = STAGE if REHEARSAL else DEV_GATE or REPO
 DATA = DATA_ROOT / 'data'
 CACHE = DATA_ROOT / 'cache'
 LOGS_ROOT = DATA_ROOT / 'logs'

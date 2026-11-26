@@ -1,5 +1,5 @@
 {
-  "help": "deposit the forge's ledger - issues, pull requests, comments, reviews, labels, blocked_by edges, the repository record - under stage/input/github/forge/gh-CLI/<stamp>/, one file per read; every run deposits, and a deposit holds only what the forge returned",
+  "help": "deposit the forge's ledger - issues, pull requests, comments, reviews, labels, blocked_by edges, the repository record - under stage/data/input/github/forge/gh-CLI/<stamp>/, one file per read; every run deposits, and a deposit holds only what the forge returned",
   "would": "would deposit",
   "modality": "MAY",
   "args": [],
@@ -34,6 +34,6 @@
     }
   },
   "w": [
-    "stage/input/github/forge/gh-CLI"
+    "stage/data/input/github/forge/gh-CLI"
   ]
 }

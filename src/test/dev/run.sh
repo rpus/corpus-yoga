@@ -129,15 +129,15 @@ main() {
   mkdir -p "$REPO_DIR/cache"
   # The dev gate keeps its data under a directory of its own for the run (issues/1134, issues/1171),
   # under tmp/ and named for corpus-yoga test run and this run's pid, removed when the run ends: its
-  # data, cache, logs and tmp, and a stage whose input is empty and read-only and is its data/input,
-  # so that nothing is staged into it and no check reads what the room's acts produced.
+  # data, cache, logs and tmp, and a stage of its own, each laid out as the checkout is (issues/1163),
+  # both inputs empty and read-only, so that nothing is staged into it and no check reads what the
+  # room's acts produced.
   # shellcheck source=src/main/tier.sh
   source "$REPO_DIR/src/main/tier.sh"
   GATE_DIR="$(CORPUS_YOGA_ACT='test run' scratch_dir data)"
   trap 'chmod -R u+w "$GATE_DIR" 2>/dev/null; rm -rf "$GATE_DIR"' EXIT
-  mkdir -p "$GATE_DIR/stage/input" "$GATE_DIR/data/output" "$GATE_DIR/cache" "$GATE_DIR/tmp"
-  ln -s ../stage/input "$GATE_DIR/data/input"
-  chmod a-w "$GATE_DIR/stage/input"
+  mkdir -p "$GATE_DIR/data/input" "$GATE_DIR/data/output" "$GATE_DIR/cache" "$GATE_DIR/tmp" "$GATE_DIR/stage/data/input"
+  chmod a-w "$GATE_DIR/data/input" "$GATE_DIR/stage/data/input"
   export CORPUS_YOGA_DEV_GATE="$GATE_DIR"
 
   # One invocation. run.py settles internally (issues/249): every output is built in
