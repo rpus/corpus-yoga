@@ -605,6 +605,11 @@ verdict() {
   # artifact-staleness check, at the next commit, in the dev-actor's hands (issues/342).
   if [[ -n "$collating" ]]; then
     pair outputs data/output/markdown
+    # the paid reduce after this one (issues/1185): offered after every collate, since a capture
+    # replaces nothing until it is adopted
+    local uncovered
+    uncovered="$("$REPO_ROOT/src/run_python_script.sh" -c 'import indexing; print(indexing.capture_lag())' 2>/dev/null)" || uncovered='?'
+    pair next "corpus-yoga indexing capture - $(phrase "PAID - sends the conversation titles to the API; the capture in use leaves {n} conversation(s) uncovered; a capture replaces nothing until corpus-yoga indexing adopt names it" n="$uncovered")"
   else
     pair next "corpus-yoga pipeline collate${only:+ $only} - $(phrase "the steps that read the whole corpus, its markdown among them")"
   fi

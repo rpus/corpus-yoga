@@ -1,5 +1,5 @@
 {
-  "help": "PAID - the model reads the conversation list, one numbered title per conversation, for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)",
+  "help": "PAID - the model reads the conversation list, one numbered title per conversation, for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY); each capture is deposited under its stamp, data/output/indexing/capture/<stamp>/, beside every earlier one, and replaces nothing - corpus-yoga indexing adopt makes it the capture in use",
   "would": "would read the corpus - PAID",
   "modality": "MAY",
   "args": [
@@ -33,6 +33,6 @@
   ],
   "w": [
     "cache/indexing",
-    "data/output/indexing"
+    "data/output/indexing/capture"
   ]
 }
