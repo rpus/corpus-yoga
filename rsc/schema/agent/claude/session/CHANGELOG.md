@@ -6,6 +6,61 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v32
+
+A session records that it continues from a session it compacted, and Claude Code 2.1.332 records
+each request's place in a thread. Two of reading-room's live sessions, staged by `corpus-yoga agent
+capture` on 2026-11-26, are refused at v31 by the rehearsal of 2026-11-26T115120Z:
+`380a1912-9383-46d7-8203-2b8d527eb727` at its record 5283, a record of a kind the union did not
+list, `{"type": "derived-from", ...}`, and `c47d8eb9-e7e5-463a-9933-86d8e60f5bdf` at its record 26,
+an `api-request` record carrying `thread` and `echoWireToolInputs` (issues/1175). Checked against
+v31 whole, the rehearsal's conversions of the two sessions (5,310 and 3,209 records) carry three
+new shapes and no other fault:
+
+- `derived-from`, once in each, at record 5283 and record 2363: `type`, `v` 1, `sessionId` the
+  session's own uuid, and `sessions`, one entry `{id, type, via}` - `id` the session's own uuid,
+  `type` "claude_code_session", `via` "compact".
+- `data-flow-records` with `snapshot` true, once in each, four and eight records after the
+  `derived-from`: its `records` hold the four entry shapes v31 admits and a fifth,
+  `{tool_name, tool_use_id}`, 517 and 232 times; every `tool_use_id` is `toolu_` and 24 letters and
+  digits, every `tool_name` Bash, Write, Edit, Read, Skill or ToolSearch. The other 1,124
+  `data-flow-records` records carry neither.
+- `thread` and `echoWireToolInputs` on every one of c47d8eb9's 387 `api-request` records, of
+  Claude Code 2.1.332: `echoWireToolInputs` true on all; `thread` `{type: "create"}` on 15 and
+  `{type: "continue", previous_message_id}` on 372, every `previous_message_id` `msg_` and 24
+  letters and digits. Record 26's `params.betas` lists `message-threads-2026-08-12`. 380a1912's
+  585 `api-request` records, of 2.1.331, carry neither key.
+
+None of the 25 sessions held on reading-room carries any of the three. That `derived-from` marks
+a session continuing from one it compacted, that the snapshot restates the data flow across that
+compaction, and that `thread` places a request in a server-side message thread are readings of two
+sessions, which a `via` other than compact, an `id` naming another session, or a continue naming
+no earlier response would test.
+
+Validated on reading-room, 2026-11-26, over the rehearsal's conversions of the two staged sessions
+and the 25 held sessions' conversions: v31 refuses the two staged ones, at records 5283 and 26, and
+admits the 25; v32 admits all 27. v32 adds one record kind, one entry kind and three optional keys
+and narrows nothing, so every datum v31 admits, v32 admits.
+
+### Replaces
+
+v31
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Record`: admits `DerivedFromRecord` - `type` "derived-from", `v` 1, `sessionId` a `UuidV4`, and `sessions`, an array of `DerivedFromSession` (`id` a `UuidV4`, `type` and `via` strings), each closed.
+- `DataFlowRecordsRecord`: admits an optional `snapshot`, a boolean.
+- `DataFlowEntry`: admits `DataFlowToolUseEntry` - `tool_name` and `tool_use_id`, a `ToolUseId` (`^toolu_[0-9A-Za-z]{24}$`), closed.
+- `ApiRequestRecord`: admits an optional `thread`, an `ApiRequestThread` - `ApiRequestThreadCreate` (`type` "create") or `ApiRequestThreadContinue` (`type` "continue" and `previous_message_id`, a `ResponseId`), each closed - and an optional `echoWireToolInputs`, a boolean.
+
+#### Refactored
+
+None.
+
 ## v31
 
 A session records which responses and events fed which. Reading-room's live session
