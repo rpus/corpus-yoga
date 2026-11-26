@@ -53,7 +53,7 @@ def book_index() -> BookIndex | None:
     no corpus is projected."""
     if not (tier.DATA / 'output' / 'markdown').is_dir():
         return None
-    waits = indexing.waits_on(indexing.ACCEPTED_FILE, indexing.REJECTED_FILE, indexing.MARKDOWN_DIR)
+    waits = indexing.waits_on(indexing.MARKDOWN_DIR)
     if waits is not None:
         return BookIndex(waits)
     held = indexing.held_index()

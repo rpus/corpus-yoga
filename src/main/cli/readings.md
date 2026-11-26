@@ -13,17 +13,12 @@ The format authorities are the schemas, not this file:
   a batch page sizes its cloud by the weights.
 - `inferred-chat-categories.json` — `rsc/schema/indexing/chatCategories/`; id-keyed so
   identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
-- `accepted-semantic-concepts.txt` / `rejected-semantic-concepts.txt` — headword and disposal formats in
-  `corpus-yoga indexing --help`; every captured concept must reach one of them.
+The order:
 
-The disposal loop:
-
-    corpus-yoga indexing capture → concepts   (model reads the conversation titles, paid; the capture
+    corpus-yoga indexing capture               (model reads the conversation titles, paid; deposited, and
                                                names which concepts the corpus can index, issues/644)
-    corpus-yoga indexing list-candidates       (candidates = inferred − accepted − rejected − unanchorable,
-                                               each with the aliases that anchor it in a turn)
-    accept <term> [alias ...] / reject <concept>   (your judgement, one per concept; --all as read)
-    corpus-yoga indexing build                  (the judged index, indexed-semantic-concepts.json: each accepted
-                                               headword with the turns it is found in)
+    corpus-yoga indexing adopt <stamp>         (the deposit becomes the capture in use)
+    corpus-yoga indexing build                  (the index, indexed-semantic-concepts.json: each concept of the
+                                               capture in use a turn phrases, with the turns it is found in)
     corpus-yoga server build / site build       (the book index the server serves / the corpus page,
                                                both written from the judged index)

@@ -55,10 +55,8 @@ caches rebuildable derivations (coupled to no one pipeline — some subdirs are
 datum-scoped and die with their datum, others outlive any datum), `data/output/` holds what
 outlives any batch or run, `logs/` holds run-keyed diagnostics of the machinery. The
 non-reproducible **readings** of the corpus by the intelligences that tend it live
-in `data/output/` alongside the rest of the durable corpus — curation is inference by a
-user (`data/output/indexing/accepted-semantic-concepts.txt`, `data/output/indexing/rejected-semantic-concepts.txt`) exactly as concept
-extraction is inference by a model (`data/output/indexing/inferred-*.json`); the repo privileges no
-intelligence over another. They are corpus-derived and stay out of git with the
+in `data/output/` alongside the rest of the durable corpus — concept extraction is inference by
+a model (`data/output/indexing/inferred-*.json`); the repo privileges no intelligence over another. They are corpus-derived and stay out of git with the
 rest of `data/output/` (shared across machines by the same means — e.g. iCloud — as `data/input/`);
 only their reproducible by-product, the candidates, is a rebuildable `cache/`
 derivation. (User insight, 2026-07-09.)
@@ -146,19 +144,14 @@ per-corpus code.
   and `data/output/indexing/` for the corpus readings (durable, corpus-derived, shared
   across machines with the rest of `data/output/`); the `data/input/` browser-capture roots when large and
   private; `data/output/memories/` when a versioned deposit. And *curation is capture of a
-  user decision* — the same act with a human oracle (`data/output/indexing/accepted-semantic-concepts.txt`,
-  `data/output/indexing/rejected-semantic-concepts.txt`), which is why they sit beside the model's readings in
-  `data/output/`; the repo privileges no intelligence over another (user insight,
+  user decision* — the same act with a human oracle (`rsc/metamodel/join.csv`,
+  `rsc/metamodel/rejected.txt`); the repo privileges no intelligence over another (user insight,
   2026-07-09; sharpened 2026-07-13).
-  (`corpus-yoga indexing capture`; `corpus-yoga indexing accept`/`reject`; the browser
-  scrape; `memories.py`.)
+  (`corpus-yoga indexing capture`; the browser scrape; `memories.py`.)
 
 - **curate** — the disposal loop: the machine proposes candidates as a derived
   report, a human disposes in durable files, a gate reports every candidate —
-  never a disposal in prose. Three instances share the shape: headword curation
-  (the captured concepts → `corpus-yoga indexing accept` into
-  `data/output/indexing/accepted-semantic-concepts.txt` or `corpus-yoga indexing reject` into
-  `data/output/indexing/rejected-semantic-concepts.txt` → `check_index_curation`); the schema
+  never a disposal in prose. Two instances share the shape: the schema
   WORKFLOW (a frontier failure proposes; a minted version narrated in its
   changelog disposes; the coverage and frontier gates report); and the
   metamodel.json reference (the name scan proposes collisions a human curates into
@@ -314,9 +307,7 @@ section records a discovered fact, not a design: the code, once reified, obeys
 the same calculus as the corpus — classified on the same axes, operated on by
 the same operations, governed by the same laws. Code is not a second ontology.
 
-- **curated set (of code-facing data)** — `src/main/cli/`,
-  `data/output/indexing/accepted-semantic-concepts.txt` with `data/output/indexing/rejected-semantic-concepts.txt` as its disposal
-  record: grow by curation, an absence is a decision, never auto-modified.
+- **curated set (of code-facing data)** — `src/main/cli/`: grows by curation, an absence is a decision, never auto-modified.
 - **append-only history** — the format-vintage tables
   (`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):
   states only accrue; the current one is a status flag, not an overwrite.

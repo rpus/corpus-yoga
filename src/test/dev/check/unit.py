@@ -1331,6 +1331,43 @@ def check_cache_migration(run) -> None:
             f'again said {again.stdout!r}; the room holds {left}', check='migration.cache_named_for_its_writer')
 
 
+@check(tier='code', says=('migration.indexing_judgement_retired',), on=['rsc/migration'])
+def check_indexing_judgement_migration(run) -> None:
+    """A room's indexing judgement - the accepted headwords, the rejected concepts and the candidate
+    list - retires with it by rsc/migration/1189.sh (issues/1189), each counted in lines and bytes on
+    the line before it goes, every other indexing file left where it stands. The fixture is
+    synthetic: a checkout holding a planted room."""
+    import os
+    import shutil
+    import subprocess
+    import tempfile
+    def under(*parts: str) -> str:
+        return '/'.join(parts)
+    with tempfile.TemporaryDirectory() as tmp:
+        checkout = Path(tmp) / 'checkout'
+        for part in ('rsc/migration/step.sh', 'rsc/migration/1189.sh'):
+            (checkout / part).parent.mkdir(parents=True, exist_ok=True)
+            if (REPO_ROOT / part).is_file():
+                shutil.copy2(REPO_ROOT / part, checkout / part)
+        for held in (under('data', 'output', 'indexing', 'accepted-semantic-concepts.txt'), under('data', 'output', 'indexing', 'rejected-semantic-concepts.txt'),
+                     under('cache', 'indexing', 'candidate-semantic-concepts.txt'), under('data', 'output', 'indexing', 'inferred-semantic-concepts.json')):
+            (checkout / held).parent.mkdir(parents=True, exist_ok=True)
+            (checkout / held).write_text('planted\n')
+        script = checkout / 'rsc/migration/1189.sh'
+        def ran(*flags: str) -> subprocess.CompletedProcess:
+            if not script.is_file():
+                return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1189.sh is absent')
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+        bare, applied, again = ran(), ran('--apply'), ran()
+        left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*') if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
+        counted = bare.stdout.count(' - 1 line(s), 8 bytes') == 3
+        moved = (bare.returncode == 0 and counted and applied.returncode == 0 and again.stdout == ''
+                 and left == [under('data', 'output', 'indexing', 'inferred-semantic-concepts.json')])
+        run("migration: rsc/migration/1189.sh disposes of the indexing judgement's records, each counted first - bare the steps, applied, again nothing",
+            moved, None if moved else f'bare said {bare.stdout!r} {bare.stderr!r}; applied said {applied.stdout!r} {applied.stderr!r}; '
+            f'again said {again.stdout!r}; the room holds {left}', check='migration.indexing_judgement_retired')
+
+
 @check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/main/cleaner.py'])
 def check_spent_stage(run) -> None:
     """Once no unit is staged, the stage's input, scratch and rehearsal record serve none: the

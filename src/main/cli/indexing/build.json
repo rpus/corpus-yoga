@@ -1,5 +1,5 @@
 {
-  "help": "build data/output/indexing/indexed-semantic-concepts.json, the judged index - each accepted headword with its aliases and the turns it is found in - from accepted-semantic-concepts.txt and the corpus; the server and the site are built from it - idempotent",
+  "help": "build data/output/indexing/indexed-semantic-concepts.json, the index - each concept of the capture in use that a conversation turn phrases, a headword with the phrasings that anchor it and the turns it is found in; the server and the site are built from it - idempotent",
   "would": "would build",
   "modality": "MAY",
   "args": [],

@@ -75,14 +75,22 @@ sever() {
   if (( APPLY )); then rm "$link"; else MOVED+=("$link"); fi
 }
 
-# dispose <directory>: an agent's memory directory the store or the stage holds,
+# dispose <entry>: an agent's memory directory the store or the stage holds,
 # <root>/claude/code/machine-transport/<room>/<project>/memory, removed whole, its files
-# counted and sized on the line before it goes - the disposal record, which the migration's
-# log keeps (issues/1090).
+# counted and sized on the line before it goes (issues/1090); or a record of the indexing
+# judgement, its lines and bytes counted (issues/1189) - the disposal record, which the
+# migration's log keeps.
 dispose() {
   local dir="$1" files bytes
+  if [[ "$dir" =~ ^data/output/indexing/(accepted|rejected)-semantic-concepts\.txt$ || "$dir" == cache/indexing/candidate-semantic-concepts.txt ]]; then
+    # the indexing judgement's records, retired with it (issues/1189): a file, counted by its lines
+    [[ -f "$dir" && ! -L "$dir" ]] || return 0
+    echo "rm $dir - $(wc -l < "$dir" | tr -d ' ') line(s), $(wc -c < "$dir" | tr -d ' ') bytes"
+    if (( APPLY )); then rm "$dir"; else MOVED+=("$dir"); fi
+    return 0
+  fi
   [[ "$dir" =~ ^(data/input|tmp/stage/input)/claude/code/machine-transport/[^/]+/[^/]+/memory$ ]] \
-    || { echo "FAIL: dispose $dir - only an agent's memory directory under data/input or tmp/stage/input is disposed of" >&2; exit 1; }
+    || { echo "FAIL: dispose $dir - only an agent's memory directory under data/input or tmp/stage/input, or the indexing judgement's records, is disposed of" >&2; exit 1; }
   [[ -d "$dir" && ! -L "$dir" ]] || return 0
   files="$(find "$dir" -type f ! -name .DS_Store | wc -l | tr -d ' ')"
   bytes="$(find "$dir" -type f ! -name .DS_Store -exec cat {} + | wc -c | tr -d ' ')"

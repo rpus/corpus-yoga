@@ -1,4 +1,4 @@
-run.py: code+schema 1990/1990
+run.py: code+schema 1979/1979
 
 
 check_reply_without_text: |
@@ -9,9 +9,6 @@ check_reply_shape: |
   ✓ indexing.request_carries_the_table_shape
   ✓ indexing.refused_reading_says_why
 
-check_listed_queue_offers_disposal: |
-  ✓ indexing.listed_queue_offers_disposal
-
 check_judged_index: |
   ✓ indexing.judged_index_waits_in_order
   ✓ server.book_index_is_written_from_the_judged_index
@@ -20,6 +17,9 @@ check_judged_index: |
 
 check_capture_adopted: |
   ✓ indexing.a_capture_is_adopted_never_replaced
+
+check_index_is_the_capture: |
+  ✓ indexing.index_is_the_capture_in_use
 
 check_schema_join: |
   ✓ metamodel.join_kind_declared
@@ -225,18 +225,18 @@ check_cli_surface: |
   ✓ output.plan_lines_name_their_target  (69/69)
   ✓ structure.file_at_level_of_subject  (48/48)
   ✓ structure.cli_declaration_mirrors_the_api  (26/26)
-  ✓ structure.cli_declaration_validates  (83/83)
+  ✓ structure.cli_declaration_validates  (80/80)
   ✓ cli.every_form_listed  (25/25)
   ✓ cli.help_is_the_declaration  (26/26)
-  ✓ cli.prose_holds_no_pair  (82/82)
+  ✓ cli.prose_holds_no_pair  (79/79)
   ✓ cli.flag_not_axis_value  (24/24)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
 
 check_cli_verb_help: |
-  ✓ cli.verb_help_is_the_nouns_entry  (80/80)
-  ✓ cli.verb_help_answered  (57/57)
+  ✓ cli.verb_help_is_the_nouns_entry  (77/77)
+  ✓ cli.verb_help_answered  (54/54)
   ✓ cli.refusal_is_the_declaration  (3/3)
 
 check_cli_exclusive_classes: |
@@ -417,6 +417,9 @@ check_stage_layout_migration: |
 check_cache_migration: |
   ✓ migration.cache_named_for_its_writer
 
+check_indexing_judgement_migration: |
+  ✓ migration.indexing_judgement_retired
+
 check_spent_stage: |
   ✓ stage.clean_leaves_no_spent_stage
 
@@ -471,17 +474,17 @@ stages:
     failures: 0
     tier: code
     line: "8"
-  check_listed_queue_offers_disposal:
-    passes: 1
-    failures: 0
-    tier: code
-    line: "12"
   check_judged_index:
     passes: 4
     failures: 0
     tier: code
-    line: "15"
+    line: "12"
   check_capture_adopted:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "18"
+  check_index_is_the_capture:
     passes: 1
     failures: 0
     tier: code
@@ -652,12 +655,12 @@ stages:
     tier: code
     line: "199"
   check_cli_surface:
-    passes: 587
+    passes: 581
     failures: 0
     tier: code
     line: "202"
   check_cli_verb_help:
-    passes: 140
+    passes: 134
     failures: 0
     tier: code
     line: "237"
@@ -871,49 +874,54 @@ stages:
     failures: 0
     tier: code
     line: "417"
-  check_spent_stage:
+  check_indexing_judgement_migration:
     passes: 1
     failures: 0
     tier: code
     line: "420"
+  check_spent_stage:
+    passes: 1
+    failures: 0
+    tier: code
+    line: "423"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "423"
+    line: "426"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "426"
+    line: "429"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "432"
+    line: "435"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "438"
+    line: "441"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "441"
+    line: "444"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "446"
+    line: "449"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "460"
+    line: "463"
 
-checks[code+schema]: 279 types, 1990/1990 invocations passing
-checks[code]: 221 types, 1275/1275 invocations passing
+checks[code+schema]: 280 types, 1979/1979 invocations passing
+checks[code]: 222 types, 1264/1264 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 1990/1990 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
+dev gate: PASS - code+schema 1979/1979 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate

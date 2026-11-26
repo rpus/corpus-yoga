@@ -86,26 +86,28 @@ pyrightconfig.json,17,path_str,src/main/agent,Y,"""src/main/agent"","
 pyrightconfig.json,18,path_str,src/main/metamodel,Y,"""src/main/metamodel"","
 pyrightconfig.json,21,path_str,src/main/grammar,Y,"""src/main/grammar"","
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the corpus-yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
-rsc/CALCULUS.md,80,doc,src/main/export/atoms.py,Y,equality of snapshots. (`src/main/export/atoms.py` atomisers.)
-rsc/CALCULUS.md,86,doc,src/main/export/atoms.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/export/atoms.py`, the export's measure; `src/main/corpus.py`'s one read"
-rsc/CALCULUS.md,86,doc,src/main/corpus.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/export/atoms.py`, the export's measure; `src/main/corpus.py`'s one read"
-rsc/CALCULUS.md,103,doc,src/main/export/accumulate.py,Y,"implementation: `accumulate()` in `src/main/export/accumulate.py`, called"
-rsc/CALCULUS.md,113,doc,src/main/cli/agent/agent.py,Y,semantics checked: `src/main/cli/agent/agent.py` (`corpus-yoga agent`) —
-rsc/CALCULUS.md,132,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
-rsc/CALCULUS.md,133,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
-rsc/CALCULUS.md,165,doc,rsc/metamodel/join.csv,Y,`rsc/metamodel/join.csv` edges at leisure; an edge asserting one shared
-rsc/CALCULUS.md,167,doc,rsc/metamodel/metamodel.json,Y,`rsc/metamodel/metamodel.json` or reject into `rsc/metamodel/rejected.txt` →
-rsc/CALCULUS.md,167,doc,rsc/metamodel/rejected.txt,Y,`rsc/metamodel/metamodel.json` or reject into `rsc/metamodel/rejected.txt` →
-rsc/CALCULUS.md,245,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
-rsc/CALCULUS.md,299,doc,src/main/corpus.py,Y,each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
-rsc/CALCULUS.md,300,doc,src/main/append_only.py,Y,"`src/main/append_only.py` over a measure per kind), and beyond it where the"
-rsc/CALCULUS.md,321,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,321,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,330,doc,rsc/test/run.log,Y,"record other clones diff against — `rsc/test/run.log`,"
-rsc/CALCULUS.md,331,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expected-score files beside them. Operations:"
-rsc/CALCULUS.md,336,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
-rsc/CALCULUS.md,375,doc,src/main/cli/agent/agent.py,Y,`src/main/cli/agent/agent.py` (prefix-supersession). The spectre they jointly raise is a `Mergeable` protocol (user-name
-rsc/CALCULUS.md,390,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
+rsc/CALCULUS.md,78,doc,src/main/export/atoms.py,Y,equality of snapshots. (`src/main/export/atoms.py` atomisers.)
+rsc/CALCULUS.md,84,doc,src/main/export/atoms.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/export/atoms.py`, the export's measure; `src/main/corpus.py`'s one read"
+rsc/CALCULUS.md,84,doc,src/main/corpus.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/export/atoms.py`, the export's measure; `src/main/corpus.py`'s one read"
+rsc/CALCULUS.md,101,doc,src/main/export/accumulate.py,Y,"implementation: `accumulate()` in `src/main/export/accumulate.py`, called"
+rsc/CALCULUS.md,111,doc,src/main/cli/agent/agent.py,Y,semantics checked: `src/main/cli/agent/agent.py` (`corpus-yoga agent`) —
+rsc/CALCULUS.md,130,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
+rsc/CALCULUS.md,131,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
+rsc/CALCULUS.md,147,doc,rsc/metamodel/join.csv,Y,"user decision* — the same act with a human oracle (`rsc/metamodel/join.csv`,"
+rsc/CALCULUS.md,148,doc,rsc/metamodel/rejected.txt,Y,"`rsc/metamodel/rejected.txt`); the repo privileges no intelligence over another (user insight,"
+rsc/CALCULUS.md,158,doc,rsc/metamodel/join.csv,Y,`rsc/metamodel/join.csv` edges at leisure; an edge asserting one shared
+rsc/CALCULUS.md,160,doc,rsc/metamodel/metamodel.json,Y,`rsc/metamodel/metamodel.json` or reject into `rsc/metamodel/rejected.txt` →
+rsc/CALCULUS.md,160,doc,rsc/metamodel/rejected.txt,Y,`rsc/metamodel/metamodel.json` or reject into `rsc/metamodel/rejected.txt` →
+rsc/CALCULUS.md,238,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
+rsc/CALCULUS.md,292,doc,src/main/corpus.py,Y,each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
+rsc/CALCULUS.md,293,doc,src/main/append_only.py,Y,"`src/main/append_only.py` over a measure per kind), and beyond it where the"
+rsc/CALCULUS.md,312,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,312,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,321,doc,rsc/test/run.log,Y,"record other clones diff against — `rsc/test/run.log`,"
+rsc/CALCULUS.md,322,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expected-score files beside them. Operations:"
+rsc/CALCULUS.md,327,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
+rsc/CALCULUS.md,366,doc,src/main/cli/agent/agent.py,Y,`src/main/cli/agent/agent.py` (prefix-supersession). The spectre they jointly raise is a `Mergeable` protocol (user-name
+rsc/CALCULUS.md,381,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/audit/README.md,41,doc,rsc/audit/prompt.md,Y,Provenance: rsc/audit/prompt.md @ <sha> - amend via PR to that file
 rsc/audit/prompt.md,14,doc,src/test/dev/run.py,Y,"- gate-honesty: for every check_* function in src/test/dev/run.py and for src/test/dev/xref.py, the docstring/comment cl"
 rsc/audit/prompt.md,14,doc,src/test/dev/xref.py,Y,"- gate-honesty: for every check_* function in src/test/dev/run.py and for src/test/dev/xref.py, the docstring/comment cl"
@@ -627,6 +629,8 @@ rsc/migration/1171.sh,2,comment,rsc/migration/1171.sh,Y,"# rsc/migration/1171.sh
 rsc/migration/1171.sh,9,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1181.sh,2,comment,rsc/migration/1181.sh,Y,# rsc/migration/1181.sh - every subtree of the cache is named for the command that writes it
 rsc/migration/1181.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/1189.sh,2,comment,rsc/migration/1189.sh,Y,"# rsc/migration/1189.sh - the book index is built from the capture in use, with no candidates to"
+rsc/migration/1189.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
 rsc/migration/README.md,8,doc,rsc/migration/step.sh,Y,"issue carries that move, as the steps rsc/migration/step.sh declares."
 rsc/migration/README.md,13,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
@@ -1045,7 +1049,7 @@ src/main/cli/grammar/grammar.json,18,path_str,src/main/grammar/grammar.py,Y,"""t
 src/main/cli/grammar/grammar.json,22,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/indexing/capture.json,31,path_str,rsc/schema/indexing,Y,"""rsc/schema/indexing"","
 src/main/cli/indexing/capture.json,32,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"""
-src/main/cli/indexing/indexing.json,59,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
+src/main/cli/indexing/indexing.json,29,path_str,src/main/indexing/indexing.py,Y,"""target"": ""src/main/indexing/indexing.py"","
 src/main/cli/mcp/derive.json,8,path_str,src/main/mcp/derivation.json,Y,"""src/main/mcp/derivation.json"","
 src/main/cli/mcp/mcp.json,27,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/mcp.json,32,path_str,src/main/mcp/derivation.json,Y,"""src/main/mcp/derivation.json"","
@@ -1310,11 +1314,9 @@ src/main/indexing/capture.sh,32,comment,src/main/enact.sh,Y,# shellcheck source=
 src/main/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
 src/main/indexing/capture.sh,134,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
-src/main/indexing/indexing.py,19,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
-src/main/indexing/indexing.py,53,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
-src/main/indexing/indexing.py,288,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
-src/main/indexing/indexing.py,423,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-src/main/indexing/indexing.py,735,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
+src/main/indexing/indexing.py,32,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
+src/main/indexing/indexing.py,237,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
+src/main/indexing/indexing.py,440,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
 src/main/indexing/reply_shape.py,20,path_str,src/main/indexing/reply_shape.py,Y,SELF = 'src/main/indexing/reply_shape.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'
@@ -1437,18 +1439,17 @@ src/test/dev/check/indexing.py,58,path_str,src/main/indexing,Y,"on=['src/main/in
 src/test/dev/check/indexing.py,58,path_str,rsc/schema/indexing,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
 src/test/dev/check/indexing.py,58,path_str,src/main/report.sh,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
 src/test/dev/check/indexing.py,58,path_str,src/main/cli/indexing,Y,"on=['src/main/indexing', 'rsc/schema/indexing', 'src/main/report.sh', 'src/main/cli/indexing'])"
-src/test/dev/check/indexing.py,123,path_str,src/main/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,123,path_str,src/main/facts.py,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,123,path_str,src/main/cli/indexing,Y,"@check(tier='code', says=('indexing.listed_queue_offers_disposal',), on=['src/main/indexing', 'src/main/facts.py', 'src/"
-src/test/dev/check/indexing.py,193,path_str,src/main/indexing/indexing.py,Y,"'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',"
-src/test/dev/check/indexing.py,180,path_str,src/main/indexing,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,180,path_str,src/main/cli/server/book_index.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,180,path_str,src/main/present_corpus.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,180,path_str,src/main/cli/pipeline,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,180,path_str,src/main/cli/site,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
-src/test/dev/check/indexing.py,255,path_str,src/main/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replac"
-src/test/dev/check/indexing.py,255,path_str,src/main/cli/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replac"
-src/test/dev/check/indexing.py,286,path_str,src/main/indexing/indexing.py,Y,"said['verbs'] = 'src/main/indexing/indexing.py has no deposit, adopt and in_use'"
+src/test/dev/check/indexing.py,136,path_str,src/main/indexing/indexing.py,Y,"'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',"
+src/test/dev/check/indexing.py,125,path_str,src/main/indexing,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,125,path_str,src/main/cli/server/book_index.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,125,path_str,src/main/present_corpus.py,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,125,path_str,src/main/cli/pipeline,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,125,path_str,src/main/cli/site,Y,"on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'sr"
+src/test/dev/check/indexing.py,194,path_str,src/main/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replac"
+src/test/dev/check/indexing.py,194,path_str,src/main/cli/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replac"
+src/test/dev/check/indexing.py,244,path_str,src/main/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.index_is_the_capture_in_use',))"
+src/test/dev/check/indexing.py,244,path_str,src/main/cli/indexing,Y,"@check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.index_is_the_capture_in_use',))"
+src/test/dev/check/indexing.py,225,path_str,src/main/indexing/indexing.py,Y,"said['verbs'] = 'src/main/indexing/indexing.py has no deposit, adopt and in_use'"
 src/test/dev/check/join.py,70,comment,rsc/metamodel/metamodel.json,Y,"rsc/metamodel/metamodel.json is the table of documented shared types - a name, its"
 src/test/dev/check/join.py,71,comment,rsc/metamodel/metamodel.schema.json,Y,"description, its occurrences by family - and rsc/metamodel/metamodel.schema.json is"
 src/test/dev/check/join.py,144,comment,rsc/metamodel/rejected.txt,Y,covered by a rejection in rsc/metamodel/rejected.txt. One check per
@@ -1616,6 +1617,7 @@ src/test/dev/check/unit.py,1152,comment,rsc/migration/1170.sh,Y,"what they hold 
 src/test/dev/check/unit.py,1205,comment,rsc/migration/1171.sh,Y,"rsc/migration/1171.sh - its input, scratch and rehearsal record one level up - and stage/dev,"
 src/test/dev/check/unit.py,1254,comment,rsc/migration/1163.sh,Y,"checkout's layout by rsc/migration/1163.sh: the input folded into stage/data/input, the"
 src/test/dev/check/unit.py,1297,comment,rsc/migration/1181.sh,Y,"of the command that writes them, cache/pipeline/<pipeline>, by rsc/migration/1181.sh - the"
+src/test/dev/check/unit.py,1337,comment,rsc/migration/1189.sh,Y,"list - retires with it by rsc/migration/1189.sh (issues/1189), each counted in lines and bytes on"
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/rehearsal.schema.json,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
 src/test/dev/check/unit.py,12,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/rehearsal.py', 'src/main/rehearsal.schema.json', 'src/main/corpus.py', 'src/main/tier."
@@ -1696,9 +1698,13 @@ src/test/dev/check/unit.py,1308,path_str,rsc/migration/step.sh,Y,"for part in ('
 src/test/dev/check/unit.py,1308,path_str,rsc/migration/1181.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1181.sh'):"
 src/test/dev/check/unit.py,1317,path_str,rsc/migration/1181.sh,Y,script = checkout / 'rsc/migration/1181.sh'
 src/test/dev/check/unit.py,1294,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.cache_named_for_its_writer',), on=['rsc/migration'])"
-src/test/dev/check/unit.py,1334,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1334,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
-src/test/dev/check/unit.py,1334,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1348,path_str,rsc/migration/step.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1189.sh'):"
+src/test/dev/check/unit.py,1348,path_str,rsc/migration/1189.sh,Y,"for part in ('rsc/migration/step.sh', 'rsc/migration/1189.sh'):"
+src/test/dev/check/unit.py,1356,path_str,rsc/migration/1189.sh,Y,script = checkout / 'rsc/migration/1189.sh'
+src/test/dev/check/unit.py,1334,path_str,rsc/migration,Y,"@check(tier='code', says=('migration.indexing_judgement_retired',), on=['rsc/migration'])"
+src/test/dev/check/unit.py,1371,path_str,src/main/corpus.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1371,path_str,src/main/cli/stage,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
+src/test/dev/check/unit.py,1371,path_str,src/main/cleaner.py,Y,"@check(tier='code', says=('stage.clean_leaves_no_spent_stage',), on=['src/main/corpus.py', 'src/main/cli/stage', 'src/ma"
 src/test/dev/check/unit.py,35,path_str,src/main/rehearsal.py,Y,'src/main/rehearsal.py does not exist: a rehearsal leaves stamped directories under stage/rehearsal '
 src/test/dev/check/unit.py,222,path_str,src/main/corpus.py,Y,"None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')"
 src/test/dev/check/unit.py,531,path_str,src/main/facts.py,Y,"None if effective else 'src/main/facts.py has no would(line, found)' if built is None else f'would gave {built!r}; {empt"
@@ -1715,6 +1721,7 @@ src/test/dev/check/unit.py,1186,path_str,rsc/migration/1170.sh,Y,"return subproc
 src/test/dev/check/unit.py,1235,path_str,rsc/migration/1171.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1171.sh is absent')"
 src/test/dev/check/unit.py,1280,path_str,rsc/migration/1163.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1163.sh is absent')"
 src/test/dev/check/unit.py,1320,path_str,rsc/migration/1181.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1181.sh is absent')"
+src/test/dev/check/unit.py,1359,path_str,rsc/migration/1189.sh,Y,"return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1189.sh is absent')"
 src/test/dev/check/unit.py,1014,path_str,rsc/migration,Y,"done = subprocess.run([str(checkout / 'rsc/migration' / name), '--apply'], capture_output=True, text=True, env=env, cwd="
 src/test/dev/check/upstream.py,180,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts: src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/check/upstream.py,209,comment,src/main/mcp/derivation.json,Y,"The mcp derivation is declared in one file, src/main/mcp/derivation.json - the lineage it"
@@ -1913,13 +1920,10 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/cli/forge/reconcile.py,Y,
 ,,self_only,src/main/cli/forge/status.py,Y,
 ,,,src/main/cli/grammar/generate.json,Y,
-,,,src/main/cli/indexing/accept.json,Y,
 ,,,src/main/cli/indexing/adopt.json,Y,
 ,,,src/main/cli/indexing/build.json,Y,
 ,,,src/main/cli/indexing/capture.json,Y,
 ,,,src/main/cli/indexing/indexing.json,Y,
-,,,src/main/cli/indexing/list-candidates.json,Y,
-,,,src/main/cli/indexing/reject.json,Y,
 ,,,src/main/cli/mcp/derive.json,Y,
 ,,,src/main/cli/mcp/mcp.json,Y,
 ,,,src/main/cli/memories/deposit.json,Y,
