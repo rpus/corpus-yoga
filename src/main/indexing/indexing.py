@@ -702,6 +702,7 @@ class Currency:
     """The capture in use against the corpus it reads."""
     conversations: int
     covered_by_the_capture_in_use: int
+    act: facts.Would | None = None
 
 
 @dataclass
@@ -740,7 +741,9 @@ def captures() -> Captures:
     if (tier.DATA / 'output' / 'markdown').is_dir():
         n = conversation_count()
         if n > 0:
-            out.corpus = Currency(n, rows[CATEGORIES_FILE.name] or 0)
+            # always offered, paid (issues/1185): a capture is a fresh, non-deterministic reading of
+            # every title, and replaces nothing until it is adopted
+            out.corpus = Currency(n, rows[CATEGORIES_FILE.name] or 0, facts.Would(spell.line('indexing', 'capture'), {'data/output/markdown': n}))
     pending = [d for d in deposits() if d != stamp]
     out.deposited = (Pending({d: changes(d) for d in pending}, facts.Would(spell.line('indexing', 'adopt', pending[-1]), {pending[-1]: 1}))
                      if pending else facts.phrase('none but the capture in use'))

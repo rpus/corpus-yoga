@@ -1072,7 +1072,7 @@ src/main/cli/migration/migration.py,37,path_str,src/main/cli/migration/migration
 src/main/cli/parse_argv.py,28,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/parse_argv.sh,28,comment,src/import_roots.sh,Y,# shellcheck source=src/import_roots.sh
 src/main/cli/pipeline/audit.json,14,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/pipeline/pipeline.json,40,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
+src/main/cli/pipeline/pipeline.json,38,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
 src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,21,comment,src/main/pipeline.schema.json,Y,"# (schemas, input root, globs), typed by src/main/pipeline.schema.json."
 src/main/cli/pipeline/pipeline.sh,31,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -1314,7 +1314,7 @@ src/main/indexing/indexing.py,19,comment,src/main/cli/readings.md,Y,(candidates 
 src/main/indexing/indexing.py,53,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
 src/main/indexing/indexing.py,288,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
 src/main/indexing/indexing.py,423,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
-src/main/indexing/indexing.py,734,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
+src/main/indexing/indexing.py,735,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
 src/main/indexing/reply_shape.py,20,path_str,src/main/indexing/reply_shape.py,Y,SELF = 'src/main/indexing/reply_shape.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'

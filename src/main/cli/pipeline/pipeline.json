@@ -27,8 +27,6 @@
     "usr gate PASS; all pipelines completed",
     "usr gate FAIL; the failing stage(s) are named above",
     "{verb} is no verb it takes - run, collate, render, audit (bare is the status)",
-    "the steps that read the whole corpus, its markdown among them",
-    "PAID - sends the conversation titles to the API; the capture in use leaves {n} conversation(s) uncovered; a capture replaces nothing until corpus-yoga indexing adopt names it",
     "stage - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL={stamp} (src/main/tier.py puts data, cache, logs and tmp under the stage, its input stage/data/input); then stage/rehearsal.json, the record",
     "failing stage(s) {names}"
   ],
