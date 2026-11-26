@@ -192,19 +192,16 @@ def inputs_digest(markdown_root: Path) -> str:
     return 'sha256:' + digest.hexdigest()
 
 
-def headwords(markdown_root: Path) -> dict[str, list[str]]:
-    """The index's headwords: each concept of the capture in use that some conversation turn
-    phrases, with the phrasings that anchor it - the concept first where it anchors as spelled."""
-    anchored, _ = anchored_split(inferred_concepts(), markdown_root)
-    return {concept: [concept] + aliases for concept, aliases in anchored}
 
 
 def indexed(markdown_root: Path) -> dict:
-    """The index as data: each headword, alphabetised, with its aliases and every turn it is
-    found in, `[conversation, role, n, anchor]`, the conversation by its path under
-    data/output/markdown. The server's index.md and the site's concept table are both built
-    from it, so neither reads the other's output."""
-    entries = headwords(markdown_root)
+    """The index as data: each concept of the capture in use that some conversation turn phrases,
+    a headword, alphabetised, with the phrasings that anchor it and every turn it is found in,
+    `[conversation, role, n, anchor]`, the conversation by its path under data/output/markdown;
+    and the concepts no turn phrases, left out. The server's index.md and the site's concept
+    table are both built from it, so neither reads the other's output."""
+    anchored, unanchorable = anchored_split(inferred_concepts(), markdown_root)
+    entries = {concept: [concept] + aliases for concept, aliases in anchored}
     corpus = scan(markdown_root)
     rows = []
     for head in sorted(entries, key=str.lower):
@@ -212,7 +209,7 @@ def indexed(markdown_root: Path) -> dict:
         locators = [[rel, role, n, anchor] for _source, _stem, rel, turns in corpus
                     for role, n, anchor, body in turns if rx.search(body)]
         rows.append([head, [t for t in entries[head] if t != head], locators])
-    return {'columns': ['headword', 'aliases', 'locators'], 'rows': rows,
+    return {'columns': ['headword', 'aliases', 'locators'], 'rows': rows, 'unanchorable': [c for c, _ in unanchorable],
             'conversations': len(corpus), 'built_from': inputs_digest(markdown_root)}
 
 
@@ -391,12 +388,13 @@ def status(markdown_root: Path) -> Indexing:
     if not inferred_concepts():
         out.index = facts.phrase('none - no capture in use')
         return out
-    _, unanchorable = anchored_split(inferred_concepts(), markdown_root)
-    if unanchorable:
-        out.unanchorable = Unanchorable([c for c, _ in unanchorable])
     if not markdown_root.is_dir():
         return out
     if index_is_current(markdown_root):
+        # what the build left out, as it found it: the status searches no turn itself
+        held = held_index() or {}
+        if held.get('unanchorable'):
+            out.unanchorable = Unanchorable(held['unanchorable'])
         out.index = Index(facts.phrase('current - built from the capture in use and the corpus as they stand'))
     else:
         out.index = Index(facts.phrase('stale - the capture in use or the corpus moved since it was built'),

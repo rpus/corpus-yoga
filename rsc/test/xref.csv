@@ -1315,8 +1315,8 @@ src/main/indexing/capture.sh,34,comment,src/main/send.sh,Y,# shellcheck source=s
 src/main/indexing/capture.sh,37,comment,src/main/corpus_shape.sh,Y,# shellcheck source=src/main/corpus_shape.sh
 src/main/indexing/capture.sh,134,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
 src/main/indexing/indexing.py,32,path_str,src/main/indexing/indexing.py,Y,SELF = 'src/main/indexing/indexing.py'
-src/main/indexing/indexing.py,240,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
-src/main/indexing/indexing.py,442,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
+src/main/indexing/indexing.py,237,comment,src/main/corpus_shape.sh,Y,src/main/corpus_shape.sh; none where no corpus is projected.
+src/main/indexing/indexing.py,440,comment,src/main/corpus_shape.sh,Y,"change. The corpus is counted by its shape's one home, src/main/corpus_shape.sh."
 src/main/indexing/reply_shape.py,20,path_str,src/main/indexing/reply_shape.py,Y,SELF = 'src/main/indexing/reply_shape.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/live.py,21,path_str,src/main/live.py,Y,SELF = 'src/main/live.py'

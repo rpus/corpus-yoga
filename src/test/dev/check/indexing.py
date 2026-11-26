@@ -249,6 +249,7 @@ def check_index_is_the_capture(run) -> None:
     no verb that lists, accepts or rejects a candidate. Held over a planted capture and corpus,
     the module's paths pointed at them, never the room's."""
     import importlib
+    import facts
     import spell
     indexing = importlib.import_module('indexing')
     kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'INDEXED_FILE')}
@@ -273,7 +274,34 @@ def check_index_is_the_capture(run) -> None:
     finally:
         for name, value in kept.items():
             setattr(indexing, name, value)
+    # the status searches no turn (issues/1189): what the build left out is read from the index it
+    # wrote, so bare corpus-yoga status, which reads this noun, pays nothing for the corpus's size
+    kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'INDEXED_FILE', 'anchored_split')}
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            conversations = root / 'markdown' / 'claude' / 'chat' / 'conversations'
+            conversations.mkdir(parents=True)
+            (conversations / '01-physics.md').write_text('## Human (1) <a id="h1"></a>\n\non quasiparticles\n\n---\n')
+            inferred = root / 'inferred-semantic-concepts.json'
+            inferred.write_text(json.dumps({'columns': ['word', 'count', 'provider'],
+                                            'rows': [['quasiparticles', 9, 'claude'], ['repository code review', 2, 'claude']]}))
+            setattr(indexing, 'INFERRED_FILE', inferred)
+            setattr(indexing, 'INDEXED_FILE', root / 'indexed-semantic-concepts.json')
+            try:
+                indexing.INDEXED_FILE.write_text(json.dumps(indexing.indexed(root / 'markdown')))
+                def searched(*_):
+                    raise AssertionError('the status searched the turns')
+                setattr(indexing, 'anchored_split', searched)
+                held = facts.plain(indexing.status(root / 'markdown'))
+                said['status'] = held.get('unanchorable') if isinstance(held, dict) else held
+            except Exception as error:   # noqa: BLE001 - the failure IS the finding
+                said['status'] = f'raised {type(error).__name__}: {error}'
+    finally:
+        for name, value in kept.items():
+            setattr(indexing, name, value)
     said['judging verbs'] = sorted(set(spell.verbs('indexing')) & {'accept', 'reject', 'list-candidates'})
-    want = {'headwords': ['quasiparticles'], 'located': [2], 'judging verbs': []}
-    run('indexing: the book index is the capture in use - its concepts a turn phrases, with no candidate listed, accepted or rejected',
+    want = {'headwords': ['quasiparticles'], 'located': [2], 'judging verbs': [],
+            'status': {'captured concepts no conversation turn phrases, left out of the index': ['repository code review']}}
+    run('indexing: the book index is the capture in use - its concepts a turn phrases, with no candidate listed, accepted or rejected - and its status reads what the build left out, searching no turn',
         said == want, None if said == want else f'it held {said}, where {want}', check='indexing.index_is_the_capture_in_use')
