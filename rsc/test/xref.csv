@@ -610,6 +610,7 @@ rsc/metamodel/join.csv,284,path_str,rsc/schema/export/claude/conversations#/defi
 rsc/metamodel/join.csv,284,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ToolInputGlob,Y,"rsc/schema/export/claude/conversations#/definitions/ToolInputGlob,,,rsc/schema/browser/claude/apiConversation#/definitio"
 rsc/metamodel/join.csv,285,path_str,rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
 rsc/metamodel/join.csv,285,path_str,rsc/schema/browser/claude/apiConversation#/definitions/ApiConversation/properties/model,Y,",rsc/schema/agent/claude/session#/definitions/AssistantMessage/properties/model,,rsc/schema/browser/claude/apiConversati"
+rsc/metamodel/join.csv,286,path_str,rsc/schema/export/claude/conversations#/definitions/UuidV4orV5,Y,"rsc/schema/export/claude/conversations#/definitions/UuidV4orV5,,,,,export_only,proposed 2026-11-27 at the mint conversat"
 rsc/migration/1047.sh,2,comment,rsc/migration/1047.sh,Y,# rsc/migration/1047.sh - each pipeline is named for the noun whose promote deposits its
 rsc/migration/1047.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/1052.sh,2,comment,rsc/migration/1052.sh,Y,# rsc/migration/1052.sh - python's bytecode stands under tmp/cache/python (issues/1052): each
@@ -760,10 +761,10 @@ rsc/schema/browser/markdownConversation/CHANGELOG.md,117,history,rsc/schema,Y,"f
 rsc/schema/export/claude/conversations/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/export/claude/conversations/CHANGELOG.md,9,history,rsc/schema/browser/claude/apiConversation,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser/claude/apiConversation/`](../../../browser
 rsc/schema/export/claude/conversations/CHANGELOG.md,10,history,rsc/schema/browser/claude/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser/claude/apiConversation/`](../../../browser/claude/apiConversatio
-rsc/schema/export/claude/conversations/CHANGELOG.md,119,history,rsc/model/model_join.csv,N,one definition under one name in both families and identical by its rsc/model/model_join.csv
-rsc/schema/export/claude/conversations/CHANGELOG.md,165,history,rsc/model/model_join.csv,N,"definitions are one shape under one name in both families (rsc/model/model_join.csv), as is"
-rsc/schema/export/claude/conversations/CHANGELOG.md,271,history,rsc/model/model_join.csv,N,(rsc/model/model_join.csv).
-rsc/schema/export/claude/conversations/CHANGELOG.md,304,history,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+rsc/schema/export/claude/conversations/CHANGELOG.md,155,history,rsc/model/model_join.csv,N,one definition under one name in both families and identical by its rsc/model/model_join.csv
+rsc/schema/export/claude/conversations/CHANGELOG.md,201,history,rsc/model/model_join.csv,N,"definitions are one shape under one name in both families (rsc/model/model_join.csv), as is"
+rsc/schema/export/claude/conversations/CHANGELOG.md,307,history,rsc/model/model_join.csv,N,(rsc/model/model_join.csv).
+rsc/schema/export/claude/conversations/CHANGELOG.md,340,history,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
 rsc/schema/export/claude/login_history/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/export/claude/login_history/CHANGELOG.md,11,history,model/model.json,N,`../../../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
 rsc/schema/export/claude/login_history/CHANGELOG.md,12,history,rsc/model,N,model moved to `rsc/model/` and its table lost the `default` wrapper (issues/591). A
@@ -1909,7 +1910,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/browser/claude/apiConversation/v19.json,Y,
 ,,,rsc/schema/browser/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser/markdownConversation/v5.json,Y,
-,,,rsc/schema/export/claude/conversations/v25.json,Y,
+,,,rsc/schema/export/claude/conversations/v26.json,Y,
 ,,,rsc/schema/export/claude/login_history/CHANGELOG.md,Y,
 ,,,rsc/schema/export/claude/login_history/v1.json,Y,
 ,,,rsc/schema/export/claude/manifest/CHANGELOG.md,Y,
