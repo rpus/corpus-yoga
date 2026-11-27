@@ -1,7 +1,9 @@
 """
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
-  browser-capture  data/input/claude/chat/API-capture/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
+  browser-capture  cache/pipeline/claude/chat/API-capture/<uuid>/                    (named <ordinal>-<slug>;
+                                                                               the run's renderings,
+                                                                               src/main/browser/claude/render.py)
   bulk-export      cache/pipeline/claude/chat/bulk-export/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
@@ -23,8 +25,8 @@ import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 import corpus
-from markdown_projection import (project, ordered, find_api_json, render,
-                                 md_validator, tree_problems, deposit, conv_id)
+from markdown_projection import (FACTS, RENDERED, project, ordered, find_api_json, render_body, compose,
+                                 facts, md_validator, deposit, conv_id)
 from vintage import export_time  # the one export-ordering authority
 
 SELF = 'src/main/project_markdown.py'
@@ -72,51 +74,63 @@ def _currency(mine, other, label):
     return f'anomaly: unique messages both here and in the {label}'
 
 
-def _frontmatter(source, conv, lean, other_index, other_name, other_label):
+def _frontmatter(source, record, other_index, other_name, other_label):
     """The provenance dressing for one rendered file (see markdownConversation v3's
-    CHANGELOG: dressing, not schema): facts only — the file's outbound LINKS live as
-    named bullets in the rendered body (render()'s source list), clickable in any
-    markdown renderer. Every value derives from the local corpora — no wall-clock —
-    so regeneration is a no-op until data changes (L1)."""
-    mine = {m['uuid']: m['created_at'] for m in conv['chat_messages']}
+    CHANGELOG: dressing, not schema), from the conversation's facts: facts only — the
+    file's outbound LINKS live as named bullets in the rendered body (render()'s source
+    list), clickable in any markdown renderer. Every value derives from the local corpora —
+    no wall-clock — so regeneration is a no-op until data changes (L1)."""
     return {
         'source': source,
-        'uuid': conv['uuid'],
-        'human': sum(1 for m in lean['messages'] if m['role'] == 'human'),          # the turn count's one home, by role (issues/1001)
-        'assistant': sum(1 for m in lean['messages'] if m['role'] == 'assistant'),
-        'last_activity': (conv.get('updated_at') or '')[:19] + 'Z',
+        'uuid': record['uuid'],
+        'human': record['human'],          # the turn count's one home, by role (issues/1001)
+        'assistant': record['assistant'],
+        'last_activity': (record.get('updated_at') or '')[:19] + 'Z',
         'cross_checked_against': other_name or 'none',
         'currency': ('unchecked' if other_index is None
-                     else _currency(mine, other_index.get(conv['uuid']), other_label)),
+                     else _currency(record['messages'], other_index.get(record['uuid']), other_label)),
     }
 
 
+def _rendered(captures):
+    """Each capture's rendering and facts, as the run wrote them at its cache address
+    (src/main/browser/claude/render.py); the collate stops, naming them, where any is
+    missing, since depositing without one would prune its conversation's file."""
+    held, missing = [], []
+    for d in sorted(p for p in Path(captures).iterdir() if p.is_dir()):
+        cache = tier.cache_of(d)
+        if (cache / RENDERED).is_file() and (cache / FACTS).is_file():
+            held.append((json.loads((cache / FACTS).read_text()), (cache / RENDERED).read_text()))
+        elif find_api_json(d) is not None:
+            missing.append(d.name)
+    if missing:
+        sys.exit(f"no rendering at the cache address of {len(missing)} capture(s) - {', '.join(missing)}; "
+                 f"corpus-yoga pipeline run renders each")
+    return held
+
+
 def write_markdown(named_convs, out_dir):
-    """Render (name, lean-conv, tree-problems, frontmatter, summaries-link) tuples to
-    <name>.md in out_dir, each lean conv validated against markdownConversation (the
-    frontmatter is dressing, outside the schema; the summaries link becomes a named
-    bullet in the body's source list). Nothing skipped -- invalid/degenerate convs are
-    written and flagged, with WHY: an unwalkable tree projects to a fragment that
-    would otherwise still validate. Reconciles rather than wiping (reconcile_dir):
+    """Compose (name, rendered body, problems, frontmatter, summaries-link) tuples into
+    <name>.md in out_dir (the frontmatter is dressing, outside the schema; the summaries
+    link becomes a named bullet in the body's source list). Nothing skipped --
+    invalid/degenerate convs are written and flagged, with WHY: an unwalkable tree
+    projects to a fragment that would otherwise still validate. Reconciles rather than wiping (reconcile_dir):
     unchanged renders keep their mtime, renamed/removed convs' files are the orphans it
     prunes. Returns (n_ok, n_bad, n_empty)."""
-    valid = md_validator()
     n_ok = n_bad = n_empty = 0
     files = {}
-    for name, conv, problems, fm, slink in named_convs:
+    for name, body, problems, fm, slink in named_convs:
         if name.startswith('empty-'):
             # ordered() already classified this stub and named it so (the atomised piece
             # stems carry the name to the bulk path) — one authority, no re-deciding here.
             n_empty += 1
         else:
-            if not valid.is_valid(conv):
-                problems = problems + ['fails markdownConversation']
             if problems:
                 n_bad += 1
                 print(f"  INVALID {name}: {'; '.join(problems)}", file=sys.stderr)
             else:
                 n_ok += 1
-        files[f"{name}.md"] = render(conv, frontmatter=fm, summaries_link=slink)
+        files[f"{name}.md"] = compose(body, fm, slink)
     deposit(out_dir, files, f'  markdown: {len(files)} conversation(s)', identity=conv_id,
             because='its conversation left the source', file=sys.stderr)
     return n_ok, n_bad, n_empty
@@ -131,20 +145,20 @@ def main():
     args = ap.parse_args()
 
     if args.api_capture:
-        # browser captures: same canonical <ordinal>-<slug> ordering (created_at) as the bulk
-        # pieces. Provenance cross-checks against the newest atomised export batch (offline,
-        # local — staleness vs claude.ai live stays audit --live's job).
-        apis = [api for d in sorted(p for p in Path(args.api_capture).iterdir() if p.is_dir())
-                if (api := find_api_json(d)) is not None]
+        # browser captures: each rendered by the run, named here by the same canonical
+        # <ordinal>-<slug> ordering (created_at) as the bulk pieces. Provenance cross-checks
+        # against the newest atomised export batch (offline, local — staleness vs claude.ai
+        # live stays audit --live's job).
+        held = _rendered(args.api_capture)
+        rendered = {record['uuid']: body for record, body in held}
         other = _newest_batch_json()
         other_index = (_msg_index(json.loads(f.read_text()) for f in sorted(other.glob('*.json')))
                        if other else None)
         other_name = other.parent.name if other else None
-        named = [(name, lean, tree_problems(api['chat_messages']),
-                  _frontmatter('browser-capture', api, lean, other_index, other_name, 'export'),
+        named = [(name, rendered[record['uuid']], record['problems'],
+                  _frontmatter('browser-capture', record, other_index, other_name, 'export'),
                   f'../summaries/{name}/index.md')
-                 for _, name, api in ordered(apis)
-                 for lean in (project(api),)]
+                 for _, name, record in ordered(record for record, _ in held)]
         out = Path(args.out) if args.out else tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
     else:
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
@@ -160,12 +174,13 @@ def main():
         other_name = 'data/input/claude/chat/API-capture' if cap_apis else None
         # no summaries link here: cache/ stems renumber per batch, so a relative
         # link into data/output/'s stem-named folders would dangle
-        named = ((f.stem, lean, tree_problems(c['chat_messages']),
-                  _frontmatter('bulk-export', c, lean, other_index, other_name, 'capture'),
+        valid = md_validator()
+        named = ((f.stem, render_body(project(c)), record['problems'],
+                  _frontmatter('bulk-export', record, other_index, other_name, 'capture'),
                   None)
                  for f in sorted(json_dir.glob('*.json'))
                  for c in (json.loads(f.read_text()),)
-                 for lean in (project(c),))
+                 for record in (facts(c, valid),))
         out = Path(args.out) if args.out else corpus.store_cache('export') / batch.name / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
