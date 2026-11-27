@@ -360,9 +360,10 @@ def _empty(conv):
     return conv['empty'] if 'empty' in conv else is_empty(conv)
 
 
-# a unit's rendering under its cache address (issues/1195): a claude capture's one conversation,
-# a gemini scrape's anchored files under their own names, and the facts the collate reads
-RENDERED, RENDERED_SCRAPES, FACTS = 'conversation.md', 'rendered', 'facts.json'
+# a unit's rendering under its cache address (issues/1195): a claude capture's one conversation;
+# the conversations of a unit holding several - a gemini scrape's files, an export batch's
+# pieces - each under its own name; and the facts the collate reads
+RENDERED, RENDERINGS, FACTS = 'conversation.md', 'rendered', 'facts.json'
 
 
 def facts(conv, valid):

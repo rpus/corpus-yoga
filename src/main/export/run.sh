@@ -71,11 +71,14 @@ run_one() {
     "$SCRIPT_DIR/archive_components.py" --export "$batch"
   map step extract_files      "$SCRIPT_DIR/extract_files.sh" --export "$batch"
   map step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --export "$batch"
-  map step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
   # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces
   # (validated vs the Conversation definition)
   map step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
+  # render: each piece's markdown under its name, at the batch's cache address, which the
+  # collate dresses and places (issues/1196)
+  map step render             "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/render.py" --bulk-export "$batch"
 }
 
 # collate_one: one batch read against what else the corpus holds - the paid indexing captures
@@ -84,7 +87,7 @@ collate_one() {
   local batch="${1%/}"
   local have_captures="0"
   if [[ -d "$API_CAPTURE" ]]; then have_captures="1"; fi
-  # project_markdown: the atomised pieces rendered to markdown/, beside this batch's
+  # project_markdown: the run's renderings placed in markdown/, beside this batch's
   # validation/ output, each frontmatter saying how current it is against the live captures
   reduce step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/project_markdown.py" --bulk-export "$batch"
@@ -92,6 +95,8 @@ collate_one() {
   # single-source data/output/indexing/ (refreshed deliberately by `corpus-yoga indexing
   # capture`), which present reads. Nothing paid runs on every export.
   reduce step present            "$SCRIPT_DIR/present.sh" --export "$batch"
+  # audit_files: the batch's files against the presentation's tables, which present writes
+  reduce step audit_files        "$SCRIPT_DIR/audit_files.sh" --export "$batch"
   # compare_sources: the append-only invariant across export surfaces (issues/535, the
   # dev gate's former cross_sources check, spoken here once): a conversation in
   # both a bulk export and the live captures projects to identical turns, or the

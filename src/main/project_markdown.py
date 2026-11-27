@@ -4,14 +4,16 @@ from either source:
   browser-capture  cache/pipeline/claude/chat/API-capture/<uuid>/                    (named <ordinal>-<slug>;
                                                                                the run's renderings,
                                                                                src/main/browser/claude/render.py)
-  bulk-export      cache/pipeline/claude/chat/bulk-export/<batch>/json/<name>.json                  (the atomised pieces;
-                                                                               run atomise_bulk.py first)
+  bulk-export      cache/pipeline/claude/chat/bulk-export/<batch>/rendered/<name>.md               (the run's renderings
+                                                                               of the atomised pieces,
+                                                                               src/main/export/render.py)
 
 The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
 validated against the markdownConversation family's latest version (rsc/schema/browser/markdownConversation). Splitting the bulk
-array into the per-conversation json/ pieces is atomise_bulk.py's job; this tool only consumes
-them, so json/<name>.json and markdown/<name>.md share a name. Nothing is skipped:
-invalid/degenerate conversations are rendered honestly and flagged.
+array into the per-conversation json/ pieces is atomise_bulk.py's job, and rendering each the
+run's; this tool only dresses and places the renderings, so json/<name>.json, rendered/<name>.md
+and markdown/<name>.md share a name. Nothing is skipped: invalid/degenerate conversations are
+written honestly and flagged.
 
 Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/project_markdown.py \
@@ -25,8 +27,8 @@ import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 import corpus
-from markdown_projection import (FACTS, RENDERED, project, ordered, find_api_json, render_body, compose,
-                                 facts, md_validator, deposit, conv_id)
+from markdown_projection import (FACTS, RENDERED, RENDERINGS, ordered, find_api_json, compose,
+                                 deposit, conv_id)
 from vintage import export_time  # the one export-ordering authority
 
 SELF = 'src/main/project_markdown.py'
@@ -161,12 +163,14 @@ def main():
                  for _, name, record in ordered(record for record, _ in held)]
         out = Path(args.out) if args.out else tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
     else:
-        # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
-        # Provenance cross-checks the other way: against the capture corpus, when present.
+        # bulk export: the run's renderings of the pieces atomise_bulk.py wrote, each under
+        # its piece's name (src/main/export/render.py). Provenance cross-checks the other
+        # way: against the capture corpus, when present.
         batch = Path(args.bulk_export)
-        json_dir = corpus.store_cache('export') / batch.name / 'json'
-        if not json_dir.is_dir():
-            sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
+        cache = tier.cache_of(batch)
+        if not (cache / FACTS).is_file():
+            sys.exit(f"no rendering at the cache address of {batch.name}; corpus-yoga pipeline run renders it")
+        record = json.loads((cache / FACTS).read_text())
         captures = tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture'
         cap_apis = ([api for d in sorted(p for p in captures.iterdir() if p.is_dir())
                      if (api := find_api_json(d)) is not None] if captures.is_dir() else None)
@@ -174,14 +178,11 @@ def main():
         other_name = 'data/input/claude/chat/API-capture' if cap_apis else None
         # no summaries link here: cache/ stems renumber per batch, so a relative
         # link into data/output/'s stem-named folders would dangle
-        valid = md_validator()
-        named = ((f.stem, render_body(project(c)), record['problems'],
-                  _frontmatter('bulk-export', record, other_index, other_name, 'capture'),
+        named = ((name, (cache / RENDERINGS / f'{name}.md').read_text(), held['problems'],
+                  _frontmatter('bulk-export', held, other_index, other_name, 'capture'),
                   None)
-                 for f in sorted(json_dir.glob('*.json'))
-                 for c in (json.loads(f.read_text()),)
-                 for record in (facts(c, valid),))
-        out = Path(args.out) if args.out else corpus.store_cache('export') / batch.name / 'markdown'
+                 for name, held in sorted(record.items()))
+        out = Path(args.out) if args.out else cache / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
     print(f"rendered {n_ok} conversations to {out} ({n_bad} invalid, {n_empty} empty)")

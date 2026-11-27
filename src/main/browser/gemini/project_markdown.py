@@ -24,7 +24,7 @@ import json
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
-from markdown_projection import FACTS, RENDERED_SCRAPES, deposit, turn_extent, conv_id
+from markdown_projection import FACTS, RENDERINGS, deposit, turn_extent, conv_id
 
 SELF = 'src/main/browser/gemini/project_markdown.py'
 _file = Path(__file__).resolve()
@@ -80,7 +80,7 @@ def main():
             if held['problems']:     # held to the family as claude's projections are (issues/965)
                 n_bad += 1
                 print(f"  INVALID {name}: {'; '.join(held['problems'])}", file=sys.stderr)
-            files[name] = (cache / RENDERED_SCRAPES / scrape).read_text()
+            files[name] = (cache / RENDERINGS / scrape).read_text()
     # L4, one step down from the capture guard: the projection never shrinks either.
     # Matched by conversation id and not by filename, because the ordinal prefix
     # renumbers as the corpus grows -- a shorter rendering would otherwise arrive under

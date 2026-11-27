@@ -1288,6 +1288,9 @@ src/main/export/present.sh,78,call,src/main/export/update_title.py,Y,"""$REPO_DI
 src/main/export/present.sh,139,call,src/main/export/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
 src/main/export/query_files.py,9,comment,src/main/export/query_files.py,Y,python src/main/export/query_files.py --export  <path-to-export>
 src/main/export/query_files.py,10,comment,src/main/export/query_files.py,Y,python src/main/export/query_files.py --exports <path-to-exports>
+src/main/export/render.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/render.py --bulk-export data/input/claude/chat/bulk-export/<batch>
+src/main/export/render.py,7,comment,src/main/export/render.py,Y,src/run_python_script.sh src/main/export/render.py --bulk-export data/input/claude/chat/bulk-export/<batch>
+src/main/export/render.py,16,path_str,src/main/export/render.py,Y,SELF = 'src/main/export/render.py'
 src/main/export/run.sh,5,comment,src/main/export/run.sh,Y,#   src/main/export/run.sh --item  data/input/claude/chat/bulk-export/data-<...>
 src/main/export/run.sh,6,comment,src/main/export/run.sh,Y,#   src/main/export/run.sh --input data/input/claude/chat/bulk-export
 src/main/export/run.sh,7,comment,src/main/export/run.sh,Y,#   src/main/export/run.sh --input data/input/claude/chat/bulk-export --collate
@@ -1299,12 +1302,13 @@ src/main/export/run.sh,66,call,src/main/export/validate.sh,Y,"map step validate 
 src/main/export/run.sh,71,call,src/main/export/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --export ""$batch"""
 src/main/export/run.sh,72,call,src/main/export/extract_files.sh,Y,"map step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --export ""$batch"""
 src/main/export/run.sh,73,call,src/main/export/extract_heredocs.sh,Y,"map step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --export ""$batch"""
-src/main/export/run.sh,74,call,src/main/export/audit_files.sh,Y,"map step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --export ""$batch"""
-src/main/export/run.sh,78,call,src/main/export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
-src/main/export/run.sh,94,call,src/main/export/present.sh,Y,"reduce step present            ""$SCRIPT_DIR/present.sh"" --export ""$batch"""
-src/main/export/run.sh,122,call,src/main/export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" deposit"
-src/main/export/run.sh,130,call,src/main/export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" deposit"
-src/main/export/run.sh,137,call,src/main/export/compare_captures.py,Y,"""$SCRIPT_DIR/compare_captures.py"" --api-capture ""$API_CAPTURE"""
+src/main/export/run.sh,77,call,src/main/export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
+src/main/export/run.sh,81,call,src/main/export/render.py,Y,"""$SCRIPT_DIR/render.py"" --bulk-export ""$batch"""
+src/main/export/run.sh,97,call,src/main/export/present.sh,Y,"reduce step present            ""$SCRIPT_DIR/present.sh"" --export ""$batch"""
+src/main/export/run.sh,99,call,src/main/export/audit_files.sh,Y,"reduce step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --export ""$batch"""
+src/main/export/run.sh,127,call,src/main/export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" deposit"
+src/main/export/run.sh,135,call,src/main/export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" deposit"
+src/main/export/run.sh,142,call,src/main/export/compare_captures.py,Y,"""$SCRIPT_DIR/compare_captures.py"" --api-capture ""$API_CAPTURE"""
 src/main/export/summaries.py,34,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/export/summaries.py [deposit] \
 src/main/export/summaries.py,34,comment,src/main/export/summaries.py,Y,src/run_python_script.sh src/main/export/summaries.py [deposit] \
 src/main/export/summaries.py,51,path_str,src/main/export/summaries.py,Y,SELF = 'src/main/export/summaries.py'
@@ -1386,13 +1390,15 @@ src/main/metamodel/metamodel.py,130,path_str,rsc/metamodel/metamodel.json,Y,"['r
 src/main/page_declaration.py,19,path_str,src/main/page_declaration.py,Y,SELF = 'src/main/page_declaration.py'
 src/main/present_corpus.py,47,path_str,src/main/present_corpus.py,Y,SELF = 'src/main/present_corpus.py'
 src/main/project_markdown.py,6,comment,src/main/browser/claude/render.py,Y,src/main/browser/claude/render.py)
-src/main/project_markdown.py,10,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
-src/main/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
-src/main/project_markdown.py,17,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
-src/main/project_markdown.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
-src/main/project_markdown.py,18,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
-src/main/project_markdown.py,32,path_str,src/main/project_markdown.py,Y,SELF = 'src/main/project_markdown.py'
-src/main/project_markdown.py,97,comment,src/main/browser/claude/render.py,Y,"(src/main/browser/claude/render.py); the collate stops, naming them, where any is"
+src/main/project_markdown.py,9,comment,src/main/export/render.py,Y,src/main/export/render.py)
+src/main/project_markdown.py,11,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
+src/main/project_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
+src/main/project_markdown.py,19,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
+src/main/project_markdown.py,20,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
+src/main/project_markdown.py,20,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
+src/main/project_markdown.py,34,path_str,src/main/project_markdown.py,Y,SELF = 'src/main/project_markdown.py'
+src/main/project_markdown.py,99,comment,src/main/browser/claude/render.py,Y,"(src/main/browser/claude/render.py); the collate stops, naming them, where any is"
+src/main/project_markdown.py,167,comment,src/main/export/render.py,Y,# its piece's name (src/main/export/render.py). Provenance cross-checks the other
 src/main/provider.py,2,comment,rsc/provider/providers.csv,Y,"provider.py - the provider registry (rsc/provider/providers.csv). A LIBRARY, not a"
 src/main/provider.py,11,comment,rsc/provider/README.md,Y,"rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,"
 src/main/provider.py,14,comment,src/run_python_script.sh,Y,"through src/run_python_script.sh, the venv's python (issues/478), so the csv grammar is"
@@ -1503,23 +1509,26 @@ src/test/dev/check/pipeline.py,299,path_str,src/main/agent,Y,"@check(tier='code'
 src/test/dev/check/pipeline.py,317,path_str,src/main/tier.py,Y,"@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its"
 src/test/dev/check/pipeline.py,317,path_str,src/main/tier.sh,Y,"@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its"
 src/test/dev/check/pipeline.py,317,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its"
-src/test/dev/check/pipeline.py,341,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
-src/test/dev/check/pipeline.py,341,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
-src/test/dev/check/pipeline.py,341,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
-src/test/dev/check/pipeline.py,406,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
-src/test/dev/check/pipeline.py,394,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
-src/test/dev/check/pipeline.py,482,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,482,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,361,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
+src/test/dev/check/pipeline.py,361,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
+src/test/dev/check/pipeline.py,361,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
+src/test/dev/check/pipeline.py,406,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/export', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pi"
+src/test/dev/check/pipeline.py,406,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/export', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pi"
+src/test/dev/check/pipeline.py,406,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/export', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pi"
+src/test/dev/check/pipeline.py,463,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
+src/test/dev/check/pipeline.py,451,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
+src/test/dev/check/pipeline.py,539,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,539,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/room.py,650,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
 src/test/dev/check/room.py,667,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,667,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"

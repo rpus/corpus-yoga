@@ -338,6 +338,26 @@ def check_unit_cache_address(run) -> None:
         said == want, None if said == want else f'it resolves as {said}, where {want}', check='pipeline.unit_cache_at_its_input_address')
 
 
+def _room_environment() -> dict:
+    """The environment a pipeline runs in as a room's own, outside the gate."""
+    import os
+    import sys
+    environment = {name: value for name, value in os.environ.items()
+                   if name not in ('CORPUS_YOGA_DEV_GATE', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
+    environment['CORPUS_YOGA_VENV'] = sys.prefix
+    return environment
+
+
+def _scratch_room(scratch: Path) -> Path:
+    """A scratch copy of the checkout's code, holding no corpus, for a pipeline to run in."""
+    import shutil
+    room = scratch.resolve() / 'room'
+    shutil.copytree(SRC, room / 'src', ignore=shutil.ignore_patterns('__pycache__'))
+    (room / 'rsc').symlink_to(REPO_ROOT / 'rsc')
+    shutil.copy(REPO_ROOT / 'pyrightconfig.json', room / 'pyrightconfig.json')
+    return room
+
+
 @check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pipeline.browser_run_renders_each_capture',))
 def check_browser_run_renders(run) -> None:
     """The browser pipeline's run renders each capture's markdown, a map (issues/1195): in a scratch copy
@@ -346,9 +366,6 @@ def check_browser_run_renders(run) -> None:
     and summaries link - is byte for byte the file a whole rendering writes, so the collate's output is
     unchanged by the split; and the collate, run after it, deposits that file."""
     import json
-    import os
-    import shutil
-    import sys
     import tempfile
     import markdown_projection as projection
     uuid, at = 'aaaaaaaa-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z'
@@ -357,14 +374,9 @@ def check_browser_run_renders(run) -> None:
                'current_leaf_message_uuid': 'aaaaaaaa-m2', 'chat_messages': [
                    {**turn, 'uuid': 'aaaaaaaa-m1', 'parent_message_uuid': '00000000-0000-4000-8000-000000000000', 'sender': 'human', 'text': 'hi'},
                    {**turn, 'uuid': 'aaaaaaaa-m2', 'parent_message_uuid': 'aaaaaaaa-m1', 'sender': 'assistant', 'text': 'hello'}]}
-    environment = {name: value for name, value in os.environ.items()
-                   if name not in ('CORPUS_YOGA_DEV_GATE', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
-    environment['CORPUS_YOGA_VENV'] = sys.prefix
+    environment = _room_environment()
     with tempfile.TemporaryDirectory() as scratch:
-        room = Path(scratch).resolve() / 'room'
-        shutil.copytree(SRC, room / 'src', ignore=shutil.ignore_patterns('__pycache__'))
-        (room / 'rsc').symlink_to(REPO_ROOT / 'rsc')
-        shutil.copy(REPO_ROOT / 'pyrightconfig.json', room / 'pyrightconfig.json')
+        room = _scratch_room(Path(scratch))
         unit = room / 'data' / 'input' / 'claude' / 'chat' / 'API-capture' / uuid
         unit.mkdir(parents=True)
         (unit / 'apiConversation.json').write_text(json.dumps(capture))
@@ -389,6 +401,51 @@ def check_browser_run_renders(run) -> None:
            'the collate deposited no file, or not the whole rendering' if collated != projection.render(lean, frontmatter=frontmatter, summaries_link=link) else None)
     run("pipeline: the browser run renders each capture's markdown at its own cache address, and the collate composes it unchanged",
         why is None, why, check='pipeline.browser_run_renders_each_capture')
+
+
+@check(tier='code', on=['src/main/export', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pipeline.export_run_renders_each_batch',))
+def check_export_run_renders(run) -> None:
+    """The export pipeline's run renders each batch's conversations, a map (issues/1196): in a scratch
+    copy of the checkout, the run over one planted batch writes each conversation's rendering at the
+    batch's own cache address, under its atomised name; and the collate, run after it, deposits the whole
+    rendering - the run's body dressed with the frontmatter - in the batch's markdown. The batch is
+    one no collate has read, as a new export is, so the run needs nothing the collate writes."""
+    import json
+    import tempfile
+    import markdown_projection as projection
+    uuid, at, batch = 'cccccccc-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z', 'data-2026-02-03-00-00-00-batch-0000'
+    turn = {'content': [], 'created_at': at, 'updated_at': at, 'attachments': [], 'files': []}
+    conversation = {'uuid': uuid, 'name': 'an export chat', 'summary': '', 'created_at': at, 'updated_at': at, 'account': {'uuid': uuid},
+                    'chat_messages': [
+                        {**turn, 'uuid': 'cccccccc-0000-4000-8000-000000000001', 'parent_message_uuid': '00000000-0000-4000-8000-000000000000', 'sender': 'human', 'text': 'hi'},
+                        {**turn, 'uuid': 'cccccccc-0000-4000-8000-000000000002', 'parent_message_uuid': 'cccccccc-0000-4000-8000-000000000001', 'sender': 'assistant', 'text': 'hello'}]}
+    name = '1-an_export_chat'
+    with tempfile.TemporaryDirectory() as scratch:
+        room = _scratch_room(Path(scratch))
+        exports = room / 'data' / 'input' / 'claude' / 'chat' / 'bulk-export'
+        (exports / batch).mkdir(parents=True)
+        (exports / batch / 'conversations.json').write_text(json.dumps([conversation]))
+        run_script = str(room / 'src' / 'main' / 'export' / 'run.sh')
+        ran = subprocess.run([run_script, '--input', str(exports)], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        cache = room / 'cache' / 'pipeline' / 'claude' / 'chat' / 'bulk-export' / batch
+        rendered = cache / 'rendered' / f'{name}.md'
+        held = rendered.read_text() if rendered.is_file() else None
+        subprocess.run([run_script, '--input', str(exports), '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        said = (ran.stdout + ran.stderr).replace(str(room), '<room>').strip().splitlines()
+        deposited = cache / 'markdown' / f'{name}.md'
+        collated = deposited.read_text() if deposited.is_file() else None
+    lean = projection.project(conversation)
+    roles = [message['role'] for message in lean['messages']]
+    frontmatter = {'source': 'bulk-export', 'uuid': uuid, 'human': roles.count('human'), 'assistant': roles.count('assistant'),
+                   'last_activity': '2026-02-01T00:00:00Z',
+                   'cross_checked_against': 'none', 'currency': 'unchecked'}
+
+    why = (f'the run over a batch never collated exited {ran.returncode}: {said[-1] if said else "silently"}' if ran.returncode else
+           'the run wrote no rendering at the batch\'s cache address' if held is None else
+           'the run\'s rendering is not the conversation\'s body' if held != projection.render_body(lean) else
+           'the collate deposited no file, or not the whole rendering' if collated != projection.render(lean, frontmatter=frontmatter) else None)
+    run("pipeline: the export run renders each batch's conversations at the batch's own cache address, and the collate composes them unchanged",
+        why is None, why, check='pipeline.export_run_renders_each_batch')
 
 
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])
