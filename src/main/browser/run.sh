@@ -96,6 +96,8 @@ collate_corpus() {
   # audit: capture-health report against the fresh projections — findings
   # inform, never gate: severity attaches to the RECORD, and the record was already
   # schema-validated by the run
+  # record: what this collate read, so the status offers the next only once the run's output moves (issues/1188)
+  reduce step record "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_audit.py" --collated browser
   reduce step_ok audit     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit.py"
 }
 

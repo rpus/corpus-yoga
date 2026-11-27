@@ -1,4 +1,4 @@
-run.py: code+schema 2006/2006
+run.py: code+schema 2012/2012
 
 
 check_reply_without_text: |
@@ -78,7 +78,7 @@ check_browser_run_renders: |
   ✓ pipeline.browser_run_renders_each_capture
 
 check_status_offers_collate: |
-  ✓ pipeline.status_offers_collate_when_no_run_is_owed
+  ✓ pipeline.status_offers_collate_where_one_is_owed
 
 check_collate_refuses_stale: |
   ✓ pipeline.collate_refuses_a_rendering_older_than_its_input
@@ -243,7 +243,7 @@ check_cli_surface: |
   ✓ effects.send_faces_agree
   ✓ effects.sends_are_dispatched
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (80/80)
+  ✓ output.plan_lines_name_their_target  (86/86)
   ✓ structure.file_at_level_of_subject  (48/48)
   ✓ structure.cli_declaration_mirrors_the_api  (26/26)
   ✓ structure.cli_declaration_validates  (80/80)
@@ -714,7 +714,7 @@ stages:
     tier: code
     line: "220"
   check_cli_surface:
-    passes: 591
+    passes: 597
     failures: 0
     tier: code
     line: "223"
@@ -984,8 +984,8 @@ stages:
     tier: code
     line: "487"
 
-checks[code+schema]: 288 types, 2006/2006 invocations passing
-checks[code]: 230 types, 1291/1291 invocations passing
+checks[code+schema]: 288 types, 2012/2012 invocations passing
+checks[code]: 230 types, 1297/1297 invocations passing
 checks[schema]: 58 types, 715/715 invocations passing
 
-dev gate: PASS - code+schema 2006/2006 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
+dev gate: PASS - code+schema 2012/2012 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate

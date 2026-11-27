@@ -7,6 +7,7 @@ vets a commit's content and this verb vets the corpus, as `corpus-yoga pipeline
 audit` and as the corpus tail's step. A violated property is a FAIL: atom,
 counted by the run's stage table; the exit is 1 iff any FAIL was stated.
 """
+import json
 import re
 import sys
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ import cache_io
 import frontier
 import corpus  # the one selection of units (issues/687)
 import spell
+from markdown_projection import FACTS, RENDERED, RENDERINGS
 
 SELF = 'src/main/validation_audit.py'
 REPO = next(p for p in Path(__file__).resolve().parents if (p / SELF).is_file())
@@ -119,16 +121,58 @@ def owed_by_selection(name: str, facts: dict) -> dict[str, int]:
     return counts
 
 
-def held_by_selection(name: str, facts: dict) -> dict[str, int]:
-    """What a collate of the pipeline would read, by the selection it declares: the count of
-    inputs the store holds under each, whose run outputs the collate places (issues/1188)."""
+COLLATED = 'collated.json'   # at a store's cache root: each unit's token as the last collate read it (issues/1188)
+
+
+def _token(cache_dir: Path) -> str | None:
+    """A unit's run output as the collate reads it - its facts and its renderings - as one digest;
+    None where the run has rendered nothing for it."""
+    import hashlib
+    files = [cache_dir / FACTS, cache_dir / RENDERED, *sorted((cache_dir / RENDERINGS).glob('*.md'))]
+    held = [f for f in files if f.is_file()]
+    if not (cache_dir / FACTS).is_file():
+        return None
+    digest = hashlib.sha256()
+    for f in held:
+        digest.update(f.relative_to(cache_dir).as_posix().encode() + b'\0' + f.read_bytes() + b'\0')
+    return digest.hexdigest()
+
+
+def _tokens(source: 'Source') -> dict[str, str]:
+    """{subject: token} over the units the store holds, by its selection."""
+    out: dict[str, str] = {}
+    for subject in input_subjects(source.store):
+        parts = (subject,) if isinstance(subject, str) else subject
+        token = _token(source.cache_root / Path(*parts))
+        if token is not None:
+            out[' / '.join(parts)] = token
+    return out
+
+
+def owed_collate_by_selection(name: str, facts: dict) -> dict[str, int]:
+    """What a collate of the pipeline is owed, by the selection it declares (issues/1188): the count
+    of units whose run output is not what the last collate read - rendered anew, arrived since, or
+    departed - each store against the record its last collate wrote."""
     counts: dict[str, int] = {}
     for source in sources(name, facts):
-        held = input_subjects(source.store)
-        if held:
+        record = source.cache_root / COLLATED
+        read = json.loads(record.read_text()) if record.is_file() else {}
+        now = _tokens(source)
+        owed = sum(1 for subject, token in now.items() if read.get(subject) != token) + sum(1 for subject in read if subject not in now)
+        if owed:
             key = f'{source.store.input.as_posix()}/{source.store.globs[0].pattern}'
-            counts[key] = counts.get(key, 0) + len(held)
+            counts[key] = counts.get(key, 0) + owed
     return counts
+
+
+def record_collated(name: str, facts: dict) -> None:
+    """The collate's last step: each store's units' tokens, as this collate read them, at its cache root."""
+    for source in sources(name, facts):
+        read, record = _tokens(source), source.cache_root / COLLATED
+        if read or record.is_file():      # a store holding nothing gets no record, and no cache, from the collate
+            source.cache_root.mkdir(parents=True, exist_ok=True)
+            record.write_text(json.dumps(read, indent=1, sort_keys=True) + '\n')
+    print(f'{name}: the collate\'s reading recorded')
 
 
 @dataclass(frozen=True)
@@ -229,6 +273,10 @@ def refuse_owed(name: str, facts: dict) -> int:
 
 
 def main() -> int:
+    if sys.argv[1:2] == ['--collated']:
+        name = sys.argv[2]
+        record_collated(name, dict(frontier.pipelines())[name])
+        return 0
     if sys.argv[1:2] == ['--owed']:
         name = sys.argv[2]
         return 1 if refuse_owed(name, dict(frontier.pipelines())[name]) else 0

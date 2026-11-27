@@ -57,15 +57,15 @@ def owed_runs() -> dict[str, facts.Would]:
 
 
 def owed_collate(owed: dict[str, facts.Would]) -> facts.Would | None:
-    """The collate, where it would act: no pipeline is owed a run, since the collate refuses
-    while one is (issues/1183), and some store holds what it would place, by selection."""
+    """The collate, where one is owed: no pipeline is owed a run, since the collate refuses while
+    one is (issues/1183), and some unit's run output is not what the last collate read, by selection."""
     if owed:
         return None
-    held: dict[str, int] = {}
+    due: dict[str, int] = {}
     for name, declared in frontier.pipelines():
-        for key, count in validation_audit.held_by_selection(name, declared).items():
-            held[key] = held.get(key, 0) + count
-    return facts.Would(spell.line('pipeline', 'collate'), held) if held else None
+        for key, count in validation_audit.owed_collate_by_selection(name, declared).items():
+            due[key] = due.get(key, 0) + count
+    return facts.Would(spell.line('pipeline', 'collate'), due) if due else None
 
 
 def steps_of(name: str) -> list[str]:

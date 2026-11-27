@@ -140,6 +140,8 @@ run_tail() {
   # summaries-divergent batch; the verdict below stays unprejudiced.
   reduce step summaries "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/summaries.py" deposit
+  # record: what this collate read, so the status offers the next only once the run's output moves (issues/1188)
+  reduce step record "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_audit.py" --collated export
   # compare_captures: the latest batch against the live-capture corpus per
   # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
   # conversations to recapture in place. Divergence is a fact, not an error. Whether an

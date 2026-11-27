@@ -403,11 +403,12 @@ def check_browser_run_renders(run) -> None:
         why is None, why, check='pipeline.browser_run_renders_each_capture')
 
 
-@check(tier='code', on=['src/main/cli/pipeline', 'src/main/validation_audit.py'], says=('pipeline.status_offers_collate_when_no_run_is_owed',))
+@check(tier='code', on=['src/main/cli/pipeline', 'src/main/validation_audit.py'], says=('pipeline.status_offers_collate_where_one_is_owed',))
 def check_status_offers_collate(run) -> None:
-    """The pipeline's status offers `corpus-yoga pipeline collate` (issues/1188) wherever the collate would
-    act - no unit owed a run - and not where it would refuse: in a scratch copy of the checkout, after a
-    planted capture's run the status offers the collate; once the capture has grown, the run alone."""
+    """The pipeline's status offers `corpus-yoga pipeline collate` (issues/1188) where one is owed - no unit
+    owed a run, and some unit's run output not what the last collate read - so that the offer moves over a
+    chain: in a scratch copy of the checkout, a planted capture's run brings the offer; its collate clears it;
+    the capture renamed, the run alone is offered; its run brings the collate back."""
     import json
     import tempfile
     uuid, at = 'ffffffff-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z'
@@ -425,14 +426,25 @@ def check_status_offers_collate(run) -> None:
         (unit / 'apiConversation.json').write_text(json.dumps(capture))
         subprocess.run([str(room / 'src' / 'main' / 'browser' / 'run.sh')], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
         status = [str(room / 'src' / 'run_python_script.sh'), str(room / 'src' / 'main' / 'cli' / 'pipeline' / 'status.py')]
-        current = subprocess.run(status, input=rows, cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300).stdout
+        browser = str(room / 'src' / 'main' / 'browser' / 'run.sh')
+
+        def offers() -> str:
+            return subprocess.run(status, input=rows, cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300).stdout
+
+        current = offers()
+        subprocess.run([browser, '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        collated = offers()
         (unit / 'apiConversation.json').write_text(json.dumps({**capture, 'name': 'an offered chat, renamed'}))
-        owed = subprocess.run(status, input=rows, cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300).stdout
+        owed = offers()
+        subprocess.run([browser], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        rerun = offers()
     why = ('after the run, the status offers no collate' if collate not in current else
+           'after the collate, the status offers the collate again' if collate in collated else
            'with a run owed, the status offers no run' if run_browser not in owed else
-           'with a run owed, the status offers the collate, which would refuse' if collate in owed else None)
-    run('pipeline: the status offers the collate where no run is owed, and the run alone where one is',
-        why is None, why, check='pipeline.status_offers_collate_when_no_run_is_owed')
+           'with a run owed, the status offers the collate, which would refuse' if collate in owed else
+           'after the run that moved the rendering, the status offers no collate' if collate not in rerun else None)
+    run('pipeline: the status offers the collate where one is owed - after a run moves a rendering, not after a collate - and the run alone where one is',
+        why is None, why, check='pipeline.status_offers_collate_where_one_is_owed')
 
 
 @check(tier='code', on=['src/main/browser', 'src/main/validation_audit.py', 'src/main/project_markdown.py'], says=('pipeline.collate_refuses_a_rendering_older_than_its_input',))
