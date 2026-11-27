@@ -82,6 +82,9 @@ run_corpus() {
 collate_corpus() {
   local root="${1%/}" dom_root="${2%/}" has_api has_dom
   held "$root" "$dom_root"
+  # current: nothing is placed older than its input - every unit's run output was made from
+  # the input as it stands, or the collate stops here, naming what the run is owed (issues/1183)
+  reduce step current "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_audit.py" --owed browser
   # project_markdown: the run's renderings, each named for its place among them all and
   # dressed with what the whole corpus says of it
   reduce step_if "$has_api" "where claude's API captures stand" project_markdown "$REPO_DIR/src/run_python_script.sh" \

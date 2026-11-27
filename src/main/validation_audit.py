@@ -202,7 +202,24 @@ def audit_source(pipeline: str, source: Source) -> int:
     return fails
 
 
+def refuse_owed(name: str, facts: dict) -> int:
+    """The collate's precondition (issues/1183): every unit's run output was made from the input as
+    it stands, so the collate places nothing older than its input. Each unit owed a run is a FAIL,
+    named with the run that clears it; returns their count."""
+    owed = 0
+    for source in sources(name, facts):
+        for subject, reason in owed_units(source.store).items():
+            print(f'FAIL: {source.label}: {subject}: {reason} - {spell.line("pipeline", "run", name)} processes it')
+            owed += 1
+    if not owed:
+        print(f'{name}: every unit\'s run output is current')
+    return owed
+
+
 def main() -> int:
+    if sys.argv[1:2] == ['--owed']:
+        name = sys.argv[2]
+        return 1 if refuse_owed(name, dict(frontier.pipelines())[name]) else 0
     only = sys.argv[1] if len(sys.argv) > 1 else None
     total = 0
     for name, facts in frontier.pipelines():
