@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 import tier
-from markdown_projection import FACTS, MD033_PRAGMA, RENDERED_SCRAPES, counted, md_validator, project_scrape, write_if_changed
+from markdown_projection import FACTS, MD033_PRAGMA, RENDERINGS, counted, md_validator, project_scrape, write_if_changed
 
 SELF = 'src/main/browser/gemini/render.py'
 _file = Path(__file__).resolve()
@@ -40,8 +40,8 @@ def render_scrape(unit: Path, valid) -> bool:
     for f in sorted(unit.glob('*.md')):
         text = f.read_text()
         record[f.name] = {'problems': [] if valid.is_valid(project_scrape(text)) else ['fails markdownConversation']}
-        changed |= write_if_changed(cache / RENDERED_SCRAPES / f.name, anchored(text))
-    for stale in (cache / RENDERED_SCRAPES).glob('*.md') if (cache / RENDERED_SCRAPES).is_dir() else []:
+        changed |= write_if_changed(cache / RENDERINGS / f.name, anchored(text))
+    for stale in (cache / RENDERINGS).glob('*.md') if (cache / RENDERINGS).is_dir() else []:
         if stale.name not in record:
             stale.unlink()
             changed = True
