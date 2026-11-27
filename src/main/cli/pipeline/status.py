@@ -40,6 +40,7 @@ class Pipeline:
 class Status:
     pipelines: dict[str, Pipeline]
     staged: dict[str, corpus.Staged]
+    collate: facts.Would | None = None   # the collate, where no run is owed and it would act (issues/1188)
     now: dict | str = facts.phrase('none - nothing to do')   # every act the body names, gathered (issues/1028)
 
 
@@ -53,6 +54,18 @@ def owed_runs() -> dict[str, facts.Would]:
         if owed:
             out[name] = facts.Would(spell.line('pipeline', 'run', name), owed)
     return out
+
+
+def owed_collate(owed: dict[str, facts.Would]) -> facts.Would | None:
+    """The collate, where one is owed: no pipeline is owed a run, since the collate refuses while
+    one is (issues/1183), and some unit's run output is not what the last collate read, by selection."""
+    if owed:
+        return None
+    due: dict[str, int] = {}
+    for name, declared in frontier.pipelines():
+        for key, count in validation_audit.owed_collate_by_selection(name, declared).items():
+            due[key] = due.get(key, 0) + count
+    return facts.Would(spell.line('pipeline', 'collate'), due) if due else None
 
 
 def steps_of(name: str) -> list[str]:
@@ -91,10 +104,11 @@ def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.count('\t') == 1]
     pipelines = {name: pipeline(name) for kind, name in rows if kind == 'pipeline'}
     report = corpus.report_facts(None)
-    for name, run in owed_runs().items():
+    owed = owed_runs()
+    for name, run in owed.items():
         if name in pipelines:
             pipelines[name].act = run
-    out = Status(pipelines, report.staged)
+    out = Status(pipelines, report.staged, owed_collate(owed))
     out.now = facts.now_of(out) or facts.phrase('none - nothing to do')
     facts.say(out)
     return 0

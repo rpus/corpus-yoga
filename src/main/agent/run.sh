@@ -187,6 +187,8 @@ corpus() {
   # the input as it stands, or the collate stops here, naming what the run is owed (issues/1183)
   reduce step current "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_audit.py" --owed agent
   reduce step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
+  # record: what this collate read, so the status offers the next only once the run's output moves (issues/1188)
+  reduce step record "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_audit.py" --collated agent
   # the Signatures on main against the store's sessions (issues/631)
   reduce step_ok agent "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/cli/agent/agent.py" list-drafters
