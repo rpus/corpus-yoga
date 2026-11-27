@@ -403,6 +403,40 @@ def check_browser_run_renders(run) -> None:
         why is None, why, check='pipeline.browser_run_renders_each_capture')
 
 
+@check(tier='code', on=['src/main/browser', 'src/main/validation_audit.py', 'src/main/project_markdown.py'], says=('pipeline.collate_refuses_a_rendering_older_than_its_input',))
+def check_collate_refuses_stale(run) -> None:
+    """The collate places only what the run made of the inputs as they stand (issues/1183): in a scratch copy
+    of the checkout, a capture run and collated, then recaptured with a new reply and collated again
+    without a run, is refused by the collate, which names it and the run it is owed, rather than placing
+    the rendering of the capture it replaced."""
+    import json
+    import tempfile
+    uuid, at = 'eeeeeeee-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z'
+    turn = {'content': [], 'created_at': at, 'updated_at': at, 'attachments': [], 'files': []}
+    capture = {'uuid': uuid, 'name': 'a grown chat', 'summary': '', 'created_at': at, 'updated_at': at, 'model': 'claude-x',
+               'current_leaf_message_uuid': 'eeeeeeee-0000-4000-8000-000000000002', 'chat_messages': [
+                   {**turn, 'uuid': 'eeeeeeee-0000-4000-8000-000000000001', 'parent_message_uuid': '00000000-0000-4000-8000-000000000000', 'sender': 'human', 'text': 'hi'},
+                   {**turn, 'uuid': 'eeeeeeee-0000-4000-8000-000000000002', 'parent_message_uuid': 'eeeeeeee-0000-4000-8000-000000000001', 'sender': 'assistant', 'text': 'hello'}]}
+    grown = {**capture, 'current_leaf_message_uuid': 'eeeeeeee-0000-4000-8000-000000000003', 'chat_messages': capture['chat_messages'] + [
+        {**turn, 'uuid': 'eeeeeeee-0000-4000-8000-000000000003', 'parent_message_uuid': 'eeeeeeee-0000-4000-8000-000000000002', 'sender': 'human', 'text': 'and again'}]}
+    with tempfile.TemporaryDirectory() as scratch:
+        room = _scratch_room(Path(scratch))
+        unit = room / 'data' / 'input' / 'claude' / 'chat' / 'API-capture' / uuid
+        unit.mkdir(parents=True)
+        (unit / 'apiConversation.json').write_text(json.dumps(capture))
+        run_script = str(room / 'src' / 'main' / 'browser' / 'run.sh')
+        for mode in ([], ['--collate']):
+            subprocess.run([run_script, *mode], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        (unit / 'apiConversation.json').write_text(json.dumps(grown))
+        again = subprocess.run([run_script, '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+    said = again.stdout + again.stderr
+    why = ('the collate placed the rendering of the capture it replaced, and exited 0' if again.returncode == 0 else
+           'the collate refused without naming the capture' if uuid not in said else
+           'the collate refused without naming the run it is owed' if 'corpus-yoga pipeline run' not in said else None)
+    run('pipeline: the collate refuses a capture changed since the run rendered it, naming it and the run it is owed',
+        why is None, why, check='pipeline.collate_refuses_a_rendering_older_than_its_input')
+
+
 @check(tier='code', on=['src/main/export', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pipeline.export_run_renders_each_batch',))
 def check_export_run_renders(run) -> None:
     """The export pipeline's run renders each batch's conversations, a map (issues/1196): in a scratch

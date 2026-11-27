@@ -8,7 +8,7 @@
 #   src/main/export/run.sh --plan   # print the ordered step list; run nothing
 #
 # Each batch is read on its own; --collate reads each against the rest of the corpus, then
-# folds them all. The step lists below (run_one, collate_one, run_tail) are the ONE authority on order:
+# folds them all. The step lists below (run_one, collate_head, collate_one, run_tail) are the ONE authority on order:
 # --plan prints exactly the lists that execute (see src/main/steps.sh).
 
 set -euo pipefail
@@ -81,6 +81,13 @@ run_one() {
     "$SCRIPT_DIR/render.py" --bulk-export "$batch"
 }
 
+# collate_head: once, before any batch is collated.
+collate_head() {
+  # current: nothing is placed older than its input - every unit's run output was made from
+  # the input as it stands, or the collate stops here, naming what the run is owed (issues/1183)
+  reduce step current "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_audit.py" --owed export
+}
+
 # collate_one: one batch read against what else the corpus holds - the paid indexing captures
 # and downloaded artifacts, the live captures - so a batch's result here depends on the rest.
 collate_one() {
@@ -148,7 +155,9 @@ print_plan() {
     run_one '<batch>'
     return
   fi
-  echo "export steps — collate mode (--collate), per batch in name order:"
+  echo "export steps — collate mode (--collate), first, once:"
+  collate_head
+  echo "then per batch in name order:"
   collate_one '<batch>'
   echo "then once, after all batches:"
   run_tail
@@ -169,6 +178,7 @@ main() {
     echo "no bulk exports in $chat_exports (download from https://claude.ai/settings/data-privacy-controls)"
     exit 0
   fi
+  [[ "$collate" == "0" ]] || collate_head
   for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
     [[ -d "$d" ]] || continue
     "$each" "$d"
