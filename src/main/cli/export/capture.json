@@ -1,5 +1,5 @@
 {
-  "help": "stage a manifest and its payload - the manifest moved from where the download left it, each file it lists downloaded by navigating Safari to its one-use export_url - the export page fetches a signed storage URL and Safari takes the download, unpacking it where it opens safe files - and deposited into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
+  "help": "stage a manifest and its payload - the manifest moved from where the download left it, each file it lists downloaded by navigating Safari to its one-use export_url - the export page fetches a signed storage URL and Safari takes the download, unpacking it where it opens safe files - and deposited into the data-* directory sharing the manifest's star (manifest-<X>.json giving data-<X>/), the manifest within it as its record; refused if that directory is staged or held",
   "would": "would capture",
   "modality": "MAY",
   "args": [
@@ -11,7 +11,7 @@
     }
   ],
   "x": [
-    "--manifest <file> (consumed: moved into the stage as the unit's record)",
+    "--manifest <file> (consumed: moved into the unit's directory as its record)",
     "~/Downloads (where Safari puts each download, under the server's name, replacing a same-named directory and naming an arrival beside a same-named file <stem>-<n>; moved out on arrival)"
   ],
   "sends": {

@@ -51,7 +51,7 @@ def _unit(unit: corpus.Unit) -> str | None:
 
 
 def _size(unit: corpus.Unit) -> str:
-    return corpus.human(sum(corpus.size_of(corpus.STAGED / m) for m in unit.members + unit.record if (corpus.STAGED / m).exists()))
+    return corpus.human(sum(corpus.size_of(corpus.STAGED / m) for m in unit.members if (corpus.STAGED / m).exists()))
 
 
 def entries() -> list[cleaner.Entry]:

@@ -1,5 +1,5 @@
 """
-status.py - bare `corpus-yoga export`: the exports held and staged, each paired or unpaired,
+status.py - bare `corpus-yoga export`: the exports held and staged, each by its manifest within it,
 then the stage's units of the export's captures, as one shape (issues/759). Reads; writes nothing.
 """
 import sys
@@ -18,10 +18,9 @@ REPO = _root[0]
 @dataclass
 class Exports:
     """What an export is, then the ones held and the ones staged."""
-    form: str = facts.named('a staged export <X>', default=facts.phrase("data-<X>/ with manifest-<X>.json, its capture's record"))
-    shared: str = facts.named('shared storage holds', default='data-<X>/')
-    held: dict[str, corpus.Paired] | None = None
-    staged: dict[str, corpus.Paired] | None = None
+    form: str = facts.named('an export <X>', default=facts.phrase("data-<X>/, its capture's manifest.json within it, staged and held alike"))
+    held: dict[str, corpus.Deposit] | None = None
+    staged: dict[str, corpus.Deposit] | None = None
 
 
 @dataclass
@@ -31,12 +30,12 @@ class Status:
 
 
 def main() -> int:
-    pairs = corpus.pairs_facts('export')
+    deposits = corpus.deposits_facts('export')
     report = corpus.report_facts('export')
-    if not pairs.held and not pairs.staged:
+    if not deposits.held and not deposits.staged:
         facts.say_standing(Status(facts.phrase('nothing held or staged'), report.staged))
         return 0
-    facts.say_standing(Status(Exports(held=pairs.held, staged=pairs.staged), report.staged))
+    facts.say_standing(Status(Exports(held=deposits.held, staged=deposits.staged), report.staged))
     return 0
 
 

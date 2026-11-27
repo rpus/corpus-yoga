@@ -1,6 +1,7 @@
 {
   "schemas": [
     "claude/conversations",
+    "claude/manifest",
     "claude/memories",
     "claude/projects",
     "claude/users",
@@ -14,6 +15,7 @@
   "unit": "export",
   "families": [
     "claude/conversations",
+    "claude/manifest",
     "claude/memories",
     "claude/projects",
     "claude/users",
@@ -21,7 +23,8 @@
   ],
   "extra_unit": "",
   "extra_families": [],
-  "companion": "manifest-<star>.json",
+  "companion": "",
+  "record": "manifest.json",
   "subject_depth": 1,
   "diagnostic_skip": {}
 }

@@ -71,7 +71,7 @@ def entries() -> list[cleaner.Entry]:
     out: list[cleaner.Entry] = []
     for duplicate in corpus.held_twice(corpus.HELD, live.live_addresses()):
         unit, holder, how, by = duplicate.unit, duplicate.holder, duplicate.how, duplicate.by
-        paths = [corpus.HELD / m for m in unit.members + unit.record]
+        paths = [corpus.HELD / m for m in unit.members]
         own = corpus.shadow(unit)
         if own is not None and own.exists():
             paths.append(own)

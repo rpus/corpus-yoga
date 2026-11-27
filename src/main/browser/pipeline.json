@@ -18,7 +18,8 @@
       ],
       "extra_unit": "",
       "extra_families": [],
-      "companion": ""
+      "companion": "",
+      "record": ""
     },
     "gemini": {
       "qualifier": "DOM",
@@ -32,7 +33,8 @@
       ],
       "extra_unit": "ordering",
       "extra_families": [],
-      "companion": ""
+      "companion": "",
+      "record": ""
     }
   },
   "subject_depth": 1,

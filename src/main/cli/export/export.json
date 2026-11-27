@@ -1,8 +1,8 @@
 {
-  "summary": "the bulk export - a downloaded manifest and the payload captured from its one-use URLs, staged as a pair",
+  "summary": "the bulk export - the payload captured from a downloaded manifest's one-use URLs, the manifest within it, staged and held as one folder",
   "standing": true,
   "phrase": [
-    "data-<X>/ with manifest-<X>.json, its capture's record",
+    "data-<X>/, its capture's manifest.json within it, staged and held alike",
     "nothing held or staged",
     "{name} does not start with manifest-",
     "{category} - no row in {members} says what its archive unpacks to",
@@ -11,16 +11,14 @@
     "{n} file(s), version {version}",
     "{name}/ is held in shared storage; nothing fetched, no URL spent",
     "{name}/ already exists; nothing fetched, no URL spent. If it holds an earlier or partial capture, the human moves it aside; this verb never overwrites a deposit",
-    "a different {manifest} is staged; nothing fetched, no URL spent",
     "{refused}; nothing staged, no URL spent",
     "Safari is logged out of claude.ai (landed on {landed}); log in and re-run; nothing staged, no URL spent",
-    "staged beside {target}/",
-    "staged beside {target}/ (moved from {path})",
+    "staged within {target}/ (moved from {path})",
     "nothing arrived; the page says {said}",
     "{size} bytes, unpacked here",
     "unpacked by Safari as {name}",
     "nothing arrived within {seconds}s; the page says {said}",
-    "fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it"
+    "fetched {fetched} of {n} file(s) into {where}/, {manifest} within it"
   ],
   "target": "src/main/cli/export/export.sh",
   "calculus": "capture L4 L10",

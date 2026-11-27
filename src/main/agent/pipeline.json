@@ -18,7 +18,8 @@
       ],
       "extra_unit": "",
       "extra_families": [],
-      "companion": "<stem>/"
+      "companion": "<stem>/",
+      "record": ""
     },
     "gemini": {
       "input_glob": "*/*/*/.system_generated/logs/transcript*.jsonl",
@@ -32,7 +33,8 @@
       ],
       "extra_unit": "",
       "extra_families": [],
-      "companion": ""
+      "companion": "",
+      "record": ""
     }
   },
   "subject_depth": 3,
