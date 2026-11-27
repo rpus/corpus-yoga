@@ -30,6 +30,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 from latest import latest_file
 
 SELF = 'src/main/metamodel/curation.py'
@@ -338,7 +339,7 @@ def emptiness_violations(repo: Path) -> list:
     first falsifying file per edge. Rooms without the relevant corpus skip,
     stated by the caller."""
     doc_roots = {'null_in_api': tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                 'null_in_export': tier.pipeline_cache('export')}
+                 'null_in_export': corpus.store_cache('export')}
     emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
     out = []
     for i, row in enumerate(_join_rows(), 2):

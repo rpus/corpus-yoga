@@ -138,8 +138,7 @@ class Unit:
         validation: what the rehearsal record reduces from."""
         if self.pipeline is None:
             return None
-        rel = Path(cache_io.path_for(self.pipeline)).relative_to('cache')
-        return tier.STAGE_CACHE / rel / (self.provider or '') / Path(*self.subject)
+        return tier.STAGE_CACHE / 'pipeline' / store_input(self.pipeline, self.provider) / Path(*self.subject)
 
 
 def pipelines() -> dict[str, dict]:
@@ -191,6 +190,17 @@ def stores(declared: dict[str, dict] | None = None) -> list[Store]:
                                                                       (f['extra_input_glob'], f['extra_measure'], f['extra_unit'], f['extra_families'])) if g),
                 companion=f['companion'], depth=facts['subject_depth']))
     return out
+
+
+def store_input(pipeline: str, provider: str | None = None) -> Path:
+    """A store's declared input, relative to the input tree."""
+    return next(s.input for s in stores() if s.pipeline == pipeline and s.provider == provider)
+
+
+def store_cache(pipeline: str, provider: str | None = None) -> Path:
+    """A store's cache root: its declared input, re-rooted under cache/pipeline (issues/1192), every unit's
+    run output beneath it at the unit's own address."""
+    return tier.cache_of(tier.DATA / 'input' / store_input(pipeline, provider))
 
 
 def _files_under(root: Path, path: Path) -> list[Path]:
@@ -960,8 +970,7 @@ def shadow(unit: Unit) -> Path | None:
     it - what only the unit feeds, and goes with it (issues/744)."""
     if unit.pipeline is None:
         return None
-    rel = Path(cache_io.path_for(unit.pipeline)).relative_to('cache')
-    return tier.CACHE / rel / (unit.provider or '') / Path(*unit.subject)
+    return tier.CACHE / 'pipeline' / store_input(unit.pipeline, unit.provider) / Path(*unit.subject)
 
 
 def orphaned_shadows() -> list[Path]:
@@ -974,7 +983,7 @@ def orphaned_shadows() -> list[Path]:
         depths[(u.pipeline, u.provider)] = len(u.subject)
     out: list[Path] = []
     for (pipeline, provider), depth in sorted(depths.items(), key=lambda kv: (kv[0][0], kv[0][1] or '')):
-        root = tier.CACHE / Path(cache_io.path_for(pipeline)).relative_to('cache') / (provider or '')
+        root = tier.CACHE / 'pipeline' / store_input(pipeline, provider)
         if not root.is_dir():
             continue
         out += [d for d in sorted(root.glob('/'.join(['*'] * depth))) if d.is_dir() and d not in shadows]

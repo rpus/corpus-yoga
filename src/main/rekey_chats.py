@@ -30,7 +30,7 @@ This is the migration recipe for an old ordinal-keyed inferred table:
 
     src/main/rekey_chats.py --to-id --legacy-ordinals \\
         --conversations <batch>/conversations.json \\
-        < cache/pipeline/export/<batch>/inferred/data-chat-categories.json
+        < cache/pipeline/claude/chat/bulk-export/<batch>/inferred/data-chat-categories.json
 
 Usage (see src/main/indexing/capture.sh / present.sh):
     ... | rekey_chats.py --to-id --conversations <corpus dir | conversations.json> | ...

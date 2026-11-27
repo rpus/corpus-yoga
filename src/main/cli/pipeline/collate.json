@@ -41,8 +41,9 @@
     "machine-name.txt"
   ],
   "w": [
-    "cache/pipeline/export",
-    "cache/pipeline/agent",
+    "cache/pipeline/claude/chat/bulk-export",
+    "cache/pipeline/claude/code/machine-transport",
+    "cache/pipeline/gemini/code/machine-transport",
     "data/output/markdown/claude",
     "data/output/markdown/gemini",
     "data/output/memories"

@@ -20,7 +20,6 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/export/claude"
-CACHE_DIR="$(pipeline_cache export)"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_emit — next-free dispatch (issues/395)
@@ -51,7 +50,7 @@ TASK
 validate_export() {
   local chat_export="${1%/}"
   local validation_dir
-  validation_dir="$CACHE_DIR/$(basename "$chat_export")/validation"
+  validation_dir="$(cache_of "$chat_export")/validation"
   mkdir -p "$validation_dir"
 
   # Enumerate, capacity-blind (issues/395): components at the export root, pieces one

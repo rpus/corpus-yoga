@@ -2,7 +2,7 @@
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
   browser-capture  data/input/claude/chat/API-capture/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
-  bulk-export      cache/pipeline/export/<batch>/json/<name>.json                  (the atomised pieces;
+  bulk-export      cache/pipeline/claude/chat/bulk-export/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
 The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
@@ -15,13 +15,14 @@ Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/project_markdown.py \
     --api-capture data/input/claude/chat/API-capture              # -> data/output/markdown/claude/chat/conversations/
   src/run_python_script.sh src/main/project_markdown.py \
-    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> cache/pipeline/export/<batch>/markdown/
+    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> cache/pipeline/claude/chat/bulk-export/<batch>/markdown/
 """
 import argparse
 import json
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 from markdown_projection import (project, ordered, find_api_json, render,
                                  md_validator, tree_problems, deposit, conv_id)
 from vintage import export_time  # the one export-ordering authority
@@ -37,7 +38,7 @@ REPO_ROOT = _root[0]
 def _newest_batch_json():
     """The newest ATOMISED export's json/ dir (by export_time, the one ordering
     authority), or None where no batch has been atomised."""
-    cache = tier.pipeline_cache('export')
+    cache = corpus.store_cache('export')
     atomised = [d for d in cache.glob('data-*') if (d / 'json').is_dir()]
     if not atomised:
         return None
@@ -149,7 +150,7 @@ def main():
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
         # Provenance cross-checks the other way: against the capture corpus, when present.
         batch = Path(args.bulk_export)
-        json_dir = tier.pipeline_cache('export') / batch.name / 'json'
+        json_dir = corpus.store_cache('export') / batch.name / 'json'
         if not json_dir.is_dir():
             sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
         captures = tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture'
@@ -165,7 +166,7 @@ def main():
                  for f in sorted(json_dir.glob('*.json'))
                  for c in (json.loads(f.read_text()),)
                  for lean in (project(c),))
-        out = Path(args.out) if args.out else tier.pipeline_cache('export') / batch.name / 'markdown'
+        out = Path(args.out) if args.out else corpus.store_cache('export') / batch.name / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
     print(f"rendered {n_ok} conversations to {out} ({n_bad} invalid, {n_empty} empty)")

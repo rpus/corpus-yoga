@@ -5,7 +5,7 @@
   "args": [],
   "step": "export",
   "r": [
-    "cache/pipeline/export",
+    "cache/pipeline/claude/chat/bulk-export",
     "rsc/naming/memory_deposit_vintages.csv"
   ],
   "w": [

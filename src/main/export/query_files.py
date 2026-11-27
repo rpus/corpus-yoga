@@ -28,10 +28,11 @@ import sqlite3
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-CACHE_DIR    = tier.pipeline_cache('export')
+CACHE_DIR    = corpus.store_cache('export')
 
 QUERIES: list[tuple[str, str, str]] = [
     (

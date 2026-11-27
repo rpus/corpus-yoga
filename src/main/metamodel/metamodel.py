@@ -25,6 +25,7 @@ from curation import (JOIN_PATH_COLUMNS, documented, rejected, edge_queue,
                             shared_name_candidates, identity_violations, emptiness_violations,
                             worksheet_rows, accept_shared_name, reject_shared_name)
 import tier  # the tiers, one home (issues/702)
+import corpus
 import facts  # the one printer of a status's facts (issues/753)
 import spell
 from declared_parser import command_parser
@@ -139,7 +140,7 @@ def curation_report() -> tuple[Table, Join]:
             facts.phrase('no longer holds at latest - {cells}', cells=cells),
             facts.Would(spell.line('metamodel', 'list-candidates'), {f'row {line}': 1}))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                    tier.pipeline_cache('export'))
+                    corpus.store_cache('export'))
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             rows[f'row {line} ({kind})'] = facts.Finding(
@@ -247,7 +248,7 @@ def list_candidates() -> None:
     for line, kind, cells in identity_violations():
         print('  falsified identity edge: ' + facts.phrase('row {line} ({kind}) - {cells} - re-judge the kind in rsc/metamodel/join.csv or restore the identity', line=line, kind=kind, cells=cells))
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
-                    tier.pipeline_cache('export'))
+                    corpus.store_cache('export'))
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print('  falsified emptiness edge: ' + facts.phrase('row {line} ({kind}) - {cell} carries a value in {datum} - re-judge the kind in rsc/metamodel/join.csv', line=line, kind=kind, cell=cell, datum=datum))

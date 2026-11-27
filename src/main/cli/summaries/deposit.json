@@ -6,7 +6,7 @@
   "step": "export",
   "r": [
     "data/output/markdown/claude/chat/conversations",
-    "cache/pipeline/export",
+    "cache/pipeline/claude/chat/bulk-export",
     "data/input/claude/chat/API-capture"
   ],
   "w": [

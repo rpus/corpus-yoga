@@ -70,10 +70,18 @@ record_of() {
   if [[ "${CORPUS_YOGA_ACT:-}" == "$1 $2" ]]; then echo "${CORPUS_YOGA_LOG:-}"; fi
 }
 
-# pipeline_cache <pipeline>: a pipeline's cache, beneath the command that writes it,
-# cache/pipeline/<pipeline> (issues/1181) - rsc/cache_io.csv's row for it, which the dev gate holds equal.
-pipeline_cache() {
-  echo "$CACHE_ROOT/pipeline/$1"
+# cache_of <input path>: what the run derives from an input lives at the input's own address under
+# cache/pipeline (issues/1192) - its path under the input tree, the store's or the stage's,
+# re-rooted, a session's .jsonl dropped - as tier.py's cache_of.
+cache_of() {
+  local path="$1" root real rel=''
+  for root in "$DATA_DIR/input" "$STAGE_INPUT"; do
+    case "$path" in "$root"/*) rel="${path#"$root"/}"; break ;; esac
+    real="$(cd "$root" 2>/dev/null && pwd -P)" || continue
+    case "$path" in "$real"/*) rel="${path#"$real"/}"; break ;; esac
+  done
+  [[ -n "$rel" ]] || { echo "cache_of: $path is under no input tree" >&2; return 1; }
+  echo "$CACHE_ROOT/pipeline/${rel%.jsonl}"
 }
 
 tier_path() {

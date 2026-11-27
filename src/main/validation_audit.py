@@ -91,7 +91,7 @@ def owed_units(store: corpus.Store, root: Path | None = None, cache_root: Path |
     output stands, `changed since its output` where the output records a digest the input no
     longer has. An incomplete unit is passed over (issues/996)."""
     root = tier.DATA / 'input' if root is None else root
-    cache_root = (tier.path(cache_io.path_for(store.pipeline)) / (store.provider or '')) if cache_root is None else cache_root
+    cache_root = corpus.store_cache(store.pipeline, store.provider) if cache_root is None else cache_root
     out: dict[str, str] = {}
     for unit in corpus.select(root, store):
         if unit.missing or (store.depth == 1 and not (root / unit.path).is_dir()):
@@ -129,10 +129,9 @@ class Source:
 
 def sources(name: str, facts: dict) -> list[Source]:
     """Each store a pipeline reads: one, or one per provider where the declared input
-    carries <provider> (issues/635) - the cache then holds a directory per provider under the
-    pipeline's root. The stores are src/main/corpus.py's rows over the same declaration (issues/687)."""
-    cache_root = tier.path(cache_io.path_for(name))
-    return [Source(name if s.provider is None else f'{name}/{s.provider}', s, cache_root / (s.provider or ''))
+    carries <provider> (issues/635) - each store's cache at its own input address under
+    cache/pipeline (issues/1192). The stores are src/main/corpus.py's rows over the same declaration (issues/687)."""
+    return [Source(name if s.provider is None else f'{name}/{s.provider}', s, tier.cache_of(tier.DATA / 'input' / s.input))
             for s in corpus.stores({name: facts})]
 
 

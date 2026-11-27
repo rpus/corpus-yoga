@@ -31,6 +31,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 import tier  # the tiers, one home (issues/702)
+import corpus
 from markdown_projection import ordered
 from library import assert_uuid8_unique, dir_for, LIBRARY
 
@@ -188,7 +189,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 
 SCRIPT_DIR     = Path(__file__).resolve().parent
-CACHE_DIR     = tier.pipeline_cache('export')
+CACHE_DIR     = corpus.store_cache('export')
 
 
 def main():

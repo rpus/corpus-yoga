@@ -79,10 +79,17 @@ REBOUND = ('data', 'cache', 'logs', 'tmp')   # the roots a rehearsal and the dev
 LOGS = REPO / 'logs' / 'test' / 'run' / os.environ[GATE_CHECK] if os.environ.get(GATE_CHECK) else LOGS_ROOT
 
 
-def pipeline_cache(pipeline: str) -> Path:
-    """A pipeline's cache, beneath the command that writes it, cache/pipeline/<pipeline> (issues/1181) -
-    rsc/cache_io.csv's row for it, which the dev gate holds equal."""
-    return CACHE / 'pipeline' / pipeline
+def cache_of(path) -> Path:
+    """What the run derives from an input lives at the input's own address under cache/pipeline
+    (issues/1192): the path under the input tree - the store's, or the stage's - re-rooted, a
+    session's .jsonl dropped, so that an input and its outputs are one relative path under two roots."""
+    path = Path(path)
+    for root in (DATA / 'input', STAGE_INPUT):
+        for under, base in ((path, root), (path.resolve(), root.resolve())):
+            if under.is_relative_to(base):
+                rel = under.relative_to(base)
+                return CACHE / 'pipeline' / (rel.with_suffix('') if rel.suffix == '.jsonl' else rel)
+    raise ValueError(f'{path} is under no input tree')
 
 
 def path(declared: str) -> Path:
