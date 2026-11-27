@@ -119,6 +119,9 @@ def project_scrape(md):
     return {'title': title, 'url': url, 'messages': [{'role': role[r], 'content': text} for r, text in turn_seq(body)]}
 
 
+CLAUDE_LINK = 'This conversation on claude.ai'
+
+
 def render(conv, frontmatter=None, summaries_link=None):
     """lean markdownConversation dict -> markdown string. Each turn heading carries an HTML
     anchor named by the message uuid, so <file>.md#<uuid> addresses the turn durably
@@ -135,23 +138,36 @@ def render(conv, frontmatter=None, summaries_link=None):
     readings index (summaries.py's deposits). The summary itself is DATA
     carried but never body-rendered; the preamble holds no bare URLs and no headings,
     so the file's only ## headings are the turns."""
+    return compose(render_body(conv), frontmatter, summaries_link)
+
+
+def render_body(conv):
+    """The conversation alone - its title, its link on claude.ai and every turn - with no
+    frontmatter and no summaries link: what reading the one conversation gives, the run's
+    rendering of a unit (issues/1195), which compose dresses into render's file."""
     label = {'human': 'Human', 'assistant': 'Claude'}
     count = {'human': 0, 'assistant': 0}
-    out = []
-    if frontmatter:
-        out += ['---', *[f"{k}: {v}" for k, v in frontmatter.items()], '---', '']
     # the pragma placates markdownlint (MD033 no-inline-html) about the heading anchors;
     # it sits in the preamble, before the first turn heading, so turn_seq never sees it
-    out += [f"# {conv['title']}", '', MD033_PRAGMA, '',
-            f"- [This conversation on claude.ai]({conv['url']})"]
-    if summaries_link:
-        out += [f"- [Its distinct summary readings]({summaries_link})"]
-    out += ['']
+    out = [f"# {conv['title']}", '', MD033_PRAGMA, '', f"- [{CLAUDE_LINK}]({conv['url']})", '']
     for m in conv['messages']:
         count[m['role']] += 1
         out += [f"## {label[m['role']]} ({count[m['role']]}) <a id=\"{m['uuid']}\"></a>",
                 '', m['content'], '', '---', '']
     return '\n'.join(out).rstrip() + '\n'
+
+
+def compose(body, frontmatter=None, summaries_link=None):
+    """A rendered conversation dressed as render writes it: the frontmatter before it, and the
+    summaries link beneath its claude.ai link - what reading the whole corpus adds, the
+    collate's (issues/1195)."""
+    lines = body.rstrip('\n').split('\n')
+    if summaries_link:
+        at = next(i for i, line in enumerate(lines) if line.startswith(f'- [{CLAUDE_LINK}]('))
+        lines.insert(at + 1, f"- [Its distinct summary readings]({summaries_link})")
+    if frontmatter:
+        lines = ['---', *[f"{k}: {v}" for k, v in frontmatter.items()], '---', ''] + lines
+    return '\n'.join(lines).rstrip() + '\n'
 
 
 def corpus_index(md_dir):
@@ -339,6 +355,41 @@ def is_empty(conv):
         for m in conv.get('chat_messages', []))
 
 
+def _empty(conv):
+    """A conversation's emptiness, from its facts where the run recorded them, else read."""
+    return conv['empty'] if 'empty' in conv else is_empty(conv)
+
+
+# a unit's rendering under its cache address (issues/1195): a claude capture's one conversation,
+# a gemini scrape's anchored files under their own names, and the facts the collate reads
+RENDERED, RENDERED_SCRAPES, FACTS = 'conversation.md', 'rendered', 'facts.json'
+
+
+def facts(conv, valid):
+    """What the collate names, places and dresses a conversation by, read from it alone: its
+    order (created_at, uuid, emptiness), its name's slug, its turns by role, each message's
+    time for the currency cross-check, and its problems - an unwalkable tree, a projection
+    the markdownConversation family refuses."""
+    lean = project(conv)
+    problems = tree_problems(conv['chat_messages']) + ([] if valid.is_valid(lean) else ['fails markdownConversation'])
+    return {'uuid': conv['uuid'], 'name': conv['name'], 'created_at': conv['created_at'],
+            'updated_at': conv.get('updated_at'), 'empty': is_empty(conv),
+            'human': sum(1 for m in lean['messages'] if m['role'] == 'human'),
+            'assistant': sum(1 for m in lean['messages'] if m['role'] == 'assistant'),
+            'messages': {m['uuid']: m['created_at'] for m in conv['chat_messages']},
+            'problems': problems}
+
+
+def write_if_changed(path, text) -> bool:
+    """Write text at path unless it already holds it, so an unchanged rendering keeps its mtime."""
+    path = Path(path)
+    if path.is_file() and path.read_text() == text:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return True
+
+
 def ordered(convs):
     """The single source of truth for how a conversation corpus is ordered and named — shared by
     the atomised json/ pieces, the rendered markdown/, the presentation timeline, and the inference
@@ -352,9 +403,10 @@ def ordered(convs):
     another (e.g. deleted live after an export) would dislocate the cross-corpus ordinal
     correlation — but nothing is skipped: they are returned last as (None, "empty-<uuid8>", conv),
     the name announcing what they are wherever they land."""
-    live = sorted((c for c in convs if not is_empty(c)),
+    convs = list(convs)
+    live = sorted((c for c in convs if not _empty(c)),
                   key=lambda c: (c['created_at'], c['uuid']))  # uuid breaks created_at ties -> total, input-order-independent
-    empties = sorted((c for c in convs if is_empty(c)),
+    empties = sorted((c for c in convs if _empty(c)),
                      key=lambda c: (c['created_at'], c['uuid']))
     width = len(str(len(live)))
     return ([(i, f"{i:0{width}d}-{slug(c['name'])}", c) for i, c in enumerate(live, 1)]

@@ -1,15 +1,11 @@
 """
-project_markdown.py - project gemini's scrape markdown into the presentation tree (the gemini counterpart of src/main/project_markdown.py)
-(data/output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:
-
-    ## Human (3)   ->   ## Human (3) <a id="human-3"></a>
-
-Gemini has no API and so no message uuids; the role-count anchor is the best turn
-identity available, and gemini conversations are append-only (the audit tail-probe
-already relies on this), so an anchor never moves — later captures only add turns.
-Anchors ride the heading line, where markdown_projection.turn_seq's `## <Role> [^\\n]*`
-split ignores them. The data/input/ scrapes themselves are data and are left untouched;
-this derived copy is the navigable/indexable surface.
+project_markdown.py - place gemini's rendered scrapes in the presentation tree (the gemini counterpart of src/main/project_markdown.py)
+(data/output/markdown/gemini/chat/conversations, beside claude's projections). Each scrape
+is rendered by the run, its turn headings anchored, at its cache address
+(src/main/browser/gemini/render.py); this names and places the renderings. Anchors ride
+the heading line, where markdown_projection.turn_seq's `## <Role> [^\\n]*` split ignores
+them. The data/input/ scrapes themselves are data and are left untouched; this derived
+copy is the navigable/indexable surface.
 
 Files are named '<NN>-<slug>.md', paralleling claude's ordinals: the numbering comes
 from the ordering CAPTURE (data/input/gemini/chat/DOM-capture/ordering.txt — the web-UI
@@ -24,20 +20,17 @@ Usage:
     [--dom-capture data/input/gemini/chat/DOM-capture] [--out cache/markdown/gemini]
 """
 import argparse
-import re
+import json
 import sys
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
-from markdown_projection import counted, md_validator, project_scrape, MD033_PRAGMA, deposit, turn_extent, conv_id
+from markdown_projection import FACTS, RENDERED_SCRAPES, deposit, turn_extent, conv_id
 
 SELF = 'src/main/browser/gemini/project_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-
-HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
-
 
 def ordering(captures_dir: Path) -> dict:
     """{conversation id: ordinal} from the ordering capture; {} where none exists
@@ -48,15 +41,6 @@ def ordering(captures_dir: Path) -> dict:
     ids = [l.strip() for l in f.read_text().splitlines()
            if l.strip() and not l.startswith('#')]
     return {cid: n for n, cid in enumerate(ids, 1)}
-
-
-def anchored(md):
-    md = HEADING.sub(lambda m: f'## {m[1]} ({m[2]}) <a id="{m[1].lower()}-{m[2]}"></a>', md)
-    # same lint pragma as render() emits, inserted after the title line (the scrapes in
-    # data/input/ stay pristine; only this derived copy carries presentation dressing)
-    first, _, rest = md.partition('\n')
-    said = counted(md)                                # the turn count's one home, by role (issues/1001)
-    return f"---\nsource: dom-capture\nhuman: {said['human']}\nassistant: {said['assistant']}\n---\n\n{first}\n\n{MD033_PRAGMA}\n\n{rest.lstrip()}"
 
 
 def main():
@@ -79,19 +63,24 @@ def main():
     ordinals = {d.name: order.get(d.name) or next(tail) for d in dirs}
     width = len(str(max(len(order), len(dirs)))) if (order or dirs) else 1
     files = {}
-    valid = md_validator()
     n_bad = 0
+    unrendered = [d.name for d in dirs if any(d.glob('*.md')) and not (tier.cache_of(d) / FACTS).is_file()]
+    if unrendered:
+        # depositing without a scrape's rendering would prune its conversation's file
+        sys.exit(f"no rendering at the cache address of {len(unrendered)} scrape(s) - {', '.join(unrendered)}; "
+                 f"corpus-yoga pipeline run renders each")
     for d in dirs:
-        for f in sorted(d.glob('*.md')):
+        cache = tier.cache_of(d)
+        record = json.loads((cache / FACTS).read_text()) if (cache / FACTS).is_file() else {}
+        for scrape, held in sorted(record.items()):
             prefix = f'{ordinals[d.name]:0{width}d}-' if order else ''
-            name = f'{prefix}{f.name}'
+            name = f'{prefix}{scrape}'
             if name in files:
-                name = f'{prefix}{d.name}-{f.name}'
-            text = f.read_text()
-            if not valid.is_valid(project_scrape(text)):     # held to the family as claude's projections are (issues/965)
+                name = f'{prefix}{d.name}-{scrape}'
+            if held['problems']:     # held to the family as claude's projections are (issues/965)
                 n_bad += 1
-                print(f'  INVALID {name}: fails markdownConversation', file=sys.stderr)
-            files[name] = anchored(text)
+                print(f"  INVALID {name}: {'; '.join(held['problems'])}", file=sys.stderr)
+            files[name] = (cache / RENDERED_SCRAPES / scrape).read_text()
     # L4, one step down from the capture guard: the projection never shrinks either.
     # Matched by conversation id and not by filename, because the ordinal prefix
     # renumbers as the corpus grows -- a shorter rendering would otherwise arrive under

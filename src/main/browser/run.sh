@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Validate every provider's browser captures - claude's API captures, gemini's DOM captures -
-# each on its own; with --collate, project them all into the markdown corpus, whose names are
-# each conversation's place among them all.
+# Validate and render every provider's browser captures - claude's API captures, gemini's DOM
+# captures - each on its own; with --collate, place the renderings in the markdown corpus, whose
+# names are each conversation's place among them all.
 #
 # Usage:
 #   src/main/browser/run.sh
@@ -51,6 +51,7 @@ parse_args() {
 run_one() {
   local input_dir="${1%/}"
   map step validate "$SCRIPT_DIR/claude/validate.sh" --capture "$input_dir"
+  map step render "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/claude/render.py" --capture "$input_dir"
 }
 
 # each provider's steps run where that provider's captures stand (issues/965): a room
@@ -70,17 +71,23 @@ run_corpus() {
   map step_if "$has_api" "where claude's API captures stand" validate "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
   # gemini: each scrape lifted and judged against the markdownConversation family
   map step_if "$has_dom" "where gemini's DOM captures stand" validate_gemini "$SCRIPT_DIR/gemini/validate.sh" --dom-capture "$dom_root"
+  # render: each conversation's markdown at its own cache address, which the collate names
+  # and places (issues/1195)
+  map step_if "$has_api" "where claude's API captures stand" render "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/claude/render.py" --api-capture "$root"
+  map step_if "$has_dom" "where gemini's DOM captures stand" render_gemini "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/gemini/render.py" --dom-capture "$dom_root"
 }
 
 collate_corpus() {
   local root="${1%/}" dom_root="${2%/}" has_api has_dom
   held "$root" "$dom_root"
-  # project_markdown: render api JSON -> markdown, each named for its place among them all
+  # project_markdown: the run's renderings, each named for its place among them all and
+  # dressed with what the whole corpus says of it
   reduce step_if "$has_api" "where claude's API captures stand" project_markdown "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/project_markdown.py" --api-capture "$root"
-  # gemini: each scrape copied into the presentation tree beside claude's projections
-  # (data/output/markdown/{claude,gemini}), anchoring each turn heading; a slug collision
-  # gets the conversation id prefixed.
+  # gemini: each rendered scrape placed in the presentation tree beside claude's projections
+  # (data/output/markdown/{claude,gemini}); a slug collision gets the conversation id prefixed.
   reduce step_if "$has_dom" "where gemini's DOM captures stand" gemini_project_markdown "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/gemini/project_markdown.py" --dom-capture "$dom_root"
   # audit: capture-health report against the fresh projections — findings
@@ -97,7 +104,7 @@ print_plan() {
   fi
   echo "browser steps — corpus mode (default):"
   run_corpus '<captures-root>' '<scrapes-root>'
-  echo "single-capture mode (--item <dir>): the validate step only"
+  echo "single-capture mode (--item <dir>): the validate and render steps only"
 }
 
 main() {

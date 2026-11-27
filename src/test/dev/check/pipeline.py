@@ -338,6 +338,59 @@ def check_unit_cache_address(run) -> None:
         said == want, None if said == want else f'it resolves as {said}, where {want}', check='pipeline.unit_cache_at_its_input_address')
 
 
+@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('pipeline.browser_run_renders_each_capture',))
+def check_browser_run_renders(run) -> None:
+    """The browser pipeline's run renders each capture's markdown, a map (issues/1195): in a scratch copy
+    of the checkout, the run over one planted claude capture writes its rendered conversation at the
+    capture's own cache address; and a composed file - the run's rendering, the collate's frontmatter
+    and summaries link - is byte for byte the file a whole rendering writes, so the collate's output is
+    unchanged by the split; and the collate, run after it, deposits that file."""
+    import json
+    import os
+    import shutil
+    import sys
+    import tempfile
+    import markdown_projection as projection
+    uuid, at = 'aaaaaaaa-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z'
+    turn = {'content': [], 'created_at': at, 'updated_at': at, 'attachments': [], 'files': []}
+    capture = {'uuid': uuid, 'name': 'a chat', 'summary': '', 'created_at': at, 'updated_at': at, 'model': 'claude-x',
+               'current_leaf_message_uuid': 'aaaaaaaa-m2', 'chat_messages': [
+                   {**turn, 'uuid': 'aaaaaaaa-m1', 'parent_message_uuid': '00000000-0000-4000-8000-000000000000', 'sender': 'human', 'text': 'hi'},
+                   {**turn, 'uuid': 'aaaaaaaa-m2', 'parent_message_uuid': 'aaaaaaaa-m1', 'sender': 'assistant', 'text': 'hello'}]}
+    environment = {name: value for name, value in os.environ.items()
+                   if name not in ('CORPUS_YOGA_DEV_GATE', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
+    environment['CORPUS_YOGA_VENV'] = sys.prefix
+    with tempfile.TemporaryDirectory() as scratch:
+        room = Path(scratch).resolve() / 'room'
+        shutil.copytree(SRC, room / 'src', ignore=shutil.ignore_patterns('__pycache__'))
+        (room / 'rsc').symlink_to(REPO_ROOT / 'rsc')
+        shutil.copy(REPO_ROOT / 'pyrightconfig.json', room / 'pyrightconfig.json')
+        unit = room / 'data' / 'input' / 'claude' / 'chat' / 'API-capture' / uuid
+        unit.mkdir(parents=True)
+        (unit / 'apiConversation.json').write_text(json.dumps(capture))
+        run_script = str(room / 'src' / 'main' / 'browser' / 'run.sh')
+        subprocess.run([run_script], cwd=room, env=environment, capture_output=True, text=True, timeout=300)
+        rendered = room / 'cache' / 'pipeline' / 'claude' / 'chat' / 'API-capture' / uuid / 'conversation.md'
+        held = rendered.read_text() if rendered.is_file() else None
+        subprocess.run([run_script, '--collate'], cwd=room, env=environment, capture_output=True, text=True, timeout=300)
+        name = '1-a_chat'
+        deposited = room / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations' / f'{name}.md'
+        collated = deposited.read_text() if deposited.is_file() else None
+    lean = projection.project(capture)
+    render_body, compose = getattr(projection, 'render_body', None), getattr(projection, 'compose', None)
+    frontmatter = {'source': 'browser-capture', 'uuid': uuid, 'human': 1, 'assistant': 1, 'last_activity': '2026-02-01T00:00:00Z',
+                   'cross_checked_against': 'none', 'currency': 'unchecked'}
+    link = f'../summaries/{name}/index.md'
+    same = (render_body is not None and compose is not None
+            and compose(render_body(lean), frontmatter, link) == projection.render(lean, frontmatter=frontmatter, summaries_link=link))
+    why = ('the run wrote no conversation.md at the capture\'s cache address' if held is None else
+           'the run\'s rendering is not the conversation\'s body' if render_body is not None and held != render_body(lean) else
+           'a composed file differs from a whole rendering' if not same else
+           'the collate deposited no file, or not the whole rendering' if collated != projection.render(lean, frontmatter=frontmatter, summaries_link=link) else None)
+    run("pipeline: the browser run renders each capture's markdown at its own cache address, and the collate composes it unchanged",
+        why is None, why, check='pipeline.browser_run_renders_each_capture')
+
+
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])
 def check_capture_prefix(run) -> None:
     """A browser capture by id files its unit under the conversation's full uuid: a

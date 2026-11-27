@@ -899,14 +899,23 @@ src/main/browser/audit.py,13,comment,src/run_python_script.sh,Y,src/run_python_s
 src/main/browser/audit.py,13,comment,src/main/browser/audit.py,Y,src/run_python_script.sh src/main/browser/audit.py
 src/main/browser/audit.py,16,comment,src/main/tier.py,Y,"data/output/markdown - the checkout's, or the stage's in a rehearsal (src/main/tier.py)."
 src/main/browser/audit.py,28,path_str,src/main/browser/audit.py,Y,SELF = 'src/main/browser/audit.py'
+src/main/browser/claude/render.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser/claude/render.py --api-capture <API-capture-root>
+src/main/browser/claude/render.py,7,comment,src/main/browser/claude/render.py,Y,src/run_python_script.sh src/main/browser/claude/render.py --api-capture <API-capture-root>
+src/main/browser/claude/render.py,8,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser/claude/render.py --capture <API-capture-root>/<uuid>
+src/main/browser/claude/render.py,8,comment,src/main/browser/claude/render.py,Y,src/run_python_script.sh src/main/browser/claude/render.py --capture <API-capture-root>/<uuid>
+src/main/browser/claude/render.py,17,path_str,src/main/browser/claude/render.py,Y,SELF = 'src/main/browser/claude/render.py'
 src/main/browser/claude/validate.sh,5,comment,src/main/browser/claude/validate.sh,Y,#   src/main/browser/claude/validate.sh --capture <path/to/uuid-directory>
 src/main/browser/claude/validate.sh,6,comment,src/main/browser/claude/validate.sh,Y,#   src/main/browser/claude/validate.sh --api-capture <path/to/API-capture-root>
 src/main/browser/claude/validate.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/browser/claude/validate.sh,22,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/browser/gemini/project_markdown.py,2,comment,src/main/project_markdown.py,Y,project_markdown.py - project gemini's scrape markdown into the presentation tree (the gemini counterpart of src/main/pr
-src/main/browser/gemini/project_markdown.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser/gemini/project_markdown.py     [--dom-capture data/input/gemini/chat/DOM-captu
-src/main/browser/gemini/project_markdown.py,23,comment,src/main/browser/gemini/project_markdown.py,Y,src/run_python_script.sh src/main/browser/gemini/project_markdown.py     [--dom-capture data/input/gemini/chat/DOM-captu
-src/main/browser/gemini/project_markdown.py,33,path_str,src/main/browser/gemini/project_markdown.py,Y,SELF = 'src/main/browser/gemini/project_markdown.py'
+src/main/browser/gemini/project_markdown.py,2,comment,src/main/project_markdown.py,Y,project_markdown.py - place gemini's rendered scrapes in the presentation tree (the gemini counterpart of src/main/proje
+src/main/browser/gemini/project_markdown.py,5,comment,src/main/browser/gemini/render.py,Y,(src/main/browser/gemini/render.py); this names and places the renderings. Anchors ride
+src/main/browser/gemini/project_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser/gemini/project_markdown.py     [--dom-capture data/input/gemini/chat/DOM-captu
+src/main/browser/gemini/project_markdown.py,19,comment,src/main/browser/gemini/project_markdown.py,Y,src/run_python_script.sh src/main/browser/gemini/project_markdown.py     [--dom-capture data/input/gemini/chat/DOM-captu
+src/main/browser/gemini/project_markdown.py,29,path_str,src/main/browser/gemini/project_markdown.py,Y,SELF = 'src/main/browser/gemini/project_markdown.py'
+src/main/browser/gemini/render.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser/gemini/render.py --dom-capture <DOM-capture-root>
+src/main/browser/gemini/render.py,7,comment,src/main/browser/gemini/render.py,Y,src/run_python_script.sh src/main/browser/gemini/render.py --dom-capture <DOM-capture-root>
+src/main/browser/gemini/render.py,17,path_str,src/main/browser/gemini/render.py,Y,SELF = 'src/main/browser/gemini/render.py'
 src/main/browser/gemini/validate.sh,5,comment,src/main/browser/gemini/validate.sh,Y,#   src/main/browser/gemini/validate.sh --capture <path/to/id-directory>
 src/main/browser/gemini/validate.sh,6,comment,src/main/browser/gemini/validate.sh,Y,#   src/main/browser/gemini/validate.sh --dom-capture <path/to/DOM-capture-root>
 src/main/browser/gemini/validate.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -926,12 +935,15 @@ src/main/browser/run.sh,22,comment,src/main/tier.sh,Y,# shellcheck source=src/ma
 src/main/browser/run.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser/run.sh,33,path_str,src/main/browser/pipeline.json,Y,"input_root=""$(tier_path ""$(jq -r .input ""$SCRIPT_DIR/pipeline.json"")"")"""
 src/main/browser/run.sh,53,call,src/main/browser/claude/validate.sh,Y,"map step validate ""$SCRIPT_DIR/claude/validate.sh"" --capture ""$input_dir"""
-src/main/browser/run.sh,70,call,src/main/browser/claude/validate.sh,Y,"map step_if ""$has_api"" ""where claude's API captures stand"" validate ""$SCRIPT_DIR/claude/validate.sh"" --api-capture ""$roo"
-src/main/browser/run.sh,72,call,src/main/browser/gemini/validate.sh,Y,"map step_if ""$has_dom"" ""where gemini's DOM captures stand"" validate_gemini ""$SCRIPT_DIR/gemini/validate.sh"" --dom-captur"
-src/main/browser/run.sh,85,call,src/main/browser/gemini/project_markdown.py,Y,"""$SCRIPT_DIR/gemini/project_markdown.py"" --dom-capture ""$dom_root"""
-src/main/browser/run.sh,89,call,src/main/browser/audit.py,Y,"reduce step_ok audit     ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit.py"""
-src/main/browser/run.sh,113,path_str,src/main/browser/pipeline.json,Y,"api_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" claude)"""
-src/main/browser/run.sh,114,path_str,src/main/browser/pipeline.json,Y,"dom_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" gemini)"""
+src/main/browser/run.sh,54,call,src/main/browser/claude/render.py,Y,"map step render ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/claude/render.py"" --capture ""$input_dir"""
+src/main/browser/run.sh,71,call,src/main/browser/claude/validate.sh,Y,"map step_if ""$has_api"" ""where claude's API captures stand"" validate ""$SCRIPT_DIR/claude/validate.sh"" --api-capture ""$roo"
+src/main/browser/run.sh,73,call,src/main/browser/gemini/validate.sh,Y,"map step_if ""$has_dom"" ""where gemini's DOM captures stand"" validate_gemini ""$SCRIPT_DIR/gemini/validate.sh"" --dom-captur"
+src/main/browser/run.sh,77,call,src/main/browser/claude/render.py,Y,"""$SCRIPT_DIR/claude/render.py"" --api-capture ""$root"""
+src/main/browser/run.sh,79,call,src/main/browser/gemini/render.py,Y,"""$SCRIPT_DIR/gemini/render.py"" --dom-capture ""$dom_root"""
+src/main/browser/run.sh,92,call,src/main/browser/gemini/project_markdown.py,Y,"""$SCRIPT_DIR/gemini/project_markdown.py"" --dom-capture ""$dom_root"""
+src/main/browser/run.sh,96,call,src/main/browser/audit.py,Y,"reduce step_ok audit     ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit.py"""
+src/main/browser/run.sh,120,path_str,src/main/browser/pipeline.json,Y,"api_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" claude)"""
+src/main/browser/run.sh,121,path_str,src/main/browser/pipeline.json,Y,"dom_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" gemini)"""
 src/main/cli/README.md,3,doc,src/main/cli/cli.py,Y,This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
 src/main/cli/README.md,7,doc,src/main/cli/browser,Y,"`ls src/main/cli/browser/` is its verb list, and what a verb accepts is"
 src/main/cli/README.md,8,doc,src/main/cli/browser/capture.json,Y,"`cat src/main/cli/browser/capture.json` — no parser, no column headers, no join."
@@ -1373,12 +1385,14 @@ src/main/metamodel/metamodel.py,128,path_str,rsc/metamodel/metamodel.json,Y,"['r
 src/main/metamodel/metamodel.py,130,path_str,rsc/metamodel/metamodel.json,Y,"['rsc/metamodel/metamodel.json']) for name, fams in sorted(gaps.items())} or 'none')"
 src/main/page_declaration.py,19,path_str,src/main/page_declaration.py,Y,SELF = 'src/main/page_declaration.py'
 src/main/present_corpus.py,47,path_str,src/main/present_corpus.py,Y,SELF = 'src/main/present_corpus.py'
-src/main/project_markdown.py,8,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
-src/main/project_markdown.py,15,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
-src/main/project_markdown.py,15,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
-src/main/project_markdown.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
-src/main/project_markdown.py,16,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
-src/main/project_markdown.py,30,path_str,src/main/project_markdown.py,Y,SELF = 'src/main/project_markdown.py'
+src/main/project_markdown.py,6,comment,src/main/browser/claude/render.py,Y,src/main/browser/claude/render.py)
+src/main/project_markdown.py,10,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
+src/main/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
+src/main/project_markdown.py,17,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --api-capture data/input/claude/chat/API-capture              
+src/main/project_markdown.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
+src/main/project_markdown.py,18,comment,src/main/project_markdown.py,Y,src/run_python_script.sh src/main/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>      
+src/main/project_markdown.py,32,path_str,src/main/project_markdown.py,Y,SELF = 'src/main/project_markdown.py'
+src/main/project_markdown.py,97,comment,src/main/browser/claude/render.py,Y,"(src/main/browser/claude/render.py); the collate stops, naming them, where any is"
 src/main/provider.py,2,comment,rsc/provider/providers.csv,Y,"provider.py - the provider registry (rsc/provider/providers.csv). A LIBRARY, not a"
 src/main/provider.py,11,comment,rsc/provider/README.md,Y,"rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,"
 src/main/provider.py,14,comment,src/run_python_script.sh,Y,"through src/run_python_script.sh, the venv's python (issues/478), so the csv grammar is"
@@ -1489,20 +1503,23 @@ src/test/dev/check/pipeline.py,299,path_str,src/main/agent,Y,"@check(tier='code'
 src/test/dev/check/pipeline.py,317,path_str,src/main/tier.py,Y,"@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its"
 src/test/dev/check/pipeline.py,317,path_str,src/main/tier.sh,Y,"@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its"
 src/test/dev/check/pipeline.py,317,path_str,src/main/corpus.py,Y,"@check(tier='code', on=['src/main/tier.py', 'src/main/tier.sh', 'src/main/corpus.py'], says=('pipeline.unit_cache_at_its"
-src/test/dev/check/pipeline.py,353,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
-src/test/dev/check/pipeline.py,341,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
-src/test/dev/check/pipeline.py,429,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
-src/test/dev/check/pipeline.py,429,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,341,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
+src/test/dev/check/pipeline.py,341,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
+src/test/dev/check/pipeline.py,341,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/browser', 'src/main/markdown_projection.py', 'src/main/project_markdown.py'], says=('p"
+src/test/dev/check/pipeline.py,406,path_str,src/main/cli/browser/capture.py,Y,"'src/main/cli/browser/capture.py resolves no prefix: the id typed is the id used', check='capture.prefix_resolves_to_one"
+src/test/dev/check/pipeline.py,394,path_str,src/main/cli/browser/capture.py,Y,"@check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])"
+src/test/dev/check/pipeline.py,482,path_str,src/main/markdown_projection.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/page_declaration.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/browser,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/export,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/agent,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/project_markdown.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/compare_sources.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/frontier.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/present_corpus.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/rekey_chats.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/corpus_shape.sh,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
+src/test/dev/check/pipeline.py,482,path_str,src/main/compare_pages.py,Y,"@check(tier='code', on=['src/main/markdown_projection.py', 'src/main/page_declaration.py', 'src/main/browser', 'src/main"
 src/test/dev/check/room.py,650,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv) parses, and every"
 src/test/dev/check/room.py,667,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
 src/test/dev/check/room.py,667,path_str,src/main/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/browser', 'src/main/cli/agent'):"
