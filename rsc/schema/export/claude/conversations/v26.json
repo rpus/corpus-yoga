@@ -657,7 +657,7 @@
       "additionalProperties": false,
       "properties": {
         "uuid": {
-          "$ref": "#/definitions/UuidV4"
+          "$ref": "#/definitions/UuidV4orV5"
         },
         "start_index": {
           "description": "Character offset of citation start in message text.",
@@ -2014,6 +2014,18 @@
       },
       "required": [
         "name"
+      ]
+    },
+    "UuidV4orV5": {
+      "title": "UuidV4orV5",
+      "description": "A UUID of version 4 or 5: v4, and from 2026-11-24 v5 on one citation.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UuidV4"
+        },
+        {
+          "$ref": "#/definitions/UuidV5"
+        }
       ]
     },
     "CitationDetails": {

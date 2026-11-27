@@ -19,6 +19,42 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v26
+
+A citation's uuid can be version 5. Reading-room's bulk export of 2026-11-27
+(`data-0fc4c1e0-…-2026-11-27-14-15-37`), captured by `corpus-yoga export capture` into the
+stage, is refused at v25 by the rehearsal of 2026-11-27T151243Z at conversation 131
+(`00e42340-beaa-45a0-8508-b53fbcb0e121`, "Tetris thermodynamics as Feynman-Kac"), message 5
+(`01a20e0f-708d-70eb-8f53-df7ca139aef1`, assistant, 2026-11-24T14:57:30Z), content block 3: a
+text block whose six `web_search_citation` citations each have a version-5 uuid, the first
+`834c1163-8bcf-50e4-aa4a-522e2c6113f3`, where `Citation.uuid` admitted version 4 alone. They are
+the export's only citations made after 2026-10-09: its other 78, in 14 conversations, are
+version 4 and the held export of 2026-11-13 holds the same 78. A message's uuid has been
+version 5 since 2026-10-14 (`UuidV4orV5orV7`), so this reads as that change reaching
+citations; a later version-4 citation would contradict it. The API capture of the same
+conversation holds that message without citations, so apiConversation meets no such uuid.
+
+Validated on reading-room, 2026-11-27: v25 refuses the staged export at that text block
+alone - the validator reports a failing block once, at its first citation - among 132
+conversations; v26 refuses none of them, nor any of the 130 of the held export of 2026-11-13. v26 widens one property and narrows nothing, so every datum v25
+admits, v26 admits.
+
+### Replaces
+
+v25
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Citation.uuid`: a `UuidV4orV5`, a version-4 or version-5 uuid, where it was a `UuidV4`.
+
+#### Refactored
+
+None.
+
 ## v25
 
 The harness looks for files, and a memory read's list says what it did. Reading-room's bulk
