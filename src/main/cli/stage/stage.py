@@ -12,7 +12,7 @@ the record, one file, what the last rehearsal saw and judged (src/main/rehearsal
 The per-unit relations stay with each capturing noun's bare status and with bare
 corpus-yoga pipeline; this face counts them against the record. The janitor clears its
 tier as corpus-yoga cache clean clears its own: every staged unit identical to the held
-one, a duplicate, already promoted; every unit whose record or payload is absent,
+one, a duplicate, already promoted; every unit with nothing under it or lacking a member its record lists,
 incomplete; and every entry under stage that is neither the input, the output, the cache, the
 logs nor the record, an orphan of an earlier layout. All but the input serve the staged units:
 while one stays staged they are the rehearsal's to replace, and once none does the janitor
