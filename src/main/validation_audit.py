@@ -119,6 +119,18 @@ def owed_by_selection(name: str, facts: dict) -> dict[str, int]:
     return counts
 
 
+def held_by_selection(name: str, facts: dict) -> dict[str, int]:
+    """What a collate of the pipeline would read, by the selection it declares: the count of
+    inputs the store holds under each, whose run outputs the collate places (issues/1188)."""
+    counts: dict[str, int] = {}
+    for source in sources(name, facts):
+        held = input_subjects(source.store)
+        if held:
+            key = f'{source.store.input.as_posix()}/{source.store.globs[0].pattern}'
+            counts[key] = counts.get(key, 0) + len(held)
+    return counts
+
+
 @dataclass(frozen=True)
 class Source:
     """One store a pipeline reads, with where its validation output lies."""
