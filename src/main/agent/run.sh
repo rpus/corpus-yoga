@@ -136,6 +136,8 @@ run_one() {
   map step ensure_session_dir   mkdir -p "$out_dir"
   map step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json" || return 1
   map step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
+  # render: the session's corpus markdown beside it, which the collate places (issues/1197)
+  map step render               "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render.py" "$out_dir"
 }
 
 # ── Dispatch workers (issues/395): one task each, machine/project derived from the

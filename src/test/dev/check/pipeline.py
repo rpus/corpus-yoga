@@ -448,6 +448,38 @@ def check_export_run_renders(run) -> None:
         why is None, why, check='pipeline.export_run_renders_each_batch')
 
 
+@check(tier='code', on=['src/main/agent', 'src/main/markdown_projection.py'], says=('pipeline.agent_run_renders_each_session',))
+def check_agent_run_renders(run) -> None:
+    """The agent pipeline's run renders each session's markdown, a map (issues/1197): in a scratch copy of
+    the checkout, the run over one planted claude session writes its rendering at the session's own cache
+    address; and the collate, run after it, deposits that rendering under the session's ordinal name."""
+    import json
+    import tempfile
+    session, at = 'dddddddd-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000Z'
+    records = [{'type': 'user', 'uuid': 'dddddddd-0000-4000-8000-000000000001', 'timestamp': at, 'message': {'role': 'user', 'content': 'hi'}},
+               {'type': 'assistant', 'uuid': 'dddddddd-0000-4000-8000-000000000002', 'timestamp': at, 'message': {'role': 'assistant', 'content': [{'type': 'text', 'text': 'hello'}]}},
+               {'type': 'ai-title', 'aiTitle': 'a code chat', 'sessionId': session}]
+    with tempfile.TemporaryDirectory() as scratch:
+        room = _scratch_room(Path(scratch))
+        project = room / 'data' / 'input' / 'claude' / 'code' / 'machine-transport' / 'a-machine' / 'a-project'
+        project.mkdir(parents=True)
+        (project / f'{session}.jsonl').write_text(''.join(json.dumps(record) + '\n' for record in records))
+        run_script = str(room / 'src' / 'main' / 'agent' / 'run.sh')
+        stores = str(room / 'data' / 'input' / '<provider>' / 'code' / 'machine-transport')
+        ran = subprocess.run([run_script, '--input', stores], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        said = (ran.stdout + ran.stderr).replace(str(room), '<room>').strip().splitlines()
+        rendered = room / 'cache' / 'pipeline' / 'claude' / 'code' / 'machine-transport' / 'a-machine' / 'a-project' / session / 'conversation.md'
+        held = rendered.read_text() if rendered.is_file() else None
+        subprocess.run([run_script, '--input', stores, '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        deposited = room / 'data' / 'output' / 'markdown' / 'claude' / 'code' / 'conversations' / '1-a_code_chat.md'
+        collated = deposited.read_text() if deposited.is_file() else None
+    why = (f'the run exited {ran.returncode}: {said[-1] if said else "silently"}' if ran.returncode else
+           'the run wrote no conversation.md at the session\'s cache address' if held is None else
+           'the collate deposited no file, or not the run\'s rendering' if collated != held else None)
+    run("pipeline: the agent run renders each session's markdown at its own cache address, and the collate deposits it unchanged",
+        why is None, why, check='pipeline.agent_run_renders_each_session')
+
+
 @check(tier='code', says=('capture.prefix_resolves_to_one',), on=['src/main/cli/browser/capture.py'])
 def check_capture_prefix(run) -> None:
     """A browser capture by id files its unit under the conversation's full uuid: a
@@ -548,7 +580,12 @@ def check_turn_count_one_home(run) -> None:
     import importlib
     projection = importlib.import_module('markdown_projection')
     declaration = importlib.import_module('page_declaration')
-    render_corpus = importlib.import_module('render_corpus')
+    import importlib.util
+    # several pipelines hold a render.py, so the agent's is loaded by its path
+    spec = importlib.util.spec_from_file_location('agent_render', SRC / 'main' / 'agent' / 'render.py')
+    assert spec is not None and spec.loader is not None
+    agent_render = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(agent_render)
     quoted = 'the file reads:\n\n```\n## Human (1)\n\n## Claude (1) <a id="x"></a>\n```\n'
     conv = {'provider': 'claude', 'project': 'p', 'session_id': '0a1b2c3d-0000-4000-8000-000000000000', 'title': 't',
             'last_activity': '2026-11-09T00:00:00Z', 'harness': 'Claude Code',
@@ -556,7 +593,7 @@ def check_turn_count_one_home(run) -> None:
                          {'role': 'assistant', 'content': quoted, 'uuid': 'a1'},
                          {'role': 'human', 'content': 'thanks', 'uuid': 'h2'}]}
     try:
-        md = render_corpus.render_session(conv)
+        md = agent_render.render_session(conv)
         parsed = [role for role, _body in projection.turn_seq(md)]
         said = declaration.declared_of(md)
         head = md.split('\n---\n', 1)[0]
