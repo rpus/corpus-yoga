@@ -1,4 +1,4 @@
-run.py: code+schema 2018/2018
+run.py: code+schema 2019/2019
 
 
 check_reply_without_text: |
@@ -380,6 +380,7 @@ check_store: |
 
 check_export_atoms: |
   ✓ store.export_is_held_within_a_later_one
+  ✓ store.identical_exports_keep_the_newer
 
 check_renamed_checkout: |
   ✓ agent.renamed_checkout_is_one_project  (2/2)
@@ -857,7 +858,7 @@ stages:
     tier: code
     line: "376"
   check_export_atoms:
-    passes: 1
+    passes: 2
     failures: 0
     tier: code
     line: "381"
@@ -865,135 +866,135 @@ stages:
     passes: 3
     failures: 0
     tier: code
-    line: "384"
+    line: "385"
   check_effective_acts:
     passes: 4
     failures: 0
     tier: code
-    line: "388"
+    line: "389"
   check_bytecode:
     passes: 3
     failures: 0
     tier: code
-    line: "393"
+    line: "394"
   check_screen_and_scratch:
     passes: 3
     failures: 0
     tier: code
-    line: "398"
+    line: "399"
   check_sweep:
     passes: 5
     failures: 0
     tier: code
-    line: "403"
+    line: "404"
   check_rooms_settle_each_with_its_own_memory:
     passes: 4
     failures: 0
     tier: code
-    line: "410"
+    line: "411"
   check_effect_lines_and_unprojected_page:
     passes: 2
     failures: 0
     tier: code
-    line: "413"
+    line: "414"
   check_migration_merge_order:
     passes: 3
     failures: 0
     tier: code
-    line: "417"
+    line: "418"
   check_migration_idempotent:
     passes: 1
     failures: 0
     tier: code
-    line: "420"
+    line: "421"
   check_migration_status_relays_steps:
     passes: 1
     failures: 0
     tier: code
-    line: "423"
+    line: "424"
   check_agent_memory_disposed:
     passes: 1
     failures: 0
     tier: code
-    line: "426"
+    line: "427"
   check_session_continued_apart:
     passes: 3
     failures: 0
     tier: code
-    line: "429"
+    line: "430"
   check_roots_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "432"
+    line: "433"
   check_stage_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "435"
+    line: "436"
   check_stage_layout_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "438"
+    line: "439"
   check_cache_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "441"
+    line: "442"
   check_indexing_judgement_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "444"
+    line: "445"
   check_unit_cache_migration:
     passes: 1
     failures: 0
     tier: code
-    line: "447"
+    line: "448"
   check_spent_stage:
     passes: 1
     failures: 0
     tier: code
-    line: "450"
+    line: "451"
   check_grammar:
     passes: 2
     failures: 0
     tier: schema
-    line: "453"
+    line: "454"
   check_reference:
     passes: 21
     failures: 0
     tier: schema
-    line: "456"
+    line: "457"
   check_mcp_factoring:
     passes: 9
     failures: 0
     tier: schema
-    line: "462"
+    line: "463"
   check_mcp_reproducible:
     passes: 1
     failures: 0
     tier: schema
-    line: "468"
+    line: "469"
   check_upstream_chain:
     passes: 3
     failures: 0
     tier: schema
-    line: "471"
+    line: "472"
   check_grammar_laws:
     passes: 12
     failures: 0
     tier: code
-    line: "476"
+    line: "477"
   check_expectation:
     passes: 2
     failures: 0
     tier: code
-    line: "490"
+    line: "491"
 
-checks[code+schema]: 289 types, 2018/2018 invocations passing
-checks[code]: 231 types, 1302/1302 invocations passing
+checks[code+schema]: 290 types, 2019/2019 invocations passing
+checks[code]: 232 types, 1303/1303 invocations passing
 checks[schema]: 58 types, 716/716 invocations passing
 
-dev gate: PASS - code+schema 2018/2018 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
+dev gate: PASS - code+schema 2019/2019 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
