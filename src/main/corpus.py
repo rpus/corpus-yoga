@@ -1391,6 +1391,16 @@ class Duplicate:
     by: str                       # the measure's words for the two
 
 
+def _vintage(unit: Unit) -> float:
+    """The unit's instant by its name's vintage, where its kind's names carry one - an export's
+    (src/main/export/vintage.py, the one export-ordering authority); 0 where none does."""
+    if unit.pipeline != 'export':
+        return 0.0
+    from vintage import export_time
+    at = export_time(unit.path.name)
+    return at.timestamp() if at is not None else 0.0
+
+
 def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[Duplicate]:
     """Every duplicate under root - a unit whose content another unit of its kind holds, the
     same at two addresses or whole within the other's by the kind's measure (issues/738, issues/743).
@@ -1398,8 +1408,10 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[Duplicat
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
     declares; a measure whose order relates everything - mirror's - holds only what is
     equal. Of identical units the holder is one a live store still writes, `live`, so that
-    the copy a capture renews is the one kept, and failing that the one at the first
-    address; a unit a fuller one contains is named with the fullest."""
+    the copy a capture renews is the one kept; failing that the newest by its name's vintage,
+    where the kind's names carry one - an export's, read by vintage.export_time, so that of two
+    snapshots holding the same conversations the later stands (issues/1209); and failing that
+    the one at the first address. A unit a fuller one contains is named with the fullest."""
     groups: dict[tuple, list[Unit]] = {}
     for unit in units(root):
         if unit.pipeline is not None:
@@ -1417,8 +1429,8 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[Duplicat
             containers = [o for o, theirs in values if o is not unit and theirs is not None and theirs != mine
                           and leq is not _leq_any and leq(mine, theirs)]
             equals = [o for o, theirs in values if o is not unit and theirs == mine]
-            # among identical copies one is the holder: a live one, else the first address
-            keeper = min(equals + [unit], key=lambda o: (o.address not in live, o.address)) if equals else unit
+            # among identical copies one is the holder: a live one, else the newest, else the first address
+            keeper = min(equals + [unit], key=lambda o: (o.address not in live, -_vintage(o), o.address)) if equals else unit
             if containers:
                 holder, how = max(containers, key=lambda o: size_of(root / o.path)), 'contained'
             elif equals and keeper is not unit:

@@ -467,15 +467,19 @@ def check_store(run) -> None:
         None if got == expected else f'surplus read {got}, where it is {expected}', check='store.surplus_is_found')
 
 
-@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py'], says=(
+@check(tier='code', on=['src/main/corpus.py', 'src/main/export/atoms.py', 'src/main/export/vintage.py'], says=(
     'store.export_is_held_within_a_later_one',
+    'store.identical_exports_keep_the_newer',
 ))
 def check_export_atoms(run) -> None:
     """An earlier export is held whole within a later one by its atoms: over a
     scratch root, an export whose conversations, memories and users are all among a later
     export's is contained, and one holding a message the later lacks is not; a memory state
-    the deposits hold counts for nothing the export must still hold."""
+    the deposits hold counts for nothing the export must still hold. Of two exports holding the same
+    conversations, the older by its name's vintage is the duplicate and the newer its holder (issues/1209),
+    though the older's address sorts first."""
     import json as json_
+    import shutil
     import tempfile
     import corpus
     if 'atoms' not in corpus.MEASURE:
@@ -501,9 +505,18 @@ def check_export_atoms(run) -> None:
         deposits.mkdir(parents=True)
         (deposits / '2026-01-01T000000Z.json').write_text(json_.dumps({'account_uuid': account, 'note': 'early'}))
         got = [(d.unit.address.name[-28:-20], d.holder.address.name[-28:-20], d.how) for d in corpus.held_twice(root)]
+        for name in list(bulk.iterdir()):
+            shutil.rmtree(name)
+        export(f'data-{account}-1795788896-dddddddd-2026-11-27-14-15-37', [('c1', 2)], 'early')
+        export(f'data-{account}-1795860771-eeeeeeee-2026-11-28-10-13-27', [('c1', 2)], 'early')
+        same = [(d.unit.address.name[-28:-20], d.holder.address.name[-28:-20], d.how) for d in corpus.held_twice(root)]
     expected = [('aaaaaaaa', 'bbbbbbbb', 'contained')]
     run('store: an export is held whole within a later one by its atoms', got == expected,
         None if got == expected else f'held twice read {got}', check='store.export_is_held_within_a_later_one')
+    kept = [('dddddddd', 'eeeeeeee', 'identical')]
+    run('store: of two exports holding the same conversations, the newer is kept', same == kept,
+        None if same == kept else f'held twice read {same}, where the older is the duplicate and the newer its holder',
+        check='store.identical_exports_keep_the_newer')
 
 
 @check(tier='code', says=('agent.renamed_checkout_is_one_project', 'migration.a_halt_is_a_finding'),
