@@ -35,14 +35,11 @@ over the SET QUOTIENT `<class>` — the mutually-exclusive args are one equivale
 quotient by that class, rendered as the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordinal>`. So the usage
 cannot drift from the helptext, because there is one source, not two — nothing to reconcile,
 no check. A flag is scoped to its verb (`--reason` is `metamodel reject`'s,
-never its noun's); `subcommand` blank is command-level, `arg-name` blank
-describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
-as a step of the named run pipeline (`export`), or of `pipeline.sh`'s whole-corpus
-tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
-input spans them all): the gate holds `src/main/cli/pipeline/pipeline.sh --plan` to
-invoking it by command AND verb, so the plan speaks the surface you would type and a step can
-never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
-files are written `QUOTE_ALL` so a comma in any cell is safe.
+never its noun's). The `step` key, set in a verb's declaration, marks that invocation
+as a step of the named pipeline's collate (`export`, `agent`) — a reduce, run once over every
+unit: the gate holds the plans to invoking it by command AND verb, so the plan speaks the
+surface you would type and a step can never drop to a bare noun (which the bare=status
+convention would silently make a no-op).
 
 Everything a user meets is re-derived on demand — the menu `corpus-yoga -h`
 prints, each command's `corpus-yoga <command> -h` (its summary, its generated invocation forms, and the
@@ -70,14 +67,13 @@ whether reached via `corpus-yoga` or run directly, and structure can never be st
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
 data lives outside git (durable in `data/output/`, rebuildable in `cache/`): `corpus-yoga indexing capture` (model
-captures) and `corpus-yoga indexing` (user curation). Their format spec and the disposal loop are
-committed in `src/main/cli/readings.md`.
+captures) and `corpus-yoga indexing adopt` (the reader's choice of the capture in use). Their formats
+and their order are committed in `src/main/cli/readings.md`.
 
-## Columns
+## A command's fields
 
-| column | meaning |
+| field | meaning |
 | --- | --- |
-| `command` | the subcommand word (`corpus-yoga <command>`), unique |
 | `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `src/run_python_script.sh`, a `.md` is printed |
 | `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the command is mere presentation of the doctrine itself |
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |
@@ -174,7 +170,7 @@ They are stated, followed, and reviewed by people.
   verb.** `gated` `from L9` — never a per-batch one. The export pipeline is a map over batches
   (`run_one`) then a reduce over all of them (`run_tail`); the nouns live only in the
   reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`
-  and `summaries` are export's `run_tail` steps and `store clean` the corpus tail's,
+  and `summaries` are export's `run_tail` steps and `agent list-drafters` the agent's,
   and the plan must name each by command AND verb — a bare noun would silently be a status
   no-op under G2.
 - **G20 — What a command installs outside the repo is identified by a stable token, and

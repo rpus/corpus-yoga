@@ -5,7 +5,7 @@ The batch presenter (present.sh) renders ONE EXPORT's presentation under
 cache/pipeline/claude/chat/bulk-export/<batch>/presentation — an export artifact, honestly filed under
 its export. This is the corpus one: the keys are corpus_index's 1..N ordinals
 over data/output/markdown (every source, claude first — the same numbers the book index,
-the NN- filenames, and rekey_chats speak), the concept table is the judged index
+the NN- filenames, and rekey_chats speak), the concept table is the index
 (data/output/indexing/indexed-semantic-concepts.json, the one the server's index.md is written
 from), the category table is the paid capture as it returned it, and every
 conversation-keyed table is derived from the projected corpus itself, whole batches nowhere involved.
@@ -93,7 +93,7 @@ def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
 
 
 def concept_table(index: dict) -> dict:
-    """The page's concept table from the judged index: each located headword, weighted by
+    """The page's concept table from the index: each located headword, weighted by
     the turns it is found in, with the provider(s) those turns are in."""
     rows = []
     for head, _aliases, locators in index['rows']:
@@ -105,7 +105,7 @@ def concept_table(index: dict) -> dict:
 
 
 def built_from(index_file: Path, categories_file: Path) -> str:
-    """What the page's two indexing tables are built from, by content: the judged index's own
+    """What the page's two indexing tables are built from, by content: the index's own
     record of its inputs, and the digest of the categories as captured. The site status reads it
     back from the page's meta to say whether the page is current."""
     index = json.loads(index_file.read_text()).get('built_from', '') if index_file.is_file() else ''
@@ -187,8 +187,8 @@ def main() -> int:
 
     index_file = dash / 'indexed-semantic-concepts.json'
     categories_file = dash / 'inferred-chat-categories.json'
-    note = ('The headwords the reader accepted, each weighted by the turns it is found in and tagged with the '
-            'provider(s) of those turns, from the judged index (data/output/indexing/indexed-semantic-concepts.json); '
+    note = ('The headwords - each concept of the capture in use that a turn phrases - each weighted by the turns it is found in and tagged with the '
+            'provider(s) of those turns, from the index (data/output/indexing/indexed-semantic-concepts.json); '
             'corpus-yoga indexing build refreshes it.')
     table = (dict(concept_table(json.loads(index_file.read_text())), note=note) if index_file.is_file()
              else {'columns': [], 'rows': [], 'note': f'Not built yet — run `corpus-yoga indexing build`. {note}'})

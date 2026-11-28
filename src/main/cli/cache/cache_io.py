@@ -33,7 +33,7 @@ def _split(cell: str) -> list[str]:
 
 def rows() -> list[dict]:
     """The registry rows, each with parsed written_by / read_by lists. `pipeline`
-    names the owning pipeline for a pipeline's cache root (empty for out-of-band
+    names the owning pipeline for a store's cache root (empty for out-of-band
     producers). Raises if the columns drift, or a row's field count isn't exactly
     len(COLUMNS) — an unquoted comma in a cell would otherwise silently truncate the
     note into csv's overflow. The registry is an interface."""

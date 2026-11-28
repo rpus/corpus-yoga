@@ -1,5 +1,5 @@
 {
-  "summary": "the rpus.co publish tree - data/output/site/, built from rsc/site/, the corpus and the judged index",
+  "summary": "the rpus.co publish tree - data/output/site/, built from rsc/site/, the corpus and the index",
   "standing": true,
   "phrase": [
     "unread - no page and no corpus to compare",
@@ -75,7 +75,7 @@
     "{placed} page(s) placed; index.html already current",
     "no effect; data/output/site/ already holds rsc/site/ and the corpus page as built",
     "{placed} page(s) placed; {page} written",
-    "stale - the judged index or the categories moved since the page was built",
+    "stale - the index or the categories moved since the page was built",
     "due - the tree differs from what site build would write"
   ],
   "target": "src/main/cli/site/site.sh",

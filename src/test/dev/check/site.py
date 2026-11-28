@@ -200,8 +200,8 @@ def check_server_standing(run) -> None:
     daemon_act = getattr(module, 'daemon_act', None)
     facts = sys.modules.get('facts') or __import__('facts')
     spell = sys.modules.get('spell') or __import__('spell')
-    index = {'current': module.BookIndex(facts.phrase('current - written from the judged index')),
-             'due': module.BookIndex(facts.phrase('stale - the judged index moved since it was written'),
+    index = {'current': module.BookIndex(facts.phrase('current - written from the index')),
+             'due': module.BookIndex(facts.phrase('stale - the index moved since it was written'),
                                      facts.Would(spell.line('server', 'build'), {'data/output/markdown/index.md': 1})),
              'waiting': module.BookIndex(facts.phrase('waits on corpus-yoga indexing build')),
              'no corpus': None}

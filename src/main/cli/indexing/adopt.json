@@ -1,5 +1,5 @@
 {
-  "help": "make a deposited capture the capture in use - its tables, data/output/indexing/capture/<stamp>/, copied over data/output/indexing/inferred-semantic-concepts.json and inferred-chat-categories.json, which accept, reject, build and the site read; the status names each deposit with what adopting it would change",
+  "help": "make a deposited capture the capture in use - its tables, data/output/indexing/capture/<stamp>/, copied over data/output/indexing/inferred-semantic-concepts.json and inferred-chat-categories.json, which build and the site read; the status names each deposit with what adopting it would change",
   "would": "would adopt",
   "modality": "MAY",
   "args": [

@@ -416,7 +416,7 @@ def load_convs(path) -> list:
     (a JSON array) or the atomised json/ dir (one object per file — the same elements,
     since atomisation just splits the array). ordered() consumes the result
     identically, so a consumer can read the normalized per-conversation CACHE
-    (cache/<batch>/json/) instead of reaching back into the raw INPUT
+    (cache/pipeline/claude/chat/bulk-export/<batch>/json/) instead of reaching back into the raw INPUT
     (data/input/<batch>/conversations.json) — the source-agnostic per-conversation shape a
     non-claude source (gemini) can also produce."""
     p = Path(path)

@@ -47,7 +47,7 @@ things — they are one thing at many times.
 | --- | --- | --- | --- | --- |
 | **append-only** | atom-subset: `A ⊑ B ⟺ atoms(A) ⊆ atoms(B)` | union, freshest-wins per unit | superseded ⇒ deletable | conversations (atoms = message uuids), sessions (atoms = records), captures |
 | **mutable document** | content equality ONLY — every distinct state is unique history | accumulate distinct states; same-key-different-content is a loud CONFLICT | deletable once its states are deposited (the licence) | `memories.json`, an agent's `memory/` folder |
-| **curated set** | n/a (grows by curation) | per-element union: move unique, drop byte-identical, CONFLICT on divergent | never (precious) | `data/output/artifacts/downloaded/` |
+| **curated set** | n/a (grows by curation) | per-element union: move unique, drop byte-identical, CONFLICT on divergent | never (precious) | `data/output/artifacts/claude/chat/downloaded/` |
 | **derived** | n/a — regenerate | none needed: re-derive | always (rebuildable) | all of `cache/`, `data/output/markdown/` |
 
 The lifecycle roots follow from the classes: `data/input/` holds supplied inputs, `cache/`
@@ -277,7 +277,7 @@ Each law names its current enforcement (or the incident that taught it).
   the lag, the safe remedy beside it; curated → the disposal loop (see
   `curate`). Staleness is never silent: an artifact no mechanism can refresh
   automatically is an artifact whose status says so. The corpus page and the book
-  index are built from the reader's judgement of a paid capture, so CLOSURE fails for
+  index are built from the capture in use, a paid capture the reader adopts, so CLOSURE fails for
   them and no run builds them (issues/1125, after issues/494 had the run render the
   page): each is built by its own verb - `indexing build`, then `server build` and
   `site build` - offered by its noun's status only once the step before it stands.

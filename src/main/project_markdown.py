@@ -139,7 +139,7 @@ def main():
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument('--api-capture', help='dir of <uuid>/ apiConversation capture folders')
     src.add_argument('--bulk-export', help='a bulk-export batch dir whose atomised json/ pieces are rendered')
-    ap.add_argument('--out', help='output dir (default: cache/<pipeline>/[<batch>/]markdown)')
+    ap.add_argument('--out', help='output dir (default: data/output/markdown/claude/chat/conversations for captures, the batch cache\'s markdown/ for an export)')
     args = ap.parse_args()
 
     if args.api_capture:

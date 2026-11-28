@@ -29,7 +29,7 @@
     "failing stage(s) {names}"
   ],
   "explanation": {
-    "browser": "validates each claude API capture and projects it to markdown; a gemini DOM capture's markdown is the terminal artifact, validated against markdownConversation before it is copied into the corpus",
+    "browser": "validates and renders each claude API capture and each gemini DOM capture on its own - a gemini scrape's markdown its rendering, its turn headings anchored - and its collate names and places the renderings in the corpus",
     "export": "validates, extracts, atomises and renders each bulk export",
     "agent": "converts each session and validates it into cache/"
   },

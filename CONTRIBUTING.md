@@ -17,7 +17,7 @@ would the merge (issues/482). The body as sent is kept under `logs/forge/raise/`
 Rebase an open PR onto main with `./corpus-yoga forge rebase <pr>` whenever a test needs main's
 merged work (issues/1147, `src/main/cli/forge/rebase.json`): the merge's own refusals and
 relocation, by the steps the merge takes - in a detached worktree under `tmp/`, named for the act,
-`rsc/test/` conflicts taken by the syntactic rule below, any other halting with the branch and
+conflicts in `rsc/test/`'s regenerated artifacts taken by the syntactic rule below, any other halting with the branch and
 this checkout as found, to be settled by hand - and every local copy of the branch brought
 level with the relocated head, by reset, never by pull, which would merge the old commits with
 their replays. It refuses where the merge's relocation would, and does
@@ -113,14 +113,16 @@ two derived files and the curated expectation beside one of them:
 - `rsc/test/run.log` (derived)
 - `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
 
-Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds
-nothing but these four, the resolution is **syntactic** — take either side of the whole
-directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-markers, then run `./corpus-yoga test run`: it rewrites the two derived files, and reports the
-live counts the two curated ones should hold — `corpus-yoga test run` prints `expected X, got Y`,
-`xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
-check reports, stage what it rewrote, and run once more to confirm the dev gate is green. The
-check computes the merged numbers; your job is to run it.
+Do not hand-merge any of them, and do not compute the counts. Because the dev gate rewrites
+or reports all three, the resolution is **syntactic** — take either side of each conflicted
+artifact (`git checkout --theirs -- <artifact>`; the choice cannot matter) to clear the
+markers, then run `./corpus-yoga test run`: it rewrites the two derived files, and its `xref: …`
+line reports the live counts the curated one should hold, `expected X, got Y`. Set the curated
+file to what the check reports, stage what it rewrote, and run once more to confirm the dev gate
+is green. The check computes the merged numbers; your job is to run it. The two hooks beside them
+in `rsc/test/`, `pre-commit-hook.sh` and `prepare-commit-msg-hook.sh`, are code, outside the class:
+a conflict in one is resolved by hand, as one in the source is - and `corpus-yoga forge merge`'s
+relocation halts on it (`SYNTACTIC_CLASS` in `src/main/cli/forge/forge.sh`).
 
 This works because the generated files absorb only the counting. A real conflict — two
 branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,

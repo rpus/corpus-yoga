@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 # tier.sh — the tiers as a declared contract (issues/702), the shell twin of src/main/tier.py.
-# Every script computes its code root itself; the one fact it lacks is which layout its
+# Every script reads its code root from CORPUS_YOGA_ROOT, which the launcher hands every run it
+# starts (issues/1173); the one fact it lacks is which layout its
 # tiers are read from, and that is one name: CORPUS_YOGA_REHEARSAL, a rehearsal's stamp,
 # (CORPUS_YOGA_ACT, CORPUS_YOGA_STAMP and CORPUS_YOGA_LOG are the launcher's: the act it
 # dispatched, that act's stamp and the record it tees the act into - read here alone, by

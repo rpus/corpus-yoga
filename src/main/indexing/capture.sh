@@ -12,7 +12,8 @@
 #   src/main/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
 #     [--conversations <path>] [--only semantic-concepts|chat-categories]
 #
-# Captures land durable in data/output/indexing/ as inferred-*.json (shared across machines; the
+# Captures are deposited durable under data/output/indexing/capture/<stamp>/ as inferred-*.json, and
+# corpus-yoga indexing adopt copies the one it names to data/output/indexing/, the capture in use (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
 # palette is authored in rsc/site/index.template.html; the capture schemas live under
 # rsc/schema/indexing/.
@@ -327,9 +328,8 @@ capture_dashboard() {
       echo "  ✓ inferred-chat-categories.json — coverage (exact): $captured of $total captured" \
            "· $never never captured · $gone captured-but-gone"
       # Intent was "re-read all $total". Unmet intent is the thing to say out loud; a
-      # capture that covers LESS than the durable one it would replace is not a new
-      # record, it is a failed re-read, and promoting it would lose coverage that was
-      # paid for once already.
+      # capture that covers LESS than the capture in use is not a new record, it is a
+      # failed re-read, and adopting it would lose coverage that was paid for once already.
       if [[ "$never" -gt 0 ]]; then
         echo "  ⚠ intent unmet: the capture re-read $total conversation(s) and returned" \
              "$captured — $never uncovered"

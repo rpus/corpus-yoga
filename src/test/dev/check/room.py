@@ -677,6 +677,27 @@ def check_provider_registry(run) -> None:
         + ' - declare it in rsc/provider/providers.csv, or the name is not a provider', check='provider.names_declared')
 
 
+@check(tier='code', says=('forge.syntactic_class_is_the_regenerated_artifacts',), on=['src/main/cli/forge/forge.sh'])
+def check_syntactic_class(run) -> None:
+    """A relocation takes a conflict by the syntactic rule only where it lies in the regenerated artifacts
+    (CONTRIBUTING.md): rsc/test/run.log, rsc/test/xref.csv and rsc/test/xref_expected_score, which the dev
+    gate rewrites or reports. rsc/test/ also tracks the two git hooks, code like any other, so a conflict
+    in one halts the relocation as one in the source does. Given conflicted paths, the forge names those
+    outside the class."""
+    import subprocess
+    forge_sh = SRC / 'main' / 'cli' / 'forge' / 'forge.sh'
+    conflicted = ['rsc/test/run.log', 'rsc/test/xref.csv', 'rsc/test/xref_expected_score',
+                  'rsc/test/pre-commit-hook.sh', 'rsc/test/prepare-commit-msg-hook.sh', 'src/main/corpus.py']
+    said = subprocess.run(['bash', '-c', 'source "$1"; outside_the_syntactic_class', '_', str(forge_sh)],
+                          input=''.join(f'{path}\n' for path in conflicted), capture_output=True, text=True, timeout=30)
+    outside = said.stdout.split()
+    want = ['rsc/test/pre-commit-hook.sh', 'rsc/test/prepare-commit-msg-hook.sh', 'src/main/corpus.py']
+    run('forge: a relocation takes only the regenerated artifacts by the syntactic rule, a hook halting as the source does',
+        outside == want, None if outside == want else
+        f'the forge names {outside} outside the class, where {want}' + (f' ({said.stderr.strip().splitlines()[-1]})' if said.stderr.strip() else ''),
+        check='forge.syntactic_class_is_the_regenerated_artifacts')
+
+
 @check(tier='code', on=['src/main/cli/forge', 'src/test'], says=(
     'forge.aim_one_line_per_issue',
     'forge.issue_is_a_should_with_wired_relations',

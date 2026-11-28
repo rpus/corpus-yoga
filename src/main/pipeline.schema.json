@@ -54,7 +54,7 @@
     "provider": {
       "type": "object",
       "minProperties": 1,
-      "description": "The providers the pipeline reads, each a row of rsc/provider/providers.csv with a mechanism directory of its name beside the declaration, and each with the globs that select its data under its own store: a provider writes a session as its harness does, a file or a directory. Present exactly when input carries <provider>; the cache then holds one directory per provider under the pipeline's root.",
+      "description": "The providers the pipeline reads, each a row of rsc/provider/providers.csv with a mechanism directory of its name beside the declaration, and each with the globs that select its data under its own store: a provider writes a session as its harness does, a file or a directory. Present exactly when input carries <provider>; each store's cache is its input address under cache/pipeline, the provider a segment of it.",
       "additionalProperties": {
         "type": "object",
         "required": [
@@ -140,7 +140,7 @@
     "subject_depth": {
       "type": "integer",
       "minimum": 1,
-      "description": "How many path components under the pipeline's cache root name one subject - under each provider's directory of that root, where the input is per provider."
+      "description": "How many path components under a store's cache root - its input address under cache/pipeline - name one subject."
     },
     "extra_input_glob": {
       "type": "string",

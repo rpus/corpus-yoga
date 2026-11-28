@@ -10,7 +10,7 @@ keying (cf. library.py):
 
     data/output/memories/<batch snapshot time, ISO-8601 UTC>.json   (verbatim memories.json)
 
-Per pipeline collate, every batch's archived memory state (cache/<batch>/memories/,
+Per pipeline collate, every batch's archived memory state (cache/pipeline/claude/chat/bulk-export/<batch>/memories/,
 written by archive_components.py) is deposited under its batch timestamp unless
 the nearest earlier deposit already carries identical content — so an unchanged
 memory costs nothing, a rewrite is preserved forever, and a reverted-then-back
@@ -26,7 +26,7 @@ JSON string, so this is an unwrap, not a transformation — the served corpus
 gains a diffable timeline of what claude.ai believed about the user at each
 export.
 
-Usage (wired into src/main/cli/pipeline/pipeline.sh after the per-batch stages):
+Usage (a step of the export collate's tail, src/main/export/run.sh's run_tail, after the per-batch steps):
     src/run_python_script.sh src/main/export/memories.py \
       [--export-cache cache/pipeline/claude/chat/bulk-export] [--memories-output data/output/memories] \
       [--markdown data/output/markdown/claude/chat/memories]
@@ -50,8 +50,7 @@ REPO_ROOT = tier.REPO
 # renamed on import: this file's own deposit() puts memory STATES into the
 # library; the shared one puts rendered FILES into a directory (pull/426)
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-REPO = SCRIPT_DIR.parents[2]
+REPO = tier.REPO
 
 
 def stamp_vintages() -> list[dict]:

@@ -42,7 +42,7 @@ def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path |
     named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
     if len(named) > 1 and datum_dir is not None:
         # two providers' families of one name (issues/635): the datum sits under its provider's
-        # directory of the cache, cache/<pipeline>/<provider>/..., and the family under
+        # segment of the cache, cache/pipeline/<provider>/..., and the family under
         # the same segment of the schema root - that one segment, never any component, or a
         # machine or project named for a provider would match both
         parts = datum_dir.parts

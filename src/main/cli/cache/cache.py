@@ -21,7 +21,7 @@ import spell
 from cache_io import BYTECODE, human, orphans, size_of, stale_bytecode  # the registry, and what it does not own (issues/865)
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[3]
+REPO = tier.REPO
 VERBS = {'clean': 'clean.py'}
 USAGE = (__doc__ or '').strip()
 

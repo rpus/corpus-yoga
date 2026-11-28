@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never
-# acquires. Each pipeline validates its inputs against all schema versions, then extracts,
-# projects and presents. Acquisition lives elsewhere: corpus-yoga browser|agent|indexing capture.
+# acquires. Each pipeline's run validates and renders each input unit on its own, against each
+# family's latest version; its collate names, places and presents what the run made, over the
+# whole corpus. Acquisition lives elsewhere: corpus-yoga browser|agent|export|forge|indexing capture.
 #
 # Usage:
 #   corpus-yoga pipeline                          # the pipelines this repo has (bare: status)
@@ -13,7 +14,7 @@
 #     --plan            print the ordered step plan; run nothing
 #   corpus-yoga pipeline run --stage-rehearsal    # every pipeline over everything staged, in stage
 #   corpus-yoga pipeline render [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
-#   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
+#   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the collate's corpus step)
 #
 # The pipeline LIST is derived from the declarations: a pipeline is a directory under
 # src/main holding a pipeline.json, named for the noun whose input it reads; the
@@ -334,7 +335,7 @@ print("\n".join(facts.lines({"stages": {name: {"failures": int(fails), "line": i
 # AND verb (a declared step=corpus).
 #
 # Membership: L9 - Currency (rsc/CALCULUS.md). The index and the corpus page are built
-# from the reader's judgement of a paid capture, so no run builds them: each is offered
+# from the capture in use, a paid capture the reader adopts, so no run builds them: each is offered
 # by its noun's status once the step before it stands (issues/1125), and a gate that runs
 # this pipeline - corpus-yoga forge merge's - leaves them as it found them.
 run_corpus_tail() {

@@ -57,13 +57,13 @@ parse_args() {
 
 run_one() {
   local batch="${1%/}"
-  # No blanket wipe of cache/<batch>: each stage owns (wipes or overwrites) its own
+  # No blanket wipe of the batch's cache: each stage owns (wipes or overwrites) its own
   # output subtree. A blanket wipe would destroy the validation memoisation logs,
   # forcing full revalidation every run. (The paid captures are out of reach either
   # way — they live in data/output/indexing/, not under cache/.)
   map step validate           "$SCRIPT_DIR/validate.sh" --export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
-  # users) verbatim into cache/<batch>/ — the cache dir is then the complete record of
+  # users) verbatim into the batch's cache — the cache dir is then the complete record of
   # the four-component snapshot
   map step archive_components "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/archive_components.py" --export "$batch"

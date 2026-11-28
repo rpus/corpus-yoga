@@ -66,6 +66,6 @@
     "git"
   ],
   "explanation": {
-    "stages": "the tail's table as facts - each stage the run performed, with its count of failures (every non-zero exit states an atom, so the count is the stage's verdict) and the line where its banner stands in the log, so that a count turns back into the lines that produced it; a pipeline stage runs with the tests before it and corpus after it as corpus-yoga pipeline run <stage>"
+    "stages": "the tail's table as facts - each stage the run performed, with its count of failures (every non-zero exit states an atom, so the count is the stage's verdict) and the line where its banner stands in the log, so that a count turns back into the lines that produced it; a pipeline stage runs with the tests before it as corpus-yoga pipeline run <stage>"
   }
 }

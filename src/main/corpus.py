@@ -25,7 +25,7 @@ lists, and one without the record reads complete: the bulk export <X> is data-<X
 manifest.json within it, in the stage and the store alike (issues/1204). Promotion copies
 the members, the record with them. One selection names the stage's units, the
 audit's subjects (src/main/validation_audit.py) and the datum's cache address,
-<cache root>[/<provider>]/<subject>, the subject being the name of the datum the steps
+cache/pipeline/<the store's input>/<subject> - the unit's input address (issues/1192) - the subject being the name of the datum the steps
 read. A file no declaration selects is a unit of its own, measured by its bytes and
 validated by nothing.
 

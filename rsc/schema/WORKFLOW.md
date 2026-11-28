@@ -106,15 +106,14 @@ Read `users` as "the array the export's users.json holds",
 ### 1. Identify the failure
 
 ```bash
-src/main/browser/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
-src/main/export/validate.sh      --export   data/input/claude/chat/bulk-export/<batch>
-src/main/agent/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
+corpus-yoga pipeline run browser data/input/claude/chat/API-capture/<uuid>
+corpus-yoga pipeline run export  data/input/claude/chat/bulk-export/<batch>
+corpus-yoga pipeline run agent   data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
-(agent converts each `.jsonl` before validating, so its runnable unit is the
-project run.sh; `validate.sh --session` takes the *cache/* session dir, not data/input/.)
+(agent converts each `.jsonl` before validating, so its runnable item is the project.)
 
-Read the validation log in `cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
+Read the validation log in `cache/pipeline/<provider>/<channel>/<capture>/<unit>/validation/<schema>/vN.log` - the unit's own input address under `cache/pipeline/`.
 
 ### 2. Mint the new schema version
 
@@ -143,16 +142,12 @@ The diff IS the change: it should read as exactly what the CHANGELOG narrative
 will say, and nothing else. Anything extra — re-escaped strings, re-indentation,
 reordered keys — means the edit did more than the change, however it happened.
 
-Run the BFS order repair after editing:
+Run the repairs after editing - the BFS order of the definitions among them - then all
+diagnostics, to catch principle violations:
 
 ```bash
-src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
-```
-
-Then run all diagnostics to catch principle violations:
-
-```bash
-src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+corpus-yoga test run --fix   # each failing principle's repair, src/test/dev/repairs/<principle>.py
+corpus-yoga test run         # will flag failing diagnostics in check_versioned_schema_diagnostics
 ```
 
 A definition the root does not reach is declared, never tolerated:
@@ -169,9 +164,9 @@ carries (issues/588).
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser/run.sh   --input data/input/claude/chat/API-capture
-src/main/export/run.sh    --input data/input/claude/chat/bulk-export
-src/main/agent/run.sh --input data/input/claude/code/machine-transport
+corpus-yoga pipeline run browser
+corpus-yoga pipeline run export
+corpus-yoga pipeline run agent
 ```
 
 A datum the latest version refuses is, from issues/687, a datum the room has staged and
@@ -188,17 +183,17 @@ one verdict per family, beside its `validation/` log, written by `validate_versi
 the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never
 lag it. Older `vN.log` files a previous run left there are history: nothing reads them. Git-ignored, because which data sits on which
 machine is a local fact; the committed CHANGELOG.md beside the schema records only the
-version *narrative*. To view the aggregate table across a pipeline's data (or re-render
-without revalidating, e.g. after a renderer format change):
+version *narrative*. To re-render every matrix without revalidating, e.g. after a renderer
+format change:
 
 ```bash
-src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+corpus-yoga pipeline render <pipeline>
 ```
 
 Whether every datum validates at its families' latest versions, each matrix agrees with
 those logs, and every input entry has validation output is the data gate's judgment, not
 the commit gate's (issues/535, issues/557): `corpus-yoga pipeline audit`
-(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -
+(`src/main/validation_audit.py`), which the collate also performs as its corpus step -
 a violated property is a FAIL atom in the run log, and the version it names is owed here.
 
 Add a `## v{N+1}` narrative section to the CHANGELOG: intro narrative first, then a
@@ -276,8 +271,8 @@ Open `rsc/metamodel/join.csv` and:
 5. **Verify pointers and grammar** by running:
 
    ```bash
-   src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-                            # check_metamodel_join_versions: no version-pinned cells
+   corpus-yoga test run   # check_schema_join: pointer validity (family dirs → latest version)
+                          # check_metamodel_join_versions: no version-pinned cells
    ```
 
 ### 5. Check rsc/reference
@@ -412,7 +407,7 @@ documented field fails there, the review prompt.
 ### 7. Run `corpus-yoga test run`
 
 ```bash
-src/test/dev/run.sh
+corpus-yoga test run
 git diff rsc/test/run.log
 ```
 

@@ -32,7 +32,7 @@ from declared_parser import command_parser
 REPO_ROOT = tier.REPO
 
 MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
-INDEXED_FILE = tier.DATA / 'output' / 'indexing' / 'indexed-semantic-concepts.json'  # the judged index, corpus-yoga indexing build's (written)
+INDEXED_FILE = tier.DATA / 'output' / 'indexing' / 'indexed-semantic-concepts.json'  # the index, corpus-yoga indexing build's (written)
 
 
 
@@ -217,7 +217,7 @@ def summary_of(index: dict) -> str:
 
 
 def held_index() -> dict | None:
-    """The judged index as last built, or None where none is."""
+    """The index as last built, or None where none is."""
     import json
     return json.loads(INDEXED_FILE.read_text()) if INDEXED_FILE.is_file() else None
 
@@ -416,7 +416,7 @@ class Pending:
 
 @dataclass
 class Captures:
-    """The paid captures: the one in use - the concept proposals the candidates are drawn from,
+    """The paid captures: the one in use - the concepts the index's headwords are drawn from,
     the categories the site build colours by - and every other one deposited (issues/1185)."""
     in_use: str
     tables: dict[str, str]

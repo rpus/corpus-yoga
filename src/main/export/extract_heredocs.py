@@ -10,8 +10,8 @@ bash_tool commands, i.e. patterns of the form:
 
 Groups output by conversation under:
 
-    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
-    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
+    cache/pipeline/claude/chat/bulk-export/<batch>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
+    cache/pipeline/claude/chat/bulk-export/<batch>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
 The durable library data/output/artifacts/claude/chat/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
@@ -168,7 +168,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_id:>9}  {t_nl:>8}  {t_diff:>8}  {t_cp:>6}\n')
         else:
             t_ext = t_id = t_nl = t_diff = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to {LIBRARY.relative_to(SCRIPT_DIR.parents[2])}).\n')
+        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to {LIBRARY.relative_to(REPO)}).\n')
         if new_copies:
             log.write('\n'.join(new_copies) + '\n')
 

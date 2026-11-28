@@ -4,7 +4,7 @@
   "modality": "MAY",
   "explanation": {
     "refuses": "anything not OPEN, or a checkout that holds the head with a dirty tree (issues/975) - the refusals the merge takes before it relocates, by the one step both take",
-    "relocates": "onto the base, only if it moved - in a detached worktree of its own under tmp/, named for the act and its run, disposed of whatever happens - a red settle's run.log and report kept first beside the act's record, under logs/forge/rebase/<stamp>/ - so this checkout never moves for it; replaying only the commits the base does not already hold, tree for tree (issues/585); rsc/test/ conflicts are the syntactic class, taken wholesale and settled by the gate's own regeneration; any other conflict halts with the branch and this checkout as found, for the reader to settle by hand - the merge's relocation, by the one step both take",
+    "relocates": "onto the base, only if it moved - in a detached worktree of its own under tmp/, named for the act and its run, disposed of whatever happens - a red settle's run.log and report kept first beside the act's record, under logs/forge/rebase/<stamp>/ - so this checkout never moves for it; replaying only the commits the base does not already hold, tree for tree (issues/585); a conflict in rsc/test/'s regenerated artifacts is the syntactic class, each taken from the branch and settled by the gate's own regeneration; any other conflict halts with the branch and this checkout as found, for the reader to settle by hand - the merge's relocation, by the one step both take",
     "resyncs": "every local copy of the branch, level with the relocated head - reset where this checkout is on it, moved where it is not, by reset and never by pull; a copy holding commits the forge's old head did not is left as it was, and said",
     "ends": "with one verdict - DONE naming the branch, the merge-base it stood on, the base it now stands on and its new head, and what became of the local copy; or NOT DONE naming the refusal or the halt"
   },
@@ -57,6 +57,8 @@
   "r": [
     "machine-name.txt",
     "rsc/test/run.log",
+    "rsc/test/xref.csv",
+    "rsc/test/xref_expected_score",
     "logs/test/run"
   ]
 }

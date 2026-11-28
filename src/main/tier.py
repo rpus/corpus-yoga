@@ -1,7 +1,7 @@
 """
 tier.py - the tiers as a declared contract (issues/702), the one home every script derives its
-machine-local paths from. Every script computes its code root, REPO, from its own address;
-the only fact it lacks is which layout its tiers are read from, and that is one name:
+machine-local paths from. Every script reads its code root, REPO, from CORPUS_YOGA_ROOT, which the
+launcher hands every run it starts (issues/1173); the only fact it lacks is which layout its tiers are read from, and that is one name:
 CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the stage as the root, and unset names
 the checkout's. DATA_ROOT is that root, REPO or stage/, and DATA,
 CACHE, LOGS and TMP are its data, cache, logs and tmp. FETCH, what an outside source last

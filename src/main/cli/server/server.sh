@@ -3,7 +3,7 @@
 #
 # Usage:
 #   src/main/cli/server/server.sh                 # status: daemon + render-asset presence + the book index
-#   src/main/cli/server/server.sh build           # write data/output/markdown/index.md from the judged index
+#   src/main/cli/server/server.sh build           # write data/output/markdown/index.md from the index
 #   src/main/cli/server/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
 #   src/main/cli/server/server.sh stop
 #   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit
