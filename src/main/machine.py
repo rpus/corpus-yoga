@@ -35,12 +35,9 @@ STDLIB-ONLY, like cli.py: importable on a fresh clone before the venv exists.
 import csv
 import sys
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/machine.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 REGISTRY = REPO / 'rsc' / 'machine' / 'machines.csv'
 BINDING = REPO / 'machine-name.txt'
 

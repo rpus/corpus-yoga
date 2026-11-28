@@ -46,11 +46,7 @@ import spell
 from member import members
 from provider import signature  # the Signature triad, one home (issues/704)
 
-SELF = 'src/main/cli/cli.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery

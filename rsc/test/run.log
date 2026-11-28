@@ -1,4 +1,4 @@
-run.py: code+schema 2019/2019
+run.py: code+schema 1890/1890
 
 
 check_reply_without_text: |
@@ -320,8 +320,8 @@ check_import_path: |
 check_step_imports: |
   ✓ imports.step_module_imports  (2/2)
 
-check_self_paths: |
-  ✓ structure.self_path_matches_address  (130/130)
+check_root_handed: |
+  ✓ structure.root_is_handed
 
 check_committed_tree: |
   ✓ structure.corpus_roots_ignored
@@ -797,8 +797,8 @@ stages:
     failures: 0
     tier: code
     line: "320"
-  check_self_paths:
-    passes: 130
+  check_root_handed:
+    passes: 1
     failures: 0
     tier: code
     line: "323"
@@ -993,8 +993,8 @@ stages:
     tier: code
     line: "491"
 
-checks[code+schema]: 290 types, 2019/2019 invocations passing
-checks[code]: 232 types, 1303/1303 invocations passing
+checks[code+schema]: 290 types, 1890/1890 invocations passing
+checks[code]: 232 types, 1174/1174 invocations passing
 checks[schema]: 58 types, 716/716 invocations passing
 
-dev gate: PASS - code+schema 2019/2019 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate
+dev gate: PASS - code+schema 1890/1890 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate - that the verbs run - is the usr gate's, corpus-yoga pipeline run, then corpus-yoga pipeline collate

@@ -15,12 +15,9 @@ from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
 from transport import LIVE, STAGED, HELD, Log, Relation, Session, current_key, fact, held_by_peer, keys_of, may_replace, outcome, place_log, place_tree, relate, strings
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/agent/claude/harness.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 PROVIDER = 'claude'
 

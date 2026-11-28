@@ -25,11 +25,7 @@ import facts  # the one printer of a status's facts (issues/753)
 import spell
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
 
-SELF = 'src/main/browser/audit.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 # Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking one.

@@ -5,7 +5,6 @@
 # of the room's live claude store, through the mount
 # ext/mnt/claude/code/machine-transport/<machine>; the index lines between them are kept.
 set -euo pipefail
-SELF='rsc/migration/1063.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

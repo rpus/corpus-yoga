@@ -33,12 +33,9 @@ from pathlib import Path
 from declared_parser import command_parser
 import facts
 import spell
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/migration/migration.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 SCRIPTS = REPO / 'rsc' / 'migration'
 

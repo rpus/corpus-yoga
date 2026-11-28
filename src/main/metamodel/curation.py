@@ -33,11 +33,7 @@ import tier  # the tiers, one home (issues/702)
 import corpus
 from latest import latest_file
 
-SELF = 'src/main/metamodel/curation.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
 METAMODEL_DIR = REPO / 'rsc' / 'metamodel'
 METAMODEL_JSON = METAMODEL_DIR / 'metamodel.json'

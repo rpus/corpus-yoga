@@ -17,12 +17,9 @@ import corpus
 import facts
 import spell
 import provider as registry
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/live.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 transport = importlib.import_module('transport')   # src/main/cli/agent/transport.py, by the path inserted above
 

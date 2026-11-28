@@ -35,11 +35,7 @@ import send  # the one-use navigation is checked before anything is staged (issu
 from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,
                     safari_navigate, safari_open_work_tab)
 
-SELF = 'src/main/cli/export/capture.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what each category's archive unpacks to in Downloads
 ARRIVAL_TIMEOUT = 300   # seconds a download may take to arrive and unpack; conversations.json is tens of MB
@@ -177,7 +173,7 @@ def main(argv: list[str]) -> int:
         if arg == '--manifest' and argv:
             manifest_arg = Path(argv.pop(0))
         else:
-            sys.exit(f'usage: {SELF} --manifest <file>')
+            sys.exit(f'usage: {Path(__file__).resolve().relative_to(tier.REPO)} --manifest <file>')
     if manifest_arg is None:
         facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('--manifest <file> is required, the manifest where the download left it; corpus-yoga export lists what is held and staged'))
         return 1

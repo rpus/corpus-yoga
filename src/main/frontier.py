@@ -20,12 +20,9 @@ frontier and coverage checks read subjects and recency from here).
 import json
 import re
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/frontier.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 PIPELINE_ROOT = REPO / 'src' / 'main'
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'

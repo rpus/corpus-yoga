@@ -27,11 +27,7 @@ import facts
 import spell
 import tier
 
-SELF = 'src/main/cli/tmp/tmp.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 KINDS = {'orphan': 'orphans'}
 RUN_FILE = re.compile(r'.+\.(\d+)\.[A-Za-z0-9]{6,}')   # <name>.<pid>.<random>, as mktemp makes it

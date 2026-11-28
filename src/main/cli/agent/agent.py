@@ -108,11 +108,7 @@ from declared_parser import command_parser
 import provider as registry
 import transport
 
-SELF = 'src/main/cli/agent/agent.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 if TYPE_CHECKING:                 # named for the status's shape; imported where it is used

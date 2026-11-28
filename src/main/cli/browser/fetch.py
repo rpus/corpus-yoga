@@ -19,11 +19,7 @@ import account
 from declared_parser import verb_parser
 from safari import PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js, safari_navigate, safari_open_work_tab
 
-SELF = 'src/main/cli/browser/fetch.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 # NB: no // comments in eval'd JS - safari_eval_js flattens newlines to spaces, so a line

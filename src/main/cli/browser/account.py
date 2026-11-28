@@ -20,11 +20,7 @@ import facts
 import spell
 from markdown_projection import turn_seq  # the format authority owns the parsers
 
-SELF = 'src/main/cli/browser/account.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 def record(provider: str) -> Path:
     """The provider's chat listing as last fetched, at the address of its chats in the store."""

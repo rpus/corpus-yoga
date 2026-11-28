@@ -19,12 +19,9 @@ import os
 import re
 import subprocess
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/provider.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 REGISTRY = REPO / 'rsc' / 'provider' / 'providers.csv'
 COLUMNS = ('provider', 'session_env_var', 'live_store', 'bot_author_pattern', 'note', 'conversation_id_shape')
 SEPARATOR = '\x1f'   # the ASCII unit separator: not whitespace, so `IFS=$'\x1f' read -r` keeps an empty field

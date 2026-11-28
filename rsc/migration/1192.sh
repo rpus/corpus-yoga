@@ -5,7 +5,6 @@
 # folded where the new code has already written - in the room's cache and the stage's alike. Whatever
 # stands beneath a pipeline's name outside a provider is no unit's, and stays for corpus-yoga cache to name.
 set -euo pipefail
-SELF='rsc/migration/1192.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

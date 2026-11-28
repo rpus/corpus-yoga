@@ -10,11 +10,12 @@ import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
 import enact
 import facts
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = tier.REPO
 CLI = REPO / 'src' / 'main' / 'cli'
 # the nouns whose bare status ends on now:, as each declares `standing` (issues/1034)
 NOUNS = tuple(sorted(d.parent.name for d in CLI.glob('*/*.json') if d.stem == d.parent.name and json.loads(d.read_text()).get('standing')))

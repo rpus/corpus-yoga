@@ -43,11 +43,7 @@ import factoring  # (sibling module)
 import face  # (sibling module)
 from extraction import GRAMMAR_PARSER
 
-SELF = 'src/main/mcp/mcp.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 

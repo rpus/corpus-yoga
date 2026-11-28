@@ -32,11 +32,7 @@ import corpus
 from markdown_projection import ordered
 from library import assert_uuid8_unique, dir_for, LIBRARY
 
-SELF = 'src/main/export/extract_files.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 # ── extraction ────────────────────────────────────────────────────────────────

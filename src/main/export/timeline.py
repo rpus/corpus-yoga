@@ -21,12 +21,9 @@ import json
 import re
 from pathlib import Path
 from markdown_projection import ordered, load_convs
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/export/timeline.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 OUTPUTS_PREFIX = '/mnt/user-data/outputs/'
 

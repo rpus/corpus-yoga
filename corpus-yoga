@@ -5,7 +5,7 @@
 # the table; `corpus-yoga <command> --help` asks the target itself.
 #
 # Every python here runs in the venv (issues/478): the launcher refuses without it,
-# naming the mint — src/main/cli/status/status.sh satisfy,
+# naming the mint — ./corpus-yoga status satisfy, which runs before the venv does,
 # the one place the name python3 survives. cli.py stays stdlib-only, so the
 # surface never depends on what pip installed; the venv supplies the
 # interpreter, never imports.
@@ -19,6 +19,7 @@
 # git does not, so anything written here to say the same would be a worse copy of it.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export CORPUS_YOGA_ROOT="$SCRIPT_DIR"   # the repository root, found once here and handed to every run this starts (issues/1173)
 # --no-send, wherever it stands among the words, refuses every send the command and its
 # children would make (issues/703): the one reading of the switch is src/main/send.py, and the
 # environment carries it to every process the command runs; the word is taken out here,
@@ -34,12 +35,16 @@ source "$SCRIPT_DIR/src/import_roots.sh"
 python_cache "$SCRIPT_DIR"   # the walk before the mint runs python too
 if [[ -f "$CORPUS_YOGA_VENV/bin/python" ]]; then
   set -- "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
+elif [[ "${1-}" == status ]]; then
+  # the machine report and the mint run before the venv they make (issues/1173): status is shell
+  shift
+  set -- "$SCRIPT_DIR/src/main/cli/status/status.sh" "$@"
 elif [[ "${1-}" == walkthrough ]] && command -v python3 >/dev/null; then
   # the walk needs nothing the venv holds (issues/766): before the mint it walks the machine report
   shift
   set -- python3 "$SCRIPT_DIR/src/main/cli/walkthrough/walkthrough.py" "$@"
 else
-  echo "error: venv not found at $CORPUS_YOGA_VENV — pre-venv, the machine report and the mint are ./src/main/cli/status/status.sh [satisfy], and corpus-yoga walkthrough walks them" >&2
+  echo "error: venv not found at $CORPUS_YOGA_VENV — pre-venv, the machine report and the mint are ./corpus-yoga status [satisfy], and corpus-yoga walkthrough walks them" >&2
   exit 1
 fi
 

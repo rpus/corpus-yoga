@@ -55,11 +55,7 @@ from safari import (
 from claude.api import fetch_api, complete_files  # (the claude mechanism: the API fetch and the record's completion)
 import provider as registry  # (rsc/provider/providers.csv - the one source of provider names)
 
-SELF = 'src/main/cli/browser/capture.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_DIR = _root[0]
+REPO_DIR = tier.REPO
 SCRIPT_DIR     = Path(__file__).resolve().parent
 
 # ── channels (issues/413): the progress artifact carries the narrative, the terminal - and

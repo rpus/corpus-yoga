@@ -23,13 +23,10 @@ Usage:
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 
-SELF = 'src/test/usr/agent/debug_code_session_record.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = Path(os.environ['CORPUS_YOGA_ROOT'])   # the repository root, which corpus-yoga hands every run (issues/1173)
 SCHEMA_PATH = sorted((REPO_ROOT / 'rsc/schema/agent/claude/session').glob('v*.json'))[-1]   # the one file: the latest (issues/557)
 
 

@@ -4,7 +4,6 @@
 # cache/<pipeline> to cache/pipeline/<pipeline>, folded where the new code has already written -
 # the room's and the stage's alike. Every other subtree stands where it stood.
 set -euo pipefail
-SELF='rsc/migration/1181.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

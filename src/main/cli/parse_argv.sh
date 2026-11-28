@@ -6,12 +6,7 @@
 # The python face is the one reader of src/main/cli/ — this file is a courier of
 # its verdict and parses nothing itself.
 
-# Sourced file: SELF and _self_dir here overwrite the sourcing script's — safe only
-# because every sourcer's own guard has already run by its source line.
-SELF='src/main/cli/parse_argv.sh'
-_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PARSE_ARGV_REPO="${_self_dir%/"${SELF%/*}"}"
-[[ "${PARSE_ARGV_REPO}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+PARSE_ARGV_REPO="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 
 parse_argv() {
   local out rc=0 python
@@ -21,7 +16,7 @@ parse_argv() {
   # interpreter fails the byte comparison. Absent the venv, refuse as
   # run_python_script.sh does, naming the mint.
   python="${CORPUS_YOGA_VENV:-$HOME/venvs/general}/bin/python"
-  [[ -x "$python" ]] || { echo "parse_argv: NOT DONE - venv not found at ${CORPUS_YOGA_VENV:-$HOME/venvs/general}; mint it: ./src/main/cli/status/status.sh satisfy" >&2; exit 1; }
+  [[ -x "$python" ]] || { echo "parse_argv: NOT DONE - venv not found at ${CORPUS_YOGA_VENV:-$HOME/venvs/general}; mint it: ./corpus-yoga status satisfy" >&2; exit 1; }
   # `|| rc=$?` keeps a caller's set -e from killing the script at the substitution
   # itself. A refusal (rc 2) needs no relay: argparse wrote it to stderr, which
   # $(...) does not capture.

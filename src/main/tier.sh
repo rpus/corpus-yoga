@@ -11,8 +11,7 @@
 # stage, laid out as the checkout is (issues/1163), and FETCH_DIR the fetched copies whatever tiers
 # are in force (issues/1170). tier_path turns a declared repo-relative path (data/..., cache/...,
 # logs/..., tmp/..., stage/...) into the tier's. Sourced, never run; the names are the sourcing script's own, never exported.
-_tier_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TIER_REPO="${_tier_dir%/src/main}"
+TIER_REPO="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 # the stage, one directory (issues/1171): the room's, or the dev gate's own while it runs
 # shellcheck disable=SC2034  # the sourcing script's to use
 STAGE_DIR="${CORPUS_YOGA_DEV_GATE:-$TIER_REPO}/stage"
@@ -44,8 +43,7 @@ if [[ -n "${CORPUS_YOGA_GATE_CHECK:-}" ]]; then LOGS_DIR="$TIER_REPO/logs/test/r
 # scratch_file <name>, scratch_dir <name>: a disposable file or directory a run keeps only
 # while it runs (issues/906), made directly under tmp/ and named <act>.<name>.<pid>.<random> - the
 # act the launcher dispatched, <command>.<verb>, or the running script's own name, $0, where it
-# dispatched none, never SELF, which every helper a script sources declares over the script's own;
-# the pid the run's own, so that corpus-yoga tmp names what a run that died left there. No directory
+# dispatched none; the pid the run's own, so that corpus-yoga tmp names what a run that died left there. No directory
 # is made for a run, so none is left empty when its files go (issues/1170). No script calls mktemp
 # but through these: nothing disposable is written outside the tree.
 _run_prefix() {

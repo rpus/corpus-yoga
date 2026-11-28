@@ -36,11 +36,7 @@ os.environ.pop('FORCE_COLOR', None)
 os.environ['COLUMNS'] = '80'
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
-SELF = 'src/test/dev/gate.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 INPUT                    = REPO_ROOT / 'data' / 'input'
 CACHE                    = REPO_ROOT / 'cache'
 RSC                      = REPO_ROOT / 'rsc'

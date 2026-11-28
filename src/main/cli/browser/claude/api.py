@@ -12,11 +12,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 from safari import safari_fetch_api_json, safari_fetch_asset, process_chain
 
-SELF = 'src/main/cli/browser/claude/api.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_DIR = _root[0]
+REPO_DIR = tier.REPO
 
 
 def rel(path):

@@ -14,10 +14,6 @@ from pathlib import Path
 import tier
 from markdown_projection import FACTS, MD033_PRAGMA, RENDERINGS, counted, md_validator, project_scrape, write_if_changed
 
-SELF = 'src/main/browser/gemini/render.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 

@@ -31,11 +31,7 @@ from markdown_projection import (FACTS, RENDERED, RENDERINGS, ordered, find_api_
                                  deposit, conv_id)
 from vintage import export_time  # the one export-ordering authority
 
-SELF = 'src/main/project_markdown.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 
 

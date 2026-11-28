@@ -20,8 +20,7 @@ import corpus  # the one selection of units (issues/687)
 import spell
 from markdown_projection import FACTS, RENDERED, RENDERINGS
 
-SELF = 'src/main/validation_audit.py'
-REPO = next(p for p in Path(__file__).resolve().parents if (p / SELF).is_file())
+REPO = tier.REPO
 
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
 

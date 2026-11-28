@@ -23,12 +23,9 @@ from validate import fault, lines
 from validate_inspection import inspect_failure
 from validation_matrix import family_root, write_matrix
 import validation_verdict as verdict
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/validate_versions.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 def _digest(path):

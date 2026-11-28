@@ -25,12 +25,9 @@ import tempfile
 from collections.abc import Iterator
 from pathlib import Path
 from transport import LIVE, STAGED, HELD, Log, Relation, Session, fact, may_replace, project_key, relate, strings
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/agent/gemini/harness.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')

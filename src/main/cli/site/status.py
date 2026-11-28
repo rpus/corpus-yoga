@@ -19,11 +19,7 @@ import indexing
 import page_declaration as declared  # what the page declares, read back against the corpus (issues/1000)
 from present_corpus import built_from
 
-SELF = 'src/main/cli/site/status.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 @dataclass

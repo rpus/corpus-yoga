@@ -27,10 +27,7 @@
 
 set -euo pipefail
 
-SELF='src/main/cli/pipeline/rehearse.sh'
-_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
-[[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+REPO_ROOT="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/provider.sh

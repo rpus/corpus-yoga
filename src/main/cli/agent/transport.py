@@ -41,11 +41,7 @@ import cleaner  # the count a verdict says a kind by (issues/857)
 import facts  # the one face a sentence is said through (issues/909)
 from append_only import Relation, growth, may_replace, relate
 
-SELF = 'src/main/cli/agent/transport.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
 # The three roots a unit's one address is read under, as the narration names them (issues/854):

@@ -10,12 +10,9 @@ the schema and the rest history (issues/557), so either directory normally holds
 import json
 import re
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/latest.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 REFERENCE_FILE = 'schema.json'
 

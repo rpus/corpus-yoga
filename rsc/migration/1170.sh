@@ -11,7 +11,6 @@
 # forge <verb> record whose stamp is not after the worktree's - under logs/forge/<verb>/<stamp>/, the
 # name the logs noun reads a record's own directory by. tmp keeps what lasts one run.
 set -euo pipefail
-SELF='rsc/migration/1170.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 
@@ -44,6 +43,6 @@ for kept in tmp/forge/merge/*-settle tmp/forge/rebase/*-settle; do
     stamp="${record##*/}"; stamp="${stamp%.log}"
     [[ ! "$stamp" > "$made" && "$stamp" > "$act" ]] && act="$stamp"
   done
-  [[ -n "$act" ]] || { echo "FAIL: $kept names no forge $verb record at or before ${made} - move it by hand beside the record of the act that kept it, then run $SELF again" >&2; exit 1; }
+  [[ -n "$act" ]] || { echo "FAIL: $kept names no forge $verb record at or before ${made} - move it by hand beside the record of the act that kept it, then run $MIGRATION again" >&2; exit 1; }
   move "$kept" "logs/forge/$verb/$act"
 done

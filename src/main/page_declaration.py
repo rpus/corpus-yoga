@@ -15,12 +15,9 @@ from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
 from markdown_projection import corpus_index, turn_counts, turns  # the format authority, reading back what it wrote
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/page_declaration.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 METRICS = ('human', 'assistant', 'bytes')
 TABLE = re.compile(r'<script[^>]*id="data-chats"[^>]*>(.*?)</script>', re.S)

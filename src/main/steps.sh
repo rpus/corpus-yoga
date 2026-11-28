@@ -25,15 +25,10 @@
 #   resolve_input <path> <pipeline.json> <provider>  # <provider> and <qualifier> in a
 #                                                    # declared input path made the provider's
 
-# Sourced file: SELF and _self_dir here overwrite the sourcing script's —
-# safe only because every sourcer's own guard has already run by its source line.
 # shellcheck source=src/main/tier.sh
 source "${BASH_SOURCE[0]%/*}/tier.sh"   # scratch_dir, for the dispatcher (issues/906)
 
-SELF='src/main/steps.sh'
-_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-STEPS_REPO="${_self_dir%/"${SELF%/*}"}"
-[[ "${STEPS_REPO}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+STEPS_REPO="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 # shellcheck source=src/main/send.sh
 source "$STEPS_REPO/src/main/send.sh"   # send_dispatched - the declaration a step is handed
 

@@ -24,11 +24,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 import facts  # the one face a sentence is said through (issues/909)
 
-SELF = 'src/main/export/atoms.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 MEMORIES_DEPOSIT = 'data/output/memories'
 SUMMARIES_DEPOSIT = 'data/output/markdown/claude/chat/summaries'

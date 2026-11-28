@@ -47,12 +47,9 @@ from markdown_projection import REPO, find_api_json
 from declared_parser import command_parser
 from vintage import export_time  # the one export-ordering authority
 from accumulate import accumulate, nearest_earlier_deposit  # the one deposit rule
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/export/summaries.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 
 # A summary folder holds <stamp>.md deposits beside two non-deposits: index.md

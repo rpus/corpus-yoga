@@ -44,12 +44,9 @@ from accumulate import accumulate  # the one deposit rule (issues/22)
 import facts  # the one printer of a status's facts (issues/753)
 from markdown_projection import deposit as deposit_files
 from declared_parser import command_parser
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/export/memories.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 # renamed on import: this file's own deposit() puts memory STATES into the
 # library; the shared one puts rendered FILES into a directory (pull/426)
 

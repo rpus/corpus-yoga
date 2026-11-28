@@ -85,11 +85,7 @@ import tier  # the tiers, one home (issues/702)
 import extraction  # (sibling module)
 import generation  # (sibling module)
 
-SELF = 'src/main/mcp/factoring.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 DECLARED     = json.loads((REPO / 'src/main/mcp/derivation.json').read_text())   # what the derivation reads, needs and writes (issues/1053)
 LINEAGE      = DECLARED['lineage']
