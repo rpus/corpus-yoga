@@ -45,12 +45,9 @@ import cleaner  # the one loop every clean verb runs (issues/837)
 import corpus
 import facts
 import live  # the live stores: their addresses, which the duplicates reading keeps (issues/744), and their reading against both tiers (issues/851)
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/store/store.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows', 'surplus file': 'surplus files'}   # each kind of entry, and its plural

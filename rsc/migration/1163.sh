@@ -5,7 +5,6 @@
 # input - moves to stage/data/output, stage/cache and stage/logs, its working files and the link
 # discarded; the rehearsal record stands where it stood, at stage/rehearsal.json.
 set -euo pipefail
-SELF='rsc/migration/1163.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

@@ -25,11 +25,7 @@ import tier
 from declared_parser import verb_parser
 import send  # every gh call below is a send the declaration names (issues/1022)
 
-SELF = 'src/main/cli/forge/raise.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 RECORD = tier.LOGS_ROOT / 'forge' / 'raise'
 FOOTER = ('Generated with', 'Co-Authored-By')

@@ -28,11 +28,7 @@ import tier  # the tiers, one home (issues/702)
 import corpus
 from markdown_projection import FACTS, RENDERED, REPO, assign_name, deposit
 
-SELF = 'src/main/agent/render_corpus.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 
 def main() -> int:

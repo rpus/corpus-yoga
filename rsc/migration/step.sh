@@ -1,13 +1,12 @@
 # shellcheck shell=bash
 # rsc/migration/step.sh - the steps a migration script is made of, sourced by each
-# rsc/migration/<issue>.sh after it declares SELF. A step is guarded so that a second
+# rsc/migration/<issue>.sh. A step is guarded so that a second
 # run does nothing; bare, the script states each step it would take, and --apply takes
 # them. A from and a to both present halt with the pair named: nothing here chooses.
 
-[[ -n "${SELF-}" ]] || { echo "${BASH_SOURCE[1]}: declares no SELF" >&2; exit 1; }
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
-REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
-[[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[1]}" ]] || { echo "${BASH_SOURCE[1]}: not at its declared address $SELF" >&2; exit 1; }
+REPO_DIR="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
+MIGRATION="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)/$(basename "${BASH_SOURCE[1]}")"
+MIGRATION="${MIGRATION#"$REPO_DIR"/}"   # the running migration, as its messages name it
 cd "$REPO_DIR" || exit 1
 
 APPLY=0
@@ -16,7 +15,7 @@ ARRIVED=()   # bare: where the moves stated above would have put something
 case "${1-}" in
   --apply) APPLY=1 ;;
   '') ;;
-  *) echo "usage: $SELF [--apply]" >&2; exit 2 ;;
+  *) echo "usage: $MIGRATION [--apply]" >&2; exit 2 ;;
 esac
 
 # stands <path>: whether something stands at the path once the steps stated above are taken -
@@ -33,7 +32,7 @@ move() {
   local from="$1" to="$2"
   stands "$from" || return 0
   if stands "$to"; then
-    echo "FAIL: $from and $to both exist - resolve by hand, then run $SELF again" >&2
+    echo "FAIL: $from and $to both exist - resolve by hand, then run $MIGRATION again" >&2
     exit 1
   fi
   echo "mv $from $to"
@@ -109,7 +108,7 @@ fold() {
     for gone in ${MOVED[@]+"${MOVED[@]}"}; do [[ "$file" == "$gone"/* ]] && continue 2; done
     rel="${file#"$from"/}"
     if [[ -e "$to/$rel" || -L "$to/$rel" ]]; then
-      echo "FAIL: $file and $to/$rel both exist - resolve by hand, then run $SELF again" >&2
+      echo "FAIL: $file and $to/$rel both exist - resolve by hand, then run $MIGRATION again" >&2
       exit 1
     fi
     n=$((n + 1))
@@ -137,7 +136,7 @@ retire() {
     [[ -e "$entry" || -L "$entry" ]] || continue
     [[ "${entry##*/}" == .DS_Store ]] && continue
     for moved in ${MOVED[@]+"${MOVED[@]}"}; do [[ "$entry" == "$moved" ]] && continue 2; done
-    echo "FAIL: $dir still holds $entry - move or remove it by hand, then run $SELF again" >&2
+    echo "FAIL: $dir still holds $entry - move or remove it by hand, then run $MIGRATION again" >&2
     exit 1
   done
   echo "rmdir $dir"

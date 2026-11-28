@@ -3,7 +3,6 @@
 # each body a room holds under tmp/forge/raise moves to tmp/logs/forge/raise, and the emptied
 # directory is retired.
 set -euo pipefail
-SELF='rsc/migration/1069.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

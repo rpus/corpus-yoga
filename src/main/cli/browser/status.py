@@ -13,11 +13,7 @@ import audit as capture_audit
 import account  # this file's sibling
 from library import migration_note
 
-SELF = 'src/main/cli/browser/status.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 @dataclass

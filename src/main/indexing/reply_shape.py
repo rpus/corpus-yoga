@@ -16,12 +16,9 @@ reads back, and why a stored reading fails its family (issues/1161).
 import json
 import sys
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/indexing/reply_shape.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 KEPT = ('type', 'enum', 'const', 'description')   # what structured outputs accept of a column's schema; the family judges the rest after
 
@@ -93,7 +90,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 3 and argv[0] == 'fault':
         print(fault(argv[1], argv[2]))
         return 0
-    print(f'usage: {SELF} schema <family> <columns-json> [<column>=<json-schema>]... | table <columns-json> | fault <file> <schema>', file=sys.stderr)
+    print(f'usage: {Path(__file__).resolve().relative_to(tier.REPO)} schema <family> <columns-json> [<column>=<json-schema>]... | table <columns-json> | fault <file> <schema>', file=sys.stderr)
     return 2
 
 

@@ -5,7 +5,6 @@
 # and write it and the stage status names what nothing reads. The scratch's data/input, a link to
 # ../../input, follows the input it names.
 set -euo pipefail
-SELF='rsc/migration/1133.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

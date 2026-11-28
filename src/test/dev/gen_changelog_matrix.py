@@ -18,6 +18,7 @@ Where <pipeline> is any key from PIPELINES in run.py.
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 from gate import (
     PIPELINES,
@@ -26,11 +27,7 @@ from gate import (
 from validation_matrix import HEADER, render_rows, write_matrix
 from validation_audit import datum_dirs, sources  # the data gate's own enumeration (issues/535)
 
-SELF = 'src/test/dev/gen_changelog_matrix.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = Path(os.environ['CORPUS_YOGA_ROOT'])   # the repository root, which corpus-yoga hands every run (issues/1173)
 
 
 

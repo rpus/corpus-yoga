@@ -93,11 +93,7 @@ import rehearsal  # the rehearsal record, one home (issues/815)
 import schema_walk
 import tier  # the tiers, one home (issues/702)
 
-SELF = 'src/main/corpus.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 STAGED = tier.STAGE_INPUT                 # what the captures write
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (issues/721)

@@ -15,10 +15,6 @@ import sys
 from pathlib import Path
 from markdown_projection import FACTS, MD033_PRAGMA, RENDERED, write_if_changed
 
-SELF = 'src/main/agent/render.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
 
 
 def render_session(conv):

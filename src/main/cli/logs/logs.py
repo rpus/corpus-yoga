@@ -27,11 +27,7 @@ import facts
 import spell
 import tier
 
-SELF = 'src/main/cli/logs/logs.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 LOGS = tier.LOGS_ROOT
 CLI = REPO / 'src' / 'main' / 'cli'

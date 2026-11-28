@@ -15,10 +15,6 @@ import sys
 from pathlib import Path
 from write_if_changed import write_if_changed
 
-SELF = 'src/main/agent/gemini/transcript_to_json.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
 
 TRANSCRIPTS = ('transcript_full.jsonl', 'transcript.jsonl')
 LOGS = Path('.system_generated') / 'logs'   # where a session keeps its transcripts, live and held alike

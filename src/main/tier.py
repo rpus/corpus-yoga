@@ -23,11 +23,9 @@ src/main builds a machine-local path from its root by hand.
 import os
 from pathlib import Path
 
-SELF = 'src/main/tier.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+if not os.environ.get('CORPUS_YOGA_ROOT'):
+    raise SystemExit('CORPUS_YOGA_ROOT is unset - the repository root, which corpus-yoga hands every run it starts (issues/1173)')
+REPO = Path(os.environ['CORPUS_YOGA_ROOT'])   # found once, by the launcher at the root, and handed to everything it starts
 
 DEV_GATE = Path(os.environ['CORPUS_YOGA_DEV_GATE']) if os.environ.get('CORPUS_YOGA_DEV_GATE') else None   # the dev gate's own data, while it runs
 STAGE = (DEV_GATE or REPO) / 'stage'

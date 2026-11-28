@@ -640,7 +640,7 @@ def check_effective_acts(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1063.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         stripped = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 1 and applied.returncode == 0 and again.stdout == ''
                     and index.read_text() == '- [mine](mine.md)\n- [theirs](theirs.md)\n')
@@ -689,7 +689,7 @@ def check_bytecode(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1052.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in (checkout / 'src').rglob('*'))
         cleared = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 6 and applied.returncode == 0 and again.stdout == ''
@@ -767,7 +767,7 @@ def check_screen_and_scratch(run) -> None:
     placed: dict[str, object] = {}
     with tempfile.TemporaryDirectory() as tmp:
         script = Path(tmp) / 'probe.sh'
-        script.write_text(f'SELF=a-helper-it-sourced.sh; source "{SRC}/main/tier.sh"; TMP_DIR="$PROBE_TMP"\n'
+        script.write_text(f'source "{SRC}/main/tier.sh"; TMP_DIR="$PROBE_TMP"\n'
                           'f="$(scratch_file probe)"; d="$(scratch_dir probe)"; echo "$f"; echo "$d"; echo $$; [[ -f "$f" && -d "$d" ]]\n')
         for case, env, under in (('dispatched', {'CORPUS_YOGA_ACT': 'probe verb'}, 'probe.verb'), ('undispatched', {}, 'probe')):
             under_tmp = Path(tmp) / case
@@ -859,7 +859,7 @@ def check_sweep(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1069.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         stands = sorted(p.name for p in new.iterdir()) if new.is_dir() else []
         moved_bodies = (bare.returncode == 0 and len(bare.stdout.splitlines()) == 2 and applied.returncode == 0 and again.stdout == ''
@@ -1074,7 +1074,7 @@ def check_migration_idempotent(run) -> None:
         for path, text in planted.items():
             Path(path).parent.mkdir(parents=True, exist_ok=True)
             Path(path).write_text(text)
-        env = {**os.environ, 'HOME': str(home)}
+        env = {**os.environ, 'HOME': str(home), 'CORPUS_YOGA_ROOT': str(checkout)}
         def state() -> dict[str, str]:
             return {p.relative_to(root).as_posix(): ('-> ' + os.readlink(p)) if p.is_symlink() else p.read_text() if p.is_file() else '/'
                     for p in sorted(root.rglob('*')) if 'rsc' not in p.relative_to(root).parts}
@@ -1143,7 +1143,7 @@ def check_agent_memory_disposed(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1090.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('memory') if p.is_dir())
         sessions = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*.jsonl'))
@@ -1254,7 +1254,7 @@ def check_roots_migration(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1170.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
                       if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
@@ -1303,7 +1303,7 @@ def check_stage_migration(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1171.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         if (checkout / 'stage' / 'dev' / 'input').is_dir():
             (checkout / 'stage' / 'dev' / 'input').chmod(stat.S_IRWXU)
@@ -1348,7 +1348,7 @@ def check_stage_layout_migration(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1163.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
                       if (p.is_file() or p.is_symlink() or not any(p.iterdir())) and p.relative_to(checkout).parts[0] != 'rsc')
@@ -1388,7 +1388,7 @@ def check_cache_migration(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1181.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*')
                       if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
@@ -1427,7 +1427,7 @@ def check_indexing_judgement_migration(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1189.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*') if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
         counted = bare.stdout.count(' - 1 line(s), 8 bytes') == 3
@@ -1471,7 +1471,7 @@ def check_unit_cache_migration(run) -> None:
         def ran(*flags: str) -> subprocess.CompletedProcess:
             if not script.is_file():
                 return subprocess.CompletedProcess([str(script)], 127, '', 'rsc/migration/1192.sh is absent')
-            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ}, timeout=60)
+            return subprocess.run([str(script), *flags], capture_output=True, text=True, env={**os.environ, 'CORPUS_YOGA_ROOT': str(checkout)}, timeout=60)
         bare, applied, again = ran(), ran('--apply'), ran()
         left = sorted(p.relative_to(checkout).as_posix() for p in checkout.rglob('*') if p.is_file() and p.relative_to(checkout).parts[0] != 'rsc')
         want = sorted([f'{root}/{new}' for root in ('cache/pipeline', 'stage/cache/pipeline') for _, new in moves] + ['cache/metamodel/x.json'])

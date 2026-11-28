@@ -7,7 +7,6 @@ every run revalidates it. Shared by every provider's mechanism under this pipeli
 import filecmp
 import os
 
-SELF = 'src/main/agent/write_if_changed.py'
 
 
 def write_if_changed(path, write):

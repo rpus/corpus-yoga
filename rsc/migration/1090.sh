@@ -4,7 +4,6 @@
 # directory with its files and bytes - the disposal record, read before the apply; applied, the
 # same lines, which the migration's log keeps.
 set -euo pipefail
-SELF='rsc/migration/1090.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

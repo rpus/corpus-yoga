@@ -5,7 +5,6 @@
 # moved beside it - and stage/dev, the dev gate's, which every gate run made afresh and the gate now
 # keeps under tmp/ for the length of its run, is discarded with every empty directory it held.
 set -euo pipefail
-SELF='rsc/migration/1171.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

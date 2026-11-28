@@ -20,12 +20,9 @@ STDLIB-ONLY.
 import csv
 import os
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/cache/cache_io.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 REGISTRY = REPO / 'rsc' / 'cache_io.csv'
 COLUMNS = ('cache_path', 'pipeline', 'written_by', 'read_by', 'note')
 

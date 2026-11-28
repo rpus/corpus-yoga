@@ -25,10 +25,6 @@ from pathlib import Path
 import cli  # the one reader of src/main/cli/
 from declared_parser import verb_parser  # the declaration's parser generator
 
-SELF = 'src/main/cli/parse_argv.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
 
 
 def main() -> int:

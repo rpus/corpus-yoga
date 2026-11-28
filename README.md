@@ -11,7 +11,7 @@ the corpus more fully than the provider does.
 ## Quickstart
 
 ```bash
-./src/main/cli/status/status.sh satisfy           # pre-venv, once: mint the venv (bare, the same report read-only)
+./corpus-yoga status satisfy           # pre-venv, once: mint the venv (bare, the same report read-only)
 ./corpus-yoga                        # suggests what to run next; runs none of it
 ./corpus-yoga status                 # read-only: whether everything is well, and what needs doing
 ./corpus-yoga walkthrough            # walk the room's state: n next, m members, v value, b back, x runs the command it stands on
@@ -120,7 +120,7 @@ use, from which `corpus-yoga server build` writes the book index and
 
 ## Prerequisites
 
-`jq` and Python 3; `./src/main/cli/status/status.sh satisfy` creates the
+`jq` and Python 3; `./corpus-yoga status satisfy` creates the
 shared venv (`~/venvs/general`, override via `CORPUS_YOGA_VENV=`) and installs `src/requirements.txt` -
 the one place the name `python3` survives (issues/478): `corpus-yoga` itself and every `.py` run in the venv. Browser capture needs macOS + Safari. The repo ships no
 data — every machine-local root, `cache/ data/ ext/ fetch/ logs/ stage/ tmp/`, is git-ignored. Install the hook (required;

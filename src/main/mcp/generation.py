@@ -35,12 +35,9 @@ import re
 from pathlib import Path
 import extraction  # (sibling module)
 from extraction import TypeExpr
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/mcp/generation.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 PRIMITIVE_TYPE = {'string': 'string', 'boolean': 'boolean', 'null': 'null', 'number': 'integer'}
 TAG_BLOCKS = ('@example', '@includeCode', '@category', '@TJS-type', '@minimum', '@maximum', '@maxItems',

@@ -24,10 +24,7 @@
 # hand-made symlink); --plan names each pipeline's exact steps. After: corpus-yoga test run.
 
 set -euo pipefail
-SELF='src/main/cli/pipeline/pipeline.sh'
-_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
-[[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+REPO_ROOT="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/steps.sh
@@ -146,7 +143,7 @@ require_venv() {
   # One creator (issues/478): status satisfy mints the venv; this run
   # requires it and names the mint rather than minting a second way.
   if [[ ! -f "$CORPUS_YOGA_VENV/bin/activate" ]]; then
-    echo "error: $(phrase "venv not found at {venv} - ./src/main/cli/status/status.sh satisfy mints it" venv="$CORPUS_YOGA_VENV")" >&2
+    echo "error: $(phrase "venv not found at {venv} - ./corpus-yoga status satisfy mints it" venv="$CORPUS_YOGA_VENV")" >&2
     exit 1
   fi
 }
@@ -373,7 +370,7 @@ print_plan() {
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
   echo "corpus-yoga pipeline $verb${only:+ $only} - $(phrase "the ordered plan (conditional steps annotated; nothing executed)"):"
-  echo "  tooling: $(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
+  echo "  tooling: $(phrase "require jq; require the venv at {venv} (./corpus-yoga status satisfy mints it); pip install src/requirements.txt" venv="\$CORPUS_YOGA_VENV")"
   [[ -n "$collating" ]] || ( plan=1; step test "$REPO_ROOT/src/main/cli/test/test.sh" run )
   if should_run browser; then
     "$REPO_ROOT/src/main/browser/run.sh" --plan ${collating:+--collate} | sed 's/^/  /'
@@ -417,7 +414,7 @@ main() {
 
 
   # the tooling is a section like the stages (issues/755): its lines beneath its key
-  section_open tooling "$(phrase "require jq; require the venv at {venv} (./src/main/cli/status/status.sh satisfy mints it); pip install src/requirements.txt" venv="$CORPUS_YOGA_VENV")"
+  section_open tooling "$(phrase "require jq; require the venv at {venv} (./corpus-yoga status satisfy mints it); pip install src/requirements.txt" venv="$CORPUS_YOGA_VENV")"
   ( require_cmd jq "$(phrase "brew install jq installs it")"; require_venv; install_deps ) 2>&1 | indented
   local tooling_rc=${PIPESTATUS[0]}
   (( tooling_rc == 0 )) || exit "$tooling_rc"

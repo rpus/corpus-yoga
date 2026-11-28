@@ -4,7 +4,6 @@
 # under the prefix - and each directory under src that held nothing else, the leaving of a
 # module moved or removed, is retired, the deepest first.
 set -euo pipefail
-SELF='rsc/migration/1052.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

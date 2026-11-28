@@ -42,11 +42,7 @@ import provider
 import tier
 import validation_verdict as verdicts
 
-SELF = 'src/main/rehearsal.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 RECORD = tier.STAGE_REHEARSAL
 SCHEMA = REPO / 'src' / 'main' / 'rehearsal.schema.json'
@@ -200,7 +196,7 @@ def main(argv: list[str]) -> int:
         return begin(argv[1])
     if len(argv) == 3 and argv[0] == 'end':
         return end(argv[1], int(argv[2]))
-    print(f'usage: {SELF} begin <stamp> | end <stamp> <exit>', file=sys.stderr)
+    print(f'usage: {Path(__file__).resolve().relative_to(tier.REPO)} begin <stamp> | end <stamp> <exit>', file=sys.stderr)
     return 2
 
 

@@ -20,11 +20,7 @@ import tier  # the tiers, one home (issues/702)
 import atoms  # the export's conversations and their atoms, one home (issues/743)
 from vintage import export_time  # the one export-ordering authority
 
-SELF = 'src/main/export/compare_captures.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 BULK = 'data/input/claude/chat/bulk-export'
 

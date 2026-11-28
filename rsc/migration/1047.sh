@@ -4,7 +4,6 @@
 # roots take their names, and the metamodel's cache, which corpus-yoga metamodel derive
 # rebuilds under tmp/cache/metamodel, is discarded at its former name.
 set -euo pipefail
-SELF='rsc/migration/1047.sh'
 # shellcheck source=rsc/migration/step.sh
 source "${BASH_SOURCE[0]%/*}/step.sh"
 

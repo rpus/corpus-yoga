@@ -49,11 +49,7 @@ import tier  # the tiers, one home (issues/702)
 import facts
 import send  # every read below is a send the declaration names (issues/1022)
 
-SELF = 'src/main/cli/forge/capture.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 STAGED = tier.STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (issues/687)
 
@@ -130,7 +126,7 @@ def count(name: str, value: Captured) -> int:
 
 def main(argv: list[str]) -> int:
     if len(argv) != 1:
-        sys.exit(f'usage: {SELF} <stamp>')
+        sys.exit(f'usage: {Path(__file__).resolve().relative_to(tier.REPO)} <stamp>')
     stamp = argv[0]
     os.chdir(REPO)  # gh resolves {owner}/{repo} from the checkout's remote
     try:

@@ -355,8 +355,11 @@ eighth principle or a smell.
   send or x by definition. What is
   intent, how is extent: prose says what a verb is FOR; its effects render
   from the declaration and are never restated by hand.
-- Every script declares SELF as its repo-relative address and derives its
-  root by searching parents for it - the gate holds every declaration.
+- The repository root is found once, by the launcher standing at it, and
+  handed to every run as CORPUS_YOGA_ROOT; what the launcher does not start is
+  handed it by what starts it - git, for a hook. No script derives its root
+  from its own address, so a moved script runs where it stands and xref finds
+  what still names its old one.
 - Scripted text edits use python string replacement, never sed or perl -
   path-laden patterns collide with delimiters.
 

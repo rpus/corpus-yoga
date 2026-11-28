@@ -15,11 +15,7 @@ import enact  # the send bound
 import send  # every Apple Event below is a send the declaration names (issues/1022)
 from send import SendRefused  # noqa: F401 - its catchers import it from here
 
-SELF = 'src/main/safari.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 DOWNLOADS        = Path.home() / 'Downloads'

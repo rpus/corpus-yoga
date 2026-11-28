@@ -58,10 +58,6 @@ import check
 import pkgutil
 import importlib
 
-SELF = 'src/test/dev/run.py'
-_file = Path(__file__).resolve()
-assert any(p / SELF == _file for p in _file.parents), f'{_file} is not at its declared address {SELF}'
-
 for _found in sorted(m.name for m in pkgutil.iter_modules(check.__path__)):
     importlib.import_module(f'check.{_found}')   # each subject's checks declare themselves as they load
 

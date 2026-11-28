@@ -6,9 +6,6 @@ rename keeps its gitignored bytecode in a checkout that held it, and is no membe
 
 from pathlib import Path
 
-SELF = 'src/main/member.py'
-_file = Path(__file__).resolve()
-assert [p for p in _file.parents if p / SELF == _file], f'{_file} is not at its declared address {SELF}'
 
 
 def is_member(directory: Path) -> bool:

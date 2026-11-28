@@ -177,26 +177,31 @@ def check_step_imports(run) -> None:
             check='imports.step_module_imports')
 
 
-@check(tier='code', says=('structure.self_path_matches_address',))
-def check_self_paths(run) -> None:
-    """Every SELF declaration names its own file's address: the root
-    derivation searches for the declared path and fails loudly at import when it
-    is stale — this check fails it at commit instead, for every declaring file,
-    executed or not — python, shell and applescript alike."""
-    pat = re.compile(r"^SELF\s*=\s*'([^']+)'", re.M)
-    pat_applescript = re.compile(r'^set SELF to "([^"]+)"', re.M)
-    for f in sorted(list(SRC.rglob('*.py')) + list(SRC.rglob('*.sh'))
-                    + list(SRC.rglob('*.applescript'))):
-        if '__pycache__' in f.parts:
-            continue
-        m = (pat_applescript if f.suffix == '.applescript' else pat).search(f.read_text())
-        if not m:
-            continue
-        actual = f.relative_to(REPO_ROOT).as_posix()
-        run(f'self: {actual}: declares its own address', m.group(1) == actual,
-            None if m.group(1) == actual else
-            f'declares {m.group(1)!r} — a moved file whose declaration did not move with it',
-            check='structure.self_path_matches_address')
+@check(tier='code', says=('structure.root_is_handed',), on=['src/run_python_script.sh', 'src/import_roots.sh', 'src/main/tier.py', 'corpus-yoga'])
+def check_root_handed(run) -> None:
+    """The repository root is found once, by the launcher standing at it, and handed to every run it
+    starts (issues/1173): no script derives its root from its own address, so one moved runs where it
+    stands, given the root. In a scratch copy of the code, the python runner copied to an address it
+    never stood at, handed that copy's root, starts a python whose tier.REPO is the copy."""
+    import os
+    import shutil
+    import tempfile
+    with tempfile.TemporaryDirectory() as scratch:
+        room = Path(scratch).resolve() / 'room'
+        shutil.copytree(SRC, room / 'src', ignore=shutil.ignore_patterns('__pycache__'))
+        (room / 'rsc').symlink_to(REPO_ROOT / 'rsc')
+        shutil.copy(REPO_ROOT / 'pyrightconfig.json', room / 'pyrightconfig.json')   # the import roots the runner sets
+        moved = room / 'src' / 'moved' / 'elsewhere' / 'run_python_script.sh'
+        moved.parent.mkdir(parents=True)
+        shutil.copy(room / 'src' / 'run_python_script.sh', moved)
+        environment = {**os.environ, 'CORPUS_YOGA_ROOT': str(room), 'CORPUS_YOGA_VENV': sys.prefix}
+        ran = subprocess.run([str(moved), '-c', 'import tier; print(tier.REPO)'], cwd=room, env=environment,
+                             capture_output=True, text=True, timeout=60)
+        said = (ran.stdout.strip() or ran.stderr.strip()).replace(str(room), '<room>').splitlines()
+        ok = ran.returncode == 0 and ran.stdout.strip() == str(room)
+    run('structure: a script runs where it stands, handed the root, never deriving it from its own address',
+        ok, None if ok else f'the moved runner exited {ran.returncode}: {said[-1] if said else "silently"}',
+        check='structure.root_is_handed')
 
 
 @check(tier='code', on='TREE', says=(
@@ -447,7 +452,7 @@ def check_tier_contract(run) -> None:
 
     # The stage is one directory, stage/ (issues/1171): no level beneath it names a person or a
     # gate - in python and in a shell sourcing tier.sh alike, wherever the dev gate is not running.
-    outside_gate = {k: v for k, v in os.environ.items() if not k.startswith('CORPUS_YOGA_') or k == 'CORPUS_YOGA_VENV'}
+    outside_gate = {k: v for k, v in os.environ.items() if not k.startswith('CORPUS_YOGA_') or k in ('CORPUS_YOGA_VENV', 'CORPUS_YOGA_ROOT')}
     python_side = subprocess.run([sys.executable, '-c', 'import sys; sys.path.insert(0, sys.argv[1]); import tier; print(tier.STAGE)', str(SRC / 'main')],
                                  capture_output=True, text=True, env=outside_gate).stdout.strip()
     shell_side = subprocess.run(['bash', '-c', 'source "$1"; echo "$STAGE_DIR"', '_', str(SRC / 'main' / 'tier.sh')],

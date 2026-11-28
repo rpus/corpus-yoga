@@ -20,12 +20,9 @@ from declared_parser import command_parser
 import facts  # the one printer of a status's facts (issues/753)
 import send  # ~/.zshrc is outside the tree, so its write is a send the declaration names (issues/29, issues/1022)
 from cli import REPO
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/completions/completions.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 # The directory ~/.zshrc puts on zsh's fpath: it holds _corpus-yoga, the one file zsh loads.
 COMPLETION_HOME = REPO / 'src' / 'main' / 'cli' / 'completions'

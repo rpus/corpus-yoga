@@ -236,15 +236,10 @@ def check_run_reads_one_unit(run) -> None:
 
     later = ('aaaaaaaa-0000-4000-8000-000000000000', '2026-02-01T00:00:00.000000Z', 'later chat')
     earlier = ('bbbbbbbb-0000-4000-8000-000000000000', '2026-01-01T00:00:00.000000Z', 'earlier chat')
-    environment = {name: value for name, value in os.environ.items()
-                   if name not in ('CORPUS_YOGA_DEV_GATE', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
-    environment['CORPUS_YOGA_VENV'] = sys.prefix
     runs: list[tuple[dict[str, bytes], list[str]]] = []
     with tempfile.TemporaryDirectory() as scratch:
-        room = Path(scratch).resolve() / 'room'
-        shutil.copytree(SRC, room / 'src', ignore=shutil.ignore_patterns('__pycache__'))
-        (room / 'rsc').symlink_to(REPO_ROOT / 'rsc')
-        shutil.copy(REPO_ROOT / 'pyrightconfig.json', room / 'pyrightconfig.json')   # the import roots the launcher sets
+        room = _scratch_room(Path(scratch))
+        environment = _room_environment(room)
         for units in ([later], [later, earlier]):
             for root in ('data', 'cache'):
                 shutil.rmtree(room / root, ignore_errors=True)
@@ -338,13 +333,14 @@ def check_unit_cache_address(run) -> None:
         said == want, None if said == want else f'it resolves as {said}, where {want}', check='pipeline.unit_cache_at_its_input_address')
 
 
-def _room_environment() -> dict:
-    """The environment a pipeline runs in as a room's own, outside the gate."""
+def _room_environment(room: Path) -> dict:
+    """The environment a pipeline runs in as the room's own, outside the gate: the room its root."""
     import os
     import sys
     environment = {name: value for name, value in os.environ.items()
                    if name not in ('CORPUS_YOGA_DEV_GATE', 'CORPUS_YOGA_REHEARSAL', 'CORPUS_YOGA_GATE_CHECK')}
     environment['CORPUS_YOGA_VENV'] = sys.prefix
+    environment['CORPUS_YOGA_ROOT'] = str(room)
     return environment
 
 
@@ -374,9 +370,9 @@ def check_browser_run_renders(run) -> None:
                'current_leaf_message_uuid': 'aaaaaaaa-m2', 'chat_messages': [
                    {**turn, 'uuid': 'aaaaaaaa-m1', 'parent_message_uuid': '00000000-0000-4000-8000-000000000000', 'sender': 'human', 'text': 'hi'},
                    {**turn, 'uuid': 'aaaaaaaa-m2', 'parent_message_uuid': 'aaaaaaaa-m1', 'sender': 'assistant', 'text': 'hello'}]}
-    environment = _room_environment()
     with tempfile.TemporaryDirectory() as scratch:
         room = _scratch_room(Path(scratch))
+        environment = _room_environment(room)
         unit = room / 'data' / 'input' / 'claude' / 'chat' / 'API-capture' / uuid
         unit.mkdir(parents=True)
         (unit / 'apiConversation.json').write_text(json.dumps(capture))
@@ -424,19 +420,19 @@ def check_status_offers_collate(run) -> None:
         unit = room / 'data' / 'input' / 'claude' / 'chat' / 'API-capture' / uuid
         unit.mkdir(parents=True)
         (unit / 'apiConversation.json').write_text(json.dumps(capture))
-        subprocess.run([str(room / 'src' / 'main' / 'browser' / 'run.sh')], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        subprocess.run([str(room / 'src' / 'main' / 'browser' / 'run.sh')], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         status = [str(room / 'src' / 'run_python_script.sh'), str(room / 'src' / 'main' / 'cli' / 'pipeline' / 'status.py')]
         browser = str(room / 'src' / 'main' / 'browser' / 'run.sh')
 
         def offers() -> str:
-            return subprocess.run(status, input=rows, cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300).stdout
+            return subprocess.run(status, input=rows, cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300).stdout
 
         current = offers()
-        subprocess.run([browser, '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        subprocess.run([browser, '--collate'], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         collated = offers()
         (unit / 'apiConversation.json').write_text(json.dumps({**capture, 'name': 'an offered chat, renamed'}))
         owed = offers()
-        subprocess.run([browser], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        subprocess.run([browser], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         rerun = offers()
     why = ('after the run, the status offers no collate' if collate not in current else
            'after the collate, the status offers the collate again' if collate in collated else
@@ -470,9 +466,9 @@ def check_collate_refuses_stale(run) -> None:
         (unit / 'apiConversation.json').write_text(json.dumps(capture))
         run_script = str(room / 'src' / 'main' / 'browser' / 'run.sh')
         for mode in ([], ['--collate']):
-            subprocess.run([run_script, *mode], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+            subprocess.run([run_script, *mode], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         (unit / 'apiConversation.json').write_text(json.dumps(grown))
-        again = subprocess.run([run_script, '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        again = subprocess.run([run_script, '--collate'], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
     said = again.stdout + again.stderr
     why = ('the collate placed the rendering of the capture it replaced, and exited 0' if again.returncode == 0 else
            'the collate refused without naming the capture' if uuid not in said else
@@ -504,11 +500,11 @@ def check_export_run_renders(run) -> None:
         (exports / batch).mkdir(parents=True)
         (exports / batch / 'conversations.json').write_text(json.dumps([conversation]))
         run_script = str(room / 'src' / 'main' / 'export' / 'run.sh')
-        ran = subprocess.run([run_script, '--input', str(exports)], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        ran = subprocess.run([run_script, '--input', str(exports)], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         cache = room / 'cache' / 'pipeline' / 'claude' / 'chat' / 'bulk-export' / batch
         rendered = cache / 'rendered' / f'{name}.md'
         held = rendered.read_text() if rendered.is_file() else None
-        subprocess.run([run_script, '--input', str(exports), '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        subprocess.run([run_script, '--input', str(exports), '--collate'], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         said = (ran.stdout + ran.stderr).replace(str(room), '<room>').strip().splitlines()
         deposited = cache / 'markdown' / f'{name}.md'
         collated = deposited.read_text() if deposited.is_file() else None
@@ -544,11 +540,11 @@ def check_agent_run_renders(run) -> None:
         (project / f'{session}.jsonl').write_text(''.join(json.dumps(record) + '\n' for record in records))
         run_script = str(room / 'src' / 'main' / 'agent' / 'run.sh')
         stores = str(room / 'data' / 'input' / '<provider>' / 'code' / 'machine-transport')
-        ran = subprocess.run([run_script, '--input', stores], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        ran = subprocess.run([run_script, '--input', stores], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         said = (ran.stdout + ran.stderr).replace(str(room), '<room>').strip().splitlines()
         rendered = room / 'cache' / 'pipeline' / 'claude' / 'code' / 'machine-transport' / 'a-machine' / 'a-project' / session / 'conversation.md'
         held = rendered.read_text() if rendered.is_file() else None
-        subprocess.run([run_script, '--input', stores, '--collate'], cwd=room, env=_room_environment(), capture_output=True, text=True, timeout=300)
+        subprocess.run([run_script, '--input', stores, '--collate'], cwd=room, env=_room_environment(room), capture_output=True, text=True, timeout=300)
         deposited = room / 'data' / 'output' / 'markdown' / 'claude' / 'code' / 'conversations' / '1-a_code_chat.md'
         collated = deposited.read_text() if deposited.is_file() else None
     why = (f'the run exited {ran.returncode}: {said[-1] if said else "silently"}' if ran.returncode else

@@ -41,11 +41,7 @@ import tier  # the tiers, one home (issues/702)
 import send  # every read of upstream is a send the declaration names (issues/1022)
 from latest import lineages
 
-SELF = 'src/main/reference/reference.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 ROOT = REPO / 'rsc' / 'reference'
 FETCH = tier.FETCH / 'reference'   # what the last fetch recorded of upstream, by project

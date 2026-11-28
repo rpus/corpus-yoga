@@ -386,7 +386,7 @@ def declared_of(line: str) -> dict:
     verb = words[at + 2] if len(words) > at + 2 and not words[at + 2].startswith('-') else noun
     key = f'{noun} {verb}'
     if key not in _DECLARED:
-        declared = Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli' / noun / f'{verb}.json'
+        declared = tier.REPO / 'src' / 'main' / 'cli' / noun / f'{verb}.json'
         _DECLARED[key] = json.loads(declared.read_text())
     return _DECLARED[key]
 
@@ -583,7 +583,7 @@ def declared_phrase() -> dict[str, str]:
     global _DECLARED_PHRASE
     if _DECLARED_PHRASE is None:
         _DECLARED_PHRASE = {}
-        for declared in sorted((Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli').glob('*/*.json')):
+        for declared in sorted((tier.REPO / 'src' / 'main' / 'cli').glob('*/*.json')):
             if declared.stem == declared.parent.name:
                 for said in json.loads(declared.read_text()).get('phrase', []):
                     _DECLARED_PHRASE[said] = declared.parent.name
@@ -603,7 +603,7 @@ def act(noun: str, verb: str) -> str:
     """The act an effect line names, `<noun> <verb>`, from its declaration: a verb no
     src/main/cli/<noun>/<verb>.json declares is unrepresentable - it raises here, in every
     room - so that a rename leaves no effect line naming a verb that is gone."""
-    if not (Path(__file__).resolve().parents[2] / 'src' / 'main' / 'cli' / noun / f'{verb}.json').is_file():
+    if not (tier.REPO / 'src' / 'main' / 'cli' / noun / f'{verb}.json').is_file():
         raise KeyError(f'no declaration holds the verb {noun} {verb}')
     return f'{noun} {verb}'
 

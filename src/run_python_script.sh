@@ -6,10 +6,7 @@
 #   src/run_python_script.sh <script.py> [args...]
 
 set -euo pipefail
-SELF='src/run_python_script.sh'
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
-[[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+REPO_DIR="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 # shellcheck source=src/import_roots.sh
 source "$REPO_DIR/src/import_roots.sh"
 
@@ -25,7 +22,7 @@ main() {
   parse_args "$@"
 
   if [[ ! -f "$CORPUS_YOGA_VENV/bin/python" ]]; then
-    echo "error: venv not found at $CORPUS_YOGA_VENV - the mint is corpus-yoga status satisfy, pre-venv ./src/main/cli/status/status.sh satisfy (override location via CORPUS_YOGA_VENV=...)" >&2
+    echo "error: venv not found at $CORPUS_YOGA_VENV - the mint is corpus-yoga status satisfy, pre-venv ./corpus-yoga status satisfy (override location via CORPUS_YOGA_VENV=...)" >&2
     exit 1
   fi
   import_roots "$REPO_DIR" "$CORPUS_YOGA_VENV/bin/python"

@@ -40,12 +40,9 @@ import json
 import sys
 from pathlib import Path
 from markdown_projection import is_empty, ordered, load_convs, corpus_index
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/rekey_chats.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 
 def _order(conversations, legacy):

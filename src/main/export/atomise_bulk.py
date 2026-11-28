@@ -25,11 +25,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 from markdown_projection import REPO, ordered
 
-SELF = 'src/main/export/atomise_bulk.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 CONV_SCHEMAS = REPO / 'rsc' / 'schema' / 'export' / 'claude' / 'conversations'
 
 

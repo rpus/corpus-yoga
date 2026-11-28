@@ -43,11 +43,7 @@ import facts  # the one face a sentence is said through (issues/909)
 import spell
 import tier
 
-SELF = 'src/main/cli/stage/stage.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 KINDS = corpus.JANITOR_KINDS   # each kind of entry, and its plural - one home, which the standing says too (issues/988)
 

@@ -29,11 +29,7 @@ import spell
 from markdown_projection import turns, REPO
 from declared_parser import command_parser
 
-SELF = 'src/main/indexing/indexing.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
 INDEXED_FILE = tier.DATA / 'output' / 'indexing' / 'indexed-semantic-concepts.json'  # the judged index, corpus-yoga indexing build's (written)

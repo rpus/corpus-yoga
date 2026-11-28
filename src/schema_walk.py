@@ -31,12 +31,9 @@ import hashlib
 import json
 import re
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/schema_walk.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
 GRAMMAR = REPO / 'rsc/rpus/grammar/JSONSchema/draft04.g4'

@@ -24,11 +24,7 @@ import corpus
 from markdown_projection import slug
 from library import find as find_library_dir
 
-SELF = 'src/main/export/check_harvested.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 CACHE_DIR = corpus.store_cache('export')

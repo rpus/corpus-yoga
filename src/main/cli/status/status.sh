@@ -13,17 +13,14 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   src/main/cli/status/status.sh              # what still needs attention; a section with nothing to say is not shown
-#   src/main/cli/status/status.sh --show-all   # the full report, what is satisfied included
+#   corpus-yoga status              # what still needs attention; a section with nothing to say is not shown
+#   corpus-yoga status --show-all   # the full report, what is satisfied included
 #
 # A row is keyed by what it is about, its value what stands; the commands that act on it stand beside it.
 # corpus-yoga pipeline run and collate write only data/input/, cache/, data/output/, logs/ and the venv.
 
 set -euo pipefail
-SELF='src/main/cli/status/status.sh'
-_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
-[[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+REPO_ROOT="${CORPUS_YOGA_ROOT:?the repository root, which corpus-yoga hands every run it starts}"
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
 : "${CORPUS_YOGA_VENV:=$HOME/venvs/general}"
@@ -114,7 +111,7 @@ _say() {
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 satisfy_line() {
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then spell status satisfy
-  else echo "./src/main/cli/status/status.sh satisfy"; fi
+  else echo "./corpus-yoga status satisfy"; fi
 }
 
 count_glob_dirs() {

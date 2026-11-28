@@ -10,11 +10,7 @@ import facts
 import tier
 import indexing
 
-SELF = 'src/main/cli/server/book_index.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 INDEX_MD = tier.DATA / 'output' / 'markdown' / 'index.md'
 

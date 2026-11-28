@@ -17,16 +17,13 @@ import json
 import re
 import sys
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from declared_parser import verb_parser
 
-SELF = 'src/test/dev/xref.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = Path(os.environ['CORPUS_YOGA_ROOT'])   # the repository root, which corpus-yoga hands every run (issues/1173)
 
-REPO_ROOT = Path(__file__).parents[3]
+REPO_ROOT = REPO
 
 # The git-ignored lifecycle roots to skip — parsed from the committed .gitignore
 # (its one authority) rather than restated by hand. .gitignore is a committed source,

@@ -17,12 +17,9 @@ import json
 import re
 import sys
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 import facts  # the one face a sentence is said through (issues/909)
 
-SELF = 'src/main/compare_pages.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
 
 BLOCK = re.compile(r'<script id="(data-[a-z-]+)" type="application/json">\s*(.*?)\s*</script>', re.S)
 TITLE = re.compile(r'<title>(.*?)</title>', re.S)
@@ -229,7 +226,7 @@ def compare(old_path: Path, new_path: Path) -> list[Fact]:
 
 def main() -> int:
     if len(sys.argv) != 3:
-        print(f'usage: {SELF} <old index.html> <new index.html> - ' + facts.phrase("what changes between two renders of the corpus page, in the page's own terms"), file=sys.stderr)
+        print(f'usage: {Path(__file__).resolve().relative_to(tier.REPO)} <old index.html> <new index.html> - ' + facts.phrase("what changes between two renders of the corpus page, in the page's own terms"), file=sys.stderr)
         return 2
     for fact in compare(Path(sys.argv[1]), Path(sys.argv[2])):
         print('\t'.join(' '.join(part.split()) for part in fact))   # a part is one line and no tab

@@ -30,11 +30,7 @@ import facts  # the one printer of a status's facts (issues/753)
 import spell
 from declared_parser import command_parser
 
-SELF = 'src/main/metamodel/metamodel.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]

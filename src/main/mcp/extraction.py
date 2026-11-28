@@ -34,12 +34,9 @@ from typing import Any, cast
 import importlib
 from antlr4 import CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/mcp/extraction.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO = _root[0]
+REPO = tier.REPO
 GRAMMAR_PARSER = REPO / 'src' / 'gen' / 'grammar' / 'TypeScript'   # generated, gitignored - corpus-yoga grammar generate
 PARSER_REMEDY = (f'{GRAMMAR_PARSER.relative_to(REPO)} is absent - corpus-yoga grammar generate generates it from '
                  'rsc/rpus/grammar/TypeScript (corpus-yoga status satisfy does so with the rest)')

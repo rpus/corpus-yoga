@@ -17,10 +17,8 @@ Faces:
 import re
 import sys
 from pathlib import Path
+import tier  # the repository root, which corpus-yoga hands every run (issues/1173)
 
-SELF = 'src/main/cli/forge/aim.py'
-_file = Path(__file__).resolve()
-assert [p for p in _file.parents if p / SELF == _file], f'{_file} is not at its declared address {SELF}'
 
 PHRASE = 'aims to complete'
 CLOSES = 'closes'
@@ -76,7 +74,7 @@ def main(argv: list[str]) -> int:
         aimed(body)                                   # a body the merge cannot read is not flipped
         sys.stdout.write(flipped(body))
         return 0
-    print(f'usage: {SELF} aimed|flip <body', file=sys.stderr)
+    print(f'usage: {Path(__file__).resolve().relative_to(tier.REPO)} aimed|flip <body', file=sys.stderr)
     return 2
 
 

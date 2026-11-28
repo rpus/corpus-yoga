@@ -26,11 +26,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 from markdown_projection import FACTS, RENDERINGS, deposit, turn_extent, conv_id
 
-SELF = 'src/main/browser/gemini/project_markdown.py'
-_file = Path(__file__).resolve()
-_root = [p for p in _file.parents if p / SELF == _file]
-assert _root, f'{_file} is not at its declared address {SELF}'
-REPO_ROOT = _root[0]
+REPO_ROOT = tier.REPO
 
 def ordering(captures_dir: Path) -> dict:
     """{conversation id: ordinal} from the ordering capture; {} where none exists
