@@ -1,5 +1,5 @@
 {
-  "summary": "the room's stage, stage/ - what is captured and not yet promoted, what the last rehearsal derived, and its record of what it saw and judged (bare is the tier's status, a report that names an act only where an orphan stands, the clean that removes it; clean its one janitor)",
+  "summary": "the room's stage, stage/ - what is captured and not yet promoted, what the last rehearsal derived, and its record of what it saw and judged (bare is the tier's status, a report that names an act only where an orphan stands, the clean that removes it; clean its one janitor; promote every pipeline's promote at once)",
   "standing": true,
   "explanation": {
     "units": "each kind of staged unit, keyed by the selection that names it as a path in the input tree, stage/data/input (the same as data/input's) - the pipeline declaration's input with the provider filled in and its glob after it - with how many are staged and how many the rehearsal found valid, invalid, unlicensed or has not judged, how many are incomplete and how many no family judges; never summed across kinds, and nothing of the store or the live stores, which corpus-yoga store reads against the stage and names every act for - this status names none of those (issues/851)",
@@ -40,7 +40,10 @@
     "identical to the held unit",
     "missing {missing}",
     "no unit is staged - its input, output, cache, logs and rehearsal record serve none",
-    "a unit was staged meanwhile"
+    "a unit was staged meanwhile",
+    "{lost} reached no verdict; ran {ran}",
+    "ran {ran}",
+    "{left} left units staged, as its verdict says"
   ],
   "target": "src/main/cli/stage/stage.py",
   "calculus": "supersession L3 L4 L6 L10",

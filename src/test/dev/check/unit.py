@@ -150,6 +150,55 @@ def check_rehearsal_record(run) -> None:
         check='rehearsal.done_when_every_unit_is_judged')
 
 
+@check(tier='code', says=('stage.promote_runs_every_pipelines_promote',), on=['src/main/cli/stage', 'src/main/frontier.py', 'src/main/spell.py'])
+def check_stage_promote(run) -> None:
+    """corpus-yoga stage promote promotes every promotable staged unit with one command (issues/1203): it runs
+    `corpus-yoga <pipeline> promote` for every pipeline bare corpus-yoga pipeline lists, --all where the verb
+    declares it, in turn, never halting - a promote that leaves units staged is named in its verdict, which
+    is DONE, exit 0; a noun with no pipeline, forge, is not run. The runner is a stand-in: the first command
+    it is given exits 1, as a promote that leaves an unlicensed unit staged does. And the stage's acts offer
+    it beside the noun's own promote, for a promotable unit of a pipeline."""
+    import importlib.util
+    import io
+    from contextlib import redirect_stdout
+    spec = importlib.util.spec_from_file_location('stage_noun', SRC / 'main' / 'cli' / 'stage' / 'stage.py')
+    assert spec is not None and spec.loader is not None
+    stage = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(stage)
+    promote = getattr(stage, 'promote', None)
+    ran: list[str] = []
+
+    class Ran:
+        def __init__(self, code: int) -> None:
+            self.returncode = code
+
+    def runner(argv, **_) -> Ran:
+        ran.append(' '.join(['corpus-yoga', *argv[1:]]))
+        return Ran(1 if len(ran) == 1 else 0)
+
+    said = io.StringIO()
+    code = None
+    if promote is not None:
+        with redirect_stdout(said):
+            code = promote(runner)
+    expected = ['corpus-yoga agent promote --all', 'corpus-yoga browser promote --all', 'corpus-yoga export promote']
+    verdict = said.getvalue().strip().splitlines()[-1] if said.getvalue().strip() else ''
+    why = ('src/main/cli/stage/stage.py has no promote' if promote is None else
+           f'it ran {ran}, where {expected}' if ran != expected else
+           f'it exited {code}, where a promote leaving units staged halts nothing' if code != 0 else
+           f'its verdict reads {verdict!r}, where DONE naming agent promote' if not (verdict.startswith('stage promote: DONE') and 'corpus-yoga agent promote --all' in verdict) else None)
+    if why is None:
+        import corpus
+        from append_only import Relation
+        store = next(s for s in corpus.stores() if s.pipeline == 'export')
+        unit = corpus.Unit(store.input / 'data-2026-01-01-promotable', [store.input / 'data-2026-01-01-promotable'], [], [], 'atoms', 'export', None)
+        offered = [act.line for act in corpus.acts_on_staged([corpus.Judged(unit, Relation.ABSENT, '', corpus.Judgement.VALID, '')], elsewhere=None)]
+        if offered != ['corpus-yoga export promote', 'corpus-yoga stage promote']:
+            why = f'a promotable export is offered {offered}, where its noun\'s promote and corpus-yoga stage promote'
+    run("stage: one command runs every pipeline's promote in turn, never halting, names what one left staged, and is offered beside each noun's",
+        why is None, why, check='stage.promote_runs_every_pipelines_promote')
+
+
 @check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/validation_audit.py', 'src/main/browser', 'src/main/export', 'src/main/agent'])
 def check_export_one_folder(run) -> None:
     """A bulk export is one folder, data-<X>/, in the stage and the store alike (issues/1204): its manifest,
