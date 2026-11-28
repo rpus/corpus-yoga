@@ -1239,6 +1239,7 @@ def acts_on_staged(rows: list[Judged], elsewhere: str | None | bool = True) -> l
     another commit than the checkout's - elsewhere, read from the record unless given - counted
     by that commit; the capturing noun's promote for what is promotable or
     re-rendered, counted by which (issues/1138),
+    corpus-yoga stage promote beside it where the noun is a pipeline's,
     the capture again for an incomplete unit named by a full id, and the stage's cleaner for
     what the store already holds and for each incomplete unit - each on the unit's kind."""
     if elsewhere is True:
@@ -1252,6 +1253,8 @@ def acts_on_staged(rows: list[Judged], elsewhere: str | None | bool = True) -> l
             acts.append(facts.Would(spell.line('pipeline', 'run', stage_rehearsal=True), {kind: {facts.phrase('judged at {commit}', commit=elsewhere): 1}}))
         if row.state in ('promotable', 're-rendered') and (noun := noun_of(row.unit)) is not None:
             acts.append(facts.Would(spell.line(noun, 'promote', all=True) if spell.takes(noun, 'promote', 'all') else spell.line(noun, 'promote'), {kind: {row.state: 1}}))
+            if noun in pipelines():       # a pipeline's unit: the one command that promotes every pipeline's, beside its noun's (issues/1203)
+                acts.append(facts.Would(spell.line('stage', 'promote'), {kind: {row.state: 1}}))
         if row.state == 'incomplete' and (again := recapture_of(row.unit)):
             acts.append(facts.Would(again, {kind: 1}))
         if row.state in ('held already', 'incomplete'):
