@@ -2,17 +2,14 @@
 
 The emailed link downloads the manifest; --manifest names it wherever the download
 left it. This verb reads that file - its source, and no other capture (L10) -
-copies it into the stage, and fetches each listed zip from its export_url into
-the data-* directory sharing the manifest's own star: manifest-<X>.json beside
-data-<X>/, the prefix swapped and nothing else derived. The two are the one
-staged unit <X> (src/main/export/pipeline.json's companion):
-corpus-yoga export promote copies data-<X>/ into shared storage, and the
-manifest, the record of what was fetched, stays in the stage until
-corpus-yoga stage clean removes the unit. If the directory
-is staged or held, or a different manifest of the name is staged, the capture
-refuses before any URL is touched - the one-use URLs are spent only once the
-directory is this run's own. --manifest is required: a default would silently
-pick which one-use URLs to spend.
+moves it into the data-* directory sharing its own star, manifest-<X>.json giving
+data-<X>/, the prefix swapped and nothing else derived, and fetches each listed zip
+from its export_url into that directory. The directory is the one unit, its manifest
+within it as the record src/main/export/pipeline.json declares, in the stage and the
+store alike (issues/1204): corpus-yoga export promote copies the directory, the record
+with it. If the directory is staged or held, the capture refuses before any URL is
+touched - the one-use URLs are spent only once the directory is this run's own.
+--manifest is required: a default would silently pick which one-use URLs to spend.
 
 Each export_url is ONE-USE: a fetch consumes it, so every downloaded byte is the
 payload's last chance. Each file is therefore written the moment its fetch
@@ -32,6 +29,7 @@ import time
 import zipfile
 from pathlib import Path
 import tier  # the tiers, one home (issues/702)
+import corpus
 import facts
 import send  # the one-use navigation is checked before anything is staged (issues/1022)
 from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,
@@ -50,6 +48,7 @@ FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under:
 
 HELD = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
 STAGED = tier.STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (issues/687)
+RECORD = next(s.record for s in corpus.stores() if s.pipeline == 'export')   # the manifest's name within the unit, as the declaration says
 
 
 def derived_data_name(manifest_path: Path) -> str:
@@ -190,7 +189,7 @@ def main(argv: list[str]) -> int:
     files = manifest.get('data_files', [])
     name = derived_data_name(manifest_path)
     target = STAGED / name
-    staged_manifest = target.with_name(manifest_path.name)
+    staged_manifest = target / RECORD
     print(f'{manifest_path.name}: ' + facts.phrase('{n} file(s), version {version}', n=len(files), version=manifest.get('version')))
     print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
     if (HELD / name).is_dir():
@@ -200,10 +199,6 @@ def main(argv: list[str]) -> int:
         facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase(
             '{name}/ already exists; nothing fetched, no URL spent. If it holds an earlier or partial capture, the human moves it aside; this verb never overwrites a deposit',
             name=target.name))
-        return 1
-    same = staged_manifest.exists() and staged_manifest.samefile(manifest_path)
-    if staged_manifest.exists() and not same and staged_manifest.read_bytes() != manifest_path.read_bytes():
-        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('a different {manifest} is staged; nothing fetched, no URL spent', manifest=staged_manifest.name))
         return 1
     if files:
         try:
@@ -219,12 +214,10 @@ def main(argv: list[str]) -> int:
     else:
         prev_tab = None
     target.mkdir(parents=True, exist_ok=False)
-    if not same:
-        # the manifest is consumed: its links are spent here, and a spent manifest has no use
-        # but as the unit's record - moved, as the browser capture moves what Safari downloaded
-        shutil.move(str(manifest_path), staged_manifest)
-    print(f'  {staged_manifest.name}: ' + (facts.phrase('staged beside {target}/', target=target.name) if same
-                                         else facts.phrase('staged beside {target}/ (moved from {path})', target=target.name, path=manifest_path)))
+    # the manifest is consumed: its links are spent here, and a spent manifest has no use
+    # but as the unit's record - moved, as the browser capture moves what Safari downloaded
+    shutil.move(str(manifest_path), staged_manifest)
+    print(f'  {staged_manifest.name}: ' + facts.phrase('staged within {target}/ (moved from {path})', target=target.name, path=manifest_path))
     fetched = 0
     for entry in files:
         got, words = fetch(entry, target)
@@ -236,15 +229,15 @@ def main(argv: list[str]) -> int:
     if prev_tab is not None:
         safari_close_work_tab(prev_tab)   # the reader's tab back, whatever the fetches did
     # one ask, one verdict: what was fetched of what the manifest lists. Whether the unit is
-    # whole is read afterwards from the manifest beside it, by every face, not from here.
+    # whole is read afterwards from the manifest within it, by every face, not from here.
     where = target.relative_to(REPO) if target.is_relative_to(REPO) else target
     if fetched < len(files):
-        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
+        facts.report(None, facts.act('export', 'capture') + ': NOT DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} within it',
                                                              fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
         return 1
     # what an act reports (issues/801, issues/896): the effect; the launcher's reply names the
     # rehearsal that judges what was staged, as the store's status names it
-    facts.report(None, facts.act('export', 'capture') + ': DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} beside it',
+    facts.report(None, facts.act('export', 'capture') + ': DONE - ' + facts.phrase('fetched {fetched} of {n} file(s) into {where}/, {manifest} within it',
                                                                   fetched=fetched, n=len(files), where=where, manifest=staged_manifest.name))
     return 0
 

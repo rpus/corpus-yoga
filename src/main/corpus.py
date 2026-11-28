@@ -19,12 +19,11 @@ UNIT - what a pipeline's declaration selects (src/main/<pipeline>/pipeline.json)
 under the declared input of each provider, every match of input_glob or extra_input_glob,
 cut to subject_depth, is one unit - a directory with everything under it, or a file with
 its declared companion (<stem> standing for the file's stem: claude's workspace <stem>/
-beside <stem>.jsonl). Where the companion names <star>, what the glob's * matched, the
-unit is named by the star and the companion is its record, which the stage alone holds:
-the staged bulk export <X> is data-<X>/, its member, and manifest-<X>.json, the record
-of what its capture fetched - paired where both are present, unpaired where one is, and
-an unpaired unit is never promoted. Promotion copies the members; the record stays in
-the stage until its janitor removes the unit. One selection names the stage's units, the
+beside <stem>.jsonl). Where a store declares a record, a file within each unit recording
+what its capture was to fetch, the unit is complete when it holds every member the record
+lists, and one without the record reads complete: the bulk export <X> is data-<X>/, its
+manifest.json within it, in the stage and the store alike (issues/1204). Promotion copies
+the members, the record with them. One selection names the stage's units, the
 audit's subjects (src/main/validation_audit.py) and the datum's cache address,
 <cache root>[/<provider>]/<subject>, the subject being the name of the datum the steps
 read. A file no declaration selects is a unit of its own, measured by its bytes and
@@ -120,17 +119,15 @@ class Unit:
     pipeline: str | None          # the pipeline whose declaration selected it, or None
     provider: str | None
     subject: tuple[str, ...] = field(default_factory=tuple)   # its cache address under the pipeline's root[/provider]
-    datum: Path | None = None     # the member the pipeline reads, where the unit is named by a star and not by it
-    record: list[Path] = field(default_factory=list)          # what the stage alone holds of it: never promoted
-    missing: list[str] = field(default_factory=list)          # what is absent of a unit named by a star, by name
+    missing: list[str] = field(default_factory=list)          # what is absent of it, by name: an empty directory's payload, or what its record lists and it lacks
     kind: str = 'file'            # what its selection's declaration calls it; what no pipeline selects is a file
     selection: str = ''           # the selection as a path under the input root: the store's input with its glob; '' where none selects it
     families: tuple[str, ...] = ()   # the families the declaration names to judge its kind (issues/1018); () where none does
 
     @property
     def path(self) -> Path:
-        """Where the pipeline's datum lies, relative to the input root."""
-        return self.datum if self.datum is not None else self.address
+        """Where the pipeline's datum lies, relative to the input root: the unit's own address."""
+        return self.address
 
     @property
     def cache(self) -> Path | None:
@@ -172,7 +169,8 @@ class Store:
     provider: str | None
     input: Path                   # relative to data/input
     globs: tuple[Glob, ...]       # the pipeline's selection first, then its second where it declares one
-    companion: str                # what stands beside a selected datum, by <stem> or <star>; '' where nothing does
+    companion: str                # what stands beside a selected file, by <stem>; '' where nothing does
+    record: str                   # the file within each unit recording what its capture was to fetch; '' where none is kept
     depth: int                    # the path parts a unit's subject is cut to
 
 
@@ -188,7 +186,7 @@ def stores(declared: dict[str, dict] | None = None) -> list[Store]:
                 input=Path(resolve(facts['input'], provider, facts).removeprefix('data/input/')),
                 globs=tuple(Glob(g, m, k, tuple(j)) for g, m, k, j in ((f['input_glob'], f['measure'], f['unit'], f['families']),
                                                                       (f['extra_input_glob'], f['extra_measure'], f['extra_unit'], f['extra_families'])) if g),
-                companion=f['companion'], depth=facts['subject_depth']))
+                companion=f['companion'], record=f['record'], depth=facts['subject_depth']))
     return out
 
 
@@ -209,15 +207,6 @@ def _files_under(root: Path, path: Path) -> list[Path]:
     return [f.relative_to(root) for f in sorted(path.rglob('*')) if f.is_file() and f.name != '.DS_Store']
 
 
-def _star(pattern: str, name: str) -> str | None:
-    """What the one * of a pattern matched in a name, or None where it matches nothing."""
-    if pattern.count('*') != 1:
-        return None
-    before, after = pattern.split('*')
-    matched = re.fullmatch(re.escape(before) + '(.*)' + re.escape(after), name)
-    return matched.group(1) if matched else None
-
-
 def _deposit_missing(manifest: Path, payload: Path) -> list[str]:
     """A bulk export's completeness, on sight (issues/721): the manifest lists the archives its
     capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit
@@ -236,44 +225,11 @@ def _deposit_missing(manifest: Path, payload: Path) -> list[str]:
             if not (payload / member).exists()]
 
 
-def _select_pairs(root: Path, store: Store) -> list[Unit]:
-    """The units of a store whose companion names <star>: one per star, found from the
-    datum or the companion, the datum its member, the companion its record, and its
-    missing whichever is absent."""
-    base = root / store.input
-    first = store.globs[0]
-    pattern, measure, kind, families = first.pattern, first.measure, first.kind, first.families
-    datum_form, companion_form = pattern.rstrip('/'), store.companion
-    found: dict[str, None] = {}
-    for item in sorted(base.glob(datum_form)):
-        if item.is_dir() == pattern.endswith('/'):
-            found[_star(datum_form, item.name) or ''] = None
-    for item in sorted(base.glob(companion_form.replace('<star>', '*'))):
-        found[_star(companion_form.replace('<star>', '*'), item.name) or ''] = None
-    out = []
-    for star in sorted(s for s in found if s):
-        datum = base / datum_form.replace('*', star)
-        companion = base / companion_form.replace('<star>', star)
-        members = [datum.relative_to(root)] if datum.exists() else []
-        record = [companion.relative_to(root)] if companion.exists() else []
-        missing = [name for m, name in ((datum, datum.name + ('/' if pattern.endswith('/') else '')),
-                                        (companion, companion.name)) if not m.exists()]
-        if not missing:
-            missing = _deposit_missing(companion, datum)   # complete, or the members the record says are owed
-        files = [f for m in members + record for f in _files_under(root, root / m)]
-        out.append(Unit((base / star).relative_to(root), members, files, list(members), measure, store.pipeline,
-                        store.provider, (datum.name,), datum.relative_to(root), record, missing, kind,
-                        f'{store.input.as_posix()}/{pattern}', families))
-    return out
-
-
 def select(root: Path, store: Store) -> list[Unit]:
     """The units one store's declaration selects under root."""
     base = root / store.input
     if not base.is_dir():
         return []
-    if '<star>' in store.companion:
-        return _select_pairs(root, store)
     units: dict[Path, Unit] = {}
     for selection in store.globs:
         pattern, measure, kind = selection.pattern, selection.measure, selection.kind
@@ -298,6 +254,8 @@ def select(root: Path, store: Store) -> list[Unit]:
                 # incomplete, the janitor's, never a rehearsal's input - a capture interrupted
                 # before it fetched leaves exactly this
                 missing = [f'its {kind}'] if dirs_only and not files else []    # what the selection names it: a capture, an export
+                if not missing and dirs_only and store.record and (unit_path / store.record).is_file():
+                    missing = _deposit_missing(unit_path / store.record, unit_path)   # complete, or the members its record says are owed
                 unit = Unit(address, members, files, [], measure, store.pipeline, store.provider, subject, kind=kind,
                             selection=f'{store.input.as_posix()}/{pattern}', missing=missing, families=selection.families)
                 units[address] = unit
@@ -748,10 +706,8 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
                                    facts.phrase('empty, missing {missing}; {janitor} removes it',
                                                 missing=', '.join(unit.missing), janitor=spell.line('stage', 'clean'))))
                 continue
-            whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
-            rows.append(Judged(unit, Relation.ABSENT if not unit.members else rel,
-                               facts.phrase('no {missing} staged', missing=', '.join(unit.missing)), Judgement.UNJUDGED,
-                               facts.phrase(INCOMPLETE, n=len(unit.missing)) if whole else facts.phrase(UNPAIRED)))
+            rows.append(Judged(unit, rel, facts.phrase('no {missing} staged', missing=', '.join(unit.missing)), Judgement.UNJUDGED,
+                               facts.phrase(INCOMPLETE, n=len(unit.missing))))
             continue
         ok, words, refusal = verdict(unit)
         rows.append(Judged(unit, rel, detail, ok, words, refusal))
@@ -759,13 +715,12 @@ def survey(selected: list[Unit] | None = None) -> list[Judged]:
 
 
 REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
-UNPAIRED = 'unpaired, its record or its payload absent'
 INCOMPLETE = '{n} member(s) the record lists are not in the payload'
 
 
 def incomplete() -> list[Unit]:
-    """The staged units whose record or payload is absent, or whose payload lacks what the
-    record lists - never a rehearsal's input, always the janitor's (issues/721)."""
+    """The staged units with nothing under them, or lacking what their record lists - never a
+    rehearsal's input, always the janitor's (issues/721)."""
     return [u for u in units(STAGED) if u.missing] if STAGED.is_dir() else []
 
 
@@ -992,8 +947,8 @@ def orphaned_shadows() -> list[Path]:
 
 def remove(unit: Unit) -> None:
     """Take the unit out of the stage - the janitor's act (corpus-yoga stage clean), never
-    promotion's. Its record goes with it."""
-    for rel in unit.members + unit.record:
+    promotion's."""
+    for rel in unit.members:
         s = STAGED / rel
         if s.is_dir():
             shutil.rmtree(s)
@@ -1542,9 +1497,6 @@ def store_facts(live: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, 
         if unit.pipeline is None and noun_of(unit) is None:
             stray[unit.address.as_posix()] = Stray(human(size_of(HELD / unit.address)),
                                                    facts.phrase('no pipeline selects it and no capturing noun writes there'))
-        elif not unit.members and unit.record:
-            stray[unit.record[0].as_posix()] = Stray(human(size_of(HELD / unit.record[0])),
-                                                     facts.phrase('the record of a unit the store does not hold'))
     twice = held_twice(HELD, live)
     extra = {rel.as_posix(): Surplus(human(size_of(HELD / rel)), f'{unit.path.name}.json',
                                      facts.Would(spell.line('store', 'clean'), {kind_of(unit): 1}))
@@ -1560,58 +1512,41 @@ def store_facts(live: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, 
     ), len(held), len(twice)
 
 
-def _declares(noun: str, verb: str, flag: str) -> bool:
-    declared = json.loads((CLI_ROOT / noun / f'{verb}.json').read_text())
-    return any(arg['name'] == flag for arg in declared.get('args', []))
-
-
 @dataclass
-class Paired:
-    """An export named by a star, as the status states it: what stands of it, held or
-    staged, and what would complete it."""
-    payload: str | None = None    # its data directory
-    record: str | None = None     # its capture's manifest
-    standing: str | None = None   # a staged one: complete, incomplete or unpaired
-    note: str | None = None
+class Deposit:
+    """A unit of a store that keeps a record, as the status states it (issues/1204): a held one by
+    whether its record stands within it; a staged one complete or incomplete, and what clears an
+    incomplete one."""
+    record: str | None = None     # held: the record within it, or why none is
+    standing: str | None = None   # staged: complete, or incomplete with what it lacks
     act: facts.Would | None = None
 
 
 @dataclass
-class Pairs:
-    held: dict[str, Paired]       # by the export's name
-    staged: dict[str, Paired]
+class Deposits:
+    held: dict[str, Deposit]      # by the unit's name
+    staged: dict[str, Deposit]
 
 
-def pairs_facts(noun: str) -> Pairs:
-    """The noun's units named by a star, as facts (issues/753, issues/759): the held ones, a member each
-    and a record where shared storage holds one from before the stage; the staged ones, each
-    paired or unpaired, naming what is absent. Writes nothing."""
+def deposits_facts(noun: str) -> Deposits:
+    """The noun's units of a store that keeps a record, as facts (issues/753, issues/759, issues/1204):
+    the held ones, each with its record or why none stands; the staged ones, each complete or
+    incomplete, naming what it lacks. Writes nothing."""
     roots = roots_of(noun)
-    out = Pairs({}, {})
+    out = Deposits({}, {})
     for store in stores():
-        if '<star>' not in store.companion or not any(store.input.is_relative_to(r) for r in roots):
+        if not store.record or not any(store.input.is_relative_to(r) for r in roots):
             continue
         for unit in select(HELD, store):
-            out.held[unit.address.name] = Paired(
-                payload=f'{unit.members[0].name}/' if unit.members else None,
-                record=unit.record[0].name if unit.record else None,
-                note=facts.phrase("nothing reads the record - a record is the stage's") if unit.record else None)
+            out.held[unit.address.name] = Deposit(
+                record=store.record if (HELD / unit.address / store.record).is_file()
+                else facts.phrase('none - from before its capture kept one'))
         for unit in select(STAGED, store):
-            present = ' and '.join(p.name + ('/' if (STAGED / p).is_dir() else '') for p in unit.members + unit.record)
             if not unit.missing:
-                out.staged[unit.address.name] = Paired(standing=facts.phrase('complete - {present}', present=present))
+                out.staged[unit.address.name] = Deposit(standing=facts.phrase('complete'))
                 continue
-            if unit.members and unit.record:
-                out.staged[unit.address.name] = Paired(standing=facts.phrase('incomplete - {present}, missing {missing}', present=present,
-                                                                               missing=', '.join(unit.missing)),
-                                                       act=facts.Would(spell.line('stage', 'clean'), {unit.address.name: 1}))
-                continue
-            item = Paired(standing=facts.phrase('unpaired - {present} with no {missing} beside it', present=present,
-                                                  missing=', '.join(unit.missing)))
-            if not unit.members and _declares(noun, 'capture', '--manifest'):
-                where = (STAGED / unit.record[0]).relative_to(REPO)
-                item.act = facts.Would(spell.line(noun, 'capture', manifest=str(where)), {unit.address.name: 1})
-            out.staged[unit.address.name] = item
+            out.staged[unit.address.name] = Deposit(standing=facts.phrase('incomplete - missing {missing}', missing=', '.join(unit.missing)),
+                                                    act=facts.Would(spell.line('stage', 'clean'), {unit.address.name: 1}))
     return out
 
 

@@ -150,33 +150,41 @@ def check_rehearsal_record(run) -> None:
         check='rehearsal.done_when_every_unit_is_judged')
 
 
-@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/browser', 'src/main/export', 'src/main/agent'])
-def check_unit_companion(run) -> None:
-    """The staged bulk export <X> is one unit, named by <X>, by the export declaration
-    itself: its member is data-<X>/, which promotion copies, and its record is
-    manifest-<X>.json, which stays in the stage. Either alone is the same unit, unpaired,
-    naming what is absent. The fixture is synthetic - one export whole, one with its
-    manifest alone, one with its payload alone."""
+@check(tier='code', says=('stage.export_is_one_unit',), on=['src/main/corpus.py', 'src/main/validation_audit.py', 'src/main/browser', 'src/main/export', 'src/main/agent'])
+def check_export_one_folder(run) -> None:
+    """A bulk export is one folder, data-<X>/, in the stage and the store alike (issues/1204): its manifest,
+    where its capture kept one, stands within it as manifest.json, and the export is complete when it holds
+    every member the manifest lists; an export with no manifest within - one from before, or held - reads
+    complete, and a held one is owed its run like any unit. A manifest beside the folders is no export's.
+    The fixture is synthetic - one export whole, one lacking a member its manifest lists, one with no manifest."""
+    import json
     import tempfile
     import corpus
+    import validation_audit
     store = next(s for s in corpus.stores() if s.pipeline == 'export')
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         base = root / store.input
-        for name in ('data-2026-01-01-whole', 'data-2026-03-03-payload'):
+        listing = {'data_files': [{'category': 'conversations'}, {'category': 'memories'}]}
+        for name, manifest, members in (('data-2026-01-01-whole', listing, ('conversations.json', 'memories.json')),
+                                        ('data-2026-02-02-lacking', listing, ('conversations.json',)),
+                                        ('data-2026-03-03-unrecorded', None, ('conversations.json',))):
             (base / name).mkdir(parents=True)
-            (base / name / 'conversations.json').write_text('[]')
-        (base / 'manifest-2026-01-01-whole.json').write_text('{}')
-        (base / 'manifest-2026-02-02-manifest.json').write_text('{}')
-        got = sorted((unit.address.name, [m.name for m in unit.members],
-                      [m.name for m in getattr(unit, 'record', [Path('?')])], list(unit.missing))
-                     for unit in corpus.select(root, store))
-        expected = [('2026-01-01-whole', ['data-2026-01-01-whole'], ['manifest-2026-01-01-whole.json'], []),
-                    ('2026-02-02-manifest', [], ['manifest-2026-02-02-manifest.json'], ['data-2026-02-02-manifest/']),
-                    ('2026-03-03-payload', ['data-2026-03-03-payload'], [], ['manifest-2026-03-03-payload.json'])]
-        run('stage: a staged bulk export is one unit named by its star, its manifest the record that stays', got == expected,
-            None if got == expected else f'selected {got}, where the units are {expected}',
-            check='stage.export_is_one_unit')
+            for member in members:
+                (base / name / member).write_text('[]')
+            if manifest is not None:
+                (base / name / 'manifest.json').write_text(json.dumps(manifest))
+        (base / 'manifest-2026-04-04-beside.json').write_text(json.dumps(listing))
+        got = sorted((unit.address.name, [m.name for m in unit.members], list(unit.missing)) for unit in corpus.select(root, store))
+        owed = validation_audit.owed_units(store, root, root / 'cache')
+    expected = [('data-2026-01-01-whole', ['data-2026-01-01-whole'], []),
+                ('data-2026-02-02-lacking', ['data-2026-02-02-lacking'], ['memories.json']),
+                ('data-2026-03-03-unrecorded', ['data-2026-03-03-unrecorded'], [])]
+    owed_expected = {'data-2026-01-01-whole': 'unprocessed', 'data-2026-03-03-unrecorded': 'unprocessed'}
+    why = (f'selected {got}, where the exports are {expected}' if got != expected else
+           f'owed a run {owed}, where {owed_expected}' if owed != owed_expected else None)
+    run('stage: a bulk export is one folder, its manifest within it, complete when it holds what the manifest lists, and owed its run in the store',
+        why is None, why, check='stage.export_is_one_unit')
 
 
 @check(tier='code', on=['src/main/validation_audit.py', 'src/main/corpus.py', 'src/main/append_only.py'], says=(

@@ -20,7 +20,8 @@
         "families",
         "extra_unit",
         "extra_families",
-        "companion"
+        "companion",
+        "record"
       ]
     },
     {
@@ -65,7 +66,8 @@
           "families",
           "extra_unit",
           "extra_families",
-          "companion"
+          "companion",
+          "record"
         ],
         "additionalProperties": false,
         "properties": {
@@ -126,7 +128,11 @@
           },
           "companion": {
             "type": "string",
-            "description": "A path beside what input_glob selects. With <stem>, the stem of a selected file, it moves with that file and the file is the unit: claude's workspace <stem>/ beside <stem>.jsonl. With <star>, what the glob's * matched, the unit is named by the star and the companion is its record, held by the stage alone and never promoted, the unit unpaired and refused where either is absent: the staged bulk export <X> is data-<X>/ with manifest-<X>.json, the record of what its capture fetched. Empty where a unit's files lie within it."
+            "description": "A path beside what input_glob selects, <stem> standing for the stem of a selected file: it moves with that file and the file is the unit - claude's workspace <stem>/ beside <stem>.jsonl. Empty where a unit's files lie within it."
+          },
+          "record": {
+            "type": "string",
+            "description": "A file within each unit input_glob selects, recording what its capture was to fetch: where it stands, the unit is complete only when it holds every member the record lists, by rsc/naming/export_archive_members.csv; where it does not - a unit from before its capture kept one - the unit reads complete. It moves with the unit, as every file within it does: the bulk export's manifest.json within data-<X>/. Empty where a capture keeps no record."
           }
         }
       }
@@ -183,7 +189,11 @@
     },
     "companion": {
       "type": "string",
-      "description": "A path beside what input_glob selects. With <stem>, the stem of a selected file, it moves with that file and the file is the unit: claude's workspace <stem>/ beside <stem>.jsonl. With <star>, what the glob's * matched, the unit is named by the star and the companion is its record, held by the stage alone and never promoted, the unit unpaired and refused where either is absent: the staged bulk export <X> is data-<X>/ with manifest-<X>.json, the record of what its capture fetched. Empty where a unit's files lie within it."
+      "description": "A path beside what input_glob selects, <stem> standing for the stem of a selected file: it moves with that file and the file is the unit - claude's workspace <stem>/ beside <stem>.jsonl. Empty where a unit's files lie within it."
+    },
+    "record": {
+      "type": "string",
+      "description": "A file within each unit input_glob selects, recording what its capture was to fetch: where it stands, the unit is complete only when it holds every member the record lists, by rsc/naming/export_archive_members.csv; where it does not - a unit from before its capture kept one - the unit reads complete. It moves with the unit, as every file within it does: the bulk export's manifest.json within data-<X>/. Empty where a capture keeps no record."
     },
     "diagnostic_skip": {
       "type": "object",
