@@ -40,7 +40,7 @@
         "additionalProperties": false,
         "properties": {
           "batch_index": {
-            "description": "Equals the entry's position in data_files in every observed entry of both manifests - nothing yet shows it carrying more than that. Not the pre-manifest batch-NNNN: that suffix named a whole export, this numbers entries inside one.",
+            "description": "Equals the entry's position in data_files in every observed entry of the three manifests, two of 2026-08-24 and one of 2026-11-28 - nothing yet shows it carrying more than that. Not the pre-manifest batch-NNNN: that suffix named a whole export, this numbers entries inside one.",
             "type": "integer"
           },
           "export_url": {
@@ -48,17 +48,18 @@
             "type": "string"
           },
           "category": {
-            "description": "What the file holds. Closed over the categories observed 2026-08-24; a new category fails loudly by name (the ModelId precedent). conversations, memories and projects name pre-manifest components; light_metadata is new to this flow; users and login_history have no category here.",
+            "description": "What the file holds. Closed over the categories observed - four on 2026-08-24, frames since 2026-11-28; a new category fails loudly by name (the ModelId precedent). conversations, memories and projects name pre-manifest components; light_metadata is new to this flow; frames unpacks to the artifacts directory (rsc/naming/export_archive_members.csv); users and login_history have no category here.",
             "type": "string",
             "enum": [
               "light_metadata",
               "projects",
               "memories",
+              "frames",
               "conversations"
             ]
           },
           "part": {
-            "description": "Observed 0 in every entry of both manifests, agreeing with the filename's -NNN suffix (which batch_index does not). What part counts, the manifests so far do not show.",
+            "description": "Observed 0 in every entry of the three manifests, agreeing with the filename's -NNN suffix (which batch_index does not). What part counts, the manifests so far do not show.",
             "type": "integer"
           },
           "filename": {

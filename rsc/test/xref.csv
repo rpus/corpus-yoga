@@ -776,6 +776,7 @@ rsc/schema/export/claude/login_history/CHANGELOG.md,35,history,rsc/schema/pipeli
 rsc/schema/export/claude/login_history/CHANGELOG.md,35,history,model/model.json,N,`rsc/schema/pipeline/chat-export/claude/login_history/`: `../../../../../model/model.json#/UserUUID`.
 rsc/schema/export/claude/login_history/v1.json,27,path_str,rsc/metamodel/metamodel.json#/UserUUID,Y,"""description"": ""../../../../metamodel/metamodel.json#/UserUUID"","
 rsc/schema/export/claude/manifest/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/export/claude/manifest/CHANGELOG.md,19,history,rsc/naming/export_archive_members.csv,Y,"rsc/naming/export_archive_members.csv names. Validated on reading-room, 2026-11-28: v1 refuses"
 rsc/schema/export/claude/memories/CHANGELOG.md,5,history,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/export/claude/memories/CHANGELOG.md,11,history,model/model.json,N,`../../../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
 rsc/schema/export/claude/memories/CHANGELOG.md,12,history,rsc/model,N,model moved to `rsc/model/` and its table lost the `default` wrapper (issues/591). A
@@ -1920,7 +1921,7 @@ src/validation_matrix.py,11,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/export/claude/login_history/CHANGELOG.md,Y,
 ,,,rsc/schema/export/claude/login_history/v1.json,Y,
 ,,,rsc/schema/export/claude/manifest/CHANGELOG.md,Y,
-,,,rsc/schema/export/claude/manifest/v1.json,Y,
+,,,rsc/schema/export/claude/manifest/v2.json,Y,
 ,,,rsc/schema/export/claude/memories/CHANGELOG.md,Y,
 ,,,rsc/schema/export/claude/memories/v4.json,Y,
 ,,,rsc/schema/export/claude/projects/CHANGELOG.md,Y,
