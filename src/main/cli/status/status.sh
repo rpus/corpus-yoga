@@ -111,7 +111,7 @@ _say() {
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 satisfy_line() {
   if [[ -x "$CORPUS_YOGA_VENV/bin/python" ]]; then spell status satisfy
-  else echo "./corpus-yoga status satisfy"; fi
+  else echo "./src/main/cli/status/status.sh satisfy"; fi
 }
 
 count_glob_dirs() {
