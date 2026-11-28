@@ -1,7 +1,7 @@
 """
 audit_files.py — Full-outer-join file audit for one export.
 
-Writes a CSV to cache/pipeline/claude/chat/bulk-export/<export>/audit_queries/files_audit.csv with one row per
+Writes a CSV to cache/pipeline/claude/chat/bulk-export/<batch>/audit_queries/files_audit.csv with one row per
 (source, file-path) covering every file known about for the export across five
 sources:
 
@@ -10,11 +10,11 @@ sources:
     tooltip  Paths from data-files.json, which is derived from
              data/output/artifacts/claude/chat/downloaded/ by files_from_downloaded.py.
              This is what the index.html tooltip shows.
-    ef       Files written to cache/<export>/extracted_files/ by src/main/export/extract_files.py
+    ef       Files written to cache/pipeline/claude/chat/bulk-export/<batch>/extracted_files/ by src/main/export/extract_files.py
              (from create_file tool calls).
-    eh_out   Files written to cache/<export>/extracted_heredocs/<chat>/outputs/
+    eh_out   Files written to cache/pipeline/claude/chat/bulk-export/<batch>/extracted_heredocs/<chat>/outputs/
              by src/main/export/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
-    eh_wrk   Files written to cache/<export>/extracted_heredocs/<chat>/working/
+    eh_wrk   Files written to cache/pipeline/claude/chat/bulk-export/<batch>/extracted_heredocs/<chat>/working/
              by src/main/export/extract_heredocs.py (heredoc target was /home/claude/).
     dl       Files in the durable library data/output/artifacts/claude/chat/downloaded/<ordinal>-<slug>-<uuid8>/
              (manually downloaded from the claude.ai UI; joined by uuid via
@@ -74,8 +74,7 @@ from library import dir_for
 
 REPO = tier.REPO
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT  = SCRIPT_DIR.parents[2]
+REPO_ROOT  = tier.REPO
 CACHE_DIR    = corpus.store_cache('export')
 
 

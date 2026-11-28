@@ -226,7 +226,7 @@ eighth principle or a smell.
   for its steps. An open PR is rebased onto main by
   the reader, with `corpus-yoga forge rebase <pr>` - the merge's own relocation, refused where
   the merge's would refuse (issues/1147) - whenever the reader judges a test needs main's
-  merged work; a conflict outside rsc/test/ is settled by hand. The forge's declared squash settings
+  merged work; a conflict outside rsc/test/'s regenerated artifacts is settled by hand. The forge's declared squash settings
   (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
   COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
   CONTRIBUTING.md, reconciled by `corpus-yoga forge`) publish the title as main's

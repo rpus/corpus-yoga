@@ -17,7 +17,7 @@ id-sorted; a residual filename collision gets the id prefixed (the old rule).
 
 Usage:
   src/run_python_script.sh src/main/browser/gemini/project_markdown.py \
-    [--dom-capture data/input/gemini/chat/DOM-capture] [--out cache/markdown/gemini]
+    [--dom-capture data/input/gemini/chat/DOM-capture] [--out data/output/markdown/gemini/chat/conversations]
 """
 import argparse
 import json

@@ -32,8 +32,7 @@ from declared_parser import command_parser
 
 REPO = tier.REPO
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT  = SCRIPT_DIR.parents[2]
+REPO_ROOT  = tier.REPO
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
 OUT_DIR    = tier.CACHE / 'metamodel'
 

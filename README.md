@@ -16,14 +16,16 @@ the corpus more fully than the provider does.
 ./corpus-yoga status                 # read-only: whether everything is well, and what needs doing
 ./corpus-yoga walkthrough            # walk the room's state: n next, m members, v value, b back, x runs the command it stands on
 ./corpus-yoga browser capture --all  # acquire: Safari sweep into the stage, stage/data/input/
-./corpus-yoga pipeline run           # the usr gate's first half: each unit validated and extracted on its own (--plan previews)
-./corpus-yoga pipeline collate       # its second half: the markdown, the deposits and the audit, over the whole corpus
+./corpus-yoga pipeline run --stage-rehearsal  # judge what is staged, by the checkout's own code
+./corpus-yoga stage promote          # every pipeline's promote: what the rehearsal found valid, into data/input/
+./corpus-yoga pipeline run           # the usr gate's first half: each unit validated, extracted and rendered on its own (--plan previews)
+./corpus-yoga pipeline collate       # its second half: the renderings named and placed, the deposits and the audit, over the whole corpus
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
 ./corpus-yoga indexing capture       # PAID: the model reads the conversation titles for the index tables, deposited beside every earlier capture
 ./corpus-yoga indexing adopt <stamp> # make a deposited capture the one in use, once its changes are read
 ./corpus-yoga indexing build         # the book index, from the capture in use
-./corpus-yoga server build           # the book index the server serves, from the judged index
-./corpus-yoga site build             # the rpus.co tree: its pages, and the corpus page from the judged index
+./corpus-yoga server build           # the book index the server serves, from the index
+./corpus-yoga site build             # the rpus.co tree: its pages, and the corpus page from the index
 ./corpus-yoga test run               # the dev gate: the hermetic suite over src/ and rsc/
 ```
 
@@ -44,7 +46,9 @@ the command's declaration - its forms, arguments and effects; `./corpus-yoga <co
 | `tmp/` | what lasts one run, empty when nothing runs - each working file, directory or worktree a run keeps directly under it, `<command>.<verb>.<name>.<pid>.<random>` | local | none - `corpus-yoga tmp` names every entry but a live run's own, and `corpus-yoga tmp clean` is the tier's janitor |
 
 A capture writes to `stage/data/input/`, at the address its unit will have under
-`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
+`data/input/` - and the claude browser capture, beside it, the files a conversation names into
+the artifacts library, `data/output/artifacts/claude/chat/downloaded/`, which it reads for what it
+lacks. The tiers are a declared contract (`src/main/tier.py`):
 every script reads its data, cache, logs and tmp under one root, the checkout's, or the stage,
 `stage/`, laid out as the checkout is, when `CORPUS_YOGA_REHEARSAL` names a rehearsal's stamp, and
 `corpus-yoga pipeline run --stage-rehearsal` is the checkout's own code run under that name, its input
@@ -60,7 +64,8 @@ and every family its pipeline declares finds it valid at origin/main's version; 
 it names (issues/687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
 stage clean` removes the units the store holds byte-equal.
 So: `browser capture --provider claude`, `pipeline run --stage-rehearsal`, `browser promote
---provider claude`, `pipeline run browser`; `corpus-yoga stage` reports the tier, and
+--provider claude` (or `stage promote`, every pipeline's), `pipeline run browser`, `pipeline
+collate browser`; `corpus-yoga stage` reports the tier, and
 each noun's bare status the units; `corpus-yoga store` reads shared storage in the same
 terms - what is held, what is duplicated, and what the stage holds against it; the
 store's status reads everything upstream of it - the stage, and this room's live stores

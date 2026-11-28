@@ -1,7 +1,7 @@
 """
 status.py - bare `corpus-yoga server`: whether the markdown daemon runs, the render assets
-present against their manifest (issues/759), the book index against the judged index it is
-written from, and under now: the build once the judged index stands and index.md differs from
+present against their manifest (issues/759), the book index against the index it is
+written from, and under now: the build once the index stands and index.md differs from
 it, the stop while the daemon runs, the start once the book index is current and the daemon is
 down (issues/947, issues/960, issues/1125). Reads; writes nothing.
 """
@@ -30,7 +30,7 @@ class Assets:
 
 @dataclass
 class BookIndex:
-    """data/output/markdown/index.md against the judged index it is written from."""
+    """data/output/markdown/index.md against the index it is written from."""
     standing: str
     act: facts.Would | None = None
 
@@ -44,8 +44,8 @@ class Server:
 
 
 def book_index() -> BookIndex | None:
-    """index.md's standing: what the judged index waits on, where it does not stand; current,
-    where index.md holds what the judged index would write; the build otherwise. None where
+    """index.md's standing: what the index waits on, where it does not stand; current,
+    where index.md holds what the index would write; the build otherwise. None where
     no corpus is projected."""
     if not (tier.DATA / 'output' / 'markdown').is_dir():
         return None
@@ -54,8 +54,8 @@ def book_index() -> BookIndex | None:
         return BookIndex(waits)
     held = indexing.held_index()
     if held is not None and INDEX_MD.is_file() and INDEX_MD.read_text() == index_markdown(held):
-        return BookIndex(facts.phrase('current - written from the judged index'))
-    return BookIndex(facts.phrase('stale - the judged index moved since it was written'),
+        return BookIndex(facts.phrase('current - written from the index'))
+    return BookIndex(facts.phrase('stale - the index moved since it was written'),
                      facts.Would(spell.line('server', 'build'), {'data/output/markdown/index.md': 1}))
 
 
@@ -71,7 +71,7 @@ def daemon_act(running: bool, index: BookIndex | None) -> facts.Would | None:
     otherwise, the index's own line saying what it waits on."""
     if running:
         return facts.Would(spell.line('server', 'stop'), {'serve_markdown daemon': 1})
-    if index is not None and index.act is None and index.standing == facts.phrase('current - written from the judged index'):
+    if index is not None and index.act is None and index.standing == facts.phrase('current - written from the index'):
         return facts.Would(spell.line('server', 'start', daemon=True), {'data/output/markdown': 1})
     return None
 

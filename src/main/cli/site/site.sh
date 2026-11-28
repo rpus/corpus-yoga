@@ -39,7 +39,7 @@ corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from 
 
   corpus-yoga site          status: each artifact's presence and currency, and who produces it
   corpus-yoga site build    write the tree: every page of rsc/site/, and index.html (the corpus page) from the corpus,
-                            the judged index and the categories
+                            the index and the categories
   corpus-yoga site sync     pull rpus.co, copy the tree into ext/mnt/site, commit and push there (what it would land is the bare status's)
 EOF
 }

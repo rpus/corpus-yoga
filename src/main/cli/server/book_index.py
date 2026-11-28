@@ -1,8 +1,8 @@
 """
 book_index.py - `corpus-yoga server build`: data/output/markdown/index.md, the book index the server
-serves, written from the judged index, data/output/indexing/indexed-semantic-concepts.json -
+serves, written from the index, data/output/indexing/indexed-semantic-concepts.json -
 one alphabetised entry per located headword, its locators grouped by conversation, each a link
-to the turn's durable anchor. The site's concept table is built from the same judged index.
+to the turn's durable anchor. The site's concept table is built from the same index.
 """
 import sys
 from pathlib import Path
@@ -20,13 +20,13 @@ LOCATORS_SHOWN = 4
 
 
 def index_markdown(index: dict) -> str:
-    """The judged index as the book index. No tier path in it: the index is a corpus
+    """The index as the book index. No tier path in it: the index is a corpus
     artifact, and a machinery path in it would couple corpus bytes to the repo's layout."""
     lines = [
         '# Index',
         '',
-        'Headwords are curated with `corpus-yoga indexing` (accept/reject; `build` '
-        'judges the index) and this page is written by `corpus-yoga server build`. Locators link to durable turn anchors; '
+        'Headwords are the concepts of the capture in use that a turn phrases, built by `corpus-yoga indexing build`, '
+        'and this page is written by `corpus-yoga server build`. Locators link to durable turn anchors; '
         'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
     ]
@@ -55,11 +55,11 @@ def main() -> int:
     index = indexing.held_index()
     rel = INDEX_MD.relative_to(REPO) if INDEX_MD.is_relative_to(REPO) else INDEX_MD
     if index is None:
-        facts.report(None, facts.act('server', 'build') + ': NOT DONE - ' + facts.phrase('no judged index - corpus-yoga indexing build writes it'))
+        facts.report(None, facts.act('server', 'build') + ': NOT DONE - ' + facts.phrase('no index - corpus-yoga indexing build writes it'))
         return 1
     text = index_markdown(index)
     if INDEX_MD.is_file() and INDEX_MD.read_text() == text:
-        facts.report(None, facts.act('server', 'build') + ': DONE - ' + facts.phrase('no effect; {path} already holds the judged index', path=rel))
+        facts.report(None, facts.act('server', 'build') + ': DONE - ' + facts.phrase('no effect; {path} already holds the index', path=rel))
         return 0
     INDEX_MD.parent.mkdir(parents=True, exist_ok=True)
     INDEX_MD.write_text(text)

@@ -25,12 +25,12 @@ REPO = tier.REPO
 @dataclass
 class CorpusPage:
     title: str = facts.named('the corpus page')
-    indexing: str | None = None        # the page's judged index and categories against those held
+    indexing: str | None = None        # the page's index and categories against those held
 
 
 @dataclass
 class Build:
-    """The tree against what site build would write - offered only once the judged index stands."""
+    """The tree against what site build would write - offered only once the index stands."""
     standing: str
     act: facts.Would | None = None
 
@@ -92,7 +92,7 @@ def read_lag(site: Site) -> bool:
 
 
 def indexing_moved() -> bool:
-    """Whether the page's judged index or categories differ from those held: the page records
+    """Whether the page's index or categories differ from those held: the page records
     what they were by content, in its corpus-yoga-built-from meta."""
     page_file = tier.DATA / 'output' / 'site' / 'index.html'
     if not page_file.is_file():
@@ -134,7 +134,7 @@ def main() -> int:
     lagging = read_lag(site)
     moved = indexing_moved()
     if isinstance(site.index, CorpusPage) and moved:
-        site.index.indexing = facts.phrase('stale - the judged index or the categories moved since the page was built')
+        site.index.indexing = facts.phrase('stale - the index or the categories moved since the page was built')
     due = {name: 1 for name, stands in (('data/output/site/', absent or bool(stale)),
                                          ('index.html', title == 'ABSENT' and not unprojected or lagging or moved)) if stands}
     if due:

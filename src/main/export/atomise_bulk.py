@@ -6,7 +6,8 @@ definition in the latest conversations schema (inner-ref; no separate/duplicated
   data/input/claude/chat/bulk-export/<batch>/conversations.json  -->  cache/pipeline/claude/chat/bulk-export/<batch>/json/<ordinal>-<slug>.json
 
 This is the ONLY reader of the 24 MB array. Everything downstream consumes the per-conversation
-pieces instead: project_markdown.py renders them to markdown/, compare_sources.py cross-checks
+pieces instead: src/main/export/render.py renders them, project_markdown.py places the renderings in
+markdown/, compare_sources.py cross-checks
 them against the live captures. Nothing is skipped -- invalid conversations are written and
 flagged, so failures show up in the filesystem. Names come from markdown_projection.ordered() --
 the one canonical "<ordinal>-<slug>" (created_at order, 1-based, zero-padded) shared with the

@@ -5,10 +5,11 @@
      copied from this prototype. A body that carries a Signature line, an aim line, a
      why section or `closes` is refused by the raise.
 
-     The body opens with a Signature line, the same triad the commit hook
+     The raised body opens with a Signature line, the same triad the commit hook
      stamps (rsc/test/prepare-commit-msg-hook.sh's header is the one authority for
-     the grammar): `Signature: <machine>/<provider>/<session>`. Written by
-     hand — no hook stamps a body — since raise time has no commit to hook.
+     the grammar): `Signature: <machine>/<provider>/<session>`, stamped by
+     corpus-yoga forge raise, as the why section's aim lines are; the drafted body
+     file carries neither, and the prototype below shows both as the raise writes them.
      The Signature is the body's ONE attribution. A harness default that
      appends its own — a generated-with footer, a co-author line — has no
      licensed position in a body, exactly as prepare-commit-msg-hook.sh's stamp
@@ -81,7 +82,7 @@ Signature: <machine>/<provider>/<session>
      they believe they built; the defects live outside that belief.
 
      The line OPENS by naming the arbiter: the dev gate (corpus-yoga test run), the usr
-     gate (corpus-yoga pipeline run), both, or a named other (the editor; a live run).
+     gate (corpus-yoga pipeline run, then corpus-yoga pipeline collate), both, or a named other (the editor; a live run).
      A change one gate cannot arbitrate carries a declared arbiter instead of a
      per-PR apology — the dev gate is green on both sides of a dead step import,
      and only the usr gate's red names it (issues/335 is the worked example).

@@ -400,9 +400,9 @@ push() {
 # The merge is the reviewer's one act (issues/483): every refusal (OPEN, an aims-to-
 # complete body, the title copy issues/479, the blockers issues/482, refuse-class drift),
 # the relocation only if the base moved (the lifetime's one rebase, replaying only
-# the commits the base does not already hold, tree for tree - issues/585; rsc/test/
-# conflicts are CONTRIBUTING's syntactic class, taken wholesale and re-derived;
-# any other conflict aborts to review), the held checkout resynced, the body's
+# the commits the base does not already hold, tree for tree - issues/585; a conflict in
+# rsc/test/'s regenerated artifacts is CONTRIBUTING's syntactic class, taken from the branch
+# and re-derived; any other conflict aborts to review), the held checkout resynced, the body's
 # aims-to-closes as the LAST edit before the squash - and a failed squash
 # un-flips the body, leaving the world as found, so a flipped-but-unmerged PR
 # cannot exist. No squash, reword or amend exists below: commits cannot come to
@@ -504,8 +504,8 @@ relocation_point() {  # <base-ref> <head-ref>
 # The relocation of a moved base (issues/507, issues/585): in a detached worktree of its own
 # under tmp/, named for the act, the merge's or the rebase's (issues/1147, issues/1170) - never in the invoking checkout - so a halt or an
 # interruption leaves the checkout as found. Replays only the branch's own commits
-# (relocation_point), takes an rsc/test/ conflict wholesale (the syntactic class,
-# CONTRIBUTING.md), settles the artifacts by the gate's own regeneration, commits
+# (relocation_point), takes a conflict in the regenerated artifacts by either side (the syntactic
+# class, CONTRIBUTING.md) and halts on any other, settles the artifacts by the gate's own regeneration, commits
 # that if anything changed, pushes leased against <old-sha>, and disposes of the
 # worktree whatever happened. Prints the relocated head on success; every halt
 # prints its own last line and returns 1.
@@ -547,17 +547,20 @@ relocated() {  # <verb> <base> <head> <old-sha>
         dispose; return 1
       fi
       conflicted="$(git -C "$wt" diff --name-only --diff-filter=U)"
-      if grep -qv '^rsc/test/' <<< "$conflicted"; then
-        say "conflict outside rsc/test/ - the syntactic rule does not apply" >&2
-        grep -v '^rsc/test/' <<< "$conflicted" | while IFS= read -r conflicted_file; do narrate item "$conflicted_file" 1 >&2; done
+      outside="$(outside_the_syntactic_class <<< "$conflicted")"
+      if [[ -n "$outside" ]]; then
+        say "conflict outside the regenerated artifacts - the syntactic rule does not apply" >&2
+        while IFS= read -r conflicted_file; do narrate item "$conflicted_file" 1 >&2; done <<< "$outside"
         enact git -C "$wt" rebase --abort >&2
         say "relocation halted - a real conflict lands in the source; resolve it by hand, in review" >&2
         dispose; return 1
       fi
       if [[ -n "$conflicted" ]]; then
-        say "conflict confined to rsc/test/ - the syntactic class, taken wholesale" >&2
-        enact git -C "$wt" checkout --theirs rsc/test/ >&2 || { dispose; return 1; }
-        enact git -C "$wt" add rsc/test/ >&2 || { dispose; return 1; }
+        say "conflict confined to the regenerated artifacts - the syntactic class, each taken from the branch" >&2
+        while IFS= read -r conflicted_file; do
+          enact git -C "$wt" checkout --theirs -- "$conflicted_file" >&2 || { dispose; return 1; }
+          enact git -C "$wt" add -- "$conflicted_file" >&2 || { dispose; return 1; }
+        done <<< "$conflicted"
       fi
       GIT_EDITOR=true attempt git -C "$wt" -c advice.mergeConflict=false rebase --continue >&2 || true
     done
@@ -726,7 +729,7 @@ pr_behind() {  # <repo> <base> <head-oid>
 # The rebase is the merge's relocation on the reader's word (issues/1147): the refusals and the
 # relocation the merge takes, the same steps, and nothing after them - no gate, no flip, no
 # squash - so it is done exactly where the merge's relocation would be, and refuses exactly
-# where that would. A conflict outside rsc/test/ leaves the branch and this checkout as found,
+# where that would. A conflict outside the regenerated artifacts leaves the branch and this checkout as found,
 # for the reader to settle by hand.
 rebase() {
   local pr="$1" rc=0
@@ -734,6 +737,16 @@ rebase() {
   local record; record="$(record_of forge rebase)"
   if [[ -n "$record" ]]; then echo "Log: ${record#"$REPO_DIR/"}"; fi
   return "$rc"
+}
+
+# The syntactic class (CONTRIBUTING.md): the regenerated artifacts under rsc/test/, which the dev
+# gate rewrites or reports, so that either side of a conflict in one is as good as the other. The
+# two hooks beside them are code: a conflict in one is a real conflict, as one in the source is.
+SYNTACTIC_CLASS=(rsc/test/run.log rsc/test/xref.csv rsc/test/xref_expected_score)
+
+# outside_the_syntactic_class: of the conflicted paths read, those no syntactic resolution may take.
+outside_the_syntactic_class() {
+  grep -vxF -f <(printf '%s\n' "${SYNTACTIC_CLASS[@]}") || true
 }
 
 rebase_chain() {

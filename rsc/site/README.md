@@ -13,7 +13,7 @@ all of it, and each file here says by its name what the build does with it (issu
   data left out, six empty `<script type="application/json">` slots between
   `data-<table>.json:begin` and `:end` comments, and the category palette
   authored inline (a design decision, never filled). `corpus-yoga site build`
-  (`present_corpus.py`) copies it, fills the slots from the corpus, the judged
+  (`present_corpus.py`) copies it, fills the slots from the corpus, the
   index and the categories, and writes `data/output/site/index.html`, its URL
   position.
   The per-batch pages (`present.sh`) fill the same template and stay in the

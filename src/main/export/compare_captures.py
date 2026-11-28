@@ -1,6 +1,6 @@
 """
 compare_captures.py - the latest bulk export against the API captures, per conversation:
-a step of the export run's tail, informational, never a command.
+a step of the export collate's tail (src/main/export/run.sh's run_tail), informational, never a command.
 
 Directional per-conversation comparison between the latest export and the live-capture
 corpus, the data frontier, by message uuids: capture-ahead is the normal post-snapshot

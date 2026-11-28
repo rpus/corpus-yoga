@@ -124,7 +124,7 @@ def tokens_of(pointer: str) -> list[str]:
 def command_of(key: str) -> list[str] | None:
     """The key as a command the walk can run: a declared command's name, as the top holds
     it; corpus-yoga and a declared command, as a remedy spells it; or the machine report's
-    own script, the one command there is before the launcher works. A placeholder the
+    own script, which the launcher itself runs before the venv is minted. A placeholder the
     reader must fill makes it theirs to type."""
     if '<' in key:
         return None

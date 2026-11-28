@@ -1,9 +1,9 @@
 """
 query_files.py — Run the standard SQL queries against files_audit.csv.
 
-Loads cache/<export>/presentation/files_audit.csv into an in-memory SQLite
+Loads cache/pipeline/claude/chat/bulk-export/<batch>/audit_queries/files_audit.csv into an in-memory SQLite
 database and runs each of the five documented queries, writing results to
-cache/<export>/audit_queries/.
+cache/pipeline/claude/chat/bulk-export/<batch>/audit_queries/.
 
 Usage:
     python src/main/export/query_files.py --export  <path-to-export>
@@ -30,8 +30,7 @@ from pathlib import Path
 import tier  # the tiers, one home (issues/702)
 import corpus
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT  = SCRIPT_DIR.parents[2]
+REPO_ROOT  = tier.REPO
 CACHE_DIR    = corpus.store_cache('export')
 
 QUERIES: list[tuple[str, str, str]] = [

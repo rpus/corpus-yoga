@@ -1,5 +1,5 @@
 {
-  "help": "write data/output/markdown/index.md, the book index the server serves, from the judged index, data/output/indexing/indexed-semantic-concepts.json - idempotent",
+  "help": "write data/output/markdown/index.md, the book index the server serves, from the index, data/output/indexing/indexed-semantic-concepts.json - idempotent",
   "would": "would build",
   "modality": "MAY",
   "args": [],

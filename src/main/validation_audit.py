@@ -165,7 +165,7 @@ def owed_collate_by_selection(name: str, facts: dict) -> dict[str, int]:
 
 
 def record_collated(name: str, facts: dict) -> None:
-    """The collate's last step: each store's units' tokens, as this collate read them, at its cache root."""
+    """The collate's step after those that place and deposit: each store's units' tokens, as this collate read them, at its cache root."""
     for source in sources(name, facts):
         read, record = _tokens(source), source.cache_root / COLLATED
         if read or record.is_file():      # a store holding nothing gets no record, and no cache, from the collate
@@ -179,7 +179,7 @@ class Source:
     """One store a pipeline reads, with where its validation output lies."""
     label: str                    # the pipeline, with the provider where the declared input carries one
     store: corpus.Store
-    cache_root: Path              # the pipeline's cache root, a directory per provider under it
+    cache_root: Path              # the store's cache root: its input address under cache/pipeline (issues/1192)
 
 
 def sources(name: str, facts: dict) -> list[Source]:

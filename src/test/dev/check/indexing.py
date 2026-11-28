@@ -120,10 +120,10 @@ def check_reply_shape(run) -> None:
         None if says else f'the capture ended {verdict or done.stdout.strip()[-200:]!r}', check='indexing.refused_reading_says_why')
 
 
-@check(tier='code', says=('indexing.judged_index_waits_in_order', 'indexing.no_run_builds_the_index_or_the_page',
-                          'server.book_index_is_written_from_the_judged_index', 'site.concepts_are_the_judged_index'),
+@check(tier='code', says=('indexing.index_waits_in_order', 'indexing.no_run_builds_the_index_or_the_page',
+                          'server.book_index_is_written_from_the_index', 'site.concepts_are_the_index'),
        on=['src/main/indexing', 'src/main/cli/server/book_index.py', 'src/main/present_corpus.py', 'src/main/cli/pipeline', 'src/main/cli/site'])
-def check_judged_index(run) -> None:
+def check_index_order(run) -> None:
     """The server's book index and the site's corpus page are built only from the index of the
     capture in use (issues/1125, issues/1189): the index waits on its build alone, and again once
     the corpus moves; the server's index.md and the page's concept table are both written from it;
@@ -134,7 +134,7 @@ def check_judged_index(run) -> None:
     if waits_on is None:
         run('indexing: the index waits on its build', False,
             'src/main/indexing/indexing.py has no waits_on: nothing says what the index and the page wait on',
-            check='indexing.judged_index_waits_in_order')
+            check='indexing.index_waits_in_order')
     else:
         kept = {name: getattr(indexing, name) for name in ('INFERRED_FILE', 'INDEXED_FILE')}
         said = []
@@ -161,7 +161,7 @@ def check_judged_index(run) -> None:
                 setattr(indexing, name, value)
         want = ['waits on corpus-yoga indexing build', None, 'waits on corpus-yoga indexing build']
         run('indexing: the index waits on its build - and again once the corpus moves',
-            said == want, None if said == want else f'waited on {said!r}', check='indexing.judged_index_waits_in_order')
+            said == want, None if said == want else f'waited on {said!r}', check='indexing.index_waits_in_order')
 
         physics, matter = (f'{provider}/chat/conversations/01-{name}.md' for provider, name in (('claude', 'physics'), ('gemini', 'matter')))
         index = {'columns': ['headword', 'aliases', 'locators'], 'conversations': 2, 'built_from': 'sha256:x',
@@ -174,13 +174,13 @@ def check_judged_index(run) -> None:
                     f'- [01-matter]({matter}#g2) — [G2]({matter}#g2)\n\n'
                     '---\n\n1 headword(s); 2 turn locators across 2 conversations.\n')
         ok = text.endswith(expected) and 'zymurgy' not in text
-        run('server: the book index is written from the judged index, a headword with no locator left out', ok,
-            None if ok else f'wrote {text[-400:]!r}', check='server.book_index_is_written_from_the_judged_index')
+        run('server: the book index is written from the index, a headword with no locator left out', ok,
+            None if ok else f'wrote {text[-400:]!r}', check='server.book_index_is_written_from_the_index')
         present = importlib.import_module('present_corpus')
         table = present.concept_table(index)
         want_table = {'columns': ['word', 'count', 'provider'], 'rows': [['quasiparticles', 2, 'both']]}
-        run('site: the page\'s concepts are the judged index - each located headword by its turns and their providers',
-            table == want_table, None if table == want_table else f'the table was {table!r}', check='site.concepts_are_the_judged_index')
+        run('site: the page\'s concepts are the index - each located headword by its turns and their providers',
+            table == want_table, None if table == want_table else f'the table was {table!r}', check='site.concepts_are_the_index')
 
     plan = ''.join(subprocess.run([str(SRC / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), verb, '--plan'],
                                   capture_output=True, text=True, cwd=REPO_ROOT, timeout=120).stdout
@@ -194,7 +194,7 @@ def check_judged_index(run) -> None:
 @check(tier='code', on=['src/main/indexing', 'src/main/cli/indexing'], says=('indexing.a_capture_is_adopted_never_replaced',))
 def check_capture_adopted(run) -> None:
     """A paid capture replaces nothing (issues/1185): it is deposited under its stamp beside every
-    earlier one, the capture in use - the pair accept, reject, build and the site read - left as it
+    earlier one, the capture in use - the pair build and the site read - left as it
     stands, and said as one from before deposits where no deposit holds it; `corpus-yoga indexing
     adopt <stamp>` makes a deposit the capture in use, which the status then names by its stamp.
     Held over planted files, the module's paths pointed at them, never the room's."""

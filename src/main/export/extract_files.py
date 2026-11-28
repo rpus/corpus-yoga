@@ -7,7 +7,7 @@ tool calls,.
 
 Group output by conversation under:
 
-    cache/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
+    cache/pipeline/claude/chat/bulk-export/<batch>/extracted_files/<ordinal>-<slug>/<path_from_tool>
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
@@ -147,7 +147,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_dl:>10}  {t_cp:>6}\n')
         else:
             t_ext = t_dl = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted, {t_dl} already in downloaded, {t_cp} new (copied to {LIBRARY.relative_to(SCRIPT_DIR.parents[2])}).\n')
+        log.write(f'\nDone. {t_ext} extracted, {t_dl} already in downloaded, {t_cp} new (copied to {LIBRARY.relative_to(REPO)}).\n')
         if new_copies:
             log.write('\n'.join(new_copies) + '\n')
 

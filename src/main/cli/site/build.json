@@ -1,5 +1,5 @@
 {
-  "help": "write data/output/site/, the tree site sync publishes - every page of rsc/site/ copied as authored, and index.html, the corpus page, from the corpus, the judged index and the categories - idempotent. A page that left rsc/site/ halts it, the tree left as it is, since the copy to rpus.co never deletes and the page stays there",
+  "help": "write data/output/site/, the tree site sync publishes - every page of rsc/site/ copied as authored, and index.html, the corpus page, from the corpus, the index and the categories - idempotent. A page that left rsc/site/ halts it, the tree left as it is, since the copy to rpus.co never deletes and the page stays there",
   "would": "would build",
   "modality": "MAY",
   "args": [],
